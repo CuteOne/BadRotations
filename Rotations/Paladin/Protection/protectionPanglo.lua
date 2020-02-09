@@ -1,3 +1,4 @@
+--Version 1.0.0
 local rotationName = "Panglo"
 -- MOST OF THE CREDIT GOES TO FENGSHEN. I HAVE JUST UPDATED IT
 ---------------
@@ -53,7 +54,7 @@ local function createOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile, "General")
+		section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
 		-- Taunt
@@ -542,7 +543,7 @@ local function runRotation()
 		}
 		for i = 1, #Debuff do
 			local debuff_id = Debuff[i]
-			if getDebuffRemain("player", debuff_id) > 1 and not buff.shieldOfTheRighteous.exists() then
+			if botSpell ~= spell.shieldOfTheRighteous and getDebuffRemain("player", debuff_id) > 1 and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then --[[ Print("Debuff Shield") ]]
 					return
 				end
@@ -564,7 +565,7 @@ local function runRotation()
 		for i = 1, #Casting do
 			local spell_id = Casting[i][1]
 			local spell_name = Casting[i][2]
-			if UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists() then
+			if botSpell ~= spell.shieldOfTheRighteous and UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then
 					--[[ Print("damage reduction in advance..." .. spell_name) ]]
 					return
@@ -847,7 +848,7 @@ local function runRotation()
 			end
 			-- Shield of the Righteous
 			if isChecked("Shield of the Righteous - HP") and cast.able.shieldOfTheRighteous() then
-				if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists() then
+				if botSpell ~= spell.shieldOfTheRighteous and php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists() then
 					if cast.shieldOfTheRighteous() then--[[  Print("HP Shield") ]]
 						return
 					end
@@ -1047,7 +1048,7 @@ local function runRotation()
 	local function actionList_Feng()
 		-- Shield of the Righteous
 		if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and GetUnitExists(units.dyn5) and not buff.shieldOfTheRighteous.exists("player") then
-			if (not talent.seraphim and charges.shieldOfTheRighteous.frac() > 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists()) or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) then
+			if botSpell ~= spell.shieldOfTheRighteous and ((not talent.seraphim and charges.shieldOfTheRighteous.frac() > 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists()) or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists())) then
 				if CastSpellByName(GetSpellInfo(53600)) then
 					return
 				end

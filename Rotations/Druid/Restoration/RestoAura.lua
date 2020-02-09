@@ -2260,7 +2260,7 @@ local function runRotation()
 				end
 				-- Starsurge
 				if moonkin and getFacing("player","target") then
-					if cast.starsurge() then
+					if cast.starsurgeAff() then
 						br.addonDebug("Casting Starsurge")
 						return true
 					end

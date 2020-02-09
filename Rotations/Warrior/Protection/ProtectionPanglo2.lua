@@ -1,3 +1,4 @@
+--Version 1.0.0
 local rotationName = "Panglo2"
 
 ---------------
@@ -65,7 +66,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         -- br.ui:createDropdown(section,"leap test",{"behind","forward","random"}, 1)
         br.ui:createCheckbox(section, "Open World Defensives", "Use this checkbox to ensure defensives are used while in Open World")
         -- Berserker Rage

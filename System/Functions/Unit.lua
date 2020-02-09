@@ -317,7 +317,7 @@ end
 -- isBoss()
 function isBoss(unit)
 	if unit == nil then unit = "target" end
-	if GetObjectExists(unit) then
+	if GetObjectExists(unit) and not isTotem(unit) then
 		local class = UnitClassification(unit)
 		local healthMax = UnitHealthMax(unit)
 		local pHealthMax = UnitHealthMax("player")

@@ -1,3 +1,4 @@
+-- Version 1.0.0
 local red = "|cffFF0000"
 local orange = "|cffFFA500"
 local yellow = "|cffFFFF00"
@@ -51,7 +52,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         br.ui:createCheckbox(section, red .. "C" .. orange .. "o" .. yellow .. "n" .. green .. "s" .. blue .. "u" .. indigo .. "m" .. violet .. "e" .. red .. " M" .. orange .. "a" .. yellow .. "g" .. green .. "i" .. blue .. "c")
         br.ui:createCheckbox(section, orange .. "T" .. yellow .. "a" .. green .. "u" .. blue .. "n" .. indigo .. "t")
         br.ui:createCheckbox(section, yellow .. "I" .. green .. "g" .. blue .. "n" .. indigo .. "o" .. violet .. "r" .. red .. "e" .. orange .. " T" .. yellow .. "h" .. green .. "r" .. blue .. "e" .. indigo .. "a" .. violet .. "t" .. red .. " C" .. orange .. "h" .. yellow .. "e" .. green .. "c" .. blue .. "k")

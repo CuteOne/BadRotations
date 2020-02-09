@@ -15,16 +15,16 @@ br.lists.ccUnits = {
 	[76157] = {name = "Black Iron Leadbelcher"}, -- Activates canon, should be when/if moving
 	[76935] = {name = "Black Iron Drake-Keeper", fleeing = true}, -- Hhould be stunned/cc when running towards whelps
 	-- Proving Ground
-	[71415] = {name = "Banana Tosser(Small)", buff = 142639},
-	[71414] = {name = "Banana Tosser(Large)", buff = 142639},
+	[71415] = {name = "Banana Tosser", buff = 142639}, -- Small
+	[71414] = {name = "Banana Tosser", buff = 142639}, -- Large
 	-- BFA Dungeons
-	[142587] = {name = "Infest)", spell = 278444}, -- Waycrest Manor
-	[133593] = {name = "Repair)", spell = 262554}, -- Motherload
-	[134331] = {name = "Channel Lightning)", spell = 270889}, -- Motherload
-	[129640] = {name = "Clamping Jaws)", spell = 256897}, -- Seige of Boralus
-	[144168] = {name = "Ferocity)", spell = 272888}, -- Seige of Boralus A
-	[137517] = {name = "Ferocity)", spell = 272888}, -- Seige of Boralus A-H
-  [131009] = {name = "Spirit of Gold"}, -- AD
-  [134388] = {name = "A Knot of Snakes"}, -- temple, snakes!
-  [129758] = {name = "Irontide Grenadier"} --FH last boss
+	[142587] = {name = "Infest", spell = 278444}, -- Waycrest Manor
+	[133593] = {name = "Repair", spell = 262554}, -- Motherload
+	[134331] = {name = "Channel Lightning", spell = 270889}, -- Motherload
+	[129640] = {name = "Clamping Jaws", spell = 256897}, -- Seige of Boralus
+	[144168] = {name = "Ferocity", spell = 272888}, -- Seige of Boralus A
+	[137517] = {name = "Ferocity", spell = 272888}, -- Seige of Boralus A-H
+	[131009] = {name = "Spirit of Gold"}, -- AD
+	[134388] = {name = "A Knot of Snakes"}, -- temple, snakes!
+	[129758] = {name = "Irontide Grenadier"} --FH last boss
 }

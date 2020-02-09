@@ -587,6 +587,12 @@ function br.read.commonReaders()
 			-- Print("Error "..errorMsg..": "..messageErr)
 			-- 51 = "Your Pet is Dead"
 			-- 203 = "Cannot attack while dead"
+			-- 278 = "Your Pet is not Dead" / "Your pet is dead. Use Revive Pet"
+			if errorMsg == 278 then
+				local revive = GetSpellInfo(50769) -- Used for string matching error messasge.
+				local match = string.find(messageErr,revive) ~= nil
+				if match then deadPet = true else deadPet = false end
+			end
 			if not UnitIsDeadOrGhost("player") and (UnitIsDeadOrGhost("pet") or not UnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
 				deadPet = true
 				-- if deadPet == false then

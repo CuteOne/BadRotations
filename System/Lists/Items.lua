@@ -9,9 +9,8 @@ function getHeirloomNeck()
         eternalWovenIvyNecklace     = 122666,
         manariTrainingAmulet        = 153130,
     }
-    for i = 1, #necks do
-        local thisNeck = necks[i]
-        if hasEquiped(thisNeck,2) then return thisNeck end
+    for _,v in pairs(necks) do
+        if hasEquiped(v,2) then return v end
     end
     return 0
 end
@@ -88,12 +87,13 @@ br.lists.items = {
     superiorSteelskinPotion         = 168501, -- Armor Potion
     superiorBattlePotionOfAgility   = 168489,
     superiorBattlePotionOfIntellect = 168498,
-    superiorNattlePotionOfStrength  = 168500,
+    superiorBattlePotionOfStrength  = 168500,
     superiorBattlePotionOfStamina   = 168499,
     -- Rings
     ringOfCollapsingFutures         = 142173,
     -- Wrists
     hyperthreadWristWraps           = 168989,
+    wrapsOfElectrostaticPotential   = 169069,
     --Trinkets
     ashvanesRazorCoral              = 169311,
     aquipotentNautilus              = 169305,
@@ -120,4 +120,8 @@ br.lists.items = {
     vialOfStorms                    = 158224,
     vigorTrinket                    = 165572,
     visionOfDemise                  = 169307,
+    --weapons that are clickable
+    neuralSynapseEnhancer           = 168973,
+    -- Legendary 8.3 cloak
+    shroudOfResolve                 = 169223,
 }

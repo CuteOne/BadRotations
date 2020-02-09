@@ -20,14 +20,16 @@ br.rotations.support["PetCuteOne"] = function()
     local buff                                          = br.player.buff
     local cast                                          = br.player.cast
     local enemies                                       = br.player.enemies
+    local gcdMax                                        = br.player.gcdMax
     local inCombat                                      = br.player.inCombat
     local mode                                          = br.player.mode
     local spell                                         = br.player.spell
     local units                                         = br.player.units
     -- General Locals
     local profileStop                                   = profileStop or false
-    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying())
-                                                            or (pause() and not isUnitCasting("player")) or buff.feignDeath.exists() or mode.rotation==4
+    local haltProfile                                   = (inCombat and profileStop) or IsMounted() or IsFlying()
+                                                            or pause(true) or buff.feignDeath.exists() or mode.rotation==4
+
     -- Units
     units.get(5)
     units.get(40)
@@ -76,7 +78,7 @@ br.rotations.support["PetCuteOne"] = function()
                 if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
             elseif callPet ~= nil then
                 if deadPet or (petExists and petHealth == 0) then
-                    if cast.able.revivePet() then
+                    if cast.able.revivePet() and cast.timeSinceLast.revivePet() > gcdMax then
                         if cast.revivePet("player") then waitForPetToAppear = GetTime(); return true end
                     end
                 elseif not deadPet and not petExists and not buff.playDead.exists("pet") then

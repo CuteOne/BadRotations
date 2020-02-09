@@ -65,6 +65,8 @@ local function createOptions()
             -- Death Grip
             br.ui:createCheckbox(section, "Death Grip","|cffFFFFFFWill grip units out that are >8yrds away from you while in combat.")
             br.ui:createCheckbox(section, "Death Grip - Pre-Combat","|cffFFFFFFWill grip selected target to begin combat.")
+            -- Pre-Pull Timer
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Path of Frost
             br.ui:createCheckbox(section, "Path of Frost")
             -- Heart Essence
@@ -93,6 +95,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+            -- Cooldowns Time To Die Limit
+            br.ui:createSpinnerWithout(section,  "Cooldowns Time To Die Limit",  30,  0,  40,  1,  "|cffFFFFFFTarget Time to die limit for using cooldowns (in sec).")        
             -- Augment Rune
             br.ui:createCheckbox(section, "Augment Rune")
             -- Potion
@@ -103,6 +107,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial")
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+            -- Ashvane's Razor Coral Stacks
+            br.ui:createSpinnerWithout(section, "Ashvane's Razor Coral Stacks", 1, 1, 30, 1, "|cffFFBB00 Number of debuff stacks to cast trinket (Default=1 'SimC').")
             -- Azerite Beam Units
             br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
             -- Apocalypse
@@ -119,7 +125,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Unholy Blight", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Blight.")
             -- Unholy Frenzy
             br.ui:createDropdownWithout(section, "Unholy Frenzy", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Frenzy.")
-        br.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -145,8 +151,12 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Mind Freeze
             br.ui:createCheckbox(section, "Mind Freeze")
+            -- Death Grip
+            br.ui:createCheckbox(section, "Death Grip (Interrupt)")
             -- Asphyxiate
             br.ui:createCheckbox(section, "Asphyxiate")
+            -- Asphyxiate Logic
+            br.ui:createCheckbox(section, "Asphyxiate Logic")
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At (0 is random)")
         br.ui:checkSectionState(section)
@@ -203,11 +213,14 @@ local function runRotation()
     local units                                         = br.player.units
     local use                                           = br.player.use
     -- Other Locals
+    local apocBypass
     local combatTime                                    = getCombatTime()
     local level                                         = UnitLevel("player")
     local petCombat                                     = UnitAffectingCombat("pet")
     local php                                           = getHP("player")
     local ttd                                           = getTTD
+    local pullTimer                                     = PullTimerRemain()
+    local thisUnit                                      = nil
 
     -- Units Declaration
     units.get(5)
@@ -223,6 +236,7 @@ local function runRotation()
     enemies.get(20)
     enemies.get(30)
     enemies.get(40)
+    enemies.get(45)
     enemies.get(40,"player",true)
     enemies.yards8r = getEnemiesInRect(10,20,false) or 0
 
@@ -238,7 +252,14 @@ local function runRotation()
     poolForGargoyle = cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
     deathAndDecayRemain = 0
     if (cd.deathAndDecay.remain() - 10) > 0 then deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) end
+    apocBypass = getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75
 
+    --Asphyxiate Logic
+    local Asphyxiate_unitList = {
+        [131009] = "Spirit of Gold",
+        [134388] = "A Knot of Snakes",
+        [129758] = "Irontide Grenadier"
+    }
 --------------------
 --- Action Lists ---
 --------------------
@@ -421,51 +442,117 @@ local function runRotation()
                     end
                 end
             end
-        end -- End useInterrupts check
-    end -- End Action List - Interrupts
+        --Death Grip
+            if isChecked("Death Grip (Interrupt)") and cast.able.deathGrip() and getDistance(thisUnit) > 8 and ((talent.deathsReach and getDistance(thisUnit) < 40) or getDistance(thisUnit) < 30) then
+                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if cast.deathGrip() then return true end
+                end
+            end
+        --Asphyxiate Logic
+            if isChecked("Asphyxiate Logic") then
+                if cast.able.asphyxiate() then
+                    local Asphyxiate_list = {
+                        274400,
+                        274383,
+                        257756,
+                        276292,
+                        268273,
+                        256897,
+                        272542,
+                        272888,
+                        269266,
+                        258317,
+                        258864,
+                        259711,
+                        258917,
+                        264038,
+                        253239,
+                        269931,
+                        270084,
+                        270482,
+                        270506,
+                        270507,
+                        267433,
+                        267354,
+                        268702,
+                        268846,
+                        268865,
+                        258908,
+                        264574,
+                        272659,
+                        272655,
+                        267237,
+                        265568,
+                        277567,
+                        265540,
+                        268202,
+                        258058,
+                        257739
+                    }
+                    for i = 1, #enemies.yards20 do
+                        local thisUnit = enemies.yards20[i]
+                        local distance = getDistance(thisUnit)
+                        for k, v in pairs(Asphyxiate_list) do
+                            if (Asphyxiate_unitList[GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+                                if cast.asphyxiate() then
+                                    return
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end-- End Action List - Interrupts
     local function actionList_Cooldowns()
+        local groupTTD = 0
+        for i = 1, #enemies.yards45 do
+            thisUnit = enemies.yards45[i]
+            groupTTD = groupTTD + ttd(thisUnit)
+        end
     -- Army of the Dead
         -- army_of_the_dead
-        if (getOptionValue("Army of the Dead") == 1 or (getOptionValue("Army of the Dead") == 2 and useCDs()))
-            and cast.able.armyOfTheDead() 
+        if (getOptionValue("Army of the Dead") == 1 or (getOptionValue("Army of the Dead") == 2 and useCDs())) and groupTTD >= getOptionValue("CDs TTD Limit") 
+        and cast.able.armyOfTheDead() 
         then
             if cast.armyOfTheDead() then return end
         end
     -- Apocalypse
         -- apocalypse,if=debuff.festering_wound.stack>=4
         if (getOptionValue("Apocalypse") == 1 or (getOptionValue("Apocalypse") == 2 and useCDs()))
-            and cast.able.apocalypse() and debuff.festeringWound.stack(units.dyn5) >= 4
+            and cast.able.apocalypse() and debuff.festeringWound.stack(units.dyn5) >= 4 and groupTTD >= getOptionValue("CDs TTD Limit") 
         then
             if cast.apocalypse(units.dyn5) then return end
         end
     -- Dark Transformation
         -- dark_transformation
         if pet.active.exists() and cast.able.darkTransformation()
-            and (getOptionValue("Dark Transformation") == 1 or (getOptionValue("Dark Transformation") == 2 and useCDs()))
+            and (getOptionValue("Dark Transformation") == 1 or (getOptionValue("Dark Transformation") == 2 and useCDs())) and groupTTD >= getOptionValue("CDs TTD Limit")
         then
             if cast.darkTransformation() then return end
         end
     -- Summon Gargoyle
         -- summon_gargoyle,if=runic_power.deficit<14
-        if isChecked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 then
+        if isChecked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and groupTTD >= getOptionValue("CDs TTD Limit") then
             if cast.summonGargoyle() then return end
         end
     -- Unholy Frenzy
-        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyFrenzy() then
+        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyFrenzy() and groupTTD >= getOptionValue("CDs TTD Limit")
+        then
             -- unholy_frenzy,if=debuff.festering_wound.stack<4
-            if debuff.festeringWound.stack(units.dyn5) < 4 then
+            if debuff.festeringWound.stack(units.dyn5) < 4 and groupTTD >= getOptionValue("CDs TTD Limit") then
                 if cast.unholyFrenzy() then return end
             end
             -- unholy_frenzy,if=essence.vision_of_perfection.enabled|(essence.condensed_lifeforce.enabled&pet.apoc_ghoul.active)|debuff.festering_wound.stack<4&!(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)|cooldown.apocalypse.remains<2&(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)
             if essence.visionOfPerfection.active or (essence.condensedLifeForce.active and pet.apocalypseGhoul.exists()) or debuff.festeringWound.stack(units.dyn5) < 4
                 and not (equiped.rampingAmplitudeGigavoltEngine() or trait.magusOfTheDead.active) or cd.apocalypse.remain() < 2
-                and (equiped.rampingAmplitudeGigavoltEngine or trait.magusOfTheDead.active)
+                and (equiped.rampingAmplitudeGigavoltEngine or trait.magusOfTheDead.active) and groupTTD >= getOptionValue("CDs TTD Limit")
             then
                 if cast.unholyFrenzy() then return end
             end
             -- unholy_frenzy,if=active_enemies>=2&((cooldown.death_and_decay.remains<=gcd&!talent.defile.enabled)|(cooldown.defile.remains<=gcd&talent.defile.enabled))
             if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
-                and ((cd.deathAndDecay.remain() <= gcd and not talent.defile) or (cd.defile.remain() <= gcd and talent.defile))
+                and ((cd.deathAndDecay.remain() <= gcd and not talent.defile) or (cd.defile.remain() <= gcd and talent.defile)) and groupTTD >= getOptionValue("CDs TTD Limit")
             then
                 if cast.unholyFrenzy() then return end
             end
@@ -477,13 +564,14 @@ local function runRotation()
                 if cast.soulReaper() then return end
             end
             -- soul_reaper,if=(!raid_event.adds.exists|raid_event.adds.in>20)&rune<=(1-buff.unholy_frenzy.up)
-            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) or isDummy()) and runes <= (1- frenzied) then
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) or isDummy()) and runes <= (1- frenzied) and groupTTD >= getOptionValue("CDs TTD Limit") 
+            then
                 if cast.soulReaper() then return end
             end
         end
     -- Unholy Blight
         -- unholu_blight
-        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyBlight("player","aoe",1,10) then
+        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyBlight("player","aoe",1,10) and groupTTD >= getOptionValue("CDs TTD Limit") then
             if cast.unholyBlight("player","aoe",1,10) then return end
         end
     end -- End Action List - Cooldowns
@@ -496,7 +584,7 @@ local function runRotation()
             end
             -- blood_of_the_enemy,if=(cooldown.death_and_decay.remains&spell_targets.death_and_decay>1)|(cooldown.defile.remains&spell_targets.defile>1)|(cooldown.apocalypse.remains&cooldown.death_and_decay.ready)
             if useCDs() and cast.able.bloodOfTheEnemy() and ((cd.deathAndDecay.remain() > 0 and #enemies.yards8t > 1)
-                or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or (cd.apocalypse.remain() > 0 and cd.deathAndDecay.remain() == 0))
+                or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or ((cd.apocalypse.remain() > 0 or apocBypass) and cd.deathAndDecay.remain() == 0))
             then
                 if cast.bloodOfTheEnemy() then return end
             end
@@ -509,11 +597,11 @@ local function runRotation()
                 if cast.theUnboundForce() then return end
             end
             -- focused_azerite_beam,if=!death_and_decay.ticking
-            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) and deathAndDecayRemain == 0 then
+            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) and deathAndDecayRemain == 0  then
                 local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
                 if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
                     return true
-                end    
+                end
             end
             -- concentrated_flame,if=dot.concentrated_flame_burn.remains=0
             if cast.able.concentratedFlame() and not debuff.concentratedFlame.exists(units.dyn5) then
@@ -523,13 +611,28 @@ local function runRotation()
             if useCDs() and cast.able.purifyingBlast() and deathAndDecayRemain == 0 then
                 if cast.purifyingBlast("best", nil, 1, 8) then return true end
             end
-            -- worldvein_resonance,if=!death_and_decay.ticking
-            if cast.able.worldveinResonance() and deathAndDecayRemain == 0 then
+            -- worldvein_resonance,if=talent.army_of_the_damned.enabled&essence.vision_of_perfection.minor&buff.unholy_strength.up|essence.vision_of_perfection.minor&pet.apoc_ghoul.active|talent.army_of_the_damned.enabled&pet.apoc_ghoul.active&cooldown.army_of_the_dead.remains>60|talent.army_of_the_damned.enabled&pet.army_ghoul.active
+            if cast.able.worldveinResonance() and talent.armyOfTheDamned and essence.visionOfPerfection.minor
+                and buff.unholyStrength.exists() or essence.visionOfPerfection.minor and pet.apocalypseGhoul.active()
+                or talent.armyOfTheDamned and pet.apocalypseGhoul.active() and cd.armyOfTheDead.remain() > 60
+                or talent.armyOfTheDamned and pet.armyOfTheDead.active()
+            then
+                if cast.worldveinResonance() then return end
+            end
+            -- worldvein_resonance,if=!death_and_decay.ticking&buff.unholy_strength.up&!essence.vision_of_perfection.minor&!talent.army_of_the_damned.enabled|target.time_to_die<cooldown.apocalypse.remains
+            if cast.able.worldveinResonance() and deathAndDecayRemain == 0 and buff.unholyStrength.exists()
+                and not essence.visionOfPerfection.minor and not talent.armyOfTheDamned
+                or ttd(units.dyn5) < cd.apocalypse.remain() or apocBypass
+            then
                 if cast.worldveinResonance() then return end
             end
             -- ripple_in_space,if=!death_and_decay.ticking
             if useCDs() and cast.able.rippleInSpace() and deathAndDecayRemain == 0 then
                 if cast.rippleInSpace() then return end
+            end
+            -- reaping_flames
+            if cast.able.reapingFlames() then
+                if cast.reapingFlames() then return end
             end
         end
     end
@@ -537,7 +640,7 @@ local function runRotation()
     -- Death and Decay
         -- death_and_decay,if=cooldown.apocalypse.remains
         if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
@@ -559,7 +662,7 @@ local function runRotation()
     -- Scourge Strike
         -- scourge_strike,if=death_and_decay.ticking&cooldown.apocalypse.remains
         if cast.able.scourgeStrike() and not talent.clawingShadows and deathAndDecayRemain > 0
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
             and debuff.festeringWound.stack(units.dyn5) > 0
         then
             if cast.scourgeStrike() then return end
@@ -567,7 +670,7 @@ local function runRotation()
     -- Clawing Shadows
         -- clawing_shadows,if=death_and_decay.ticking&cooldown.apocalypse.remains
         if cast.able.clawingShadows() and deathAndDecayRemain > 0
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
         then
             if cast.clawingShadows() then return end
         end
@@ -603,14 +706,14 @@ local function runRotation()
         end
         -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
         if cast.able.deathCoil() and runicPowerDeficit < 14 and not poolForGargoyle
-            and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4)
+            and (cd.apocalypse.remain() > 5 or apocBypass or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.deathCoil() then return end
         end
     -- Scourge Strike
         -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.scourgeStrike() and not talent.clawingShadows
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
             and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
         then
             if cast.scourgeStrike() then return end
@@ -618,7 +721,7 @@ local function runRotation()
     -- Clawing Shadows
         -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.clawingShadows() and talent.clawingShadows
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
             and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
         then
             if cast.clawingShadows() then return end
@@ -650,32 +753,32 @@ local function runRotation()
             if cast.deathCoil() then return end
         end
         -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and runicPowerDeficit < 14 and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4) and not poolForGargoyle then
+        if cast.able.deathCoil() and runicPowerDeficit < 14 and (cd.apocalypse.remain() > 5 or apocBypass or debuff.festeringWound.stack(units.dyn5) > 4) and not poolForGargoyle then
             if cast.deathCoil() then return end
         end
     -- Death and Decay
         -- death_and_decay,if=talent.pestilence.enabled&cooldown.apocalypse.remains
         if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile and talent.pestilence
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
     -- Defile
         -- defile,if=cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.defile() and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
+        if mode.dnd == 1 and cast.able.defile() and (cd.apocalypse.remain() > 0 or apocBypass) then
             if cast.defile("best",nil,1,8) then return end
         end
     -- Scourge Strike
         -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.scourgeStrike() and not talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.scourgeStrike() then return end
         end
     -- Clawing Shadows
         -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.clawingShadows() and talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.clawingShadows() then return end
         end
@@ -727,7 +830,12 @@ local function runRotation()
             if isChecked("Army of the Dead") and useCDs() and pullTimer <= 2 then
                 if cast.armyOfTheDead() then return end
             end
-        end -- Pre-Pull
+    -- Azshara's Font of Power
+            if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and equiped.azsharasFontOfPower() and use.able.azsharasFontOfPower() and not isMoving("player") and not inCombat and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                if use.azsharasFontOfPower() then return true end
+            end               
+        end 
+    -- Pre-Pull
         if isValidUnit("target") and not inCombat then
     -- Death Grip
             if isChecked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not isDummy()
@@ -750,7 +858,7 @@ local function runRotation()
     if not inCombat and not GetObjectExists("target") and profileStop then
         profileStop = false
     elseif (inCombat and profileStop) or pause() or mode.rotation == 4 then
-        if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() then
+        if isChecked("Auto Attack/Passive") and pause(true) and IsPetAttackActive() then
             PetStopAttack()
             PetFollow()
         end
@@ -809,21 +917,36 @@ local function runRotation()
                             if use.able.slot(i) then
                                 -- All Others
                                 -- use_items,if=time>20|!equipped.ramping_amplitude_gigavolt_engine|!equipped.vision_of_demise
-                                if combatTime > 20 or not (equiped.ashvanesRazorCoral(i) or equiped.visionOfDemise(i)
+                                if combatTime > 20 or not (equiped.azsharasFontOfPower(i) or equiped.ashvanesRazorCoral(i) or equiped.visionOfDemise(i)
                                     or equiped.rampingAmplitudeGigavoltEngine(i) or equiped.bygoneBeeAlmanac(i)
                                     or equiped.jesHowler(i) or equiped.galecallersBeak(i) or equiped.grongsPrimalRage(i))
                                 then
                                     use.slot(i)
                                 end
+                                -- Azshara's Font of Power
+                                -- actions+=/use_item,name=azsharas_font_of_power,if=(essence.vision_of_perfection.enabled&!talent.unholy_frenzy.enabled)|(!essence.condensed_lifeforce.major&!essence.vision_of_perfection.enabled)
+                                if equiped.azsharasFontOfPower(i) and ((essence.visionOfPerfection.active and not talent.unholyFrenzy) 
+                                    or (not essence.condensedLifeForce.major and not essence.visionOfPerfection.active)) and not isMoving
+                                then
+                                use.slot(i)
+                                end  
+                                -- actions+=/use_item,name=azsharas_font_of_power,if=cooldown.apocalypse.remains<14&(essence.condensed_lifeforce.major|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled)
+                                if equiped.azsharasFontOfPower(i) and cd.apocalypse.remain() < 14 and (essence.condensedLifeForce.major or essence.visionOfPerfection.active) and talent.unholyFrenzy and not isMoving then
+                                use.slot(i)
+                                end
+                                -- actions+=/use_item,name=azsharas_font_of_power,if=target.1.time_to_die<cooldown.apocalypse.remains+34
+                                if equiped.azsharasFontOfPower(i) and  ttd(units.dyn5) < cd.apocalypse.remain() + 34 and not isMoving then
+                                use.slot(i)
+                                end
                                 -- Ashvanes Razor Coral
                                 -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.stack<1
-                                if equiped.ashvanesRazorCoral(i) and debuff.razorCoral.stack(units.dyn5) < 1 then
+                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and debuff.razorCoral.stack(units.dyn5) == getOptionValue("Ashvane's Razor Coral Stacks") then
                                     use.slot(i)
                                 end
                                 -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
-                                if equiped.ashvanesRazorCoral(i) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
+                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
                                     or (cd.apocalypse.remain() < gcd and not essence.condensedLifeForce.active and not talent.unholyFrenzy)
-                                    or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain < gcd and ttd(units.dyn5) < cd.condensedLifeForce.remain() + 20)
+                                    or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain() < gcd and ttd(units.dyn5) < cd.guardianOfAzeroth.remain() + 20)
                                     or (buff.unholyFrenzy.exists() and not essence.condensedLifeForce.active))
                                 then
                                     use.slot(i)

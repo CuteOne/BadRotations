@@ -238,6 +238,7 @@ local function runRotation()
         enemies.get(5,"pet")
         enemies.get(8)
         enemies.get(8,"pet")
+        enemies.yards25r = getEnemiesInRect(8,25,false) or 0
         enemies.get(30,"pet")
         enemies.get(40)
         enemies.get(40,"player",true)
@@ -402,9 +403,11 @@ local function runRotation()
                     end
                 end
             end
+            -- use_item,name=azsharas_font_of_power,if=cooldown.trueshot.remains<18|target.time_to_die<40
+            -- use_item,name=ashvanes_razor_coral,if=buff.trueshot.up&(buff.guardian_of_azeroth.up|!essence.condensed_lifeforce.major.rank3&ca_execute)|debuff.razor_coral_debuff.down|target.time_to_die<20
             -- use_item,name=pocketsized_computation_device,if=!buff.trueshot.up&!essence.blood_of_the_enemy.major.rank3|debuff.blood_of_the_enemy.up|target.time_to_die<5
             if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice()
-                and (not buff.trueshot.exists() or debuff.bloodOfTheEnemy.exists(units.dyn40) or (ttd(unit.dyn40) < 5 and useCDs()))
+                and (not buff.trueshot.exists() or debuff.bloodOfTheEnemy.exists(units.dyn40) or (ttd(units.dyn40) < 5 and useCDs()))
             then
                 use.pocketSizedComputationDevice()
             end
@@ -449,20 +452,29 @@ local function runRotation()
             end
         -- Heart Essence
             if isChecked("Use Essence") then
-                -- worldvein_resonance
-                if cast.able.worldveinResonance() then
+                -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+                if cast.able.reapingFlames() and (getHP(units.dyn40) > 80 or getHP(units.dyn40) <= 20 or getTTD(units.dyn40,20) > 30) then
+                    if cast.reapingFlames() then return end
+                end
+                -- worldvein_resonance,if=(trinket.azsharas_font_of_power.cooldown.remains>20|!equipped.azsharas_font_of_power)&(cooldown.trueshot.remains_guess<5|essence.spark_of_inspiration.enabled&cooldown.trueshot.remains_guess>45)|target.time_to_die<20
+                if cast.able.worldveinResonance() and (cd.azsharasFontOfPower.remain() > 20 or not equiped.azsharasFontOfPower())
+                    and (cd.trueshot.remain() < 5 or esseince.sparkOfInspiration.active and cd.trueshot.remain() > 45)
+                    or (ttd(units.dyn40) < 20 and useCDs())
+                then
                     if cast.worldveinResonance() then return end
                 end
-                -- guardian_of_azeroth,if=cooldown.trueshot.remains<15
-                if cast.able.guardianOfAzeroth() and cd.trueshot.remain() < 15 then
+                -- guardian_of_azeroth,if=(ca_execute|target.time_to_die>cooldown.guardian_of_azeroth.duration+duration)&(buff.trueshot.up|cooldown.trueshot.remains<16)|target.time_to_die<31
+                if useCDs() and cast.able.guardianOfAzeroth() and (caExecute or ttd(units.dyn40) > cd.guardianOfAzeroth.duration() + cast.time.guardianOfAzeroth())
+                    and (buff.trueshot.exists() or cd.trueshot.remain() < 16) or (ttd(units.dyn40) < 31 and useCDs())
+                then
                     if cast.guardianOfAzeroth() then return end
                 end
                 -- ripple_in_space,if=cooldown.trueshot.remains<7
                 if cast.able.rippleInSpace() and cd.trueshot.remain() < 7 then
                     if cast.rippleInSpace() then return end
                 end
-                -- memory_of_lucid_dreams
-                if cast.able.memoryOfLucidDreams() then
+                -- memory_of_lucid_dreams,if=!buff.trueshot.up
+                if useCDs() and cast.able.memoryOfLucidDreams() and not buff.trueshot.exists() then
                     if cast.memoryOfLucidDreams() then return end
                 end
             end
@@ -527,8 +539,12 @@ local function runRotation()
         -- Heart Essence
             if isChecked("Use Essence") then
                 -- focused_azerite_beam
-                if cast.able.focusedAzeriteBeam() then
-                    if cast.focusedAzeriteBeam() then return end
+                if cast.able.focusedAzeriteBeam() and not isExplosive("target")
+                    and (enemies.yards25r >= 3
+                        or (useCDs() and enemies.yards25r > 0))
+                then
+                    local minBeamCount = useCDs() and 1 or 3
+                    if cast.focusedAzeriteBeam(nil,"rect",minBeamCount,30) then return true end
                 end
                 -- purifying_blast
                 if cast.able.purifyingBlast() then
@@ -606,9 +622,13 @@ local function runRotation()
                 if cast.bloodOfTheEnemy() then return end
             end
         -- Heart Essence: Focused Azerite Beam
-            -- focused_azerite_beam,if=!buff.trueshot.up
-            if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.trueshot.exists() then
-                if cast.focusedAzeriteBeam() then return end
+            -- focused_azerite_beam,if=!buff.trueshot.up|target.time_to_die<5
+            if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not isExplosive("target")
+                and (enemies.yards25r >= 3 or (useCDs() and enemies.yards25r > 0))
+                and (not buff.trueshot.exists() or (ttd("target") < 5 and useCDs()))
+            then
+                local minBeamCount = useCDs() and 1 or 3
+                if cast.focusedAzeriteBeam(nil,"rect",minBeamCount,30) then return true end
             end
         -- Arcane Shot
             -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up&!buff.memory_of_lucid_dreams.up
@@ -639,15 +659,18 @@ local function runRotation()
             end
         -- Heart Essence
             if isChecked("Use Essence") then
-                -- purifying_blast,if=!buff.trueshot.up
+                -- purifying_blast,if=!buff.trueshot.up|target.time_to_die<8
                 if cast.able.purifyingBlast() and not buff.trueshot.exists() then
                     if cast.purifyingBlast("best", nil, 1, 8) then return true end
                 end
-                -- concentrated_flame,if=!buff.trueshot.up
-                if cast.able.concentratedFlame() and not buff.trueshot.exists() then
+                -- concentrated_flame,if=focus+focus.regen*gcd<focus.max&buff.trueshot.down&(!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight)|full_recharge_time<gcd|target.time_to_die<5
+                if cast.able.concentratedFlame() and power + powerRegen * gcdMax < powerMax and not buff.trueshot.exists()
+                    and (not debuff.concentratedFlame.exists(units.dyn40) and not cast.inFlight.concentratedFlame())
+                    or charges.concentratedFlame.timeTillFull() < gcdMax or (ttd(units.dyn40) < 5 and useCDs)
+                then
                     if cast.concentratedFlame() then return end
                 end
-                -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10
+                -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10|target.time_to_die<5
                 if cast.able.theUnboundForce() and (buff.recklessForce.exists() or buff.recklessForce.stack() < 10) then
                     if cast.theUnboundForce() then return end
                 end
@@ -703,6 +726,9 @@ local function runRotation()
                     end
             -- Trueshot
                     -- trueshot,precast_time=1.5,if=active_enemies>2
+                    if cast.able.trueshot() and pullTimer <= 3 then
+                        if cast.trueshot() then return end
+                    end
             -- Aimed Shot
                     -- aimed_shot,if=active_enemies<3
                     if cast.able.aimedShot() and pullTimer <= 2 then --and ((mode.rotation == 1 and #enemies.yards40f < 3) or (mode.rotation == 3 and #enemies.yards40f > 0)) then

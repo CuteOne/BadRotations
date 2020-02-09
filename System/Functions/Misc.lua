@@ -68,9 +68,7 @@ function getLineOfSight(Unit1, Unit2)
 		end
 	end
 	local skipLoSTable = br.lists.los
-	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)] then
-		return true
-	end
+	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)] then return true end
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
 		local X1, Y1, Z1 = GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)
@@ -96,26 +94,6 @@ function getLineOfSight(Unit1, Unit2)
 		return false
 	end
 end
--- function getLineOfSight(Unit1,Unit2)
--- 	if Unit2 == nil then
--- 		if Unit1 == "player" then
--- 			Unit1 = "target"
--- 		end
--- 		Unit2 = "player"
--- 	end
--- 	local skipLoSTable = br.lists.los
--- 	local obj1ID = GetObjectID(Unit1)
--- 	local obj2ID = GetObjectID(Unit2)
--- 	if skipLoSTable[obj1ID] ~= nil or skipLoSTable[obj2ID] ~= nil then return true end
--- 	if (GetUnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1)))
--- 		and (GetUnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2)))
--- 	then
--- 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
--- 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
--- 		return TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil
--- 	end
--- 	return false
--- end
 -- if getGround("target"[,"target"]) then
 function getGround(Unit)
 	if GetObjectExists(Unit) and GetUnitIsVisible(Unit) then
@@ -381,7 +359,6 @@ end
 function enemyListCheck(Unit)
 	local distance = getDistance(Unit, "player")
 	local mcCheck =	(isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or not GetUnitIsFriend(Unit, "player")
-	--local playerObj = GetObjectWithGUID(UnitGUID("player"))
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player", Unit) and
 		distance < 50 and
 		not isCritter(Unit) and
@@ -390,39 +367,25 @@ function enemyListCheck(Unit)
 		UnitCreator(Unit) ~= ObjectPointer("player") and
 		GetObjectID(Unit) ~= 11492 and
 		getLineOfSight("player", Unit)
-		and ((Unit ~= 131824 and Unit ~=  131823 and Unit ~= 131825) or ((UnitBuffID(Unit,260805) or GetUnitIsUnit(Unit,"target")) and (Unit == 131824 or Unit ==  131823 or Unit == 131825)))  
+		and ((Unit ~= 131824 and Unit ~=  131823 and Unit ~= 131825) or ((UnitBuffID(Unit,260805) or GetUnitIsUnit(Unit,"target")) and (Unit == 131824 or Unit ==  131823 or Unit == 131825)))
 end
 
 function isValidUnit(Unit)
+	local inInstance = IsInInstance() 
 	local hostileOnly = isChecked("Hostiles Only")
 	local playerTarget = GetUnitIsUnit(Unit, "target")
 	local reaction = GetUnitReaction(Unit, "player") or 10
 	local targeting = isTargeting(Unit)
 	local dummy = isDummy(Unit)
-	local threatBypassUnit = UnitAffectingCombat("player") and br.lists.threatBypass[GetObjectID(Unit)] ~= nil and GetUnitIsUnit("target",Unit)
 	local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and	(not GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not GetUnitIsFriend(Unit, "player")
-	if playerTarget and br.units[UnitTarget("player")] == nil and not enemyListCheck("target") then
-		return false
-	end
-	if not pause(true) and Unit ~= nil and
-		(br.units[Unit] ~= nil or Unit == "target" or threatBypassUnit or burnUnit) and
-		mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit) and		
-			((not hostileOnly and (reaction < 5 or playerTarget or targeting)) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
+	if playerTarget and br.units[UnitTarget("player")] == nil and not enemyListCheck("target") then return false end
+	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit)
+		and mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit)
+		and	((not hostileOnly and (reaction < 5 or playerTarget or targeting)) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
 	 then
-		local instance = IsInInstance()
-		local distanceToTarget = getDistance("target",Unit)
-		local distanceToPlayer = getDistance("player",Unit)
-		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local unitThreat = targeting or isInProvingGround() or burnUnit or threatBypassUnit or hasThreat(Unit)
-		return unitThreat 
-			or ((not instance and (playerTarget or (distanceToTarget < 8 and (reaction < 4 or isDummy())))) 
-			or (instance and (#br.friend == 1 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)))) -- (not hasThreat and (
-			-- Not In Instance
-			-- (not instance and (playerTarget or distanceToTarget < 8)) or
-			-- In Instance 
-			-- (instance and playerTarget and ((distanceToPlayer < 20 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)) or #br.friend == 1))))
+		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or isInProvingGround() or hasThreat(Unit)
 	end
 	return false
 end
@@ -518,17 +481,22 @@ function pause(skipCastingCheck)
 		pausekey = SpecificToggle("Pause Mode")
 	end
 	-- Focused Azerite Beam / Cyclotronic Blast / Azshara's Font of Power
-	local lastCast = br.lastCast.tracker[1]
-	if br.pauseCast - GetTime() <= 0 then
-		local hasted = (1-UnitSpellHaste("player")/100)
-		if lastCast == 295258 and getSpellCD(295258) == 0 then br.pauseCast = GetTime() + getCastTime(295258) + (getCastTime(295261) * hasted) end
-		if lastCast == 293491 and GetItemCooldown(167555) == 0 then br.pauseCast = GetTime() + getCastTime(293491) + (2.5 * hasted) end
-		if lastCast == 296962 and GetItemCooldown(169314) == 0 then br.pauseCast = GetTIme() + getCastTime(296962) + (2.5 * haster) end
-	end
-	if GetTime() < br.pauseCast then
-		return true
-	elseif GetTime() >= br.pauseCast then 
-		br.pauseCast = GetTime()
+	if not skipCastingCheck then
+		local lastCast = br.lastCast.tracker[1]
+		if br.pauseCast - GetTime() <= 0 then
+			local hasted = (1-UnitSpellHaste("player")/100)
+			-- Focused Azerite Beam
+			if lastCast == 295258 and getSpellCD(295258) == 0 then br.pauseCast = GetTime() + getCastTime(295258) + (getCastTime(295261) * hasted) end
+			-- Cyclotronic Blast
+			if lastCast == 293491 and GetItemCooldown(167555) == 0 then br.pauseCast = GetTime() + getCastTime(293491) + (2.5 * hasted) + getGlobalCD(true) end
+			-- Azshara's Font of Power - Latent Arcana
+			if lastCast == 296962 and GetItemCooldown(169314) == 0 then br.pauseCast = GetTIme() + getCastTime(296962) + (2.5 * haster) end
+		end
+		if GetTime() < br.pauseCast then
+			return true
+		elseif GetTime() >= br.pauseCast then 
+			br.pauseCast = GetTime()
+		end
 	end
 	-- DPS Testing
 	if isChecked("DPS Testing") then

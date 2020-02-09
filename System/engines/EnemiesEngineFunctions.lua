@@ -41,7 +41,11 @@ end
 function isTotem(unit)
 	local creatureType = UnitCreatureType(unit)
 	if creatureType ~= nil then
-	  if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+		if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém"
+			or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰"
+		then
+			return true
+		end
 	end
 	return false
 end
@@ -50,7 +54,7 @@ end
 function updateOMEWT()
 	local om = br.om
 	local startTime = debugprofilestop()
-	local _, updated, added, removed = GetObjectCount(true)
+	local _, updated, added, removed = GetObjectCount(true,"BR")
 	if updated and #added > 0 then
 		for _, v in pairs(added) do
 			if ObjectIsUnit(v) then
@@ -124,16 +128,15 @@ end
 function getEnemies(thisUnit,radius,checkNoCombat,facing)
     local startTime = debugprofilestop()
 	local radius = tonumber(radius)
-	local targetDist = getDistance("target","player")
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
 	local thisEnemy, distance
 	if checkNoCombat == nil then checkNoCombat = false end
 	if facing == nil then facing = false end
     if refreshStored == true then
-    	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
-    	refreshStored = false
-    end
+		for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
+		refreshStored = false
+	end
 	if br.storedTables[checkNoCombat] ~= nil then
 		if checkNoCombat == false then
 			if br.storedTables[checkNoCombat][thisUnit] ~= nil then
@@ -174,12 +177,12 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
     --         rawset(enemiesTable, enemy.unit, enemy.unit)
     --     end
     -- end
-	if #enemiesTable == 0 and targetDist < radius and isValidUnit("target") and (not facing or getFacing("player","target")) then
+	if #enemiesTable == 0 and getDistance("target","player") < radius and isValidUnit("target") and (not facing or getFacing("player","target")) then
 		tinsert(enemiesTable,"target")
 	end
     ---
 	if isChecked("Debug Timers") then
-    	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+		br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
 	end
     ---
 	if #enemiesTable > 0 and thisUnit ~= nil then
@@ -389,10 +392,11 @@ local function findBestUnit(range,facing)
 				local unitID = GetObjectExists(thisUnit) and GetObjectID(thisUnit) or 0
 				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
 					local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
+					local isSafe = (getOptionCheck("Safe Damage Check") and isSafeToAttack(thisUnit)) or not getOptionCheck("Safe Damage Check") or false
 					-- local thisUnit = v.unit
 					-- local distance = getDistance(thisUnit)
 					-- if distance < range then
-					if not isCC then
+					if not isCC and isSafe then
 						local coeficient = getUnitCoeficient(thisUnit) or 0
 						if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest
 							if currHP == nil or UnitHealth(thisUnit) < currHP then
@@ -438,6 +442,7 @@ function dynamicTarget(range,facing)
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
 		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and getDistance(bestUnit) < range
 			and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
+		or (getOptionCheck("Safe Damage Check") and not GetUnitIsUnit(bestUnit,"target") and not isSafeToAttack("target"))
 	then
 		TargetUnit(bestUnit)
 	end
@@ -454,7 +459,7 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
     local units = 0
-	local enemiesTable = getEnemies("player",length,checkNoCombat)
+	local enemiesTable = getEnemies("player",length,checkNoCombat,true)
 
     for i = 1, #enemiesTable do
         local thisUnit = enemiesTable[i]
@@ -509,17 +514,27 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local checkNoCombat = checkNoCombat or false
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
 	local enemyCounter = 0
-	local enemiesTable = getEnemies("player",length,checkNoCombat)
+	local enemiesTable = getEnemies("player",length,checkNoCombat,true)
 	local enemiesInRect = enemiesInRect or {}
+	local inside = false
 	if #enemiesTable > 0 then
 		table.wipe(enemiesInRect)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
---			if thisUnit ~= "target" then
-				local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit)) --GetObjectPosition(thisUnit)
---			end
+			local radius = UnitCombatReach(thisUnit)
+			local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))
 			if tX and tY then
-				if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
+				for i = radius, 0, -0.1 do
+					local pX, pY 
+					if i > 0 then
+						pX, pY = GetPositionBetweenObjects(thisUnit, "player", i) 
+					else
+						pX, pY = GetObjectPosition(thisUnit)
+					end
+					if isInside(pX,pY,nlX,nlY,nrX,nrY,frX,frY) then inside = true break end
+				end
+				-- local inside = isInside(teX,teY,nlX,nlY,nrX,nrY,frX,frY) or isInside(tcX,tcY,nlX,nlY,nrX,nrY,frX,frY)
+				if inside then
 					if showLines then
 						LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
 					end
@@ -529,11 +544,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 			end
 		end
 	end
-	if #enemiesInRect ~= 0 then
-		return enemyCounter, enemiesInRect
-	else
-		return enemyCounter
-	end
+	return enemyCounter, enemiesInRect
 end
 
 -- local function intersects(circle, rect)

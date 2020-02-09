@@ -20,57 +20,64 @@ local function createToggles()
         [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.crimsonVial}
     };
     CreateButton("Rotation",1,0)
+    -- Cooldown Button
+    CooldownModes = {
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.adrenalineRush },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.adrenalineRush },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.adrenalineRush }
+     };
+    CreateButton("Cooldown",2,0)
 -- Blade Flurry Button
     BladeFlurryModes = {
         [1] = { mode = "", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.bladeFlurry},
         [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.bladeFlurry}
     };
-    CreateButton("BladeFlurry",2,0)
+    CreateButton("BladeFlurry",3,0)
     NoBTEModes = {
         [1] = { mode = "best", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes},
         [2] = { mode = "target", value = 2 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes},
         [3] = { mode = "off", value = 3 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.betweenTheEyes}
     };
-    CreateButton("NoBTE",2,1)    
+    CreateButton("NoBTE",3,1)    
 -- Defensive Button
     SpecialModes = {
         [1] = { mode = "", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.adrenalineRush},
         [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.adrenalineRush},
     };
-    CreateButton("Special",4,0)
+    CreateButton("Special",5,0)
     TiersevenModes = {
         [1] = { mode = "", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.bladeRush},
         [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.bladeRush},
     };
-    CreateButton("Tierseven",4,1)    
+    CreateButton("Tierseven",5,1)    
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.kick},
         [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.kick}
     };
-    CreateButton("Interrupt",3,0)
+    CreateButton("Interrupt",4,0)
         StunModes = {
         [1] = { mode = "", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.gouge},
         [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.gouge}
     };
-    CreateButton("Stun",3,1)
+    CreateButton("Stun",4,1)
     MFDModes = {
         [1] = { mode = "Tar", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.markedForDeath},
         [2] = { mode = "Adds", value = 2 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.markedForDeath},
         [3] = { mode = "reset", value = 3 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.markedForDeath},
         [4] = { mode = "Off", value = 4 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.markedForDeath}
     };
-    CreateButton("MFD",5,0)
+    CreateButton("MFD",6,0)
     RollforoneModes = {
         [1] = { mode = "any", value = 1 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.rollTheBones},
         [2] = { mode = "simc", value = 2 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.rollTheBones}
     };
-    CreateButton("Rollforone",5,1)
+    CreateButton("Rollforone",6,1)
     EssenceModes = {
         [1] = { mode = "Off", value = 1 , overlay = "Essence disabled", tip = "Won't use essence", highlight = 0, icon = br.player.spell.bloodOfTheEnemy},
         [2] = { mode = "On", value = 2 , overlay = "Essence enabled", tip = "Will use essence", highlight = 1, icon = br.player.spell.bloodOfTheEnemy},
     };
-    CreateButton("Essence",6,0)  
+    CreateButton("Essence",7,0)  
 end
 
 forpro = false
@@ -103,6 +110,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Vanish")
             br.ui:createCheckbox(section, "Racial")
             br.ui:createSpinnerWithout(section, "BF HP Limit", 15, 0, 105, 1, "|cffFFFFFFHP *10k hp for Blade FLurry to be used")
+            -- Cooldowns Time To Die Limit
+            br.ui:createSpinnerWithout(section,  "BF Time To Die Limit",  30,  0,  40,  1,  "|cffFFFFFFTarget Time to die limit for using cooldowns (in sec).")
             br.ui:createSpinner(section, "Pistol Shot out of range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
             -- br.ui:createSpinnerWithout(section, "MFD Sniping",  1,  0.5,  3,  0.1,  "|cffFFBB00Increase to have BR cast MFD on dying units quicker, too high might cause suboptimal casts")
         br.ui:checkSectionState(section)
@@ -201,6 +210,7 @@ local function runRotation()
 --- Toggles ---
 ---------------
         UpdateToggle("Rotation",0.25)
+        UpdateToggle("Cooldown",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("BladeFlurry",0.25)
         br.player.mode.bladeflurry = br.data.settings[br.selectedSpec].toggles["BladeFlurry"]
@@ -250,6 +260,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local traits                                        = br.player.traits
         local ttm                                           = br.player.power.energy.ttm()
+        local ttdd                                          = getTTD
         local units                                         = br.player.units
         local use                                           = br.player.use
         local lootDelay                                     = getOptionValue("LootDelay")
@@ -304,8 +315,11 @@ local function runRotation()
         
 --______________________________________
     
+    enemies.get(40)
     enemies.get(20,nil,nil,nil,spell.pistolShot)
     enemies.get(20,nil,true,nil,spell.pistolShot)
+    enemies.get(5)
+    enemies.get(8)
 
     local function PickPocketable(Unit)
         if Unit == nil then Unit = "target" end
@@ -335,6 +349,12 @@ local function runRotation()
         if getOptionCheck("Enhanced Time to Die") then return ttdSec end
         if ttdSec == -1 then return 999 end
         return ttdSec
+    end
+
+    local groupTTD = 0
+    for i = 1, #enemies.yards5 do
+        thisUnit = enemies.yards5[i]
+        groupTTD = groupTTD + ttdd(thisUnit)
     end
 
     local function getapdmg(offHand)
@@ -801,9 +821,9 @@ local function runRotation()
 
             -- # Razor Coral
             if isChecked("Trinkets") and targetDistance < 5 then
-                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
+                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists(units.dyn5) or (buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists())))) then
                     useItem(13)
-                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
+                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists(units.dyn5) or (buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists())))) then
                     useItem(14)
                 end
             end
@@ -819,8 +839,20 @@ local function runRotation()
 
             --Essences 8.2
             if mode.essence == 2 then
+
+                    -- Essence: Reaping Flames
+    -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+                if cast.able.reapingFlames() then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local thisHP = getHP(thisUnit)
+                    if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                        if cast.reapingFlames(thisUnit) then return true end
+                        end
+                    end
+                end
                 -- # Blood of the Enemy
-                if essence.bloodOfTheEnemy.active and isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 1 then 
+                if essence.bloodOfTheEnemy.active and isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 5 then 
                     if buff.bladeFlurry.exists("player") and bftargets >= 3 then
                         if cast.bloodOfTheEnemy() then return true end
                     elseif isBoss("target") and buff.adrenalineRush.exists() then
@@ -850,11 +882,11 @@ local function runRotation()
             --blood_fury
             --berserking
             --arcane_torrent,if=energy.deficit>40
-            if mode.special == 1 and isChecked("Racial") and (race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll") then
+            if useCDs() and isChecked("Racial") and (race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" or "MagharOrc") then
                 if cast.racial("player") then return true end
             end
 
-            if mode.special == 1 and isChecked("AdrenalineRush") and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
+            if useCDs() and isChecked("AdrenalineRush") and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
                 if cast.adrenalineRush("player") then
                     if isChecked("Trinkets") and not hasEquiped(169311, 13) then
                         if canUseItem(13) then
@@ -975,7 +1007,7 @@ local function runRotation()
         local function actionList_Build()
             local startTime = debugprofilestop()      
 
-            if comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() and (buff.wits.stack() < 25 or power < 45 or buff.deadShot.exists()) then
+            if not stealthingAll and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() and (buff.wits.stack() < 25 or power < 45 or buff.deadShot.exists()) then
                 cast20yards("pistolShot",true)
             end
 
@@ -1345,8 +1377,13 @@ local function runRotation()
         -- end
 
 
-        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 and (ttd(units.dyn8) > 15 or isDummy()) then
+        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 and groupTTD >= getOptionValue("BF Time To Die Limit") then
             if cast.bladeFlurry("player") then return true end
+        end
+
+        --tricks
+        if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") >= 2 then
+            cast.tricksOfTheTrade(tricksUnit)
         end
 
 
@@ -1368,13 +1405,13 @@ local function runRotation()
 
             if actionList_Interrupts() then end
 
-            if isChecked("Vanish") and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance("target") <= 5 and mode.special == 1 and (not solo or isDummy("target")) then
+            if isChecked("Vanish") and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance("target") <= 5 and useCDs() and not solo then
                 if gcd > 0.2 then return true end
                 if cast.pool.ambush() then return true end
                 if CastSpellByID(1856) then return true end
             end
 
-            if (mode.special == 1 or mode.tierseven == 1) and #enemyTable5 >= 1 then
+            if (useCDs() or mode.tierseven == 1) and #enemyTable5 >= 1 then
                 if actionList_Cooldowns() then return end
             end
 
@@ -1401,7 +1438,7 @@ local function runRotation()
             if isChecked("Pistol Shot out of range") and isValidUnit("target") and #enemyTable5 == 0 and not stealthingAll and power >= getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= 1.2) then
                 if cast.pistolShot("target") then return true end
             end
-            if mode.special == 1 and isChecked("Racial") then
+            if useCDs() and isChecked("Racial") then
                 if race == "BloodElf" and powerDeficit >= (15 + powerRegen) then
                     if cast.racial("player") then return true end
                 elseif race == "Nightborne" then

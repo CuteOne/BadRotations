@@ -134,6 +134,7 @@ if not metaTable2 then
 			end
 			rawset(table, o.unit, thisUnit)
 		end
+		--Debuffs
 		function o:UpdateDebuffs(debuffList,unit)
 			if not isChecked("Cache Debuffs") then
 				debuffList = {}
@@ -236,12 +237,14 @@ if not metaTable2 then
 					if br.enemy[o.unit] ~= nil then
 						br.enemy[o.unit] = nil
 					end
+					if br.damaged ~= nil and br.damaged[o.unit] ~= nil then br.damaged[o.unit] = nil end
 				end
 			else
 				o.isValidUnit = false
 				if br.enemy[o.unit] ~= nil then
 					br.enemy[o.unit] = nil
 				end
+				if br.damaged ~= nil and br.damaged[o.unit] ~= nil then br.damaged[o.unit] = nil end
 			end
 			-- TTD
 			if getOptionCheck("Enhanced Time to Die") then

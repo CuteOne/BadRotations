@@ -203,6 +203,7 @@ local function runRotation()
     local hastar = GetObjectExists("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
+    local equiped = br.player.equiped
     local essence = br.player.essence
     local flying, moving = IsFlying(), GetUnitSpeed("player") > 0
     local flaskBuff = getBuffRemain("player", br.player.flask.wod.buff.agilityBig)
@@ -279,7 +280,8 @@ local function runRotation()
 
     local function ShouldMitigate()
         if UnitThreatSituation("player", "target") == 3 and UnitCastingInfo("target") then
-            if activeMitigationList[select(9, UnitCastingInfo("target"))] ~= nil then
+            -- if activeMitigationList[select(9, UnitCastingInfo("target"))] ~= nil then
+            if br.lists.defensives[select(9, UnitCastingInfo("target"))] ~= nil then
                 return true
             end
         -- for i = 1, #activeMitigationList do

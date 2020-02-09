@@ -535,6 +535,11 @@ local function runRotation()
             then
                 if cast.memoryOfLucidDreams() then return true end
             end
+        -- Reaping Flames
+            -- reaping_flames
+            if cast.able.reapingFlames() then
+                if cast.reapingFlames() then return end
+            end
         end
     -- Action List - Breath of Sindragosa Pooling
         local function actionList_BoSPooling()

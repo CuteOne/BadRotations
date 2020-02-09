@@ -53,5 +53,7 @@ br.lists.noTouchUnits = {
     -- Mythic Za'qul
     {unitID = 150859, buff = 301117}, -- Dark Shield
     -- Eternal Palace
-    {unitID = 155126, buff = 300620}, -- Crystalline Shiwld
+    {unitID = 155126, buff = 300620}, -- Crystalline Shield
+    -- Horrific Visions
+    {unitID = 158315}, -- Eye of Chaos
 }

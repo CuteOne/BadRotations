@@ -4,21 +4,21 @@ cCharacter = {}
 -- Creates new character with given class
 function cCharacter:new(class)
 	local self = {}
-  self.augmentRune    = {         -- Contains the different buff IDs for Augment Runes
-		Agility   					= 270058,
-		Strength  					= 270058,
-		Intellect 					= 270058,
-		Legion	  					= 224001,
-  }
-  self.artifact       = {} 	-- Artifact Perk IDs
+	self.augmentRune    = {         -- Contains the different buff IDs for Augment Runes
+			Agility   					= 270058,
+			Strength  					= 270058,
+			Intellect 					= 270058,
+			Legion	  					= 224001,
+	}
+	self.artifact       = {} 	-- Artifact Perk IDs
 	self.buff           = {}        -- Buffs
-  self.debuff         = {}        -- Debuffs on target
+	self.debuff         = {}        -- Debuffs on target
 	self.class          = select(2, UnitClass("player")) -- Class
 	self.cd             = {}        -- Cooldowns
 	self.charges        = {}        -- Number of charges
 	self.currentPet     = "None" 	-- Current Pet
-  self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
-  self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
+	self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
+	self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
 	self.enemies  	    = {}        -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
 	self.essence 				= {} 				-- Azerite Essence
 	self.equiped 	    	= {} 	-- Item Equips
@@ -26,35 +26,35 @@ function cCharacter:new(class)
 	self.gcdMax 	    	= 1.5 	-- GLobal Max Cooldown
 	self.glyph          = {}        -- Glyphs
 	self.faction  	    = select(1,UnitFactionGroup("player")) -- Faction non-localised name
-  self.flask 	    		= {}
-  self.flask.wod 	    = {
-	  -- Agility
-	  agilityLow 					= 152638, 	 -- flask-of-the-currents
-	  agilityBig 					= 152638, 	 -- flask-of-the-currents
-	  -- Intellect
-	  intellectLow 	      = 152639,        -- flask-of-endless-fathoms
-	  intellectBig 	      = 152639,        -- flask-of-endless-fathoms
-	  -- Stamina
-	  staminaLow 					= 152640,        -- flask-of-the-vast-horizon
-	  staminaBig					= 152640,        -- flask-of-the-vast-horizon
-	  -- Strength
-	  strengthLow 	      = 152641,        -- flask-of-the-undertow
-	  strengthBig         = 152641,        -- flask-of-the-undertow
-  }
-  self.flask.wod.buff = {
-	  -- Agility
-	  agilityLow 					= 251836,
-	  agilityBig 					= 251836,
-	  -- Intellect
-	  intellectLow       	= 251837,
-	  intellectBig     		= 251837,
-	  -- Stamina
-	  staminaLow 					= 251838,
-	  staminaBig 					= 251838,
-	  -- Strength
-	  strengthLow       	= 251839,
-	  strengthBig 	      = 251839,
-  }
+	self.flask 	    		= {}
+	self.flask.wod 	    = {
+		-- Agility
+		agilityLow 					= 152638, 	 -- flask-of-the-currents
+		agilityBig 					= 152638, 	 -- flask-of-the-currents
+		-- Intellect
+		intellectLow 	      = 152639,        -- flask-of-endless-fathoms
+		intellectBig 	      = 152639,        -- flask-of-endless-fathoms
+		-- Stamina
+		staminaLow 					= 152640,        -- flask-of-the-vast-horizon
+		staminaBig					= 152640,        -- flask-of-the-vast-horizon
+		-- Strength
+		strengthLow 	      = 152641,        -- flask-of-the-undertow
+		strengthBig         = 152641,        -- flask-of-the-undertow
+	}
+	self.flask.wod.buff = {
+		-- Agility
+		agilityLow 					= 251836,
+		agilityBig 					= 251836,
+		-- Intellect
+		intellectLow       	= 251837,
+		intellectBig     		= 251837,
+		-- Stamina
+		staminaLow 					= 251838,
+		staminaBig 					= 251838,
+		-- Strength
+		strengthLow       	= 251839,
+		strengthBig 	      = 251839,
+	}
     --self.functions 	    = {} 	-- Functions
 	self.health         = 100       -- Health Points in %
 	self.ignoreCombat   = false     -- Ignores combat status if set to true
@@ -78,7 +78,7 @@ function cCharacter:new(class)
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
 	self.rechargeFull   = {}
 	self.selectedRotation = 1       -- Default: First avaiable rotation
-  self.rotation       = {} 	-- List of Rotations
+	self.rotation       = {} 	-- List of Rotations
 	self.spell	    		= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.talent         = {}        -- Talents
 	self.timeToMax	    = 0		-- Time To Max Power
@@ -220,14 +220,14 @@ function cCharacter:new(class)
 
 -- Start the rotation or return if pause
     function self.startRotation()
-    	local startTime = debugprofilestop()
+		local startTime = debugprofilestop()
         -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
         -- if pause(true) then return end
 
         if self.rotation ~= nil then
-        	self.rotation.run()
+			self.rotation.run()
         else
-        	return
+			return
         end
 		if isChecked("Debug Timers") then
 	        br.debug.cpu.rotation.currentTime = debugprofilestop()-startTime

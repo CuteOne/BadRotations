@@ -479,7 +479,7 @@ local function runRotation()
                     if isChecked("Lucid Dreams") and runes <= getOptionValue("Lucid Dreams") then
                         if cast.memoryOfLucidDreams("player") then return end
                     end
-                    if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+                    if getOptionValue("Use Concentrated Flame") ~= 1 and getOptionValue("Use Concentrated Flame") ~= 4 and php <= getValue("Concentrated Flame Heal") then
                         if cast.concentratedFlame("player") then
                             return
                         end
@@ -510,7 +510,7 @@ local function runRotation()
                     if runeTimeTill(3) <= gcd and talent.ossuary and buff.boneShield.stack() <= 6 then
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
-                    if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+                    if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php >= getValue("Concentrated Flame Heal")) then
                         if cast.concentratedFlame("target") then
                             return
                         end

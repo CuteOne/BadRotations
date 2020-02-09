@@ -1,3 +1,4 @@
+--Version 1.0.0
 local rotationName = "GuardianPanglo2.0"
 
 ---------------
@@ -212,7 +213,7 @@ local function createOptions()
         ----------------------
         --- General Options---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         br.ui:createCheckbox(section, "Open World", "Use Cat Weaving Regardless of Threat Situation")
         -- Travel Shapeshifts
         br.ui:createCheckbox(section, "Auto Shapeshifts", "|cffD60000IF THIS OPTION DOESNT AUTO SHIFT... HEARTH TO DALARAN... BECAUSE REASONS...")
@@ -220,15 +221,15 @@ local function createOptions()
         -- Displacer Beast / Wild Charge
         br.ui:createCheckbox(section, "Wild Charge", "Enables/Disables Auto Charge usage.")
         br.ui:createCheckbox(section, "Auto Maul")
-        br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
+        br.ui:createDropdownWithout(section, "Use Concentrated Flame", { "DPS", "Heal", "Hybrid", "Never" }, 1)
         br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
-        br.ui:createDropdown(section, "Lucid Dreams", {"Always", "CDS"}, 1)
+        br.ui:createDropdown(section, "Lucid Dreams", { "Always", "CDS" }, 1)
         br.ui:checkSectionState(section)
         -----------------------
         --- Cooldown Options---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        br.ui:createDropdownWithout(section, "Trinkets", {"Always", "When CDs are enabled", "Never"}, 1, "Decide when Trinkets will be used.")
+        br.ui:createDropdownWithout(section, "Trinkets", { "Always", "When CDs are enabled", "Never" }, 1, "Decide when Trinkets will be used.")
         br.ui:createCheckbox(section, "Racial")
         br.ui:createCheckbox(section, "Incarnation")
         br.ui:checkSectionState(section)
@@ -243,16 +244,22 @@ local function createOptions()
         br.ui:createCheckbox(section, "Frenzied Regeneration", "Enable FR")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "Health Interval to use at with 2 charges.")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "Health Interval to use at with 1 charge.")
+        -- Swiftmend
+        br.ui:createSpinner(section, "Swiftmend", 70, 10, 90, 5, "Will use Swiftmend.")
+        -- Rejuvenation
+        br.ui:createSpinner(section, "Rejuvenation", 70, 10, 90, 5, "Minimum HP to cast.")
         -- Soothe
         br.ui:createCheckbox(section, "Soothe")
         -- Rebirth
         br.ui:createCheckbox(section, "Rebirth")
-        br.ui:createDropdownWithout(section, "Rebirth - Target", {"Target", "Mouseover"}, 1, "Target to cast on")
+        br.ui:createDropdownWithout(section, "Rebirth - Target", { "Target", "Mouseover" }, 1, "Target to cast on")
         -- Remove Corruption
         br.ui:createCheckbox(section, "Remove Corruption")
-        br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"Player", "Target", "Mouseover"}, 1, "Target to cast on")
+        br.ui:createDropdownWithout(section, "Remove Corruption - Target", { "Player", "Target", "Mouseover" }, 1, "Target to cast on")
         -- Survival Instincts
         br.ui:createSpinner(section, "Survival Instincts", 40, 0, 100, 5, "Health Percent to Cast At")
+        -- Anima of Death
+        br.ui:createSpinner(section, "Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
         ------------------------
         --- Interrupt Options---
@@ -306,6 +313,7 @@ local function runRotation()
     local hasMouse = GetObjectExists("mouseover")
     local healPot = getHealthPot()
     local inCombat = br.player.inCombat
+    local essence = br.player.essence
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
     local level = br.player.level
@@ -510,7 +518,14 @@ local function runRotation()
                     useItem(166799)
                 end
             end
-
+            -- Swiftmend
+            if isChecked("Swiftmend") and php <= getOptionValue("Swiftmend") and not inCombat and cast.able.swiftmend() then
+                if cast.swiftmend("player") then return end
+            end
+            -- Rejuvenation
+            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") and not buff.rejuvenation.exists("player") and not inCombat and cast.able.rejuvenation() then
+                if cast.rejuvenation("player") then return end
+            end
             if isChecked("Rebirth") and rage >= 30 then
                 if getOptionValue("Rebirth - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") then
                     --Print("Target bois")
@@ -654,6 +669,14 @@ local function runRotation()
             end
         end
 
+        -- Anima of Death
+        if isChecked("Anima of Death") and essence.animaOfDeath.active and cd.animaOfDeath.remain() <= gcd and inCombat and #enemies.yards8 >= 3 and php <= getOptionValue("Anima of Death") then
+            if cast.animaOfDeath("player") then
+                br.addonDebug("Casting Anima of Death")
+                return
+            end
+        end
+
         if getOptionValue("Trinkets") == 1 and inCombat then
             if canUseItem(13) then
                 useItem(13)
@@ -673,7 +696,7 @@ local function runRotation()
             return
         end
 
-        if #enemies.yards8 >= 1 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
+        if #enemies.yards8 >= 1 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and not debuff.thrashBear.exists(thisUnit) or debuff.thrashBear.refresh(thisUnit) and #enemies.yards8 > 6) then
             if cast.thrashBear() then
                 return
             end
@@ -705,6 +728,11 @@ local function runRotation()
         end
 
         if #enemies.yards8 < 5 and inCombat then
+            if buff.galacticGuardian.exists() then
+                if cast.moonfire(thisUnit) then
+                    return
+                end
+            end
             if debuff.moonfire.count() < 3 or buff.galacticGuardian.exists() then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
@@ -714,11 +742,7 @@ local function runRotation()
                                 return
                             end
                         end
-                        if buff.galacticGuardian.exists() then
-                            if cast.moonfire(thisUnit) then
-                                return
-                            end
-                        end
+
                     end
                 end
             end
@@ -771,11 +795,11 @@ if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
 tinsert(
-    br.rotations[id],
-    {
-        name = rotationName,
-        toggles = createToggles,
-        options = createOptions,
-        run = runRotation
-    }
+        br.rotations[id],
+        {
+            name = rotationName,
+            toggles = createToggles,
+            options = createOptions,
+            run = runRotation
+        }
 )
