@@ -72,7 +72,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
         br.ui:createSpinnerWithout(section, "SWP Max Targets", 4, 1, 10, 1, "Limit that SWP will be cast on.")
 

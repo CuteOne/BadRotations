@@ -213,7 +213,7 @@ local function createOptions()
         ----------------------
         --- General Options---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         br.ui:createCheckbox(section, "Open World", "Use Cat Weaving Regardless of Threat Situation")
         -- Travel Shapeshifts
         br.ui:createCheckbox(section, "Auto Shapeshifts", "|cffD60000IF THIS OPTION DOESNT AUTO SHIFT... HEARTH TO DALARAN... BECAUSE REASONS...")

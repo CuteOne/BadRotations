@@ -78,7 +78,7 @@ local function createOptions()
         -- br.ui:createCheckbox(section, "Advanced Trinket Support")
         br.ui:checkSectionState(section)
 
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
 

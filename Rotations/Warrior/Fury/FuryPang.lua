@@ -164,7 +164,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         -- Battle Shout
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage

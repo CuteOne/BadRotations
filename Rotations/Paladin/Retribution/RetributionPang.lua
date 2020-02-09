@@ -48,7 +48,7 @@ local function createOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.000")
 		br.ui:createCheckbox(section, "Boss Encounter Case")
 		-- Greater Blessing of Kings
 		br.ui:createCheckbox(section, "Greater Blessing of Kings")

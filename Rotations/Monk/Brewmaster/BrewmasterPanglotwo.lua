@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "|cff5AC18EGeneral")
+        section = br.ui:createSection(br.ui.window.profile,  "|cff5AC18EGeneral - Version 1.000")
 		-- Let Rotation Deal with Purifying (SIMC)
 			br.ui:createCheckbox(section, "High Stagger Debuff")
         -- Stagger dmg % to purify
