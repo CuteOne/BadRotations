@@ -397,8 +397,8 @@ local function runRotation()
     local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
     local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
     local inCombat = isInCombat("player")
-    local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
-    local inRaid = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
+    local inInstance = br.player.instance == "party" or br.player.instance == "scenario" 
+    local inRaid = br.player.instance == "raid"
     local solo = #br.friend == 1
     local race = br.player.race
     local racial = br.player.getRacial()
