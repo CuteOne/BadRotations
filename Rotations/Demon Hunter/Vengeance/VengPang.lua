@@ -1,3 +1,4 @@
+-- Version 1.0.0
 local red = "|cffFF0000"
 local orange = "|cffFFA500"
 local yellow = "|cffFFFF00"

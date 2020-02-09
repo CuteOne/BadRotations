@@ -1,3 +1,4 @@
+--Version 1.0.0
 local rotationName = "GuardianPanglo2.0"
 
 ---------------

@@ -1,3 +1,4 @@
+--Version 1.0.0
 local rotationName = "Panglo"
 -- MOST OF THE CREDIT GOES TO FENGSHEN. I HAVE JUST UPDATED IT
 ---------------
