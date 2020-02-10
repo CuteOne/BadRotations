@@ -81,6 +81,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
+        br.ui:createCheckbox(section, "Blessing of Freedom Shadhar")
 
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
@@ -866,6 +867,7 @@ local function runRotation()
         --Instance cases
         if inInstance then
             for i = 1, #br.friend do
+                local localClass, englishClass, classIndex = UnitClass(br.friend[i].unit)
                 if UnitInRange(br.friend[i].unit) then
                     if getDebuffRemain(br.friend[i].unit, 268896) ~= 0 or getDebuffRemain(br.friend[i].unit, 264526) ~= 0 or getDebuffRemain(br.friend[i].unit, 258058) ~= 0 then
                         blessingOfFreedomCase = br.friend[i].unit
@@ -875,6 +877,17 @@ local function runRotation()
                     end
                     if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit, 272407) == 0 and br.friend[i].distance <= 10 then
                         hammerOfJusticeCase = br.friend[i].unit
+                    end
+                end
+            end
+        end
+        -- Raid Cases
+        if inRaid then
+            for i = 1, #br.friend do
+                local localClass, englishClass, classIndex = UnitClass(br.friend[i].unit)
+                if UnitInRange(br.friend[i].unit) then
+                    if (isChecked("Blessing of Freedom Shadhar")) and UnitDebuffID(br.friend[i].unit, 318078) ~= nil and (classIndex == 1 or classIndex == 2 or classIndex == 4 or classIndex == 5 or classIndex == 9) then
+                        blessingOfFreedomCase = br.friend[i].unit
                     end
                 end
             end
