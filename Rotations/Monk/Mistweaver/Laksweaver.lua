@@ -309,7 +309,7 @@ local function runRotation()
     end
 
     local function risingSunKickFunc()
-        if cast.able.risingSunKick() then
+        if cast.able.risingSunKick() and isChecked("Rising Sun Kick") then
             if #enemy_count_facing_5 > 0 then
                 if (talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")
                         or focustea == "kick" and buff.thunderFocusTea.exists()
@@ -402,7 +402,7 @@ local function runRotation()
                     return true
                 end
             end
-            if focustea == "kick" and #enemy_count_facing_5 > 0 then
+            if focustea == "kick" and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick") then
                 if risingSunKickFunc() then
                     return true
                 end
@@ -1469,7 +1469,7 @@ local function runRotation()
             if interrupts() then
                 return true
             end
-            if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 then
+            if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick")  then
                 risingSunKickFunc()
                 return true
             end
