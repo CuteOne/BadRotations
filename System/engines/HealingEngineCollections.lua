@@ -109,8 +109,11 @@ novaEngineTables.DispelID = {
 	[294929] = {stacks = 0}, --https://www.wowhead.com/spell=294929/blazing-chomp
 	[294195] = {stacks = 0}, --https://www.wowhead.com/spell=294195/arcing-zap
 	[284219] = {stacks = 0}, --https://www.wowhead.com/spell=284219/shrink
-		-- Trash (Ny'alotha)
+	-- Trash (Ny'alotha)
 	[307421] = {stacks = 5}, --https://www.wowhead.com/spell=307421/annihilation
+	-- Maut
+	[314992] = {stack = 0, range = 10}, --https://www.wowhead.com/spell=314992/drain-essence
+
 
 
 

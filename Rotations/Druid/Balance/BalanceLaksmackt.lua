@@ -71,7 +71,6 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-
         section = br.ui:createSection(br.ui.window.profile, "Forms")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
@@ -684,15 +683,9 @@ local function runRotation()
             aoeTarget = getValue("Starfall Targets (0 for auto)")
         end
 
-
-
         --trinkets
         local Trinket13 = GetInventoryItemID("player", 13)
         local Trinket14 = GetInventoryItemID("player", 14)
-
-        --Print("Trinket1: " .. Trinket13)
-        --Print("Trinket1: " .. Trinket14)
-        --Print("Trinket1: " .. Trinket14)
 
         if isChecked("Use Trinkets") then
             --VenumousShivers
@@ -768,14 +761,6 @@ local function runRotation()
         end
 
         local groupTTD = 0
-        --[[
-                if enemies.yards20r > 0 then
-                    for i = 1, enemies.yards20r do
-                        if ttd(enemies.yards20rTable[i]) >= length then
-                            return true
-                        end
-                    end
-                end]]
 
         if #enemies.yards45 > 0 then
             for i = 1, #enemies.yards45 do
@@ -785,7 +770,7 @@ local function runRotation()
             end
         end
 
-        if useCDs() and isChecked("Incarnation/Celestial Alignment") then
+        if useCDs() and isChecked("Incarnation/Celestial Alignment") and not isMoving("player") then
             if not talent.incarnationChoseOfElune and groupTTD >= 20 then
                 if not pewbuff and (not talent.starlord or buff.starlord.exists())
                         and (buff.memoryOfLucidDreams.exists() or ((cd.memoryOfLucidDreams.remains() > 20 or not essence.memoryOfLucidDreams.major) and astral_def > 40))
@@ -999,7 +984,8 @@ local function runRotation()
 
                     end
                 end
-            end
+            end -- end dots
+
             --new/half/full moon ...will we ever use them ;)
             if cast.able.newMoon(units.dyn45) and (power <= 90) then
                 if cast.newMoon(units.dyn45) then
@@ -1018,48 +1004,47 @@ local function runRotation()
                     return
                 end
             end
-        end
-
-        if cast.able.lunarStrike and buff.solarEmpowerment.stack() < 3 and (astral_def >= 12 or buff.lunarEmpowerment.stack() == 3)
-                and ((buff.warriorOfElune.exists() or buff.lunarEmpowerment.exists() or #enemies.yards8t >= 2 and not buff.solarEmpowerment.exists())
-                and (not traits.streakingStars.active or not pewbuff) or traits.streakingStars.active and pewbuff and cast.last.solarWrath()) then
-            if mode.DPS < 3 then
-                if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
-                    br.addonDebug("Lunarstrike(cluster) Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
-                    return true
+            if not isMoving("player") then
+                if cast.able.lunarStrike and buff.solarEmpowerment.stack() < 3 and (astral_def >= 12 or buff.lunarEmpowerment.stack() == 3)
+                        and ((buff.warriorOfElune.exists() or buff.lunarEmpowerment.exists() or #enemies.yards8t >= 2 and not buff.solarEmpowerment.exists())
+                        and (not traits.streakingStars.active or not pewbuff) or traits.streakingStars.active and pewbuff and cast.last.solarWrath()) then
+                    if mode.DPS < 3 then
+                        if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
+                            br.addonDebug("Lunarstrike(cluster) Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
+                            return true
+                        end
+                    elseif mode.DPS == 3 then
+                        if cast.lunarStrike(units.dyn45) then
+                            br.addonDebug("Lunarstrike Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
+                            return true
+                        end
+                    end
                 end
-            elseif mode.DPS == 3 then
-                if cast.lunarStrike(units.dyn45) then
-                    br.addonDebug("Lunarstrike Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
-                    return true
-                end
-            end
-        end
 
 
 
 
-        -- solar_wrath,if=variable.az_ss<3|!buff.ca_inc.up|!prev.solar_wrath
-        if cast.able.solarWrath() and br.player.traits.streakingStars.rank < 3 or not pewbuff or not cast.last.solarWrath() then
-            if cast.solarWrath(units.dyn45) then
-                br.addonDebug("Wrath - Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
-                return
-            end
-        end
+                -- solar_wrath,if=variable.az_ss<3|!buff.ca_inc.up|!prev.solar_wrath
 
-        --fallback / moving
-
-        if not cast.last.sunfire(1) then
-
-            if cast.sunfire(units.dyn45) then
-                if not isMoving("player") then
-                    br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
-                else
-                    br.addonDebug("Fallback: Moving - sunfire")
-                    return
+                if cast.able.solarWrath() and br.player.traits.streakingStars.rank < 3 or not pewbuff or not cast.last.solarWrath() then
+                    if cast.solarWrath(units.dyn45) then
+                        br.addonDebug("Wrath - Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
+                        return true
+                    end
                 end
             end
-        else
+
+            --fallback / moving
+            if not cast.last.sunfire(1) then
+                if cast.sunfire(units.dyn45) then
+                    if not isMoving("player") then
+                        br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
+                    else
+                        br.addonDebug("Fallback: Moving - sunfire")
+                        return
+                    end
+                end
+            end
             if cast.moonfire(units.dyn45) then
                 if isMoving("player") then
                     br.addonDebug("FAIL! (moonfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
@@ -1068,8 +1053,9 @@ local function runRotation()
                     return true
                 end
             end
-        end
-    end
+
+        end --end mode < 4
+    end -- end dps()
 
     local function defensive()
 
