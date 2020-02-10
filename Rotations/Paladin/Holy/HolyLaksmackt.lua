@@ -82,6 +82,7 @@ local function createOptions()
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
         br.ui:createCheckbox(section, "Blessing of Freedom Shadhar")
+        br.ui:createCheckbox(section, "Blessing of Freedom Wrathion")
 
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
@@ -889,7 +890,9 @@ local function runRotation()
                     if (isChecked("Blessing of Freedom Shadhar")) and UnitDebuffID(br.friend[i].unit, 318078) ~= nil and (classIndex == 1 or classIndex == 2 or classIndex == 4 or classIndex == 5 or classIndex == 9) then
                         blessingOfFreedomCase = br.friend[i].unit
                     end
-                end
+                    if (isChecked("Blessing of Freedom Wrathion")) and debuff.creepingMadness.stack() >= 45 then
+                        blessingOfFreedomCase = br.friend[i].unit
+                 end
             end
         end
         -- Blessing of Freedom
