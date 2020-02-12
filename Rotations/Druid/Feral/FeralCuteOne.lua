@@ -853,6 +853,13 @@ actionList.Cooldowns = function()
                 if cast.racial("player") then ui.debug("Casting "..GetSpellInfo(spell.racial)) return true end
             end
         end
+        -- Wrists - Wraps of Electrostatic Potential
+        if equiped.wrapsOfElectrostaticPotential() and use.able.wrapsOfElectrostaticPotential() then
+            local opValue = ui.option.value("Trinkets")
+            if (opValue == 1 or (opValue == 2 and useCDs())) and getDistance(units.dyn5) < 5 then
+                if use.wrapsOfElectrostaticPotential() then ui.debug("Using Wraps of Electrostatic Potential") return true end
+            end
+        end 
     end -- End useCooldowns check
 end -- End Action List - Cooldowns
 
