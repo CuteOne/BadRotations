@@ -405,7 +405,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal
-        if option.checked("Summon Infernal") and cast.able.summonInfernal() and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and cast.able.summonInfernal() and getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -431,7 +431,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=target.time_to_die>cooldown.summon_infernal.duration+30
-        if option.checked("Summon Infernal") and cast.able.summonInfernal() and (ttd(units.dyn40) > cd.summonInfernal.duration() + 30) and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and cast.able.summonInfernal() and (ttd(units.dyn40) > cd.summonInfernal.duration() + 30) and getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - High TTD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -441,7 +441,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains>target.time_to_die
-        if option.checked("Summon Infernal") and cast.able.summonInfernal() and (talent.darkSoulInstability
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and cast.able.summonInfernal() and (talent.darkSoulInstability
             and cd.darkSoulInstability.remain() > ttd(units.dyn40)) and getDistance("target") <= 30
         then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - Dark Soul]") return true end
@@ -467,7 +467,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=target.time_to_die<30
-        if option.checked("Summon Infernal") and cast.able.summonInfernal() and (ttd(units.dyn40) < 30) and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and cast.able.summonInfernal() and (ttd(units.dyn40) < 30) and getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - Low TTD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -535,6 +535,11 @@ actionList.Cooldowns = function()
         -- Item - General
         -- use_items,if=pet.infernal.active&(!talent.grimoire_of_supremacy.enabled|pet.infernal.remains<=20)|target.time_to_die<=20
         if option.checked("Trinkets") then
+            local mainHand = GetInventorySlotInfo("MAINHANDSLOT")
+                if canUseItem(mainHand) and equiped.neuralSynapseEnhancer(mainHand) and useCDs() then
+                    use.slot(mainHand)
+                    br.addonDebug("Using Neural Synapse Enhancer")
+                end
             for i = 13, 14 do
                 if use.able.slot(i) and not (equiped.azsharasFontOfPower(i) or equiped.pocketSizedComputationDevice(i)
                     or equiped.rotcrustedVoodooDoll(i) or equiped.shiverVenomRelic(i) or equiped.aquipotentNautilus(i)
@@ -597,7 +602,7 @@ actionList.Aoe = function()
         and (not buff.crashingChaos.exists() or not talent.grimoireOfSupremacy)
         and (cd.havoc.exists())) and getDistance("target") <= 40
     then
-        if cast.rainOfFire(nil,"aoe",1,8) then debug("Cast Rain Of Fire [AOE - Infernal]") return true end
+        if br.timer:useTimer("RoF Delay", 1) and cast.rainOfFire(nil,"aoe",1,8) then debug("Cast Rain Of Fire [AOE - Infernal]") return true end
     end
     -- Channel Demonfire
     -- channel_demonfire,if=dot.immolate.remains>cast_time
@@ -646,7 +651,7 @@ actionList.Aoe = function()
     -- Rain of Fire
     -- rain_of_fire
     if option.checked("Rain of Fire") and cast.able.rainOfFire() and getDistance("target") <= 40 and #enemies.yards8t >= option.value("Rain of Fire") then
-        if cast.rainOfFire(nil,"aoe",1,8) then debug("Cast Rain Of Fire [AOE]") return true end
+        if br.timer:useTimer("RoF Delay", 1) and cast.rainOfFire(nil,"aoe",1,8) then debug("Cast Rain Of Fire [AOE]") return true end
     end
     -- Azerite Essence - Focused Azerite Beam
     -- focused_azerite_beam
@@ -715,7 +720,7 @@ actionList.GosupInfernal = function()
         and (shards == 5 and not buff.backdraft.exists() and buff.memoryOfLucidDreams.exists()
         and buff.grimoireOfSupremacy.stack() <= 10) and getDistance("target") <= 40
     then
-        if cast.rainOfFire(nil,"aoe",1,8) then debug("Cast Rain Of Fire [GosupInfernal]") return true end
+        if br.timer:useTimer("RoF Delay", 1) and cast.rainOfFire(nil,"aoe",1,8) then debug("Cast Rain Of Fire [GosupInfernal]") return true end
     end
     -- Chaos Bolt
     -- chaos_bolt,if=buff.backdraft.up
@@ -995,6 +1000,10 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop==true then
         profileStop = false
+    elseif inCombat and IsAoEPending() then
+        SpellStopTargeting()
+        br.addonDebug("Canceling Spell")
+        return false
     elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 or notallowed then
         br.pauseTime = GetTime()
         return true
@@ -1031,7 +1040,7 @@ local function runRotation()
             end
             -- Cataclysm
             -- cataclysm,if=!(pet.infernal.active&dot.immolate.remains+1>pet.infernal.remains)|spell_targets.cataclysm>1|!talent.grimoire_of_supremacy.enabled
-            if mode.cataclysm == 1 and option.checked("Cataclysm") and not moving and cd.cataclysm.remain() <= gcdMax and (not (pet.infernal.active()
+            if br.timer:useTimer("Cata Delay", 2) and mode.cataclysm == 1 and option.checked("Cataclysm") and not moving and cd.cataclysm.remain() <= gcdMax and (not (pet.infernal.active()
             and debuff.immolate.remain(units.dyn40) + 1 > infernalRemain) or (#enemies.yards8t >= option.value("Cataclysm Units")
             or (useCDs() and option.checked("Ignore Cataclysm units when using CDs"))) or not talent.grimoireOfSupremacy)
             then
