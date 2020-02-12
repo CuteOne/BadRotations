@@ -1,5 +1,7 @@
 local rotationName = "Psy"
 
+local colorRed      = "|cffFF0000"
+
 ---------------
 --- Toggles ---
 ---------------
