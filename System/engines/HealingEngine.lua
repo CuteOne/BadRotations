@@ -173,6 +173,11 @@ if not metaTable1 then
 					end
 				end
 			end
+			if br.player.eID == 2343 then
+				if UnitDebuffID(o.unit,310499) and not UnitDebuffID("player",310499) then
+					return 250,250,250
+				end
+			end
 			if UnitBuffID(o.unit,295271) then
 				return 250,250,250
 			end
