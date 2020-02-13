@@ -86,19 +86,21 @@ local function createOptions()
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createSpinner(section, "Bursting", 3, 0, 10, 4, "", "Burst Targets - also counts as number under critical")
-
         br.ui:createCheckbox(section, "Freehold - pig", 0)
-        br.ui:createCheckbox(section, "Freehold - root grenadier", 0)
-        br.ui:createCheckbox(section, "KR - root Spirit of Gold")
-        br.ui:createCheckbox(section, "KR - Minions of Zul")
         br.ui:createCheckbox(section, "Dont DPS spotter")
-        --
-        --
         br.ui:createSpinnerWithout(section, "Temple of Seth Heal", 40, 0, 100, 5)
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Hot Value (calculated to see how much healing is needed for Griev")
         br.ui:createCheckbox(section, "Decaying Mind", 0)
-
         br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, "Radar")
+        br.ui:createCheckbox(section, "Radar On")
+        br.ui:createCheckbox(section, "All - root the thing")
+        br.ui:createCheckbox(section, "FH - root grenadier")
+        br.ui:createCheckbox(section, "AD - root Spirit of Gold")
+        br.ui:createCheckbox(section, "KR - root Minions of Zul")
+        br.ui:checkSectionState(section)
+
         br.ui:createCheckbox(section, "Auto use Pots")
         br.ui:createDropdownWithout(section, "Pots - burst healing", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:checkSectionState(section)
@@ -720,6 +722,8 @@ local function runRotation()
     local inCombat = isInCombat("player")
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
     local inRaid = br.player.instance == "raid"
+
+
     local stealthed = UnitBuffID("player", 5215) ~= nil
     local level = br.player.level
     local lowestHP = br.friend[1].unit
@@ -883,6 +887,15 @@ local function runRotation()
 
         --cw on ourself to survive bursting
         if burst == true and cast.able.cenarionWard() and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2) then
+            if cast.able.cenarionWard() then
+                if cast.cenarionWard("player") then
+                    br.addonDebug("[BURST]: CW on self")
+                    return true
+                end
+            end
+        end
+
+        if cast.able.cenarionWard() and php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2 then
             if cast.able.cenarionWard() then
                 if cast.cenarionWard("player") then
                     br.addonDebug("[BURST]: CW on self")
@@ -1952,6 +1965,35 @@ local function runRotation()
         return false
     end
     local function root_cc()
+
+
+        if isChecked("Radar On") then
+
+
+            local root = "Entangling Roots"
+            if talent.massEntanglement and cast.able.massEntanglement then
+                root = "Mass Entanglement"
+            end
+
+            for i = 1, GetObjectCount() do
+                local object = GetObjectWithIndex(i)
+                local ID = ObjectID(object)
+                if isChecked("All - root the thing") then
+                    if ID == 161895 then
+                        local x1, y1, z1 = ObjectPosition("player")
+                        local x2, y2, z2 = ObjectPosition(object)
+                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                        if distance <= 10 and talent.mightyBash then
+                            CastSpellByName("Mighty Bash", object)
+                            return true
+                        end
+                        if distance < 40 and not isLongTimeCCed(object) then
+                            CastSpellByName(root, object)
+                        end
+                    end
+                end -- end the thing
+            end
+        end
 
         local root_UnitList = {}
         if isChecked("Freehold - root grenadier") and select(8, GetInstanceInfo()) == 1754 then
