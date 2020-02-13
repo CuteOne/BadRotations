@@ -82,6 +82,7 @@ local function createOptions()
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
         br.ui:createCheckbox(section, "Blessing of Freedom Shadhar")
+        br.ui:createCheckbox(section, "Blessing of Freedom Wrathion")
 
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
@@ -401,6 +402,7 @@ local function runRotation()
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario" 
     local inRaid = br.player.instance == "raid"
     local solo = #br.friend == 1
+    local OWGroup = br.player.instance == "none" and #br.friend >= 2
     local race = br.player.race
     local racial = br.player.getRacial()
     local traits = br.player.traits
@@ -889,6 +891,9 @@ local function runRotation()
                     if (isChecked("Blessing of Freedom Shadhar")) and UnitDebuffID(br.friend[i].unit, 318078) ~= nil and (classIndex == 1 or classIndex == 2 or classIndex == 4 or classIndex == 5 or classIndex == 9) then
                         blessingOfFreedomCase = br.friend[i].unit
                     end
+                    if (isChecked("Blessing of Freedom Wrathion")) and debuff.creepingMadness.stack(br.friend[i].unit) >= 45 then
+                        blessingOfFreedomCase = br.friend[i].unit
+                    end
                 end
             end
         end
@@ -1276,7 +1281,7 @@ local function runRotation()
             for i = 1, #br.friend do
                 if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
                     if getOptionValue("Lay on Hands Target") == 1 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or inRaid or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
                             layOnHandsTarget = br.friend[i].unit
                         end
                     elseif getOptionValue("Lay on Hands Target") == 2 then
@@ -1589,6 +1594,7 @@ local function runRotation()
                             (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10)
                                     or (inInstance and #tanks == 0)
                                     or solo
+                                    or OWGroup
                                     or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
                     ) then
                 for i = 1, #enemies.yards40 do
@@ -1609,7 +1615,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo) and cast.able.crusaderStrike() then
+                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() then
                         if cast.crusaderStrike(thisUnit) then
                             return true
                         end
@@ -1747,7 +1753,7 @@ local function runRotation()
             if mode.DPS == 1 or mode.DPS == 3 and
                     isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
                     isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
-                if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo)) then
+                if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup)) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not debuff.glimmerOfLight.exists(thisUnit) then
@@ -1783,7 +1789,7 @@ local function runRotation()
                 if ((isChecked("DPS Mana") and mana > getValue("DPS Mana")) or not isChecked("DPS Mana")) and
                         ((isChecked("DPS Health") and lowest.hp > getValue("DPS Health")) or not isChecked("DPS Health")) and 
                         lowest.hp > getValue("Critical HP") then
-                    if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or inRaid)) then
+                    if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup or inRaid)) then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
