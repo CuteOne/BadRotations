@@ -105,10 +105,15 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createCheckbox(section, "Freehold - pig")
-        br.ui:createCheckbox(section, "Freehold - root grenadier")
-        br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
-        br.ui:createCheckbox(section, "KR - Minions of Zul")
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 0)
+        br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, "Radar")
+        br.ui:createCheckbox(section, "Radar On")
+        br.ui:createCheckbox(section, "All - root the thing")
+        br.ui:createCheckbox(section, "FH - root grenadier")
+        br.ui:createCheckbox(section, "AD - root Spirit of Gold")
+        br.ui:createCheckbox(section, "KR - root Minions of Zul")
         br.ui:checkSectionState(section)
 
         ------------------------
@@ -256,7 +261,7 @@ local function runRotation()
     local debuff = br.player.debuff
     local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
     local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
-    local inCombat = isInCombat("player")
+    local inCombat = br.player.inCombat
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
     local inRaid = br.player.instance == "raid"
     local solo = #br.friend == 1
@@ -332,6 +337,7 @@ local function runRotation()
     local opener = br.player.opener
 
     if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then
+
         opener.count = 0
         opener.WRA1 = false
         opener.WRA2 = false
@@ -341,6 +347,12 @@ local function runRotation()
         opener.PWR = false
         opener.PEW = false
         opener.complete = false
+
+
+
+
+
+
 
         --Clear last cast table ooc to avoid strange casts
         if #br.lastCast.tracker > 0 then
@@ -532,6 +544,35 @@ local function runRotation()
                 end
             end
         end
+
+        if isChecked("Radar On") then
+
+
+            local root = "Entangling Roots"
+            if talent.massEntanglement and cast.able.massEntanglement then
+                root = "Mass Entanglement"
+            end
+
+            for i = 1, GetObjectCount() do
+                local object = GetObjectWithIndex(i)
+                local ID = ObjectID(object)
+                if isChecked("All - root the thing") then
+                    if ID == 161895 then
+                        local x1, y1, z1 = ObjectPosition("player")
+                        local x2, y2, z2 = ObjectPosition(object)
+                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                        if distance <= 10 and talent.mightyBash then
+                            CastSpellByName("Mighty Bash", object)
+                            return true
+                        end
+                        if distance < 45 and not isLongTimeCCed(object) then
+                            CastSpellByName(root, object)
+                        end
+                    end
+                end -- end the thing
+            end
+        end
+
 
         --potion support
         --[[
@@ -883,6 +924,12 @@ local function runRotation()
                             br.addonDebug("QuickDot: Sunfire: " .. buff.celestialAlignment.remains())
                             return
                         end
+
+                        --[[
+                        sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets&(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
+    DoTs]]
+
+
                     end
                     if cast.able.moonfire()
                             and ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd)
@@ -899,8 +946,6 @@ local function runRotation()
                         moonfiretalent = moonfiretalent + 1
                     end
 
-                    -- sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets&(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
-
                     if debuff.sunfire.count() == 0 then
                         if traits.highNoon.active then
                             if cast.sunfire(getBiggestUnitCluster(45, sunfire_radius)) then
@@ -910,16 +955,24 @@ local function runRotation()
                         end
                     end
 
-                    if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or debuff.sunfire.exists(thisUnit)) or isBoss(thisUnit) and
-                            astral_def >= 3 then
+
+
+                    -- sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets
+                    -- &(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
+
+
+
+
+                    if cast.able.sunfire() and astral_def >= 3 and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or debuff.sunfire.exists(thisUnit) or isBoss(thisUnit))
+                    then
                         if not debuff.sunfire.exists(thisUnit) then
                             if (
                                     floor(ttd(thisUnit) / (2 * hasteAmount)) * sunfire_target >= ceil(floor(2 / sunfire_target) * 1.5) + 2 * sunfire_target
                                             and (sunfire_target > 1 + moonfiretalent or debuff.moonfire.exists(thisUnit))
-                                            and (not traits.streakingStars.active or not pewbuff or lastSpellCast ~= spell.sunfire)
+                                            and (not traits.streakingStars.active or not pewbuff or cast.last.sunfire(1))
                                             and ((buff.incarnationChoseOfElune.remain() > debuff.sunfire.remain(thisUnit)
-                                            or buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < debuff.sunfire.remain(thisUnit)) or not pewbuff)
-                                            or isBoss(thisUnit)
+                                            or buff.celestialAlignment.remain() > debuff.sunfire.remain(thisUnit)) or not pewbuff)
+
                             ) then
                                 if cast.sunfire(thisUnit) then
                                     br.addonDebug("Initial Sunfire - non-Cluster")
