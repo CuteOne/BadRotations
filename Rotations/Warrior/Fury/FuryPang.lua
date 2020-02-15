@@ -946,7 +946,7 @@ local function runRotation()
             if cooldownlist() then
                 return
             end
-            if #enemies.yards8 > 1 --[[ and not (isChecked("Dont kill your friends with bursting") or debuff.burst.stack("player") >= getOptionValue("Dont kill your friends with bursting")) ]] then
+            if #enemies.yards8 > 1 and level >= 40 --[[ and not (isChecked("Dont kill your friends with bursting") or debuff.burst.stack("player") >= getOptionValue("Dont kill your friends with bursting")) ]] then
                 --Print("Multi")
                 if multilist() then
                     return
