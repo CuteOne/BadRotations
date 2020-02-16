@@ -83,6 +83,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Blessing of Freedom")
         br.ui:createCheckbox(section, "Blessing of Freedom Shadhar")
         br.ui:createCheckbox(section, "Blessing of Freedom Wrathion")
+        br.ui:createSpinnerWithout(section, "Movement Stacks", 30, 0, 50, 5)
 
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
@@ -887,12 +888,13 @@ local function runRotation()
         if inRaid then
             for i = 1, #br.friend do
                 local localClass, englishClass, classIndex = UnitClass(br.friend[i].unit)
-                if UnitInRange(br.friend[i].unit) then
-                    if (isChecked("Blessing of Freedom Shadhar")) and UnitDebuffID(br.friend[i].unit, 318078) ~= nil and (classIndex == 1 or classIndex == 2 or classIndex == 4 or classIndex == 5 or classIndex == 9) then
-                        blessingOfFreedomCase = br.friend[i].unit
+                local thisUnit = br.friend[i].unit
+                if UnitInRange(thisUnit) then
+                    if (isChecked("Blessing of Freedom Shadhar")) and UnitDebuffID(thisUnit, 318078) ~= nil and (classIndex == 1 or classIndex == 2 or classIndex == 4 or classIndex == 5 or classIndex == 9) then
+                        blessingOfFreedomCase = thisUnit
                     end
-                    if (isChecked("Blessing of Freedom Wrathion")) and debuff.creepingMadness.stack(br.friend[i].unit) >= 45 then
-                        blessingOfFreedomCase = br.friend[i].unit
+                    if (isChecked("Blessing of Freedom Wrathion")) and getDebuffStacks(thisUnit,313255) >= getOptionValue("Movement Stacks") then
+                        blessingOfFreedomCase = thisUnit
                     end
                 end
             end
@@ -1560,7 +1562,7 @@ local function runRotation()
 
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+                if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) then
                     if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
                         TargetUnit("focustarget")
                     end
@@ -1599,7 +1601,7 @@ local function runRotation()
                     ) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) then
                         if cast.holyShock(thisUnit) then
                             return true
                         end
@@ -1614,7 +1616,7 @@ local function runRotation()
             -- Crusader Strike
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+                if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) then
                     if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() then
                         if cast.crusaderStrike(thisUnit) then
                             return true
@@ -1756,7 +1758,7 @@ local function runRotation()
                 if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup)) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) then
+                        if not debuff.glimmerOfLight.exists(thisUnit) and getFacing("player",thisUnit) then
                             if cast.holyShock(thisUnit) then
                                 return true
                             end
@@ -1792,7 +1794,7 @@ local function runRotation()
                     if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup or inRaid)) then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+                            if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player",thisUnit) then
                                 if cast.holyShock(thisUnit) then
                                     return true
                                 end
