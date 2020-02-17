@@ -169,6 +169,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
+		br.ui:createCheckbox(section, "Radar On")
+		br.ui:createCheckbox(section, "All - root the thing")
         br.ui:checkSectionState(section)
 		--------------------
 		-- Essences --------
@@ -190,6 +192,7 @@ local function createOptions()
         br.ui:createDropdown(section, "Purifying Blast", {"Always", "AoE only"}, 1)
 		-- Reaping Flames
 		br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only"}, 1)
+		br.ui:createSpinnerWithout(section, "Reaping Flame Damage", 30, 10, 100, 1)
         br.ui:checkSectionState(section)
 		------------------------
 		--- Mythicplus----------
@@ -317,6 +320,8 @@ local function runRotation()
     local traits = br.player.traits
     local units = br.player.units
 	local ttd = getTTD
+	local reapingDamage = getOptionValue("Reaping Flames Damage") * 1000
+
 
 
 
@@ -890,11 +895,22 @@ local function runRotation()
         end
 		-- Reaping Flames 
 		-- actions+=/reaping_flames,if=!buff.recklessness.up&!buff.siegebreaker.up
-		if isChecked("Reaping Flames") and cast.able.reapingFlames() and (getOptionValue("Reaping Flames") == 1 and not buff.recklessness.exists("player") and not debuff.siegebreaker.exists("target")) then
-			if cast.reapingFlames("target") then
-				return
-			end
-		end
+		for i = 1, #enemies.yards20 do
+            local thisUnit = enemies.yards20[i]
+            local distance = getDistance(thisUnit)
+		--	local enemyUnit.hpabs = UnitHealth(thisUnit)
+                if isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and (getOptionValue("Reaping Flames") == 1 and not buff.recklessness.exists("player") and not debuff.siegebreaker.exists(thisUnit)) then
+                    if cast.reapingFlames(thisUnit) then
+                        br.addonDebug("Reaping 1")
+                        return
+                    end
+                elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 2 and (buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) or (not buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) then
+                    if cast.reapingFlames(thisUnit) then
+                        br.addonDebug("Reaping Snipe")
+                        return
+                    end
+                end
+        end     
     end
 	if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
             if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
@@ -908,6 +924,35 @@ local function runRotation()
     if br.player.mode.lazyass == 1 and hastar and getDistance("target") > 5 then
         RunMacroText("/follow")
     end
+
+
+ if isChecked("Radar On") then
+
+
+            local stun = "Storm Bolt"
+
+            for i = 1, GetObjectCount() do
+                local object = GetObjectWithIndex(i)
+                local ID = ObjectID(object)
+                if isChecked("All - root the thing") then
+                    if ID == 161895 then
+                        local x1, y1, z1 = ObjectPosition("player")
+                        local x2, y2, z2 = ObjectPosition(object)
+                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                        if distance <= 8 then
+                            CastSpellByName("Intimidating Shout", object)
+                            return true
+                        end
+                        if distance < 20 and not isLongTimeCCed(object) and talent.stormBolt then
+                            CastSpellByName(stun, object)
+                        end
+                    end
+                end -- end the thing
+            end
+        end
+
+
+
 
     if isCastingSpell(295258) then 
         return true
