@@ -317,17 +317,21 @@ actionList.Defensive = function()
             if cast.earthShield() then return true end
         end
         -- Healing Surge
-        if option.checked("Healing Surge") and cast.able.healingSurge()
+        if option.checked("Healing Surge") and cast.able.healingSurge() and cast.timeSinceLast.healingSurge() > gcdMax
             and ((inCombat and ((php <= option.value("Healing Surge") / 2 and maelstrom > 20)
                 or (maelstrom >= 90 and php <= option.value("Healing Surge")))) or (not inCombat and php <= option.value("Healing Surge") and not moving))
         then
             if cast.healingSurge() then return true end
         end
         -- Capacitor Totem
-        if option.checked("Capacitor Totem - HP") and cast.able.capacitorTotem() and php <= option.value("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 then
+        if option.checked("Capacitor Totem - HP") and cast.able.capacitorTotem() and cd.capacitorTotem.ready()
+            and php <= option.value("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0
+        then
             if cast.capacitorTotem("player","ground") then return true end
         end
-        if option.checked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and #enemies.yards5 >= option.value("Capacitor Totem - AoE") and inCombat then
+        if option.checked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and cd.capacitorTotem.ready()
+            and #enemies.yards5 >= option.value("Capacitor Totem - AoE") and inCombat
+        then
             if cast.capacitorTotem("best",nil,option.value("Capacitor Totem - AoE"),8) then return true end
         end
     end -- End Defensive Toggle
@@ -348,7 +352,9 @@ actionList.Interrupts = function()
                     if cast.hex(thisUnit) then return true end
                 end
                 -- Capacitor Totem
-                if option.checked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit) and cd.windShear.remain() > gcdMax then
+                if option.checked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit)
+                    and cd.capacitorTotem.ready() and cd.windShear.remain() > gcdMax
+                then
                     if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
                         if cast.capacitorTotem(thisUnit,"ground") then return true end
                     end
@@ -362,6 +368,11 @@ actionList.Cooldowns = function()
     if useCDs() and getDistance("target") < 5 then
         -- Bloodlust/Heroism
         -- bloodlust,if=azerite.ancestral_resonance.enabled
+        -- Heart Essence - Worldvein Resonance
+        -- worldvein_resonance
+        if option.checked("Use Essence") then
+            if cast.worldveinResonance() then return true end
+        end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
         -- berserking,if=variable.cooldown_sync
         -- blood_fury,if=variable.cooldown_sync
@@ -672,13 +683,19 @@ actionList.Filler = function()
     end
     -- Heart Essence - Concentrated Flame
     -- concentrated_flame
-    if option.checked("Use Essence") and cast.able.concentratedFlame() then
+    if option.checked("Use Essence") and cast.able.concentratedFlame() and cd.concentratedFlame.ready() then
         if cast.concentratedFlame() then return true end
     end
-    -- Heart Essence - Worldvein Resonance
-    -- worldvein_resonance,if=buff.lifeblood.stack<4
-    if option.checked("Use Essence") and cast.able.worldveinResonance() then
-        if cast.worldveinResonance() then return true end
+    -- Heart Essence - Reaping Flames
+    -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+    if cast.able.reapingFlames() then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            local thisHP = getHP(thisUnit)
+            if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or ttd(thisUnit,20) > 30) then
+                if cast.reapingFlames(thisUnit) then return true end
+            end
+        end
     end
     -- Crash lightning
     -- crash_lightning,if=talent.forceful_winds.enabled&active_enemies>1&variable.furyCheck_CL
@@ -785,6 +802,7 @@ actionList.PreCombat = function()
                 and getDistance("target") >= 10 and not talent.overcharge
                 and (not option.checked("Feral Lunge") or not talent.feralLunge
                     or cd.feralLunge.remain() > gcdMax or not cast.able.feralLunge())
+                and (not option.checked("Ghost Wolf") or getDistance("target") <= 20 or not buff.ghostWolf.exists())
             then
                 if cast.lightningBolt("target") then return true end
             end
@@ -853,6 +871,7 @@ local function runRotation()
     enemies.yards11r = getEnemiesInRect(10,11,false) or 0
     enemies.get(20) --enemies.yards20 = br.player.enemies(20)
     enemies.get(30) --enemies.yards30 = br.player.enemies(30)
+    enemies.get(40)
 
     -- Custom Profile Specific
 
