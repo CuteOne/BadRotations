@@ -216,8 +216,9 @@ end
 		if getOptionCheck("Forced Burn") then
 			local unitID = GetObjectID(unit)
 			local burnUnit = br.lists.burnUnits[unitID]
+			local unitTime = br.units[unit] ~= nil and br.units[unit].timestamp or GetTime() - 1
 			-- if unit have selected debuff
-			if burnUnit and (burnUnit.cast == nil or not isCasting(burnUnit.cast,unitID)) then
+			if burnUnit and (burnUnit.cast == nil or not isCasting(burnUnit.cast,unitID)) and (GetTime() - unitTime) > 0.25 then
 				if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
 					coef = burnUnit.coef
 				end
@@ -391,7 +392,7 @@ local function findBestUnit(range,facing)
 				local thisUnit = enemyList[i]
 				local unitID = GetObjectExists(thisUnit) and GetObjectID(thisUnit) or 0
 				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
-					local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
+					local isCC = getOptionCheck("Don't break CCs") and #enemyList > 1 and isLongTimeCCed(thisUnit) or false
 					local isSafe = (getOptionCheck("Safe Damage Check") and isSafeToAttack(thisUnit)) or not getOptionCheck("Safe Damage Check") or false
 					-- local thisUnit = v.unit
 					-- local distance = getDistance(thisUnit)
@@ -479,8 +480,6 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
 end
 
 local function getRect(width,length,showLines)
-	local width = width or 10
-	local length = length or 20
 	local px, py, pz = GetObjectPosition("player")
 	local facing = ObjectFacing("player") or 0
 	local halfWidth = width/2
@@ -510,6 +509,35 @@ local function getRect(width,length,showLines)
 end
 
 function getEnemiesInRect(width,length,showLines,checkNoCombat)
+	-- local checkNoCombat = checkNoCombat or false
+	-- local enemyCounter = 0
+	-- local enemiesTable = getEnemies("player",length,checkNoCombat,true)
+	-- local enemiesInRect = enemiesInRect or {}
+	-- local px, py, pz = ObjectPosition("player")
+    -- local facing = ObjectFacing("player") or 0
+	-- local halfWidth = width/2
+	-- local dx, dy
+    -- -- Near Left
+    -- local nlX, nlY, nlZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
+
+    -- if #enemiesTable > 0 then
+    --     table.wipe(enemiesInRect)
+    --     for i = 1, #enemiesTable do
+    --         local thisUnit = enemiesTable[i]
+    --         local tX, tY, tZ = ObjectPosition(thisUnit)
+    --         if tX and tY then
+    --             dx = tX - math.max(nlX, math.min(tX, nlX + width))
+    --             dy = tY - math.max(nlY, math.min(tY, nlY + length))
+	-- 			if dx^2 + dy^2 < UnitCombatReach(thisUnit)^2 then
+	-- 				print("Unit is in Rect")
+    --                 enemyCounter = enemyCounter + 1
+    --                 table.insert(enemiesInRect,thisUnit)
+    --             end
+    --         end
+    --     end
+	-- end
+	-- return enemyCounter, enemiesInRect
+
 	local LibDraw = LibStub("LibDraw-1.0")
 	local checkNoCombat = checkNoCombat or false
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
@@ -525,7 +553,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 			local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))
 			if tX and tY then
 				for i = radius, 0, -0.1 do
-					local pX, pY 
+					local pX, pY
 					if i > 0 then
 						pX, pY = GetPositionBetweenObjects(thisUnit, "player", i) 
 					else
@@ -533,7 +561,6 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 					end
 					if isInside(pX,pY,nlX,nlY,nrX,nrY,frX,frY) then inside = true break end
 				end
-				-- local inside = isInside(teX,teY,nlX,nlY,nrX,nrY,frX,frY) or isInside(tcX,tcY,nlX,nlY,nrX,nrY,frX,frY)
 				if inside then
 					if showLines then
 						LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))

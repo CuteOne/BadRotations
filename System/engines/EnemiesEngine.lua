@@ -27,6 +27,7 @@ if not metaTable2 then
 		guidsh = 0,
 		range = 100,
 		debuffs = {},
+		timestamp = GetTime(),
 	}
 
 	function br.unitSetup:new(unit)
@@ -130,6 +131,7 @@ if not metaTable2 then
 					id = o.objectID,
 					range = o.range,
 					debuffs = o.debuffs,
+					timestamp = GetTime(),
 				}
 			end
 			rawset(table, o.unit, thisUnit)
