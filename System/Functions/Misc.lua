@@ -359,7 +359,7 @@ end
 function enemyListCheck(Unit)
 	local distance = getDistance(Unit, "player")
 	local mcCheck =	(isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or not GetUnitIsFriend(Unit, "player")
-	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player", Unit) and
+	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player", Unit) and UnitHealth(Unit) > 0 and
 		distance < 50 and
 		not isCritter(Unit) and
 		mcCheck and
