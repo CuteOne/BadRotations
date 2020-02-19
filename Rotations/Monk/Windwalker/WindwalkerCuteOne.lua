@@ -103,8 +103,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-            -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask / Crystal")
+            -- Flask
+            br.ui:createDropdownWithout(section,"Flask", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Potion
             br.ui:createCheckbox(section,"Potion")
             -- Racial
@@ -663,7 +663,7 @@ actionList.SingleTarget = function()
     -- Tiger Palm
     -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2
     if cast.able.tigerPalm() and ((not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2)
-        or ttm < 3 or ttd < 3 or isExplosive("target"))        
+        or ttm < 3 or ttd < 3 or isExplosive("target"))
     then
         if cast.tigerPalm() then debug("Casting Tiger Palm [ST]") return true end
     end
@@ -798,21 +798,26 @@ end -- End Action List - Serenity
 actionList.PreCombat = function()
     if not inCombat then
         -- Flask / Crystal
-        -- flask,type=flask_of_the_seventh_demon
-        if option.value("Flask/Crystal") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and use.able.flaskOfTheSeventhDemon() then
+        -- flask
+        local opValue = option.value("Flask")
+        if opValue == 1 and inRaid and use.able.greaterFlaskOfTheCurrents()
+            and not buff.greaterFlaskOfTheCurrents.exists()
+        then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if use.flaskOfTheSeventhDemon() then debug("Using Flask of the Seventh Demon") return true end
-        end
-        if option.value("Flask/Crystal") == 2 and not buff.felFocus.exists() and use.able.repurposedFelFocuser() and not buff.flaskOfTheSeventhDemon.exists() then
-            -- if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+            if use.greaterFlaskOfTheCurrents() then debug("Using Greater Flask of the Currents") return true end
+        elseif opValue == 2 and use.able.repurposedFelFocuser() and not buff.felFocus.exists()
+            and (not inRaid or (inRaid and not buff.greaterFlaskOfTheCurrents.exists()))
+        then
+            if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-            if use.repurposedFelFocuser() then debug("Casting Repurposed Fel Focuser") return true end
-        end
-        if option.value("Flask/Crystal") == 3 and not buff.whispersOfInsanity.exists() and use.able.oraliusWhisperingCrystal() then
-            if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+            if use.repurposedFelFocuser() then debug("Using Repurposed Fel Focuser") return true end
+        elseif opValue == 3 and use.able.oraliusWhisperingCrystal()
+            and not buff.whispersOfInsanity.exists()
+        then
+            if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if use.oraliusWhisperingCrystal() then debug("Casting Oralius Whispering Crystal") return true end
+            if use.oraliusWhisperingCrystal() then debug("Using Oralius's Whispering Crystal") return true end
         end
         if isValidUnit("target") and opener.complete then
             if getDistance("target") < 5 then
