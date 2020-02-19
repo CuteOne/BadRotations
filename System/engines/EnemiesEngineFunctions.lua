@@ -461,20 +461,35 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     local facing = ObjectFacing("player")
     local units = 0
 	local enemiesTable = getEnemies("player",length,checkNoCombat,true)
-
+	local inside = false
     for i = 1, #enemiesTable do
-        local thisUnit = enemiesTable[i]
-        local unitX, unitY, unitZ = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))--GetObjectPosition(thisUnit)
-        if playerX and unitX then
-            local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
-            local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-            local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
-            local finalAngle = shortestAngle/math.pi*180
-            if finalAngle < angle/2 then
+		local thisUnit = enemiesTable[i]
+		local radius = UnitCombatReach(thisUnit)
+        local unitX, unitY, unitZ = GetPositionBetweenObjects(thisUnit, "player", radius)
+		if playerX and unitX then
+			for i = radius, 0, -0.1 do
+				inside = false
+				if i > 0 then
+					unitX, unitY = GetPositionBetweenObjects(thisUnit, "player", i)
+				else
+					unitX, unitY = GetObjectPosition(thisUnit)
+				end
+				local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+				local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+				local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
+				local finalAngle = shortestAngle/math.pi*180
+				if finalAngle < angle/2 then
+					inside = true
+					break
+				end
+			end
+
+            if inside then
                 units = units + 1
             end
         end
-    end
+	end
+
 	-- ChatOverlay(units)
     return units
 end
@@ -550,9 +565,10 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
 			local radius = UnitCombatReach(thisUnit)
-			local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))
+			local tX, tY = GetPositionBetweenObjects(thisUnit, "player", radius)
 			if tX and tY then
 				for i = radius, 0, -0.1 do
+					inside = false
 					local pX, pY
 					if i > 0 then
 						pX, pY = GetPositionBetweenObjects(thisUnit, "player", i) 
