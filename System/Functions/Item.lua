@@ -14,14 +14,14 @@ function canUseItem(itemID)
 	if itemID <= 19 then
 		local slotItemID = GetInventoryItemID("player", itemID)
 		if GetItemSpell(slotItemID) ~= nil then
-			if GetItemCooldown(slotItemID) == 0 then
+			if GetItemCooldown(slotItemID) == 0 and IsUsableItem(slotItemID) then
 				return true
 			end
 		end
 	elseif (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID)) and
 	((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and hasItem(itemID)))
 	then 
-		if itemID > 19 and GetItemCooldown(itemID) == 0 then
+		if itemID > 19 and GetItemCooldown(itemID) == 0 and IsUsableItem(itemID) then
 			return true
 			end
 		end
