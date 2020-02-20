@@ -98,6 +98,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Whirling Dragon Punch")
             -- Whirling Dragon Punch Targets
             br.ui:createSpinnerWithout(section, "Whirling Dragon Punch Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Whirling Dragon Punch on.")
+            -- Ring of Peace at Mouseover
+            br.ui:createDropdown(section, "Ring of Peace", br.dropOptions.Toggle, 6, "Hold this key to cast Ring of Peace at Mouseover")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -248,6 +250,14 @@ end
 local actionList = {}
 -- Action List - Extras
 actionList.Extras = function()
+    -- Ring of Peace at Mouseover
+    if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
+        if cast.able.ringOfPeace() then
+            if CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
+                return true
+            end
+        end
+    end
     -- Stop Casting
     if isCastingSpell(spell.cracklingJadeLightning) then
         --   Print("channeling cjl")
