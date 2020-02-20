@@ -169,8 +169,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
-		br.ui:createCheckbox(section, "Radar On")
-		br.ui:createCheckbox(section, "All - root the thing")
         br.ui:checkSectionState(section)
 		--------------------
 		-- Essences --------
@@ -263,6 +261,9 @@ local function createOptions()
 		--- CORRUPTION ---------
 		------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Corruption")
+		br.ui:createCheckbox(section, "Radar On")
+		br.ui:createCheckbox(section, "All - stun the thing")
+		br.ui:createCheckbox(section, "Fear the thing")
         br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
         br.ui:checkSectionState(section)
     end
@@ -904,7 +905,7 @@ local function runRotation()
                         br.addonDebug("Reaping 1")
                         return
                     end
-                elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 2 and (buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) or (not buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) then
+                elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 2 and (buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= (reapingDamage * 2))) or (not buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) then
                     if cast.reapingFlames(thisUnit) then
                         br.addonDebug("Reaping Snipe")
                         return
@@ -934,13 +935,14 @@ local function runRotation()
             for i = 1, GetObjectCount() do
                 local object = GetObjectWithIndex(i)
                 local ID = ObjectID(object)
-                if isChecked("All - root the thing") then
+                if isChecked("All - stun the thing") then
                     if ID == 161895 then
                         local x1, y1, z1 = ObjectPosition("player")
                         local x2, y2, z2 = ObjectPosition(object)
                         local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 8 then
+                        if distance <= 8 and isChecked("Fear the thing") then
                             CastSpellByName("Intimidating Shout", object)
+							br.addonDebug("Fearing the Thing")
                             return true
                         end
                         if distance < 20 and not isLongTimeCCed(object) and talent.stormBolt then
