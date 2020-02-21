@@ -1,4 +1,4 @@
-local rotationName = "Fiskee - 8.1"
+local rotationName = "Fiskee - 8.3"
 local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
 br.rogueTables = {}
 local rogueTables = br.rogueTables
@@ -108,10 +108,14 @@ local function createOptions()
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
         ------------------------
-        --- CORRUPTION 8.3 --- -- Define Cloak Useage
+        --- CORRUPTION 8.3 --- -- Define Cloak Usage
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
             br.ui:createDropdownWithout(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createDropdownWithout(section, "Cloak of Shadows Corruption", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createCheckbox(section, "Vanish THING", "|cffFFFFFF Will use Vanish when Thing from beyond spawns")
+            br.ui:createCheckbox(section, "Shadowmeld THING", "|cffFFFFFF Will use shadowmeld when Thing from beyond spawns")
+            br.ui:createCheckbox(section, "Blind THING", "|cffFFFFFF Will use blind on Thing from beyond")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -573,7 +577,7 @@ local function runRotation()
             [120651]=true, -- Explosive
             [136330]=true, -- Soul Thorns Waycrest Manor
             [134388]=true, -- A Knot of Snakes
-            [159578]=true  -- Exposed Synapse
+            [159578]=true, -- Exposed Synapse
         }
         if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (not isChecked("Dot Players") and UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
             if combo > 0 and GetObjectID("target") == 134388 then
@@ -689,6 +693,26 @@ local function runRotation()
                 or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
                 or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then end
+                end
+            elseif not canUseItem(br.player.items.shroudOfResolve) then
+                if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
+                 or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
+                 or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
+                    if cast.cloakOfShadows() then return true end
+                elseif debuff.grandDelusions.exists("player") then
+                    if isChecked("Vanish THING") then
+                        if cast.vanish("player") then return true end
+                    elseif isChecked("Shadowmeld THING") then
+                        if cast.shadowmeld() then return true end    
+                    end
+                elseif isChecked("Blind THING") and debuff.grandDelusions.exists("player") then
+                    for i = 1, GetObjectCount() do
+                        local object = GetObjectWithIndex(i)
+                        local ID = ObjectID(object)
+                        if ID == 161895 then
+                            if cast.blind(object) then return true end
+                        end
+                    end
                 end
             end
         end
@@ -873,11 +897,17 @@ local function runRotation()
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1&(spell_targets.fan_of_knives<6|!cooldown.vanish.up))&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
             if isChecked("Vendetta") and not stealthedRogue and not debuff.vendetta.exists("target") then
-                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or mode.vanish == 2 or cd.vanish.remain() > 110) and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
-                and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 10) then
+                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 
+                 and (enemies10 < 6 or cd.vanish.remain() > 0)) or mode.vanish == 2 or cd.vanish.remain() > 110) 
+                 and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
+                 and (not essence.worldveinResonance.active or buff.worldveinResonance.exists() or cd.worldveinResonance.remain() > 1)
+                 and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) 
+                 and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 10) then
                     if cast.vendetta("target") then return true end
                 end
-                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) then
+                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate 
+                 or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") 
+                 and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) then
                     if cast.vendetta("target") then return true end
                 end
             end
@@ -949,7 +979,9 @@ local function runRotation()
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
-        if talent.toxicBlade and mode.tb == 1 and ttd("target") > 3 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") and (not talent.masterAssassin or not buff.masterAssassin.exists()) then
+        if talent.toxicBlade and mode.tb == 1 and ttd("target") > 3 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") 
+         and (not talent.masterAssassin or not buff.masterAssassin.exists()) 
+         and (not essence.bloodOfTheEnemy.active or buff.seethingRage.exists() or cd.bloodOfTheEnemy.remain() > 1) then
             if cast.toxicBlade("target") then return true end
         end
         if debuff.rupture.exists("target") and not stealthedRogue then
