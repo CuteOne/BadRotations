@@ -111,6 +111,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Blast Wave",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Blazing Barrier
             br.ui:createSpinner(section,"Blazing Barrier", 85, 0, 100, 5,   "|cffFFBB00Health Percentage to use at.")
+            br.ui:createCheckbox(section, "Blazing Barrier OOC")
         -- Frost Nova
             br.ui:createSpinner(section, "Frost Nova",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Ice Block
@@ -324,7 +325,7 @@ local function runRotation()
                     end
                 end
         -- Blazing Barrier
-                if isChecked("Blazing Barrier") and php <= getOptionValue("Blazing Barrier") and not buff.blazingBarrier.exists() and not isCastingSpell(spell.fireball) and not buff.hotStreak.exists() and not buff.heatingUp.exists() then
+                if isChecked("Blazing Barrier") and ((php <= getOptionValue("Blazing Barrier") and inCombat) or (isChecked("Blazing Barrier OOC") and not inCombat)) and not buff.blazingBarrier.exists() and not isCastingSpell(spell.fireball) and not buff.hotStreak.exists() and not buff.heatingUp.exists() then
                     if cast.blazingBarrier("player") then return end
                 end
         -- Iceblock
