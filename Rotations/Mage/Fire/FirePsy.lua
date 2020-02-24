@@ -571,7 +571,7 @@ local function runRotation()
                 end
         -- Memory of Lucid Dreams
                 if isChecked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and cd.combustion.remains() <= gcd 
-                    and not moving and (not talent.firestarter or (talent.firestarter and (getHP("target") <= 90) and #enemies.yards8t >= 3))
+                    and not moving and (not talent.firestarter or (talent.firestarter and (getHP("target") <= 90) or #enemies.yards8t >= 3))
                 then
                     if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return end
                 end
