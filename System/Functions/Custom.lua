@@ -511,7 +511,7 @@ function getBiggestUnitCluster(maxRange,radius,minCount)
     if type(maxRange) ~= "number" then return nil end
     if type(radius) ~= "number" then return nil end
 
-    local enemiesInRange = minCount
+    local enemiesInRange = minCount or 0
     local theReturnUnit
     local foundCluster = false
 
