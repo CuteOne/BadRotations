@@ -497,7 +497,7 @@ function getUnitCluster(minUnits,maxRange,radius)
     return select(1,theReturnUnit)
 end
 
-function getBiggestUnitCluster(maxRange,radius)
+function getBiggestUnitCluster(maxRange,radius,minCount)
     -- Description:
     -- returns the enemy with most enemies in radius in maxRange from player
 
@@ -511,8 +511,9 @@ function getBiggestUnitCluster(maxRange,radius)
     if type(maxRange) ~= "number" then return nil end
     if type(radius) ~= "number" then return nil end
 
-    local enemiesInRange = 0
+    local enemiesInRange = minCount
     local theReturnUnit
+    local foundCluster = false
 
     for i=1,#br.enemy do
         local thisUnit = br.enemy[i].unit
@@ -520,11 +521,12 @@ function getBiggestUnitCluster(maxRange,radius)
             if br.enemy[i].distance < maxRange then
                 if getNumEnemies(thisUnit,radius) > enemiesInRange then
                     theReturnUnit = thisUnit
+                    foundCluster = true
                 end
             end
         end
     end
-    return select(1,theReturnUnit)
+    return theReturnUnit, foundCluster
 end
 
 
