@@ -397,9 +397,9 @@ actionList.Cooldowns = function()
             end
         end
         -- Azshara's Font of Power
-        -- use_item,name=azsharas_font_of_power,if=target.time_to_die>10
+        -- use_item,name=azsharas_font_of_power,if=cooldown.aspect_of_the_wild.remains_guess<15&target.time_to_die>10
         -- Ashvane's Razor Coral
-        -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.up&(prev_gcd.1.aspect_of_the_wild|!equipped.cyclotronic_blast&buff.aspect_of_the_wild.remains>5)&(target.health.pct<35|!essence.condensed_lifeforce.major|!talent.killer_instinct.enabled)|(debuff.razor_coral_debuff.down|target.time_to_die<26)&target.time_to_die>(24*(cooldown.cyclotronic_blast.remains+4<target.time_to_die))
+        -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.up&(!equipped.azsharas_font_of_power|trinket.azsharas_font_of_power.cooldown.remains>86|essence.blood_of_the_enemy.major)&(prev_gcd.1.aspect_of_the_wild|!equipped.cyclotronic_blast&buff.aspect_of_the_wild.remains>5)&(!essence.condensed_lifeforce.major|buff.guardian_of_azeroth.up)&(target.health.pct<35|!essence.condensed_lifeforce.major|!talent.killer_instinct.enabled)|(debuff.razor_coral_debuff.down|target.time_to_die<26)&target.time_to_die>(24*(cooldown.cyclotronic_blast.remains+4<target.time_to_die))
         -- Pocket Sized Computation Device
         -- use_item,effect_name=cyclotronic_blast,if=!buff.bestial_wrath.up
         if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() 
@@ -441,39 +441,43 @@ actionList.Cooldowns = function()
         -- if cast.able.potion() and (buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() and (thp(units.dyn40) < 35 or not talent.killerInstinct) or ttd(units.dyn40) < 25) then
         --     if cast.potion() then return end
         -- end
-        -- Heart Essence
-        if isChecked("Use Essence") then
-            -- worldvein_resonance
-            if cast.able.worldveinResonance() then
-                if cast.worldveinResonance() then return end
-            end
-            -- guardian_of_azeroth,if=cooldown.aspect_of_the_wild.remains<10|target.time_to_die>cooldown+duration|target.time_to_die<30
-            if cast.able.guardianOfAzeroth() and (cd.aspectOfTheWild.remain() < 10
-                or ttd(units.dyn40) > cd.guardianOfAzeroth.remain() + 180 or (ttd(units.dyn40) < 30 and useCDs()))
-            then
-                if cast.guardianOfAzeroth() then return end
-            end
-            -- ripple_in_space
-            if cast.able.rippleInSpace() then
-                if cast.rippleInSpace() then return end
-            end
-            -- memory_of_lucid_dreams
-            if cast.able.memoryOfLucidDreams() then
-                if cast.memoryOfLucidDreams() then return end
-            end
-            -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-            if cast.able.reapingFlames() and (getHP(units.dyn40) > 80 or getHP(units.dyn40) <= 20 or getTTD(units.dyn40,20) > 30) then
-                if cast.reapingFlames() then return end
-            end
-        end
-        -- Aspect of the Wild
-        -- aspect_of_the_wild,precast_time=1.1,if=!azerite.primal_instincts.enabled
-        if isChecked("Aspect of the Wild") and cast.able.aspectOfTheWild()
-            and (not traits.primalInstincts.active) and ttd(units.dyn40) > 15
-        then
-            if cast.aspectOfTheWild() then return end
-        end
     end -- End useCooldowns check
+    -- Heart Essence
+    if isChecked("Use Essence") then
+        -- worldvein_resonance,if=(prev_gcd.1.aspect_of_the_wild|cooldown.aspect_of_the_wild.remains<gcd|target.time_to_die<20)|!essence.vision_of_perfection.minor
+        if cast.able.worldveinResonance() and useCDs()
+            and ((cast.last.aspectOfTheWild() or cd.aspectOfTheWild.remain() < gcdMax or ttd(units.dyn40) < 20)
+            or not essence.visionOfPerfection.minor)
+        then
+            if cast.worldveinResonance() then return end
+        end
+        -- guardian_of_azeroth,if=cooldown.aspect_of_the_wild.remains<10|target.time_to_die>cooldown+duration|target.time_to_die<30
+        if cast.able.guardianOfAzeroth() and useCDs() and (cd.aspectOfTheWild.remain() < 10
+            or ttd(units.dyn40) > cd.guardianOfAzeroth.remain() + 180 or (ttd(units.dyn40) < 30 and useCDs()))
+        then
+            if cast.guardianOfAzeroth() then return end
+        end
+        -- ripple_in_space
+        if cast.able.rippleInSpace() and useCDs() then
+            if cast.rippleInSpace() then return end
+        end
+        -- memory_of_lucid_dreams
+        if cast.able.memoryOfLucidDreams() and useCDs() then
+            if cast.memoryOfLucidDreams() then return end
+        end
+        -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+        if cast.able.reapingFlames() and (getHP(units.dyn40) > 80 or getHP(units.dyn40) <= 20 or getTTD(units.dyn40,20) > 30) then
+            if cast.reapingFlames() then return end
+        end
+    end
+    -- Aspect of the Wild
+    -- aspect_of_the_wild,precast_time=1.1,if=!azerite.primal_instincts.enabled
+    if isChecked("Aspect of the Wild") and useCDs()
+        and cast.able.aspectOfTheWild() and (not traits.primalInstincts.active)
+        and ttd(units.dyn40) > 15
+    then
+        if cast.aspectOfTheWild() then return end
+    end
     -- Bestial Wrath
     -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!essence.essence_of_the_focusing_iris.major)&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
     if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
