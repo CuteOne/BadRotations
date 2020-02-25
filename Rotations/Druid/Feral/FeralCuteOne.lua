@@ -234,6 +234,7 @@ local minCount
 local noDoT
 local profileStop = false
 local range
+local reapingDelay
 local ripDuration
 local unit5ID
 local useThrash
@@ -742,25 +743,34 @@ actionList.Cooldowns = function()
             if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
                 if cast.purifyingBlast("best", nil, minCount, 8) then ui.debug("Casting Purifying Blast") return true end
             end
-            -- Essence: Heart Essence
-            -- heart_essence,if=buff.tigers_fury.up
             if buff.tigersFury.exists() then
-                -- Essence: Concentrated Flame
-                if cast.able.concentratedFlame() then
-                    if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame") return true end
-                end
                 -- Essence: Guardian of Azeroth
+                -- guardian_of_azeroth,if=buff.tigers_fury.up
                 if useCDs() and cast.able.guardianOfAzeroth() then
                     if cast.guardianOfAzeroth() then ui.debug("Casting Guardian of Azeroth") return end
                 end
+                -- Essence: Concentrated Flame
+                -- concentrated_flame,if=buff.tigers_fury.up
+                if cast.able.concentratedFlame() then
+                    if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame") return true end
+                end
+                -- Essence: Ripple In Space
+                -- ripple_in_space,if=buff.tigers_fury.up
+                if cast.able.rippleInSpace() then
+                    if cast.rippleInSpace() then ui.debug("Casting Ripple In Space") return end
+                end
                 -- Essence: Worldvein Resonance
+                -- worldvein_resonance,if=buff.tigers_fury.up
                 if cast.able.worldveinResonance() then
                     if cast.worldveinResonance() then ui.debug("Casting Worldvein Resonance") return end
                 end
             end
             -- Essence: Reaping Flames
-            -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-            if cast.able.reapingFlames() and (getHP(units.dyn5) > 80 or getHP(units.dyn5) <= 20 or getTTD(units.dyn5,20) > 30) then
+            -- reaping_flames,target_if=target.time_to_die<5|((target.health.pct>80|target.health.pct<=20)&variable.reaping_delay>25)|(target.time_to_pct_20>30&variable.reaping_delay>40)
+            if cast.able.reapingFlames() and (ttd(units.dyn5) < 5
+                or (((getHP(units.dyn5) > 80 or getHP(units.dyn5) <= 20) and reapingDelay > 25)
+                or (getTTD(units.dyn5,20) > 30 and reapingDelay > 40)))
+            then
                 if cast.reapingFlames() then ui.debug("Casting Reaping Flames") return true end
             end
         end
@@ -927,7 +937,7 @@ actionList.Opener = function()
                 opener.count = opener.count + 1
                 return
             -- Finish (rip exists)
-            elseif opener.RIP1 then
+            elseif opener.RIP1 and (debuff.rip.exists("target") or comboPoints == 0) then
                 Print("Opener Complete")
                 opener.count = 0
                 opener.complete = true
@@ -1429,6 +1439,17 @@ local function runRotation()
     -- variable,name=use_thrash,value=0
     -- variable,name=use_thrash,value=2,if=azerite.wild_fleshrending.enabled
     useThrash = traits.wildFleshrending.active and 2 or 0
+    -- variable,name=reaping_delay,value=target.time_to_die,if=variable.reaping_delay=0
+    if reapingDelay == nil or 0 then reapingDelay = getTTD(units.dyn5) end
+    -- cycling_variable,name=reaping_delay,op=min,value=target.time_to_die
+    local lowestTTD = 999
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
+        if getTTD(thisUnit) < lowestTTD then
+            lowestTTD = getTTD(thisUnit)
+        end
+    end
+    reapingDelay = lowestTTD
 
     ---------------------
     --- Begin Profile ---
