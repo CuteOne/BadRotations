@@ -443,7 +443,9 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2  or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) and (not debuff.vendetta.exists("target") and not debuff.toxicBlade.exists("target")) then
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
+             and (mode.rotation ~= 2  or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) 
+             and (not debuff.vendetta.exists("target") and not debuff.toxicBlade.exists("target")) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -687,14 +689,14 @@ local function runRotation()
                 if cast.feint() then return true end
             end
             -- Corruption stuff
-            -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
+            -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
             if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
                 if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                 or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
                 or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then end
                 end
-            elseif not canUseItem(br.player.items.shroudOfResolve) then
+            elseif not canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 then
                 if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
                  or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
                  or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
@@ -710,7 +712,7 @@ local function runRotation()
                         local object = GetObjectWithIndex(i)
                         local ID = ObjectID(object)
                         if ID == 161895 then
-                            if cast.blind(object) then return true end
+                            CastSpellByName("Blind", object) return true
                         end
                     end
                 end
@@ -955,7 +957,7 @@ local function runRotation()
                     if cast.guardianOfAzeroth("player") then return true end
                 end
                 --Blood Of The Enemy
-                if debuff.vendetta.exists("target") then
+                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) then
                     if cast.bloodOfTheEnemy("player") then return true end
                 end
                 --The Unbound Force
@@ -980,8 +982,7 @@ local function runRotation()
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
         if talent.toxicBlade and mode.tb == 1 and ttd("target") > 3 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") 
-         and (not talent.masterAssassin or not buff.masterAssassin.exists()) 
-         and (not essence.bloodOfTheEnemy.active or buff.seethingRage.exists() or cd.bloodOfTheEnemy.remain() > 1) then
+         and (not talent.masterAssassin or not buff.masterAssassin.exists()) then
             if cast.toxicBlade("target") then return true end
         end
         if debuff.rupture.exists("target") and not stealthedRogue then
@@ -1015,7 +1016,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin)
+        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin or talent.subterfuge)
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
