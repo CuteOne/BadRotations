@@ -50,7 +50,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.0")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 1 / Max: 60 / Interval: 5")
         br.ui:checkSectionState(section)
@@ -485,11 +485,11 @@ local function runRotation()
                 if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
             end
         -- Living Bomb
-            if talent.livingBomb and ttd("target") >= 8 then
+            if talent.livingBomb and ttd("target") >= 8 and not buff.combustion.exists("player") then
                 if cast.livingBomb() then br.addonDebug("Casting Living Bomb") return end
             end
         -- Dragon's Breath
-            if (getFacing("player","target") and getDistance("target") <= 6) then
+            if (getFacing("player","target") and getDistance("target") <= 6) and not buff.combustion.exists("player") then
                 if cast.dragonsBreath("player","cone",1,10) then br.addonDebug("Casting Dragon's Breath") return end
             end
         -- Phoenix Flames
