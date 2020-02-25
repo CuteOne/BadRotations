@@ -87,7 +87,7 @@ function br.lootManager:emptySlots()
 	end
 	return openSlots
 end
-function br.lootManager:getLoot(lootUnit)
+function br.lootManager:getLoot(lootUnit, thisRange)
 	local looting = false
 	-- if we have a unit to loot, check if its time to
 	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
@@ -95,16 +95,21 @@ function br.lootManager:getLoot(lootUnit)
 			looting = true
 			--Print("Looting "..UnitName(lootUnit))
 			lM:debug("Looting " .. UnitName(lootUnit))
-			InteractUnit(lootUnit)
-			-- Manually loot if Auto Loot Interface Option not set
-			if GetCVar("AutoLootDefault") == "0" then
-				if LootFrame:IsShown() then
-					for l = 1, GetNumLootItems() do
-						if LootSlotHasItem(l) then
-							LootSlot(l)
+			if isKnown(125050) and thisRange > 8 then
+				CastSpellByName(GetSpellInfo(125050),lootUnit)
+			end
+			if thisRange < 2 then
+				InteractUnit(lootUnit)
+				-- Manually loot if Auto Loot Interface Option not set
+				if GetCVar("AutoLootDefault") == "0" then
+					if LootFrame:IsShown() then
+						for l = 1, GetNumLootItems() do
+							if LootSlotHasItem(l) then
+								LootSlot(l)
+							end
 						end
+						CloseLoot()
 					end
-					CloseLoot()
 				end
 			end
 			-- Clean Up
@@ -121,10 +126,13 @@ function br.lootManager:findLoot()
 		lM:debug("Find Unit")
 		for k, v in pairs(br.lootable) do
 			local thisUnit = br.lootable[k].unit
-			if GetObjectExists(thisUnit) and getDistance("player", thisUnit) < 2 then
+			local thisRange = getDistance("player", thisUnit)
+			if GetObjectExists(thisUnit) and (thisRange < 2
+				or (isKnown(125050 and thisRange < 40))) -- Fetch
+			then
 				--Print("Should loot "..UnitName(thisUnit))
 				lM:debug("Should loot " .. UnitName(thisUnit))
-				lM:getLoot(thisUnit)
+				lM:getLoot(thisUnit,thisRange)
 				break
 			end
 		end
