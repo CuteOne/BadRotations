@@ -1312,9 +1312,9 @@ local function runRotation()
                 if actionList.Cooldown() then return true end
                 if (mode.rotation == 1 and eagleScout() < 3) or (mode.rotation == 3 and eagleScout() > 0) or level < 28 then
                     -- Mongoose Bite
-                    -- mongoose_bite,if=talent.alpha_predator.enabled&target.time_to_die<10|target.time_to_die<5
-                    if cast.able.mongooseBite() and talent.mongooseBite
-                        and ((talent.alphaPredator and ttd(eagleUnit) < 10) or ttd(eagleUnit) < 5)
+                    -- mongoose_bite,if=active_enemies=1&(talent.alpha_predator.enabled&target.time_to_die<10|target.time_to_die<5)
+                    if cast.able.mongooseBite() and (mode.rotation == 3 or #enemies.yards5 == 1) and (talent.mongooseBite
+                        and ((talent.alphaPredator and ttd(eagleUnit) < 10) or ttd(eagleUnit) < 5))
                     then
                         if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
                     end
