@@ -61,7 +61,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.0")
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
@@ -482,6 +482,16 @@ actionList.Cooldowns = function()
         -- memory_of_lucid_dreams,if=fury<40&buff.metamorphosis.up
         if useCDs() and buff.metamorphosis.exists() and power < 40 then
             if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
+        end
+        --reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+        if essence.reapingFlames.active and cd.reapingFlames.remain() <= gcd then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                local thisHP = getHP(thisUnit)
+                if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                    if cast.reapingFlames(thisUnit) then debug("Casting Reaping Flames") return true end
+                end
+            end
         end
     end
 end -- End Action List - Cooldowns
