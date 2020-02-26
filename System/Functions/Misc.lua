@@ -357,6 +357,15 @@ function isTargeting(Unit, MatchUnit)
 end
 
 function enemyListCheck(Unit)
+	local targetBuff = 0
+	local playerBuff = 0
+	if UnitDebuffID(Unit,310499) then 
+		targetBuff = 1
+	end
+	if UnitDebuffID("player",310499) then
+		playerBuff = 1
+	end
+	if targetBuff ~= playerBuff then return false end
 	local distance = getDistance(Unit, "player")
 	local mcCheck =	(isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or not GetUnitIsFriend(Unit, "player")
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player", Unit) and UnitHealth(Unit) > 0 and
