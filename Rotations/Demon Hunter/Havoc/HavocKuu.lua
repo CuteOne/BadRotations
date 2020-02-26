@@ -814,6 +814,7 @@ local function runRotation()
     enemies.get(8,"target") -- makes enemies.yards8t
     enemies.get(10)
     enemies.get(20)
+    enemies.get(40)
     enemies.get(50)
     enemies.yards8r = getEnemiesInRect(2,20,isChecked("Show Drawings"),false)
 
