@@ -233,7 +233,7 @@ function BadRotationsUpdate(self)
 
 					-- Anti-Afk
 					br.antiAfk()
-					
+
 					-- Fishing
 					br.fishing()
 

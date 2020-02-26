@@ -1163,6 +1163,7 @@ br.lists.spells = {
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
                 feignDeath                  = 5384,
+                fetch                       = 125050,
                 flare                       = 1543,
                 freezingTrap                = 187650,
                 growl                       = 2649,

@@ -90,68 +90,85 @@ end
 
 local looting = false
 function br.lootManager:getLoot(lootUnit)
-	local thisRange = getDistance("player", lootUnit) or 0
+	local looting = false
 	-- if we have a unit to loot, check if its time to
 	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
 		if not looting then
-			hasLoot, canLoot = CanLootUnit(lootUnit)
-			--Print("Looting "..UnitName(lootUnit))
+			looting = true
 			lM:debug("Looting " .. UnitName(lootUnit))
-			if isKnown(125050) and thisRange > 8 then
-				CastSpellByName(GetSpellInfo(125050),"pet")
-				looting = true
-			end
-			if thisRange < 2 and canLoot then
-				looting = true
-				InteractUnit(lootUnit)
-				-- Manually loot if Auto Loot Interface Option not set
-				if GetCVar("AutoLootDefault") == "0" then
-					if LootFrame:IsShown() then
-						for l = 1, GetNumLootItems() do
-							if LootSlotHasItem(l) then
-								LootSlot(l)
-							end
+			InteractUnit(lootUnit)
+			-- Manually loot if Auto Loot Interface Option not set
+			if GetCVar("AutoLootDefault") == "0" then
+				if LootFrame:IsShown() then
+					for l = 1, GetNumLootItems() do
+						if LootSlotHasItem(l) then
+							LootSlot(l)
 						end
-						CloseLoot()
 					end
+					CloseLoot()
 				end
 			end
-			-- Clean Up
-			looting = false
-			ClearTarget()
-			lM.lootUnit = nil
-			br.lootable = {}
-			return
 		end
+		-- Clean Up
+		ClearTarget()
+		looting = false
+		lM.lootUnit = nil
+		br.lootable = {}
+		return
 	end
 end
-function br.lootManager:findLoot()
-	if br.timer:useTimer("findLoot", getOptionValue("Auto Loot")) then
-		lM:debug("Find Unit")
-		for k, v in pairs(br.lootable) do
-			local thisUnit = br.lootable[k].unit
-			local thisRange = getDistance("player", thisUnit)
-			if GetObjectExists(thisUnit) and (thisRange < 2
-				or (isKnown(125050) and thisRange < 40)) -- Fetch
-			then
-				--Print("Should loot "..UnitName(thisUnit))
-				lM:debug("Should loot " .. UnitName(thisUnit))
-				lM:getLoot(thisUnit)
-				break
-			end
-		end
-	end
-end
+-- function br.lootManager:getLoot(lootUnit)
+-- 	local looting = false
+-- 	-- if we have a unit to loot, check if its time to
+-- 	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
+-- 		if not looting then
+-- 			looting = true
+-- 			--Print("Looting "..UnitName(lootUnit))
+-- 			lM:debug("Looting " .. UnitName(lootUnit))
+-- 			InteractUnit(lootUnit)
+-- 			-- Manually loot if Auto Loot Interface Option not set
+-- 			if GetCVar("AutoLootDefault") == "0" then
+-- 				if LootFrame:IsShown() then
+-- 					for l = 1, GetNumLootItems() do
+-- 						if LootSlotHasItem(l) then
+-- 							LootSlot(l)
+-- 						end
+-- 					end
+-- 					CloseLoot()
+-- 				end
+-- 			end
+-- 			-- Clean Up
+-- 			ClearTarget()
+-- 			looting = false
+-- 			lM.lootUnit = nil
+-- 			br.lootable = {}
+-- 			return
+-- 		end
+-- 	end
+-- end
+-- function br.lootManager:findLoot()
+-- 	if br.timer:useTimer("findLoot", getOptionValue("Auto Loot")) then
+-- 		lM:debug("Find Unit")
+-- 		for k, v in pairs(br.lootable) do
+-- 			local thisUnit = br.lootable[k].unit
+-- 			local hasLoot, canLoot = CanLootUnit(thisUnit)
+-- 			if GetObjectExists(thisUnit) and canLoot then
+-- 				--Print("Should loot "..UnitName(thisUnit))
+-- 				lM:debug("Should loot " .. UnitName(thisUnit))
+-- 				lM:getLoot(thisUnit)
+-- 				break
+-- 			end
+-- 		end
+-- 	end
+-- end
 function br.lootManager:lootCount()
 	local lootCount = 0
 	lM.lootUnit = nil
 	for k, v in pairs(br.lootable) do
 		if br.lootable[k] ~= nil then
 			local thisUnit = br.lootable[k].unit
-			local thisRange = getDistance("player", thisUnit)
-			if GetObjectExists(thisUnit) and (thisRange < 2
-				or (isKnown(125050) and thisRange < 40)) -- Fetch
-			then
+			local hasLoot, canLoot = CanLootUnit(br.lootable[k].guid)
+			if GetObjectExists(thisUnit) and canLoot then
 				lootCount = lootCount + 1
 				lM.lootUnit = br.lootable[k].unit
 				break
@@ -167,7 +184,7 @@ function autoLoot()
 			if lM and lM:lootCount() > 0 then
 				if lM:emptySlots() ~= 0 then
 					if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and not IsMounted("player") and GetUnitSpeed("player") == 0 then
-						--Print("Finding loot")
+						Print("Getting Loot")
 						lM:getLoot(lM.lootUnit)
 					end
 				else

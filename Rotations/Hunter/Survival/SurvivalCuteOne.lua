@@ -99,6 +99,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Cat-like Reflexes", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
             -- Dash
             br.ui:createCheckbox(section, "Dash")
+            -- Fetch
+            br.ui:createCheckbox(section, "Fetch")
             -- Play Dead / Wake Up
             br.ui:createSpinner(section, "Play Dead / Wake Up", 25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Prowl/Spirit Walk

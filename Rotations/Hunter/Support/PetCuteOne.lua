@@ -1,4 +1,6 @@
 -- Action List - Pet Management
+local fetching = false
+local fetchCount = 0
 br.rotations.support["PetCuteOne"] = function()
     local function getCurrentPetMode()
         local petMode = "None"
@@ -212,5 +214,30 @@ br.rotations.support["PetCuteOne"] = function()
         and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile and not pause()
     then
         if cast.mendPet() then return end
+    end
+    -- Fetch
+    local function getLootableCount()
+        local count = 0
+        for k, v in pairs(br.lootable) do
+            if br.lootable[k] ~= nil and getDistance(br.lootable[k]) > 8 then
+                count = count + 1
+            end
+        end
+        return count
+    end
+
+    if isChecked("Fetch") and not inCombat and cast.able.fetch() and petExists and not deadPet and not haltProfile and not pause() then
+        if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
+        for k, v in pairs(br.lootable) do
+            if br.lootable[k] ~= nil then
+                if getDistance(br.lootable[k]) > 8 and not fetching then
+                    cast.fetch("pet")
+                    fetchCount = getLootableCount()
+                    fetching = true
+                    -- Print("Pet is fetching loot! "..fetchCount.." loots found!")
+                    break
+                end
+            end
+        end
     end
 end -- End Action List - Pet Management
