@@ -184,7 +184,7 @@ function autoLoot()
 			if lM and lM:lootCount() > 0 then
 				if lM:emptySlots() ~= 0 then
 					if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and not IsMounted("player") and GetUnitSpeed("player") == 0 then
-						Print("Getting Loot")
+						-- Print("Getting Loot")
 						lM:getLoot(lM.lootUnit)
 					end
 				else

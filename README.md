@@ -108,13 +108,13 @@ Vilt    | Unknown |  8.0  |   100% | :interrobang:
 
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
-CuteOne |  Full   |  8.2  |   100% | :white_check_mark:
+CuteOne |  Full   |  8.3  |   100% | :white_check_mark:
 
 - Unholy
 
 author   | support | patch | status | raidable?
 :------- | :-----: | :---: | -----: | :-------:
-CuteOne  |  Full   |  8.2  |   100% | :white_check_mark:
+CuteOne  |  Full   |  8.3  |   100% | :white_check_mark:
 
 ### Demon Hunter
 
@@ -122,7 +122,7 @@ CuteOne  |  Full   |  8.2  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.2   |   100% | :white_check_mark:
+CuteOne |  Full   |  8.3  |   100% | :white_check_mark:
 Kuukuu  |Sporadic |  8.3  |   99%  | :white_check_mark:
 
 - Vengeance
@@ -138,7 +138,7 @@ Kuukuu  |Sporadic  |  8.3  |   99%  | :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |   Full   | 8.2   |   100% | :white_check_mark:
+CuteOne  |   Full   |  8.3  |   100% | :white_check_mark:
 
 - Guardian
 
@@ -164,19 +164,19 @@ Laksmackt        |  M+     | 8.3   |   100%  | :x:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |  Full    |  8.2  |   100% | :white_check_mark:
+CuteOne  |  Full    |  8.3  |   100% | :white_check_mark:
 
 - Marksmanship
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |  Full    |  8.2  |   100% | :interrobang:
+CuteOne  |  Full    |  8.3  |   100% | :interrobang:
 
 - Survival
 
-author           |    support    | patch | status |   raidable?
-:--------------- | :-----------: | :---: | -----: | :-----------:
-CuteOne          | Full          | 8.2   |   100% | :white_check_mark:
+author   | support  | patch | status |   raidable?
+:------- | :------: | :---: | -----: | :-----------:
+CuteOne  |  Full    |  8.3  |   100% | :white_check_mark:
 
 ### Mage
 
@@ -218,7 +218,7 @@ Laksmackt   | Full     | 8.3   |    75% | :heavy_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.2   |   99%  | :white_check_mark:
+CuteOne |  Full   |  8.3  |   99%  | :white_check_mark:
 
 ### Paladin
 
@@ -297,7 +297,7 @@ Aura    |  Full   | 8.0   |   90% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.2   |   99%  | :white_check_mark:
+CuteOne |  Full   | 8.3   |   99%  | :white_check_mark:
 Aura    |  Full   | 8.0   |   90%  | :white_check_mark:
 
 - Restoration
