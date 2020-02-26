@@ -109,7 +109,6 @@ Vilt    | Unknown |  8.0  |   100% | :interrobang:
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
 CuteOne |  Full   |  8.2  |   100% | :white_check_mark:
-Aura    |  None   |  8.0  |   90%  | :interrobang:
 
 - Unholy
 
@@ -124,13 +123,14 @@ CuteOne  |  Full   |  8.2  |   100% | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 8.2   |   100% | :white_check_mark:
+Kuukuu  |Sporadic |  8.3  |   99%  | :white_check_mark:
 
 - Vengeance
 
 author  | support  | patch | status |     raidable?
 :------ | :------: | :---: | -----: | :----------------:
 CuteOne |   Full   |  8.0  |   99%  | :white_check_mark:
-Kuukuu  |Sporadic  |  8.2  |   99%  | :white_check_mark:
+Kuukuu  |Sporadic  |  8.3  |   99%  | :white_check_mark:
 
 ### Druid
 
@@ -150,8 +150,8 @@ Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
-Aura             |  None   | 8.1   |   80%  | :interrobang:
-Laksmackt        |  Full   | 8.3   |   100%  | :white_check_mark:
+Laksmackt        |  Full   | 8.3   |   100% | :white_check_mark:
+
 - Restoration
 
 author           | support | patch | status |     raidable?
@@ -191,6 +191,7 @@ Reyne  |  Inactive   | 8.0   |   100% | :heavy_check_mark:
 author          | support | patch | status |   raidable?
 :-------------- | :-----: | :---: | -----: | :-----------:
 winston         |  Full   | 8.0 |   99% | :interrobang:
+Psy             |  Full   | 8.3   | 90% | :white_check_mark:
 
 - Frost
 
@@ -212,6 +213,7 @@ author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 Panglo   | Full     | 8.1   |    75% | :interrobang:
 Laksmackt   | Full     | 8.3   |    75% | :heavy_check_mark:
+
 - Windwalker
 
 author  | support | patch | status |     raidable?
@@ -230,7 +232,8 @@ Laksmackt |  none   | 8.2 |   99% | :white_check_mark:
 
 author | support  | patch | status |   raidable?
 :----- | :------: | :---: | -----: | :-----------:
-Fengshen   | Full | 8.0 |   99% | :interrobang:
+Fengshen| Inactive | 8.0 |   99% | :interrobang:
+Panglo | Full     | 8.3   | ???    | :white_check_mark:
 
 - Retribution
 
@@ -258,6 +261,7 @@ Aura       | Full    | 8.2   |   100% |   :white_check_mark:
 author           |    support    | patch | status | raidable?
 :--------------- | :-----------: | :---: | -----: | :-------:
 winston       | Full          | 8.0  |   95% | :white_check_mark:
+Panglo           | Full          | 8.2   | ???    | :white_check_mark:
 
 ### Rogue
 
@@ -272,7 +276,7 @@ Immy    |  Full   | 8.0   |   100%  | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Vilt    |  Full   | 8.0   |   99%  | :white_check_mark:
+Vilt    | Inactive| 8.0   |   99%  | :white_check_mark:
 Immy    |  Full   | 8.0   |   100% | :white_check_mark:
 
 - Subtlety
@@ -321,6 +325,7 @@ Fiskee        |  Full   | 8.0   |   99%  | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Fiskee  |  Full   | 8.0 |   100% | :white_check_mark:
+Aura    |  Full   | 8.3   |   90%  |  :white_check_mark:
 
 ### Warrior
 
