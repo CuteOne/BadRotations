@@ -199,7 +199,7 @@ function im:manageCast(...)
 	        return false
 	    end
 	end
-	if br.enemy ~= nil and #br.enemy > 0 then
+	if br.enemy ~= nil then
 		for k, v in pairs(br.enemy) do
 
 			if GetObjectExists(br.enemy[k].unit) then

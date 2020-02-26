@@ -4,14 +4,14 @@ local sqrt, cos, sin = math.sqrt, math.cos, math.sin
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
 function unitLookup(Unit,returnType)
-    for i=1,#br.enemy do
-        if br.enemy[i].guid == Unit or br.enemy[i].unit == Unit then
+    for k, v in pairs(br.enemy) do
+        if br.enemy[k].guid == Unit or br.enemy[k].unit == Unit then
             if returnType == "guid" then
-                return br.enemy[i].guid
+                return br.enemy[k].guid
             elseif returnType == "table" then
                 return i
             else
-                return br.enemy[i].unit
+                return br.enemy[k].unit
             end
         end
     end
@@ -19,11 +19,11 @@ end
 
 function getUnitCount(ID,maxRange,tapped)
     local counter = 0
-    for i=1,#br.enemy do
-        local thisUnit = br.enemy[i].unit
-        local thisUnitID = br.enemy[i].id
+    for k, v in pairs(br.enemy) do
+        local thisUnit = br.enemy[k].unit
+        local thisUnitID = br.enemy[k].id
         if thisUnitID == ID then
-            if br.enemy[i].distance < maxRange then
+            if getDistance(thisUnit) < maxRange then
                 if (tapped == true and UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
                     counter = counter + 1
                 end
@@ -319,8 +319,8 @@ function isUnitThere(unitNameOrID,distance)
     -- isUnitThere("Shadowfel Warden")
 
     if type(unitNameOrID)=="number" then
-        for i=1,#br.enemy do
-            local thisUnit = br.enemy[i].unit
+        for k, v in pairs(br.enemy) do
+            local thisUnit = br.enemy[k].unit
             if GetObjectID(thisUnit) then
                 if distance==nil or getDistance("player",thisUnit) < distance then
                     return true
@@ -329,8 +329,8 @@ function isUnitThere(unitNameOrID,distance)
         end
     end
     if type(unitNameOrID)=="string" then
-        for i=1,#br.enemy do
-            local thisUnit = br.enemy[i].unit
+        for k, v in pairs(br.enemy) do
+            local thisUnit = br.enemy[k].unit
             if UnitName(thisUnit)==unitNameOrID then
                 if distance==nil or getDistance("player",thisUnit) < distance then
                     return true
@@ -483,11 +483,11 @@ function getUnitCluster(minUnits,maxRange,radius)
     local enemiesInRange = 0
     local theReturnUnit
 
-    for i=1,#br.enemy do
-        local thisUnit = br.enemy[i].unit
+    for k, v in pairs(br.enemy) do
+        local thisUnit = br.enemy[k].unit
         local thisEnemies = getNumEnemies(thisUnit,radius)
         if getLineOfSight(thisUnit) == true then
-            if br.enemy[i].distance < maxRange then
+            if getDistance(thisUnit) < maxRange then
                 if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
                     theReturnUnit = thisUnit
                 end
@@ -510,25 +510,28 @@ function getBiggestUnitCluster(maxRange,radius,minCount)
 
     if type(maxRange) ~= "number" then return nil end
     if type(radius) ~= "number" then return nil end
+    if type(minCount) ~= "number" then minCount = 0 end
 
     local enemiesInRange = minCount or 0
     local theReturnUnit
     local foundCluster = false
 
-    for i=1,#br.enemy do
-        local thisUnit = br.enemy[i].unit
+    for k, v in pairs(br.enemy) do
+        local thisUnit = br.enemy[k].unit
+        local thisRange = getDistance(thisUnit) or 99
         if getLineOfSight(thisUnit) == true then
-            if br.enemy[i].distance < maxRange then
-                if getNumEnemies(thisUnit,radius) > enemiesInRange then
+            if thisRange < maxRange then
+                local enemyCount = getNumEnemies(thisUnit,radius)
+                if enemyCount >= enemiesInRange then
                     theReturnUnit = thisUnit
                     foundCluster = true
+                    enemiesInRange = enemyCount
                 end
             end
         end
     end
-    return theReturnUnit, foundCluster
+    return theReturnUnit
 end
-
 
 
 --[[                                                                                                ]]
