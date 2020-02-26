@@ -261,7 +261,7 @@ if not metaTable2 then
 			-- Check for loots
 			if autoLoot and br.lootable[o.unit] == nil and UnitIsDeadOrGhost(o.unit) then
 				local hasLoot, canLoot = CanLootUnit(o.guid)
-				if hasLoot and canLoot then
+				if hasLoot then --and (canLoot or isKnown(125050)) then
 					o:AddUnit(br.lootable)
 				end
 			end

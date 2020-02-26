@@ -87,18 +87,22 @@ function br.lootManager:emptySlots()
 	end
 	return openSlots
 end
-function br.lootManager:getLoot(lootUnit, thisRange)
-	local looting = false
+
+local looting = false
+function br.lootManager:getLoot(lootUnit)
+	local thisRange = getDistance("player", lootUnit) or 0
 	-- if we have a unit to loot, check if its time to
 	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
 		if not looting then
-			looting = true
+			hasLoot, canLoot = CanLootUnit(lootUnit)
 			--Print("Looting "..UnitName(lootUnit))
 			lM:debug("Looting " .. UnitName(lootUnit))
 			if isKnown(125050) and thisRange > 8 then
-				CastSpellByName(GetSpellInfo(125050),lootUnit)
+				CastSpellByName(GetSpellInfo(125050),"pet")
+				looting = true
 			end
-			if thisRange < 2 then
+			if thisRange < 2 and canLoot then
+				looting = true
 				InteractUnit(lootUnit)
 				-- Manually loot if Auto Loot Interface Option not set
 				if GetCVar("AutoLootDefault") == "0" then
@@ -113,8 +117,8 @@ function br.lootManager:getLoot(lootUnit, thisRange)
 				end
 			end
 			-- Clean Up
-			ClearTarget()
 			looting = false
+			ClearTarget()
 			lM.lootUnit = nil
 			br.lootable = {}
 			return
@@ -128,11 +132,11 @@ function br.lootManager:findLoot()
 			local thisUnit = br.lootable[k].unit
 			local thisRange = getDistance("player", thisUnit)
 			if GetObjectExists(thisUnit) and (thisRange < 2
-				or (isKnown(125050 and thisRange < 40))) -- Fetch
+				or (isKnown(125050) and thisRange < 40)) -- Fetch
 			then
 				--Print("Should loot "..UnitName(thisUnit))
 				lM:debug("Should loot " .. UnitName(thisUnit))
-				lM:getLoot(thisUnit,thisRange)
+				lM:getLoot(thisUnit)
 				break
 			end
 		end
@@ -144,7 +148,10 @@ function br.lootManager:lootCount()
 	for k, v in pairs(br.lootable) do
 		if br.lootable[k] ~= nil then
 			local thisUnit = br.lootable[k].unit
-			if GetObjectExists(thisUnit) and getDistance("player", thisUnit) < 2 then
+			local thisRange = getDistance("player", thisUnit)
+			if GetObjectExists(thisUnit) and (thisRange < 2
+				or (isKnown(125050) and thisRange < 40)) -- Fetch
+			then
 				lootCount = lootCount + 1
 				lM.lootUnit = br.lootable[k].unit
 				break
