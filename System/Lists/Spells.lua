@@ -3092,6 +3092,7 @@ br.lists.spells = {
                 flashover                   = 267115,
                 fireAndBrimstone            = 196408,
                 grimoireOfSacrifice         = 108503,
+                grimoireOfSupremacy         = 266086,
                 inferno                     = 270545,
                 internalCombustion          = 266134,
                 reverseEntropy              = 205148,
