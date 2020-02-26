@@ -112,9 +112,6 @@ function br.read.commonReaders()
 	Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	local function LeavingCombat(self, event, ...)
 		if event == "PLAYER_REGEN_ENABLED" then
-			-- wipe interupts table
-			--br.im:debug("Wiping casters table as we left combat.")
-			--  table.wipe(br.im.casters)
 			-- start loot manager
 			if lM then
 				if not IsMounted("player") then

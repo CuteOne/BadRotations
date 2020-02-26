@@ -53,7 +53,6 @@ System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
-##System\Lists\Range.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
 
@@ -82,20 +81,18 @@ Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
 Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
 Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
 #@end-no-lib-strip@
-System\drawer\drawer.lua
 
 ## Engines
 
 System\Engines\ArtifactTable.lua
 System\Engines\EnemiesEngine.lua
 System\Engines\EnemiesEngineFunctions.lua
-System\Engines\EnemiesEngineCollections.lua
 System\Engines\HealingEngine.lua
 System\Engines\HealingEngineCollections.lua
 System\Engines\HealingEngineFrame.lua
 System\Engines\HealingEngineFunctions.lua
-System\Engines\InterruptsFrame.lua
-System\Engines\Interrupts.lua
+#System\Engines\InterruptsFrame.lua -- Unused
+System\Engines\Interrupts.lua 
 System\Engines\ttdTable.lua
 
 ## BadRotations UI

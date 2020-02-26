@@ -380,18 +380,6 @@ function SlashCmdList.dumpInfo(msg, editbox)
 			targetInfo.name = UnitName("target")
 			local thisUnit = br.enemy[k].unit
 			targetInfo.unitID = thisUnit.id
-			local spellCastersTable = br.im.casters
-			for j = 1, #spellCastersTable do
-				if spellCastersTable[j].unit == thisUnit.unit then
-					if casterName ~= false then
-						local thisCaster = spellCastersTable[j]
-						targetInfo.spellID = thisCaster.cast
-						targetInfo.lenght = thisCaster.castLenght
-						targetInfo.castInterruptible = castNotInterruptible == false
-						targetInfo.castType = castOrChan
-					end
-				end
-			end
 			local buff1 = UnitBuff("target",1)
 			local buff2 = UnitBuff("target",2)
 			local deBuff1 = UnitBuff("target",1)
