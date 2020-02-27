@@ -726,9 +726,6 @@ local function runRotation()
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
     local inRaid = br.player.instance == "raid"
 
-    local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
-    local inRaid = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
-
     local stealthed = UnitBuffID("player", 5215) ~= nil
     local level = br.player.level
     local lowestHP = br.friend[1].unit
