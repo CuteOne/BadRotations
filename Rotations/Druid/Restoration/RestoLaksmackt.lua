@@ -84,6 +84,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Max RIP Targets", 10, 1, 10, 1, "Max Rip Targets")
         br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
         br.ui:checkSectionState(section)
+
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createSpinner(section, "Bursting", 3, 0, 10, 4, "", "Burst Targets - also counts as number under critical")
         br.ui:createCheckbox(section, "Freehold - pig", 0)
@@ -99,8 +100,10 @@ local function createOptions()
         br.ui:createCheckbox(section, "FH - root grenadier")
         br.ui:createCheckbox(section, "AD - root Spirit of Gold")
         br.ui:createCheckbox(section, "KR - root Minions of Zul")
+        br.ui:createCheckbox(section, "KR - animated gold")
         br.ui:checkSectionState(section)
 
+        section = br.ui:createSection(br.ui.window.profile, "Pots")
         br.ui:createCheckbox(section, "Auto use Pots")
         br.ui:createDropdownWithout(section, "Pots - burst healing", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:checkSectionState(section)
@@ -199,7 +202,7 @@ local function createOptions()
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
-        br.ui:createSpinner(section, "Healthstone", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Potion/Healthstone", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Barkskin
         br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 5, "|cffFFBB00Health Percent to Cast At.");
         -- Renewal
@@ -723,6 +726,8 @@ local function runRotation()
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
     local inRaid = br.player.instance == "raid"
 
+    local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
+    local inRaid = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
 
     local stealthed = UnitBuffID("player", 5215) ~= nil
     local level = br.player.level
@@ -786,7 +791,7 @@ local function runRotation()
         sunfire_radius = 8
     end
 
-    if #tanks > 0 and inInstance then
+    if #tanks > 0 and not solo then
         for i = 1, #tanks do
             tank = tanks[i].unit
         end
@@ -1136,6 +1141,20 @@ local function runRotation()
             end
         end
 
+        --Bark in Kings Rest
+        -- 272388(zul), 266231(severing axe), 268586(blade combo)
+        if cast.able.ironbark() and select(8, GetInstanceInfo()) == 1762 then
+            for i = 1, #br.friend do
+                if (getDebuffRemain(br.friend[i].unit, 266231)
+                        or getDebuffRemain(br.friend[i].unit, 272388)
+                        or getDebuffRemain(br.friend[i].unit, 268586)) ~= 0
+                        and br.friend[i].hp <= 90 then
+                    if cast.ironbark(br.friend[i].unit) then
+                        return true
+                    end
+                end
+            end
+        end
         -- Sacrifical Pits
         -- Devour
         if inInstance and inCombat and select(8, GetInstanceInfo()) == 1763 then
@@ -1248,12 +1267,22 @@ local function runRotation()
                     end
                 end
             end
-            -- Healthstone
-            if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and (hasHealthPot() or hasItem(5512)) then
-                if canUseItem(5512) then
-                    useItem(5512)
-                elseif canUseItem(healPot) then
-                    useItem(healPot)
+            -- Pot/Stoned
+            if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
+                if inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+                    if canUseItem(5512) then
+                        br.addonDebug("Using Healthstone")
+                        useItem(5512)
+                    elseif hasItem(156634) and canUseItem(156634) then
+                        br.addonDebug("Using Silas' Vial of Continuous Curing")
+                        useItem(156634)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        br.addonDebug("Using Emerald of Vigor")
+                        useItem(166799)
+                    elseif hasItem(169451) and canUseItem(169451) then
+                        br.addonDebug("Using Health Pot")
+                        useItem(169451)
+                    end
                 end
             end
             -- Renewal
@@ -1758,9 +1787,11 @@ local function runRotation()
                         end
                     end
 
-                    if isChecked("ConcentratedFlame - DPS") and ttd(thisUnit) > 8 and not debuff.concentratedFlame.exists(thisUnit) and not br.player.buff.prowl.exists() then
-                        if cast.concentratedFlame(thisUnit) then
-                            return true
+                    if cast.able.concentratedFlame() and not buff.prowl.exists() then
+                        if isChecked("ConcentratedFlame - DPS") and ttd(thisUnit) > 8 and not debuff.concentratedFlame.exists(thisUnit) then
+                            if cast.concentratedFlame(thisUnit) then
+                                return true
+                            end
                         end
                     end
 
@@ -1965,87 +1996,66 @@ local function runRotation()
         return false
     end
     local function root_cc()
+        local radar = "off"
 
+        --Building root list
+        local root_UnitList = {}
+        if isChecked("KR - Minions of Zul") then
+            root_UnitList[133943] = "minion-of-zul"
+            radar = "on"
+        end
+        if isChecked("All - root the thing") then
+            root_UnitList[161895] = "the thing from beyond"
+            radar = "on"
+        end
+        if isChecked("FH - root grenadier") then
+            root_UnitList[129758] = "grenadier"
+            radar = "on"
+        end
+        if isChecked("KR - root Spirit of Gold") then
+            root_UnitList[131009] = "the thing from beyond"
+            radar = "on"
+        end
+        if isChecked("KR - animated gold") then
+            root_UnitList[135406] = "animated gold"
+            radar = "on"
+        end
+        --test dude
+        if 1 == 1 then
+            root_UnitList[143647] = "my little friend"
+            radar = "on"
+        end
 
-        if isChecked("Radar On") then
-
+        if radar == "on" then
 
             local root = "Entangling Roots"
+            local root_range = 35
             if talent.massEntanglement and cast.able.massEntanglement then
                 root = "Mass Entanglement"
+                local root_range = 30
             end
 
-            for i = 1, GetObjectCount() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if isChecked("All - root the thing") then
-                    if ID == 161895 then
+            if lowest.hp > 45 then
+                for i = 1, GetObjectCount() do
+                    local object = GetObjectWithIndex(i)
+                    local ID = ObjectID(object)
+                    if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
                         local x1, y1, z1 = ObjectPosition("player")
                         local x2, y2, z2 = ObjectPosition(object)
                         local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 10 and talent.mightyBash then
+                        if distance <= 8 and talent.mightyBash then
                             CastSpellByName("Mighty Bash", object)
                             return true
                         end
-                        if distance < 40 and not isLongTimeCCed(object) then
+                        if distance < root_range and not isLongTimeCCed(object) then
                             CastSpellByName(root, object)
                         end
                     end
-                end -- end the thing
-            end
-        end
-
-        local root_UnitList = {}
-        if isChecked("Freehold - root grenadier") and select(8, GetInstanceInfo()) == 1754 then
-            root_UnitList[129758] = "Irontide Grenadier"
-        end
-        if select(8, GetInstanceInfo()) == 1762 then
-            if isChecked("KR - root Spirit of Gold") then
-                root_UnitList[131009] = "Spirit of Gold"
-                root_UnitList[135406] = "Animated Gold"
-            end
-            if isChecked("KR - Minions of Zul") then
-                root_UnitList[133943] = "minion-of-zul"
-            end
-        end
-        if isChecked("All - root Emissary of the Tides") then
-            root_UnitList[155434] = "Emissary of the Tides"
-        end
-
-        for i = 1, #enemies.yards40 do
-            thisUnit = enemies.yards40[i]
-
-            --Enchanted emmisary == 155432
-            if isChecked("Punt Enchanted Emissary") and inInstance and lowest.hp > 40 then
-                if GetObjectID(thisUnit) == 155432 and not isCasting(155432, thisUnit) then
-                    if #tanks > 0 and getDistance(tank, thisUnit) <= 26 then
-                        br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
-                        if cast.moonfire(thisUnit) then
-                            return true
-                        end
-                    end
                 end
-            end
+            end -- end root
+        end -- end radar
+    end -- end cc_root
 
-            if cast.able.massEntanglement() and getHP(thisUnit) > 90 and (not isCC(thisUnit) or getBuffRemain(thisUnit, 102359) < 2) then
-                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and not UnitBuffID("player", 226510) == 0) then
-                    if cast.massEntanglement(thisUnit) then
-                        br.addonDebug("Mass Rooting: " .. thisUnit)
-                        return true
-                    end
-                end
-            end
-            if cast.able.entanglingRoots() and getHP(thisUnit) > 90 and (not isCC(thisUnit) or getBuffRemain(thisUnit, 339) < 2) then
-                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) == 0) then
-                    if cast.entanglingRoots(thisUnit) then
-                        br.addonDebug("Rooting: " .. thisUnit)
-                        return true
-                    end
-                end
-            end
-        end
-
-    end
 
     local function heal()
 
@@ -2479,31 +2489,32 @@ local function runRotation()
         clearForm()
         if not cat and not travel and not bear then
 
+            if (#tanks > 0 or UnitExists("focus")) and (mode.prehot == 1 or mode.prehot == 2) and mode.HEALS == 1 then
+                local tank_unit = tanks[1] ~= nil and tanks[1].unit or "focus"
 
-            if #tanks > 0 and (mode.prehot == 1 or mode.prehot == 2) and mode.HEALS == 1 then
                 -- cenarionWard
-                if not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tanks[1].unit) and cast.able.cenarionWard(tank) then
-                    if cast.cenarionWard(tanks[1].unit) then
-                        br.addonDebug("[PRE-HOT]:CW on: " .. tanks[1].name)
+                if not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tank_unit) and cast.able.cenarionWard(tank_unit) then
+                    if cast.cenarionWard(tank_unit) then
+                        br.addonDebug("[PRE-HOT]:CW on: " .. UnitName(tank_unit))
                         return true
                     end
                 end
 
-                if not buff.lifebloom.exists(tanks[1].unit) and not buff.lifebloom.exists("player") then
-                    if cast.lifebloom(tanks[1].unit) then
-                        br.addonDebug("[PRE-HOT]:Lifebloom on: " .. tanks[1].name)
+                if not buff.lifebloom.exists(tank_unit) and not buff.lifebloom.exists("player") then
+                    if cast.lifebloom(tank_unit) then
+                        br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName(tank_unit))
                         return true
                     end
                 end
 
-                if talent.germination and not buff.rejuvenationGermination.exists(tanks[1].unit) then
-                    if cast.rejuvenation(tanks[1].unit) then
-                        br.addonDebug("[PRE-HOT]Germination on: " .. tanks[1].name)
+                if talent.germination and not buff.rejuvenationGermination.exists(tank_unit) then
+                    if cast.rejuvenation(tank_unit) then
+                        br.addonDebug("[PRE-HOT]Germination on: " .. UnitName(tank_unit))
                         return true
                     end
-                elseif not buff.rejuvenation.exists(tanks[1].unit) then
-                    if cast.rejuvenation(tanks[1].unit) then
-                        br.addonDebug("[PRE-HOT]Rejuv on: " .. tanks[1].name)
+                elseif not buff.rejuvenation.exists(tank_unit) then
+                    if cast.rejuvenation(tank_unit) then
+                        br.addonDebug("[PRE-HOT]Rejuv on: " .. UnitName(tank_unit))
                         return true
                     end
                 end
@@ -2552,7 +2563,7 @@ local function runRotation()
                        return true
                    end
                end
-   ]]
+            ]]
             local friendlydeadcount = 0
             local friendlydeadcountinrange = 0
             if isChecked("Auto mass Resurrection") then
@@ -2607,28 +2618,26 @@ local function runRotation()
                         useItem(163784)
                     end
                 elseif isChecked("Sugar Crusted Fish Feast") and hasItem(126936) then
-                    if EWT ~= nil then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        br.addonDebug("scaninning -  fish thingy")
-                        for i = 1, GetObjectCount() do
-                            local object = GetObjectWithIndex(i)
-                            local ID = ObjectID(object)
-                            local x2, y2, z2 = ObjectPosition(object)
-                            local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                            if ID == 242405 and distance < 15 then
-                                --print(tostring(distance))
-                                InteractUnit(object)
+                    local x1, y1, z1 = ObjectPosition("player")
+                    br.addonDebug("scaninning -  fish thingy")
+                    for i = 1, GetObjectCount() do
+                        local object = GetObjectWithIndex(i)
+                        local ID = ObjectID(object)
+                        local x2, y2, z2 = ObjectPosition(object)
+                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                        if ID == 242405 and distance < 15 then
+                            --print(tostring(distance))
+                            InteractUnit(object)
+                            fishfeast = 1
+                            return true
+                        else
+                            if hasItem(126936) and canUseItem(126936) and fishfeast == 0 then
+                                useItem(126936)
+                                x1 = x1 + math.random(-2, 2)
+                                ClickPosition(x1, y1, z1)
+                                br.addonDebug("Placing fish thingy")
                                 fishfeast = 1
                                 return true
-                            else
-                                if hasItem(126936) and canUseItem(126936) and fishfeast == 0 then
-                                    useItem(126936)
-                                    x1 = x1 + math.random(-2, 2)
-                                    ClickPosition(x1, y1, z1)
-                                    br.addonDebug("Placing fish thingy")
-                                    fishfeast = 1
-                                    return true
-                                end
                             end
                         end
                     end
