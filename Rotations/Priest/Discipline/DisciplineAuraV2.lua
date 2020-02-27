@@ -1207,7 +1207,7 @@ local function runRotation()
             end
             -- Evangelism
             if (SpecificToggle("Evangelism Key") and not GetCurrentKeyBoardFocus()) and isChecked("Evangelism Key") then
-                if cast.evangelism then
+                if cast.evangelism() then
                     br.addonDebug("Casting Evangelism")
                     return true
                 end
