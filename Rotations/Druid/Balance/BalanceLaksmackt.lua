@@ -631,7 +631,7 @@ local function runRotation()
             for i = 1, GetObjectCount() do
                 local object = GetObjectWithIndex(i)
                 local ID = ObjectID(object)
-                if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
+                if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isLongTimeCCed(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
                     local x1, y1, z1 = ObjectPosition("player")
                     local x2, y2, z2 = ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
@@ -1385,14 +1385,8 @@ local function runRotation()
 
 
     end
-    local function isCC(unit)
-        if getOptionCheck("Don't break CCs") then
-            return isLongTimeCCed(Unit)
-        end
-        return false
-    end
-    local function root_cc()
 
+    local function root_cc()
 
         local root_UnitList = {}
         if isChecked("Freehold - root grenadier") then
@@ -1430,7 +1424,7 @@ local function runRotation()
             ]]
             if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") or isChecked("KR - Minions of Zul") then
                 --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
-                if cast.able.massEntanglement() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
+                if cast.able.massEntanglement() and not isLongTimeCCed(thisUnit) and getHP(thisUnit) > 90 then
                     if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.massEntanglement(thisUnit) then
                             br.addonDebug("Mass Rooting: " .. thisUnit)
@@ -1438,7 +1432,7 @@ local function runRotation()
                         end
                     end
                 end
-                if cast.able.entanglingRoots() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
+                if cast.able.entanglingRoots() and not isLongTimeCCed(thisUnit) and getHP(thisUnit) > 90 then
                     if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.entanglingRoots(thisUnit) then
                             br.addonDebug("Rooting: " .. thisUnit)
