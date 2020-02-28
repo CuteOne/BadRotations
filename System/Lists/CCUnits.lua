@@ -26,5 +26,8 @@ br.lists.ccUnits = {
 	[137517] = {name = "Ferocity", spell = 272888}, -- Seige of Boralus A-H
 	[131009] = {name = "Spirit of Gold"}, -- AD
 	[134388] = {name = "A Knot of Snakes"}, -- temple, snakes!
-	[129758] = {name = "Irontide Grenadier"} --FH last boss
+	[129758] = {name = "Irontide Grenadier"}, --FH last boss
+
+	[161895] = {name ="Thing from Beyond"} --corruption
+
 }

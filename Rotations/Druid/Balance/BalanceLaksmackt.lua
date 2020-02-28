@@ -71,7 +71,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 200228")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -109,11 +109,11 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Radar")
-        br.ui:createCheckbox(section, "Radar On")
         br.ui:createCheckbox(section, "All - root the thing")
         br.ui:createCheckbox(section, "FH - root grenadier")
         br.ui:createCheckbox(section, "AD - root Spirit of Gold")
         br.ui:createCheckbox(section, "KR - root Minions of Zul")
+        br.ui:createCheckbox(section, "KR - animated gold")
         br.ui:checkSectionState(section)
 
         ------------------------
@@ -327,11 +327,55 @@ local function runRotation()
     enemies.get(45)
     enemies.get(40)
 
-
-
+    local furyUnits = 0
+    if cast.able.furyOfElune() then
+        for i = 1, #enemies.yards10tnc do
+            local thisUnit = enemies.yards10tnc[i]
+            if ttd(thisUnit) > 8 then
+                furyUnits = furyUnits + 1
+            end
+        end
+    end
 
 
     --Print(tostring(mode.DPS))
+
+
+    function getBiggestUnitCluster(maxRange, radius)
+        -- Description:
+        -- returns the enemy with most enemies in radius in maxRange from player
+
+        -- rerturns:
+        -- "0x0000000110E4F09C"
+
+        -- how to use:
+        -- castSpell(getBiggestUnitCluster(40,10),SpellID,...,...)
+        -- use "getBiggestUnitCluster(maxRange,radius)" instead of "target"
+
+        if type(maxRange) ~= "number" then
+            return nil
+        end
+        if type(radius) ~= "number" then
+            return nil
+        end
+
+        local enemiesInRange = 0
+        local theReturnUnit
+
+        for i = 1, #br.enemy do
+            local thisUnit = br.enemy[i].unit
+            if getLineOfSight(thisUnit) == true then
+                if br.enemy[i].distance < maxRange then
+                    if getNumEnemies(thisUnit, radius) > enemiesInRange then
+                        theReturnUnit = thisUnit
+
+                    end
+                end
+            end
+        end
+        return select(1, theReturnUnit)
+    end
+
 
     -- Opener Reset
     local opener = br.player.opener
@@ -545,33 +589,63 @@ local function runRotation()
             end
         end
 
-        if isChecked("Radar On") then
+        local radar = "off"
 
+        --Building root list
+        local root_UnitList = {}
+        if isChecked("KR - root Minions of Zul") then
+            root_UnitList[133943] = "minion-of-zul"
+            radar = "on"
+        end
+        if isChecked("All - root the thing") then
+            root_UnitList[161895] = "the thing from beyond"
+            radar = "on"
+        end
+        if isChecked("FH - root grenadier") then
+            root_UnitList[129758] = "grenadier"
+            radar = "on"
+        end
+        if isChecked("KR - root Spirit of Gold") then
+            root_UnitList[131009] = "the thing from beyond"
+            radar = "on"
+        end
+        if isChecked("KR - animated gold") then
+            root_UnitList[135406] = "animated gold"
+            radar = "on"
+        end
+        --test dude
+        if 1 == 2 then
+            root_UnitList[143647] = "my little friend"
+            radar = "on"
+        end
+
+        if radar == "on" then
 
             local root = "Entangling Roots"
+            local root_range = 35
             if talent.massEntanglement and cast.able.massEntanglement then
                 root = "Mass Entanglement"
+                local root_range = 30
             end
 
             for i = 1, GetObjectCount() do
                 local object = GetObjectWithIndex(i)
                 local ID = ObjectID(object)
-                if isChecked("All - root the thing") then
-                    if ID == 161895 then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 10 and talent.mightyBash then
-                            CastSpellByName("Mighty Bash", object)
-                            return true
-                        end
-                        if distance < 45 and not isLongTimeCCed(object) then
-                            CastSpellByName(root, object)
-                        end
+                if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
+                    local x1, y1, z1 = ObjectPosition("player")
+                    local x2, y2, z2 = ObjectPosition(object)
+                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                    if distance <= 8 and talent.mightyBash then
+                        CastSpellByName("Mighty Bash", object)
+                        return true
                     end
-                end -- end the thing
-            end
-        end
+                    if distance < root_range and not isLongTimeCCed(object) then
+                        CastSpellByName(root, object)
+                    end
+                end
+            end -- end root
+        end -- end radar
+
 
 
         --potion support
@@ -848,8 +922,10 @@ local function runRotation()
 
 
             --	fury_of_elune
-            if talent.furyOfElune and isChecked("Fury Of Elune") and (#enemies.yards8t >= getValue("Fury of Elune Targets") or isBoss()) and groupTTD >= 8 and astral_def > 8
-                    and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)) or not isChecked("Group Fury with CD") then
+            if talent.furyOfElune and isChecked("Fury Of Elune") and
+                    (furyUnits >= getValue("Fury of Elune Targets") or isBoss("target"))
+                    and astral_def > 8
+                    and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group Fury with CD")) then
                 if cast.furyOfElune(getBiggestUnitCluster(45, 1.25)) then
                     return true
                 end
