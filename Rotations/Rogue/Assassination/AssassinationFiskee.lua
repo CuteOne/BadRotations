@@ -867,14 +867,6 @@ local function runRotation()
                 useItem(14)
             end
         end
-        -- # Font of Azshara channel time 4 sec, 14 because Vendetta lasts 20 sec, combo >= to max elaborate planning talent (channeled cast, not worth placing it in rotation)
-        -- if useCDs() and isChecked("Trinkets") and energy < 100 and combo >= 3 and cd.vendetta.remain() <= 14 then
-        --     if hasEquiped(169314, 13) and canUseItem(13) then
-        --         useItem(13)
-        --     elseif hasEquiped(169314, 14) and canUseItem(14) then
-        --         useItem(14)
-        --     end
-        -- end
 
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
@@ -957,7 +949,7 @@ local function runRotation()
                     if cast.guardianOfAzeroth("player") then return true end
                 end
                 --Blood Of The Enemy
-                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) then
+                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target") or cd.toxicBlade.remain() < 1) then
                     if cast.bloodOfTheEnemy("player") then return true end
                 end
                 --The Unbound Force
