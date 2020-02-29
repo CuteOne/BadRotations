@@ -112,7 +112,7 @@ novaEngineTables.DispelID = {
 	-- Trash (Ny'alotha)
 	[310224] = {stacks = 10}, --https://www.wowhead.com/spell=307421/annihilation
 	-- Maut
-	[314993] = {stack = 0, range = 10}, --https://www.wowhead.com/spell=314992/drain-essence
+	[314993] = {stacks = 0, range = 10}, --https://www.wowhead.com/spell=314992/drain-essence
 
 
 
