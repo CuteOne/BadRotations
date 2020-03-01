@@ -65,6 +65,10 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         ----------------------
+        section = br.ui:createSection(br.ui.window.profile, "Visions Helpers")
+        --[[ br.ui:createCheckbox(section,"Potions Tracker")
+        br.ui:createCheckbox(section,"Chest Tracker") ]]
+        br.ui:checkSectionState(section)
         -- Trinkets
         section = br.ui:createSection(br.ui.window.profile, "Trinkets")
         --br.ui:createCheckbox(section,"glimmer debug")
@@ -77,7 +81,7 @@ local function createOptions()
         -- br.ui:createCheckbox(section, "Advanced Trinket Support")
         br.ui:checkSectionState(section)
 
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.002")
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
         br.ui:createCheckbox(section, "Blessing of Freedom Shadhar")
@@ -471,10 +475,38 @@ local function runRotation()
     --Print(glimmerCount)
     --end
 
-    if cast.current.holyLight() and not buff.infusionOfLight.exists("player") then
+    if cast.current.holyLight() and not buff.infusionOfLight.exists("player") and getOptionValue("Holy Light Infuse") == 2 then
         SpellStopCasting()
     end
 
+--[[     if isChecked("Chest Tracker") then
+        for i = 1, GetObjectCount() do
+            local object = GetObjectWithIndex(i)
+            local name = ObjectName(object)
+            if string.match(name,"rupted") then
+                local xOb, yOb, zOb = ObjectPosition(object)
+                if xOb ~= nil then
+                    LibDraw.Circle(xOb,yOb,zOb, 2)
+                    LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                end
+            end
+        end
+    end
+
+    if isChecked("Potions Tracker") then
+        for i = 1, GetObjectCount() do
+            local object = GetObjectWithIndex(i)
+            local name = ObjectName(object)
+            if string.match(name,"Vial") then
+                local xOb, yOb, zOb = ObjectPosition(object)
+                if xOb ~= nil then
+                    LibDraw.Circle(xOb,yOb,zOb, 1)
+                    LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                end
+            end
+        end
+    end
+ ]]
     units.get(5)
     units.get(8)
     units.get(15)
@@ -640,6 +672,8 @@ local function runRotation()
         return false
     end
 
+
+
     -- Beacon of Virtue
     if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and getSpellCD(200025) == 0 and not IsMounted() then
         for i = 1, #br.friend do
@@ -706,6 +740,8 @@ local function runRotation()
         end
     end
     bossHelper()
+
+    
     -----------------
     --- Rotations ---
     -----------------
@@ -1119,7 +1155,7 @@ local function runRotation()
                 end
             end
         end
-        if mode.Beacon == 1 and (inInstance or inRaid) and #tanks > 0 then
+        if mode.Beacon == 1 and (inInstance or inRaid or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss1target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
@@ -1136,7 +1172,7 @@ local function runRotation()
                 end
             end
         end
-        if mode.Beacon == 2 and (inInstance or inRaid) and #tanks > 0 then
+        if mode.Beacon == 2 and (inInstance or inRaid or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss2target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
@@ -1153,7 +1189,7 @@ local function runRotation()
                 end
             end
         end
-        if mode.Beacon == 3 and (inInstance or inRaid) and #tanks > 0 then
+        if mode.Beacon == 3 and (inInstance or inRaidor or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss3target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
@@ -1592,7 +1628,7 @@ local function runRotation()
             if isChecked("Holy Shock Damage") and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or solo or OWGroup or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
+                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
                         if cast.holyShock(thisUnit) then
                             return true
                         end
@@ -1634,7 +1670,7 @@ local function runRotation()
                         end
                     end
                     -- Judgment
-                    if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player", thisUnit) then
+                    if isChecked("Judgment - DPS") and cast.able.judgment() then
                         if cast.judgment(thisUnit) then
                             return true
                         end
@@ -1646,7 +1682,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() and getFacing("player", thisUnit) then
+                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() then
                         if cast.crusaderStrike(thisUnit) then
                             return true
                         end
@@ -1781,7 +1817,7 @@ local function runRotation()
                 if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player", thisUnit) then
+                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
                             if cast.holyShock(thisUnit) then
                                 return true
                             end
@@ -1806,7 +1842,7 @@ local function runRotation()
                 if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup or inRaid) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player", thisUnit) then
+                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
                             if cast.holyShock(thisUnit) then
                                 return true
                             end
@@ -1845,7 +1881,7 @@ local function runRotation()
         --Glimmer support
 
         if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player") and isChecked("Critical HP") and lowest.hp > getValue("Critical HP") then
-            if not debuff.glimmerOfLight.exists("target") and getFacing("player", "target") then
+            if not debuff.glimmerOfLight.exists("target") then
                 if cast.holyShock("target") then
                     br.addonDebug("glimmerOfLight on target")
                     return true
@@ -1863,7 +1899,7 @@ local function runRotation()
             end
         end
 
-        if mode.Glimmer == 1 and (inInstance or inRaid) and #br.friend > 1 then
+        if mode.Glimmer == 1 and (inInstance or inRaid or OWGroup) and #br.friend > 1 then
             if getSpellCD(20473) < gcd then
                 -- Check here to see if shock is not ready, but dawn is - then use dawn
                 --critical first
