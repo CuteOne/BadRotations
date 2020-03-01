@@ -533,7 +533,7 @@ actionList.Cooldowns = function()
         end
         -- Shield of Vengenace
         -- shield_of_vengeance,if=buff.seething_rage.down&buff.memory_of_lucid_dreams.down
-        if isChecked("Shield of Vengenace - CD") and cast.able.shieldOfVengeance()
+        if isChecked("Shield of Vengeance - CD") and cast.able.shieldOfVengeance()
             and not buff.seethingRage.exists() and not buff.memoryOfLucidDreams.exists()
         then
             if cast.shieldOfVengeance() then debug("Casting Shield of Vengeance [CD]") return true end
