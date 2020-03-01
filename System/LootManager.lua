@@ -92,7 +92,7 @@ local looting = false
 function br.lootManager:getLoot(lootUnit)
 	local looting = false
 	-- if we have a unit to loot, check if its time to
-	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
+	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) and getDistance(lootUnit) < 5 then
 		if not looting then
 			looting = true
 			lM:debug("Looting " .. UnitName(lootUnit))
