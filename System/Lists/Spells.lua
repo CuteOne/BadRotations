@@ -1965,6 +1965,8 @@ br.lists.spells = {
             },
             debuffs                         = {
                 forbearance                 = 25771,
+                hammerOfJustice             = 853,
+                blindingLight               = 105421,
             },
             glyphs                          = {
                 glyphOfFireFromHeavens      = 57954,
