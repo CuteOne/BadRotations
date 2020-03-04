@@ -276,6 +276,7 @@ novaEngineTables.SpecificHPDebuffs = {
 	[265773] = {value = 30}, --https://www.wowhead.com/spell=265773/spit-gold
 	-- Ra-Den (Ny'alotha)
 	[306184] = {value = 30}, --https://www.wowhead.com/spell=306184/unleashed-void
+	[316065] = {value = -70}, --https://www.wowhead.com/spell=316065/corrupted-existence
 
 
 }

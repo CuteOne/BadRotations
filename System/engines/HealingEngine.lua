@@ -186,6 +186,16 @@ if not metaTable1 then
 					return 250,250,250
 				end
 			end
+			if br.player.eID == 2331 then
+				for i = 1, GetObjectCount() do
+					local thisUnit = GetObjectWithIndex(i)
+					if GetObjectID(thisUnit) == 156866 and UnitTarget(thisUnit) ~= nil then
+						if  isCasting(313213,156866) and UnitTarget(thisUnit) == o.unit then
+							return 250,250,250
+						end
+					end
+				end
+			end
 			if UnitBuffID(o.unit,295271) then
 				return 250,250,250
 			end
