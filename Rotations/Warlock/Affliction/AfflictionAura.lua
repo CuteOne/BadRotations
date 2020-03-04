@@ -841,7 +841,7 @@ actionList.multi = function()
     end
     -- Focused Azerite Beam
     if option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
-    and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 25 and getFacing("player","target", 15))) 
+    and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 25 and getFacing("player","target", 5))) 
     then
         if cast.focusedAzeriteBeam() then
             br.addonDebug("Casting Focused Azerite Beam")
@@ -1029,6 +1029,10 @@ local function runRotation()
         ---------------------------------
         --- Out Of Combat - Rotations ---
         ---------------------------------
+         -----------------
+        --- Pet Logic ---
+        -----------------
+        if actionList.PetManagement() then return true end
         -----------------------
         --- Extras Rotation ---
         -----------------------
@@ -1346,7 +1350,7 @@ local function runRotation()
             end
             -- Focused Azerite Beam
             if option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
-            and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 25 and getFacing("player","target", 15))) 
+            and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 20 and getFacing("player","target", 5))) 
             then
                 if cast.focusedAzeriteBeam() then
                     br.addonDebug("Casting Focused Azerite Beam")
