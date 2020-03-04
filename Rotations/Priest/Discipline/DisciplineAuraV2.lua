@@ -48,7 +48,7 @@ local function createOptions()
         -------------------------
         -------- UTILITY --------
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Utility")
+        section = br.ui:createSection(br.ui.window.profile, "Utility - Version 1.00")
         -- Pull Spell
         br.ui:createCheckbox(section, "Pull Spell", "Check this to use SW:P to pull when solo.")
         -- Auto Buff Fortitude
@@ -1646,8 +1646,7 @@ local function runRotation()
             pause() or UnitDebuffID("player", 240447) or (getBuffRemain("player", 192001) > 0 and mana < 100) or getBuffRemain("player", 192002) > 10 or
                 (getBuffRemain("player", 192002) > 0 and mana < 100) or
                 getBuffRemain("player", 188023) > 0 or
-                getBuffRemain("player", 175833) > 0 or
-                isCasting(313213,156866)
+                getBuffRemain("player", 175833) > 0 
          then
             return true
         else

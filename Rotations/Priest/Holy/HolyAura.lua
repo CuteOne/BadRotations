@@ -70,7 +70,7 @@ local function createOptions()
 
 	local function rotationOptions()
 		-- General Options
-		section = br.ui:createSection(br.ui.window.profile, "General")
+		section = br.ui:createSection(br.ui.window.profile, "General - Version 1.00")
 		-- Dummy DPS Test
 		br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 		-- OOC Healing
@@ -1051,7 +1051,7 @@ local function runRotation()
 		--- Rotations ---
 		-----------------
 		-- Pause
-		if pause() or mode.rotation == 4 or isCasting(313213,156866) then
+		if pause() or mode.rotation == 4 then
 			return true
 		else
 			---------------------------------

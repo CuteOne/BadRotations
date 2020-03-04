@@ -67,7 +67,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.00")
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -1127,7 +1127,7 @@ local function runRotation()
             end
         end
         -- Pause
-        if pause() or isCasting(313213,156866) then
+        if pause() then
             return true
         else 
 ---------------------------------
