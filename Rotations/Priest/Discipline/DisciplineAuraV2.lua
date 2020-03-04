@@ -1646,7 +1646,8 @@ local function runRotation()
             pause() or UnitDebuffID("player", 240447) or (getBuffRemain("player", 192001) > 0 and mana < 100) or getBuffRemain("player", 192002) > 10 or
                 (getBuffRemain("player", 192002) > 0 and mana < 100) or
                 getBuffRemain("player", 188023) > 0 or
-                getBuffRemain("player", 175833) > 0
+                getBuffRemain("player", 175833) > 0 or
+                isCasting(313213,156866)
          then
             return true
         else

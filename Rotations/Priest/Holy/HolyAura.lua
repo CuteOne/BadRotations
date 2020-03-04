@@ -1051,7 +1051,7 @@ local function runRotation()
 		--- Rotations ---
 		-----------------
 		-- Pause
-		if pause() or mode.rotation == 4 then
+		if pause() or mode.rotation == 4 or isCasting(313213,156866) then
 			return true
 		else
 			---------------------------------

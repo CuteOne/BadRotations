@@ -1127,7 +1127,7 @@ local function runRotation()
             end
         end
         -- Pause
-        if pause() then
+        if pause() or isCasting(313213,156866) then
             return true
         else 
 ---------------------------------
