@@ -443,7 +443,7 @@ local function runRotation()
                         if getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and canUseItem(item.greaterFlaskOfEndlessFathoms) then
                             if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Greater Flask of Endless Fathoms") return end
                         elseif getOptionValue("Elixir") == 2 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
-                            if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Flask of Endless Fathoms") return end
+                            if use.flaskOfEndlessFathoms() then br.addonDebug("Using Flask of Endless Fathoms") return end
                         end
                         -- augment
                         if isChecked("Augment") and not buff.battleScarredAugmentRune.exists() and canUseItem(item.battleScarredAugmentRune) then
