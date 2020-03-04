@@ -61,7 +61,7 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.0")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.01")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pig Catcher
@@ -840,7 +840,9 @@ actionList.multi = function()
         if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
     end
     -- Focused Azerite Beam
-    if option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax and getFacing("player","target") and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (useCDs() and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= 1))) then
+    if option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
+    and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 25 and getFacing("player","target", 15))) 
+    then
         if cast.focusedAzeriteBeam() then
             br.addonDebug("Casting Focused Azerite Beam")
             return 
@@ -1214,7 +1216,7 @@ local function runRotation()
                 if cast.guardianOfAzeroth() then br.addonDebug("Casting Guardian of Azeroth") return true end
             end
             -- Haunt
-            if talent.haunt and not cast.last.haunt() then
+            if not moving and talent.haunt and not cast.last.haunt() then
                 if cast.haunt() then br.addonDebug("Casting Haunt") return true end
             end
             -- Blood of the Enemy
@@ -1237,7 +1239,7 @@ local function runRotation()
                 return true
             end
             -- Unstable Affliction
-            if cd.summonDarkglare.remain() < 8 and (debuff.unstableAffliction.stack("target") < 5  and debuff.agony.remain("target") > shards * gcdMax and debuff.corruption.remain("target") > shards * gcdMax and (debuff.siphonLife.remain("target") > shards *gcdMax or not talent.siphonLife)) then
+            if not moving and cd.summonDarkglare.remain() < 8 and (debuff.unstableAffliction.stack("target") < 5  and debuff.agony.remain("target") > shards * gcdMax and debuff.corruption.remain("target") > shards * gcdMax and (debuff.siphonLife.remain("target") > shards *gcdMax or not talent.siphonLife)) then
                 if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction [1]") return true end
             end
             -- Multi Target
@@ -1316,13 +1318,15 @@ local function runRotation()
                 end
             end
             -- Unstable Affliction
-            if traits.cascadingCalamity.active then
-                if debuff.unstableAffliction.remain("target") > 1.5 and not buff.cascadingCalamity.exists() and (cd.summonDarkglare.remain() > 30 or not useCDs()) then
-                    if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction [2]") return true end
+            if not moving then
+                if traits.cascadingCalamity.active then
+                    if debuff.unstableAffliction.remain("target") > 1.5 and not buff.cascadingCalamity.exists() and (cd.summonDarkglare.remain() > 30 or not useCDs()) then
+                        if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction [2]") return true end
+                    end
                 end
-            end
-            if debuff.unstableAffliction.stack("target") < 5 and ((debuff.unstableAffliction.remain("target")< gcdMax and (cd.summonDarkglare.remain() > 30 or not useCDs())) or shards >= 4) then
-                if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction [3]") return true end
+                if debuff.unstableAffliction.stack("target") < 5 and ((debuff.unstableAffliction.remain("target")< gcdMax and (cd.summonDarkglare.remain() > 30 or not useCDs())) or shards >= 4) then
+                    if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction [3]") return true end
+                end
             end
             -- Deathbolt
             if talent.deathbolt and cd.summonDarkglare.remain() > 30 then
@@ -1337,11 +1341,13 @@ local function runRotation()
                 if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end
             end
             -- Vile Taint
-            if talent.vileTaint then
+            if not moving and talent.vileTaint then
                 if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
             end
             -- Focused Azerite Beam
-            if option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax and getFacing("player","target") and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (useCDs() and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= 1))) then
+            if option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
+            and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 25 and getFacing("player","target", 15))) 
+            then
                 if cast.focusedAzeriteBeam() then
                     br.addonDebug("Casting Focused Azerite Beam")
                     return 
@@ -1367,11 +1373,11 @@ local function runRotation()
                 if cast.concentratedFlame("target") then br.addonDebug("Casting Concentrated Flame Damage") return true end
             end
             -- Drain Life
-            if traits.inevitableDemise.active and buff.inevitableDemise.stack() >= 45 then
+            if not moving and traits.inevitableDemise.active and buff.inevitableDemise.stack() >= 45 then
                 if cast.drainLife() then br.addonDebug("Casting Drain Life") return true end
             end
             -- Azshard's Font of Power/Cyclotronic Blast
-            if useCDs() then
+            if useCDs() and not moving then
                 for i = 13, 14 do
                     if use.able.slot(i) and (equiped.azsharasFontOfPower(i) or equiped.pocketSizedComputationDevice(i)) then
                         if use.slot(i) then br.addonDebug("Using Trinket in slot "..i.." [CD]") return true end
@@ -1387,11 +1393,13 @@ local function runRotation()
                 if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return true end
             end
             -- Drain Soul
-            if talent.drainSoul then
+            if not moving and talent.drainSoul then
                 if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
             end
             -- Shadow Bolt
-            if cast.shadowBolt() then br.addonDebug("Casting Shadow Bolt") return true end
+            if not moving then
+                if cast.shadowBolt() then br.addonDebug("Casting Shadow Bolt") return true end
+            end
             -- Agony
             if moving then
                 for i = 1, #enemies.yards40 do
