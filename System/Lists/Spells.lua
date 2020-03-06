@@ -750,6 +750,8 @@ br.lists.spells = {
                 galacticGuardian            = 213708,
                 goryFur                     = 201671,
                 incarnationGuardianOfUrsoc  = 102558,
+                gore    					= 93622,
+                barkskin                    = 22812, 
                 pulverize                   = 158792,
                 survivalInstincts           = 61336,
             },
@@ -917,6 +919,7 @@ br.lists.spells = {
                 rip                         = 1079,
                 thrashBear                  = 192090,
                 thrashCat                   = 106830,
+                massEntanglement            = 102359,
             },
             glyphs                          = {
                 glyphOfTheCheetah           = 131113,
