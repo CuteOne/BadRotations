@@ -502,7 +502,7 @@ local function runRotation()
                     end
                 end
                 -- Cat Form
-                if not cat and not IsMounted() and not flying and IsIndoors() then
+                if not inCombat and not cat and not IsMounted() and not flying and IsIndoors() then
                     -- Cat Form when not swimming or flying or stag and not in combat
                     if moving and IsMovingTime(3) and not swimming and not flying and not travel then
                         if cast.catForm("player") then
@@ -669,7 +669,7 @@ local function runRotation()
                 end
             end
 
-            if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+            if inCombat and getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
                 if cast.concentratedFlame("player") then
                     return
                 end
@@ -955,7 +955,7 @@ local function runRotation()
                     return
                 end
             end
-            if debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or buff.galacticGuardian.exists() then
+            if buff.ironfur.exists() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or buff.galacticGuardian.exists() then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
                     if UnitAffectingCombat(thisUnit) then
@@ -1000,7 +1000,7 @@ local function runRotation()
             end
         end
 
-        if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+        if inCombat and getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
             if cast.concentratedFlame("target") then
                 return
             end
@@ -1040,6 +1040,17 @@ local function runRotation()
             --- Out Of Combat - Rotations ---
             ---------------------------------````````````````````````````````````````````
             if not inCombat and not UnitBuffID("player", 115834) then
+                if mode.forms == 1 then
+                    if not inCombat and not buff.dash.exists() and not br.player.buff.prowl.exists() then
+                        if isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
+                            if not bear then
+                                if cast.bearForm("player") then
+                                    return
+                                end
+                            end
+                        end
+                    end
+                end
                 if mode.forms == 2 then
                     if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
                         cat_form()
@@ -1067,7 +1078,13 @@ local function runRotation()
             --- In Combat - Rotations ---
             -----------------------------
             if inCombat and not UnitBuffID("player", 115834) then
-
+                if mode.forms == 1 then
+                    if isValidUnit("target") and (getDistance("target") < 30) and not bear then
+                            if cast.bearForm("player") then
+                                return true
+                            end
+                    end
+                end
                 if mode.forms == 2 then
                     if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
                         cat_form()
