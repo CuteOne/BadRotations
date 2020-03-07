@@ -65,10 +65,12 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Visions Helpers")
-        --[[ br.ui:createCheckbox(section,"Potions Tracker")
-        br.ui:createCheckbox(section,"Chest Tracker") ]]
-        br.ui:checkSectionState(section)
+--[[         section = br.ui:createSection(br.ui.window.profile, "Visions Helpers")
+        br.ui:createCheckbox(section,"Potions Tracker")
+        br.ui:createCheckbox(section,"Chest Tracker")
+        br.ui:createScrollingEditBox(section,"Custom Tracker", "", "Type custom search", 300, 40)
+        br.ui:createCheckbox(section,"Draw Lines to Tracked Objects")
+        br.ui:checkSectionState(section) ]]
         -- Trinkets
         section = br.ui:createSection(br.ui.window.profile, "Trinkets")
         --br.ui:createCheckbox(section,"glimmer debug")
@@ -172,6 +174,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Use Blinding Light on TFTB")
         br.ui:createCheckbox(section, "Use Blessing of Freedom for Snare")
         br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
+        br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -366,7 +369,6 @@ end
 ----------------
 
 local function runRotation()
-    LibDraw.clearCanvas()
     -- if br.timer:useTimer("debugHoly", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
     --Print("Running: "..rotationName)
 
@@ -478,35 +480,55 @@ local function runRotation()
     if cast.current.holyLight() and not buff.infusionOfLight.exists("player") and getOptionValue("Holy Light Infuse") == 2 then
         SpellStopCasting()
     end
-
---[[     if isChecked("Chest Tracker") then
+    --[[ if br.timer:useTimer("Tracker Lag", 0.05) then
+        LibDraw.clearCanvas()
         for i = 1, GetObjectCount() do
             local object = GetObjectWithIndex(i)
             local name = ObjectName(object)
-            if string.match(name,"rupted") then
-                local xOb, yOb, zOb = ObjectPosition(object)
-                if xOb ~= nil then
-                    LibDraw.Circle(xOb,yOb,zOb, 2)
-                    LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+            if isChecked("Chest Tracker") then
+                if string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest")) then
+                    local xOb, yOb, zOb = ObjectPosition(object)
+                    local pX,pY,pZ = ObjectPosition("player")
+                    if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <200 then
+                        --LibDraw.Circle(xOb,yOb,zOb, 2)
+                        --LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                        if isChecked("Draw Lines to Tracked Objects") then 
+                            LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
+                        end
+                    end
                 end
             end
-        end
-    end
 
-    if isChecked("Potions Tracker") then
-        for i = 1, GetObjectCount() do
-            local object = GetObjectWithIndex(i)
-            local name = ObjectName(object)
-            if string.match(name,"Vial") then
-                local xOb, yOb, zOb = ObjectPosition(object)
-                if xOb ~= nil then
-                    LibDraw.Circle(xOb,yOb,zOb, 1)
-                    LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+            if isChecked("Potions Tracker") then
+                if string.match(strupper(name),strupper("vial")) then
+                    local xOb, yOb, zOb = ObjectPosition(object)
+                    local pX,pY,pZ = ObjectPosition("player")
+                    if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <200 then
+                        --LibDraw.Circle(xOb,yOb,zOb, 1)
+                        --LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                        if isChecked("Draw Lines to Tracked Objects") then 
+                            LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
+                        end
+                    end
+                end
+            end
+
+            if isChecked("Custom Tracker") then
+                if getDistance(object) < 100 and getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3 and string.match(strupper(name),strupper(getOptionValue("Custom Tracker"))) and not string.match(strupper(name),strupper("chang")) then
+                    local xOb, yOb, zOb = ObjectPosition(object)
+                    local pX,pY,pZ = ObjectPosition("player")
+                    if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <200 then
+                        --LibDraw.Circle(xOb,yOb,zOb, 1)
+                        LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                        if isChecked("Draw Lines to Tracked Objects") then 
+                            LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
+                        end
+                    end
                 end
             end
         end
-    end
- ]]
+    end ]]
+
     units.get(5)
     units.get(8)
     units.get(15)
@@ -892,7 +914,7 @@ local function runRotation()
             --Shroud
             if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
                 if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                        or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                        or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak")
                         or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then
                         return
@@ -914,7 +936,7 @@ local function runRotation()
                                 CastSpellByName("Blinding Light", object)
                                 return true
                             end
-                            if distance < 20 and not isLongTimeCCed(object) and cd.hammerOfJustice.remains() <= gcd and not debuff.blindingLight.exists(object) then
+                            if distance < 10 and not isLongTimeCCed(object) and cd.hammerOfJustice.remains() <= gcd and not debuff.blindingLight.exists(object) then
                                 CastSpellByName(stun, object) return true
                             end
                         end
@@ -1628,7 +1650,7 @@ local function runRotation()
             if isChecked("Holy Shock Damage") and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or solo or OWGroup or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) then
                         if cast.holyShock(thisUnit) then
                             return true
                         end
@@ -1670,7 +1692,7 @@ local function runRotation()
                         end
                     end
                     -- Judgment
-                    if isChecked("Judgment - DPS") and cast.able.judgment() then
+                    if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player",thisUnit) then
                         if cast.judgment(thisUnit) then
                             return true
                         end
@@ -1682,7 +1704,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() then
+                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() and getFacing("player",thisUnit) then
                         if cast.crusaderStrike(thisUnit) then
                             return true
                         end
@@ -1817,7 +1839,7 @@ local function runRotation()
                 if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player",thisUnit) then
                             if cast.holyShock(thisUnit) then
                                 return true
                             end
@@ -1842,7 +1864,7 @@ local function runRotation()
                 if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup or inRaid) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player",thisUnit) then
                             if cast.holyShock(thisUnit) then
                                 return true
                             end
@@ -1881,7 +1903,7 @@ local function runRotation()
         --Glimmer support
 
         if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player") and isChecked("Critical HP") and lowest.hp > getValue("Critical HP") then
-            if not debuff.glimmerOfLight.exists("target") then
+            if not debuff.glimmerOfLight.exists("target") and getFacing("player","target") then
                 if cast.holyShock("target") then
                     br.addonDebug("glimmerOfLight on target")
                     return true
