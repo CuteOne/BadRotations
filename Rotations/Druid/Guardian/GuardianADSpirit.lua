@@ -257,6 +257,7 @@ local function createOptions()
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
+        br.ui:createCheckbox(section, "Auto Engage On Target", "Cast Moonfire on target OOC to engage in combat")
         br.ui:createCheckbox(section, "Auto Stealth in Cat Form", 1)
         br.ui:createCheckbox(section, "Auto Dash in Cat Form", 1)
         br.ui:createSpinner(section, "Standing Time", 2.5, 0.5, 10, 0.5, "How long you will stand still before changing to owl - in seconds")
@@ -286,9 +287,10 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial")
-        br.ui:createCheckbox(section, "Incarnation")        
-        br.ui:createCheckbox(section, "Spam Mangle during Incarnation")
-        br.ui:createCheckbox(section, "Spam Thrash during Incarnation", "Will use Mangle when Gore buff exists")
+        -- Trinkets
+        br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+        br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")               
         br.ui:checkSectionState(section)
         -- Radar
         section = br.ui:createSection(br.ui.window.profile, "Radar")
@@ -304,16 +306,21 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Ironfur (No Aggro)", 85, 0, 100, 5, "Use Ironfur on Adds/Bosses you can't aggro such as Carapace of N'Zoth if below %hp")
+        br.ui:createSpinner(section, "Incarnation", 50, 0, 100, 5, "Use Incarnation when below %hp")        
+        br.ui:createCheckbox(section, "Spam Mangle during Incarnation", "Generate more Rage")
+        br.ui:createCheckbox(section, "Spam Thrash during Incarnation", "Will use Mangle when Gore buff exists")
         br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createCheckbox(section, "Frenzied Regeneration", "Enable FR")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "Health Interval to use at with 2 charges.")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "Health Interval to use at with 1 charge.")
         -- Swiftmend
-        br.ui:createSpinner(section, "Swiftmend", 70, 10, 90, 5, "Will use Swiftmend.")
+        br.ui:createSpinner(section, "OOC Swiftmend", 70, 10, 90, 5, "Will use Swiftmend Out of Combat.")
         -- Rejuvenation
-        br.ui:createSpinner(section, "Rejuvenation", 70, 10, 90, 5, "Minimum HP to cast.")
+        br.ui:createSpinner(section, "OOC Rejuvenation", 70, 10, 90, 5, "Minimum HP to cast Out of Combat.")
+        -- Regrowth
+        br.ui:createSpinner(section, "OOC Regrowth", 70, 10, 90, 5, "Minimum HP to cast Out of Combat.")
         -- Soothe
-        br.ui:createCheckbox(section, "Soothe")
+        br.ui:createCheckbox(section, "Auto Soothe")
         -- Rebirth
         br.ui:createCheckbox(section, "Rebirth")
         br.ui:createDropdownWithout(section, "Rebirth - Target", { "Target", "Mouseover" }, 1, "Target to cast on")
@@ -322,9 +329,6 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Remove Corruption - Target", { "Player", "Target", "Mouseover" }, 1, "Target to cast on")
         -- Survival Instincts
         br.ui:createSpinner(section, "Survival Instincts", 40, 0, 100, 5, "Health Percent to Cast At")
-        -- Trinkets
-        br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")        
         br.ui:checkSectionState(section)
         ------------------------
         --- Interrupt Options---
@@ -406,6 +410,7 @@ local function runRotation()
     local ttd = getTTD
     local ttm = br.player.power.rage.ttm
     local units = br.player.units
+    local use = br.player.use
     local hasAggro = UnitThreatSituation("player")
     if hasAggro == nil then
         hasAggro = 0
@@ -458,9 +463,9 @@ local function runRotation()
             end
 
             if mode.forms == 1 then
-                if isChecked("Standing Time") and not travel and not cat and not buff.prowl.exists() and noform then
-                    if standingTime > getValue("Standing Time") then
-                        if cast.bearForm("player") then
+                if isChecked("Standing Time") and not travel and not cat and not buff.prowl.exists() and noform and not IsIndoors() then
+                    if standingTime > getOptionValue("Standing Time") then
+                        if cast.travelForm("player") then
                             return true
                         end
                     end
@@ -519,14 +524,6 @@ local function runRotation()
                     end
                 end
             end -- End Shapeshift Form Management
-        
-        --     --Bear Form when in combat and not flying
-        --     if inCombat and not flying and not bear then
-        --         if cast.bearForm("player") then
-        --             return
-        --         end
-        --     end
-        -- end -- End Shapeshift Form Management
 
         if br.player.mode.taunt == 1 and inInstance then
             for i = 1, #enemies.yards30 do
@@ -556,6 +553,19 @@ local function runRotation()
                 end
             end
         end
+        if not inCombat and isChecked("Auto Engage On Target") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") and not debuff.moonfire.exists() and solo and isValidTarget("target") and (UnitIsEnemy("target","player")) then
+            if cast.moonfire() then
+                return true
+            end
+        end
+        if isChecked("Auto Dash in Cat Form") and not catspeed and cat then
+            if cast.tigerDash() then
+                return true
+            end
+            if cast.dash() then
+                return true
+            end
+        end
     end
     local function cat_form()
         if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
@@ -564,28 +574,25 @@ local function runRotation()
                     return true
                 end
             end
-
-            if isChecked("Auto Stealth in Cat Form") and not inCombat and cat then
-                if not br.player.buff.prowl.exists() then
-                    if cast.prowl("Player") then
-                        return true
-                    end
-                end
+        end
+        if isChecked("Auto Dash in Cat Form") and not catspeed then
+            if cast.tigerDash() then
+                return true
             end
-
-            if isChecked("Auto Dash in Cat Form") and not catspeed then
-                if cast.tigerDash() then
+            if cast.dash() then
+                return true
+            end
+        end
+        if isChecked("Auto Stealth in Cat Form") and not inCombat and cat then
+            if not br.player.buff.prowl.exists() then
+                if cast.prowl("Player") then
                     return true
                 end
-                if cast.dash() then
-                    return true
-                end
             end
+        end
 
-            if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus()
-            then
-                return
-            end
+        if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+            return
         end
     end
     local function travel_form()
@@ -622,13 +629,18 @@ local function runRotation()
                 end
             end
             -- Swiftmend
-            if isChecked("Swiftmend") and php <= getOptionValue("Swiftmend") and not inCombat and cast.able.swiftmend() then
+            if isChecked("OOC Swiftmend") and php <= getOptionValue("OOC Swiftmend") and not inCombat and cast.able.swiftmend() then
                 if cast.swiftmend("player") then return end
             end
             -- Rejuvenation
-            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") and not buff.rejuvenation.exists("player") and not inCombat and cast.able.rejuvenation() then
+            if isChecked("OOC Rejuvenation") and php <= getOptionValue("OOC Rejuvenation") and not buff.rejuvenation.exists("player") and not inCombat and cast.able.rejuvenation() then
                 if cast.rejuvenation("player") then return end
             end
+            -- Regrowth
+            if isChecked("OOC Regrowth") and not moving and php <= getOptionValue("OOC Regrowth") and not inCombat then
+                if cast.regrowth("player") then return end
+            end
+
             if isChecked("Rebirth") and rage >= 30 then
                 if getOptionValue("Rebirth - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") then
                     --Print("Target bois")
@@ -643,23 +655,18 @@ local function runRotation()
                     end
                 end
             end
-            -- Trinkets
-            if isChecked("Trinket 1") then
-                if (php <= getOptionValue("Trinket 1")) then
-                    useItem(13)
-                end
-            end
-            if isChecked("Trinket 2") then
-                if (php <= getOptionValue("Trinket 2")) then
-                    useItem(14)
-                end
-            end
             
             if isChecked("Barkskin") then
                 if php <= getOptionValue("Barkskin") and inCombat and not buff.survivalInstincts.exists() then
                     if cast.barkskin() then
                         return
                     end
+                end
+            end
+
+            if isChecked("Incarnation") and php <= getOptionValue("Incarnation") then
+                if cast.incarnationGuardianOfUrsoc() then
+                    return
                 end
             end
 
@@ -675,7 +682,7 @@ local function runRotation()
                 end
             end
 
-            if isChecked("Soothe") then
+            if isChecked("Auto Soothe") then
                 for i = 1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
                     if canDispel(thisUnit, spell.soothe) then
@@ -764,6 +771,11 @@ local function runRotation()
                                 if cast.incapacitatingRoar(thisUnit) then
                                     return
                                 end
+                                if br.player.race == "Tauren" and not moving then
+                                    if castSpell("player", racial, false, false, false) then
+                                        return
+                                    end
+                                end
                             end
                         end
                     end
@@ -804,29 +816,20 @@ local function runRotation()
     end
 
     local function List_Cooldowns()
-        if useCDs() and getDistance(units.dyn5) < 5 then
-            if getOptionValue("Trinkets") == 2 and inCombat then
-                if canUseItem(13) then
-                    useItem(13)
+        -- Trinkets
+            if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and inCombat then
+                if php <= getOptionValue("Trinket 1") and use.able.slot(13) then
+                    use.slot(13)
                 end
-                if canUseItem(14) then
-                    useItem(14)
+                elseif php <= getOptionValue("Trinket 2") and use.able.slot(14) then
+                    use.slot(14)
                 end
-            end
-
-            if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
-                if castSpell("player", racial, false, false, false) then
-                    return
-                end
-            end
-
-            if isChecked("Incarnation") then
-                if cast.incarnationGuardianOfUrsoc() then
-                    return
+                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                    if castSpell("player", racial, false, false, false) then
+                        return
+                    end
                 end
             end
-        end
-    end
 
     local function List_Bearmode()
         if mode.forms ~= 3 then
@@ -891,7 +894,7 @@ local function runRotation()
                     end
                 -- Corruption stuff
                 -- 1 = snare  2 = eye  3 = thing 4 = reverything = 5 = never   -- snare = 315176
-                    if br.player.equiped.shroudOfResolve and not debuff.massEntanglement.exists(object) and canUseItem(br.player.items.shroudOfResolve)then
+                    if br.player.equiped.shroudOfResolve and not debuff.massEntanglement.exists(object) and canUseItem(br.player.items.shroudOfResolve) and br.timer:useTimer("Cloak Delay", 2)then
                         if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                                 or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
                                 or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
@@ -927,15 +930,6 @@ local function runRotation()
             if cast.animaOfDeath("player") then
                 br.addonDebug("Casting Anima of Death")
                 return
-            end
-        end
-
-        if getOptionValue("Trinkets") == 1 and inCombat then
-            if canUseItem(13) then
-                useItem(13)
-            end
-            if canUseItem(14) then
-                useItem(14)
             end
         end
 
@@ -1042,7 +1036,7 @@ local function runRotation()
             if not inCombat and not UnitBuffID("player", 115834) then
                 if mode.forms == 1 then
                     if not inCombat and not buff.dash.exists() and not br.player.buff.prowl.exists() then
-                        if isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
+                        if #enemies.yards20 >= 1 and moving and isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
                             if not bear then
                                 if cast.bearForm("player") then
                                     return
@@ -1073,6 +1067,7 @@ local function runRotation()
                 if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
                     bossHelper()
                 end
+
             end -- End Out of Combat Rotation
             -----------------------------
             --- In Combat - Rotations ---
