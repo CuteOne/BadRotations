@@ -6,6 +6,7 @@ br.lists.longCC = {
 	[217832] = true, -- Demon Hunter -- Imprison
 	[339] = true, -- Druid - Entangling Roots
 	[99] = true, -- Druid - Incapacitating Roar
+	[2637] = true, -- Druid - Hibernate
 	[102359] = true, -- Druid - Mass Entanglement
 	[209790] = true, -- Hunter - Freezing Arrow
 	[3355] = true, -- Hunter - Freezing Trap
