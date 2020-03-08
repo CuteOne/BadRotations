@@ -681,9 +681,9 @@ actionList.St = function()
         if cast.concentratedFlame() then return end
     end
     -- Aspect of the Wild
-    -- aspect_of_the_wild,if=cooldown.barbed_shot.charges<1|!azerite.primal_instincts.enabled
+    -- aspect_of_the_wild,if=buff.aspect_of_the_wild.down&(cooldown.barbed_shot.charges<1|!azerite.primal_instincts.enabled)
     if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs())
-        and (charges.barbedShot.count() < 2 or not traits.primalInstincts.active)
+        and not buff.aspectOfTheWild.exists() and (charges.barbedShot.count() < 1 or not traits.primalInstincts.active)
     then
         if cast.aspectOfTheWild() then return end
     end
@@ -715,11 +715,12 @@ actionList.St = function()
         if cast.theUnboundForce() then return end
     end
     -- Bestial Wrath
-    -- bestial_wrath,if=!buff.bestial_wrath.up&cooldown.aspect_of_the_wild.remains>15|target.time_to_die<15+gcd
+    -- bestial_wrath,if=talent.one_with_the_pack.enabled&buff.bestial_wrath.remains<gcd|buff.bestial_wrath.down&cooldown.aspect_of_the_wild.remains>15|target.time_to_die<15+gcd
     if mode.bestialWrath == 1 and cast.able.bestialWrath()
         and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
-        and (not buff.bestialWrath.exists() and (cd.aspectOfTheWild.remain() > 15 or not isChecked("Aspect of the Wild"))
-        or (ttd(units.dyn40) > 15 + gcdMax or useCDs()))
+        and (talent.oneWithThePack and buff.bestialWrath.remain() < gcdMax
+            or not buff.bestialWrath.exists() and (cd.aspectOfTheWild.remain() > 15 or not isChecked("Aspect of the Wild"))
+            or (ttd(units.dyn40) < 15 + gcdMax or useCDs()))
     then
         if cast.bestialWrath() then return end
     end

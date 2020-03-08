@@ -582,9 +582,9 @@ local function runRotation()
             if useCDs() and cast.able.memoryOfLucidDreams() and runesTTM(1) > gcd and runicPower < 40 then
                 if cast.memoryOfLucidDreams() then return end
             end
-            -- blood_of_the_enemy,if=(cooldown.death_and_decay.remains&spell_targets.death_and_decay>1)|(cooldown.defile.remains&spell_targets.defile>1)|(cooldown.apocalypse.remains&cooldown.death_and_decay.ready)
+            -- blood_of_the_enemy,if=(cooldown.death_and_decay.remains&spell_targets.death_and_decay>1)|(cooldown.defile.remains&spell_targets.defile>1)|(cooldown.apocalypse.remains&active_enemies=1)
             if useCDs() and cast.able.bloodOfTheEnemy() and ((cd.deathAndDecay.remain() > 0 and #enemies.yards8t > 1)
-                or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or ((cd.apocalypse.remain() > 0 or apocBypass) and cd.deathAndDecay.remain() == 0))
+                or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or ((cd.apocalypse.remain() > 0 or apocBypass) and #enemies.yards5 == 1))
             then
                 if cast.bloodOfTheEnemy() then return end
             end
@@ -769,16 +769,22 @@ local function runRotation()
             if cast.defile("best",nil,1,8) then return end
         end
     -- Scourge Strike
-        -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
+        -- scourge_strike,if=((debuff.festering_wound.up&(cooldown.apocalypse.remains>5&(!essence.vision_of_perfection.enabled|!talent.unholy_frenzy.enabled)|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled&(cooldown.unholy_frenzy.remains>6&azerite.magus_of_the_dead.enabled|!azerite.magus_of_the_dead.enabled&cooldown.apocalypse.remains>4)))|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.scourgeStrike() and not talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and ((cd.apocalypse.remain() > 5 or apocBypass) and (not essence.visionOfPerfection.active or not talent.unholyFrenzy)
+                or essence.visionOfPerfection.active and talent.unholyFrenzy and (cd.unholyFrenzy.remain() > 6 and trait.magusOfTheDead.active
+                or not trait.magusOfTheDead.active and (cd.apocalypse.remain() > 4 or apocBypass))))
+                or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.scourgeStrike() then return end
         end
     -- Clawing Shadows
-        -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
+        -- clawing_shadows,if=((debuff.festering_wound.up&(cooldown.apocalypse.remains>5&(!essence.vision_of_perfection.enabled|!talent.unholy_frenzy.enabled)|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled&(cooldown.unholy_frenzy.remains>6&azerite.magus_of_the_dead.enabled|!azerite.magus_of_the_dead.enabled&cooldown.apocalypse.remains>4)))|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.clawingShadows() and talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and ((cd.apocalypse.remain() > 5 or apocBypass) and (not essence.visionOfPerfection.active or not talent.unholyFrenzy)
+            or essence.visionOfPerfection.active and talent.unholyFrenzy and (cd.unholyFrenzy.remain() > 6 and trait.magusOfTheDead.active
+            or not trait.magusOfTheDead.active and (cd.apocalypse.remain() > 4 or apocBypass))))
+            or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.clawingShadows() then return end
         end
@@ -788,11 +794,11 @@ local function runRotation()
             if cast.deathCoil() then return end
         end
     -- Festering Strike
-        -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_frenzy.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
+        -- festering_strike,if=debuff.festering_wound.stack<4&(cooldown.apocalypse.remains<3&(!essence.vision_of_perfection.enabled|!talent.unholy_frenzy.enabled|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled&(cooldown.unholy_frenzy.remains<7&azerite.magus_of_the_dead.enabled|!azerite.magus_of_the_dead.enabled)))|debuff.festering_wound.stack<1&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.festeringStrike() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyFrenzy.exists())
-                or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3)
-                    or debuff.festeringWound.stack(units.dyn5) < 1)
+            and (debuff.festeringWound.stack(units.dyn5) < 4 and (cd.apocalypse.remain() < 3
+            and (not essence.visionOfPerfection.active or not talent.unholyFrenzy or essence.visionOfPerfection.active and talent.unholyFrenzy
+            and (cd.unholyFrenzy.remain() < 7 and trait.magusOfTheDead.active or not trait.magusOfTheDead.active))) or debuff.festeringWound.stack() < 1)
         then
             if cast.festeringStrike(units.dyn5) then return end
         end

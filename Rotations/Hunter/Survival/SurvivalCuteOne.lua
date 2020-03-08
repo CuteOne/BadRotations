@@ -490,12 +490,6 @@ actionList.Cooldown = function()
                 return true
             end
         end
-        -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
-        if useCDs() and cast.able.memoryOfLucidDreams() and getDistance(eagleUnit) < thisRange
-            and focus < focusMax - 30 and buff.coordinatedAssault.exists()
-        then
-            if cast.memoryOfLucidDreams() then return end
-        end
         -- blood_of_the_enemy,if=buff.coordinated_assault.up
         if useCDs() and cast.able.bloodOfTheEnemy() and buff.coordinatedAssault.exists() then
             if cast.bloodOfTheEnemy() then return end
@@ -528,6 +522,25 @@ actionList.Cooldown = function()
         if cast.able.reapingFlames() and (getHP("target") > 80 or getHP("target") <= 20 or ttd("target",20) > 30) then
             if cast.reapingFlames() then return end
         end
+    end
+    -- Mongoose Bite
+    -- mongoose_bite,if=essence.memory_of_lucid_dreams.major&!cooldown.memory_of_lucid_dreams.remains
+    if essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remain() == 0 then
+        if cast.mongooseBite() then return end
+    end
+    -- Wildfire Bomb
+    -- wildfire_bomb,if=essence.memory_of_lucid_dreams.major&full_recharge_time<1.5*gcd&focus<action.mongoose_bite.cost&!cooldown.memory_of_lucid_dreams.remains
+    if essence.memoryOfLucidDreams.active and charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax
+        and focus < cast.cost.mongooseBite() and cd.memoryOfLucidDreams.remain() == 0
+    then
+        if cast.wildfireBomb() then return end
+    end
+    -- Memory of Lucid Dreams
+    -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
+    if useCDs() and isChecked("Use Essence") and cast.able.memoryOfLucidDreams() and getDistance(eagleUnit) < thisRange
+        and focus < focusMax - 30 and buff.coordinatedAssault.exists()
+    then
+        if cast.memoryOfLucidDreams() then return end
     end
 end -- End Action List - Cooldowns
 
@@ -563,6 +576,11 @@ actionList.St = function()
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
     if cast.able.killCommand(lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax - focusRegen or outOfMelee()) then
         if cast.killCommand(lowestBloodseeker) then debug("[ST] Kill Command - "..UnitName(lowestBloodseeker)) return end
+    end
+    -- Serpent Sting
+    -- serpent_sting,if=buff.vipers_venom.up&buff.vipers_venom.remains<1*gcd
+    if cast.able.serpentSting() and buff.vipersVenom.exists() and buff.vipersVenom.remain() < 1 * gcdMax then
+        if cast.serpentSting() then debug("[ST} Serpent Sting (Viper's Venom) - "..UnitName(units.dyn40)) return end
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
