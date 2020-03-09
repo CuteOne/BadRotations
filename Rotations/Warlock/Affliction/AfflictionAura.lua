@@ -396,13 +396,13 @@ actionList.Defensive = function()
         if isChecked("Devour Magic") and (pet.active.id() == 417 or pet.active.id() == 78158) then
             if getOptionValue("Devour Magic") == 1 then
                 if canDispel("target",spell.devourMagic) and GetObjectExists("target") then
-                    if cast.devourMagic("target") then br.addonDebug("Casting Devour Magic") return true end
+                    CastSpellByName(GetSpellInfo(spell.devourMagic)) br.addonDebug("Casting Devour Magic") return true 
                 end
             elseif getOptionValue("Devour Magic") == 2 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if canDispel(thisUnit,spell.devourMagic) then
-                        if cast.devourMagic(thisUnit) then br.addonDebug("Casting Devour Magic") return true end
+                        CastSpellByName(GetSpellInfo(spell.devourMagic)) br.addonDebug("Casting Devour Magic") return true 
                     end
                 end
             end
