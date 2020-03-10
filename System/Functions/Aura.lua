@@ -192,7 +192,7 @@ function canDispel(Unit, spellID)
 		if spellID == 475 then typesList = {"Curse"} end
 	end
 	if ClassNum == 9 then --Warlock
-		typesList = {}
+		if spellID == 19505 then typesList = {"Magic"} end
 	end
 	if ClassNum == 10 then --Monk
 		-- Detox (MW)
