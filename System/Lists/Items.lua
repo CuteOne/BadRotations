@@ -120,6 +120,7 @@ br.lists.items = {
     vialOfStorms                    = 158224,
     vigorTrinket                    = 165572,
     visionOfDemise                  = 169307,
+    hummingBlackDragonscale         = 174044,
     --weapons that are clickable
     neuralSynapseEnhancer           = 168973,
     -- Legendary 8.3 cloak

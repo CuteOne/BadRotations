@@ -3117,6 +3117,7 @@ br.lists.spells = {
             abilities                       = {
                 darkPact                    = 108416,
                 demonicCircle               = 48018,
+                devourMagic                 = 19505,
                 fear                        = 5782,
                 grimoireFelhunter           = 111897,
                 grimoireImp                 = 111859,

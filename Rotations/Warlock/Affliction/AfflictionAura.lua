@@ -61,7 +61,7 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.01")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.02")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pig Catcher
@@ -396,17 +396,17 @@ actionList.Defensive = function()
         if isChecked("Devour Magic") and (pet.active.id() == 417 or pet.active.id() == 78158) then
             if getOptionValue("Devour Magic") == 1 then
                 if canDispel("target",spell.devourMagic) and GetObjectExists("target") then
-                    CastSpellByName(GetSpellInfo(spell.devourMagic)) br.addonDebug("Casting Devour Magic") return true 
+                    CastSpellByName(GetSpellInfo(spell.devourMagic),"target") br.addonDebug("Casting Devour Magic") return true 
                 end
             elseif getOptionValue("Devour Magic") == 2 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if canDispel(thisUnit,spell.devourMagic) then
-                        CastSpellByName(GetSpellInfo(spell.devourMagic)) br.addonDebug("Casting Devour Magic") return true 
+                        CastSpellByName(GetSpellInfo(spell.devourMagic),thisUnit) br.addonDebug("Casting Devour Magic") return true 
                     end
                 end
             end
-        end
+        end 
     end -- End Defensive Toggle
 end
 -- Action List - Interrupts
@@ -829,7 +829,7 @@ end
 actionList.multi = function()
     -- Seed of Corruption
     if not moving and not cast.last.seedOfCorruption() and not debuff.seedOfCorruption.exists("target") then
-        if cast.seedOfCorruption() then br.addonDebug("Casting Seed of Corruption") return true end
+        if cast.seedOfCorruption(getBiggestUnitCluster(40,10)) then br.addonDebug("Casting Seed of Corruption") return true end
     end
     -- Phantom Singularity
     if talent.phantomSingularity then
@@ -1014,8 +1014,6 @@ local function runRotation()
     --actions+=/variable,name=maintain_se,value=spell_targets.seed_of_corruption_aoe<=1+talent.writhe_in_agony.enabled+talent.absolute_corruption.enabled*2+(talent.writhe_in_agony.enabled&talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>2)+(talent.siphon_life.enabled&!talent.creeping_death.enabled&!talent.drain_soul.enabled)+raid_event.invulnerable.up
     maintainSE = (talent.writheInAgony and 1 or 0) + (talent.absoluteCorruption and 1 or 0) * 2 + ((talent.writheInAgony and 1 or 0) and 
     (talent.sowTheSeeds and 1 or 0) and (#enemies.yards10t > 1 and 1 or 0))+((talent.siphonLife and 1 or 0) and (not talent.creepingDeath and 1 or 0) and (not talent.drainSoul and 1 or 0))
-
-
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1201,7 +1199,7 @@ local function runRotation()
                 for i = 13, 14 do
                     if use.able.slot(i) and not (equiped.azsharasFontOfPower(i) or equiped.pocketSizedComputationDevice(i)
                         or equiped.rotcrustedVoodooDoll(i) or equiped.shiverVenomRelic(i) or equiped.aquipotentNautilus(i)
-                        or equiped.tidestormCodex(i) or equiped.vialOfStorms(i)) 
+                        or equiped.tidestormCodex(i) or equiped.vialOfStorms(i) or equiped.hummingBlackDragonscale(i)) 
                     then
                         if use.slot(i) then br.addonDebug("Using Trinket in slot "..i.." [CD]") return true end
                     end
@@ -1234,7 +1232,7 @@ local function runRotation()
                 if cast.theUnboundForce() then br.addonDebug("Casting The Unbound Force") return true end
             end
             -- Summon Darkglare
-            if useCDs() and cd.summonDarkglare.remain() <= gcdMax and debuff.agony.exists("target") and (debuff.siphonLife.exists("target") or not talent.siphonLife) and corruptionCount == #enemies.yards10t
+            if getTTD("target") > 20 and useCDs() and cd.summonDarkglare.remain() <= gcdMax and debuff.agony.exists("target") and (debuff.siphonLife.exists("target") or not talent.siphonLife) and corruptionCount == #enemies.yards10t
                 and (debuff.phantomSingularity.exists("target") or not talent.phantomSingularity) and (shards == 0 or debuff.unstableAffliction.stack("target") == 5)
             then
                 CastSpellByName(GetSpellInfo(spell.summonDarkglare))
