@@ -56,4 +56,6 @@ br.lists.noTouchUnits = {
     {unitID = 155126, buff = 300620}, -- Crystalline Shield
     -- Horrific Visions
     {unitID = 158315}, -- Eye of Chaos
+    -- N'zoth
+    {unitID = 158041, buff = 310126}, -- Psychic Shell
 }
