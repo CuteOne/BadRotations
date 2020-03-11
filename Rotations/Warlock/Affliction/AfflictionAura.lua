@@ -61,7 +61,7 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.02")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.03")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pig Catcher
@@ -396,13 +396,13 @@ actionList.Defensive = function()
         if isChecked("Devour Magic") and (pet.active.id() == 417 or pet.active.id() == 78158) then
             if getOptionValue("Devour Magic") == 1 then
                 if canDispel("target",spell.devourMagic) and GetObjectExists("target") then
-                    CastSpellByName(GetSpellInfo(spell.devourMagic),"target") br.addonDebug("Casting Devour Magic") return true 
+                    CastSpellByName(GetSpellInfo(spell.devourMagic),"target") br.addonDebug("Casting Devour Magic")  
                 end
             elseif getOptionValue("Devour Magic") == 2 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if canDispel(thisUnit,spell.devourMagic) then
-                        CastSpellByName(GetSpellInfo(spell.devourMagic),thisUnit) br.addonDebug("Casting Devour Magic") return true 
+                        CastSpellByName(GetSpellInfo(spell.devourMagic),thisUnit) br.addonDebug("Casting Devour Magic") 
                     end
                 end
             end
@@ -416,9 +416,9 @@ actionList.Interrupts = function()
             local thisUnit = enemies.yards40[i]
             if canInterrupt(thisUnit,option.value("Interrupt At")) then
                 if pet.active.id() == 417 then
-                    if cast.spellLock(thisUnit) then return true end
+                    if cast.spellLock(thisUnit) then end
                 elseif pet.active.id() == 78158 then
-                    if cast.shadowLock(thisUnit) then return true end
+                    if cast.shadowLock(thisUnit) then  end
                 end
             end
         end
@@ -463,7 +463,7 @@ actionList.Cooldown = function()
                     or equiped.rotcrustedVoodooDoll(i) or equiped.shiverVenomRelic(i) or equiped.aquipotentNautilus(i)
                     or equiped.tidestormCodex(i) or equiped.vialOfStorms(i)) 
                 then
-                    if use.slot(i) then br.addonDebug("Using Trinket in slot "..i.." [CD]") return true end
+                    if use.slot(i) then br.addonDebug("Using Trinket in slot "..i.." [CD]") end
                 end
             end
         end
@@ -1232,7 +1232,7 @@ local function runRotation()
                 if cast.theUnboundForce() then br.addonDebug("Casting The Unbound Force") return true end
             end
             -- Summon Darkglare
-            if getTTD("target") > 20 and useCDs() and cd.summonDarkglare.remain() <= gcdMax and debuff.agony.exists("target") and (debuff.siphonLife.exists("target") or not talent.siphonLife) and corruptionCount == #enemies.yards10t
+            if getTTD("target") >= 20 and useCDs() and cd.summonDarkglare.remain() <= gcdMax and debuff.agony.exists("target") and (debuff.siphonLife.exists("target") or not talent.siphonLife) and corruptionCount == #enemies.yards10t
                 and (debuff.phantomSingularity.exists("target") or not talent.phantomSingularity) and (shards == 0 or debuff.unstableAffliction.stack("target") == 5)
             then
                 CastSpellByName(GetSpellInfo(spell.summonDarkglare))
@@ -1347,7 +1347,7 @@ local function runRotation()
                 if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
             end
             -- Focused Azerite Beam
-            if option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
+            if cd.summonDarkglare.remains() > 10 and option.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
             and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 20 and getFacing("player","target", 5))) 
             then
                 if cast.focusedAzeriteBeam() then
@@ -1382,7 +1382,7 @@ local function runRotation()
             if useCDs() and not moving then
                 for i = 13, 14 do
                     if use.able.slot(i) and (equiped.azsharasFontOfPower(i) or equiped.pocketSizedComputationDevice(i)) then
-                        if use.slot(i) then br.addonDebug("Using Trinket in slot "..i.." [CD]") return true end
+                        if use.slot(i) then br.addonDebug("Using Trinket in slot "..i.." [CD]") end
                     end
                 end
             end
