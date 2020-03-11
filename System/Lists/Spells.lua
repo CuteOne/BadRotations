@@ -3517,6 +3517,7 @@ br.lists.spells = {
                 purifyingBlast                  = 299345,
                 reapingFlames                   = 310690, -- Added in 8.3
                 refreshment                     = 296197,
+                replicaOfKnowledge              = 312725, --added in 8.3
                 rippleInSpace                   = 302731,
                 spiritOfPreservation            = 297375, -- added in 8.3
                 standstill                      = 299882,
