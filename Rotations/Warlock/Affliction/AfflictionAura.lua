@@ -438,7 +438,7 @@ actionList.Cooldown = function()
         then
             if equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) then
                 if br.timer:useTimer("Font Delay", 4) then
-                    br.addonDebug("Using Font Of Azshara [Pre-Pull]")
+                    br.addonDebug("Using Font Of Azshara")
                     useItem(169314)
                 end
             end
@@ -446,7 +446,7 @@ actionList.Cooldown = function()
         -- actions.cooldowns+=/potion,if=(talent.dark_soul_misery.enabled&cooldown.summon_darkglare.up&cooldown.dark_soul.up)|cooldown.summon_darkglare.up|target.time_to_die<30
         if option.checked("Potion") and (talent.darkSoul and cd.summonDarkglare.remain <= gcdMax and cd.darkSoul.remain() <= gcdMax) or (cd.summonDarkglare.remain() <= gcdMax and not talent.darkSoul) or getTTD("target") < 30 then
             if not buff.potionOfUnbridledFury.exists() and canUseItem(item.potionOfUnbridledFury) then
-                if use.potionOfUnbridledFury() then br.addonDebug("Using Potion of Unbridled Fury [Pre-Pull]") return end
+                if use.potionOfUnbridledFury() then br.addonDebug("Using Potion of Unbridled Fury") return end
             end
         end
         -- actions.cooldowns+=/use_items,if=cooldown.summon_darkglare.remains>70|time_to_die<20|((buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)&(!talent.deathbolt.enabled|cooldown.deathbolt.remains<=gcd|!cooldown.deathbolt.remains)&!cooldown.summon_darkglare.remains)
@@ -536,9 +536,9 @@ actionList.PreCombat = function()
                 end
             end
         end
-        if option.checked("Pre-Pull") then
+        if option.checked("Pre-Pull Timer") then
             -- Flask / Crystal
-            if ((pullTimer <= getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
+            if ((pullTimer <= getValue("Pre-Pull Timer") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
                 --actions.precombat=flask
                 if getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and canUseItem(item.greaterFlaskOfEndlessFathoms) then
                     if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Greater Flask of Endless Fathoms [Pre-Pull]") return end
@@ -569,7 +569,7 @@ actionList.PreCombat = function()
                 if talent.haunt then    
                     CastSpellByName(GetSpellInfo(spell.haunt)) br.addonDebug("Casting Haunt [Pre-Pull]") return
                 else
-                    CastSpellByName(GetSpellInfo(spell.shadowBolt)) br.addonDebug("Casting Haunt [Pre-Pull]") return
+                    CastSpellByName(GetSpellInfo(spell.shadowBolt)) br.addonDebug("Casting Shadowbolt [Pre-Pull]") return
                 end
             end
         end -- End Pre-Pull 
