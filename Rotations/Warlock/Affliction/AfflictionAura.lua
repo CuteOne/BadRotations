@@ -61,7 +61,7 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.03")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.04")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pig Catcher
@@ -80,8 +80,8 @@ local function createOptions ()
             br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
             -- Flask
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of Endless Fathoms","Flask of Endless Fathoms","None"}, 1, "|cffFFFFFFSet Elixir to use.")
-			-- Pre-Pull Timer
-			br.ui:createSpinner(section, "Pre-Pull Timer", 2, 0, 10, 0.1, "Set desired time offset to opener (DBM Required). Min: 0 / Max: 10 / Interval: 0.1", nil, true)
+            -- Pre-Pull Timer
+			br.ui:createSpinner(section, "Pre-Pull Timer", 2, 0, 10, 0.1, "Set desired time offset to opener (DBM Required). Min: 0 / Max: 10 / Interval: 0.1")
 		br.ui:checkSectionState(section)
 		-------------------------
         --- OFFENSIVE OPTIONS ---
@@ -179,6 +179,7 @@ local mode
 local option
 local pet
 local php
+local pullTimer
 local shards
 local spell
 local talent
@@ -910,6 +911,7 @@ local function runRotation()
     option                                        = br.player.option
     pet                                           = br.player.pet
     php                                           = br.player.health
+    pullTimer                                     = br.DBM:getPulltimer()
     shards                                        = br.player.power.soulShards.frac()
     spell                                         = br.player.spell
     talent                                        = br.player.talent
