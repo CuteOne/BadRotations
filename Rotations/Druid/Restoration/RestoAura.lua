@@ -561,7 +561,7 @@ local function runRotation()
 	local function BossEncounterCase()
 		-- Temple of Sethraliss
 		if lowest.hp > getOptionValue("Temple of Seth Heal") and br.player.eID and br.player.eID == 2127 then
-			for i = 1, GetObjectCount() do
+			for i = 1, GetObjectCountBR() do
 				local thisUnit = GetObjectWithIndex(i)
 				if GetObjectID(thisUnit) == 133392 then
 					sethObject = thisUnit

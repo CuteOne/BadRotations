@@ -322,8 +322,9 @@ actionList.Extras = function()
     -- Fixate - Storm, Earth, and Fire
     if cast.able.stormEarthAndFireFixate("target") and option.value("SEF Behavior") == 1
         and not talent.serenity and not cast.current.fistsOfFury() and not UnitIsUnit(fixateTarget,"target")
+        and #enemies.yards5 > 0
     then
-        if cast.stormEarthAndFireFixate("target") then fixateTarget = ObjectPointer("target") debug("Casting SEF [Fixate]") return true end
+        if cast.stormEarthAndFireFixate("target") then fixateTarget = "target" debug("Casting SEF [Fixate]") return true end
     end
 end -- End Action List - Extras
 

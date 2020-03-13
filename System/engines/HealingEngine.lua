@@ -187,7 +187,7 @@ if not metaTable1 then
 				end
 			end
 			if br.player.eID == 2331 then
-				for i = 1, GetObjectCount() do
+				for i = 1, GetObjectCountBR() do
 					local thisUnit = GetObjectWithIndex(i)
 					if GetObjectID(thisUnit) == 156866 and UnitTarget(thisUnit) ~= nil then
 						if  isCasting(313213,156866) and UnitTarget(thisUnit) == o.unit then

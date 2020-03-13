@@ -878,7 +878,7 @@ local function runRotation()
                 local root_range = 30
             end
 
-            for i = 1, GetObjectCount() do
+            for i = 1, GetObjectCountBR() do
                 local object = GetObjectWithIndex(i)
                 local ID = ObjectID(object)
                 if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isLongTimeCCed(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then

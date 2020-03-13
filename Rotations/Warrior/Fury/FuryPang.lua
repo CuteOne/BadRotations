@@ -932,7 +932,7 @@ local function runRotation()
 
             local stun = "Storm Bolt"
 
-            for i = 1, GetObjectCount() do
+            for i = 1, GetObjectCountBR() do
                 local object = GetObjectWithIndex(i)
                 local ID = ObjectID(object)
                 if isChecked("All - stun the thing") then

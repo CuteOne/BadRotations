@@ -36,14 +36,14 @@ function GetUnitIsDeadOrGhost(Unit)
 	return UnitIsDeadOrGhost(Unit)
 end
 function GetObjectFacing(Unit)
-    if EWT and GetObjectExists(Unit) then
+    if br.unlocked and GetObjectExists(Unit) then
         return ObjectFacing(Unit)
     else
         return false
     end
 end
 function GetObjectPosition(Unit)
-    if EWT then
+    if br.unlocked then --EWT then
 		if Unit == nil then return ObjectPosition("player") end
 		if GetObjectExists(Unit) then return ObjectPosition(Unit) end
     else
@@ -51,14 +51,14 @@ function GetObjectPosition(Unit)
     end
 end
 function GetObjectType(Unit)
-    if EWT and GetObjectExists(Unit) then
+    if br.unlocked and GetObjectExists(Unit) then
         return ObjectTypes(Unit)
     else
         return 65561
     end
 end
 function GetObjectIndex(Index)
-    if EWT and GetObjectExists(GetObjectWithIndex(Index)) then
+    if br.unlocked and GetObjectExists(GetObjectWithIndex(Index)) then
         return GetObjectWithIndex(Index)
     else
         return 0
@@ -66,13 +66,13 @@ function GetObjectIndex(Index)
 end
 -- function GetObjectCountBR()
 -- 	if EWT then
---     	return GetObjectCount()
+--     	return GetObjectCountBR()
 --     else
 --     	return 0
 --     end
 -- end
 function GetObjectID(Unit)
-	if EWT and GetObjectExists(Unit) then
+	if br.unlocked and GetObjectExists(Unit) then
 		return ObjectID(Unit)
 	else
 		return 0

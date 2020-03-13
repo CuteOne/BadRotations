@@ -103,7 +103,7 @@ function cl:common(...)
         end
     end
     --In flight
-    if source == br.guid and param == "SPELL_CAST_SUCCESS" and EasyWoWToolbox ~= nil then
+    if source == br.guid and param == "SPELL_CAST_SUCCESS" and br.unlocked then --EasyWoWToolbox ~= nil then
         br.InFlight.Add(spell, destination)
     end
     -- br.tracker.handleEvent(...)
@@ -241,7 +241,7 @@ function cl:common(...)
     ---------------------
     --[[Debuff Tracking]]
     if destination ~= nil and destination ~= "" then
-        if EWT then
+        if br.unlocked then --EWT then
             if param == "SPELL_AURA_APPLIED" and spellType == "DEBUFF" then
                 local destination = GetObjectWithGUID(destination)
                 local source = GetObjectWithGUID(source)
@@ -261,7 +261,7 @@ function cl:common(...)
     if source == UnitGUID("player") then
         if destination ~= nil and destination ~= "" then
             local thisUnit = thisUnit
-            if EWT then
+            if br.unlocked then --EWT then
                 local destination = GetObjectWithGUID(destination)
                 if GetObjectExists(destination) then
                     thisUnit = destination
@@ -452,7 +452,7 @@ function cl:Druid(...)
         if source == UnitGUID("player") then
             if destination ~= nil and destination ~= "" then
                 local thisUnit = thisUnit
-                if EWT then
+                if br.unlocked then --EWT then
                     local destination = GetObjectWithGUID(destination)
                     if GetObjectExists(destination) then
                         thisUnit = destination
@@ -671,7 +671,7 @@ function cl:Rogue(...)
         if source == UnitGUID("player") then
             if destination ~= nil and destination ~= "" then
                 local thisUnit = thisUnit
-                if EWT then
+                if br.unlocked then --EWT then
                     local destination = GetObjectWithGUID(destination)
                     if GetObjectExists(destination) then
                         thisUnit = destination

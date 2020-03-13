@@ -334,7 +334,7 @@ local function runRotation()
             local explosiveObject = nil
             if ObjectExists("target") and otherUnit == nil then otherUnit = "target" end
             if not ObjectExists(otherUnit) then otherUnit = nil end
-            for i = 1,GetObjectCount() do
+            for i = 1,GetObjectCountBR() do
                 local thisUnit = GetObjectWithIndex(i)
                 if GetObjectID(thisUnit) == 11492 then
                     explosiveObject = thisUnit

@@ -1124,7 +1124,7 @@ local function runRotation()
 
         -- Temple of Sethraliss
         if lowest.hp > getOptionValue("Critical HP") then
-            for i = 1, GetObjectCount() do
+            for i = 1, GetObjectCountBR() do
                 if GetObjectID(GetObjectWithIndex(i)) == 133392 and getHP(GetObjectWithIndex(i)) < 100 and getBuffRemain(GetObjectWithIndex(i), 274148) == 0 then
                     heal_target = GetObjectWithIndex(i)
                     seth_routine = true
@@ -2092,7 +2092,7 @@ local function runRotation()
             end
 
             if lowest.hp > 45 then
-                for i = 1, GetObjectCount() do
+                for i = 1, GetObjectCountBR() do
                     local object = GetObjectWithIndex(i)
                     local ID = ObjectID(object)
                     if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
@@ -2669,7 +2669,7 @@ local function runRotation()
                 elseif isChecked("Sugar Crusted Fish Feast") and hasItem(126936) then
                     local x1, y1, z1 = ObjectPosition("player")
                     br.addonDebug("scaninning -  fish thingy")
-                    for i = 1, GetObjectCount() do
+                    for i = 1, GetObjectCountBR() do
                         local object = GetObjectWithIndex(i)
                         local ID = ObjectID(object)
                         local x2, y2, z2 = ObjectPosition(object)

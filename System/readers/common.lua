@@ -250,7 +250,7 @@ function br.read.commonReaders()
 	end
 	--Frame:SetScript("OnEvent", addonReader)
 	GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-		if EWT and GetObjectCount() ~= nil then
+		if br.unlocked --[[EWT]] and GetObjectCountBR() ~= nil then
 			local name,lunit = self:GetUnit()
 			if not UnitIsVisible(lunit) then
 				return

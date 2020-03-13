@@ -684,7 +684,7 @@ local function runRotation()
         --instance logic
         if inInstance and inCombat then
             if isChecked("Temple of Seth heal logic") and br.player.eID and br.player.eID == 2127 then
-                for i = 1, GetObjectCount() do
+                for i = 1, GetObjectCountBR() do
                     local sethObject = GetObjectWithIndex(i)
                     if GetObjectID(sethObject) == 133392 then
                         if getHP(sethObject) < 100 and getBuffRemain(sethObject, 274148) == 0 then

@@ -708,7 +708,7 @@ local function runRotation()
                         if cast.shadowmeld() then return true end    
                     end
                 elseif isChecked("Blind THING") and debuff.grandDelusions.exists("player") then
-                    for i = 1, GetObjectCount() do
+                    for i = 1, GetObjectCountBR() do
                         local object = GetObjectWithIndex(i)
                         local ID = ObjectID(object)
                         if ID == 161895 then

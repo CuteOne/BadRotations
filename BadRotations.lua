@@ -16,6 +16,7 @@ br.loadFile = false
 br.rotations = {}
 -- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
 br.debug = {}
+br.unlocked = false
 
 br.pauseCast = GetTime()
 -- Cache all non-nil return values from GetSpellInfo in a table to improve performance

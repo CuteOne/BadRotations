@@ -40,28 +40,31 @@ end
 
 function ObjectManagerUpdate(self)
 	-- Check for Unlocker
-    if EWT then
-		if EasyWoWToolbox ~= nil then -- Only EWT support
+	if br.unlocked == false then
+		br.unlocked = loadUnlockerAPI()
+	end
+    -- if EWT then
+		if br.unlocked then --EasyWoWToolbox ~= nil then -- Only EWT support
             updateOMEWT()
-        else -- Legacy OM
-            if omPulse == nil then
-                omPulse = GetTime()
-            end
-            if GetTime() > omPulse then
-                omPulse = GetTime() + getUpdateRate()
-                updateOM()
-            end
-		end
+        -- else -- Legacy OM
+        --     if omPulse == nil then
+        --         omPulse = GetTime()
+        --     end
+        --     if GetTime() > omPulse then
+        --         omPulse = GetTime() + getUpdateRate()
+        --         updateOM()
+        --     end
+		-- end
 		br.om:Update()
 	end
 end
 
 function br.antiAfk()
-	if isChecked("Anti-Afk") and EasyWoWToolbox ~= nil then
+	if isChecked("Anti-Afk") and br.unlocked then --EasyWoWToolbox ~= nil then
 		if not IsHackEnabled("antiafk") and getOptionValue("Anti-Afk") == 1 then
 			SetHackEnabled("antiafk",true)
 		end
-	elseif isChecked("Anti-Afk") and EasyWoWToolbox ~= nil and getOptionValue("Anti-Afk") == 2 then
+	elseif isChecked("Anti-Afk") and br.unlocked --[[EasyWoWToolbox ~= nil]] and getOptionValue("Anti-Afk") == 2 then
 		if IsHackEnabled("antiafk") then
 			SetHackEnabled("antiafk",false)
 		end
@@ -73,10 +76,15 @@ local brcurrVersion
 local brUpdateTimer
 local collectGarbage = true
 function BadRotationsUpdate(self)
+	-- Check for Unlocker
+	if br.unlocked == false then
+		br.unlocked = loadUnlockerAPI()
+	end
 	if br.disablePulse == true then return end
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
-	if not EWT then
+
+	if not br.unlocked then
 		br.ui:closeWindow("all")
 		ChatOverlay("Unable To Load")
 		if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
@@ -84,8 +92,8 @@ function BadRotationsUpdate(self)
 		end
 		return false
 	else 
-		if EWT and GetObjectCount() ~= nil then
-			if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) and EasyWoWToolbox ~= nil then
+		if br.unlocked and GetObjectCountBR() ~= nil then
+			if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
 				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
 				if brlocVersion and brcurrVersion then
 					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
@@ -162,7 +170,7 @@ function BadRotationsUpdate(self)
 						end
 					end 
 					--Smart Queue
-					if EasyWoWToolbox ~= nil and isChecked("Smart Queue") then
+					if br.unlocked and --[[EasyWoWToolbox ~= nil and ]]isChecked("Smart Queue") then
 						br.smartQueue()
 					end
 					-- Update Player

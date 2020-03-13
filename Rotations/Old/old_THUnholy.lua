@@ -45,7 +45,7 @@ end
     end
 -- ObjectCheck 
      local function GetObjExists(objectID)
-         for i = 1,GetObjectCount() do
+         for i = 1,GetObjectCountBR() do
              local thisUnit = GetObjectWithIndex(i)
              if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
                  return true

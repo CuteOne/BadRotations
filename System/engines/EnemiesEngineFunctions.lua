@@ -54,7 +54,7 @@ end
 function updateOMEWT()
 	local om = br.om
 	local startTime = debugprofilestop()
-	local _, updated, added, removed = GetObjectCount(true,"BR")
+	local _, updated, added, removed = GetObjectCountBR(true,"BR")
 	if updated and #added > 0 then
 		for _, v in pairs(added) do
 			if ObjectIsUnit(v) then
@@ -89,7 +89,7 @@ function updateOM()
 		br.debug.cpu.enemiesEngine.objects.targets = 0
 	end
 	-- Cycle OM
-	local objectCount = EWT ~= nil and GetObjectCount() or 0
+	local objectCount = GetObjectCountBR() --EWT ~= nil and GetObjectCountBR() or 0
 	if objectCount > 0 then
 		if objectIndex == nil or objectIndex >= objectCount then objectIndex = 1 end
 		for i = objectIndex, objectCount do

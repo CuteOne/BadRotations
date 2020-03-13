@@ -458,7 +458,7 @@ local function runRotation()
     local function calcHP(unit)
         local thisUnit = unit.unit
         local hp = UnitHealth(thisUnit)
-        if EasyWoWToolbox ~= nil then
+        if br.unlocked then --EasyWoWToolbox ~= nil then
             local castID, _, castTarget = UnitCastID("player")
             if castID and castTarget and GetUnitIsUnit(unit, castTarget) and playerCasting then
                 hp = hp - calcDamage(castID, unit)

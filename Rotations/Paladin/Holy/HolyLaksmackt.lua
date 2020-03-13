@@ -482,7 +482,7 @@ local function runRotation()
     end
     --[[ if br.timer:useTimer("Tracker Lag", 0.05) then
         LibDraw.clearCanvas()
-        for i = 1, GetObjectCount() do
+        for i = 1, GetObjectCountBR() do
             local object = GetObjectWithIndex(i)
             local name = ObjectName(object)
             if isChecked("Chest Tracker") then
@@ -924,7 +924,7 @@ local function runRotation()
             if isChecked("Corruption Radar On") then
                 local stun = "Hammer of Justice"
     
-                for i = 1, GetObjectCount() do
+                for i = 1, GetObjectCountBR() do
                     local object = GetObjectWithIndex(i)
                     local ID = ObjectID(object)
                     if isChecked("Use Hammer of Justice on TFTB") then
@@ -1773,7 +1773,7 @@ local function runRotation()
         end
         -- Light of Dawn
         if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
-            if EasyWoWToolbox == nil then
+            if br.unlocked then --EasyWoWToolbox == nil then
                 if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                     if cast.lightOfDawn() then
                         return true
@@ -1993,7 +1993,7 @@ local function runRotation()
                     end
                 end
             elseif getSpellCD(20473) > gcd and getSpellCD(85222) == 0 then
-                if EasyWoWToolbox == nil then
+                if br.unlocked then --EasyWoWToolbox == nil then
                     if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                         if cast.lightOfDawn() then
                             return true
@@ -2419,8 +2419,8 @@ local function runRotation()
                             useItem(163784)
                         end
                     elseif isChecked("Sugar Crusted Fish Feast") then
-                        if EWT ~= nil then
-                            for i = 1, GetObjectCount() do
+                        if br.unlocked then --EWT ~= nil then
+                            for i = 1, GetObjectCountBR() do
                                 local ID = ObjectID(GetObjectWithIndex(i))
                                 local object = GetObjectWithIndex(i)
                                 local x1, y1, z1 = ObjectPosition("player")

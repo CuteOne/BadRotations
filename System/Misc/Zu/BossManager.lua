@@ -1,8 +1,8 @@
 function bossHelper()
     -- Automatic catch the pig
-    if EWT ~= nil then
+    if br.unlocked then --EWT ~= nil then
         if select(8, GetInstanceInfo()) == 1754 then
-            for i = 1, GetObjectCount() do
+            for i = 1, GetObjectCountBR() do
                 local ID = ObjectID(GetObjectWithIndex(i))
                 local object = GetObjectWithIndex(i)
                 local x1, y1, z1 = ObjectPosition("player")
