@@ -99,19 +99,17 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 			else
 				return false
 			end
-		elseif buffSpellID == 296737 and not isChecked("Arcane Bomb Range Check") and buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
-			return true
 		elseif buffSpellID == 303657 and isChecked("Arcane Burst") and buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 			return true
 		elseif novaEngineTables.DispelID[buffSpellID] ~= nil then
-			if stacks >= novaEngineTables.DispelID[buffSpellID].stacks
+			if (stacks >= novaEngineTables.DispelID[buffSpellID].stacks or isChecked("Ignore Stack Count"))
 			then
 				if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
 					return true
 				else
 					if buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then -- Dispel Delay then
 						if novaEngineTables.DispelID[buffSpellID].range ~= nil then
-							if #getAllies(unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
+							if not isChecked("Ignore Range Check") and #getAllies(unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
 								return false
 							end
 							return true
@@ -282,7 +280,7 @@ function canDispel(Unit, spellID)
 				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = UnitBuff(Unit, i)
 				local buffRemain = buffExpire - GetTime()
 				local dispelUnitObj
-				if (buffType and ValidType(buffType)) then 
+				if (buffType and ValidType(buffType)) and not UnitIsPlayer(Unit) then 
 					if Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true) ~= nil then
 						dispelUnitObj = Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true)
 					end
