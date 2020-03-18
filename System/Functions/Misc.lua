@@ -58,6 +58,97 @@ function getFallTime()
 	return fallTime
 end
 -- if getLineOfSight("target"[,"target"]) then
+math.doLinesIntersect = function(a, b, c, d)
+	-- parameter conversion
+	local L1 = {X1 = a.x, Y1 = a.y, X2 = b.x, Y2 = b.y}
+	local L2 = {X1 = c.x, Y1 = c.y, X2 = d.x, Y2 = d.y}
+
+	-- Denominator for ua and ub are the same, so store this calculation
+	local d = (L2.Y2 - L2.Y1) * (L1.X2 - L1.X1) - (L2.X2 - L2.X1) * (L1.Y2 - L1.Y1)
+
+	-- Make sure there is not a division by zero - this also indicates that the lines are parallel.
+	-- If n_a and n_b were both equal to zero the lines would be on top of each
+	-- other (coincidental).  This check is not done because it is not
+	-- necessary for this implementation (the parallel check accounts for this).
+	if (d == 0) then
+		return false
+	end
+
+	-- n_a and n_b are calculated as seperate values for readability
+	local n_a = (L2.X2 - L2.X1) * (L1.Y1 - L2.Y1) - (L2.Y2 - L2.Y1) * (L1.X1 - L2.X1)
+	local n_b = (L1.X2 - L1.X1) * (L1.Y1 - L2.Y1) - (L1.Y2 - L1.Y1) * (L1.X1 - L2.X1)
+
+	-- Calculate the intermediate fractional point that the lines potentially intersect.
+	local ua = n_a / d
+	local ub = n_b / d
+
+	-- The fractional point will be between 0 and 1 inclusive if the lines
+	-- intersect.  If the fractional calculation is larger than 1 or smaller
+	-- than 0 the lines would need to be longer to intersect.
+	if (ua >= 0 and ua <= 1 and ub >= 0 and ub <= 1) then
+		local x = L1.X1 + (ua * (L1.X2 - L1.X1))
+		local y = L1.Y1 + (ua * (L1.Y2 - L1.Y1))
+		return true, {x = x, y = y}
+	end
+
+	return false
+end
+
+function carapaceMath(Unit1, Unit2)
+	if Unit2 == nil then
+		Unit2 = Unit1
+		if Unit2 == "player" then
+			Unit1 = "target"
+		else
+			Unit1 = "player"
+		end
+	end
+	if br.player and br.player.eID and br.player.eID == 2337 then
+		local pX,pY,pZ = GetObjectPosition(Unit1)
+        local tX,tY,tZ = GetObjectPosition(Unit2)
+        --[[ if tX ~= nil then
+            --LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
+        end ]]
+        if br.timer:useTimer("Tentacle Lag", 1) then
+            for i = 1, GetObjectCount() do
+                local object = GetObjectWithIndex(i)
+                local name = ObjectName(object)
+                if string.match(string.upper(name), string.upper("rowth")) then
+                    tentFacing = GetObjectFacing(object)
+                    tentX, tentY, tentZ = GetObjectPosition(object)
+                end
+            end
+        end
+        if tentX ~= nil then
+            tentX2 = tentX + (75 * math.cos(tentFacing))
+            tentY2 = tentY + (75 * math.sin(tentFacing))
+            --LibDraw.Line(tentX,tentY,tentZ,tentX2,tentY2,tentZ)
+        end
+        if tentX ~= nil then
+            --LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
+            local a = {x = tentX, y = tentY}
+            local b = {x = tentX2, y = tentY2}
+            local c = {x = tX, y = tY}
+            local d = {x = pX, y = pY}
+
+            if math.doLinesIntersect(a,b,c,d) then 
+                --[[ LibDraw.SetColor(255,0,0)
+                if br.timer:useTimer("Yes", 1) then
+                    Print("Intersecting!")
+				end ]]
+				return false
+            else 
+                --[[ LibDraw.SetColor(0,255,0)
+                if br.timer:useTimer("No", 1) then
+                    Print("Not Intersecting")
+				end ]]
+				return true
+            end
+		end
+		return true
+	end
+end
+
 function getLineOfSight(Unit1, Unit2)
 	if Unit2 == nil then
 		Unit2 = Unit1
@@ -74,22 +165,34 @@ function getLineOfSight(Unit1, Unit2)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)
 		local pX, pY, pZ = GetObjectPosition("player")
 		if TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil then
-			if br.player and br.player.eID and br.player.eID == 2141 then
-				if pX < -108 and X2 < -108 then
-					return true
-				elseif (pX > -108 and pX < -54) and (X2 > -108 and X2 < -54) then
-					return true
-				elseif pX > -54 and X2 > -54 then
+			--Print("Past Traceline")
+            if br.player and br.player.eID and br.player.eID == 2141 then
+                if pX < -108 and X2 < -108 then
+                    return true
+                elseif (pX > -108 and pX < -54) and (X2 > -108 and X2 < -54) then
+                    return true
+                elseif pX > -54 and X2 > -54 then
+                    return true
+                else
+                    return false
+                end
+			elseif br.player and br.player.eID and br.player.eID == 2337 then
+				--Print("Past Cara Check")
+				if carapaceMath(Unit1,Unit2) == true then
+					--Print("Cara True")
 					return true
 				else
+					--Print("cara False")
 					return false
 				end
 			else
-				return true
-			end
+				--Print("Skippped all the code")
+                return true
+            end
 		else
-			return false
-		end
+			--Print("Really Skipped it all")
+            return false
+        end
 	else
 		return false
 	end

@@ -59,6 +59,58 @@ function ObjectManagerUpdate(self)
 	end
 end
 
+function br.tracker()
+	if br.timer:useTimer("Tracker Lag", 0.07) then
+        LibDraw.clearCanvas()
+        for i = 1, GetObjectCountBR() do
+            local object = GetObjectWithIndex(i)
+            local name = ObjectName(object)
+            if isChecked("Chest Tracker") then
+                if string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest")) then
+                    local xOb, yOb, zOb = ObjectPosition(object)
+                    local pX,pY,pZ = ObjectPosition("player")
+                    if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 300 then
+                        --LibDraw.Circle(xOb,yOb,zOb, 2)
+                        LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                        if isChecked("Draw Lines to Tracked Objects") then 
+                            LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
+                        end
+                    end
+                end
+            end
+
+			if isChecked("Potions Tracker") then
+				--[[ local badpot = {"Blank","Red","Black","Green","Blue","Purple"} ]]
+				if string.match(strupper(name),strupper("vial")) then
+                    local xOb, yOb, zOb = ObjectPosition(object)
+                    local pX,pY,pZ = ObjectPosition("player")
+                    if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <200 then
+                        --LibDraw.Circle(xOb,yOb,zOb, 1)
+                        LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                        if isChecked("Draw Lines to Tracked Objects") then 
+                            LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
+                        end
+                    end
+                end
+            end
+
+            if isChecked("Custom Tracker") then
+                if getDistance(object) < 100 and getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3 and string.match(strupper(name),strupper(getOptionValue("Custom Tracker"))) then
+                    local xOb, yOb, zOb = ObjectPosition(object)
+                    local pX,pY,pZ = ObjectPosition("player")
+                    if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <200 then
+                        --LibDraw.Circle(xOb,yOb,zOb, 1)
+                        LibDraw.Text(name,"GameFontNormal",xOb,yOb,zOb+3)
+                        if isChecked("Draw Lines to Tracked Objects") then 
+                            LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 function br.antiAfk()
 	if isChecked("Anti-Afk") and br.unlocked then --EasyWoWToolbox ~= nil then
 		if not IsHackEnabled("antiafk") and getOptionValue("Anti-Afk") == 1 then
@@ -238,6 +290,9 @@ function BadRotationsUpdate(self)
 					end
 					-- Accept dungeon queues
 					br:AcceptQueues()
+
+					--Tracker
+					br.tracker()
 
 					-- Anti-Afk
 					br.antiAfk()
