@@ -338,7 +338,7 @@ actionList.cleanse = function()
     -- Cleanse
     if cast.able.cleanse() and not cast.last.cleanse() then
         for i = 1, #br.friend do
-            if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 and ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power")) or GetMinimapZoneText() ~= "Shrine of Shadows") then
+            if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
                 if race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
                     if cast.racial("player") then
                         return true
@@ -957,10 +957,13 @@ actionList.heal = function()
                     end
                 end
             end
+        --todo here is an idea - what if healtarget is 80%+ HP and has glimmer buff on them .. but someone else in the group does not
         end
     end
     if healTarget == "none" then
         --m+ boss fight stuff
+
+       --Last boss in temple
         if inCombat and br.player.eID and br.player.eID == 2127 then
             for i = 1, GetObjectCount() do
                 if GetObjectID(GetObjectWithIndex(i)) == 133392 and getHP(GetObjectWithIndex(i)) < 100 and getBuffRemain(GetObjectWithIndex(i), 274148) == 0 then
@@ -969,7 +972,9 @@ actionList.heal = function()
                 end
             end
         end
-
+        if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
+            bossHelper()
+        end
 
     end
 
