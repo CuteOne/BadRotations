@@ -1792,6 +1792,7 @@ br.lists.spells = {
                 judgement                   = 214222,
                 judgmentoflight             = 196941,
                 glimmerOfLight              = 287280,
+                consecration                = 204242,
 
             },
             glyphs                          = {
@@ -1819,6 +1820,7 @@ br.lists.spells = {
             traits                          = {
                 breakingDawn                = 278594,
                 graceoftheJusticar          = 278593,
+                indomitableJustice          = 275496,
             },
         },
         -- Protection
@@ -3497,7 +3499,11 @@ br.lists.spells = {
                 grandDelusions                  = 319695,
                 graspingTendrils                = 315176,
                 creepingMadness                 = 313255,
-                fixate				            = 318078,	
+                fixate				            = 318078,
+                thirstForBlood                  = 266107,
+                mightyBash                      = 5211,
+                defiledGround                   = 314565,
+                vileCorruption                  = 314392,
             },
             essences                            = {
                 aegisOfTheDeep                  = 298168,
