@@ -53,13 +53,13 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200320-18")
         br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
         br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "Health Percent to Critical Heals")
-        br.ui:createCheckbox(section, "Grievous Wounds", "Enables/Disables GrievousWound", 1)
+        br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
         br.ui:createSpinner(section, "Holy Shock", 80, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "LotM player HP limit", 50, 0, 100, 5, "", "Light of the Martyr Self HP limit")
@@ -119,12 +119,14 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
         br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
         br.ui:checkSectionState(section)
-
     end
-    optionTable = { {
-                        [1] = "Rotation Options",
-                        [2] = rotationOptions,
-                    } }
+
+    optionTable = {
+        {
+            [1] = "Rotation Options",
+            [2] = rotationOptions,
+        }
+    }
     return optionTable
 end
 
@@ -148,7 +150,7 @@ local mode
 local buff
 local cast
 local php
-local spell
+--local spell
 local talent
 local units
 local use
@@ -246,7 +248,7 @@ local HOJ_unitList = {
     [129758] = "Irontide Grenadier"
 }
 -----------------
---- Functions --- -- List all profile specific custom functions here
+------ Functions --- -- List all profile specific custom functions here
 -----------------
 local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
     if not isKnown(spell) or getSpellCD(spell) ~= 0 or select(2, IsUsableSpell(spell)) then
@@ -350,7 +352,6 @@ actionList.cleanse = function()
             end
         end
     end
-
 end
 actionList.ooc = function()
     --things to do ooc
@@ -411,22 +412,22 @@ actionList.ooc = function()
         if cast.holyLight(lowest.unit) then
         end
     end
-
 end
 
 actionList.dps = function()
     -- j / con / HS / CS
 
     --Auto attack
-    if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+    if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
         StartAttack(units.dyn5)
     end
+
 
     --Judgment
     if cast.able.judgment() then
         if traits.indomitableJustice.active then
             for i = 1, #enemies.yards30 do
-                if getHP(enemies.yards30[i]) < getHP("player") and getFacing("player", enemies.yards30[i]) then
+                if getHP(enemies.yards30[i]) < getHP("player") and getFacing("player", enemies.yards30[i]) and getFacing("player", thisUnit) then
                     if cast.judgment(enemies.yards30[i]) then
                         return true
                     end
@@ -479,7 +480,7 @@ actionList.dps = function()
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) and getFacing("player", units.dyn5) then
+    if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) and getFacing("player", units.dyn5) and #enemies.yards8 >= 1 then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[DPS]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
@@ -488,7 +489,6 @@ actionList.dps = function()
 end
 
 actionList.Extra = function()
-
 end -- End Action List - Extra
 
 -- Action List - Defensive
@@ -525,8 +525,7 @@ actionList.Defensive = function()
         -- Divine Shield
         if isChecked("Divine Shield") and cast.able.divineShield() then
             if (php <= getOptionValue("Divine Shield") or UnitDebuffID("player", 272571)
-                    or UnitDebuffID("player", 255421)) and not UnitDebuffID("player", 25771)
-            then
+                    or UnitDebuffID("player", 255421)) and not UnitDebuffID("player", 25771) then
                 if cast.divineShield() then
                     return true
                 end
@@ -587,13 +586,11 @@ actionList.Defensive = function()
         if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and isMoving("player")
                 and (hasNoControl(spell.blessingOfFreedom)
                 or isChecked("Use Blessing of Freedom for Snare") and debuff.graspingTendrils.exists("player")
-                or debuff.vileCorruption.exists("player"))
-        then
+                or debuff.vileCorruption.exists("player")) then
             if cast.blessingOfFreedom("player") then
                 return true
             end
         end
-
     end
 end -- End Action List - Defensive
 
@@ -629,7 +626,6 @@ actionList.Interrupt = function()
             end
         end
     end
-
 end -- End Action List - Interrupt
 
 actionList.Cooldown = function()
@@ -774,7 +770,7 @@ actionList.Cooldown = function()
                     -- get players in melee range of tank's target
                     local meleeFriends = getAllies(tankTarget, 5)
                     -- get the best ground circle to encompass the most of them
-                    local loc = nil
+                    local loc
                     if #meleeFriends >= 8 then
                         loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
                     else
@@ -823,7 +819,7 @@ actionList.Cooldown = function()
                     -- get players in melee range of tank's target
                     local meleeFriends = getAllies(tankTarget, 5)
                     -- get the best ground circle to encompass the most of them
-                    local loc = nil
+                    local loc
                     if #meleeFriends >= 8 then
                         loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
                     else
@@ -911,24 +907,24 @@ actionList.heal = function()
         end
     end
 
-    if #tanks > 0 and LightCount == 0 then
+    if #tanks > 0 and (LightCount == 0 or buff.beaconOfFaith.exists("Player")) then
         for i = 1, #tanks do
             if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) then
                 if cast.beaconOfLight(tanks[i].unit) then
                     return true
                 end
-            elseif (#tanks == 0 or LightCount == 0) and not buff.beaconOfLight.exists("Player") and not buff.beaconOfFaith.exists("Player") then
-                if cast.beaconOfLight("Player") then
-                    return true
-                end
             end
+        end
+    elseif (#tanks == 0 and LightCount == 0) and not buff.beaconOfLight.exists("Player") and not buff.beaconOfFaith.exists("Player") then
+        if cast.beaconOfLight("Player") then
+            return true
         end
     end
 
 
+
     --trying out new stuff here
     --hs, dawn, flash(infused), Lotm, flash
-    -- TODO: need to set heal target smarter....cause this is a mess
     local healTarget = "none"
     local healReason = "none"
     local healTargetHealth = 100
@@ -949,7 +945,7 @@ actionList.heal = function()
             for i = 1, #br.friend do
                 if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
                     local CurrentBleedstack = getDebuffStacks(br.friend[i].unit, 240559)
-                    if getDebuffStacks(br.friend[i].unit, 240559) > 0 then
+                    if getDebuffStacks(br.friend[i].unit, 240559) >= getValue("Grievous Wounds") then
                         BleedFriendCount = BleedFriendCount + 1
                     end
                     if CurrentBleedstack > BleedStack then
@@ -977,7 +973,6 @@ actionList.heal = function()
         if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
             bossHelper()
         end
-
     end
 
     if healTarget == "none" then
@@ -1030,25 +1025,23 @@ actionList.heal = function()
 
     --hs, dawn, flash(infused), Lotm, flash xxxxxx
     -- Light of Martyr
-
-    if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and cast.able.lightOfTheMartyr()
-            and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
-            and getDebuffStacks("player", 265773) == 0 -- not if we got spit gold on us
-    then
-        if healTarget == "none" then
-            if lowest.hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(lowest.unit, "player") then
-                healTarget = lowest.unit
-                healReason = "HEAL"
-            end
-        end
-        if healTarget ~= "none" then
-            healTargetHealth = round(getHP(healTarget), 1)
-            if cast.lightOfTheMartyr(healTarget) then
-                br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
-                return true
-            end
+    if healTarget == "none" then
+        if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and cast.able.lightOfTheMartyr()
+                and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
+                and getDebuffStacks("player", 265773) == 0 -- not if we got spit gold on us then  then
+                and lowest.hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(lowest.unit, "player") then
+            healTarget = lowest.unit
+            healReason = "HEAL"
         end
     end
+    if healTarget ~= "none" then
+        healTargetHealth = round(getHP(healTarget), 1)
+        if cast.lightOfTheMartyr(healTarget) then
+            br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
+            return true
+        end
+    end
+
 
     if cast.able.flashOfLight() then
         if healTarget == "none" then
@@ -1065,7 +1058,6 @@ actionList.heal = function()
             end
         end
     end
-
 end -- End Action List - heal
 
 
@@ -1163,6 +1155,7 @@ local function runRotation()
         if not inCombat then
             -- out of combat stuff
 
+
             if actionList.ooc() then
                 return true
             end
@@ -1221,14 +1214,13 @@ local function runRotation()
             end
             if actionList.dps() then
                 return true
-
             end
-
-
         end
     end -- end pause
     return true
-end -- End runRotation
+end
+
+-- End runRotation
 local id = 65
 if br.rotations[id] == nil then
     br.rotations[id] = {}
