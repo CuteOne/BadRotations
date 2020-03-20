@@ -62,7 +62,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Grievous Wounds", "Enables/Disables GrievousWound", 1)
         br.ui:createSpinner(section, "Holy Shock", 80, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createSpinner(section, "LotM player HP limit", 50, 0, 100, 5, "", "Light of the Martyr Self HP limit", true)
+        br.ui:createSpinnerWithout(section, "LotM player HP limit", 50, 0, 100, 5, "", "Light of the Martyr Self HP limit")
         -- Light of Dawn
         br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "Minimum LoD Targets", true)
@@ -433,8 +433,10 @@ actionList.dps = function()
                 end
             end
         end
-        if cast.judgment(units.dyn30) then
-            return true
+        if getFacing("player", units.dyn30) then
+            if cast.judgment(units.dyn30) then
+                return true
+            end
         end
     end
 
@@ -465,19 +467,19 @@ actionList.dps = function()
     end
 
     --using DPS trinkets
-    if getOptionValue("Trinket 1 Mode") == 4 then
+    if getOptionValue("Trinket 1 Mode") == 4 and inCombat then
         if canUseItem(13) then
             useItem(13)
         end
     end
-    if getOptionValue("Trinket 2 Mode") == 4 then
+    if getOptionValue("Trinket 2 Mode") == 4 and inCombat then
         if canUseItem(14) then
             useItem(14)
         end
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) then
+    if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[DPS]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
@@ -793,7 +795,7 @@ actionList.Cooldown = function()
                     end
                 end
             end
-        elseif getOptionValue("Trinket 1 Mode") == 4 then
+        elseif getOptionValue("Trinket 1 Mode") == 4 and inCombat then
             if canUseItem(13) then
                 useItem(13)
             end
@@ -957,13 +959,13 @@ actionList.heal = function()
                     end
                 end
             end
-        --todo here is an idea - what if healtarget is 80%+ HP and has glimmer buff on them .. but someone else in the group does not
+            --todo here is an idea - what if healtarget is 80%+ HP and has glimmer buff on them .. but someone else in the group does not
         end
     end
     if healTarget == "none" then
         --m+ boss fight stuff
 
-       --Last boss in temple
+        --Last boss in temple
         if inCombat and br.player.eID and br.player.eID == 2127 then
             for i = 1, GetObjectCount() do
                 if GetObjectID(GetObjectWithIndex(i)) == 133392 and getHP(GetObjectWithIndex(i)) < 100 and getBuffRemain(GetObjectWithIndex(i), 274148) == 0 then
@@ -991,17 +993,6 @@ actionList.heal = function()
             return true
         end
     end
-    --leaving old stuff in for fallback
-    if isChecked("Mastery bonus") and inRaid and holyshocktarget ~= nil then
-        if cast.holyShock(holyshocktarget) then
-            return true
-        end
-    elseif lowest.hp <= getValue("Holy Shock") then
-        if cast.holyShock(lowest.unit) then
-            br.addonDebug("fallback HS healing")
-            return true
-        end
-    end -- end holy shock
 
     -- Light of Dawn
     if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
@@ -1040,9 +1031,12 @@ actionList.heal = function()
     --hs, dawn, flash(infused), Lotm, flash xxxxxx
     -- Light of Martyr
 
-    if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 and getDebuffStacks("player", 265773) == 0 and getSpellCD(20473) < gcd then
+    if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and cast.able.lightOfTheMartyr()
+            and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
+            and getDebuffStacks("player", 265773) == 0 -- not if we got spit gold on us
+    then
         if healTarget == "none" then
-            if lowest.hp <= getValue("Light of the Martyr") and lowest.unit ~= "player" then
+            if lowest.hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(lowest.unit, "player") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
             end
