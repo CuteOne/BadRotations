@@ -4,7 +4,5 @@ br.lists.visions = {
     341338, -- blue
     341339, -- green
     341340, -- purple
-    341341, -- red
-    136633,
-    299265
+    341341 -- red
 }
