@@ -1,13 +1,16 @@
-local function trackObject(object,name,objectid)
+local function trackObject(object,name,objectid,interact)
 	local xOb, yOb, zOb = ObjectPosition(object)
 	local pX,pY,pZ = ObjectPosition("player")
+	if interact == nil then interact = true end
 	if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
 		--LibDraw.Circle(xOb,yOb,zOb, 2)
 		LibDraw.Text(name.." "..objectid,"GameFontNormal",xOb,yOb,zOb+3)
 		if isChecked("Draw Lines to Tracked Objects") then
 			LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
 		end
-		if isChecked("Auto Interact with Any Tracked Object") and not br.player.inCombat and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 then
+		if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
+			and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player")
+		then
 			ObjectInteract(object)
 		end
 	end
@@ -45,8 +48,30 @@ function br.objectTracker()
 				end
 				-- Horrific Vision - Mailboxes
 				if isChecked("Mailbox Tracker") then
-					if objectid == 326974 then
-						trackObject(object,name,objectid)
+					if (objectid == 326974 or objectid == 325080 or objectid == 326924 or objectid == 326755 or objectid == 327053) then
+						local interactable = ObjectDescriptor(object, GetOffset("CGGameObjectData__Flags"), "int") == 32
+						if interactable then
+							trackObject(object,name,objectid)
+						end
+					end
+				end
+				-- Horrific Visions - Bonus NPCs
+				if isChecked("Bonus NPC Tracker") then
+					-- Stormwind
+					if objectid == 161293 -- Neglected Guild Bank
+						or objectid == 157700 -- Agustus Moulaine
+						or objectid == 160404 -- Angry Bear Rug Spirit
+						or objectid == 161324 -- Experimental Buff Mine
+					then
+						trackObject(object,name,objectid,false)
+					end
+					-- Orgrimmar
+					if objectid == 158588 -- Gamon (Pool ol' Gamon)
+						or objectid == 158565 -- Naros
+						or objectid == 161140 -- Bwemba
+						or objectid == 161198 -- Warpweaver Dushar
+					then
+						trackObject(object,name,objectid,false)
 					end
 				end
 				-- Custom Tracker

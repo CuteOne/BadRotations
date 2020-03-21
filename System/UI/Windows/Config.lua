@@ -115,17 +115,18 @@ function br.ui:createConfigWindow()
 
     local function callTrackerEngine()
         -- Main
-        section = br.ui:createSection(br.ui.window.config, "Tracker - Main Settings")
+        section = br.ui:createSection(br.ui.window.config, "Main Settings")
         br.ui:createCheckbox(section,"Enable Tracker")
         br.ui:createCheckbox(section,"Draw Lines to Tracked Objects")
         br.ui:createCheckbox(section,"Auto Interact with Any Tracked Object")
         br.ui:createScrollingEditBox(section,"Custom Tracker", nil, "Type custom search", 300, 40)
         br.ui:checkSectionState(section)
         -- Horrific Visions
-        section = br.ui:createSection(br.ui.window.config, "Tracker - Horrific Visions")
+        section = br.ui:createSection(br.ui.window.config, "Horrific Visions")
         --br.ui:createDropdownWithout(section, "Bad Potion", {"Blank","Red","Black","Green","Blue","Purple"}, 1, "Set this to the Bad potion.")
+        br.ui:createCheckbox(section,"Bonus NPC Tracker","Random Spawns - Give Buffs")
         br.ui:createCheckbox(section,"Chest Tracker", "English Clients Only - Non English Clients, Use Custom Search")
-        -- br.ui:createCheckbox(section,"Mailbox","Chance for Rare-Spawn Mount") -- Not Yet Ready
+        br.ui:createCheckbox(section,"Mailbox Tracker","Chance for Rare-Spawn Mount")
         br.ui:createCheckbox(section,"Odd Crystal Tracker", "Collect 10 (2 from each zone) before turn-in!")
         br.ui:createCheckbox(section,"Potions Tracker")
         br.ui:checkSectionState(section)
