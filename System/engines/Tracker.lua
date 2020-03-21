@@ -16,7 +16,7 @@ function br.objectTracker()
 							if isChecked("Draw Lines to Tracked Objects") then 
 								LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
 							end
-							if isChecked("Auto Interact") and not br.player.inCombat and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 then
+							if isChecked("Auto Interact with Any Tracked Object") and not br.player.inCombat and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 then
 								ObjectInteract(object)
 							end
 						end
@@ -26,6 +26,7 @@ function br.objectTracker()
 
 				if isChecked("Potions Tracker") then
 					--[[ local badpot = {"Blank","Red","Black","Green","Blue","Purple"} ]]
+					if br.lists.visions == nil then Print("Visions doesnt exists") end
 					for _,v in pairs(br.lists.visions) do
 						if v == objectid then
 							local xOb, yOb, zOb = ObjectPosition(object)
@@ -36,7 +37,7 @@ function br.objectTracker()
 								if isChecked("Draw Lines to Tracked Objects") then 
 									LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
 								end
-								if isChecked("Auto Interact") and not br.player.inCombat and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 then
+								if isChecked("Auto Interact with Any Tracked Object") and not br.player.inCombat and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 then
 									ObjectInteract(object)
 								end
 							end
@@ -54,7 +55,7 @@ function br.objectTracker()
 							if isChecked("Draw Lines to Tracked Objects") then 
 								LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
 							end
-							if isChecked("Auto Interact") and not br.player.inCombat and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 then
+							if isChecked("Auto Interact with Any Tracked Object") and not br.player.inCombat and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 then
 								ObjectInteract(object)
 							end
 						end
