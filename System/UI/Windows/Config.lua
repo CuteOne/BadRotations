@@ -113,6 +113,17 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
+    local function callTrackerEngine()
+        section = br.ui:createSection(br.ui.window.config, "Adjust Tracker Settings Here")
+        br.ui:createCheckbox(section,"Potions Tracker")
+        --br.ui:createDropdownWithout(section, "Bad Potion", {"Blank","Red","Black","Green","Blue","Purple"}, 1, "Set this to the Bad potion.")
+        br.ui:createCheckbox(section,"Chest Tracker", "English Clients Only - Non English Clients, Use Custom Search")
+        br.ui:createScrollingEditBox(section,"Custom Tracker", nil, "Type custom search", 300, 40)
+        br.ui:createCheckbox(section,"Draw Lines to Tracked Objects")
+        br.ui:createCheckbox(section,"Auto Interact with Any Tracked Object")
+        br.ui:checkSectionState(section)
+    end
+
     local function callQueueEngine()
         local function pairsByKeys (t, f)
             local a = {}
@@ -184,6 +195,10 @@ function br.ui:createConfigWindow()
              [1] = "Save/Load Settings",
              [2] = callSettingsEngine,
          },
+         {
+            [1] = "Tracker Engine",
+            [2] = callTrackerEngine,
+        },
     })
 
     br.ui:checkWindowStatus("config")

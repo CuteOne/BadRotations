@@ -113,6 +113,7 @@ function br.loader:new(spec,specName)
     end
 
     self.items = br.lists.items
+    self.visions = br.lists.visions
     self.pets  = br.lists.pets
 
     -- Update Talent Info
