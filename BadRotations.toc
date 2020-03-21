@@ -40,6 +40,7 @@ System\Functions\SmartQueue.lua
 System\Lists\AoEDamage.lua
 System\Lists\BurnUnits.lua
 System\Lists\CCUnits.lua
+System\Lists\Collectables.lua
 System\Lists\Defensives.lua
 System\Lists\Dispels.lua
 System\Lists\Dummy.lua
@@ -94,6 +95,7 @@ System\Engines\HealingEngineFunctions.lua
 #System\Engines\InterruptsFrame.lua -- Unused
 System\Engines\Interrupts.lua 
 System\Engines\ttdTable.lua
+System\Engines\Tracker.lua
 
 ## BadRotations UI
 
