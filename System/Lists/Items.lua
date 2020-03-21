@@ -133,5 +133,4 @@ br.lists.visions = {
     [341339] = green, -- green
     [341340] = purple, -- purple
     [341341] = red, -- red
-    [161989] = test,
 }
