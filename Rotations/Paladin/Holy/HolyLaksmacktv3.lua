@@ -77,6 +77,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "", "Min Health Percent to Cast At")
         br.ui:createSpinner(section, "Blessing of Protection", 20, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Blessing of Sacrifice", 40, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createCheckbox(section, "Blessing of Freedom", "Use Blessing of Freedom")
+
         br.ui:createDropdownWithout(section, "BoS Target", { "Any", "Tanks" }, 1, "Target for BoS")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Trinkets")
@@ -451,29 +453,32 @@ actionList.dps = function()
         end
     end
 
-    if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 15 or #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+    if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 15
+            or #tanks > 0 and getDistance(tanks[1].unit) >= 90)
             or (inRaid and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 40 or #tanks > 0 and getDistance(tanks[1].unit) >= 90)
             or not inInstance or not inRaid or solo then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
                 if cast.holyShock(thisUnit) then
+                    br.addonDebug("[DPS]HolyShock on " .. UnitName(thisUnit) .. "Glimmer")
                     return true
                 end
             end
         end
         if cast.holyShock(units.dyn40) then
+            br.addonDebug("[DPS]HolyShock on " .. UnitName(thisUnit) .. "No-Glimmer")
             return true
         end
     end
 
     --using DPS trinkets
-    if getOptionValue("Trinket 1 Mode") == 4 and inCombat then
+    if isSelected("Trinket 1") and getOptionValue("Trinket 1 Mode") == 4 and inCombat then
         if canUseItem(13) then
             useItem(13)
         end
     end
-    if getOptionValue("Trinket 2 Mode") == 4 and inCombat then
+    if isSelected("Trinket 2") and getOptionValue("Trinket 2 Mode") == 4 and inCombat then
         if canUseItem(14) then
             useItem(14)
         end
@@ -535,7 +540,7 @@ actionList.Defensive = function()
         if isChecked("Divine Protection") and cast.able.divineProtection() and not buff.divineShield.exists("player") then
             if php <= getOptionValue("Divine Protection") then
                 if cast.divineProtection() then
-                    return tru
+                    return true
                 end
             elseif buff.blessingOfSacrifice.exists("player") and php <= 80 then
                 if cast.divineProtection() then
@@ -911,7 +916,7 @@ actionList.heal = function()
     -- heal()
     --checking for HE
     if br.data.settings[br.selectedSpec][br.selectedProfile]["HE ActiveCheck"] == false and br.timer:useTimer("Error delay", 3.5) then
-        Print("Detecting Healing Engine is not turned on.  Please activate Healing Engine to use this profile.")
+        Print("HEAL ENGINE IS NOT ON - HEAL ENGINE NEED TO BE ON - YOU SHOULD TURN THE HEAL ENGINE ON.")
         return
     end
     -- tanks = getTanksTable()
