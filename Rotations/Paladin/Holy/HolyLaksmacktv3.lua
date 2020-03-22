@@ -461,13 +461,13 @@ actionList.dps = function()
             local thisUnit = enemies.yards40[i]
             if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
                 if cast.holyShock(thisUnit) then
-                    br.addonDebug("[DPS]HolyShock on " .. UnitName(thisUnit) .. "Glimmer")
+                    br.addonDebug("[DPS]HolyShock on " .. UnitName(thisUnit) .. " w/Glimmer")
                     return true
                 end
             end
         end
         if cast.holyShock(units.dyn40) then
-            br.addonDebug("[DPS]HolyShock on " .. UnitName(thisUnit) .. "No-Glimmer")
+            br.addonDebug("[DPS]HolyShock - No-Glimmer")
             return true
         end
     end
