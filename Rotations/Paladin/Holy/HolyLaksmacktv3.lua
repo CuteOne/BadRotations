@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200320-18")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200322-09")
         br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
         br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
         br.ui:checkSectionState(section)
@@ -341,7 +341,7 @@ actionList.cleanse = function()
     if cast.able.cleanse() and not cast.last.cleanse() then
         for i = 1, #br.friend do
             if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
-                if race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
+                if br.player.race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
                     if cast.racial("player") then
                         return true
                     end
@@ -517,7 +517,7 @@ actionList.Defensive = function()
         end
 
         -- Gift of the Naaru
-        if isChecked("Gift of The Naaru") and php <= getOptionValue("Gift of The Naaru") and php > 0 and race == "Draenei" then
+        if isChecked("Gift of The Naaru") and php <= getOptionValue("Gift of The Naaru") and php > 0 and br.player.race == "Draenei" then
             if castSpell("player", racial, false, false, false) then
                 return true
             end
@@ -535,7 +535,7 @@ actionList.Defensive = function()
         if isChecked("Divine Protection") and cast.able.divineProtection() and not buff.divineShield.exists("player") then
             if php <= getOptionValue("Divine Protection") then
                 if cast.divineProtection() then
-                    return true
+                    return tru
                 end
             elseif buff.blessingOfSacrifice.exists("player") and php <= 80 then
                 if cast.divineProtection() then
@@ -597,17 +597,32 @@ end -- End Action List - Defensive
 
 actionList.Interrupt = function()
 
+    if cast.able.hammerOfJustice() then
+        for i = 1, #br.friend do
+            if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit, 272407) == 0 and br.friend[i].distance <= 10 then
+                if cast.hammerOfJustice(thisUnit) then
+                    return true
+                end
+            end
+        end
+    end
+
     if useInterrupts() and (cast.able.blindingLight() or cast.able.hammerOfJustice()) then
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
             local distance = getDistance(thisUnit)
             if canInterrupt(thisUnit, getOptionValue("InterruptAt")) and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)] == nil and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
                 -- Blinding Light
-                if cast.blindingLight() then
-                    return true
+                if isSelected("Blinding Light") then
+                    if cast.blindingLight() then
+                        return true
+                    end
                 end
                 -- Hammer of Justice
-                if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit, 226510) == 0 and (thisUnit == 130488 and isChecked("Motherload - Stun jockeys") or thisUnit ~= 130488) then
+                if isChecked("Hammer of Justice") and cast.able.hammerOfJustice()
+                        and getBuffRemain(thisUnit, 226510) == 0 -- never stun in Sanguine
+                        and (thisUnit == 130488 and isChecked("ML - Stun jockeys") or thisUnit ~= 130488)
+                then
                     if cast.hammerOfJustice(thisUnit) then
                         return true
                     end
@@ -706,10 +721,15 @@ actionList.Cooldown = function()
     end
 
     --BoP
-    if cast.able.blessingOfProtection() and lowest.hp <= getValue("Blessing of Protection") then
+    if cast.able.blessingOfProtection() then
         for i = 1, #br.friend do
-            if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists() then
-                if not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+            if (lowest.hp <= getValue("Blessing of Protection")
+                    or getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                    or getDebuffRemain("player", 255421) ~= 0 -- Devour
+            )
+            then
+                if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
+                        and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                     if cast.blessingOfProtection(br.friend[i].unit) then
                         return true
                     end
@@ -730,6 +750,7 @@ actionList.Cooldown = function()
     -- Blessing of Sacrifice
     if isChecked("Blessing of Sacrifice") and cast.able.blessingOfSacrifice() then
         if getOptionValue("BoS Target") == 2 then
+            -- tank only
             for i = 1, #tanks do
                 if tanks[i].hp <= getOptionValue("Blessing Of Sacrifice") then
                     if cast.blessingOfSacrifice(tanks[i].unit) then
@@ -737,9 +758,10 @@ actionList.Cooldown = function()
                     end
                 end
             end
-        else
+        elseif getOptionValue("BoS Target") == 1 then
+            -- "all"
             for i = 1, #br.friend do
-                if br.friend[i].hp < getOptionValue("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice(br.friend[i].unit) then
+                if br.friend[i].hp < getOptionValue("Blessing Of Sacrifice") then
                     if cast.blessingOfSacrifice(br.friend[i].unit) then
                         return true
                     end
@@ -907,7 +929,7 @@ actionList.heal = function()
         end
     end
 
-    if #tanks > 0 and (LightCount == 0 or buff.beaconOfFaith.exists("Player")) then
+    if #tanks > 0 and (LightCount == 0 or buff.beaconOfLight.exists("Player")) then
         for i = 1, #tanks do
             if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) then
                 if cast.beaconOfLight(tanks[i].unit) then
@@ -939,6 +961,43 @@ actionList.heal = function()
             healReason = "CRIT"
         end
     end
+
+    if healTarget == "none" then
+        -- Waycrest Manor
+        if inInstance and inCombat and select(8, GetInstanceInfo()) == 1862 then
+            for i = 1, #br.friend do
+                if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                        and br.friend[i].hp < 95 then
+                    healTarget = br.friend[i].unit
+                    healReason = "BOSS"
+                end
+            end
+        end
+        --Kings Rest
+        if inInstance and inCombat and select(8, GetInstanceInfo()) == 1762 then
+            for i = 1, #br.friend do
+                if getDebuffRemain(br.friend[i].unit, 267626) ~= 0 -- Dessication
+                        or getDebuffRemain(br.friend[i].unit, 267618) ~= 0 -- Drain Fluids
+                        or getDebuffRemain(br.friend[i].unit, 266231) ~= 0 -- Severing axe from axe lady in council
+                        or getDebuffRemain(br.friend[i].unit, 272388) ~= 0 -- shadow barrage
+                        or getDebuffRemain(br.friend[i].unit, 265773) > 1 -- spit-gold
+                        or (getDebuffRemain(br.friend[i].unit, 270487) ~= 0 and getDebuffStacks(br.friend[i].unit, 270487) > 1) -- severing-blade
+                        and br.friend[i].hp < 95 then
+                    healTarget = br.friend[i].unit
+                    healReason = "BOSS"
+                end
+            end
+        end
+    end
+
+    --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
+    if cast.able.crusaderStrike() and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
+        if cast.crusaderStrike(units.dyn5) then
+            br.addonDebug("[FILL]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+            return true
+        end
+    end
+
     if healTarget == "none" then
         --Grievous Wounds
         if isChecked("Grievous Wounds") then
@@ -1042,7 +1101,6 @@ actionList.heal = function()
         end
     end
 
-
     if cast.able.flashOfLight() then
         if healTarget == "none" then
             if lowest.hp <= getValue("Flash of Light") then
@@ -1074,6 +1132,7 @@ local function runRotation()
     -- BR API Locals
     buff = br.player.buff
     cast = br.player.cast
+    racial = br.player.getRacial()
     cd = br.player.cd
     debuff = br.player.debuff
     enemies = br.player.enemies
@@ -1151,75 +1210,78 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if (not IsMounted() or buff.divineSteed.exists()) or drinking or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) then
-        if not inCombat then
-            -- out of combat stuff
-
-
-            if actionList.ooc() then
-                return true
-            end
-
-            --  Print("Not in Combat")
-            if actionList.Extra() then
-                return true
-            end
-            if actionList.Defensive() then
-                return true
-            end
-            if actionList.PreCombat() then
-                return true
-            end
-            if actionList.Interrupt() then
-                return true
-            end
-            if actionList.Cooldown() then
-                return true
-            end
-            if br.player.mode.cleanse == 1 then
-                if actionList.cleanse() then
-                    return true
-                end
-            end
-            if actionList.heal() then
-                return true
-            end
-
+    if (not IsMounted() or buff.divineSteed.exists()) then
+        if pause() or drinking or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) or isCastingSpell(212056) then
+            return true
         else
-            --Print("In Combat")
+            if not inCombat then
+                -- out of combat stuff
 
-            --combat stuff
-            if actionList.Extra() then
-                return true
-            end
-            if actionList.Defensive() then
-                return true
-            end
-            if actionList.PreCombat() then
-                return true
-            end
-            if actionList.Interrupt() then
-                return true
-            end
-            if actionList.Cooldown() then
-                return true
-            end
-            if br.player.mode.cleanse == 1 then
-                if actionList.cleanse() then
+
+                if actionList.ooc() then
+                    return true
+                end
+
+                --  Print("Not in Combat")
+                if actionList.Extra() then
+                    return true
+                end
+                if actionList.Defensive() then
+                    return true
+                end
+                if actionList.PreCombat() then
+                    return true
+                end
+                if actionList.Interrupt() then
+                    return true
+                end
+                if actionList.Cooldown() then
+                    return true
+                end
+                if br.player.mode.cleanse == 1 then
+                    if actionList.cleanse() then
+                        return true
+                    end
+                end
+                if actionList.heal() then
+                    return true
+                end
+
+            else
+                --Print("In Combat")
+
+                --combat stuff
+                if actionList.Extra() then
+                    return true
+                end
+                if actionList.Defensive() then
+                    return true
+                end
+                if actionList.PreCombat() then
+                    return true
+                end
+                if actionList.Interrupt() then
+                    return true
+                end
+                if actionList.Cooldown() then
+                    return true
+                end
+                if br.player.mode.cleanse == 1 then
+                    if actionList.cleanse() then
+                        return true
+                    end
+                end
+                if actionList.heal() then
+                    return true
+                end
+                if actionList.dps() then
                     return true
                 end
             end
-            if actionList.heal() then
-                return true
-            end
-            if actionList.dps() then
-                return true
-            end
-        end
-    end -- end pause
-    return true
+        end -- end pause
+        return true
+    end
 end
-
 -- End runRotation
 local id = 65
 if br.rotations[id] == nil then
