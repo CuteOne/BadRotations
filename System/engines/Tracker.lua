@@ -16,6 +16,7 @@ local function trackObject(object,name,objectid,interact)
 	end
 end
 
+local blacklistPotion
 function br.objectTracker()
 	if br.timer:useTimer("Tracker Lag", 0.07) then
 		LibDraw.clearCanvas()
@@ -34,9 +35,39 @@ function br.objectTracker()
 				if isChecked("Potions Tracker") then
 					--[[ local badpot = {"Blank","Red","Black","Green","Blue","Purple"} ]]
 					if br.lists.visions == nil then Print("Visions doesnt exists") end
-					for _,v in pairs(br.lists.visions) do
-						if v == objectid then
-							trackObject(object,name,objectid)
+					-- Reset Blacklist out of instance
+					if not IsInInstance() and blacklistPotion ~= nil then blacklistPotion = nil end
+					-- Find Note - 3413424 (Stormwind Note) | Need Orgrimmar Note
+					if objectid == 341342 and blacklistPotion == nil and select(2,IsInInstance()) == "scenario" then
+						local nearestPotion = 0
+						local potionRange = 99
+						local potionName = ""
+						-- Search Potion List
+						for _,v in pairs(br.lists.visions) do
+							-- Find Nearest Potion to Note
+							for i = 1, GetObjectCountBR() do
+								local potionobject = GetObjectWithIndex(i)
+								local potionid = ObjectID(potionobject)
+								if potionid == v then
+									local thisDistance = GetDistanceBetweenObjects(object,potionobject)
+									if thisDistance < potionRange then
+										nearestPotion = v
+										potionRange = thisDistance
+										potionName = ObjectName(potionobject)
+									end
+								end
+							end
+						end
+						-- Blacklist the Potion closest to Note
+						Print("Blacklisted Potion: "..potionName.." - "..nearestPotion)
+						blacklistPotion = nearestPotion
+					end
+					-- Track All Non-Blacklisted Potions Once Blacklisted One Is Found
+					if blacklistPotion ~= nil then
+						for _,v in pairs(br.lists.visions) do
+							if v == objectid and v ~= blacklistPotion then
+								trackObject(object,name,objectid)
+							end
 						end
 					end
 				end
@@ -48,7 +79,9 @@ function br.objectTracker()
 				end
 				-- Horrific Vision - Mailboxes
 				if isChecked("Mailbox Tracker") then
-					if (objectid == 326974 or objectid == 325080 or objectid == 326924 or objectid == 326755 or objectid == 327053) then
+					if (objectid == 326974 or objectid == 325080 or objectid == 326924 or objectid == 326755 or objectid == 327053) -- Stormwind Mailboxes
+						-- or () -- Orgrimmar Mailboxes Needed
+					then
 						local interactable = ObjectDescriptor(object, GetOffset("CGGameObjectData__Flags"), "int") == 32
 						if interactable then
 							trackObject(object,name,objectid)
