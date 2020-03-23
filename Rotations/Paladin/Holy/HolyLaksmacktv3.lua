@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200322-09")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200322-1157")
         br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
         br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
         br.ui:checkSectionState(section)
@@ -169,6 +169,10 @@ local burst = nil
 local Burststack = 0
 local BleedFriendCount = 0
 local BleedStack = 0
+
+local healTarget
+local healReason
+local healTargetHealth
 
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
@@ -426,10 +430,11 @@ actionList.dps = function()
 
 
     --Judgment
-    if cast.able.judgment() then
+    if cast.able.judgment() and cd.holyShock.remain() > 1 then
         if traits.indomitableJustice.active then
             for i = 1, #enemies.yards30 do
                 if getHP(enemies.yards30[i]) < getHP("player") and getFacing("player", enemies.yards30[i]) and getFacing("player", thisUnit) then
+                    br.addonDebug("[DPS]Judgment - indomitableJustice" .. "[" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
                     if cast.judgment(enemies.yards30[i]) then
                         return true
                     end
@@ -914,6 +919,10 @@ end
 
 actionList.heal = function()
     -- heal()
+
+
+    --  Print("lowest:" .. UnitName(lowest.unit) .. " at: " .. round(getHP(lowest.unit), 2))
+
     --checking for HE
     if br.data.settings[br.selectedSpec][br.selectedProfile]["HE ActiveCheck"] == false and br.timer:useTimer("Error delay", 3.5) then
         Print("HEAL ENGINE IS NOT ON - HEAL ENGINE NEED TO BE ON - YOU SHOULD TURN THE HEAL ENGINE ON.")
@@ -952,13 +961,13 @@ actionList.heal = function()
 
     --trying out new stuff here
     --hs, dawn, flash(infused), Lotm, flash
-    local healTarget = "none"
-    local healReason = "none"
-    local healTargetHealth = 100
+
     --Critical first
-    if php <= getValue("Critical HP") then
-        healTarget = "player"
-        healReason = "CRIT"
+    if healTarget == "none" then
+        if php <= getValue("Critical HP") then
+            healTarget = "player"
+            healReason = "CRIT"
+        end
     end
     if healTarget == "none" then
         if lowest.hp <= getValue("Critical HP") then
@@ -1038,18 +1047,20 @@ actionList.heal = function()
             bossHelper()
         end
     end
-
-    if healTarget == "none" then
-        if lowest.hp <= getValue("Holy Shock") then
-            healTarget = lowest.unit
-            healReason = "HEAL"
+    if cast.able.holyShock() then
+        if healTarget == "none" then
+            if lowest.hp <= getValue("Holy Shock") then
+                healTarget = lowest.unit
+                healReason = "HEAL"
+            end
         end
-    end
-    if healTarget ~= "none" then
-        healTargetHealth = round(getHP(healTarget), 1)
-        if cast.holyShock(healTarget) then
-            br.addonDebug("[" .. healReason .. "] Holyshock on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
-            return true
+        if healTarget ~= "none" then
+            healTargetHealth = round(getHP(healTarget), 1)
+            if cast.holyShock(healTarget) then
+                br.addonDebug("[" .. healReason .. "] Holyshock on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
+                healTarget = "none"
+                return true
+            end
         end
     end
 
@@ -1058,11 +1069,13 @@ actionList.heal = function()
         if EasyWoWToolbox == nil then
             if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                 if cast.lightOfDawn() then
+                    healTarget = "none"
                     return true
                 end
             end
         else
             if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+                healTarget = "none"
                 return true
             end
         end
@@ -1076,13 +1089,17 @@ actionList.heal = function()
             if lowest.hp <= getValue("Infused Flash of Light") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
+                --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < getValue("Infused Flash of Light")))
             end
         end
         if healTarget ~= "none" then
             healTargetHealth = round(getHP(healTarget), 1)
+            --   if healTargetHealth < getValue("Infused Flash of Light") then
             if cast.flashOfLight(healTarget) then
-                br.addonDebug("[" .. healReason .. "] (I)flashOfLight on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
+                br.addonDebug("[" .. healReason .. "] (I)flashOfLight on: " .. UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (getValue("Infused Flash of Light")))
+                healTarget = "none"
                 return true
+                --      end
             end
         end
     end
@@ -1102,6 +1119,7 @@ actionList.heal = function()
         healTargetHealth = round(getHP(healTarget), 1)
         if cast.lightOfTheMartyr(healTarget) then
             br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
+            healTarget = "none"
             return true
         end
     end
@@ -1117,6 +1135,7 @@ actionList.heal = function()
             healTargetHealth = round(getHP(healTarget), 1)
             if cast.flashOfLight(healTarget) then
                 br.addonDebug("[" .. healReason .. "] flashOfLight on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
+                healTarget = "none"
                 return true
             end
         end
@@ -1131,6 +1150,7 @@ end -- End Action List - PreCombat
 --- ROTATION ---
 ----------------
 local function runRotation()
+
     ---------------------
     --- Define Locals ---
     ---------------------
@@ -1158,6 +1178,12 @@ local function runRotation()
     lowest = br.friend[1]
     use = br.player.use
     tanks = getTanksTable()
+    healTarget = "none"
+    healReason = "none"
+    healTargetHealth = 100
+    inInstance = br.player.instance == "party"
+    inRaid = br.player.instance == "raid"
+    solo = br.friends == 1
 
     -- General Locals
     hastar = GetObjectExists("target")
@@ -1179,6 +1205,10 @@ local function runRotation()
     enemies.get(40)
 
     local glimmerCount = 0
+
+    if timersTable then
+        wipe(timersTable)
+    end
 
     if traits.breakingDawn.active then
         lightOfDawn_distance = 40
