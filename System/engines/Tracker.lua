@@ -109,8 +109,13 @@ function br.objectTracker()
 				end
 				-- Custom Tracker
 				if isChecked("Custom Tracker") then
-					if getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3 and string.match(strupper(name),strupper(getOptionValue("Custom Tracker"))) then
-						trackObject(object,name,objectid)
+					if getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3 then 
+					--[[ string.match(strupper(name),strupper(getOptionValue("Custom Tracker"))) then ]]
+						for k in string.gmatch(tostring(getOptionValue("Custom Tracker")),"([^,]+)") do
+							if string.len(string.trim(k)) >= 3 and strmatch(strupper(name),strupper(string.trim(k))) then
+								trackObject(object,name,objectid)
+							end
+						end
 					end
 				end
 			end
