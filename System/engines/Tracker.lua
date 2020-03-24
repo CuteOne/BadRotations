@@ -38,7 +38,7 @@ function br.objectTracker()
 					-- Reset Blacklist out of instance
 					if not IsInInstance() and blacklistPotion ~= nil then blacklistPotion = nil end
 					-- Find Note - 3413424 (Stormwind Note) | Need Orgrimmar Note
-					if objectid == 341342 and blacklistPotion == nil and select(2,IsInInstance()) == "scenario" then
+					if (objectid == 341342 or objectid == 341362) and blacklistPotion == nil and select(2,IsInInstance()) == "scenario" then
 						local nearestPotion = 0
 						local potionRange = 99
 						local potionName = ""
