@@ -25,86 +25,92 @@ function br.objectTracker()
 				local object = GetObjectWithIndex(i)
 				local name = ObjectName(object)
 				local objectid = ObjectID(object)
-				-- Horrific Vision - Chests
-				if isChecked("Chest Tracker") then
-					if string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest")) then
-						trackObject(object,name,objectid)
+				local instanceID = IsInInstance() and select(8,GetInstanceInfo()) or 0
+				-- Reset Horrific Vision Potion Blacklist out of instance
+				if not IsInInstance() and blacklistPotion ~= nil then blacklistPotion = nil end
+				-- Horrific Vision Trackers
+				if instanceID == 2212 -- Orgrimmar
+					or instanceID == 2211 -- Stormwind (Needs Verification, placeholder)
+				then
+					-- Horrific Vision - Chests
+					if isChecked("Chest Tracker") then
+						if string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest")) then
+							trackObject(object,name,objectid)
+						end
 					end
-				end
-				-- Horrific Vision - Potions
-				if isChecked("Potions Tracker") then
-					--[[ local badpot = {"Blank","Red","Black","Green","Blue","Purple"} ]]
-					if br.lists.visions == nil then Print("Visions doesnt exists") end
-					-- Reset Blacklist out of instance
-					if not IsInInstance() and blacklistPotion ~= nil then blacklistPotion = nil end
-					-- Find Note - 3413424 (Stormwind Note) | Need Orgrimmar Note
-					if (objectid == 341342 or objectid == 341362) and blacklistPotion == nil and select(2,IsInInstance()) == "scenario" then
-						local nearestPotion = 0
-						local potionRange = 99
-						local potionName = ""
-						-- Search Potion List
-						for _,v in pairs(br.lists.visions) do
-							-- Find Nearest Potion to Note
-							for i = 1, GetObjectCountBR() do
-								local potionobject = GetObjectWithIndex(i)
-								local potionid = ObjectID(potionobject)
-								if potionid == v then
-									local thisDistance = GetDistanceBetweenObjects(object,potionobject)
-									if thisDistance < potionRange then
-										nearestPotion = v
-										potionRange = thisDistance
-										potionName = ObjectName(potionobject)
+					-- Horrific Vision - Potions
+					if isChecked("Potions Tracker") then
+						--[[ local badpot = {"Blank","Red","Black","Green","Blue","Purple"} ]]
+						if br.lists.visions == nil then Print("Visions doesnt exists") end
+						-- Find Note - 341342 (Stormwind Note) | 341362 (Orgrimmar Note)
+						if (objectid == 341342 or objectid == 341362) and blacklistPotion == nil and select(2,IsInInstance()) == "scenario" then
+							local nearestPotion = 0
+							local potionRange = 99
+							local potionName = ""
+							-- Search Potion List
+							for _,v in pairs(br.lists.visions) do
+								-- Find Nearest Potion to Note
+								for i = 1, GetObjectCountBR() do
+									local potionobject = GetObjectWithIndex(i)
+									local potionid = ObjectID(potionobject)
+									if potionid == v then
+										local thisDistance = GetDistanceBetweenObjects(object,potionobject)
+										if thisDistance < potionRange then
+											nearestPotion = v
+											potionRange = thisDistance
+											potionName = ObjectName(potionobject)
+										end
 									end
 								end
 							end
+							-- Blacklist the Potion closest to Note
+							Print("Blacklisted Potion: "..potionName.." - "..nearestPotion)
+							blacklistPotion = nearestPotion
 						end
-						-- Blacklist the Potion closest to Note
-						Print("Blacklisted Potion: "..potionName.." - "..nearestPotion)
-						blacklistPotion = nearestPotion
+						-- Track All Non-Blacklisted Potions Once Blacklisted One Is Found
+						if blacklistPotion ~= nil then
+							for _,v in pairs(br.lists.visions) do
+								if v == objectid and v ~= blacklistPotion then
+									trackObject(object,name,objectid)
+								end
+							end
+						end
 					end
-					-- Track All Non-Blacklisted Potions Once Blacklisted One Is Found
-					if blacklistPotion ~= nil then
-						for _,v in pairs(br.lists.visions) do
-							if v == objectid and v ~= blacklistPotion then
+					-- Horrific Vision - Odd Crystals
+					if isChecked("Odd Crystal Tracker") then
+						if objectid >= 341367 and objectid < 341377 then
+							trackObject(object,name,objectid)
+						end
+					end
+					-- Horrific Vision - Mailboxes
+					if isChecked("Mailbox Tracker") then
+						if (objectid == 326974 or objectid == 325080 or objectid == 326924 or objectid == 326755 or objectid == 327053) -- Stormwind Mailboxes
+							or (objectid == 339462 or objectid == 339410 ) -- Orgrimmar Mailboxes Needed (Yes only 2 for here.)
+						then
+							local interactable = ObjectDescriptor(object, GetOffset("CGGameObjectData__Flags"), "int") == 32
+							if interactable then
 								trackObject(object,name,objectid)
 							end
 						end
 					end
-				end
-				-- Horrific Vision - Odd Crystals
-				if isChecked("Odd Crystal Tracker") then
-					if objectid >= 341367 and objectid < 341377 then
-						trackObject(object,name,objectid)
-					end
-				end
-				-- Horrific Vision - Mailboxes
-				if isChecked("Mailbox Tracker") then
-					if (objectid == 326974 or objectid == 325080 or objectid == 326924 or objectid == 326755 or objectid == 327053) -- Stormwind Mailboxes
-						-- or () -- Orgrimmar Mailboxes Needed
-					then
-						local interactable = ObjectDescriptor(object, GetOffset("CGGameObjectData__Flags"), "int") == 32
-						if interactable then
-							trackObject(object,name,objectid)
+					-- Horrific Visions - Bonus NPCs
+					if isChecked("Bonus NPC Tracker") then
+						-- Stormwind
+						if objectid == 161293 -- Neglected Guild Bank
+							or objectid == 157700 -- Agustus Moulaine
+							or objectid == 160404 -- Angry Bear Rug Spirit
+							or objectid == 161324 -- Experimental Buff Mine
+						then
+							trackObject(object,name,objectid,false)
 						end
-					end
-				end
-				-- Horrific Visions - Bonus NPCs
-				if isChecked("Bonus NPC Tracker") then
-					-- Stormwind
-					if objectid == 161293 -- Neglected Guild Bank
-						or objectid == 157700 -- Agustus Moulaine
-						or objectid == 160404 -- Angry Bear Rug Spirit
-						or objectid == 161324 -- Experimental Buff Mine
-					then
-						trackObject(object,name,objectid,false)
-					end
-					-- Orgrimmar
-					if objectid == 158588 -- Gamon (Pool ol' Gamon)
-						or objectid == 158565 -- Naros
-						or objectid == 161140 -- Bwemba
-						or objectid == 161198 -- Warpweaver Dushar
-					then
-						trackObject(object,name,objectid,false)
+						-- Orgrimmar
+						if objectid == 158588 -- Gamon (Pool ol' Gamon)
+							or objectid == 158565 -- Naros
+							or objectid == 161140 -- Bwemba
+							or objectid == 161198 -- Warpweaver Dushar (Need ObjectID of the gate that summons him)
+						then
+							trackObject(object,name,objectid,false)
+						end
 					end
 				end
 				-- Custom Tracker
