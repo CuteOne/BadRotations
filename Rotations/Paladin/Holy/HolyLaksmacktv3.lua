@@ -59,7 +59,6 @@ local function createOptions()
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "Health Percent to Critical Heals")
-        br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
         br.ui:createSpinner(section, "Holy Shock", 80, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "LotM player HP limit", 50, 0, 100, 5, "", "Light of the Martyr Self HP limit")
@@ -111,7 +110,9 @@ local function createOptions()
         br.ui:createCheckbox(section, "Blinding Light")
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        section = br.ui:createSection(br.ui.window.profile, "Keys")
+        br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
+
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
         br.ui:createCheckbox(section, "Use Hammer of Justice on TFTB")
@@ -121,11 +122,25 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
         br.ui:checkSectionState(section)
     end
+    local function mplusoptions()
+        section = br.ui:createSection(br.ui.window.profile, "M+ Settings")
+        -- m+ Rot
+        br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
+        br.ui:createCheckbox(section, "Freehold - pig", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFCatches pig in Freehold|cffFFBB00.", 1)
+        br.ui:createCheckbox(section, "Freehold - Blackout Barrel", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble blacout barrel|cffFFBB00.", 1)
+        br.ui:createCheckbox(section, "Motherload - Stun jockeys", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFStun ...jockeys ... |cffFFBB00.", 1)
+        br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Deadeye target|cffFFBB00.", 1)
+        br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
+    end
 
     optionTable = {
         {
             [1] = "Rotation Options",
             [2] = rotationOptions,
+        },
+        {
+            [1] = "M+ Options",
+            [2] = mplusoptions,
         }
     }
     return optionTable
@@ -247,14 +262,41 @@ local StunsBlackList = {
     [131670] = "Heartsbane Vinetwister",
     [135365] = "Matron Alma"
 }
+
 local HOJ_unitList = {
     [131009] = "Spirit of Gold",
     [134388] = "A Knot of Snakes",
     [129758] = "Irontide Grenadier"
 }
+
+if isChecked("ML - Stun jockeys") then
+    HOJ_unitlis[130488] = "Mech Jockey"
+end
+
 -----------------
 ------ Functions --- -- List all profile specific custom functions here
 -----------------
+
+noconc_list = {
+    [161124] = "urgroth - breaker - of - heroes",
+    [161244] = "blood - of - the - corruptor",
+    [161243] = "samhrek - beckoner - of - chaos",
+    [161241] = "voidweaver - malthir"
+}
+
+local function noConc(unit)
+    if isBoss(unit) or noconc_list[GetObjectID(unit)] ~= nil then
+        return true
+    end
+end
+
+local function noDamageCheck(unit)
+    if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
+        return true
+    end
+    return false
+end
+
 local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
     if not isKnown(spell) or getSpellCD(spell) ~= 0 or select(2, IsUsableSpell(spell)) then
         return false
@@ -324,18 +366,6 @@ function round(num, numDecimalPlaces)
     return math.floor(num * mult + 0.5) / mult
 end
 
-local function noDamageCheck(unit)
-    if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
-        return true
-    end
-    if inInstance and isCasting(302415, unit) then
-        return true
-    end
-    return false
-end
-
-
-
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
@@ -344,7 +374,7 @@ actionList.Glimmer = function()
     -- glimmer()
 
     --Glimmer support
-    if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player") and isChecked("Critical HP") and lowest.hp > getValue("Critical HP") then
+    if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
         if not debuff.glimmerOfLight.exists("target") and getFacing("player", "target") then
             if cast.holyShock("target") then
                 br.addonDebug("glimmerOfLight on target")
@@ -556,7 +586,7 @@ actionList.dps = function()
     --Consecration
     if cast.able.consecration() and not isMoving("player") then
         for i = 1, #enemies.yards8 do
-            if not isBoss("target") and not debuff.consecration.exists(enemies.yards8[i]) or GetTotemTimeLeft(1) < 2 or (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
+            if not noConc("target") and not debuff.consecration.exists(enemies.yards8[i]) or GetTotemTimeLeft(1) < 2 or (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
                 if cast.consecration() then
                 end
             end
@@ -637,15 +667,21 @@ actionList.Defensive = function()
                 return true
             end
         end
+
         -- Divine Shield
-        if isChecked("Divine Shield") and cast.able.divineShield() then
-            if (php <= getOptionValue("Divine Shield") or UnitDebuffID("player", 272571)
-                    or UnitDebuffID("player", 255421)) and not UnitDebuffID("player", 25771) then
+        if isChecked("Divine Shield") and cast.able.divineShield() and not UnitDebuffID("player", 25771) then
+            if (php <= getOptionValue("Divine Shield") --health check
+                    or UnitDebuffID("player", 272571)) --choking water in siege
+                    or UnitDebuffID("player", 255421) --Devour
+            then
                 if cast.divineShield() then
                     return true
                 end
             end
         end
+
+
+
         --	Divine Protection
         if isChecked("Divine Protection") and cast.able.divineProtection() and not buff.divineShield.exists("player") then
             if php <= getOptionValue("Divine Protection") then
@@ -712,9 +748,54 @@ end -- End Action List - Defensive
 
 actionList.Interrupt = function()
 
-    if cast.able.hammerOfJustice() then
+    if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() then
         for i = 1, #br.friend do
             if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit, 272407) == 0 and br.friend[i].distance <= 10 then
+                if cast.hammerOfJustice(thisUnit) then
+                    return true
+                end
+            end
+        end
+
+        local HOJ_list = {
+            [274400] = true,
+            [274383] = true,
+            [257756] = true,
+            [276292] = true,
+            [268273] = true,
+            [256897] = true,
+            [272542] = true,
+            [272888] = true,
+            [269266] = true,
+            [258317] = true,
+            [258864] = true,
+            [259711] = true,
+            [258917] = true,
+            [264038] = true,
+            [253239] = true,
+            [269931] = true,
+            [270084] = true,
+            [270482] = true,
+            [270506] = true,
+            [270507] = true,
+            [267433] = true,
+            [267354] = true,
+            [268702] = true,
+            [268846] = true,
+            [268865] = true,
+            [258908] = true,
+            [264574] = true,
+            [272659] = true,
+            [272655] = true,
+            [267237] = true,
+            [265568] = true,
+            [277567] = true,
+            [265540] = true
+        }
+        for i = 1, #enemies.yards10 do
+            local thisUnit = enemies.yards10[i]
+            local distance = getDistance(thisUnit)
+            if (HOJ_unitList[GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
                 if cast.hammerOfJustice(thisUnit) then
                     return true
                 end
@@ -838,12 +919,12 @@ actionList.Cooldown = function()
     --BoP
     if cast.able.blessingOfProtection() then
         for i = 1, #br.friend do
-            if (lowest.hp <= getValue("Blessing of Protection")
+            if (br.friend[i].hp <= getValue("Blessing of Protection")
                     or getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
-                    or getDebuffRemain("player", 255421) ~= 0 -- Devour
-            )
-            then
-                if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
+                    or (getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
+                    or (isChecked("Tol Dagor - Deadeye") and getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
+                    or (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0) then
+                if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
                         and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                     if cast.blessingOfProtection(br.friend[i].unit) then
                         return true
@@ -1019,6 +1100,25 @@ actionList.Cooldown = function()
             end
         end
     end
+
+    -- Unstable Temporal Time Shifter
+    if isChecked("Eng Brez") and canUseItem(158379) and not moving and inCombat and lowest.hp > getValue("Critical HP") then
+        if getOptionValue("Eng Brez") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+            UseItemByName(158379, "target")
+        end
+        if getOptionValue("Eng Brez") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+            UseItemByName(158379, "mouseover")
+        end
+        if getOptionValue("Eng Brez") == 3 then
+            for i = 1, #br.friend do
+                if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
+                    UseItemByName(158379, br.friend[i].unit)
+                end
+            end
+        end
+    end
+
+
 end -- End Action List - Cooldowns
 
 actionList.bossfight = function()
@@ -1062,7 +1162,6 @@ actionList.heal = function()
             return true
         end
     end
-
 
 
     --trying out new stuff here
@@ -1154,8 +1253,6 @@ actionList.heal = function()
         end
     end
 
-
-
     if cast.able.holyShock() then
         if healTarget == "none" and mode.glimmer == 3 and #tanks > 0 then
             for i = 1, #tanks do
@@ -1201,7 +1298,7 @@ actionList.heal = function()
     --infused heals
 
 
-    if cast.able.flashOfLight() and buff.infusionOfLight.exists() and not cast.last.flashOfLight() then
+    if cast.able.flashOfLight() and buff.infusionOfLight.exists() and not cast.last.flashOfLight() and not isMoving("player") then
         if healTarget == "none" then
             if lowest.hp <= getValue("Infused Flash of Light") and getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
                 healTarget = lowest.unit
@@ -1233,7 +1330,7 @@ actionList.heal = function()
             healReason = "HEAL"
         end
     end
-    if healTarget ~= "none" then
+    if healTarget ~= "none" and not GetUnitIsUnit(healTarget, "player") then
         healTargetHealth = round(getHP(healTarget), 1)
         if cast.lightOfTheMartyr(healTarget) then
             br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
@@ -1242,7 +1339,7 @@ actionList.heal = function()
         end
     end
 
-    if cast.able.flashOfLight() then
+    if cast.able.flashOfLight() and not isMoving("player") then
         if healTarget == "none" then
             if lowest.hp <= getValue("Flash of Light") and getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
                 healTarget = lowest.unit
