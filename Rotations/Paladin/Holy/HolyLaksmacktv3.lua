@@ -266,7 +266,8 @@ local StunsBlackList = {
 local HOJ_unitList = {
     [131009] = "Spirit of Gold",
     [134388] = "A Knot of Snakes",
-    [129758] = "Irontide Grenadier"
+    [129758] = "Irontide Grenadier",
+    [152703] = "walkie-shockie-x1"
 }
 
 if isChecked("ML - Stun jockeys") then
@@ -803,13 +804,13 @@ actionList.Interrupt = function()
         end
     end
 
-    if useInterrupts() and (cast.able.blindingLight() or cast.able.hammerOfJustice()) then
+    if useInterrupts() and (cast.able.blindingLight() or cast.able.hammerOfJustice()) and (isChecked("Hammer of Justice") or isChecked("Blinding Light")) then
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
             local distance = getDistance(thisUnit)
-            if canInterrupt(thisUnit, getOptionValue("InterruptAt")) and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)] == nil and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+            if canInterrupt(thisUnit, 99) and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)] == nil and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
                 -- Blinding Light
-                if isSelected("Blinding Light") then
+                if isChecked("Blinding Light") then
                     if cast.blindingLight() then
                         return true
                     end
@@ -817,6 +818,7 @@ actionList.Interrupt = function()
                 -- Hammer of Justice
                 if isChecked("Hammer of Justice") and cast.able.hammerOfJustice()
                         and getBuffRemain(thisUnit, 226510) == 0 -- never stun in Sanguine
+                        and not isExplosive(thisUnit)
                         and (thisUnit == 130488 and isChecked("ML - Stun jockeys") or thisUnit ~= 130488)
                 then
                     if cast.hammerOfJustice(thisUnit) then
@@ -1182,6 +1184,16 @@ actionList.heal = function()
     end
 
     if healTarget == "none" then
+        -- Junkyard
+        if inInstance and inCombat and select(8, GetInstanceInfo()) == 2097 then
+            for i = 1, #br.friend do
+                if getDebuffRemain(br.friend[i].unit, 302274) ~= 0 --Fulminating Zap
+                        and br.friend[i].hp < 80 then
+                    healTarget = br.friend[i].unit
+                    healReason = "BOSS"
+                end
+            end
+        end
         -- Waycrest Manor
         if inInstance and inCombat and select(8, GetInstanceInfo()) == 1862 then
             for i = 1, #br.friend do
