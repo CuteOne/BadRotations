@@ -614,12 +614,12 @@ actionList.dps = function()
     end
 
     --using DPS trinkets
-    if isSelected("Trinket 1") and getOptionValue("Trinket 1 Mode") == 4 and inCombat then
+    if isChecked("Trinket 1") and getOptionValue("Trinket 1 Mode") == 4 and inCombat then
         if canUseItem(13) then
             useItem(13)
         end
     end
-    if isSelected("Trinket 2") and getOptionValue("Trinket 2 Mode") == 4 and inCombat then
+    if isChecked("Trinket 2") and getOptionValue("Trinket 2 Mode") == 4 and inCombat then
         if canUseItem(14) then
             useItem(14)
         end
