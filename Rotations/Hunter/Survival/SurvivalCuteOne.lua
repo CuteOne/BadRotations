@@ -1275,6 +1275,8 @@ local function runRotation()
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
     if #enemies.yards5 < 5 then carveCdr = #enemies.yards5 else carveCdr = 5 end
 
+    if eagleUnit == nil then eagleUnit = "target" end
+
     ---------------------
     --- Begin Profile ---
     ---------------------
