@@ -40,6 +40,12 @@ local function createToggles() -- Define custom toggles
         [5] = { mode = "None", value = 5 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.conflagrate }
     };
     CreateButton("PetSummon",5,0)
+    -- Single Target Focus
+    SingleModes = {
+        [1] = { mode = "On", value = 1, overlay = "Single Target Focus", tip = "Single Target Focus", highlight = 1, icon = br.player.spell.shadowBolt},
+        [2] = { mode = "Off", value = 2, overlay = "Multi Target Focus", tip = "Multi Target Focus", highlight = 1, icon = br.player.spell.agony}
+    };
+    CreateButton("Single",6,0)
 end
 
 function br.ui:createCDOption(parent, text, tooltip, hideCheckbox)
@@ -66,8 +72,8 @@ local function createOptions ()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pig Catcher
             br.ui:createCheckbox(section, "Pig Catcher")
-        -- -- Opener
-        --     br.ui:createCheckbox(section,"Opener")
+            -- Auto Engage
+            br.ui:createCheckbox(section,"Auto Engage")
             -- Pet Management
             br.ui:createCheckbox(section, "Pet Management", "|cffFFFFFF Select to enable/disable auto pet management")
             -- Pet - Auto Attack/Passive
@@ -82,19 +88,34 @@ local function createOptions ()
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of Endless Fathoms","Flask of Endless Fathoms","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Pre-Pull Timer
 			br.ui:createSpinner(section, "Pre-Pull Timer", 2, 0, 10, 0.1, "Set desired time offset to opener (DBM Required). Min: 0 / Max: 10 / Interval: 0.1")
-		br.ui:checkSectionState(section)
+        br.ui:checkSectionState(section)
+        ----------------------
+		--- TOGGLE OPTIONS ---
+		----------------------
+		section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
+        -- Single/Multi Toggle
+            br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  6)
+            --Cooldown Key Toggle
+            br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle,  6)
+            --Defensive Key Toggle
+            br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
+            -- Interrupts Key Toggle
+            br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)  
+        br.ui:checkSectionState(section)
 		-------------------------
         --- OFFENSIVE OPTIONS ---
         -------------------------
 		section = br.ui:createSection(br.ui.window.profile,  "Offensive")
 			-- Agi Pot
-			br.ui:createCheckbox(section, "Potion", "Use Potion")
+            br.ui:createCheckbox(section, "Potion", "Use Potion")
+            -- Augment
+            br.ui:createCheckbox(section, "Augment", "Use Augment")
             -- Racial
 			br.ui:createCheckbox(section, "Racial", "Use Racial")
 			-- Trinkets
 			br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 			-- Spread agony on single target
-			br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amont of additionally running Agony. Standard is 3")
+			br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3")
 			-- No Dot units
 			br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
 			-- UA Shards
@@ -137,19 +158,6 @@ local function createOptions ()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
-		----------------------
-		--- TOGGLE OPTIONS ---
-		----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-			-- Single/Multi Toggle
-			br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  6)
-			--Cooldown Key Toggle
-			br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  6)
-			--Defensive Key Toggle
-			br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
-			-- Interrupts Key Toggle
-			br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)  
-		br.ui:checkSectionState(section)
 	end
 	optionTable = {{
 		[1] = "Rotation Options",
@@ -176,6 +184,7 @@ local inCombat
 local item
 local level
 local mode
+local moving 
 local option
 local pet
 local php
@@ -183,6 +192,7 @@ local pullTimer
 local shards
 local spell
 local talent
+local tanks
 local traits
 local units
 local use
@@ -200,6 +210,7 @@ local spellHaste
 local summonId = 0
 local summonPet
 local ttd
+local seedTarget
 -- Profile Specific Locals - Any custom to profile locals
 local shards
 local useSeed
@@ -293,7 +304,7 @@ actionList.Defensive = function()
             end
         end
         -- Soulstone
-        if isChecked("Soulstone") and not moving and inCombat then
+        if isChecked("Soulstone") and not moving and inCombat and br.timer:useTimer("Soulstone", 4) then
             if
                 getOptionValue("Soulstone") == 1 and -- Target
                     UnitIsPlayer("target") and
@@ -564,9 +575,9 @@ actionList.PreCombat = function()
                     useItem(169314)
                 end
                 -- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3&!equipped.169314
-            elseif not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and #enemies.yards10t >= 2 and not equiped.azsharasFontOfPower then
+            elseif not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and #enemies.yards10t >= 2 then
                 CastSpellByName(GetSpellInfo(spell.seedOfCorruption)) br.addonDebug("Casting Seed of Corruption [Pre-Pull]") return
-            elseif pullTimer <= 2 and br.timer:useTimer("Haunt/SB Delay", 2) and not equiped.azsharasFontOfPower then
+            elseif pullTimer <= 2 and br.timer:useTimer("Haunt Delay", 2) and GetUnitExists("target") then
                 if talent.haunt then    
                     CastSpellByName(GetSpellInfo(spell.haunt)) br.addonDebug("Casting Haunt [Pre-Pull]") return
                 else
@@ -574,7 +585,7 @@ actionList.PreCombat = function()
                 end
             end
         end -- End Pre-Pull 
-        if not inCombat and isValidUnit("target") and getDistance("target") < 40 and getFacing("player","target") and not cast.last.agony() then
+        if option.checked("Auto Engage") and not inCombat and isValidUnit("target") and getDistance("target") < 40 and getFacing("player","target") and not cast.last.agony() then
             if cast.agony() then br.addonDebug("Casting Agony [Auto Engage]") return true end
         end
     end      
@@ -618,7 +629,6 @@ actionList.dots = function ()
         end
         -- maintain
         if mode.rotation==1
-            or mode.rotation==2
             or mode.rotation==3 and option.checked("Spread Agony on ST") and agonyCount <= 1+getOptionValue("Spread Agony on ST") then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i]
@@ -829,8 +839,8 @@ end
 
 actionList.multi = function()
     -- Seed of Corruption
-    if not moving and not cast.last.seedOfCorruption() and not debuff.seedOfCorruption.exists("target") then
-        if cast.seedOfCorruption(getBiggestUnitCluster(40,10)) then br.addonDebug("Casting Seed of Corruption") return true end
+    if not moving and not cast.last.seedOfCorruption() and not debuff.seedOfCorruption.exists(seedTarget) then
+        if cast.seedOfCorruption(seedTarget) then br.addonDebug("Casting Seed of Corruption") return true end
     end
     -- Phantom Singularity
     if talent.phantomSingularity then
@@ -908,6 +918,7 @@ local function runRotation()
     item                                          = br.player.items
     level                                         = br.player.level
     mode                                          = br.player.mode
+    moving                                        = GetUnitSpeed("player") > 0
     option                                        = br.player.option
     pet                                           = br.player.pet
     php                                           = br.player.health
@@ -916,6 +927,7 @@ local function runRotation()
     spell                                         = br.player.spell
     talent                                        = br.player.talent
     traits                                        = br.player.traits
+    tanks                                         = getTanksTable()
     units                                         = br.player.units
     use                                           = br.player.use
     -- General Locals
@@ -925,6 +937,7 @@ local function runRotation()
     corruptionCount								  = br.player.debuff.corruption.count()
     healPot                                       = getHealthPot()
     profileStop                                   = profileStop or false
+    seedTarget                                    = getBiggestUnitCluster(40,10)
     siphonLifeCount                               = br.player.debuff.siphonLife.count()
     spellHaste                                    = (1 + (GetHaste()/100))
     ttd                                           = getTTD
@@ -1220,8 +1233,8 @@ local function runRotation()
                 if cast.guardianOfAzeroth() then br.addonDebug("Casting Guardian of Azeroth") return true end
             end
             -- Haunt
-            if not moving and talent.haunt and not cast.last.haunt() then
-                if cast.haunt() then br.addonDebug("Casting Haunt") return true end
+            if not moving and talent.haunt and not debuff.haunt.exists("target") then
+                if cast.haunt("target") then br.addonDebug("Casting Haunt") return true end
             end
             -- Blood of the Enemy
             if option.checked("Use Essence") and useCDs() and (buff.darkSoul.exists() or pet.darkglare.active() or cd.summonDarkglare.remain() >= 80 ) then
@@ -1234,8 +1247,8 @@ local function runRotation()
                 if cast.theUnboundForce() then br.addonDebug("Casting The Unbound Force") return true end
             end
             -- Summon Darkglare
-            if getTTD("target") >= 20 and useCDs() and cd.summonDarkglare.remain() <= gcdMax and debuff.agony.exists("target") and (debuff.siphonLife.exists("target") or not talent.siphonLife) and corruptionCount == #enemies.yards10t
-                and (debuff.phantomSingularity.exists("target") or not talent.phantomSingularity) and (shards == 0 or debuff.unstableAffliction.stack("target") == 5)
+            if getTTD("target") >= 20 and useCDs() and cd.summonDarkglare.remain() <= gcdMax and debuff.agony.exists("target") and (debuff.siphonLife.exists("target") or not talent.siphonLife) and debuff.corruption.exists("target")
+                and (debuff.phantomSingularity.exists("target") or not talent.phantomSingularity or cd.phantomSingularity.remain() > gcdMax) and (shards == 0 or debuff.unstableAffliction.stack("target") == 5)
             then
                 CastSpellByName(GetSpellInfo(spell.summonDarkglare))
                 br.addonDebug("Casting Darkglare")
@@ -1247,12 +1260,12 @@ local function runRotation()
                 if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction [1]") return true end
             end
             -- Multi Target
-            if #enemies.yards10t >= 3 then
+            if #enemies.yards10t >= 3 and mode.single ~= 1 then
                 if actionList.multi() then return true end
             end
             -- Agony
             if traits.pandemicInvocation.active then
-                if agonyCount <= #enemies.yards10t then
+                if agonyCount < option.value("Spread Agony on ST") then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not noDotCheck(thisUnit) and  (debuff.agony.exists(thisUnit) and debuff.agony.remain(thisUnit) < 5) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
@@ -1261,7 +1274,7 @@ local function runRotation()
                     end
                 end
             else
-                if agonyCount <= #enemies.yards10t then
+                if agonyCount < option.value("Spread Agony on ST") then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not noDotCheck(thisUnit) and  debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
@@ -1272,7 +1285,7 @@ local function runRotation()
             end
             -- Corruption
             if traits.pandemicInvocation.active and not talent.absoluteCorruption then
-                if corruptionCount <= #enemies.yards10t then
+                if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not noDotCheck(thisUnit) and  (debuff.corruption.exists(thisUnit) and debuff.corruption.remain(thisUnit) < 5) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
@@ -1281,7 +1294,7 @@ local function runRotation()
                     end
                 end
             elseif not talent.absoluteCorruption then
-                if corruptionCount <= #enemies.yards10t then
+                if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not noDotCheck(thisUnit) and  debuff.corruption.refresh(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
@@ -1290,7 +1303,7 @@ local function runRotation()
                     end
                 end
             elseif talent.absoluteCorruption then
-                if corruptionCount <= #enemies.yards10t then
+                if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not noDotCheck(thisUnit) and  not debuff.corruption.exists(thisUnit) and not debuff.seedOfCorruption.exists(thisUnit) then
@@ -1302,7 +1315,7 @@ local function runRotation()
             -- Siphon Life
             if talent.siphonLife then
                 if traits.pandemicInvocation.active then
-                    if siphonLifeCount <= #enemies.yards10t then
+                    if siphonLifeCount < 2 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if not noDotCheck(thisUnit) and  (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.remain(thisUnit) < 5) and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/ 1 + spellHaste) then
@@ -1311,7 +1324,7 @@ local function runRotation()
                         end
                     end
                 else
-                    if siphonLifeCount <= #enemies.yards10t then
+                    if siphonLifeCount < 2 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if not noDotCheck(thisUnit) and  debuff.siphonLife.refresh(thisUnit) and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste) then
@@ -1377,7 +1390,7 @@ local function runRotation()
                 if cast.concentratedFlame("target") then br.addonDebug("Casting Concentrated Flame Damage") return true end
             end
             -- Drain Life
-            if not moving and traits.inevitableDemise.active and buff.inevitableDemise.stack() >= 45 then
+            if not moving and buff.inevitableDemise.stack() >= 45 then
                 if cast.drainLife() then br.addonDebug("Casting Drain Life") return true end
             end
             -- Azshard's Font of Power/Cyclotronic Blast
@@ -1406,11 +1419,13 @@ local function runRotation()
             end
             -- Agony
             if moving then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    local agonyRemain = debuff.agony.remain(thisUnit)
-                    if not noDotCheck(thisUnit) and ttd(thisUnit) > 10 and not noDotCheck(thisUnit) and (agonyRemain <= 5.4 or not traits.pandemicInvocation.active and agonyRemain <= 5.4) then
-                        if cast.agony(thisUnit) then br.addonDebug("Casting Agony") return true end
+                if agonyCount < option.value("Agony Count") then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local agonyRemain = debuff.agony.remain(thisUnit)
+                        if not noDotCheck(thisUnit) and ttd(thisUnit) > 10 then
+                            if cast.agony(thisUnit) then br.addonDebug("Casting Agony") return true end
+                        end
                     end
                 end
             end
