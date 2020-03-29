@@ -96,58 +96,43 @@ end
 
 function carapaceMath(Unit1, Unit2)
 	if Unit2 == nil then
-		Unit2 = Unit1
-		if Unit2 == "player" then
-			Unit1 = "target"
-		else
-			Unit1 = "player"
-		end
-	end
-	if br.player and br.player.eID and br.player.eID == 2337 then
-		local pX,pY,pZ = GetObjectPosition(Unit1)
-        local tX,tY,tZ = GetObjectPosition(Unit2)
+        Unit2 = Unit1
+        if Unit2 == "player" then
+            Unit1 = "target"
+        else
+            Unit1 = "player"
+        end
+    end
+    local pX,pY,pZ = GetObjectPosition(Unit1)
+    local tX,tY,tZ = GetObjectPosition(Unit2)
+    local tentExists = false
+    if (br.player and br.player.eID and br.player.eID == 2337) then
+        --LibDraw.clearCanvas()
         --[[ if tX ~= nil then
-            --LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
+            LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
         end ]]
-        if br.timer:useTimer("Tentacle Lag", 1) then
-            for i = 1, GetObjectCount() do
-                local object = GetObjectWithIndex(i)
-				local name = ObjectName(object)
-				local objectid = ObjectID(object)
-                if objectid == 157485 then
-                    tentFacing = GetObjectFacing(object)
-					tentX, tentY, tentZ = GetObjectPosition(object)
-				end
+        for i = 1, GetObjectCount() do
+            local object = GetObjectWithIndex(i)
+            local objectid = ObjectID(object)
+            if objectid == 157485 then
+                tentExists = true
             end
         end
-        if tentX ~= nil then
-            tentX2 = tentX + (75 * math.cos(tentFacing))
-            tentY2 = tentY + (75 * math.sin(tentFacing))
-            --LibDraw.Line(tentX,tentY,tentZ,tentX2,tentY2,tentZ)
-        end
-        if tentX ~= nil then
-            --LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
-            local a = {x = tentX, y = tentY}
-            local b = {x = tentX2, y = tentY2}
-            local c = {x = tX, y = tY}
-            local d = {x = pX, y = pY}
-
-            if math.doLinesIntersect(a,b,c,d) then 
-                --[[ LibDraw.SetColor(255,0,0)
-                if br.timer:useTimer("Yes", 1) then
-                    Print("Intersecting!")
-				end ]]
-				return false
+    end
+    if tX ~= nil then
+        if tentExists == true then
+            if TraceLine(pX, pY, pZ+1, tX, tY, tZ+1, 0x100111) ~= nil then 
+                --Print("Int")
+                return false
             else 
-                --[[ LibDraw.SetColor(0,255,0)
-                if br.timer:useTimer("No", 1) then
-                    Print("Not Intersecting")
-				end ]]
-				return true
+                --Print("no int")
+                return true
             end
-		end
-		return true
-	end
+        else 
+            --Print("No Object")
+            return true
+        end
+    end
 end
 
 function getLineOfSight(Unit1, Unit2)
