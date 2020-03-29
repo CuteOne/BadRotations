@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200323-1236")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200329-1500")
         br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
         br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
         br.ui:checkSectionState(section)
@@ -952,7 +952,7 @@ actionList.Cooldown = function()
         if getOptionValue("BoS Target") == 2 then
             -- tank only
             for i = 1, #tanks do
-                if tanks[i].hp <= getValue("Blessing Of Sacrifice") then
+                if tanks[i].hp <= getValue("Blessing of Sacrifice") then
                     if cast.blessingOfSacrifice(tanks[i].unit) then
                         return true
                     end
