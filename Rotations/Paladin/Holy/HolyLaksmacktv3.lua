@@ -53,9 +53,8 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200329-1500")
-        br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
-        br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200330-1022")
+
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "Health Percent to Critical Heals")
@@ -131,6 +130,18 @@ local function createOptions()
         br.ui:createCheckbox(section, "Motherload - Stun jockeys", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFStun ...jockeys ... |cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Deadeye target|cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
+        br.ui:checkSectionState(section)
+    end
+
+    local function oocoptions()
+        section = br.ui:createSection(br.ui.window.profile, "OOC Settings")
+        br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
+        br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
+        br.ui:createCheckbox(section, "OOC Glimmer", "Enables/Disables glimmer out of combat", 1)
+        br.ui:createSpinnerWithout(section, "OOC Holy Heal - Time", 1, 0, 10, 5, "When I havent moved for x seconds")
+        br.ui:createSpinnerWithout(section, "OOC Holy Heal - Mana", 60, 0, 100, 5, "and my mana is above")
+        br.ui:createSpinnerWithout(section, "OOC Holy Heal - Health", 80, 0, 100, 5, "and peoples health are below")
+        br.ui:checkSectionState(section)
     end
 
     optionTable = {
@@ -141,7 +152,12 @@ local function createOptions()
         {
             [1] = "M+ Options",
             [2] = mplusoptions,
+        },
+        {
+            [1] = "Out of Combat",
+            [2] = oocoptions,
         }
+
     }
     return optionTable
 end
@@ -550,7 +566,11 @@ actionList.ooc = function()
         end
     end
     --I got nothing else to do
-    if not isMoving("Player") and not drinking and getMana("player") >= 90 and getHP(lowest.unit) < 90 then
+    local standingTime = 0
+    if DontMoveStartTime then
+        standingTime = GetTime() - DontMoveStartTime
+    end
+    if not isMoving("Player") and standingTime > getValue("OOC Holy Heal - Time") and not drinking and getMana("player") >= getValue("OOC Holy Heal - Mana") and getHP(lowest.unit) < getValue("OOC Holy Heal - Health") then
         if cast.holyLight(lowest.unit) then
         end
     end
@@ -1152,6 +1172,7 @@ actionList.heal = function()
     end
 
     if #tanks > 0 and (LightCount == 0 or buff.beaconOfLight.exists("Player")) then
+        br.timer:useTimer("Beacon Delay", 3)
         for i = 1, #tanks do
             if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and UnitInRange(tanks[i].unit) then
                 if cast.beaconOfLight(tanks[i].unit) then
@@ -1222,7 +1243,7 @@ actionList.heal = function()
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if cast.able.crusaderStrike() and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
+    if cast.able.crusaderStrike() and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[FILL]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
@@ -1280,7 +1301,17 @@ actionList.heal = function()
                 healReason = "HEAL"
             end
         end
+        if healTarget == "none" and not br.player.inCombat and isChecked("OOC Glimmer") then
+            -- ooc blanketting
+            for i = 1, #br.friend do
+                if not buff.glimmerOfLight.exists(br.friend[i].unit) and (getLineOfSight(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) or br.friend[i].unit == "player") then
+                    healTarget = br.friend[i].unit
+                    healReason = "GLIM"
+                end
+            end
+        end
     end
+
     if healTarget ~= "none" then
         healTargetHealth = round(getHP(healTarget), 1)
         if cast.holyShock(healTarget) then
@@ -1478,12 +1509,6 @@ local function runRotation()
         else
             if not inCombat then
                 -- out of combat stuff
-
-
-                if actionList.ooc() then
-                    return true
-                end
-
                 --  Print("Not in Combat")
                 if actionList.Extra() then
                     return true
@@ -1508,7 +1533,9 @@ local function runRotation()
                 if actionList.heal() then
                     return true
                 end
-
+                if actionList.ooc() then
+                    return true
+                end
             else
                 --Print("In Combat")
 
