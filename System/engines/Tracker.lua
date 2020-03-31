@@ -30,7 +30,7 @@ function br.objectTracker()
 				if not IsInInstance() and blacklistPotion ~= nil then blacklistPotion = nil end
 				-- Horrific Vision Trackers
 				if instanceID == 2212 -- Orgrimmar
-					or instanceID == 2211 -- Stormwind (Needs Verification, placeholder)
+					or instanceID == 2213 -- Stormwind (Needs Verification, placeholder)
 				then
 					-- Horrific Vision - Chests
 					if isChecked("Chest Tracker") then
