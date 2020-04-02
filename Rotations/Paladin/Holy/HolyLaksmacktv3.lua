@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200330-1022")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200402-1325")
 
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -1171,21 +1171,21 @@ actionList.heal = function()
         end
     end
 
-    if #tanks > 0 and (LightCount == 0 or buff.beaconOfLight.exists("Player")) then
-        br.timer:useTimer("Beacon Delay", 3)
-        for i = 1, #tanks do
-            if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and UnitInRange(tanks[i].unit) then
-                if cast.beaconOfLight(tanks[i].unit) then
-                    return true
+    if br.timer:useTimer("Beacon Delay", 3) then
+        if #tanks > 0 and (LightCount == 0 or buff.beaconOfLight.exists("Player")) then
+            for i = 1, #tanks do
+                if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and UnitInRange(tanks[i].unit) then
+                    if cast.beaconOfLight(tanks[i].unit) then
+                        return true
+                    end
                 end
             end
-        end
-    elseif (#tanks == 0 and LightCount == 0) and not buff.beaconOfLight.exists("Player") and not buff.beaconOfFaith.exists("Player") then
-        if cast.beaconOfLight("Player") then
-            return true
+        elseif (#tanks == 0 and LightCount == 0) and not buff.beaconOfLight.exists("Player") and not buff.beaconOfFaith.exists("Player") then
+            if cast.beaconOfLight("Player") then
+                return true
+            end
         end
     end
-
 
     --trying out new stuff here
     --hs, dawn, flash(infused), Lotm, flash
