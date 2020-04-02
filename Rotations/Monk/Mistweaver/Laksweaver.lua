@@ -601,7 +601,7 @@ local function runRotation()
                         if cast.chiBurst("player") then
                             return
                         end
-                    elseif talent.chiBurst then
+                    elseif talent.chiWave then
                         if cast.chiWave("player") then
                             return
                         end
