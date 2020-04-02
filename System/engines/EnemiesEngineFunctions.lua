@@ -1,17 +1,29 @@
 br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
+br.objects  = {}
 br.storedTables = {}
 local refreshStored
 
-local function AddUnit(thisUnit,thisTable)
+local function AddUnit(thisUnit,thisTable,thisType)
 	local unit = {
 		unit = thisUnit,
 		name = UnitName(thisUnit),
 		guid = UnitGUID(thisUnit),
 		id = GetObjectID(thisUnit),
+		type = thisType
 	}
 	rawset(thisTable, thisUnit, unit)
+end
+
+local function AddObject(thisObject,thisTable,thisType)
+	local object = {
+		object = thisObject,
+		name = ObjectName(thisObject),
+		id = ObjectID(thisObject),
+		type = thisType
+	}
+	rawset(thisTable, thisObject, object)
 end
 
 -- Update Pet
@@ -61,6 +73,20 @@ function updateOMEWT()
 				local enemyUnit = br.unitSetup:new(v)
 				if enemyUnit then
 					tinsert(om, enemyUnit)
+				end
+			end
+			-- Horrific Vision Object Tracking
+			if br.lists ~= nil and br.lists.horrificVision ~= nil then
+				for objType, w in pairs(br.lists.horrificVision) do
+					for _, id in pairs(w) do
+						if br.objects[v] == nil then
+							local objectID = ObjectID(v) or 0
+							local name = ObjectName(v) or ""
+							if ObjectIsVisible(v) and ObjectExists(v) and objectID > 0 and (objectID == id or (objType == "chest" and (string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest"))))) then
+								AddObject(v,br.objects,objType)
+							end
+						end
+					end
 				end
 			end
 		end
