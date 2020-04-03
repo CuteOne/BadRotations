@@ -208,6 +208,11 @@ local healTargetHealth
 local actionList = {}
 local CC_CreatureTypeList = { "Humanoid", "Demon", "Undead", "Dragonkin", "Giant" }
 local StunsBlackList = {
+    -- 8.3 tier 4 adds
+    [161244] = "Blood of the Corruptor",
+    [161243] = "Samh'rek, Beckoner of Chaos",
+    [161124] = "Urg'roth, Breaker of Heroes",
+    [161241] = "Voidweaver Mal'thir",
     -- Atal'Dazar
     [87318] = "Dazar'ai Colossus",
     [122984] = "Dazar'ai Colossus",
@@ -276,7 +281,17 @@ local StunsBlackList = {
     [135329] = "Matron Bryndle",
     [131812] = "Heartsbane Soulcharmer",
     [131670] = "Heartsbane Vinetwister",
-    [135365] = "Matron Alma"
+    [135365] = "Matron Alma",
+    -- Mechagon Workshop
+    [151476] = "Blastatron X-80",
+    [151773] = "Junkyard D.0.G.",
+    -- Mechagon Junkyard
+    [152009] = "Malfunctioning Scrapbot",
+    [150160] = "Scrapbone Bully",
+    [150276] = "Heavy Scrapbot",
+    [150169] = "Toxic Lurker",
+    [150292] = "Mechagon Cavalry",
+    [150168] = "Toxic Monstrosity",
 }
 
 local HOJ_unitList = {
