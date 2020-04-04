@@ -53,8 +53,9 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200402-1325")
-
+        section = br.ui:createSection(br.ui.window.profile, "General - 200403-0522")
+        br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
+        br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "Health Percent to Critical Heals")
@@ -599,6 +600,15 @@ actionList.dps = function()
         StartAttack(units.dyn5)
     end
 
+    if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+        -- popping CD's with DPS Key
+        if cast.holyAvenger() then
+            return true
+        end
+        if cast.avengingWrath() then
+            return true
+        end
+    end
 
     --Judgment
     if cast.able.judgment() and cd.holyShock.remain() > 1 then
@@ -614,6 +624,7 @@ actionList.dps = function()
         end
         if getFacing("player", units.dyn30) then
             if cast.judgment(units.dyn30) then
+                br.addonDebug("[DPS]Judgment [" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
                 return true
             end
         end
@@ -1311,7 +1322,7 @@ actionList.heal = function()
             end
         end
         if healTarget == "none" then
-            if lowest.hp <= getValue("Holy Shock") and getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
+            if lowest.hp <= getValue("Holy Shock") and (getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
             end
@@ -1339,9 +1350,9 @@ actionList.heal = function()
     -- Light of Dawn
     if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
         if EasyWoWToolbox == nil then
-            if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
+            if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff)
+            then
                 if cast.lightOfDawn() then
-                    healTarget = "none"
                     return true
                 end
             end
@@ -1358,7 +1369,7 @@ actionList.heal = function()
 
     if cast.able.flashOfLight() and buff.infusionOfLight.exists() and not cast.last.flashOfLight() and not isMoving("player") then
         if healTarget == "none" then
-            if lowest.hp <= getValue("Infused Flash of Light") and getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
+            if lowest.hp <= getValue("Infused Flash of Light") and (getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
                 --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < getValue("Infused Flash of Light")))
@@ -1399,7 +1410,7 @@ actionList.heal = function()
 
     if cast.able.flashOfLight() and not isMoving("player") then
         if healTarget == "none" then
-            if lowest.hp <= getValue("Flash of Light") and getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
+            if lowest.hp <= getValue("Flash of Light") and (getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
             end
@@ -1554,29 +1565,32 @@ local function runRotation()
             else
                 --Print("In Combat")
 
-                --combat stuff
-                if actionList.Extra() then
-                    return true
-                end
-                if actionList.Defensive() then
-                    return true
-                end
-                if actionList.PreCombat() then
-                    return true
-                end
-                if actionList.Interrupt() then
-                    return true
-                end
-                if actionList.Cooldown() then
-                    return true
-                end
-                if br.player.mode.cleanse == 1 then
-                    if actionList.cleanse() then
+                if not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() or lowest.hp <= getOptionValue("Critical HP") then
+
+                    --combat stuff
+                    if actionList.Extra() then
                         return true
                     end
-                end
-                if actionList.heal() then
-                    return true
+                    if actionList.Defensive() then
+                        return true
+                    end
+                    if actionList.PreCombat() then
+                        return true
+                    end
+                    if actionList.Interrupt() then
+                        return true
+                    end
+                    if actionList.Cooldown() then
+                        return true
+                    end
+                    if br.player.mode.cleanse == 1 then
+                        if actionList.cleanse() then
+                            return true
+                        end
+                    end
+                    if actionList.heal() then
+                        return true
+                    end
                 end
                 if actionList.dps() then
                     return true
@@ -1586,6 +1600,7 @@ local function runRotation()
         return true
     end
 end
+
 -- End runRotation
 local id = 65
 if br.rotations[id] == nil then
