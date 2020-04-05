@@ -676,7 +676,7 @@ local function runRotation()
             --use_item,name=rotcrusted_voodoo_doll,if=cooldown.combustion.remains>variable.on_use_cutoff
 
             if (GetInventoryItemID("player", 13) == 159624 or GetInventoryItemID("player", 14) == 159624) then
-                if cd.combustion.remain() > on_use_cutoff and getDebuffStacks("target", 301624) == 5 then
+                if cd.combustion.remain() > on_use_cutoff then
                     if canUseItem(159624) then
                         useItem(159624)
                     end
@@ -686,7 +686,7 @@ local function runRotation()
             --use_item,name=aquipotent_nautilus,if=cooldown.combustion.remains>variable.on_use_cutoff
 
             if (GetInventoryItemID("player", 13) == 169305 or GetInventoryItemID("player", 14) == 169305) then
-                if cd.combustion.remain() > on_use_cutoff and getDebuffStacks("target", 301624) == 5 then
+                if cd.combustion.remain() > on_use_cutoff then
                     if canUseItem(169305) then
                         useItem(169305)
                     end
@@ -702,6 +702,17 @@ local function runRotation()
                     end
                 end
             end
+
+            --use_item,name=forbidden_obsidian_claw,if=cooldown.combustion.remains>variable.on_use_cutoff|variable.disable_combustion
+
+            if (GetInventoryItemID("player", 13) == 173944 or GetInventoryItemID("player", 14) == 173944) then
+                if cd.combustion.remain() > on_use_cutoff then
+                    if canUseItem(173944) then
+                        useItem(173944)
+                    end
+                end
+            end
+
 
             --use_item,effect_name=harmonic_dematerializer
 
