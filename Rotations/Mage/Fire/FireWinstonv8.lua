@@ -124,6 +124,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Frost Nova",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Ice Block
             br.ui:createSpinner(section, "Ice Block", 15, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        -- Spellsteal
+            br.ui:createDropdown(section,"Spellsteal", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -254,6 +256,11 @@ local function runRotation()
         enemies.get(25,"target")
         enemies.get(30,"target")
         enemies.get(40,"target")
+
+        if IsAoEPending() then
+            SpellStopTargeting()
+            return
+        end
         
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -331,6 +338,25 @@ local function runRotation()
                 return 999
             end
             return ttdSec
+        end
+
+        local doNotSteal = {
+            [273432] = "Bound By Shadow(Uldir)",
+            [269935] = "Bound By Shadow(KR)"
+        }
+        local function spellstealCheck(unit)
+            local i = 1
+            local buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)
+            while buffName do
+                if doNotSteal[spellId] then
+                    return false
+                elseif isStealable and (GetTime() - (expirationTime - duration)) > dispelDelay then
+                    return true
+                end
+                i = i + 1
+                buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)            
+            end
+            return false
         end
 
         local function firestarterRemain(unit, pct)
@@ -503,6 +529,22 @@ local function runRotation()
                     end
                     if cast.iceBlock("player") then
                         return true
+                    end
+                end
+
+        -- Spell Steal
+                if isChecked("Spellsteal") then
+                    if getOptionValue("Spellsteal") == 1 then
+                        if spellstealCheck("target") and GetObjectExists("target") then
+                            if cast.spellsteal("target") then br.addonDebug("Casting Spellsteal") return true end
+                        end
+                    elseif getOptionValue("Spellsteal") == 2 then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if spellstealCheck(thisUnit) then
+                                if cast.spellsteal(thisUnit) then br.addonDebug("Casting Spellsteal") return true end
+                            end
+                        end
                     end
                 end
 
@@ -1021,7 +1063,8 @@ local function runRotation()
             if buff.hotStreak.exists() then
                 if ((talent.flamePatch and fSEnemies > 2) or (fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and not traits.blasterMaster.active then
                 --if br.timer:useTimer("cofswait", 0.7) then
-                    if cast.flamestrike("best",nil,1,8) then
+                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+                    SpellStopTargeting()
                     dPrint("Comb fStrike")
                     return end
             --[[elseif ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
@@ -1138,7 +1181,8 @@ local function runRotation()
             -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>1)|active_enemies>4)&buff.hot_streak.react
 
             if buff.hotStreak.exists() and ((talent.flamePatch and fSEnemies > 1) or (fSEnemies > getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) then
-                if cast.flamestrike("best",nil,1,8) then
+                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+                    SpellStopTargeting()
                     dPrint("RoP fStrike 1")
                     return end
             end
@@ -1261,8 +1305,9 @@ local function runRotation()
             -- flamestrike,if=(talent.flame_patch.enabled&active_enemies>2)|active_enemies>5 - #enemies.yards8t - #fSEnemies
 
             if --[[buff.hotStreak.exists() and]] ((talent.flamePatch and fSEnemies > 2) or (fSEnemies > 5 and mode.rotation == 1) or mode.rotation == 2) then
-                if cast.flamestrike("best",nil,1,8) then
-                    dPrint("RoP fStrike 2")
+            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+                SpellStopTargeting()
+                dPrint("RoP fStrike 2")
                     return end
             end
 
@@ -1292,7 +1337,8 @@ local function runRotation()
             -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>1&!firestarter.active)|active_enemies>4)&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
 
             if buff.hotStreak.exists() and ((talent.flamePatch and fSEnemies > 1 and not firestarterActive) or (fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) then
-                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then
+                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+                    SpellStopTargeting() 
                 --if cast.flamestrike("best",nil,1,8) then return end
                 dPrint("ST fStrike1")
                     return end
@@ -1458,7 +1504,8 @@ local function runRotation()
             -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2|active_enemies>9
             if (not moving or pyroReady) then
             if talent.flamePatch and fSEnemies > 2 or ((fSEnemies > 9 and mode.rotation == 1) or mode.rotation == 2) then
-                if cast.flamestrike("best",nil,1,8) then
+                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+                    SpellStopTargeting()
                     dPrint("ST fStrike 2")
                     return end
             end end
