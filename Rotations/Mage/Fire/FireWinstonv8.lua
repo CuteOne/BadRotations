@@ -340,6 +340,11 @@ local function runRotation()
             return ttdSec
         end
 
+        local dispelDelay = 1.5
+        if isChecked("Dispel delay") then
+            dispelDelay = getValue("Dispel delay")
+        end
+
         local doNotSteal = {
             [273432] = "Bound By Shadow(Uldir)",
             [269935] = "Bound By Shadow(KR)"
