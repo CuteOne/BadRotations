@@ -395,7 +395,7 @@ local function runRotation()
             end
         end -- End Dummy Test
         -- Torment
-        if isChecked("Torment") then
+        if isChecked("Torment") and combatTime > 5 then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 local target = UnitTarget(thisUnit)

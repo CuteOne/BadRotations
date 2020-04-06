@@ -50,7 +50,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.0")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 1 / Max: 60 / Interval: 5")
         br.ui:checkSectionState(section)
@@ -475,11 +475,11 @@ local function runRotation()
                 if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
             end
         -- Fire Blast
-            if buff.heatingUp.exists("player") then
-                if br.timer:useTimer("FB Delay", 0.5) then
-                    if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
-                end
-            end
+            -- if buff.heatingUp.exists("player") then
+            --     if br.timer:useTimer("FB Delay", 0.5) then
+            --         if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
+            --     end
+            -- end
         -- Flamestrike (Flame Patch)
             if talent.flamePatch and not buff.combustion.exists("player") and not moving and #enemies.yards8t >= getValue("FS Targets (Flame Patch)") then 
                 if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
@@ -512,6 +512,17 @@ local function runRotation()
             SpellStopTargeting()
             br.addonDebug(colorRed.."Aoe Not Cast. Canceling Spell",true)
             return false
+        end
+        if #enemies.yards8t < 2 then
+            if buff.heatingUp.exists("player") and not cast.last.fireBlast() and (buff.combustion.exists("player") or (talent.runeOfPower and buff.runeOfPower.exists("player")) or (charges.fireBlast.timeTillFull() < cd.combustion.remains() or not useCDs())) then
+                if cast.fireBlast() then br.addonDebug("Casting Fire Blast") end
+            end
+        elseif #enemies.yards8t >= 2 then
+            if buff.heatingUp.exists("player") then
+                if br.timer:useTimer("FB Delay", 0.5) then
+                    if cast.fireBlast() then br.addonDebug("Casting Fire Blast") end
+                end
+            end
         end
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
@@ -682,9 +693,9 @@ local function runRotation()
                     end
                 end
         -- Fire Blast
-                if buff.heatingUp.exists("player") and not cast.last.fireBlast() and (buff.combustion.exists("player") or (talent.runeOfPower and buff.runeOfPower.exists("player")) or (charges.fireBlast.timeTillFull() < cd.combustion.remains() or not useCDs())) then
-                    if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
-                end
+                -- if buff.heatingUp.exists("player") and not cast.last.fireBlast() and (buff.combustion.exists("player") or (talent.runeOfPower and buff.runeOfPower.exists("player")) or (charges.fireBlast.timeTillFull() < cd.combustion.remains() or not useCDs())) then
+                --     if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
+                -- end
         -- Living Bomb
                 if talent.livingBomb and #enemies.yards8t >= 1 then
                     if cast.livingBomb() then br.addonDebug("Casting Living Bomb") return end

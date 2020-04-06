@@ -488,7 +488,7 @@ actionList.Cooldowns = function()
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 local thisHP = getHP(thisUnit)
-                if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) and getFacing("player","target") then
                     if cast.reapingFlames(thisUnit) then debug("Casting Reaping Flames") return true end
                 end
             end
@@ -877,7 +877,7 @@ local function runRotation()
         profileStop = false
     elseif (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 or cast.active.eyeBeam() then
         return true
-    else
+    else --if br.timer:useTimer("playerUpdate", getUpdateRate()) then
         if not inCombat and br.data.settings[br.selectedSpec]["Combat Time"] ~= 0 then br.data.settings[br.selectedSpec]["Combat Time"] = 0 end
         -----------------------
         --- Extras Rotation ---

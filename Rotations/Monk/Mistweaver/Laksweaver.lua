@@ -971,7 +971,9 @@ local function runRotation()
             end
         end
         --staff of neural
-        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15 then
+        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
+                and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
+        then
             if br.player.use.neuralSynapseEnhancer() then
                 br.addonDebug("Using neuralSynapseEnhancer ")
             end
@@ -1469,7 +1471,7 @@ local function runRotation()
             if interrupts() then
                 return true
             end
-            if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick")  then
+            if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick") then
                 risingSunKickFunc()
                 return true
             end
