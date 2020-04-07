@@ -1062,6 +1062,8 @@ local function runRotation()
         if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
             if cast.playDead() then return end
         end
+        StopAttack()
+        if isDummy() then ClearTarget() end
         return true
     else
         -----------------
