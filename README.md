@@ -102,7 +102,7 @@ Raidable means if its good to raid with.
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Vilt    | Unknown |  8.0  |   100% | :interrobang:
+Panglo    | Unknown |  8.3  |   100% | :white_check_mark:
 
 - Frost
 
@@ -184,7 +184,7 @@ CuteOne  |  Full    |  8.3  |   100% | :white_check_mark:
 
 author |   support   | patch | status |   raidable?
 :----- | :---------: | :---: | -----: | :-----------:
-Reyne  |  Inactive   | 8.0   |   100% | :heavy_check_mark:
+Reyne  |  Inactive   | 8.0   |   100% | :interrobang:
 
 - Fire
 
@@ -197,7 +197,7 @@ Psy             |  Full   | 8.3   | 90% | :white_check_mark:
 
 author | support      | patch | status |   raidable?
 :----- | :---------:  | :---: | -----: | :-----------:
-Reyne  |   Inactive   | 8.0   |   100% | :heavy_check_mark:
+Reyne  |   Inactive   | 8.0   |   100% | :interrobang:
 
 ### Monk
 
@@ -226,7 +226,7 @@ CuteOne |  Full   |  8.3  |   99%  | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Laksmackt |  none   | 8.2 |   99% | :white_check_mark:
+Laksmackt |  none   | 8.3 |   99% | :white_check_mark:
 
 - Protection
 
