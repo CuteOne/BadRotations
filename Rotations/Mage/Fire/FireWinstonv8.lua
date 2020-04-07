@@ -257,11 +257,6 @@ local function runRotation()
         enemies.get(30,"target")
         enemies.get(40,"target")
 
-        if IsAoEPending() then
-            SpellStopTargeting()
-            return
-        end
-        
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if talent.kindling then kindle = 1 else kindle = 0 end
@@ -450,6 +445,11 @@ local function runRotation()
             ChatOverlay("no hardcast allowed!")
         return true end end end
 
+        if inCombat and IsAoEPending() then
+            SpellStopTargeting()
+            return true
+        end
+        
 --------------------
 --- Action Lists ---
 --------------------
@@ -538,7 +538,7 @@ local function runRotation()
                 end
 
         -- Spell Steal
-                if isChecked("Spellsteal") then
+                if isChecked("Spellsteal") and not pyroReady then
                     if getOptionValue("Spellsteal") == 1 then
                         if spellstealCheck("target") and GetObjectExists("target") then
                             if cast.spellsteal("target") then br.addonDebug("Casting Spellsteal") return true end
@@ -1466,9 +1466,9 @@ local function runRotation()
             --dragons_breath,if=active_enemies>1
 
             if mode.dragonsBreath == 1 then
-                if #enemies.yards8t >= 1 and ((getFacing("player","target",30) and mode.rotation == 1) or mode.rotation == 2) and getDistance("target") <= 8 then
+                if #enemies.yards8t > 1 and ((getFacing("player","target",30) and mode.rotation == 1) or mode.rotation == 2) and getDistance("target") <= 8 then
                     if cast.dragonsBreath("player","cone",1,10) then --[[Print("db4")--]] return end
-                elseif #enemies.yards8t >= 1 and talent.alexstraszasFury then
+                elseif #enemies.yards8t > 1 and talent.alexstraszasFury then
                     if ((getDistance("target") <= 8) and mode.rotation == 1) then
                         if cast.dragonsBreath("player","cone",1,10) then --[[Print("db5")--]] return end
                     end
