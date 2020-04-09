@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200403-0522")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200409-1111")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:checkSectionState(section)
