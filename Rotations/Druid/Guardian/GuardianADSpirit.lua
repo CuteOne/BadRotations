@@ -257,6 +257,7 @@ local function createOptions()
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
+        br.ui:createCheckbox(section, "Feral Affinity", "Check if you want to dps in cat form |cffFF0000 SUPPORTS CAT KEY ONLY")
         br.ui:createCheckbox(section, "Auto Engage On Target", "Cast Moonfire on target OOC to engage in combat")
         br.ui:createCheckbox(section, "Auto Stealth in Cat Form", 1)
         br.ui:createCheckbox(section, "Auto Dash in Cat Form", 1)
@@ -559,7 +560,7 @@ local function runRotation()
                 return true
             end
         end
-        if isChecked("Auto Dash in Cat Form") and not catspeed and cat then
+        if isChecked("Auto Dash in Cat Form") and not catspeed and cat and not inCombat then
             if cast.tigerDash() then
                 return true
             end
@@ -847,6 +848,55 @@ local function runRotation()
                     end
                 end
             end
+    local function cat_dps()
+            if mode.forms == 2 and cat and talent.feralAffinity and isValidTarget("target") and inCombat and profileStop == false then
+                -- Swipe
+                if (#enemies.yards8 > 1 and #enemies.yards8 < 4 and debuff.rake.exists(units.dyn8)) or #enemies.yards8 >= 4 then
+                    if cast.swipeCat() then return end
+                end
+                -- Rip
+                if combo == 5 and #enemies.yards8 < 4 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if getDistance(thisUnit) < 5 then
+                            if not debuff.rip.exists(thisUnit) or debuff.rip.remain(thisUnit) < 4 then
+                                if cast.rip(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+                -- Rake
+                if combo < 5 and #enemies.yards8 < 4 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                    if getDistance(thisUnit) < 5 then
+                            if not debuff.rake.exists(thisUnit) then
+                                if cast.rake(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+                ---- Ferocious Bite
+                if combo == 5 and #enemies.yards8 < 4 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if getDistance(thisUnit) < 5 and debuff.rip.exists(thisUnit) then
+                            if cast.ferociousBite(thisUnit) then return end
+                        end
+                    end
+                end
+                -- Shred
+                if combo < 5 and debuff.rake.exists(units.dyn5) and #enemies.yards8 < 2 then
+                    if cast.shred(units.dyn5) then return end
+                end
+                if List_Interrupts() then
+                        return true
+                end
+                if List_Defensive() then
+                        return true
+                end
+            end
+        end
 
     local function List_Bearmode()
         if mode.forms ~= 3 then
@@ -1034,6 +1084,9 @@ local function runRotation()
                 return
             end
         end
+        -- Start Attack
+        if getDistance("target") < 5 then StartAttack() end
+
     end
 
     -----------------
@@ -1085,6 +1138,11 @@ local function runRotation()
             --- In Combat - Rotations ---
             -----------------------------
             if inCombat and not UnitBuffID("player", 115834) then
+                -- Start Attack
+				-- auto_attack
+				if getDistance(units.dyn5) < 5 then
+                    StartAttack(units.dyn5)
+                end
                 if mode.forms == 1 then
                     if isValidUnit("target") and (getDistance("target") < 30) and not bear then
                             if cast.bearForm("player") then
@@ -1093,7 +1151,9 @@ local function runRotation()
                     end
                 end
                 if mode.forms == 2 then
-                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and isChecked("Feral Affinity") and cat then
+                        cat_dps() return true
+                    elseif SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
                         cat_form()
                         return true
                     elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
@@ -1101,6 +1161,7 @@ local function runRotation()
                         return true
                     end
                 end
+
                 if List_Extras() then
                     return true
                 end
