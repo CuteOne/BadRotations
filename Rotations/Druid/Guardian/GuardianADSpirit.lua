@@ -1,5 +1,5 @@
 --Version 1.0.0
-local rotationName = "ADSpirit"
+local rotationName = "ADSpirit" -- Based on Panglo's CR
 
 ---------------
 --- Toggles ---
@@ -253,10 +253,11 @@ local function createOptions()
         ----------------------
         --- General Options---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.010")
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
+        br.ui:createCheckbox(section, "Feral Affinity", "Check if you want to dps in cat form |cffFF0000 SUPPORTS CAT KEY ONLY")
         br.ui:createCheckbox(section, "Auto Engage On Target", "Cast Moonfire on target OOC to engage in combat")
         br.ui:createCheckbox(section, "Auto Stealth in Cat Form", 1)
         br.ui:createCheckbox(section, "Auto Dash in Cat Form", 1)
@@ -266,9 +267,7 @@ local function createOptions()
         -- Auto Maul
         br.ui:createCheckbox(section, "Auto Maul", "Works when Ironfur toggle is OFF or Rage Generation is HIGH")
         -- Max Moonfire Targets
-        br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 5, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
-        -- FH Pig Helper
-        br.ui:createCheckbox(section, "Freehold - Pig")
+        br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 3, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
         -- Corruption
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
@@ -307,8 +306,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Ironfur (No Aggro)", 85, 0, 100, 5, "Use Ironfur on Adds/Bosses you can't aggro such as Carapace of N'Zoth if below %hp")
         br.ui:createSpinner(section, "Incarnation", 50, 0, 100, 5, "Use Incarnation when below %hp")        
-        br.ui:createCheckbox(section, "Spam Mangle during Incarnation", "Generate more Rage")
-        br.ui:createCheckbox(section, "Spam Thrash during Incarnation", "Will use Mangle when Gore buff exists")
+        br.ui:createCheckbox(section, "Spam Mangle during Incarnation", "|cffFF0000 CHECK ONE OPTION ONLY")
+        br.ui:createCheckbox(section, "Spam Thrash during Incarnation", "|cffFF0000 CHECK ONE OPTION ONLY")
         br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createCheckbox(section, "Frenzied Regeneration", "Enable FR")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "Health Interval to use at with 2 charges.")
@@ -319,6 +318,9 @@ local function createOptions()
         br.ui:createSpinner(section, "OOC Rejuvenation", 70, 10, 90, 5, "Minimum HP to cast Out of Combat.")
         -- Regrowth
         br.ui:createSpinner(section, "OOC Regrowth", 70, 10, 90, 5, "Minimum HP to cast Out of Combat.")
+        -- Wild Growth
+        br.ui:createSpinner(section, "OOC Wild Growth", 70, 10, 90, 5, "Mninimum HP to cast Out of Combat.")
+        br.ui:createSpinnerWithout(section, "Friendly Targets", 4, 1, 5, 1, "Number of friendly targets below set HP to cast Wild Growth.")
         -- Soothe
         br.ui:createCheckbox(section, "Auto Soothe")
         -- Rebirth
@@ -558,7 +560,7 @@ local function runRotation()
                 return true
             end
         end
-        if isChecked("Auto Dash in Cat Form") and not catspeed and cat then
+        if isChecked("Auto Dash in Cat Form") and not catspeed and cat and not inCombat then
             if cast.tigerDash() then
                 return true
             end
@@ -640,7 +642,20 @@ local function runRotation()
             if isChecked("OOC Regrowth") and not moving and php <= getOptionValue("OOC Regrowth") and not inCombat then
                 if cast.regrowth("player") then return end
             end
-
+            -- Wild Growth
+            if isChecked("OOC Wild Growth") and not moving then
+                for i = 1, #br.friend do
+                    if UnitInRange(br.friend[i].unit) then
+                        local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getOptionValue("OOC Wild Growth"), #br.friend)
+                        if (#lowHealthCandidates >= getOptionValue("Friendly Targets")) and not moving then
+                            if cast.wildGrowth(br.friend[i].unit) then
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+            -- Rebirth
             if isChecked("Rebirth") and rage >= 30 then
                 if getOptionValue("Rebirth - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") then
                     --Print("Target bois")
@@ -655,7 +670,7 @@ local function runRotation()
                     end
                 end
             end
-            
+            -- Barkskin
             if isChecked("Barkskin") then
                 if php <= getOptionValue("Barkskin") and inCombat and not buff.survivalInstincts.exists() then
                     if cast.barkskin() then
@@ -663,25 +678,25 @@ local function runRotation()
                     end
                 end
             end
-
+            -- Incarnation
             if isChecked("Incarnation") and php <= getOptionValue("Incarnation") then
                 if cast.incarnationGuardianOfUrsoc() then
                     return
                 end
             end
-
+            -- Frenzied Regeneration
             if isChecked("Frenzied Regeneration") and cast.able.frenziedRegeneration() and not buff.frenziedRegeneration.exists() and ((charges.frenziedRegeneration.count() >= 2 and php < getOptionValue("FR - HP Interval (2 Charge)")) or (charges.frenziedRegeneration.count() >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)"))) then
                 if cast.frenziedRegeneration() then
                     return
                 end
             end
-
+            -- CF
             if inCombat and getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
                 if cast.concentratedFlame("player") then
                     return
                 end
             end
-
+            -- Auto Soothe
             if isChecked("Auto Soothe") then
                 for i = 1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
@@ -692,7 +707,7 @@ local function runRotation()
                     end
                 end
             end
-
+            -- Corruption Stuff
             if br.player.mode.removeCorruption == 1 and isChecked("Remove Corruption") then
                 if getOptionValue("Remove Corruption - Target") == 1 and canDispel("player", spell.removeCorruption) then
                     if cast.removeCorruption("player") then
@@ -710,7 +725,7 @@ local function runRotation()
                     end
                 end
             end
-
+            -- Survival Instincts
             if isChecked("Survival Instincts") then
                 if php <= getOptionValue("Survival Instincts") and inCombat and not buff.survivalInstincts.exists() and not buff.barkskin.exists() then
                     if cast.survivalInstincts() then
@@ -720,7 +735,7 @@ local function runRotation()
             end
         end
     end
-
+    -- Incap Logic
     local function List_Interrupts()
         if useInterrupts() then
             if isChecked("Incapacitating Roar Logic (M+)") then
@@ -781,7 +796,7 @@ local function runRotation()
                     end
                 end
             end
-
+            -- Skull Bash
             if isChecked("Skull Bash") then
                 for i = 1, #enemies.yards13 do
                     thisUnit = enemies.yards13[i]
@@ -792,6 +807,7 @@ local function runRotation()
                     end
                 end
             end
+            -- Mighty Bash
             if isChecked("Mighty Bash") then
                 for i = 1, #enemies.yards5 do
                     thisUnit = enemies.yards5[i]
@@ -802,6 +818,7 @@ local function runRotation()
                     end
                 end
             end
+            -- Incap Roar
             if isChecked("Incapacitating Roar") and cd.skullBash.exists() then
                 for i = 1, #enemies.yards10 do
                     thisUnit = enemies.yards10[i]
@@ -824,12 +841,62 @@ local function runRotation()
                 elseif php <= getOptionValue("Trinket 2") and use.able.slot(14) then
                     use.slot(14)
                 end
+        -- Racial
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                     if castSpell("player", racial, false, false, false) then
                         return
                     end
                 end
             end
+    local function cat_dps()
+            if mode.forms == 2 and cat and talent.feralAffinity and isValidTarget("target") and inCombat and profileStop == false then
+                -- Swipe
+                if (#enemies.yards8 > 1 and #enemies.yards8 < 4 and debuff.rake.exists(units.dyn8)) or #enemies.yards8 >= 4 then
+                    if cast.swipeCat() then return end
+                end
+                -- Rip
+                if combo == 5 and #enemies.yards8 < 4 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if getDistance(thisUnit) < 5 then
+                            if not debuff.rip.exists(thisUnit) or debuff.rip.remain(thisUnit) < 4 then
+                                if cast.rip(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+                -- Rake
+                if combo < 5 and #enemies.yards8 < 4 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                    if getDistance(thisUnit) < 5 then
+                            if not debuff.rake.exists(thisUnit) then
+                                if cast.rake(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+                ---- Ferocious Bite
+                if combo == 5 and #enemies.yards8 < 4 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if getDistance(thisUnit) < 5 and debuff.rip.exists(thisUnit) then
+                            if cast.ferociousBite(thisUnit) then return end
+                        end
+                    end
+                end
+                -- Shred
+                if combo < 5 and debuff.rake.exists(units.dyn5) and #enemies.yards8 < 2 then
+                    if cast.shred(units.dyn5) then return end
+                end
+                if List_Interrupts() then
+                        return true
+                end
+                if List_Defensive() then
+                        return true
+                end
+            end
+        end
 
     local function List_Bearmode()
         if mode.forms ~= 3 then
@@ -863,7 +930,6 @@ local function runRotation()
             root_UnitList[135406] = "animated gold"
             radar = "on"
         end
-        --test dude
         if 1 == 2 then
             root_UnitList[143647] = "my little friend"
             radar = "on"
@@ -908,7 +974,7 @@ local function runRotation()
                 end
             end -- end root
         end -- end radar
-
+        -- Ironfur
         if br.player.mode.ironfur == 1 and (hasAggro >= 2) and bear and inCombat then
             if (traits.layeredMane.active and rage >= 45) or not buff.ironfur.exists() or buff.goryFur.exists() or rage >= 55 or buff.ironfur.remain() < 2 then
                 if cast.ironfur() then
@@ -916,7 +982,7 @@ local function runRotation()
                 end
             end
         end
-
+        -- Ironfur (No Aggro)
         if isChecked("Ironfur (No Aggro)") and not (hasAggro >=1) and bear and php <= getOptionValue("Ironfur (No Aggro)") and inCombat then
             if (traits.layeredMane.active and rage >= 45) or not buff.ironfur.exists() or buff.goryFur.exists() or rage >= 55 or buff.ironfur.remain() < 2 then
                 if cast.ironfur() then
@@ -932,17 +998,17 @@ local function runRotation()
                 return
             end
         end
-
+        -- Bristlingfur
         if br.player.mode.bristlingFur == 1 and rage < 40 and (hasAggro >= 2) then
             if cast.bristlingFur() then
                 return
             end
         end
-
+        -- Lunarbeam
         if cast.lunarBeam() then
             return
         end
-
+        -- Moonfire
         if #enemies.yards8 < 5 and inCombat then
             if buff.galacticGuardian.exists() then
                 if cast.moonfire(thisUnit) then
@@ -963,43 +1029,43 @@ local function runRotation()
                 end
             end
         end
-
+        -- Maul
         if br.player.mode.maul == 1 and isChecked("Auto Maul") and rageDeficit < 10 and #enemies.yards8 < 4 and (buff.incarnationGuardianOfUrsoc.exists() or not buff.incarnationGuardianOfUrsoc.exists()) then
             if cast.maul() then
                 return
             end
         end
-
+        -- Mangle
         if cast.able.mangle() and #enemies.yards5 < 7 and (not buff.incarnationGuardianOfUrsoc.exists() or buff.gore.exists()) then
             if cast.mangle() then
                 return
             end
         end
-
+        -- Thrash
         if cast.able.thrashBear("player") and #enemies.yards8 >=1 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and not debuff.thrashBear.exists(thisUnit) or debuff.thrashBear.refresh(thisUnit)) then
             if cast.thrashBear("player") then
                 return
             end
         end
-
+        -- Mangle Spam
         if isChecked("Spam Mangle during Incarnation") and cast.able.mangle() and #enemies.yards5 < 7 and buff.incarnationGuardianOfUrsoc.exists() then
             if cast.mangle() then
                 return
             end    
         end
-
+        -- Thrash Spam
         if isChecked("Spam Thrash during Incarnation") and cast.able.thrashBear("player") and #enemies.yards8 >=1 and buff.incarnationGuardianOfUrsoc.exists() then
             if cast.thrashBear("player") then
                 return
             end
         end
-
+        -- CF
         if inCombat and getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
             if cast.concentratedFlame("target") then
                 return
             end
         end
-
+        -- Pulverize
         if talent.pulverize then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
@@ -1012,12 +1078,15 @@ local function runRotation()
                 end
             end
         end
-
+        -- Swipe
         if getDistance("target") < 8 and (#enemies.yards5 >= 4 and not cast.able.thrashBear()) or (not buff.galacticGuardian.exists() and not (cast.able.thrashBear() or cast.able.mangle())) then
             if cast.swipeBear() then
                 return
             end
         end
+        -- Start Attack
+        if getDistance("target") < 5 then StartAttack() end
+
     end
 
     -----------------
@@ -1064,15 +1133,16 @@ local function runRotation()
                 if List_Bearmode() then
                     return true
                 end
-                if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
-                    bossHelper()
-                end
-
             end -- End Out of Combat Rotation
             -----------------------------
             --- In Combat - Rotations ---
             -----------------------------
             if inCombat and not UnitBuffID("player", 115834) then
+                -- Start Attack
+				-- auto_attack
+				if getDistance(units.dyn5) < 5 then
+                    StartAttack(units.dyn5)
+                end
                 if mode.forms == 1 then
                     if isValidUnit("target") and (getDistance("target") < 30) and not bear then
                             if cast.bearForm("player") then
@@ -1081,7 +1151,9 @@ local function runRotation()
                     end
                 end
                 if mode.forms == 2 then
-                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and isChecked("Feral Affinity") and cat then
+                        cat_dps() return true
+                    elseif SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
                         cat_form()
                         return true
                     elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
@@ -1089,6 +1161,7 @@ local function runRotation()
                         return true
                     end
                 end
+
                 if List_Extras() then
                     return true
                 end

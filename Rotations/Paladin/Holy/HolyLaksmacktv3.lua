@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200403-0522")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200409-1111")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:checkSectionState(section)
@@ -192,7 +192,7 @@ local haltProfile
 local hastar
 local healPot
 local profileStop
-local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
+local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0 or getDebuffRemain("player", 185710) ~= 0 or getDebuffRemain("player", 297098) ~= 0 or getDebuffRemain("player", 274914) ~= 0
 
 local ttd
 
@@ -612,20 +612,22 @@ actionList.dps = function()
 
     --Judgment
     if cast.able.judgment() and cd.holyShock.remain() > 1 then
-        if traits.indomitableJustice.active then
-            for i = 1, #enemies.yards30 do
-                if getHP(enemies.yards30[i]) < getHP("player") and getFacing("player", enemies.yards30[i]) and getFacing("player", thisUnit) then
-                    br.addonDebug("[DPS]Judgment - indomitableJustice" .. "[" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
-                    if cast.judgment(enemies.yards30[i]) then
-                        return true
+        if #tanks == 0 or #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 then
+            if traits.indomitableJustice.active then
+                for i = 1, #enemies.yards30 do
+                    if getHP(enemies.yards30[i]) < getHP("player") and getFacing("player", enemies.yards30[i]) then
+                        br.addonDebug("[DPS]Judgment - indomitableJustice" .. "[" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
+                        if cast.judgment(enemies.yards30[i]) then
+                            return true
+                        end
                     end
                 end
             end
-        end
-        if getFacing("player", units.dyn30) then
-            if cast.judgment(units.dyn30) then
-                br.addonDebug("[DPS]Judgment [" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
-                return true
+            if getFacing("player", units.dyn30) then
+                if cast.judgment(units.dyn30) then
+                    br.addonDebug("[DPS]Judgment [" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
+                    return true
+                end
             end
         end
     end
@@ -674,7 +676,7 @@ actionList.dps = function()
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
     if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) and getFacing("player", units.dyn5) and #enemies.yards8 >= 1 then
         if cast.crusaderStrike(units.dyn5) then
-            br.addonDebug("[DPS]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+            br.addonDebug("[DPSx]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
         end
     end
@@ -756,6 +758,7 @@ actionList.Defensive = function()
         if isChecked("Use Blinding Light on TFTB") or isChecked("Use Hammer of Justice on TFTB") then
 
             local stun = 0
+
             if talent.blindingLight and cast.able.blindingLight() and isChecked("Use Blinding Light on TFTB") then
                 stun = 115750
             elseif isChecked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
@@ -789,6 +792,8 @@ actionList.Defensive = function()
                 return true
             end
         end
+
+
     end
 end -- End Action List - Defensive
 
@@ -964,18 +969,29 @@ actionList.Cooldown = function()
         end
     end
 
-    --BoP
-    if cast.able.blessingOfProtection() then
+    --BoP and BoF   blessing of freedom blessing of protection
+    if cast.able.blessingOfProtection() or cast.able.blessingOfFreedom() then
         for i = 1, #br.friend do
-            if (br.friend[i].hp <= getValue("Blessing of Protection")
-                    or getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
-                    or (getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
-                    or (isChecked("Tol Dagor - Deadeye") and getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
-                    or (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0) then
-                if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
-                        and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-                    if cast.blessingOfProtection(br.friend[i].unit) then
+            if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
+                if (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0) -- barrel in FH
+                        or getDebuffRemain(br.friend[i].unit, 258058) ~= 0 -- squuuuuze in TD
+                then
+                    if cast.blessingOfFreedom(br.friend[i].unit) then
                         return true
+                    end
+                end
+            end
+            if cast.able.blessingOfProtection() then
+                if (br.friend[i].hp <= getValue("Blessing of Protection")
+                        or getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                        or (getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
+                        or (isChecked("Tol Dagor - Deadeye") and getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
+                        or (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0 and cd.remain.blessingOfFreedom.remain() ~= 0) then
+                    if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
+                            and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                        if cast.blessingOfProtection(br.friend[i].unit) then
+                            return true
+                        end
                     end
                 end
             end
@@ -1390,7 +1406,7 @@ actionList.heal = function()
     --hs, dawn, flash(infused), Lotm, flash xxxxxx
     -- Light of Martyr
     if healTarget == "none" then
-        if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and cast.able.lightOfTheMartyr()
+        if isChecked("Light of the Martyr") and (php >= getOptionValue("LotM player HP limit") or buff.divineShield.exists("player")) and cast.able.lightOfTheMartyr()
                 and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
                 and getDebuffStacks("player", 265773) == 0 -- not if we got spit gold on us then  then
                 and lowest.hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(lowest.unit, "player")

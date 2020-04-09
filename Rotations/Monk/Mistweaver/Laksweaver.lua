@@ -781,14 +781,14 @@ local function runRotation()
         --Life Cocoon
         if isChecked("Life Cocoon") and cast.able.lifeCocoon() and inCombat then
             if (isChecked("Bursting") and burst and getDebuffStacks("player", 240443) >= getOptionValue("Bursting"))
-                    or (isChecked("Grievous Wounds") and getDebuffStacks("player", 240559) > 2)
+                    or (isChecked("Grievous Wounds") and getDebuffStacks("player", 240559) > 3)
             then
                 if cast.lifeCocoon("player") then
                     br.addonDebug(tostring(burst) .. "[LifCoc]:" .. "SELF" .. " / " .. why)
                     return true
                 end
             end
-            if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 2 or BleedStack == 99) or not isSelected("Grievous Wounds") then
+            if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 3 or BleedStack == 99) or not isSelected("Grievous Wounds") then
                 --override cause people leave settings on in non griev weeks
                 if (getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
                     if cast.lifeCocoon(healUnit) then
@@ -907,6 +907,27 @@ local function runRotation()
 
 
         --all the channeling crap
+
+
+          -- Enveloping Mist on Tank
+        if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
+            for i = 1, #tanks do
+                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) then
+                        if cast.soothingMist(tanks[i].unit) then
+                            br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
+                            return true
+                        end
+                    end
+                    if cast.envelopingMist(tanks[i].unit) then
+                        br.addonDebug("[envelopingMist]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
+                        return true
+                    end
+                end
+            end
+        end
+
+
         if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
                 if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
@@ -1008,23 +1029,7 @@ local function runRotation()
         end
 
 
-        -- Enveloping Mist on Tank
-        if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
-            for i = 1, #tanks do
-                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) then
-                        if cast.soothingMist(tanks[i].unit) then
-                            br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE")
-                            return true
-                        end
-                    end
-                    if cast.envelopingMist(tanks[i].unit) then
-                        br.addonDebug("[envelopingMist]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
-                        return true
-                    end
-                end
-            end
-        end
+
 
 
         --Chi Ji
@@ -1367,7 +1372,7 @@ local function runRotation()
     --- Rotations ---
     -----------------
 
-    if pause(true) or IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) then
+    if pause(true) or IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or isCasting(212051) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) then
         return true
     else
 
