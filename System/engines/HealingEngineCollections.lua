@@ -55,7 +55,7 @@ novaEngineTables.DispelID = {
 	[272657] = { stacks = 0 }, --https://www.wowhead.com/spell=272657/noxious-breath
 	[267027] = { stacks = 0 }, --https://www.wowhead.com/spell=267027/cytotoxin
 	[272699] = { stacks = 0 }, --https://www.wowhead.com/spell=272699/venomous-spit
-  
+
 	-- Tol Dagor
 	[258128] = { stacks = 0 }, --https://www.wowhead.com/spell=258128/debilitating-shout
 	[265889] = { stacks = 0 }, --https://www.wowhead.com/spell=265889/torch-strike
@@ -198,6 +198,8 @@ novaEngineTables.BadDebuffList= {
 	-- The Eternal Palace
 	[292127] = "Darkest Depths", -- Blackwater Behemoth
 	[297586] = "Suffering", -- Queen's Court
+	-- Ny'alotha
+    [316065] = "Corrupted Existence", -- Ra-den
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
@@ -260,7 +262,7 @@ novaEngineTables.SpecificHPDebuffs = {
 	[180116] = {value = 30 }, --http://www.wowhead.com/spell=180166/touch-of-harm
 	-- Chronomatic Anomaly (M)
 	[206609] = {value = 30 }, --http://www.wowhead.com/spell=206609/time-release
-	-- Gul'dan 
+	-- Gul'dan
 	[221891] = {value = 30 }, --http://www.wowhead.com/spell=221891/soul-siphon
 	-- Sisters of the Moon (ToS)
 	[233263] = {value = 30 }, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
