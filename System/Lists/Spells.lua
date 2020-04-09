@@ -2973,7 +2973,7 @@ br.lists.spells = {
             traits                          = {
                 cascadingCalamity           = 275372,
                 dreadfulCalling             = 278727,
-                inevitableDemise            = 273525,
+                inevitableDemise            = 273521,
                 pandemicInvocation          = 289364,
             }
         },
@@ -3482,6 +3482,7 @@ br.lists.spells = {
                 recklessForce                   = 302932,
                 recklessForceCounter            = 298452,
                 seethingRage                    = 297126,
+                vigilantProtector               = 310592,
                 reapingFlames					= 311202,
                 worldveinResonance              = 313310,
             },
