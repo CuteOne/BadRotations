@@ -199,7 +199,7 @@ novaEngineTables.BadDebuffList= {
 	[292127] = "Darkest Depths", -- Blackwater Behemoth
 	[297586] = "Suffering", -- Queen's Court
 	-- Ny'alotha
-    [316065] = "Corrupted Existence", -- Ra-den
+   -- [316065] = "Corrupted Existence", -- Ra-den
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
