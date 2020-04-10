@@ -47,7 +47,7 @@ local function createOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.000")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.010")
 		-- APL
 		br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
 		-- Boss Encounter
@@ -116,9 +116,10 @@ local function createOptions()
 		br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Undertow","None"}, 1, "|cffFFFFFFSet Elixir to use.")
 		-- Racial
 		br.ui:createCheckbox(section,"Racial")
-        -- Trinkets
-        br.ui:createDropdownWithout(section, "Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
-        br.ui:createDropdownWithout(section, "Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+		-- Trinkets
+        br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+        br.ui:createCheckbox(section, "Trinket 1")
+        br.ui:createCheckbox(section, "Trinket 2")
 		-- Avenging Wrath
 		br.ui:createCheckbox(section,"Avenging Wrath")
 		-- Cruusade
@@ -873,23 +874,21 @@ local function runRotation()
 	-- Action List - Cooldowns
     local function actionList_Cooldowns()
         -- Trinkets
-        -- Trinket 1
-            if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
-                if use.able.slot(13) then
-                    use.slot(13)
-                end
+		-- Trinket 1
+		if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and inCombat then
+            if isChecked("Trinket 1") and canUseItem(13) and not hasEquiped(151190, 13) then br.addonDebug("Using Trinket 1")
+                    useItem(13)
             end
         -- Trinket 2
-            if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
-                if use.able.slot(14) then
-                    use.slot(14)
-                end
-            end
-
+            if isChecked("Trinket 2") and canUseItem(14) and not hasEquiped(151190, 14) then br.addonDebug("Using Trinket 2")
+                    useItem(14)
+			end
+		end
 		if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
-			-- Specter of Betrayal
-			-- use_item,name=specter_of_betrayal,if=(buff.crusade.up&buff.crusade.stack>=15|cooldown.crusade.remains>gcd*2)|(buff.avenging_wrath.up|cooldown.avenging_wrath.remains>gcd*2)
-			if (isChecked("Trinket 1") or isChecked("Trinket 2")) and hasEquiped(151190) and canUseItem(151190) then
+		-- 	-- Specter of Betrayal
+		-- 	-- use_item,name=specter_of_betrayal,if=(buff.crusade.up&buff.crusade.stack>=15|cooldown.crusade.remains>gcd*2)|(buff.avenging_wrath.up|cooldown.avenging_wrath.remains>gcd*2)
+			if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) or  (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs()))
+			and hasEquiped(151190) and canUseItem(151190) then
 				if ((buff.crusade.exists() and buff.crusade.stack() >= 15) or cd.crusade.remain() > gcd * 2) or (buff.avengingWrath.exists() or cd.avengingWrath.remain() > gcd * 2) then
 					useItem(151190)
 				end
@@ -909,7 +908,7 @@ local function runRotation()
 				or (race == "BloodElf" and (buff.crusade.exists() or buff.avengingWrath.exists()) and holyPower == 2 and (cd.bladeOfJustice.remain() > gcd --[[or cd.divineHammer.remain() > gcd]]))
 				or (race == "LightforgedDraenei"))
 				then
-				if cast.racial() then return end
+				if cast.racial() then br.addonDebug("Casting Racial") return end
 			end
 			-- -- Holy Wrath
 			-- -- holy_wrath
@@ -918,23 +917,23 @@ local function runRotation()
 			-- end
 			-- Shield of Vengenace
 			-- shield_of_vengeance
-			if isChecked("Shield of Vengeance - CD") then
-				if cast.shieldOfVengeance() then return end
+			if isChecked("Shield of Vengeance - CD") and cast.able.shieldOfVengeance then
+				if cast.shieldOfVengeance() then br.addonDebug("Shield of Vengeance (CD)") return end
 			end
 			-- Avenging Wrath
 			-- avenging_wrath
 			if isChecked("Avenging Wrath") and not talent.crusade then
-				if cast.avengingWrath() then return end
+				if cast.avengingWrath() then br.addonDebug("Avenging Wrath") return end
 			end
 			-- Crusade
 			-- crusade,if=holy_power>=3|((equipped.137048|race.blood_elf)&holy_power>=2)
 			if isChecked("Crusade") and talent.crusade and (holyPower >= 3 or ((hasEquiped(137048) or race == "BloodElf") and holyPower >= 2)) and cd.crusade.remain() <= gcd then
-				if cast.avengingWrath() then return end
+				if cast.avengingWrath() then br.addonDebug("Crusade") return end
 			end
 		end -- End Cooldown Usage Check
 		-- Concentrated Flame
 		if ttd > 3 then
-			if cast.concentratedFlame("target") then return true end
+			if cast.concentratedFlame("target") then br.addonDebug("Concentrated Flame Snipe") return true end
         end
         -- Corruption stuff
         -- 1 = snare  2 = eye  3 = thing 4 = Everything 5 = never  -- snare = 315176
@@ -943,7 +942,7 @@ local function runRotation()
                     or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
                     or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
                     or getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") or debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks") or debuff.grandDelusions.exists("player")) then
-                if br.player.use.shroudOfResolve() then
+                if br.player.use.shroudOfResolve() then br.addonDebug("Using Cloak")
                 end
             end
         end
@@ -955,28 +954,28 @@ local function runRotation()
         and ((not talent.crusade and ((cd.avengingWrath.remain() < 5 and holyPower >= 3 and (buff.inquisition.exists() or not talent.inquisition))
         or cd.avengingWrath.remain() >= 45)) or ((talent.crusade and cd.crusade.remain() < gcd and holyPower >= 4)
         or (holyPower >= 3 and combatTime < 10 and talent.wakeOfAshes) or cd.crusade.remain() >= 45)) then
-            if cast.guardianOfAzeroth() then return true end
+            if cast.guardianOfAzeroth() then br.addonDebug("Guardian of Azeroth") return true end
         end
         --actions.cooldowns+=/focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&!(buff.avenging_wrath.up|buff.crusade.up)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
 		if isChecked("Focused Azerite Beam") and cast.able.focusedAzeriteBeam() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and essence.focusedAzeriteBeam.active 
 		and cd.focusedAzeriteBeam.remains() <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not moving)
-        or essence.focusedAzeriteBeam.rank >= 3) and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= getOptionValue("Focused Azerite Beam") or isBoss("target"))
+        or essence.focusedAzeriteBeam.rank >= 3) and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= getOptionValue("Focused Azerite Beam") or (isBoss("target")))
         then
-            if cast.focusedAzeriteBeam() then return true end
+            if cast.focusedAzeriteBeam() then br.addonDebug("Focused Azerite Beam") return true end
         end
         -- actions.essences+=/memory_of_lucid_dreams,if=active_enemies<5&(buff.icicles.stack<=1|!talent.glacial_spike.enabled)&cooldown.frozen_orb.remains>10
         if isChecked("Memory of Lucid Dreams") and cast.able.memoryOfLucidDreams() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs()))
         and ((not talent.crusade and buff.avengingWrath.exists())
         or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
         and holyPower <= 3 then
-            if cast.memoryOfLucidDreams() then return true end
+            if cast.memoryOfLucidDreams() then br.addonDebug("Memory of Lucid Dreams") return true end
         end
         --actions.cooldowns+=/purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
         if isChecked("Purifying Blast") and cast.able.purifyingBlast() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) then
-            if cast.purifyingBlast("best", nil, 1, 8) then return true end
+            if cast.purifyingBlast("best", nil, 1, 8) then br.addonDebug("Purifying Blast") return true end
         end
         if isChecked("Ripple in Space") and cast.able.rippleInSpace() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) then
-            if cast.rippleInSpace() then return true end
+            if cast.rippleInSpace() then br.addonDebug("Ripple In Space") return true end
         end
         -- actions.cooldowns+=/worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
         if isChecked("Worldvein Resonance") and cast.able.worldveinResonance() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs()))
@@ -984,29 +983,29 @@ local function runRotation()
         or (talent.crusade and cd.crusade.remain() < gcd and holyPower >= 4)
         or (not talent.crusade and cd.avengingWrath.remain() >= 45)
         or (talent.crusade and cd.crusade.remain() >= 45)) then
-            if cast.worldveinResonance() then return true end
+            if cast.worldveinResonance() then br.addonDebug("Worldvein Resonance") return true end
         end
             -- actions.essences+=/concentrated_flame
         if isChecked("Concentrated Flame DPS") and cast.able.concentratedFlame() and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and (not debuff.concentratedFlame.exists("target") and not cast.last.concentratedFlame()
         or charges.concentratedFlame.timeTillFull() < gcd) and not buff.runeOfPower.exists("player") then
-            if cast.concentratedFlame() then return true end
+            if cast.concentratedFlame() then br.addonDebug("Concentrated Flame (DPS)") return true end
         end
         if isChecked("Concentrated Flame HP") and cast.able.concentratedFlame() and cd.concentratedFlame.remain() <= gcd and php <= getValue("Concentrated Flame HP") then
-            if cast.concentratedFlame("player") then return true end
+            if cast.concentratedFlame("player") then br.addonDebug("Concentrated Flame (HP)") return true end
         end
         -- actions.essences+=/the_unbound_force,if=buff.reckless_force.up
         if isChecked("The Unbound Force") and cast.able.theUnboundForce() and (combatTime <= 2 or buff.recklessForce.exists()) and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) then
-            if cast.theUnboundForce() then return true end
+            if cast.theUnboundForce() then br.addonDebug("The Unbound Force") return true end
         end
         --actions.cooldowns+=/blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
         if isChecked("Blood of the Enemy") and cast.able.bloodOfTheEnemy() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs()))
         and ((not talent.crusade and buff.avengingWrath.exists())
         or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10)) then
-            if cast.bloodOfTheEnemy() then return true end
+            if cast.bloodOfTheEnemy() then br.addonDebug("Blood of The Enemy") return true end
         end
         --actions.essences+=/reaping_flames
         if isChecked("Reaping Flames") and cast.able.reapingFlames() then
-            if cast.reapingFlames() then return true end
+            if cast.reapingFlames() then br.addonDebug("Reaping Flames") return true end
         end
     end
     -- 	-- Action List - Opener
@@ -1101,27 +1100,32 @@ local function runRotation()
 	local function actionList_Finisher()
 		--actions.finishers+=/inquisition,if=buff.inquisition.down|buff.inquisition.remains<5&holy_power>=3|talent.execution_sentence.enabled&cooldown.execution_sentence.remains<10&buff.inquisition.remains<15|cooldown.avenging_wrath.remains<15&buff.inquisition.remains<20&holy_power>=3
 		if talent.inquisition and not buff.inquisition.exists() or (buff.inquisition.remain() < 5 and holyPower >= 3) or (talent.executionSentence and cd.executionSentence.remain() < 10 and buff.inquisition.remain() < 15) or (cd.avengingWrath.remain() < 15 and buff.inquisition.remain() < 20 and holyPower >= 3) then
-			if cast.inquisition() then return end
+			if cast.inquisition() then br.addonDebug("Inquisition") return end
 		end
 		-- actions.finishers+=/execution_sentence,if=spell_targets.divine_storm<=3&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
 		if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2))) then
-			if cast.executionSentence() then return end
+			if cast.executionSentence() then return br.addonDebug("Execution Sentence") end
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&buff.divine_purpose.react
 		if dsCastable and buff.divinePurpose.exists() then
-			if cast.divineStorm("player") then return end
+			if cast.divineStorm("player") then br.addonDebug("Divine Storm (Buff Devine Purpose)") return end
+		end
+		if #enemies.yards10 > 1 and (mode.rotation == 2 or mode.rotation == 1) then
+			if holyPower > 3 or buff.empyreanPower.exists("player") then
+    	        if cast.divineStorm() then br.addonDebug("Divine Storm (AOE)") return end
+			end
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
 		if (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd*2 or not useCDs() or not isChecked("Crusade"))) or (buff.empyreanPower.exists() and not debuff.judgment.exists("target") and not buff.divinePurpose.exists()) then
-            if cast.divineStorm("player") then return end
+            if cast.divineStorm("player") then br.addonDebug("Divine Storm (Buff EmpyreanPower)") return end
 		end
 		-- actions.finishers+=/templars_verdict,if=buff.divine_purpose.react&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
 		if not dsCastable and buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
-			if cast.templarsVerdict() then return end
+			if cast.templarsVerdict() then br.addonDebug("Templars Verdict (Buff Devine Purpose)") return end
 		end
 		-- actions.finishers+=/templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|buff.crusade.up&buff.crusade.stack<10|cooldown.execution_sentence.remains>gcd*2)
 		if not dsCastable and (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
-            if cast.templarsVerdict() then return end
+            if cast.templarsVerdict() then br.addonDebug("Templars Verdict") return end
 		end
 
 	end
@@ -1135,26 +1139,26 @@ local function runRotation()
 		-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
 		if mode.wake == 1 and talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
 			if getOptionValue("Wake of Ashes Target") == 1 and getFacing("player","target") and getDistance("target") < 8 then
-				if cast.wakeOfAshes("player") then return end
+				if cast.wakeOfAshes("player") then br.addonDebug("Wake of Ashes (Everything)") return end
 			elseif getOptionValue("Wake of Ashes Target") == 2 then
-				if castBestConeAngle(spell.wakeOfAshes, 12, 60, 1, false) then return true end
+				if castBestConeAngle(spell.wakeOfAshes, 12, 60, 1, false) then br.addonDebug("Wake of Ashes (Cooldowns)") return true end
 			end
 		end
 		-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 		if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then
-			if cast.bladeOfJustice() then return end
+			if cast.bladeOfJustice() then br.addonDebug("Blade of Justice") return end
 		end
 		-- actions.generators+=/judgment,if=holy_power<=2|(holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|variable.HoW))
 		if holyPower <= 2 or (holyPower <= 4 and (cd.hammerOfJustice.remain() > gcd*2 or HoW)) then
-			if cast.judgment() then return end
+			if cast.judgment() then br.addonDebug("Judgment") return end
 		end
 		-- actions.generators+=/hammer_of_wrath,if=holy_power<=4
 		if talent.hammerOfWrath and holyPower <= 4 and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) then
-			if cast.hammerOfWrath() then return end
+			if cast.hammerOfWrath() then br.addonDebug("Hammer of Wrath") return end
 		end
 		-- actions.generators+=/consecration,if=holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2
 		if talent.consecration and holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd*2) or (holyPower <= 4 and cd.bladeOfJustice.remain() > gcd*2 and cd.judgment.remain() > gcd*2) and getDistance("target") < 5 and isValidUnit("target") and not isMoving("player") then
-			if cast.consecration() then return end
+			if cast.consecration() then br.addonDebug("Consecration") return end
 		end
 		-- actions.generators+=/call_action_list,name=finishers,if=talent.hammer_of_wrath.enabled&(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up)
 		if talent.hammerOfWrath and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) then
@@ -1163,7 +1167,7 @@ local function runRotation()
 		-- actions.generators+=/crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2&cooldown.consecration.remains>gcd*2)
 		if charges.crusaderStrike.frac() >= 1.75 and (holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd*2) or (holyPower == 4 and cd.bladeOfJustice.remain() > gcd*2 and cd.judgment.remain() > gcd*2 and cd.consecration.remain() > gcd*2))
 			then
-			if cast.crusaderStrike() then return end
+			if cast.crusaderStrike() then br.addonDebug("Crusader Strike") return end
 		end
 		-- actions.generators+=/call_action_list,name=finishers
 		if actionList_Finisher() then return end
