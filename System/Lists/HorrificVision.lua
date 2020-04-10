@@ -3,6 +3,9 @@ if br.lists == nil then br.lists = {} end
 br.lists.horrificVision = {
     chest = {
         332704, -- Corrupted Chest
+        332705, -- Corrupted Chest
+        332706, -- Corrupted Chest
+        332708, -- Corrupted Chest
         334758, -- Corrupted Chest
         334760, -- Corrupted Chest
         334761, -- Corrupted Chest
@@ -44,8 +47,9 @@ br.lists.horrificVision = {
         -- Orgrimmar
         158588, -- Gamon (Pool ol' Gamon)
 		158565, -- Naros
-		161140, -- Bwemba
-		161198 -- Warpweaver Dushar (Need ObjectID of the gate that summons him)
+        161140, -- Bwemba
+        340451, -- Warpweaver Dushar Portal
+		161198, -- Warpweaver Dushar (Need ObjectID of the gate that summons him)
     },
     oddCrystal = {
         341367,

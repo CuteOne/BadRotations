@@ -4,6 +4,7 @@ local function trackObject(object,name,objectid,interact)
 	if interact == nil then interact = true end
 	if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
 		--LibDraw.Circle(xOb,yOb,zOb, 2)
+		if name == "" or name == "Unknown" then name = ObjectName(object) end
 		LibDraw.Text(name.." "..objectid,"GameFontNormal",xOb,yOb,zOb+3)
 		if isChecked("Draw Lines to Tracked Objects") then
 			LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
@@ -80,7 +81,7 @@ function br.objectTracker()
 							break
 						end
 						-- Horrific Vision - Notes
-						if isChecked("Potions Tracker") and object.type == "note" and blacklistPotion == 0 then
+						if isChecked("Potions Tracker") and (object.type == "note" or br.data.blacklistVisionPotion ~= 0) and blacklistPotion == 0 then
 							findBlacklistPotion(object)
 						end
 						-- Horrific Vision - Chests / Odd Crystals / Bonus NPCs / Potions
