@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200409-1111")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200411-1009")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:checkSectionState(section)
@@ -600,16 +600,6 @@ actionList.dps = function()
         StartAttack(units.dyn5)
     end
 
-    if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
-        -- popping CD's with DPS Key
-        if cast.holyAvenger() then
-            return true
-        end
-        if cast.avengingWrath() then
-            return true
-        end
-    end
-
     --Judgment
     if cast.able.judgment() and cd.holyShock.remain() > 1 then
         if #tanks == 0 or #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 then
@@ -639,6 +629,16 @@ actionList.dps = function()
                 if cast.consecration() then
                 end
             end
+        end
+    end
+
+    if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+        -- popping CD's with DPS Key
+        if cast.holyAvenger() then
+            return true
+        end
+        if cast.avengingWrath() then
+            return true
         end
     end
 
@@ -683,10 +683,41 @@ actionList.dps = function()
 end
 
 actionList.Extra = function()
+
+    if isChecked("Use Blinding Light on TFTB") or isChecked("Use Hammer of Justice on TFTB") then
+
+        local stun = 0
+
+        if talent.blindingLight and cast.able.blindingLight() and isChecked("Use Blinding Light on TFTB") then
+            stun = 115750
+        elseif isChecked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
+            stun = 853
+        end
+
+        for i = 1, GetObjectCount() do
+            local object = GetObjectWithIndex(i)
+            local ID = ObjectID(object)
+
+            if stun ~= 0 then
+                if ID == 161895 and not isLongTimeCCed(object) and not debuff.blindingLight.exists(object) and not debuff.hammerOfJustice.exists(object) then
+                    local x1, y1, z1 = ObjectPosition("player")
+                    local x2, y2, z2 = ObjectPosition(object)
+                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                    if distance < 10 then
+                        CastSpellByName(GetSpellInfo(stun), object)
+                        return true
+                    end
+                end
+            end -- end the thing
+        end
+    end
+
 end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
+
+
     if useDefensive() then
         --engineering belt / plate pants
         if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUseItem(6) then
@@ -755,33 +786,7 @@ actionList.Defensive = function()
             end
         end
 
-        if isChecked("Use Blinding Light on TFTB") or isChecked("Use Hammer of Justice on TFTB") then
 
-            local stun = 0
-
-            if talent.blindingLight and cast.able.blindingLight() and isChecked("Use Blinding Light on TFTB") then
-                stun = 115750
-            elseif isChecked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
-                stun = 853
-            end
-
-            for i = 1, GetObjectCount() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-
-                if stun ~= 0 then
-                    if ID == 161895 and not isLongTimeCCed(object) and not debuff.blindingLight.exists(object) and not debuff.hammerOfJustice.exists(object) then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance < 10 then
-                            CastSpellByName(GetSpellInfo(stun), object)
-                            return true
-                        end
-                    end
-                end -- end the thing
-            end
-        end
 
         -- Blessing of Freedom
         if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and isMoving("player")
@@ -970,11 +975,31 @@ actionList.Cooldown = function()
     end
 
     --BoP and BoF   blessing of freedom blessing of protection
+    pre_BoF_list = {
+        [264560] = { targeted = true } --"choking-brine"
+    }
+
     if cast.able.blessingOfProtection() or cast.able.blessingOfFreedom() then
         for i = 1, #br.friend do
             if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
+                    spellTarget = select(3, UnitCastID(thisUnit))
+                end
+                if spellTarget ~= nil and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
+                    if cast.blessingOfFreedom(spellTarget) then
+                        return true
+                    end
+                end
                 if (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0) -- barrel in FH
                         or getDebuffRemain(br.friend[i].unit, 258058) ~= 0 -- squuuuuze in TD
+                        or getDebuffRemain(br.friend[i].unit, 257478) ~= 0 --crippling-bite in FH
+                        or getDebuffRemain(br.friend[i].unit, 274383) ~= 0 -- rat-traps in FH
+                        or getDebuffRemain(br.friend[i].unit, 257747) ~= 0 -- earth-shaker in FH
+                        or getDebuffRemain(br.friend[i].unit, 268050) ~= 0 -- anchor-of-binding in Shrine
+                        or getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
+                        or getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
                 then
                     if cast.blessingOfFreedom(br.friend[i].unit) then
                         return true
@@ -1415,7 +1440,7 @@ actionList.heal = function()
             healReason = "HEAL"
         end
     end
-    if healTarget ~= "none" and not GetUnitIsUnit(healTarget, "player") then
+    if healTarget ~= "none" and not GetUnitIsUnit(healTarget, "player") and getDebuffStacks("player", 267034) < 2 then
         healTargetHealth = round(getHP(healTarget), 1)
         if cast.lightOfTheMartyr(healTarget) then
             br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
