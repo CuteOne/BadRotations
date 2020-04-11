@@ -88,7 +88,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Pet")
             -- Auto Summon
             -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
-            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit"},1,"Select how you want pet to acquire targets.")
+            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit", "Assist"},1,"Select how you want pet to acquire targets.")
             -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
             -- Auto Growl

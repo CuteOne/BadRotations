@@ -49,16 +49,23 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
-    if not UnitExists(petTarget) or not isValidUnit(petTarget) or (getOptionValue("Pet Target") == 2 and (petTarget == nil or not UnitIsUnit("target","pettarget"))) then
+    if getOptionValue("Pet Target") == 4 or not UnitExists(petTarget) or not isValidUnit(petTarget) 
+        or (getOptionValue("Pet Target") == 2 and (petTarget == nil or not UnitIsUnit("target","pettarget")))
+    then
         if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
             petTarget = units.dyn40
-        elseif getOptionValue("Pet Target") == 2 and isValidUnit("target") then
+        end
+        if getOptionValue("Pet Target") == 2 and isValidUnit("target") then
             petTarget = "target"
-        elseif getOptionValue("Pet Target") == 3 then
+        end
+        if getOptionValue("Pet Target") == 3 then
             for i=1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (isValidUnit(thisUnit) or isDummy()) then petTarget = thisUnit break end
             end
+        end
+        if getOptionValue("Pet Target") == 4 and petTarget == nil then
+            petTarget = "target"
         end
     end
 
@@ -94,9 +101,9 @@ br.rotations.support["PetCuteOne"] = function()
     end
     if isChecked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        --[[if inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
+        if getOptionValue("Pet Target") and inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
             PetAssistMode()
-        else]]if not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
+        elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
             PetDefensiveMode()
         elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
             PetPassiveMode()
