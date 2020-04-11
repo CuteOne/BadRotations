@@ -1,6 +1,7 @@
 -- Action List - Pet Management
 local fetching = false
 local fetchCount = 0
+local petTarget
 br.rotations.support["PetCuteOne"] = function()
     local function getCurrentPetMode()
         local petMode = "None"
@@ -48,8 +49,7 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
-    local petTarget
-    if petTarget == nil or not UnitExists(petTarget) or not isValidUnit(petTarget) then
+    if not UnitExists(petTarget) or not isValidUnit(petTarget) or (getOptionValue("Pet Target") == 2 and (petTarget == nil or not UnitIsUnit("target","pettarget"))) then
         if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
             petTarget = units.dyn40
         elseif getOptionValue("Pet Target") == 2 and isValidUnit("target") then
@@ -94,9 +94,9 @@ br.rotations.support["PetCuteOne"] = function()
     end
     if isChecked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
+        --[[if inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
             PetAssistMode()
-        elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
+        else]]if not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
             PetDefensiveMode()
         elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
             PetPassiveMode()
