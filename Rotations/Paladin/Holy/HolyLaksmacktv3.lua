@@ -53,7 +53,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200411-1009")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200411-2137")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:checkSectionState(section)
@@ -92,6 +92,16 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+
+        if br.player.race == "BloodElf" then
+            br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
+            br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
+        end
+        if br.player.race == "LightforgedDraenei" then
+            --lightsJudgment
+            br.ui:createSpinner(section, "Light's Judgment", 1, 0, 20, 1, "", "Minimum Judgement Targets")
+        end
+
         -- Pot/Stone
         br.ui:createSpinner(section, "Pot/Stoned", 30, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Divine Protection", 60, 0, 100, 5, "", "Health Percent to Cast At")
@@ -322,12 +332,36 @@ local function noConc(unit)
         return true
     end
 end
-
+local function isCC(unit)
+    if getOptionCheck("Don't break CCs") then
+        return isLongTimeCCed(Unit)
+    end
+end
 local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
         return true
     end
-    return false
+    if isCC(unit) then
+        return true
+    end
+    if hasBuff(263246, unit) then
+        -- shields on first boss in temple
+        return true
+    end
+    if hasBuff(260189, unit) then
+        -- shields on last boss in MOTHERLODE
+        return true
+    end
+    if hasBuff(261264, unit) or hasBuff(261265, unit) or hasBuff(261266, unit) then
+        -- shields on witches in wm
+        return true
+    end
+    if GetObjectID(thisUnit) == 128652 then
+        --https://www.wowhead.com/npc=128652/viqgoth
+        return true
+    end
+
+    return false --catchall
 end
 
 local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
@@ -907,6 +941,38 @@ actionList.Cooldown = function()
     if Burststack >= getOptionValue("Burst Essence/items") then
         burst = true
     end
+
+    -- Arcane Torrent
+    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(69179) == 0 then
+        local torrentUnit = 0
+        for i = 1, #enemies.yards8 do
+            local thisUnit = enemies.yards8[i]
+            if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+                torrentUnit = torrentUnit + 1
+                if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
+                    if castSpell("player", racial, false, false, false) then
+                        return true
+                    end
+                    break
+                end
+            end
+        end
+    end
+    if isChecked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and getSpellCD(69179) == 0 and mana < getOptionValue("Arcane Torrent Mana") then
+        if castSpell("player", racial, false, false, false) then
+            return true
+        end
+    end
+    -- Light's Judgment
+    if isChecked("Light's Judgment") and race == "LightforgedDraenei" and getSpellCD(255647) == 0 then
+        if #enemies.yards40 >= getValue("Light's Judgment") then
+            if cast.lightsJudgment(getBiggestUnitCluster(40, 5)) then
+                return true
+            end
+        end
+    end
+
+
 
     --Concentrated Flame
     -- Concentrated Flame Heal
