@@ -1487,7 +1487,7 @@ local function runRotation()
             end
         end
         --staff of neural
-                if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
+        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
                 and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
         then
             if br.player.use.neuralSynapseEnhancer() then
@@ -1810,6 +1810,9 @@ local function runRotation()
         --dots
 
 
+        local debuffsunfirecount = debuff.sunfire.count()
+        local debuffmoonfirecount = debuff.moonfire.count()
+
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
             if not noDamageCheck(thisUnit) then
@@ -1823,17 +1826,15 @@ local function runRotation()
                         ) or not isChecked("Safe Dots") then
 
                     if cast.able.sunfire() then
-                        --br.addonDebug("Sunfire Count: " .. debuff.sunfire.count() .. "/" .. getOptionValue("Max Sunfire Targets"))
                         if debuff.sunfire.count() == 0 then
-                            --Print("foo")
+
                             if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
                                 br.addonDebug("Initial Sunfire - Cluster")
-                                --Print ("Initial Sunfire - Cluster")
                                 return true
                             end
-                        end --   if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
+                        end
 
-                        if (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or not debuff.sunfire.exists("target") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
+                        if (debuffsunfirecount < getOptionValue("Max Sunfire Targets") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
                             if not debuff.sunfire.exists(thisUnit) then
                                 if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
                                     br.addonDebug("Initial Sunfire - non-Cluster")
@@ -1842,8 +1843,6 @@ local function runRotation()
                             elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
                                 if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
                                     br.addonDebug("Refreshing sunfire - remain: " .. round(debuff.sunfire.remain(thisUnit), 3))
-                                    --Print("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
-                                    --Print("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
                                     return true
                                 end
                             end
@@ -1851,40 +1850,41 @@ local function runRotation()
                     end
 
 
-
-                    --br.addonDebug("Unit: " .. tostring(thisUnit))
-                    if cast.able.moonfire() then
-                        if not debuff.moonfire.exists(thisUnit) then
-                            if cast.moonfire(thisUnit) then
-                                br.addonDebug("Initial Moonfire")
-                                return true
-                            end
-                        elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
-                            if cast.moonfire(thisUnit) then
-                                br.addonDebug("Refreshing moonfire - remain: " .. round(debuff.moonfire.remain(thisUnit), 3))
-                                return true
-                            end
-                        end
-                    end
-                end
-
-                if not buff.prowl.exists() then
-                    if cast.able.concentratedFlame() and not buff.prowl.exists() then
-                        if isChecked("ConcentratedFlame - DPS") and ttd(thisUnit) > 8 and not debuff.concentratedFlame.exists(thisUnit) then
-                            if cast.concentratedFlame(thisUnit) then
-                                return true
+                    if (debuffmoonfirecount < getOptionValue("Max Moonfire Targets") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
+                        if cast.able.moonfire() then
+                            if not debuff.moonfire.exists(thisUnit) then
+                                if cast.moonfire(thisUnit) then
+                                    br.addonDebug("Initial Moonfire")
+                                    return true
+                                end
+                            elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
+                                if cast.moonfire(thisUnit) then
+                                    br.addonDebug("Refreshing moonfire - remain: " .. round(debuff.moonfire.remain(thisUnit), 3))
+                                    return true
+                                end
                             end
                         end
                     end
                 end
+            end
+        end
 
-                -- Solar Wrath
-                if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and debuff.moonfire.exists(thisUnit) and debuff.sunfire.exists(thisUnit) then
-                    if cast.solarWrath(thisUnit) then
+        if not buff.prowl.exists() then
+            if cast.able.concentratedFlame() and not buff.prowl.exists() then
+                if isChecked("ConcentratedFlame - DPS") and ttd(units.dyn40) > 8 and not debuff.concentratedFlame.exists(units.dyn40) then
+                    if cast.concentratedFlame(units.dyn40) then
                         return true
                     end
                 end
             end
+        end
+
+        -- Solar Wrath
+        if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+            if cast.solarWrath(units.dyn40) then
+                return true
+            end
+
         end
     end -- End Action List - DPS
 
@@ -2594,8 +2594,6 @@ local function runRotation()
                 return true
             end
         end
-
-
 
         if br.player.buff.prowl.exists() and cast.able.rake() then
             for i = 1, #enemies.yards10tnc do
