@@ -17,7 +17,7 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     ----------------------------
     --------Create Label--------
     ----------------------------
-    br.ui:createText(parent, text)
+    br.ui:createText(parent, text, true)
     ----------------------------
 
     -------------------------------
