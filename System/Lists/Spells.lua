@@ -3507,6 +3507,7 @@ br.lists.spells = {
                 mightyBash                      = 5211,
                 defiledGround                   = 314565,
                 vileCorruption                  = 314392,
+                cascadingTerror                 = 314478,
             },
             essences                            = {
                 aegisOfTheDeep                  = 298168,
