@@ -154,6 +154,8 @@ function getRacial()
         MagharOrc           = 274738, -- Ancestral Call
         ZandalariTroll      = 291944, -- Regeneratin'
         KulTiran            = 287712, -- Haymaker
+		Vulpera				= 312411, -- Bag of Tricks
+		Mechagnome 			= 312924, -- Hyper Organic Light Originator
     }
     return racialSpells[race]
     -- return racialSpells[race]
