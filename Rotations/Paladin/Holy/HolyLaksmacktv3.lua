@@ -52,9 +52,11 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200411-2137")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200415-1447")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
+        br.ui:createCheckbox(section, "Aggressive Glimmer")
+
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "Health Percent to Critical Heals")
@@ -439,76 +441,76 @@ end
 actionList.glimmer = function()
     -- glimmer()
 
-        --Glimmer support
-        if isChecked("Aggressive Glimmer") and mode.DPS == 1 and inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
-            if not debuff.glimmerOfLight.exists("target") and getFacing("player", "target") then
-                if cast.holyShock("target") then
-                    br.addonDebug("[GLIM] Aggressive Glimmer on target" .. UnitName("target"))
-                    return true
-                end
+    --Glimmer support
+    if isChecked("Aggressive Glimmer") and mode.DPS == 1 and inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
+        if not debuff.glimmerOfLight.exists("target") and getFacing("player", "target") then
+            if cast.holyShock("target") then
+                br.addonDebug("[GLIM] Aggressive Glimmer on target" .. UnitName("target"))
+                return true
             end
         end
+    end
 
-        if (mode.glimmer == 1 or mode.glimmer == 3) and #tanks > 1 then
-            --find lowest friend without glitter buff on them - tank first  for i = 1, #tanks do
-            for i = 1, #tanks do
-                if UnitInRange(tanks[i].unit) and getLineOfSight(tanks[i].unit, "player") then
-                    if not UnitBuffID(tanks[i].unit, 287280) then
-                        if cast.holyShock(tanks[i].unit) then
-                            br.addonDebug("[GLIM] Tank-Glimmer on " .. UnitName(tanks[i].unit))
-                            return true
-                        end
+    if #tanks > 1 then
+        --find lowest friend without glitter buff on them - tank first  for i = 1, #tanks do
+        for i = 1, #tanks do
+            if UnitInRange(tanks[i].unit) and getLineOfSight(tanks[i].unit, "player") then
+                if not UnitBuffID(tanks[i].unit, 287280) then
+                    if cast.holyShock(tanks[i].unit) then
+                        br.addonDebug("[GLIM] Tank-Glimmer on " .. UnitName(tanks[i].unit))
+                        return true
                     end
-                end
-            end
-        end
-
-        if mode.glimmer == 1 then
-            glimmerTable = {}
-            for i = 1, #br.friend do
-                if (UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") or br.friend[i].unit == "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
-                    tinsert(glimmerTable, br.friend[i])
-                end
-            end
-            if #glimmerTable > 1 then
-                table.sort(
-                        glimmerTable,
-                        function(x, y)
-                            return x.hp < y.hp
-                        end
-                )
-            end
-            --[[ if glimmerCount ~= nil and glimmerCount >= 8 then
-                 if cast.holyShock(lowest.unit) then
-                     --Print("Glimmer cap glimmer")
-                     return
-                 end
-             end]]
-            if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.glimmer == 1 then
-                if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
-                    if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
-                        if cast.ruleOfLaw() then
-                            --Print(getDistance(glimmerTable[1]))
-                            br.addonDebug("[GLIM] Rule Of Law ")
-                            return true
-                        end
-                    end
-                end
-                if cast.holyShock(glimmerTable[1].unit) then
-                    --Print("Just glimmered: " .. glimmerTable[1].unit)
-                    br.addonDebug("[GLIM] Glimmer on: " .. UnitName(glimmerTable[1].unit))
-                    return true
                 end
             end
         end
     end
+
+    if mode.glimmer == 1 then
+        glimmerTable = {}
+        for i = 1, #br.friend do
+            if (UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") or br.friend[i].unit == "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
+                tinsert(glimmerTable, br.friend[i])
+            end
+        end
+        if #glimmerTable > 1 then
+            table.sort(
+                    glimmerTable,
+                    function(x, y)
+                        return x.hp < y.hp
+                    end
+            )
+        end
+        --[[ if glimmerCount ~= nil and glimmerCount >= 8 then
+             if cast.holyShock(lowest.unit) then
+                 --Print("Glimmer cap glimmer")
+                 return
+             end
+         end]]
+        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.glimmer == 1 then
+            if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
+                if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
+                    if cast.ruleOfLaw() then
+                        --Print(getDistance(glimmerTable[1]))
+                        br.addonDebug("[GLIM] Rule Of Law ")
+                        return true
+                    end
+                end
+            end
+            if cast.holyShock(glimmerTable[1].unit) then
+                --Print("Just glimmered: " .. glimmerTable[1].unit)
+                br.addonDebug("[GLIM] Glimmer on: " .. UnitName(glimmerTable[1].unit))
+                return true
+            end
+        end
+    end
+end
 
 actionList.cleanse = function()
 
     -- Cleanse
     if cast.able.cleanse() and not cast.last.cleanse() then
         for i = 1, #br.friend do
-            if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
+            if canDispel(br.friend[i].unit, spell.cleanse) and (getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
                 if br.player.race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
                     if cast.racial("player") then
                         return true
@@ -1600,7 +1602,11 @@ local function runRotation()
                 glimmerCount = glimmerCount + 1
             end
         end
+        if isChecked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target") > gcd then
+            glimmerCount = glimmerCount + 1
+        end
     end
+
 
 
     -- Profile Specific Locals
@@ -1671,7 +1677,7 @@ local function runRotation()
                             return true
                         end
                     end
-                    if mode.glimmer == 1 then
+                    if (mode.glimmer == 1 or mode.glimmer == 3) and glimmerCount <= 8 then
                         if actionList.glimmer() then
                             return true
                         end
