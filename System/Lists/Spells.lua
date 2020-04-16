@@ -3479,6 +3479,7 @@ br.lists.spells = {
                 -- Essences
                 concentratedFlame               = 295378,
                 guardianOfAzeroth               = 295855,
+                guardianShell                   = 310425,
                 lifeblood                       = 295137,
                 memoryOfLucidDreams             = 298357,
                 recklessForce                   = 302932,
@@ -3533,6 +3534,7 @@ br.lists.spells = {
                 standstill                      = 299882,
                 suppressingPulse                = 300009,
                 theUnboundForce                 = 299376,
+                vigilantProtector               = 310592,
                 visionOfPerfection              = 299370,
                 vitalityConduit                 = 299958,
                 conflict                        = 303823,
