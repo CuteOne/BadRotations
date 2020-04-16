@@ -918,7 +918,7 @@ actionList.Cooldown = function()
             end
         end
     end
-    if isChecked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and getSpellCD(69179) == 0 and mana < getOptionValue("Arcane Torrent Mana") then
+    if isChecked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and getSpellCD(28730) == 0 and mana < getOptionValue("Arcane Torrent Mana") then
         if castSpell("player", racial, false, false, false) then
             return true
         end
