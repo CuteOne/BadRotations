@@ -47,7 +47,7 @@ local function createOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.010")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.020")
 		-- APL
 		br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
 		-- Boss Encounter
@@ -603,7 +603,7 @@ local function runRotation()
 							if distance <= 10 then
 								CastSpellByName(HOJ, object)
 								return true
-							end
+							end	
 						end
 					end -- end the thing
 				end
@@ -1196,7 +1196,7 @@ local function runRotation()
 		---------------------------
 		--- Boss Encounter Case ---
 		---------------------------
-		if isChecked("Boss Encounter Case") and inInstance then
+		if isChecked("Boss Encounter Case") then
 			if BossEncounterCase() then return end
 		end
 		--------------------------
