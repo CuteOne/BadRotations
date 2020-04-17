@@ -131,8 +131,10 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 		-- Load Settings
 		br.data = deepcopy(brdata)
 		br.profile = deepcopy(brprofile)
-		if br.data.blacklistVisionPotion == nil then br.data.blacklistVisionPotion = 0 end
-		if br.data.chests == nil then br.data.chests = {} end
+		if br.data ~= nil then
+			if br.data.blacklistVisionPotion == nil then br.data.blacklistVisionPotion = 0 end
+			if br.data.chests == nil then br.data.chests = {} end
+		end
 	end
     if event == "PLAYER_LOGOUT" then
         br.ui:saveWindowPosition()
