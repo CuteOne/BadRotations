@@ -593,7 +593,7 @@ local function runRotation()
             if (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.blackoutStrike.remain() < gcd or cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) and power > 45 then
                 if cast.tigerPalm() then return end
             end
-            if not cd.kegSmash.remain() < gcd and debuff.kegSmash.exists() then
+            if cd.kegSmash.remain() > gcd and debuff.kegSmash.exists() then
                 if cast.breathOfFire() then return end
             end
             if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd)) then

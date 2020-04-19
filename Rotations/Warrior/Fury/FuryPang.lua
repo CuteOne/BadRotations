@@ -170,35 +170,35 @@ local function createOptions()
         -- Berserker Rage
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
         br.ui:checkSectionState(section)
-		--------------------
-		-- Essences --------
-		--------------------
-		        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        --------------------
+        -- Essences --------
+        --------------------
+        section = br.ui:createSection(br.ui.window.profile, "Essences")
         -- Guardian of Azeroth
         br.ui:createCheckbox(section, "GuardianofAzeroth", "Use Guardian of Azeroth")
         br.ui:createDropdownWithout(section, "GuardianOfAzeroth - Usage", {"Always", "Only Boss"}, 1)
-		-- Focussing Iris
-		br.ui:createDropdown(section, "Meme-Beam", {"Always", "AoE Only"}, 1)
-		-- Crucible of Flame
+        -- Focussing Iris
+        br.ui:createDropdown(section, "Meme-Beam", {"Always", "AoE Only"}, 1)
+        -- Crucible of Flame
         br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
         br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
-		-- Lucid Dreams
+        -- Lucid Dreams
         br.ui:createDropdown(section, "Lucid Dreams", {"Always", "CDS"}, 1)
-		--Blood of the Enemy
+        --Blood of the Enemy
         br.ui:createDropdownWithout(section, "Blood of the Enemy", {"Always", "With Reck", "CDS", "Never"}, 1)
-		-- Purifying Blast
+        -- Purifying Blast
         br.ui:createDropdown(section, "Purifying Blast", {"Always", "AoE only"}, 1)
-		-- Reaping Flames
-		br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only"}, 1)
-		br.ui:createSpinnerWithout(section, "Reaping Flame Damage", 30, 10, 100, 1)
+        -- Reaping Flames
+        br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only", "20% Rule"}, 1)
+        br.ui:createSpinnerWithout(section, "Reaping Flame Damage", 30, 10, 100, 1)
         br.ui:checkSectionState(section)
-		------------------------
-		--- Mythicplus----------
-		------------------------
-		section = br.ui:createSection(br.ui.window.profile, "M+")
-		br.ui:createSpinner(section, "Dont kill your friends with bursting", 3, 1, 10, 1)
-		br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
-		br.ui:checkSectionState(section)
+        ------------------------
+        --- Mythicplus----------
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "M+")
+        br.ui:createSpinner(section, "Dont kill your friends with bursting", 3, 1, 10, 1)
+        br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
+        br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
@@ -248,7 +248,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         br.ui:createCheckbox(section, "Storm Bolt Logic", "Stun specific Spells and Mobs")
-		-- Pummel
+        -- Pummel
         br.ui:createCheckbox(section, "Pummel")
         -- Intimidating Shout
         br.ui:createCheckbox(section, "Intimidating Shout - Int")
@@ -257,13 +257,13 @@ local function createOptions()
         -- Interrupt Percentage
         br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "Cast Percentage to use at.")
         br.ui:checkSectionState(section)
-		------------------------
-		--- CORRUPTION ---------
-		------------------------
-		section = br.ui:createSection(br.ui.window.profile, "Corruption")
-		br.ui:createCheckbox(section, "Radar On")
-		br.ui:createCheckbox(section, "All - stun the thing")
-		br.ui:createCheckbox(section, "Fear the thing")
+        ------------------------
+        --- CORRUPTION ---------
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Corruption")
+        br.ui:createCheckbox(section, "Radar On")
+        br.ui:createCheckbox(section, "All - stun the thing")
+        br.ui:createCheckbox(section, "Fear the thing")
         br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
         br.ui:checkSectionState(section)
     end
@@ -321,8 +321,7 @@ local function runRotation()
     local traits = br.player.traits
     local units = br.player.units
 	local ttd = getTTD
-	local reapingDamage = getOptionValue("Reaping Flames Damage") * 1000
-
+    local reapingDamage = getOptionValue("Reaping Flame Damage") * 1000
 
 
 
@@ -362,7 +361,7 @@ local function runRotation()
     else
         filler = false
     end
-    function extralist()
+    local function extralist()
         -- Battle Shout
         if isChecked("Battle Shout") and cast.able.battleShout() then
             for i = 1, #br.friend do
@@ -387,7 +386,8 @@ local function runRotation()
         end ]]
     end
 
-    function defensivelist()
+
+    local function defensivelist()
         if useDefensive() then
             -- Healthstone/Health Potion
             if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
@@ -449,7 +449,7 @@ local function runRotation()
         end
     end
 
-    function interruptlist()
+    local function interruptlist()
         if useInterrupts() then
 			if isChecked("Storm Bolt Logic") then
                     if cast.able.stormBolt() then
@@ -531,7 +531,7 @@ local function runRotation()
         end
     end
 
-    function moverlist()
+    local function moverlist()
         if br.player.mode.mover == 1 then
             if leapKey and not GetCurrentKeyBoardFocus() then
                 CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
@@ -553,7 +553,7 @@ local function runRotation()
         end
     end
 
-    function singlelist()
+    local function singlelist()
         -- furious slash
         if talent.furiousSlash and not cast.last.furiousSlash() and (buff.furiousSlash.stack("player") < 3 or buff.furiousSlash.remains("player") <= 2) then
             if cast.furiousSlash() then
@@ -616,6 +616,12 @@ local function runRotation()
         -- Siegebreaker
         if br.player.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
             if cast.siegebreaker() then
+                return
+            end
+        end
+
+        if traits.coldSteelHotBlood.rank == 3 or not buff.enrage.exists("player") then
+            if cast.bloodthirst() then
                 return
             end
         end
@@ -691,7 +697,7 @@ local function runRotation()
         end
     end --  end single target
 
-    function explosivelist()
+    local function explosivelist()
         if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
             if cast.rampage() then
                 return
@@ -720,7 +726,7 @@ local function runRotation()
         end
     end
 
-    function multilist()
+    local function multilist()
         -- Maintain Whirlwind buff
         if not buff.whirlwind.exists("player") then
             if cast.whirlwind("player", nil, 1, 5) then
@@ -748,7 +754,20 @@ local function runRotation()
 			if cast.focusedAzeriteBeam() then
 				return
 			end
-		end	
+        end	
+        
+        if buff.recklessness.exists("player") and isChecked("GuardianofAzeroth")then
+            if getOptionValue("GuardianOfAzeroth - Usage")==1 then
+                if cast.guardianOfAzeroth() then
+                    return true
+                end
+            end
+            if getOptionValue("GuardianOfAzeroth - Usage")==2 and isBoss("target") then
+                if cast.guardianOfAzeroth() then
+                    return true
+                end
+            end
+		end
         -- Recklessness
         if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
@@ -845,7 +864,7 @@ local function runRotation()
         end
     end -- end multi target
 	
-    function cooldownlist()
+    local function cooldownlist()
         --trinkets 
 		--actions+=/use_item,name=ashvanes_razor_coral,if=!debuff.razor_coral_debuff.up|(target.health.pct<30.1&debuff.conductive_ink_debuff.up)|(!debuff.conductive_ink_debuff.up&buff.memory_of_lucid_dreams.up|prev_gcd.2.recklessness&(buff.guardian_of_azeroth.up|!essence.memory_of_lucid_dreams.major&!essence.condensed_lifeforce.major))
 		--Mechagon Trinket WITH enrage but WITHOUT CDs
@@ -900,17 +919,21 @@ local function runRotation()
             local thisUnit = enemies.yards20[i]
             local distance = getDistance(thisUnit)
 		--	local enemyUnit.hpabs = UnitHealth(thisUnit)
-                if isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and (getOptionValue("Reaping Flames") == 1 and not buff.recklessness.exists("player") and not debuff.siegebreaker.exists(thisUnit)) then
-                    if cast.reapingFlames(thisUnit) then
-                        br.addonDebug("Reaping 1")
-                        return
-                    end
-                elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 2 and (buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= (reapingDamage * 2))) or (not buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) then
-                    if cast.reapingFlames(thisUnit) then
-                        br.addonDebug("Reaping Snipe")
-                        return
-                    end
+            if isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and (getOptionValue("Reaping Flames") == 1 and not buff.recklessness.exists("player") and not debuff.siegebreaker.exists(thisUnit)) then
+                if CastSpellByName("Reaping Flames",thisUnit) then
+                    br.addonDebug("Reaping 1")
+                    return
                 end
+            elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 2 and ((buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= (reapingDamage * 2))) or (not buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage))) then
+                if CastSpellByName("Reaping Flames",thisUnit) then
+                    br.addonDebug("Reaping Snipe")
+                    return
+                end
+            elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 3 and (getHP(thisUnit) <= 20 or UnitHealth(thisUnit) <= reapingDamage or getHP(thisUnit) >= 80)then
+                if CastSpellByName("Reaping Flames",thisUnit) then
+                    return 
+                end
+            end
         end     
     end
 	if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
@@ -940,13 +963,13 @@ local function runRotation()
                         local x1, y1, z1 = ObjectPosition("player")
                         local x2, y2, z2 = ObjectPosition(object)
                         local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 8 and isChecked("Fear the thing") then
-                            CastSpellByName("Intimidating Shout", object)
+                        if distance <= 8 and isChecked("Fear the thing") and cd.intimidatingShout.remains() <= gcdMax then
+                            cast.intimidatingShout(object)
 							br.addonDebug("Fearing the Thing")
                             return true
                         end
-                        if distance < 20 and not isLongTimeCCed(object) and talent.stormBolt then
-                            CastSpellByName(stun, object)
+                        if distance < 20 and not isLongTimeCCed(object) and talent.stormBolt and cd.stormBolt.remains() <= gcdMax then
+                            cast.stormBolt(object)
                         end
                     end
                 end -- end the thing
@@ -993,14 +1016,14 @@ local function runRotation()
             if cooldownlist() then
                 return
             end
-            if #enemies.yards8 > 1 and level >= 40 --[[ and not (isChecked("Dont kill your friends with bursting") or debuff.burst.stack("player") >= getOptionValue("Dont kill your friends with bursting")) ]] then
+            if #enemies.yards8 > 1 and level >= 40 --[[ and (not isChecked("Dont kill your friends with bursting") or getDebuffStacks("player", 240443) >= getOptionValue("Dont kill your friends with bursting")) ]] then
                 --Print("Multi")
                 if multilist() then
                     return
                 end
             else
                 --Print("Single")
-                if singlelist() --[[ and not (isChecked("Dont kill your friends with bursting") or debuff.burst.stack("player") >= getOptionValue("Dont kill your friends with bursting"))  ]]then
+                if singlelist() --[[ and (not isChecked("Dont kill your friends with bursting") or getDebuffStacks("player", 240443) >= getOptionValue("Dont kill your friends with bursting")) ]] then
                     return
                 end
             end

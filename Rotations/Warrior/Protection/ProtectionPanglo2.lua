@@ -148,6 +148,13 @@ local function createOptions()
         -- Interrupt Percentage
         br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
+        br.ui:createCheckbox(section,"Corruption Radar On")
+        br.ui:createCheckbox(section,"Use Storm Bolt on TFTB")
+        br.ui:createCheckbox(section, "Use Int Shout on TFTB")
+        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
+        br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
+        br.ui:checkSectionState(section)
     end
     optionTable = {
         {
@@ -219,6 +226,9 @@ local function runRotation()
         local hasAggro = UnitThreatSituation("player")
         if hasAggro == nil then
             hasAggro = 0
+        end
+        if timersTable then
+            wipe(timersTable)
         end
 
         units.get(5)
@@ -438,6 +448,171 @@ local function runRotation()
                 end
             end
         end
+
+        if isChecked("Lineshit") then
+            if Unit2 == nil then
+                Unit2 = Unit1
+                if Unit2 == "player" then
+                    Unit1 = "target"
+                else
+                    Unit1 = "player"
+                end
+            end
+            if (br.player and br.player.eID and br.player.eID == 2337) or isChecked("Lineshit") then
+                local pX,pY,pZ = GetObjectPosition(Unit1)
+                local tX,tY,tZ = GetObjectPosition(Unit2)
+                local tentCheck
+                --[[ LibDraw.clearCanvas()
+                if tX ~= nil then
+                    LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
+                end ]]
+                if br.timer:useTimer("Tentacle Lag", 0.1) then
+                    tentCache = {}
+                    for i = 1, GetObjectCountBR() do
+                        local object = GetObjectWithIndex(i)
+                        local objectid = ObjectID(object)
+                        if objectid == 157485 or objectid == 126781 or objectid == 131983 then
+                            tentFacing = GetObjectFacing(object)
+                            tentX, tentY, tentZ = GetObjectPosition(object)
+                            table.insert(tentCache,{
+                                ["tentFacing"] = GetObjectFacing(object),
+                                ["tentX"] = select(1,GetObjectPosition(object)), 
+                                ["tentY"] = select(2,GetObjectPosition(object)), 
+                                ["tentZ"] = select(3,GetObjectPosition(object)),
+                                ["tentX2"] = tentX + (80 * math.cos(tentFacing)),
+                                ["tentY2"] = tentY + (80 * math.sin(tentFacing))
+                            })
+                        end
+                    end
+                end
+                tentfinal = {}
+                for i = 1, #tentCache do
+                    if tentCache[i]["tentX"] ~= nil then
+                        local a = {x = tentCache[i]["tentX"], y = tentCache[i]["tentY"]}
+                        local b = {x = tentCache[i]["tentX2"], y = tentCache[i]["tentY2"]}
+                        local c = {x = tX, y = tY}
+                        local d = {x = pX, y = pY}
+                        if tX ~= nil then
+                            if math.doLinesIntersect(a,b,c,d) then 
+                                --[[ LibDraw.SetColor(255,0,0)
+                                LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
+                                 ]]tentCheck = false
+                                table.insert(tentfinal,
+                                tentCheck
+                            )
+                            --[[ else 
+                                LibDraw.SetColor(0,255,0)
+                                LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
+                             ]]end
+                        end
+                    end
+                end
+                if tentfinal[1] == nil then
+                    if br.timer:useTimer("No", 1) then
+                        return true
+                    end
+                else
+                    if br.timer:useTimer("Yes", 1) then
+                        return false
+                    end
+                end
+            end
+        end
+        --[[ HitFlags = {
+            M2Collision = 0x1,
+            M2Render = 0x2,
+            WMOCollision = 0x10,
+            WMORender = 0x20,
+            Terrain = 0x100,
+            WaterWalkableLiquid = 0x10000,
+            Liquid = 0x20000,
+            EntityCollision = 0x100000,
+        }; ]]
+        -- Traceflags = {
+        --     0x1,
+        --     0x2,
+        --     0x4,
+        --     0x8,
+        --     0x10,
+        --     0x20,
+        --     0x40,
+        --     0x80,
+        --     0x100,
+        --     0x200,
+        --     0x400,
+        --     0x800,
+        --     0x1000,
+        --     0x2000,
+        --     0x4000,
+        --     0x8000,
+        --     0x40000,
+        --     0x80000,
+        --     0x100000,
+        --     0x200000,
+        --     0x400000,
+        --     0x800000}
+
+        -- if br.timer:useTimer("mouseover debug", 0.3) then
+        --     --LibDraw.clearCanvas()
+        --     local pX,pY,pZ = GetObjectPosition("player")
+        --     local mX,mY,mZ = GetObjectPosition("mouseover")
+        --     if SpecificToggle("Mouse Debug") then
+        --         if mX~= nil then
+        --             local name = ObjectName("mouseover")
+        --             local objectid = GetObjectID("mouseover")
+        --             --LibDraw.Line(pX, pY, pZ, mX, mY, mZ)
+        --             for i = 1, #Traceflags do
+        --                 if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, Traceflags[i]) ~= nil then 
+        --                     Print(Traceflags[i]..": Int")
+        --                 end
+        --             end
+        --             --[[ if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x1) ~= nil then 
+        --                 Print("M2 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x10) ~= nil then 
+        --                 Print("WMO Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x100) ~= nil then 
+        --                 Print("Terrain Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x100000) ~= nil then 
+        --                 Print("Ent Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x4) ~= nil then 
+        --                 Print("4 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x8) ~= nil then 
+        --                 Print("8 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x40) ~= nil then 
+        --                 Print("40 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x80) ~= nil then 
+        --                 Print("80 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x200) ~= nil then 
+        --                 Print("200 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x400) ~= nil then 
+        --                 Print("400 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x800) ~= nil then 
+        --                 Print("800 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x1000) ~= nil then 
+        --                 Print("1000 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x2000) ~= nil then 
+        --                 Print("2000 Int")
+        --             end
+        --             if TraceLine(pX, pY, pZ+2, mX, mY, mZ+2, 0x1) ~= nil then 
+        --                 Print("M2 Int")
+        --             end ]]
+        --             Print(name..": "..objectid)
+        --         end
+        --     end
+        -- end
+
 
         local function actionList_Interrupts()
             if useInterrupts() then
@@ -740,16 +915,16 @@ local function runRotation()
                 end
             end
 
+            -- Shield Slam
+            if cast.shieldSlam() then
+                return
+            end
+
             -- High Prio Revenge
             if not isExplosive("target") and #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
                 if cast.revenge() then
                     return
                 end
-            end
-
-            -- Shield Slam
-            if cast.shieldSlam() then
-                return
             end
 
             -- Low Prio Thunder Clap
@@ -835,6 +1010,30 @@ local function runRotation()
                 if cast.devastate() then
                     return
                 end
+            end
+        end
+
+        if isChecked("Corruption Radar On") then
+            for i = 1, GetObjectCountBR() do
+                local object = GetObjectWithIndex(i)
+                local ID = ObjectID(object)
+                if isChecked("Use Storm Bolt on TFTB") then
+                    if ID == 161895 then
+                        local x1, y1, z1 = ObjectPosition("player")
+                        local x2, y2, z2 = ObjectPosition(object)
+                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                        if distance <= 8 and isChecked("Use Int Shout on TFTB") and cd.intimidatingShout.remains() <= gcd then
+                            if cast.intimidatingShout(object) then 
+                                return true
+                            end
+                        end
+                        if distance < 10 and not isLongTimeCCed(object) and cd.stormBolt.remains() <= gcd then
+                            if cast.stormBolt(object) then 
+                                return true
+                            end
+                        end
+                    end
+                end -- end the thing
             end
         end
 
