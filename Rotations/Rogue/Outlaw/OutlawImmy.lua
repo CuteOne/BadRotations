@@ -153,17 +153,28 @@ local function createOptions()
             br.ui:createSpinner(section,  "Interrupt At",  0,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
 
-            -------------------------
-            --- DEFENSIVE OPTIONS ---
-            -------------------------
-            section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
-            br.ui:createSpinner(section, "Healing Potion/Healthstone", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Crimson Vial", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Feint", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Riposte", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Engineer's' Belt", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            br.ui:checkSectionState(section)
+        ------------------------
+        --- CORRUPTION 8.3 -----
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Corruption")
+            br.ui:createDropdown(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createDropdown(section, "Cloak of Shadows Corruption", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createCheckbox(section, "Vanish THING", "|cffFFFFFF Will use Vanish when Thing from beyond spawns")
+            br.ui:createCheckbox(section, "Shadowmeld THING", "|cffFFFFFF Will use shadowmeld when Thing from beyond spawns")
+            br.ui:createCheckbox(section, "Blind THING", "|cffFFFFFF Will use blind on Thing from beyond")
+        br.ui:checkSectionState(section)
+
+        -------------------------
+        --- DEFENSIVE OPTIONS ---
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+        br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
+        br.ui:createSpinner(section, "Healing Potion/Healthstone", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:createSpinner(section, "Crimson Vial", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:createSpinner(section, "Feint", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:createSpinner(section, "Riposte", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:createSpinner(section, "Engineer's' Belt", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:checkSectionState(section)
 
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -639,8 +650,45 @@ local function runRotation()
                 return (buff.rollTheBones.count < 2 and (not buff.grandMelee.exists() or not buff.ruthlessPrecision.exists() or buff.loadedDice.exists())) and true or false 
             end
         end
-        --actions+=/variable,name=ambush_condition,value=combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&cooldown.ghostly_strike.remains<1)+buff.broadside.up&energy>60&!buff.skull_and_crossbones.up
 
+        -- Corruption stuff
+        -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
+        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
+            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                if br.player.use.shroudOfResolve() then end
+            end
+        end
+        if not canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 and isChecked("Cloak of Shadows Corruption") then
+            if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
+                or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
+                or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
+                if cast.cloakOfShadows() then return true end
+            end
+        end
+        if debuff.grandDelusions.exists("player") and (not canUseItem(br.player.items.shroudOfResolve) or not isChecked("Use Cloak")) and (cd.cloakOfShadows.exists() or not isChecked("Cloak of Shadows Corruption")) then
+            if isChecked("Vanish THING") then
+                if cast.vanish("player") then return true end
+            elseif isChecked("Shadowmeld THING") then
+                if cast.shadowmeld() then return true end    
+            elseif isChecked("Blind THING") then
+                for i = 1, GetObjectCountBR() do
+                    local object = GetObjectWithIndex(i)
+                    local ID = ObjectID(object)                        
+                    if ID == 161895 then
+                        local x1, y1, z1 = ObjectPosition("player")
+                        local x2, y2, z2 = ObjectPosition(object)
+                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                        if distance <= 10 then
+                            if cast.blind(object) then return end
+                        end
+                    end
+                end
+            end
+        end
+
+        --actions+=/variable,name=ambush_condition,value=combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&cooldown.ghostly_strike.remains<1)+buff.broadside.up&energy>60&!buff.skull_and_crossbones.up
         local function ambushCondition()
             if comboDeficit >= 2 + 2 * ((talent.ghostlyStrike and cd.ghostlyStrike.remain() < 1) and 1 or 0) + (buff.broadside.exists() and 1 or 0) and power > 60 and not buff.skullAndCrossbones.exists() then
                 return true
