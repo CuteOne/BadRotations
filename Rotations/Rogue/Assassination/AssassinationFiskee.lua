@@ -111,8 +111,8 @@ local function createOptions()
         --- CORRUPTION 8.3 --- -- Define Cloak Usage
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
-            br.ui:createDropdownWithout(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
-            br.ui:createDropdownWithout(section, "Cloak of Shadows Corruption", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createDropdown(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createDropdown(section, "Cloak of Shadows Corruption", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
             br.ui:createCheckbox(section, "Vanish THING", "|cffFFFFFF Will use Vanish when Thing from beyond spawns")
             br.ui:createCheckbox(section, "Shadowmeld THING", "|cffFFFFFF Will use shadowmeld when Thing from beyond spawns")
             br.ui:createCheckbox(section, "Blind THING", "|cffFFFFFF Will use blind on Thing from beyond")
@@ -692,24 +692,26 @@ local function runRotation()
             end
             -- Corruption stuff
             -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
-            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
                 if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
-                or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                 or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                 or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then end
                 end
-            elseif not canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 then
+            end
+            if not canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 and isChecked("Cloak of Shadows Corruption") then
                 if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
                  or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
                  or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
                     if cast.cloakOfShadows() then return true end
-                elseif debuff.grandDelusions.exists("player") then
-                    if isChecked("Vanish THING") then
-                        if cast.vanish("player") then return true end
-                    elseif isChecked("Shadowmeld THING") then
-                        if cast.shadowmeld() then return true end    
-                    end
-                elseif isChecked("Blind THING") and debuff.grandDelusions.exists("player") then
+                end
+            end
+            if debuff.grandDelusions.exists("player") and (not canUseItem(br.player.items.shroudOfResolve) or not isChecked("Use Cloak")) and (cd.cloakOfShadows.exists() or not isChecked("Cloak of Shadows Corruption")) then
+                if isChecked("Vanish THING") then
+                    if cast.vanish("player") then return true end
+                elseif isChecked("Shadowmeld THING") then
+                    if cast.shadowmeld() then return true end    
+                elseif isChecked("Blind THING") then
                     for i = 1, GetObjectCountBR() do
                         local object = GetObjectWithIndex(i)
                         local ID = ObjectID(object)                        
@@ -718,7 +720,7 @@ local function runRotation()
                             local x2, y2, z2 = ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                             if distance <= 10 then
-                                CastSpellByName("Blind", object) return true
+                                if cast.blind(object) then return end
                             end
                         end
                     end
