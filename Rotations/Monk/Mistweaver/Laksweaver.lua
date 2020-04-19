@@ -324,7 +324,7 @@ local function runRotation()
             end
         end
         if not cast.able.risingSunKick() and getHP(br.friend[1]) > getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
-            if cast.able.blackoutKick()
+            if cast.able.blackoutKick() and not buff.thunderFocusTea.exists()
                     and (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
                 if cast.blackoutKick(units.dyn5) then
                     return true
@@ -805,7 +805,7 @@ local function runRotation()
         local soothing_counter = 0
         if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
             for i = 1, #br.friend do
-                if buff.soothingMist.exists(br.friend[i].unit) then
+                if buff.soothingMist.exists(br.friend[i].unit, "EXACT") then
                     soothing_counter = soothing_counter + 1
                 end
             end
@@ -847,12 +847,12 @@ local function runRotation()
 
         --vivify on targets with essence font hot
         if isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(healUnit) and getHP(healUnit) < 80 then
-            if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+            if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
                 if cast.soothingMist(healUnit) then
                     br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                     return true
                 end
-            elseif isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(healUnit) then
+            elseif isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(healUnit, "EXACT") then
                 if cast.vivify(healUnit) then
                     br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                     return true
@@ -870,7 +870,7 @@ local function runRotation()
                     -- Print(UnitName(br.friend[i].unit))
                     -- Print(tostring(RM_counter))
                     if RM_counter >= getValue("Vivify Spam") then
-                        if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+                        if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
                             if cast.soothingMist(healUnit) then
                                 br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM - presoothe")
                                 return true
@@ -915,7 +915,7 @@ local function runRotation()
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
                 if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit, "EXACT") then
                         if cast.soothingMist(tanks[i].unit) then
                             br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
                             return true
@@ -933,11 +933,11 @@ local function runRotation()
         if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
                 if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
-                    if not buff.soothingMist.exists(healUnit) then
+                    if not buff.soothingMist.exists(healUnit, "EXACT") then
                         if cast.soothingMist(healUnit) then
                             return true
                         end
-                    elseif buff.soothingMist.exists(healUnit) and buff.envelopingMist.remains(healUnit) < 2 then
+                    elseif buff.soothingMist.exists(healUnit, "EXACT") and buff.envelopingMist.remains(healUnit) < 2 then
                         if cast.envelopingMist(healUnit) then
                         end
                     end
@@ -952,7 +952,7 @@ local function runRotation()
         -- Vivify
         if not isMoving("player") and (getHP(healUnit) <= getValue("Vivify") or specialHeal) then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+                if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
                     if cast.soothingMist(healUnit) then
                         return true
                     end
@@ -1465,7 +1465,7 @@ local function runRotation()
                     return true
                 end
             end
-            if lowest.hp > getValue("Critical HP") and not lowest.unit == "player" then
+            if (lowest.hp > getValue("Critical HP") or lowest.unit == "player") then
                 if Defensive() then
                     return true
                 end
@@ -1479,7 +1479,7 @@ local function runRotation()
             if interrupts() then
                 return true
             end
-            if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick") then
+            if talent.risingMist and cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick") then
                 risingSunKickFunc()
                 return true
             end
