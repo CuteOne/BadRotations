@@ -111,8 +111,8 @@ local function createOptions()
         --- CORRUPTION 8.3 --- -- Define Cloak Usage
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
-            br.ui:createDropdownWithout(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
-            br.ui:createDropdownWithout(section, "Cloak of Shadows Corruption", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createDropdown(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+            br.ui:createDropdown(section, "Cloak of Shadows Corruption", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
             br.ui:createCheckbox(section, "Vanish THING", "|cffFFFFFF Will use Vanish when Thing from beyond spawns")
             br.ui:createCheckbox(section, "Shadowmeld THING", "|cffFFFFFF Will use shadowmeld when Thing from beyond spawns")
             br.ui:createCheckbox(section, "Blind THING", "|cffFFFFFF Will use blind on Thing from beyond")
@@ -512,7 +512,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 local objID = GetObjectID(thisUnit)
-                if autoTargetUnits[objID] ~= nil and (isChecked("Auto Facing") or getFacing("player", thisUnit)) then
+                if autoTargetUnits[objID] ~= nil and (IsHackEnabled("AlwaysFacing") or getFacing("player", thisUnit)) then
                     if (objID == 120651 and getCastTimeRemain(thisUnit) > 0 and getCastTimeRemain(thisUnit) < 5) or objID ~= 120651 then
                         TargetUnit(thisUnit)
                     end
@@ -669,6 +669,8 @@ local function runRotation()
             if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(169451)) and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(169451) or has.healthstone()) then
                 if use.able.healthstone() then
                     use.healthstone()
+                elseif canUseItem(156634) then
+                    useItem(156634)
                 elseif canUseItem(169451) then
                     useItem(169451)
                 end
@@ -690,29 +692,36 @@ local function runRotation()
             end
             -- Corruption stuff
             -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
-            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
                 if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
-                or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                 or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                 or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then end
                 end
-            elseif not canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 then
+            end
+            if not canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 and isChecked("Cloak of Shadows Corruption") then
                 if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
                  or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
                  or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
                     if cast.cloakOfShadows() then return true end
-                elseif debuff.grandDelusions.exists("player") then
-                    if isChecked("Vanish THING") then
-                        if cast.vanish("player") then return true end
-                    elseif isChecked("Shadowmeld THING") then
-                        if cast.shadowmeld() then return true end    
-                    end
-                elseif isChecked("Blind THING") and debuff.grandDelusions.exists("player") then
+                end
+            end
+            if debuff.grandDelusions.exists("player") and (not canUseItem(br.player.items.shroudOfResolve) or not isChecked("Use Cloak")) and (cd.cloakOfShadows.exists() or not isChecked("Cloak of Shadows Corruption")) then
+                if isChecked("Vanish THING") then
+                    if cast.vanish("player") then return true end
+                elseif isChecked("Shadowmeld THING") then
+                    if cast.shadowmeld() then return true end    
+                elseif isChecked("Blind THING") then
                     for i = 1, GetObjectCountBR() do
                         local object = GetObjectWithIndex(i)
-                        local ID = ObjectID(object)
+                        local ID = ObjectID(object)                        
                         if ID == 161895 then
-                            CastSpellByName("Blind", object) return true
+                            local x1, y1, z1 = ObjectPosition("player")
+                            local x2, y2, z2 = ObjectPosition(object)
+                            local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                            if distance <= 10 then
+                                if cast.blind(object) then return end
+                            end
                         end
                     end
                 end
@@ -949,21 +958,21 @@ local function runRotation()
                     if cast.guardianOfAzeroth("player") then return true end
                 end
                 --Blood Of The Enemy
-                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target") or cd.toxicBlade.remain() < 1) then
+                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target") or not cd.toxicBlade.exists()) then -- cd.toxicBlade.remain() < 1
                     if cast.bloodOfTheEnemy("player") then return true end
                 end
                 --The Unbound Force
                 if cast.theUnboundForce("target") then return true end
-                -- Essence: Reaping Flames
-                -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-                if cast.able.reapingFlames() then
-                    for i = 1, #enemies.yards30 do
-                        local thisUnit = enemies.yards30[i]
-                        local thisHP = getHP(thisUnit)
-                        if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
-                            if cast.reapingFlames(thisUnit) then return true end
-                        end
-                    end
+            end          
+        end
+        -- Essence: Reaping Flames
+        -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+        if cast.able.reapingFlames() and isChecked("Essences") then
+            for i = 1, #enemies.yards30 do
+                local thisUnit = enemies.yards30[i]
+                local thisHP = getHP(thisUnit)
+                if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                    if cast.reapingFlames(thisUnit) then return true end
                 end
             end
         end
@@ -990,6 +999,9 @@ local function runRotation()
     end
 
     local function actionList_Direct()
+        --------------------------------------------------------------------------
+        -- CHECK THIS SHIT--------------------------------------------------------
+        --------------------------------------------------------------------------
         -- # Refresh rupture when we have Vendetta or Toxic Blade on a target
         if talent.masterAssassin and combo >= 4 and debuff.rupture.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
             if cast.rupture("target") then return true end
@@ -998,7 +1010,10 @@ local function runRotation()
         if talent.masterAssassin and debuff.garrote.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
             if cast.garrote("target") then return true end
         end
-        -- # Rupture condition with a combat time check for openers
+        --------------------------------------------------------------------------
+        -- CHECK THIS SHIT--------------------------------------------------------
+        --------------------------------------------------------------------------
+        -- # Rupture condition for opener
         if talent.masterAssassin and buff.masterAssassin.exists() and not debuff.rupture.exists("target") and combo > 1 then
             if cast.rupture("target") then return true end
         end
@@ -1008,7 +1023,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin or talent.subterfuge)
+        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin)
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
@@ -1041,7 +1056,7 @@ local function runRotation()
             end
         end
         -- Throw  Poisoned Knife if we can't reach the target
-        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
+        if isChecked("Poisoned Knife out of range") and not stealthedAll and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
             for i = 1, #enemyTable30 do
                 local thisUnit = enemyTable30[i].unit
                 --check if any targets are not poisoned firstget
