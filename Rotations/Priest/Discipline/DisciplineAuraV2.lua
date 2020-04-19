@@ -48,7 +48,7 @@ local function createOptions()
         -------------------------
         -------- UTILITY --------
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Utility - Version 1.00")
+        section = br.ui:createSection(br.ui.window.profile, "Utility - Version 1.01")
         -- Pull Spell
         br.ui:createCheckbox(section, "Pull Spell", "Check this to use SW:P to pull when solo.")
         -- Auto Buff Fortitude
@@ -723,7 +723,7 @@ local function runRotation()
                         end
                     end
                     --Touch of the Void
-                    if isChecked("Touch of the Void") and getDistance(units.dyn5) < 5 then
+                    if isChecked("Touch of the Void") and getDistance("target") < 5 then
                         if hasEquiped(128318) then
                             if GetItemCooldown(128318) == 0 then
                                 useItem(128318)
@@ -1501,10 +1501,10 @@ local function runRotation()
                 end
             end
             -- Schism (2+ Atonement)
-            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcdMax and norganBuff and ttd(units.dyn40) > 9 then
-                if cast.schism(units.dyn40) then
+            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcdMax and norganBuff and ttd("target") > 9 and not isExplosive("target") then
+                if cast.schism("target") then
                     br.addonDebug("Casting Schism")
-                    schismBuff = (units.dyn40)
+                    schismBuff = getUnitID("target")
                 end
             end
             -- Power Word: Solace

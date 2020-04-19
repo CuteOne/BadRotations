@@ -67,7 +67,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.00")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -1176,7 +1176,7 @@ local function runRotation()
                         br.addonDebug("Using Sapphire of Brilliance")
                         useItem(166801)
                     end
-                    if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
+                    if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > (getOptionValue("Critical HP") + 10) and lowest.hp > getOptionValue("DPS Threshold") then
                         if isExplosive("target") then
                             actionList_Explosive()
                         else

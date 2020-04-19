@@ -41,7 +41,6 @@ local function createToggles()
     DPSModes = {
         [1] = { mode = "On", value = 1, overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 0, icon = br.player.spell.judgment },
         [2] = { mode = "Off", value = 2, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.judgment },
-        [3] = { mode = "Max", value = 3, overlay = "DPS Burst", tip = "DPS MAX", highlight = 0, icon = br.player.spell.avengingWrath }
     }
     CreateButton("DPS", 6, 0)
 end
@@ -53,9 +52,11 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200409-1111")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200415-1447")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
+        br.ui:createCheckbox(section, "Aggressive Glimmer")
+
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "Health Percent to Critical Heals")
@@ -92,6 +93,16 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+
+        if br.player.race == "BloodElf" then
+            br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
+            br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
+        end
+        if br.player.race == "LightforgedDraenei" then
+            --lightsJudgment
+            br.ui:createSpinner(section, "Light's Judgment", 1, 0, 20, 1, "", "Minimum Judgement Targets")
+        end
+
         -- Pot/Stone
         br.ui:createSpinner(section, "Pot/Stoned", 30, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Divine Protection", 60, 0, 100, 5, "", "Health Percent to Cast At")
@@ -322,12 +333,36 @@ local function noConc(unit)
         return true
     end
 end
-
+local function isCC(unit)
+    if getOptionCheck("Don't break CCs") then
+        return isLongTimeCCed(Unit)
+    end
+end
 local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
         return true
     end
-    return false
+    if isCC(unit) then
+        return true
+    end
+    if hasBuff(263246, unit) then
+        -- shields on first boss in temple
+        return true
+    end
+    if hasBuff(260189, unit) then
+        -- shields on last boss in MOTHERLODE
+        return true
+    end
+    if hasBuff(261264, unit) or hasBuff(261265, unit) or hasBuff(261266, unit) then
+        -- shields on witches in wm
+        return true
+    end
+    if GetObjectID(thisUnit) == 128652 then
+        --https://www.wowhead.com/npc=128652/viqgoth
+        return true
+    end
+
+    return false --catchall
 end
 
 local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
@@ -403,110 +438,71 @@ end
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
 
-actionList.Glimmer = function()
+actionList.glimmer = function()
     -- glimmer()
 
     --Glimmer support
-    if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
+    if isChecked("Aggressive Glimmer") and mode.DPS == 1 and inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
         if not debuff.glimmerOfLight.exists("target") and getFacing("player", "target") then
             if cast.holyShock("target") then
-                br.addonDebug("glimmerOfLight on target")
+                br.addonDebug("[GLIM] Aggressive Glimmer on target" .. UnitName("target"))
                 return true
             end
         end
     end
 
-    if (mode.glimmer == 1 or Burststack >= getOptionValue("Burst AOE")) and (inInstance or inRaid or OWGroup) and #br.friend > 1 then
-        if getSpellCD(20473) < gcd then
-            -- Check here to see if shock is not ready, but dawn is - then use dawn
-            --critical first
-            if #tanks > 0 then
-                if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
-                    if cast.holyShock(tanks[1].unit) then
+    if #tanks > 1 then
+        --find lowest friend without glitter buff on them - tank first  for i = 1, #tanks do
+        for i = 1, #tanks do
+            if UnitInRange(tanks[i].unit) and getLineOfSight(tanks[i].unit, "player") then
+                if not UnitBuffID(tanks[i].unit, 287280) then
+                    if cast.holyShock(tanks[i].unit) then
+                        br.addonDebug("[GLIM] Tank-Glimmer on " .. UnitName(tanks[i].unit))
                         return true
                     end
                 end
-            end
-            if isChecked("Self Shock") and php <= getValue("Self Shock") and not UnitBuffID("player", 287280, "PLAYER") then
-                if cast.holyShock("player") then
-                    return true
-                end
-            end
-            if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
-                if cast.holyShock(lowest.unit) then
-                    return true
-                end
-            end
-            --find lowest friend without glitter buff on them - tank first
-            for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") then
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
-                        if cast.holyShock(br.friend[i].unit) then
-                            --Print(br.friend[i].unit)
-                            return true
-                        end
-                    end
-                end
-            end
-            glimmerTable = {}
-            for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
-                    tinsert(glimmerTable, br.friend[i])
-                end
-            end
-            if #glimmerTable > 1 then
-                table.sort(
-                        glimmerTable,
-                        function(x, y)
-                            return x.hp < y.hp
-                        end
-                )
-            end
-            if glimmerCount ~= nil and glimmerCount >= 8 then
-                if cast.holyShock(lowest.unit) then
-                    --Print("Glimmer cap glimmer")
-                    return
-                end
-            end
-            if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.glimmer == 1 then
-                if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
-                    if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
-                        if cast.ruleOfLaw() then
-                            --Print(getDistance(glimmerTable[1]))
-                            return true
-                        end
-                    end
-                end
-                if cast.holyShock(glimmerTable[1].unit) then
-                    --Print("Just glimmered: " .. glimmerTable[1].unit)
-                    return true
-                end
-            end
-            if (glimmerTable ~= nil and #glimmerTable == 0 and (not isChecked("Holy Shock Damage") or (isChecked("Holy Shock Damage") and lowest.hp < getValue("Holy Shock")))) then
-                if cast.holyShock(lowest.unit) then
-                    return
-                end
-            end
-        elseif getSpellCD(20473) > gcd and getSpellCD(85222) == 0 then
-            if EasyWoWToolbox == nil then
-                if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
-                    if cast.lightOfDawn() then
-                        return true
-                    end
-                end
-            else
-                if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
-                    return true
-                end
-            end
-        end
-        if talent.crusadersMight and lowest.hp > getValue("Critical HP") and (getSpellCD(20473) > (gcd)) then
-            if cast.crusaderStrike(units.dyn5) then
-                return true
             end
         end
     end
 
+    if mode.glimmer == 1 then
+        glimmerTable = {}
+        for i = 1, #br.friend do
+            if (UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") or br.friend[i].unit == "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
+                tinsert(glimmerTable, br.friend[i])
+            end
+        end
+        if #glimmerTable > 1 then
+            table.sort(
+                    glimmerTable,
+                    function(x, y)
+                        return x.hp < y.hp
+                    end
+            )
+        end
+        --[[ if glimmerCount ~= nil and glimmerCount >= 8 then
+             if cast.holyShock(lowest.unit) then
+                 --Print("Glimmer cap glimmer")
+                 return
+             end
+         end]]
+        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.glimmer == 1 then
+            if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
+                if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
+                    if cast.ruleOfLaw() then
+                        --Print(getDistance(glimmerTable[1]))
+                        br.addonDebug("[GLIM] Rule Of Law ")
+                        return true
+                    end
+                end
+            end
+            if cast.holyShock(glimmerTable[1].unit) then
+                --Print("Just glimmered: " .. glimmerTable[1].unit)
+                br.addonDebug("[GLIM] Glimmer on: " .. UnitName(glimmerTable[1].unit))
+                return true
+            end
+        end
+    end
 end
 
 actionList.cleanse = function()
@@ -514,7 +510,7 @@ actionList.cleanse = function()
     -- Cleanse
     if cast.able.cleanse() and not cast.last.cleanse() then
         for i = 1, #br.friend do
-            if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
+            if canDispel(br.friend[i].unit, spell.cleanse) and (getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
                 if br.player.race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
                     if cast.racial("player") then
                         return true
@@ -600,16 +596,6 @@ actionList.dps = function()
         StartAttack(units.dyn5)
     end
 
-    if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
-        -- popping CD's with DPS Key
-        if cast.holyAvenger() then
-            return true
-        end
-        if cast.avengingWrath() then
-            return true
-        end
-    end
-
     --Judgment
     if cast.able.judgment() and cd.holyShock.remain() > 1 then
         if #tanks == 0 or #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 then
@@ -639,6 +625,16 @@ actionList.dps = function()
                 if cast.consecration() then
                 end
             end
+        end
+    end
+
+    if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+        -- popping CD's with DPS Key
+        if cast.holyAvenger() then
+            return true
+        end
+        if cast.avengingWrath() then
+            return true
         end
     end
 
@@ -683,10 +679,41 @@ actionList.dps = function()
 end
 
 actionList.Extra = function()
+
+    if isChecked("Use Blinding Light on TFTB") or isChecked("Use Hammer of Justice on TFTB") then
+
+        local stun = 0
+
+        if talent.blindingLight and cast.able.blindingLight() and isChecked("Use Blinding Light on TFTB") then
+            stun = 115750
+        elseif isChecked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
+            stun = 853
+        end
+
+        for i = 1, GetObjectCount() do
+            local object = GetObjectWithIndex(i)
+            local ID = ObjectID(object)
+
+            if stun ~= 0 then
+                if ID == 161895 and not isLongTimeCCed(object) and not debuff.blindingLight.exists(object) and not debuff.hammerOfJustice.exists(object) then
+                    local x1, y1, z1 = ObjectPosition("player")
+                    local x2, y2, z2 = ObjectPosition(object)
+                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                    if distance < 10 then
+                        CastSpellByName(GetSpellInfo(stun), object)
+                        return true
+                    end
+                end
+            end -- end the thing
+        end
+    end
+
 end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
+
+
     if useDefensive() then
         --engineering belt / plate pants
         if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUseItem(6) then
@@ -730,7 +757,6 @@ actionList.Defensive = function()
         end
 
 
-
         --	Divine Protection
         if isChecked("Divine Protection") and cast.able.divineProtection() and not buff.divineShield.exists("player") then
             if php <= getOptionValue("Divine Protection") then
@@ -755,33 +781,6 @@ actionList.Defensive = function()
             end
         end
 
-        if isChecked("Use Blinding Light on TFTB") or isChecked("Use Hammer of Justice on TFTB") then
-
-            local stun = 0
-
-            if talent.blindingLight and cast.able.blindingLight() and isChecked("Use Blinding Light on TFTB") then
-                stun = 115750
-            elseif isChecked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
-                stun = 853
-            end
-
-            for i = 1, GetObjectCount() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-
-                if stun ~= 0 then
-                    if ID == 161895 and not isLongTimeCCed(object) and not debuff.blindingLight.exists(object) and not debuff.hammerOfJustice.exists(object) then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance < 10 then
-                            CastSpellByName(GetSpellInfo(stun), object)
-                            return true
-                        end
-                    end
-                end -- end the thing
-            end
-        end
 
         -- Blessing of Freedom
         if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and isMoving("player")
@@ -903,6 +902,37 @@ actionList.Cooldown = function()
         burst = true
     end
 
+    -- Arcane Torrent
+    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(69179) == 0 then
+        local torrentUnit = 0
+        for i = 1, #enemies.yards8 do
+            local thisUnit = enemies.yards8[i]
+            if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+                torrentUnit = torrentUnit + 1
+                if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
+                    if castSpell("player", racial, false, false, false) then
+                        return true
+                    end
+                    break
+                end
+            end
+        end
+    end
+    if isChecked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and cast.able.racial() and br.player.power.mana.percent() < getOptionValue("Arcane Torrent Mana") then
+        if castSpell("player", racial, false, false, false) then
+            return true
+        end
+    end
+    -- Light's Judgment
+    if isChecked("Light's Judgment") and race == "LightforgedDraenei" and getSpellCD(255647) == 0 then
+        if #enemies.yards40 >= getValue("Light's Judgment") then
+            if cast.lightsJudgment(getBiggestUnitCluster(40, 5)) then
+                return true
+            end
+        end
+    end
+
+
     --Concentrated Flame
     -- Concentrated Flame Heal
     if essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
@@ -970,11 +1000,31 @@ actionList.Cooldown = function()
     end
 
     --BoP and BoF   blessing of freedom blessing of protection
+    pre_BoF_list = {
+        [264560] = { targeted = true } --"choking-brine"
+    }
+
     if cast.able.blessingOfProtection() or cast.able.blessingOfFreedom() then
         for i = 1, #br.friend do
             if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
+                    spellTarget = select(3, UnitCastID(thisUnit))
+                end
+                if spellTarget ~= nil and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
+                    if cast.blessingOfFreedom(spellTarget) then
+                        return true
+                    end
+                end
                 if (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0) -- barrel in FH
                         or getDebuffRemain(br.friend[i].unit, 258058) ~= 0 -- squuuuuze in TD
+                        or getDebuffRemain(br.friend[i].unit, 257478) ~= 0 --crippling-bite in FH
+                        or getDebuffRemain(br.friend[i].unit, 274383) ~= 0 -- rat-traps in FH
+                        or getDebuffRemain(br.friend[i].unit, 257747) ~= 0 -- earth-shaker in FH
+                        or getDebuffRemain(br.friend[i].unit, 268050) ~= 0 -- anchor-of-binding in Shrine
+                        or getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
+                        or getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
                 then
                     if cast.blessingOfFreedom(br.friend[i].unit) then
                         return true
@@ -1383,6 +1433,23 @@ actionList.heal = function()
     --infused heals
 
 
+    -- Bestow Faith
+    if talent.bestowFaith and cast.able.bestowFaith() then
+        if healTarget == "none" then
+            if lowest.hp <= 90 and (UnitInRange(lowest.unit) or lowest.unit == "player") then
+                healTarget = lowest.unit
+                healReason = "HEAL"
+            end
+        end
+        if healTarget ~= "none" then
+            if cast.bestowFaith(healTarget) then
+                br.addonDebug("[" .. healReason .. "] Bestow Faith on: " .. UnitName(healTarget))
+                healTarget = "none"
+                return true
+            end
+        end
+    end -- end Bestow Faith
+
     if cast.able.flashOfLight() and buff.infusionOfLight.exists() and not cast.last.flashOfLight() and not isMoving("player") then
         if healTarget == "none" then
             if lowest.hp <= getValue("Infused Flash of Light") and (getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
@@ -1415,7 +1482,7 @@ actionList.heal = function()
             healReason = "HEAL"
         end
     end
-    if healTarget ~= "none" and not GetUnitIsUnit(healTarget, "player") then
+    if healTarget ~= "none" and not GetUnitIsUnit(healTarget, "player") and getDebuffStacks("player", 267034) < 2 then
         healTargetHealth = round(getHP(healTarget), 1)
         if cast.lightOfTheMartyr(healTarget) then
             br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
@@ -1529,11 +1596,17 @@ local function runRotation()
         healing_obj = nil
     end
 
-    for i = 1, #br.friend do
-        if buff.glimmerOfLight.remain(br.friend[i].unit) > gcd then
+    if mode.glimmer == 1 then
+        for i = 1, #br.friend do
+            if buff.glimmerOfLight.remain(br.friend[i].unit) > gcd then
+                glimmerCount = glimmerCount + 1
+            end
+        end
+        if isChecked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target") > gcd then
             glimmerCount = glimmerCount + 1
         end
     end
+
 
 
     -- Profile Specific Locals
@@ -1601,6 +1674,11 @@ local function runRotation()
                     end
                     if br.player.mode.cleanse == 1 then
                         if actionList.cleanse() then
+                            return true
+                        end
+                    end
+                    if (mode.glimmer == 1 or mode.glimmer == 3) and glimmerCount <= 8 then
+                        if actionList.glimmer() then
                             return true
                         end
                     end

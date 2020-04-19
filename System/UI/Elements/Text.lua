@@ -1,7 +1,8 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalTools = LibStub("DiesalTools-1.0")
 
-function br.ui:createText(parent, text)
+function br.ui:createText(parent, text, isCheckbox)
+    if isCheckbox == nil then isCheckbox = false end
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -12,6 +13,14 @@ function br.ui:createText(parent, text)
         end
     end
     Y = DiesalTools.Round(Y)
+    --------------------------------------------------
+    --------Create Hidden CheckBox for Spacing--------
+    --------------------------------------------------
+    if not isCheckbox then -- Bypass for Checkbox element that calls this createText
+        checkBox = br.ui:createCheckbox(parent, text, "")
+        checkBox:Disable()
+        checkBox:ReleaseTextures()
+    end
     ----------------------------
     --------Create Label--------
     ----------------------------

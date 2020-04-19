@@ -154,6 +154,8 @@ function getRacial()
         MagharOrc           = 274738, -- Ancestral Call
         ZandalariTroll      = 291944, -- Regeneratin'
         KulTiran            = 287712, -- Haymaker
+		Vulpera				= 312411, -- Bag of Tricks
+		Mechagnome 			= 312924, -- Hyper Organic Light Originator
     }
     return racialSpells[race]
     -- return racialSpells[race]
@@ -3477,6 +3479,7 @@ br.lists.spells = {
                 -- Essences
                 concentratedFlame               = 295378,
                 guardianOfAzeroth               = 295855,
+                guardianShell                   = 310425,
                 lifeblood                       = 295137,
                 memoryOfLucidDreams             = 298357,
                 recklessForce                   = 302932,
@@ -3505,6 +3508,7 @@ br.lists.spells = {
                 mightyBash                      = 5211,
                 defiledGround                   = 314565,
                 vileCorruption                  = 314392,
+                cascadingTerror                 = 314478,
             },
             essences                            = {
                 aegisOfTheDeep                  = 298168,
@@ -3530,6 +3534,7 @@ br.lists.spells = {
                 standstill                      = 299882,
                 suppressingPulse                = 300009,
                 theUnboundForce                 = 299376,
+                vigilantProtector               = 310592,
                 visionOfPerfection              = 299370,
                 vitalityConduit                 = 299958,
                 conflict                        = 303823,

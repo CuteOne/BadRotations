@@ -827,6 +827,8 @@ local function runRotation()
                     end
                 end
                 if detoxCounter >= getValue("Use Revival as detox") then
+
+
                     why = "MASS DISPEL"
                     if cast.revival() then
                         br.addonDebug("[Revival]:" .. why)
@@ -909,24 +911,24 @@ local function runRotation()
         --all the channeling crap
 
 
-          -- Enveloping Mist on Tank
+        -- Enveloping Mist on Tank
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
-                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
+                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") then
                     if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) then
                         if cast.soothingMist(tanks[i].unit) then
                             br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
                             return true
                         end
-                    end
-                    if cast.envelopingMist(tanks[i].unit) then
-                        br.addonDebug("[envelopingMist]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
-                        return true
+                    elseif buff.envelopingMist.exists(tanks[i].unit) or not isChecked("Soothing Mist Instant Cast") then
+                        if cast.envelopingMist(tanks[i].unit) then
+                            br.addonDebug("[envelopingMist]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
+                            return true
+                        end
                     end
                 end
             end
         end
-
 
         if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
@@ -1463,9 +1465,10 @@ local function runRotation()
                     return true
                 end
             end
-
-            if Defensive() then
-                return true
+            if lowest.hp > getValue("Critical HP") and not lowest.unit == "player" then
+                if Defensive() then
+                    return true
+                end
             end
             if high_prio() then
                 return true
