@@ -422,24 +422,29 @@ local function runRotation()
 
     local function jadestatue()
         --Jade Statue
-
+        local statue_buff_check = 0
         local px, py, pz
         --  Print("{x=" .. last_statue_location.x .. ",y=" .. last_statue_location.y .. ",z=" .. last_statue_location.z .. "}")
-
         if cast.able.summonJadeSerpentStatue() and (GetTotemTimeLeft(1) < 100 or GetTotemTimeLeft(1) == 0 or getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) > 30) then
-
-            if #tanks > 0 then
-                px, py, pz = GetObjectPosition(tanks[1].unit)
-            else
-                px, py, pz = GetObjectPosition("player")
+            for i = 1, #br.friend do
+                if hasBuff(198533, br.friend[i].unit) then
+                    statue_buff_check = 1
+                end
             end
+            if statue_buff_check == 0 then
+                if #tanks > 0 then
+                    px, py, pz = GetObjectPosition(tanks[1].unit)
+                else
+                    px, py, pz = GetObjectPosition("player")
+                end
 
-            px = px + math.random(-2, 2)
-            py = py + math.random(-2, 2)
-            if castGroundAtLocation({ x = px, y = py, z = pz }, spell.summonJadeSerpentStatue) then
-                SpellStopTargeting()
-                last_statue_location = { x = px, y = py, z = pz }
-                return true
+                px = px + math.random(-2, 2)
+                py = py + math.random(-2, 2)
+                if castGroundAtLocation({ x = px, y = py, z = pz }, spell.summonJadeSerpentStatue) then
+                    SpellStopTargeting()
+                    last_statue_location = { x = px, y = py, z = pz }
+                    return true
+                end
             end
         end
     end
@@ -804,8 +809,9 @@ local function runRotation()
         -- maintain one soothing mist always, if using statue
         local soothing_counter = 0
         if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
+
             for i = 1, #br.friend do
-                if buff.soothingMist.exists(br.friend[i].unit, "EXACT") then
+                if hasBuff(198533, br.friend[i].unit, "EXACT") then
                     soothing_counter = soothing_counter + 1
                 end
             end
@@ -816,6 +822,48 @@ local function runRotation()
                 end
             end
         end
+
+        -- Enveloping Mist
+        if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
+            for i = 1, #tanks do
+                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit, "EXACT") then
+                        if cast.soothingMist(tanks[i].unit) then
+                            br.addonDebug("[EM-PRE]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
+                            return true
+                        end
+                    end
+                    if buff.envelopingMist.exists(tanks[i].unit, "EXACT") or not isChecked("Soothing Mist Instant Cast") then
+                        if cast.envelopingMist(tanks[i].unit) then
+                            br.addonDebug("[EM]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+
+        if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
+            if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
+                if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
+                    if not buff.soothingMist.exists(healUnit, "EXACT") then
+                        if cast.soothingMist(healUnit) then
+                            return true
+                        end
+                    elseif buff.soothingMist.exists(healUnit, "EXACT") and buff.envelopingMist.remains(healUnit) < 2 then
+                        if cast.envelopingMist(healUnit) then
+                            br.addonDebug("[EM1]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
+                        end
+                    end
+                elseif not isChecked("Soothing Mist Instant Cast") and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
+                    if cast.envelopingMist(healUnit) then
+                        br.addonDebug("[EM2]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
+                        return
+                    end
+                end
+            end
+        end
+
 
         --Revival
         if isChecked("Revival") and cast.able.revival() then
@@ -852,7 +900,7 @@ local function runRotation()
                     br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                     return true
                 end
-            elseif isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(healUnit, "EXACT") then
+            elseif (isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(healUnit, "EXACT") or not isChecked("Soothing Mist Instant Cast")) then
                 if cast.vivify(healUnit) then
                     br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                     return true
@@ -911,44 +959,6 @@ local function runRotation()
         --all the channeling crap
 
 
-        -- Enveloping Mist on Tank
-        if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
-            for i = 1, #tanks do
-                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit, "EXACT") then
-                        if cast.soothingMist(tanks[i].unit) then
-                            br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
-                            return true
-                        end
-                    elseif buff.envelopingMist.exists(tanks[i].unit) or not isChecked("Soothing Mist Instant Cast") then
-                        if cast.envelopingMist(tanks[i].unit) then
-                            br.addonDebug("[envelopingMist]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
-                            return true
-                        end
-                    end
-                end
-            end
-        end
-
-        if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
-            if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
-                    if not buff.soothingMist.exists(healUnit, "EXACT") then
-                        if cast.soothingMist(healUnit) then
-                            return true
-                        end
-                    elseif buff.soothingMist.exists(healUnit, "EXACT") and buff.envelopingMist.remains(healUnit) < 2 then
-                        if cast.envelopingMist(healUnit) then
-                        end
-                    end
-                elseif not isChecked("Soothing Mist Instant Cast") and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
-                    if cast.envelopingMist(healUnit) then
-                        return
-                    end
-                end
-            end
-        end
-
         -- Vivify
         if not isMoving("player") and (getHP(healUnit) <= getValue("Vivify") or specialHeal) then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
@@ -968,9 +978,11 @@ local function runRotation()
 
         if isChecked("Soothing Mist") and not isMoving("player") then
             if getHP(healUnit) <= getValue("Soothing Mist") or specialHeal then
-                --  and not buff.soothingMist.exists(healUnit)
-                if cast.soothingMist(healUnit) then
-                    return true
+                if getBuffRemain(healUnit, spell.soothingMist, "EXACT") == 0 then
+                    --  and not buff.soothingMist.exists(healUnit)
+                    if cast.soothingMist(healUnit) then
+                        return true
+                    end
                 end
             end
         end
