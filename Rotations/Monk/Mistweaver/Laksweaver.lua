@@ -811,9 +811,13 @@ local function runRotation()
         if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
 
             for i = 1, #br.friend do
-                if soothingMistJadeStatue(br.friend[i].unit,"exact") then
+                if select(7, UnitBuffID(br.friend[i].unit, 198533, "exact")) == "player" then
                     soothing_counter = soothing_counter + 1
                 end
+                --[[if buff.soothingMistJadeStatue.exists(br.friend[i].unit,"exact") then
+                    soothing_counter = soothing_counter + 1
+                end]]
+             --   Print(tostring(soothing_counter))
             end
             if soothing_counter == 0 then
                 if cast.soothingMist(healUnit) then
@@ -1397,20 +1401,20 @@ local function runRotation()
         if not inCombat then
             --Print("test")
 
---[[
-            Print("-------------")
-            Print("My Soothe: " .. tostring(select(7, UnitBuffID("target", 115175, "exact")) == "player"))
-            Print("My Statue: " .. tostring(select(7, UnitBuffID("target", 198533, "exact")) == "player"))
+            --[[
+                        Print("-------------")
+                        Print("My Soothe: " .. tostring(select(7, UnitBuffID("target", 115175, "exact")) == "player"))
+                        Print("My Statue: " .. tostring(select(7, UnitBuffID("target", 198533, "exact")) == "player"))
 
-            Print(tostring(buff.soothingMist.exists("target","exact")))
-            Print(tostring(buff.soothingMist.exists("target")))
-            Print("Target has my sooth - method 1: " .. tostring(getBuffRemain("target", 115175, "EXACT") ~= 0))
-            Print("Target has my sooth - method 2: " .. tostring(buff.soothingMist.exists("target")))
-            Print("Target has other sooth - method 1: " .. tostring(getBuffRemain("target", 115175) ~= 0))
-            Print("Target has STATUE sooth - method 1: " .. tostring(getBuffRemain("target", 198533, "EXACT") ~= 0))
-            Print("Target has STATUE sooth - method 2: " .. tostring(getBuffRemain("target", 198533) ~= 0))
-            --       Print("Target has STATUE sooth - method 3 - time remains: " .. getBuffRemain("target", 198533, "player"))
-]]
+                        Print(tostring(buff.soothingMist.exists("target","exact")))
+                        Print(tostring(buff.soothingMist.exists("target")))
+                        Print("Target has my sooth - method 1: " .. tostring(getBuffRemain("target", 115175, "EXACT") ~= 0))
+                        Print("Target has my sooth - method 2: " .. tostring(buff.soothingMist.exists("target")))
+                        Print("Target has other sooth - method 1: " .. tostring(getBuffRemain("target", 115175) ~= 0))
+                        Print("Target has STATUE sooth - method 1: " .. tostring(getBuffRemain("target", 198533, "EXACT") ~= 0))
+                        Print("Target has STATUE sooth - method 2: " .. tostring(getBuffRemain("target", 198533) ~= 0))
+                        --       Print("Target has STATUE sooth - method 3 - time remains: " .. getBuffRemain("target", 198533, "player"))
+            ]]
 
             --    Print(hotcountFunc())
             --Print(tostring(mode.prehot))
