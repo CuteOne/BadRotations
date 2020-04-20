@@ -585,7 +585,7 @@ local function runRotation()
     local function actionList_AutoBlackout()
         if buff.blackoutCombo.exists() then
             if cast.kegSmash() then return end
-            if not cd.kegSmash.remain() < gcd then
+            if cd.kegSmash.remain() > gcd then
                 if cast.tigerPalm() then return end
             end
         else
