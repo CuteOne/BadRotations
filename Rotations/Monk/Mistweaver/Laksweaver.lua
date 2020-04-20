@@ -811,7 +811,7 @@ local function runRotation()
         if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
 
             for i = 1, #br.friend do
-                if hasBuff(198533, br.friend[i].unit, "EXACT") then
+                if soothingMistJadeStatue(br.friend[i].unit,"exact") then
                     soothing_counter = soothing_counter + 1
                 end
             end
@@ -827,7 +827,7 @@ local function runRotation()
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
                 if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit, "EXACT") then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit, "exact") then
                         if cast.soothingMist(tanks[i].unit) then
                             br.addonDebug("[EM-PRE]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
                             return true
@@ -846,7 +846,7 @@ local function runRotation()
         if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
                 if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
-                    if not buff.soothingMist.exists(healUnit, "EXACT") then
+                    if not buff.soothingMist.exists(healUnit, "exact") then
                         if cast.soothingMist(healUnit) then
                             return true
                         end
@@ -979,7 +979,7 @@ local function runRotation()
         if isChecked("Soothing Mist") and not isMoving("player") then
             if getHP(healUnit) <= getValue("Soothing Mist") or specialHeal then
                 if getBuffRemain(healUnit, spell.soothingMist, "EXACT") == 0 then
-                    --  and not buff.soothingMist.exists(healUnit)
+                    --  and not buff.soothingMist.exists(healUnit, "exact") then
                     if cast.soothingMist(healUnit) then
                         return true
                     end
@@ -1395,10 +1395,27 @@ local function runRotation()
         --- Out Of Combat - Rotations ---
         ---------------------------------
         if not inCombat then
+            --Print("test")
 
-            --testing block
+--[[
+            Print("-------------")
+            Print("My Soothe: " .. tostring(select(7, UnitBuffID("target", 115175, "exact")) == "player"))
+            Print("My Statue: " .. tostring(select(7, UnitBuffID("target", 198533, "exact")) == "player"))
+
+            Print(tostring(buff.soothingMist.exists("target","exact")))
+            Print(tostring(buff.soothingMist.exists("target")))
+            Print("Target has my sooth - method 1: " .. tostring(getBuffRemain("target", 115175, "EXACT") ~= 0))
+            Print("Target has my sooth - method 2: " .. tostring(buff.soothingMist.exists("target")))
+            Print("Target has other sooth - method 1: " .. tostring(getBuffRemain("target", 115175) ~= 0))
+            Print("Target has STATUE sooth - method 1: " .. tostring(getBuffRemain("target", 198533, "EXACT") ~= 0))
+            Print("Target has STATUE sooth - method 2: " .. tostring(getBuffRemain("target", 198533) ~= 0))
+            --       Print("Target has STATUE sooth - method 3 - time remains: " .. getBuffRemain("target", 198533, "player"))
+]]
+
             --    Print(hotcountFunc())
             --Print(tostring(mode.prehot))
+
+
             if isChecked("OOC Healing")
                     and not (IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or isLooting()) then
 
@@ -1460,7 +1477,6 @@ local function runRotation()
         --- In Combat - Rotations ---
         ---------------------------------
         if inCombat then
-
 
             if ((talent.focusedThunder and buff.thunderFocusTea.stack == 2)
                     or buff.thunderFocusTea.exists()

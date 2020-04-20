@@ -1608,6 +1608,7 @@ br.lists.spells = {
                 lifeCocoon                  = 116849,
                 essenceFont                 = 191840,
                 risingMist                  = 22170,
+                soothingMistJadeStatue      = 198533,
             },
             debuffs                         = {
                 mysticTouch                 = 8647,
