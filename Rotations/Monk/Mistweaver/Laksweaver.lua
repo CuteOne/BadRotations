@@ -62,7 +62,7 @@ local function createOptions()
 
     local function rotationOptions()
         local section
-        section = br.ui:createSection(br.ui.window.profile, "Key Options")
+        section = br.ui:createSection(br.ui.window.profile, "Key Options - 200421-0829")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS key will override any heal/dispel logic")
         br.ui:createDropdownWithout(section, "Heal Key", br.dropOptions.Toggle, 6, "Will ignore automated logic and heal mouseover target")
         br.ui:checkSectionState(section)
@@ -77,7 +77,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Essence Font delay(Upwelling)", 18, 1, 18, 5, "Delay in seconds fox max Upwelling bonus")
         br.ui:createSpinner(section, "Surging Mist", 70, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Vivify", 60, 1, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Vivify Spam", 3, 1, 10, 1, "Amount of Renewing Mists rolling before switching to vivify")
+        br.ui:createSpinnerWithout(section, "Vivify Spam", 3, 1, 20, 1, "Amount of Renewing Mists rolling before switching to vivify")
+        br.ui:createSpinnerWithout(section, "Vivify Spam Health", 75, 1, 100, 1, "HP to spam Amount of Renewing Mists rolling before switching to vivify")
         br.ui:createSpinner(section, "Enveloping Mist Tank", 50, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Enveloping Mist", 50, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createCheckbox(section, "Soothing Mist Instant Cast", "Use Soothing Mist first for instant casts")
@@ -914,7 +915,7 @@ local function runRotation()
 
 
         --vivify if hotcount >= 5
-        if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < 80 or specialHeal then
+        if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < getValue("Vivify Spam Health") or specialHeal then
             RM_counter = 0
             for i = 1, #br.friend do
                 if buff.renewingMist.exists(br.friend[i].unit) then
