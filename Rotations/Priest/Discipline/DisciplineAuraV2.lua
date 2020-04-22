@@ -48,7 +48,7 @@ local function createOptions()
         -------------------------
         -------- UTILITY --------
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Utility - Version 1.01")
+        section = br.ui:createSection(br.ui.window.profile, "Utility - Version 1.02")
         -- Pull Spell
         br.ui:createCheckbox(section, "Pull Spell", "Check this to use SW:P to pull when solo.")
         -- Auto Buff Fortitude
@@ -936,7 +936,7 @@ local function runRotation()
         local function actionList_OOCHealing()
             if isChecked("OOC Healing") and (not inCombat or #enemies.yards40 < 1) then -- ooc or in combat but nothing to attack
                  --Resurrection
-                 if isChecked("Resurrection") and not inCombat and not isMoving("player") then
+                 if isChecked("Resurrection") and not inCombat and not isMoving("player") and br.timer:useTimer("Resurrect", 4) then
                     if getOptionValue("Resurrection - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
                         if cast.resurrection("target", "dead") then
                             br.addonDebug("Casting Resurrection (Target)")
@@ -950,13 +950,16 @@ local function runRotation()
                         end
                     end
                     if getOptionValue("Resurrection - Target") == 3 then
-                        for i = 1, #br.friend do
+                        local deadPlayers = {}
+                        for i =1, #br.friend do
                             if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
-                                if cast.massResurrection() then
-                                    br.addonDebug("Casting Resurrection (Auto)")
-                                    return true
-                                end
+                                tinsert(deadPlayers,br.friend[i].unit)
                             end
+                        end
+                        if #deadPlayers > 1 then
+                            if cast.massResurrection() then br.addonDebug("Casting Mass Resurrection") return true end
+                        elseif #deadPlayers == 1 then
+                            if cast.resurrection(deadPlayers[1],"dead") then br.addonDebug("Casting Ressurection (Auto)") return true end
                         end
                     end
                 end
