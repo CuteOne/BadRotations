@@ -67,7 +67,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.02")
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -348,7 +348,7 @@ local function runRotation()
                 if cast.waterWalking() then br.addonDebug("Casting Waterwalking") return end
             end
             -- Ancestral Spirit
-            if isChecked("Ancestral Spirit") then
+            if isChecked("Ancestral Spirit") and not inCombat and movingCheck and br.timer:useTimer("Resurrect", 4) then
                 if getOptionValue("Ancestral Spirit")==1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
                     if cast.ancestralSpirit("target","dead") then br.addonDebug("Casting Ancestral Spirit") return true end
                 end
@@ -356,10 +356,16 @@ local function runRotation()
                     if cast.ancestralSpirit("mouseover","dead") then br.addonDebug("Casting Ancestral Spirit") return true end
                 end
                 if getOptionValue("Ancestral Spirit") == 3 then
+                    local deadPlayers = {}
                     for i =1, #br.friend do
                         if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
-                            if cast.ancestralSpirit(br.friend[i].unit,"dead") then return true end
+                            tinsert(deadPlayers,br.friend[i].unit)
                         end
+                    end
+                    if #deadPlayers > 1 then
+                        if cast.ancestralVision() then br.addonDebug("Casting Ancestral Vision") return true end
+                    elseif #deadPlayers == 1 then
+                        if cast.ancestralSpirit(deadPlayers[1],"dead") then br.addonDebug("Casting Ancestral Spirit") return true end
                     end
                 end
             end
