@@ -358,7 +358,7 @@ local function runRotation()
                 if getOptionValue("Ancestral Spirit") == 3 then
                     for i =1, #br.friend do
                         if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
-                            if cast.ancestralSpirit(br.friend[i].unit) then return true end
+                            if cast.ancestralSpirit(br.friend[i].unit,"dead") then return true end
                         end
                     end
                 end
