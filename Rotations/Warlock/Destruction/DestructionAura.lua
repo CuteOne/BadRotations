@@ -56,7 +56,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.0")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
@@ -269,7 +269,7 @@ actionList.Defensive = function()
             end
         end
         -- Soulstone
-        if isChecked("Soulstone") and not moving and inCombat then
+        if isChecked("Soulstone") and not moving and inCombat and br.timer:useTimer("Soulstone", 4) then
             if
                 getOptionValue("Soulstone") == 1 and -- Target
                     UnitIsPlayer("target") and
