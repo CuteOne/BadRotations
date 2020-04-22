@@ -70,11 +70,14 @@ local function createOptions()
 
 	local function rotationOptions()
 		-- General Options
-		section = br.ui:createSection(br.ui.window.profile, "General - Version 1.00")
+		section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
 		-- Dummy DPS Test
 		br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 		-- OOC Healing
 		br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
+		--Resurrection
+        br.ui:createCheckbox(section, "Resurrection")
+        br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target", "|cffFF0000Mouseover", "|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
 		-- Auto Buff Fortitude
 		br.ui:createCheckbox(section,"Power Word: Fortitude", "Check to auto buff Fortitude on party.")
 		-- Flask / Crystal
@@ -355,6 +358,33 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
+			if isChecked("Resurrection") and not inCombat and not isMoving("player") and br.timer:useTimer("Resurrect", 4) then
+				if getOptionValue("Resurrection - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+					if cast.resurrection("target", "dead") then
+						br.addonDebug("Casting Resurrection (Target)")
+						return true
+					end
+				end
+				if getOptionValue("Resurrection - Target") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+					if cast.resurrection("mouseover", "dead") then
+						br.addonDebug("Casting Resurrection (Mouseover)")
+						return true
+					end
+				end
+				if getOptionValue("Resurrection - Target") == 3 then
+					local deadPlayers = {}
+					for i =1, #br.friend do
+						if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
+							tinsert(deadPlayers,br.friend[i].unit)
+						end
+					end
+					if #deadPlayers > 1 then
+						if cast.massResurrection() then br.addonDebug("Casting Mass Resurrection") return true end
+					elseif #deadPlayers == 1 then
+						if cast.resurrection(deadPlayers[1],"dead") then br.addonDebug("Casting Resurrection (Auto)") return true end
+					end
+				end
+			end
 			-- Moving
 			if IsMovingTime(getOptionValue("Angelic Feather")) then
 				if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
