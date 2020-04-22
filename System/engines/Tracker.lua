@@ -81,7 +81,7 @@ function br.objectTracker()
 							break
 						end
 						-- Horrific Vision - Notes
-						if isChecked("Potions Tracker") and (object.type == "note" or br.data.blacklistVisionPotion ~= 0) and blacklistPotion == 0 then
+						if isChecked("Potions Tracker") and getOptionValue("Potions Tracker") == 1 and (object.type == "note" or br.data.blacklistVisionPotion ~= 0) and blacklistPotion == 0 then
 							findBlacklistPotion(object)
 						end
 						-- Horrific Vision - Chests / Odd Crystals / Bonus NPCs / Potions
@@ -90,7 +90,7 @@ function br.objectTracker()
 							or (isChecked("Odd Crystal Tracker") and object.type == "oddCrystal")
 							or (isChecked("Bonus NPC Tracker") and object.type == "npc")
 							or (isChecked("Mailbox Tracker") and object.type == "mailbox" and ObjectDescriptor(object.object, GetOffset("CGGameObjectData__Flags"), "int") == 32)
-							or (isChecked("Potions Tracker") and object.type == "potion" and blacklistPotion ~= 0 and object.id ~= blacklistPotion))
+							or (isChecked("Potions Tracker") and object.type == "potion" and ((blacklistPotion ~= 0 and object.id ~= blacklistPotion) or getOptionValue("Potions Tracker") == 2)))
 						then
 							-- Store Chest ID not Found in List
 							storeChestNotInList(object)

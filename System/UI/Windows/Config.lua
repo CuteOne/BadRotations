@@ -129,7 +129,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section,"Chest Tracker", "English Clients Only - Non English Clients, Use Custom Search")
         br.ui:createCheckbox(section,"Mailbox Tracker","Chance for Rare-Spawn Mount")
         br.ui:createCheckbox(section,"Odd Crystal Tracker", "Collect 10 (2 from each zone) before turn-in!")
-        br.ui:createCheckbox(section,"Potions Tracker")
+        br.ui:createDropdown(section,"Potions Tracker", {"Auto","All"}, 1, "Auto find bad potion or track all")
         br.ui:checkSectionState(section)
     end
 
