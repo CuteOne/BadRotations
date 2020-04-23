@@ -262,7 +262,7 @@ local function runRotation()
     enemies.get(30, nil, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin..exists() then
         if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
             tricksUnit = "focus"
         elseif getOptionValue("Auto Tricks") == 2 then
@@ -971,7 +971,7 @@ local function runRotation()
         end
         -- Essence: Reaping Flames
         -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-        if cast.able.reapingFlames() and isChecked("Essences") then
+        if cast.able.reapingFlames() and isChecked("Essences") and not stealthedRogue then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 local thisHP = getHP(thisUnit)
