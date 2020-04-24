@@ -64,6 +64,8 @@ local function createOptions()
         local section
         section = br.ui:createSection(br.ui.window.profile, "Key Options - 200421-0829")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS key will override any heal/dispel logic")
+        br.ui:createCheckbox(section, "WotC as part of DPS", "Use WotC as part of DPS key")
+
         br.ui:createDropdownWithout(section, "Heal Key", br.dropOptions.Toggle, 6, "Will ignore automated logic and heal mouseover target")
         br.ui:checkSectionState(section)
 
@@ -78,7 +80,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Surging Mist", 70, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Vivify", 60, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Vivify Spam", 3, 1, 20, 1, "Amount of Renewing Mists rolling before switching to vivify")
-        br.ui:createSpinnerWithout(section, "Vivify Spam Health", 75, 1, 100, 1, "HP to spam Amount of Renewing Mists rolling before switching to vivify")
+        br.ui:createSpinnerWithout(section, "Vivify Spam Health", 75, 1, 100, 1, "min HP to spam vivify w/RM")
         br.ui:createSpinner(section, "Enveloping Mist Tank", 50, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Enveloping Mist", 50, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createCheckbox(section, "Soothing Mist Instant Cast", "Use Soothing Mist first for instant casts")
@@ -533,14 +535,16 @@ local function runRotation()
         -- Print("Number of enemies: "  .. tostring(#br.enemies))
 
         if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and essence.conflict.active then
-            if talent.manaTea and cast.able.manaTea() and getSpellCD(216113) == 0 then
-                if cast.manaTea() then
+            if isSelected("WotC as part of DPS") then
+                if talent.manaTea and cast.able.manaTea() and getSpellCD(216113) == 0 then
+                    if cast.manaTea() then
+                        return true
+                    end
+                end
+                if getSpellCD(216113) == 0 then
+                    CastSpellByID(216113, "player")
                     return true
                 end
-            end
-            if getSpellCD(216113) == 0 then
-                CastSpellByID(216113, "player")
-                return true
             end
         end
 
@@ -818,11 +822,11 @@ local function runRotation()
                 --[[if buff.soothingMistJadeStatue.exists(br.friend[i].unit,"exact") then
                     soothing_counter = soothing_counter + 1
                 end]]
-             --   Print(tostring(soothing_counter))
+                --   Print(tostring(soothing_counter))
             end
             if soothing_counter == 0 then
                 if cast.soothingMist(healUnit) then
-                    br.addonDebug("[Soothing buffs rolling: " .. tostring(soothing_counter) .. "] HealUnit: " .. healUnit)
+                    br.addonDebug("[Statue Soothing] HealUnit: " .. healUnit)
                     return true
                 end
             end
@@ -853,6 +857,7 @@ local function runRotation()
                 if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
                     if not buff.soothingMist.exists(healUnit, "exact") then
                         if cast.soothingMist(healUnit) then
+                            br.addonDebug("[pre-soothe]:" .. UnitName(healUnit) .. " EM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                             return true
                         end
                     elseif buff.soothingMist.exists(healUnit, "EXACT") and buff.envelopingMist.remains(healUnit) < 2 then
@@ -915,27 +920,34 @@ local function runRotation()
 
 
         --vivify if hotcount >= 5
-        if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < getValue("Vivify Spam Health") or specialHeal then
+        if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < getValue("Vivify Spam Health") and buff.renewingMist.exists(healUnit) or specialHeal then
             RM_counter = 0
+            -- local SM_counter = 0
             for i = 1, #br.friend do
                 if buff.renewingMist.exists(br.friend[i].unit) then
                     RM_counter = RM_counter + 1
-                    -- Print(UnitName(br.friend[i].unit))
-                    -- Print(tostring(RM_counter))
-                    if RM_counter >= getValue("Vivify Spam") then
-                        if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
-                            if cast.soothingMist(healUnit) then
-                                br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM - presoothe")
-                                return true
-                            end
-                        elseif cast.vivify(healUnit) then
-                            br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM")
-                            return true
-                        end
+                end
+                --[[
+                if buff.soothingMist.exists(br.friend[i].unit) then
+                    SM_counter = SM_counter + 1
+                end
+            ]]
+            end
+            if RM_counter >= getValue("Vivify Spam") then
+                -- do we have a soothing mist rolling
+                if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists("player", "EXACT") then
+                    if cast.soothingMist("player") then
+                        br.addonDebug("[SooMist]:" .. UnitName("player") .. " / " .. "VIVIFY-SPAM - presoothe (" .. tostring(RM_counter) .. ")")
+                        return true
                     end
+                end
+                if cast.vivify("player") then
+                    br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName("player") .. " / " .. "VIVIFY-SPAM")
+                    return true
                 end
             end
         end
+
 
 
         --Essence Font
@@ -969,10 +981,11 @@ local function runRotation()
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
                 if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
                     if cast.soothingMist(healUnit) then
+                        br.addonDebug("[pre-soothe]:" .. UnitName(healUnit) .. " - VIVIFY")
                         return true
                     end
                 end
-                if not isChecked("Soothing Mist Instant Cast") then
+                if not isChecked("Soothing Mist Instant Cast") or buff.soothingMist.exists(healUnit, "EXACT") then
                     if cast.vivify(healUnit) then
                         br.addonDebug("[Vivify]: " .. UnitName(healUnit))
                         return
@@ -986,6 +999,7 @@ local function runRotation()
                 if getBuffRemain(healUnit, spell.soothingMist, "EXACT") == 0 then
                     --  and not buff.soothingMist.exists(healUnit, "exact") then
                     if cast.soothingMist(healUnit) then
+                        br.addonDebug("[Sooth] Fallback: " .. UnitName(healUnit))
                         return true
                     end
                 end
@@ -1046,9 +1060,6 @@ local function runRotation()
                 return true
             end
         end
-
-
-
 
 
         --Chi Ji
@@ -1340,7 +1351,7 @@ local function runRotation()
 
         if br.player.mode.detox == 1 and cast.able.detox() and not cast.last.detox() then
             for i = 1, #br.friend do
-                if canDispel(br.friend[i].unit, spell.detox) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
+                if canDispel(br.friend[i].unit, spell.detox) and (getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
                     if cast.detox(br.friend[i].unit) then
                         return true
                     end
