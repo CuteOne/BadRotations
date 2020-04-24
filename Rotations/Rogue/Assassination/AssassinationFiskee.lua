@@ -262,7 +262,7 @@ local function runRotation()
     enemies.get(30, nil, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin..exists() then
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin.exists()  then
         if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
             tricksUnit = "focus"
         elseif getOptionValue("Auto Tricks") == 2 then
@@ -693,7 +693,7 @@ local function runRotation()
             end
             -- Corruption stuff
             -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
-            if php <= getOptionValue("Corruption Immunity") then
+            if php <= getOptionValue("Corruption Immunity") and not isMounted() then
                 if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
                     if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                         or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
@@ -948,7 +948,7 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
             end
-            if isChecked("Essences") and debuff.rupture.exists("target") and not stealthedRogue then
+            if isChecked("Essences") and debuff.rupture.exists("target") and not stealthedRogue and not IsMounted() then
                 --Worldvein Resonance
                 if not buff.masterAssassin.exists() then
                     if cast.worldveinResonance("player") then return true end
@@ -971,7 +971,7 @@ local function runRotation()
         end
         -- Essence: Reaping Flames
         -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-        if cast.able.reapingFlames() and isChecked("Essences") and not stealthedRogue then
+        if cast.able.reapingFlames() and isChecked("Essences") and not stealthedRogue and not IsMounted() then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 local thisHP = getHP(thisUnit)
@@ -1003,9 +1003,6 @@ local function runRotation()
     end
 
     local function actionList_Direct()
-        --------------------------------------------------------------------------
-        -- CHECK THIS SHIT--------------------------------------------------------
-        --------------------------------------------------------------------------
         -- # Refresh rupture when we have Vendetta or Toxic Blade on a target
         if talent.masterAssassin and combo >= 4 and debuff.rupture.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
             if cast.rupture("target") then return true end
@@ -1014,9 +1011,6 @@ local function runRotation()
         if talent.masterAssassin and debuff.garrote.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
             if cast.garrote("target") then return true end
         end
-        --------------------------------------------------------------------------
-        -- CHECK THIS SHIT--------------------------------------------------------
-        --------------------------------------------------------------------------
         -- # Rupture condition for opener
         if talent.masterAssassin and buff.masterAssassin.exists() and not debuff.rupture.exists("target") and combo > 1 then
             if cast.rupture("target") then return true end
@@ -1227,8 +1221,18 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or (validTarget and targetDistance < 5)))) and opener == true then
-            if cast.last.vanish(1) then StopAttack() end
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or mode.vanish == 1 or (validTarget and targetDistance < 5)))) and opener == true then
+            if buff.subterfuge.exists() and cast.able.garrote() then
+                for i = 1, #enemyTable5 do
+                    local thisUnit = enemyTable5[i].unit
+                    if not debuff.garrote.exists(thisUnit) or debuff.garrote.remain(thisUnit) < 5.4 then
+                        if cast.garrote(thisUnit) then
+                            return true
+                        end
+                    end
+                end
+            end
+            if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
             --pre mfd

@@ -891,9 +891,8 @@ local function runRotation()
 
             --Essences 8.2
             if mode.essence == 2 then
-
-                    -- Essence: Reaping Flames
-    -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+                -- Essence: Reaping Flames
+                -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
                 if cast.able.reapingFlames() then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
