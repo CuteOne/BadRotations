@@ -835,14 +835,14 @@ local function runRotation()
         -- Enveloping Mist
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
-                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") then
+                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
                     if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit, "exact") then
                         if cast.soothingMist(tanks[i].unit) then
                             br.addonDebug("[EM-PRE]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
                             return true
                         end
                     end
-                    if buff.envelopingMist.exists(tanks[i].unit, "EXACT") or not isChecked("Soothing Mist Instant Cast") then
+                    if buff.soothingMist.exists(tanks[i].unit, "EXACT") or not isChecked("Soothing Mist Instant Cast") then
                         if cast.envelopingMist(tanks[i].unit) then
                             br.addonDebug("[EM]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
                             return true
