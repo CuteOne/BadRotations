@@ -277,7 +277,7 @@ Immy    |  Full   | 8.0   |   100%  | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Vilt    | Inactive| 8.0   |   90%  | :white_check_mark:
-Immy    |  Full   | 8.3   |   90% | :white_check_mark:
+Immy    |  Full   | 8.3   |   95% | :white_check_mark:
 
 - Subtlety
 
