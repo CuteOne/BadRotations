@@ -693,7 +693,7 @@ local function runRotation()
             end
             -- Corruption stuff
             -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
-            if php <= getOptionValue("Corruption Immunity") then
+            if php <= getOptionValue("Corruption Immunity") and not isMounted() then
                 if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
                     if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                         or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
