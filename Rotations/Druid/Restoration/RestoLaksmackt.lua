@@ -119,7 +119,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Heals")
-        br.ui:createCheckbox(section, "Smart Hot", "Pre-hot based on DBM or incoming casts", 1)
+        br.ui:createSpinner(section, "Smart Hot", 5, 0, 100, 1, "Pre-hot based on DBM or incoming casts - number is max enemies")
         br.ui:createSpinner(section, "Use Bark w/Smart Hot", 30, 0, 100, 5, "Bark based on smart hot - and HP limit to use it at")
         br.ui:createCheckbox(section, "Smart Charge", 1)
 
@@ -998,10 +998,17 @@ local function runRotation()
         --Smart Stuff
 
         if isSelected("Smart Charge") or isChecked("Smart Hot") then
+
+            local countSmart = #enemies.yards40
+            local smarthottargets = getValue("Smart Hot")
+            if smarthottargets < #enemies.yards40 then
+                countSmart = smarthottargets
+            end
+
             local spellTarget = nil
             local furthers_friend
             local furthest_distance = 0
-            for i = 1, #enemies.yards40 do
+            for i = 1, countSmart do
                 local thisUnit = enemies.yards40[i]
                 local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
                 spellTarget = select(3, UnitCastID(thisUnit))
@@ -1848,7 +1855,6 @@ local function runRotation()
                             end
                         end
                     end
-
 
                     if (debuffmoonfirecount < getOptionValue("Max Moonfire Targets") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
                         if cast.able.moonfire() then
