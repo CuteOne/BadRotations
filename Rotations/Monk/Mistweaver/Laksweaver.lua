@@ -535,7 +535,7 @@ local function runRotation()
         -- Print("Number of enemies: "  .. tostring(#br.enemies))
 
         if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and essence.conflict.active then
-            if isSelected("WotC as part of DPS") then
+            if isChecked("WotC as part of DPS") then
                 if talent.manaTea and cast.able.manaTea() and getSpellCD(216113) == 0 then
                     if cast.manaTea() then
                         return true
@@ -798,7 +798,7 @@ local function runRotation()
                     return true
                 end
             end
-            if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 3 or BleedStack == 99) or not isSelected("Grievous Wounds") then
+            if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 3 or BleedStack == 99) or not isChecked("Grievous Wounds") then
                 --override cause people leave settings on in non griev weeks
                 if (getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
                     if cast.lifeCocoon(healUnit) then
