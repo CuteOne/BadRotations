@@ -1081,7 +1081,8 @@ local function runRotation()
                         jadeUnitsCount = jadeUnitsCount + 1
                         if jadeUnitsCount >= getValue("RJW Targets") or burst then
                             if cast.refreshingJadeWind() then
-                                br.addonDebug("[RefJade]")
+                                br.addonDebug("[RefJade] - [" .. tostring(jadeUnitsCount) .. "/" .. tostring(getValue("RJW Targets")) .. "]")
+                                jadeUnitsCount = 0
                                 return true
                             end
                         end
