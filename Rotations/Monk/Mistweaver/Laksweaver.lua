@@ -1072,7 +1072,7 @@ local function runRotation()
             end
         end
         --Refreshing Jade Wind
-        if talent.refreshingJadeWind and isChecked("Refreshing Jade Wind") and cast.able.refreshingJadeWind() then
+        if talent.refreshingJadeWind and isChecked("Refreshing Jade Wind") and cast.able.refreshingJadeWind() and not buff.refreshingJadeWind.exists() then
             local refreshJadeFriends = getAllies("player", 10)
             if #refreshJadeFriends > 0 then
                 for i = 1, #refreshJadeFriends do
