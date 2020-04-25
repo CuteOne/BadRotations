@@ -96,43 +96,76 @@ end
 
 function carapaceMath(Unit1, Unit2)
 	if Unit2 == nil then
-        Unit2 = Unit1
-        if Unit2 == "player" then
-            Unit1 = "target"
-        else
-            Unit1 = "player"
-        end
-    end
-    local pX,pY,pZ = GetObjectPosition(Unit1)
-    local tX,tY,tZ = GetObjectPosition(Unit2)
-    local tentExists = false
-    if (br.player and br.player.eID and br.player.eID == 2337) then
-        --LibDraw.clearCanvas()
-        --[[ if tX ~= nil then
-            LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
-        end ]]
-        for i = 1, GetObjectCount() do
-            local object = GetObjectWithIndex(i)
-            local objectid = ObjectID(object)
-            if objectid == 157485 then
-                tentExists = true
-            end
-        end
-    end
-    if tX ~= nil then
-        if tentExists == true then
-            if TraceLine(pX, pY, pZ+1, tX, tY, tZ+1, 0x100111) ~= nil then 
-                --Print("Int")
-                return false
-            else 
-                --Print("no int")
-                return true
-            end
-        else 
-            --Print("No Object")
-            return true
-        end
-    end
+		Unit2 = Unit1
+		if Unit2 == "player" then
+			Unit1 = "target"
+		else
+			Unit1 = "player"
+		end
+	end
+	if (br.player and br.player.eID and br.player.eID == 2337) then
+		local pX,pY,pZ = GetObjectPosition(Unit1)
+		local tX,tY,tZ = GetObjectPosition(Unit2)
+		local tentExists = false
+		local tentCheck
+		--[[ LibDraw.clearCanvas()
+		if tX ~= nil then
+			LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
+		end ]]
+		
+		tentCache = {}
+		for i = 1, GetObjectCountBR() do
+			local object = GetObjectWithIndex(i)
+			local objectid = ObjectID(object)
+			if objectid == 157485 then
+				tentExists = true
+				tentFacing = GetObjectFacing(object)
+				tentX, tentY, tentZ = GetObjectPosition(object)
+				table.insert(tentCache,{
+					["tentFacing"] = GetObjectFacing(object),
+					["tentX"] = select(1,GetObjectPosition(object)), 
+					["tentY"] = select(2,GetObjectPosition(object)), 
+					["tentZ"] = select(3,GetObjectPosition(object)),
+					["tentX2"] = tentX + (80 * math.cos(tentFacing)),
+					["tentY2"] = tentY + (80 * math.sin(tentFacing))
+				})
+			end
+		end
+
+		tentfinal = {}
+		if tentX ~= nil then
+			for i = 1, #tentCache do
+				if tentCache[i]["tentX"] ~= nil then
+					local a = {x = tentCache[i]["tentX"], y = tentCache[i]["tentY"]}
+					local b = {x = tentCache[i]["tentX2"], y = tentCache[i]["tentY2"]}
+					local c = {x = tX, y = tY}
+					local d = {x = pX, y = pY}
+					if tX ~= nil then
+						if math.doLinesIntersect(a,b,c,d) then 
+							--[[ LibDraw.SetColor(255,0,0)
+							LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
+							]]tentCheck = false
+							table.insert(tentfinal,
+							tentCheck
+						)
+						--[[ else 
+							LibDraw.SetColor(0,255,0)
+							LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
+						]]
+						end
+					end
+				end
+			end
+			if tentfinal[1] == nil or tentfinal == nil then
+					return true
+			else
+
+					return false
+			end
+		else
+			return true
+		end
+	end
 end
 
 function getLineOfSight(Unit1, Unit2)
