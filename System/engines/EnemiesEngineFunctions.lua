@@ -73,6 +73,12 @@ function updateOMEWT()
 				local enemyUnit = br.unitSetup:new(v)
 				if enemyUnit then
 					tinsert(om, enemyUnit)
+				elseif ObjectIsAreaTrigger(v) and ObjectID(v) == 12765 then
+					if not br.sanguine then
+						br.sanguine = {}
+					end
+					br.sanguine[v] = {}
+					br.sanguine[v].posX, br.sanguine[v].posY, br.sanguine[v].posZ = ObjectPosition(v)
 				end
 			end
 			-- Horrific Vision Object Tracking
@@ -91,14 +97,21 @@ function updateOMEWT()
 			end
 		end
 	end
-    refreshStored = true
-    -- Debugging
+	if updated and #removed > 0 then
+		for _, v in pairs(removed) do
+			if br.sanguine and br.sanguine[v] then
+				br.sanguine[v] = nil
+			end
+		end
+	end
+	refreshStored = true
+	-- Debugging
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
 		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
 		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
 		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
-    end
+	end
 end
 
 --Legacy OM
@@ -312,7 +325,7 @@ end
 	end
 
 	-- returns true if target is shielded or should be avoided
-	local function isShieldedTarget(unit)
+	function isShieldedTarget(unit)
 		local coef = 0
 		if getOptionCheck("Avoid Shields") then
 			-- check if unit is valid
@@ -521,6 +534,8 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
 end
 
 local function getRect(width,length,showLines)
+	local width = width or 10
+	local length = length or 20
 	local px, py, pz = GetObjectPosition("player")
 	local facing = ObjectFacing("player") or 0
 	local halfWidth = width/2
