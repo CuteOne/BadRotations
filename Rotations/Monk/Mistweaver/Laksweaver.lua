@@ -866,7 +866,7 @@ local function runRotation()
                             br.addonDebug("[pre-soothe]:" .. UnitName(healUnit) .. " EM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                             return true
                         end
-                    elseif buff.envelopingMist.remains(healUnit) < 2 and (buff.soothingMist.exists(tanks[i].unit, "EXACT") or getOptionValue("EM Casts") == 2) then
+                    elseif buff.envelopingMist.remains(healUnit) < 2 and (buff.soothingMist.exists(healUnit, "EXACT") or getOptionValue("EM Casts") == 2) then
                         if cast.envelopingMist(healUnit) then
                             br.addonDebug("[EM1]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                         end
