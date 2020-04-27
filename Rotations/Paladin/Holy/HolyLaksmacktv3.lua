@@ -52,7 +52,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200415-1447")
+        section = br.ui:createSection(br.ui.window.profile, "General - 200420-1657")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createCheckbox(section, "Aggressive Glimmer")
@@ -88,6 +88,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFDPS-Target" }, 1, "", "")
+
         -- br.ui:createCheckbox(section, "Advanced Trinket Support")
 
         br.ui:checkSectionState(section)
@@ -112,6 +113,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Gift of The Naaru", 50, 0, 100, 5, "Health Percent to Cast At")
         end
         br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "Health Percentage to use at.")
+        br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
+
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -441,68 +444,103 @@ end
 actionList.glimmer = function()
     -- glimmer()
 
-    --Glimmer support
-    if isChecked("Aggressive Glimmer") and mode.DPS == 1 and inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
-        if not debuff.glimmerOfLight.exists("target") and getFacing("player", "target") then
-            if cast.holyShock("target") then
-                br.addonDebug("[GLIM] Aggressive Glimmer on target" .. UnitName("target"))
-                return true
-            end
-        end
-    end
 
-    if #tanks > 1 then
-        --find lowest friend without glitter buff on them - tank first  for i = 1, #tanks do
-        for i = 1, #tanks do
-            if UnitInRange(tanks[i].unit) and getLineOfSight(tanks[i].unit, "player") then
-                if not UnitBuffID(tanks[i].unit, 287280) then
-                    if cast.holyShock(tanks[i].unit) then
-                        br.addonDebug("[GLIM] Tank-Glimmer on " .. UnitName(tanks[i].unit))
-                        return true
-                    end
-                end
-            end
-        end
-    end
 
-    if mode.glimmer == 1 then
-        glimmerTable = {}
+
+
+
+    if cast.able.holyShock() then
+        local glimmerCount = 0
         for i = 1, #br.friend do
-            if (UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") or br.friend[i].unit == "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
-                tinsert(glimmerTable, br.friend[i])
+            if buff.glimmerOfLight.remain(br.friend[i].unit, "exact") > gcd then
+                glimmerCount = glimmerCount + 1
             end
         end
-        if #glimmerTable > 1 then
-            table.sort(
-                    glimmerTable,
-                    function(x, y)
-                        return x.hp < y.hp
-                    end
-            )
+
+
+        --Glimmer support
+        if isChecked("Aggressive Glimmer") and mode.dps == 1 and br.player.inCombat and UnitIsEnemy("target", "player") then
+            -- Print("1")
+            if not debuff.glimmerOfLight.exists("target", "exact") and GetUnitExists("target") and getFacing("player", "target") then
+                --Print("2")
+                if cast.holyShock("target") then
+                    br.addonDebug("[GLIM] Aggressive Glimmer on target" .. UnitName("target"))
+                    return true
+                end
+            end
         end
-        --[[ if glimmerCount ~= nil and glimmerCount >= 8 then
-             if cast.holyShock(lowest.unit) then
-                 --Print("Glimmer cap glimmer")
-                 return
-             end
-         end]]
-        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.glimmer == 1 then
-            if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
-                if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
-                    if cast.ruleOfLaw() then
-                        --Print(getDistance(glimmerTable[1]))
-                        br.addonDebug("[GLIM] Rule Of Law ")
-                        return true
+
+        if #tanks > 1 then
+            --find lowest friend without glitter buff on them - tank first  for i = 1, #tanks do
+            for i = 1, #tanks do
+                if UnitInRange(tanks[i].unit) and getLineOfSight(tanks[i].unit, "player") then
+                    if not UnitBuffID(tanks[i].unit, 287280) then
+                        if cast.holyShock(tanks[i].unit) then
+                            br.addonDebug("[GLIM] Tank-Glimmer on " .. UnitName(tanks[i].unit) .. "/" .. tostring(glimmerCount))
+                            return true
+                        end
                     end
                 end
             end
-            if cast.holyShock(glimmerTable[1].unit) then
-                --Print("Just glimmered: " .. glimmerTable[1].unit)
-                br.addonDebug("[GLIM] Glimmer on: " .. UnitName(glimmerTable[1].unit))
+        end
+
+        if mode.glimmer == 1 then
+            glimmerTable = {}
+            for i = 1, #br.friend do
+                if (UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") or br.friend[i].unit == "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
+                    tinsert(glimmerTable, br.friend[i])
+                end
+            end
+            if #glimmerTable > 1 then
+                table.sort(
+                        glimmerTable,
+                        function(x, y)
+                            return x.hp < y.hp
+                        end
+                )
+            end
+            --[[ if glimmerCount ~= nil and glimmerCount >= 8 then
+                 if cast.holyShock(lowest.unit) then
+                     --Print("Glimmer cap glimmer")
+                     return
+                 end
+             end]]
+            if #glimmerTable > 0 and glimmerTable[1].unit ~= nil and mode.glimmer == 1 then
+                if cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
+                    if glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
+                        if cast.ruleOfLaw() then
+                            --Print(getDistance(glimmerTable[1]))
+                            br.addonDebug("[GLIM] Rule Of Law - distance: " .. tostring(glimmerTable[1].distance))
+                            return true
+                        end
+                    end
+                end
+                if cast.holyShock(glimmerTable[1].unit) then
+                    --Print("Just glimmered: " .. glimmerTable[1].unit)
+                    br.addonDebug("[GLIM] Glimmer on: " .. UnitName(glimmerTable[1].unit) .. "/" .. tostring(glimmerCount))
+                    return true
+                end
+            end
+        end
+    end
+
+        -- Light of Dawn
+    if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
+        if EasyWoWToolbox == nil then
+            if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff)
+            then
+                if cast.lightOfDawn() then
+                    return true
+                end
+            end
+        else
+            if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+                healTarget = "none"
                 return true
             end
         end
     end
+
 end
 
 actionList.cleanse = function()
@@ -644,7 +682,7 @@ actionList.dps = function()
             or not inInstance or not inRaid or solo then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
+            if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
                 if cast.holyShock(thisUnit) then
                     br.addonDebug("[DPS]HolyShock on " .. UnitName(thisUnit) .. " w/Glimmer")
                     return true
@@ -901,7 +939,15 @@ actionList.Cooldown = function()
     if Burststack >= getOptionValue("Burst Essence/items") then
         burst = true
     end
-
+    -- Mana Potion
+    if isChecked("Mana Potion") and br.player.power.mana.percent() <= getValue("Mana Potion") then
+        if hasItem(152495) and canUseItem(152495) then
+            useItem(152495)
+        end
+        if hasItem(127835) and canUseItem(127835) then
+            useItem(127835)
+        end
+    end
     -- Arcane Torrent
     if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(69179) == 0 then
         local torrentUnit = 0
@@ -1060,7 +1106,7 @@ actionList.Cooldown = function()
     -- Blessing of Sacrifice
 
 
-    if isChecked("Blessing of Sacrifice") and cast.able.blessingOfSacrifice() then
+    if isChecked("Blessing of Sacrifice") and cast.able.blessingOfSacrifice() and inCombat then
         if getOptionValue("BoS Target") == 2 then
             -- tank only
             for i = 1, #tanks do
@@ -1396,7 +1442,7 @@ actionList.heal = function()
         if healTarget == "none" and not br.player.inCombat and isChecked("OOC Glimmer") then
             -- ooc blanketting
             for i = 1, #br.friend do
-                if not buff.glimmerOfLight.exists(br.friend[i].unit) and (getLineOfSight(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) or br.friend[i].unit == "player") then
+                if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and (getLineOfSight(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) or br.friend[i].unit == "player") then
                     healTarget = br.friend[i].unit
                     healReason = "GLIM"
                 end
@@ -1598,11 +1644,11 @@ local function runRotation()
 
     if mode.glimmer == 1 then
         for i = 1, #br.friend do
-            if buff.glimmerOfLight.remain(br.friend[i].unit) > gcd then
+            if buff.glimmerOfLight.remain(br.friend[i].unit, "exact") > gcd then
                 glimmerCount = glimmerCount + 1
             end
         end
-        if isChecked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target") > gcd then
+        if isChecked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target", "exact") > gcd then
             glimmerCount = glimmerCount + 1
         end
     end
@@ -1654,12 +1700,11 @@ local function runRotation()
             else
                 --Print("In Combat")
 
+                --combat stuff
+                if actionList.Extra() then
+                    return true
+                end
                 if not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() or lowest.hp <= getOptionValue("Critical HP") then
-
-                    --combat stuff
-                    if actionList.Extra() then
-                        return true
-                    end
                     if actionList.Defensive() then
                         return true
                     end
@@ -1677,7 +1722,8 @@ local function runRotation()
                             return true
                         end
                     end
-                    if (mode.glimmer == 1 or mode.glimmer == 3) and glimmerCount <= 8 then
+                    if (mode.glimmer == 1 or mode.glimmer == 3) and cast.able.holyShock() or cast.able.lightOfDawn() then
+                        -- and glimmerCount <= 8
                         if actionList.glimmer() then
                             return true
                         end
