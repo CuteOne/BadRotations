@@ -861,19 +861,19 @@ local function runRotation()
 
         if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                if getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(tanks[i].unit, "exact") then
+                if getOptionValue("EM Casts") == 1 and not isMoving("player") then
                     -- if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
                     if not buff.soothingMist.exists(healUnit, "exact") then
                         if cast.soothingMist(healUnit) then
                             br.addonDebug("[pre-soothe]:" .. UnitName(healUnit) .. " EM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                             return true
                         end
-                    elseif buff.envelopingMist.remains(healUnit) < 2 and (buff.soothingMist.exists(tanks[i].unit, "EXACT") or getOptionValue("EM Casts") == 2) then
+                    elseif buff.envelopingMist.remains(healUnit) <= 1 and (buff.soothingMist.exists(healUnit, "EXACT") or getOptionValue("EM Casts") == 2) and buff.envelopingMist.remains(healUnit) <= 1 then
                         if cast.envelopingMist(healUnit) then
                             br.addonDebug("[EM1]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                         end
                     end
-                elseif getOptionValue("EM Casts") == 2 and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
+                elseif getOptionValue("EM Casts") == 2 and not isMoving("player") and buff.envelopingMist.remains(healUnit) <= 1  then
                     if cast.envelopingMist(healUnit) then
                         br.addonDebug("[EM2]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                         return
