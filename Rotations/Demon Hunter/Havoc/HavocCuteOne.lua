@@ -810,9 +810,7 @@ actionList.PreCombat = function()
         if isChecked("M+ Meta Pre-Pull") and inMythic and pullTimer <= getOptionValue("M+ Meta Pre-Pull") then
             -- Metamorphosis
             -- metamorphosis,if=!azerite.chaotic_transformation.enabled
-            if isChecked("Metamorphosis") and cast.able.metamorphosis()
-                and pullTimer <= 1
-            then
+            if isChecked("Metamorphosis") and cast.able.metamorphosis() then
                 if cast.metamorphosis("player") then return end
             end
         end -- End M+ Meta Pre-Pull
