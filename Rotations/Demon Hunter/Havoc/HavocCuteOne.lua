@@ -69,7 +69,7 @@ local function createOptions()
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- M+ Meta Pre-Pull Timer
-            br.ui:createSpinner(section, "M+ Meta Pre-Pull",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to Meta Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "M+ Pre-Pull",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time to Meta Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Auto Engage
             br.ui:createCheckbox(section, "Auto Engage")
             -- Eye Beam Targets
@@ -807,13 +807,16 @@ actionList.PreCombat = function()
                 end
             end
         end -- End Pre-Pull
-        if isChecked("M+ Meta Pre-Pull") and inMythic and pullTimer <= getOptionValue("M+ Meta Pre-Pull") then
+        if isChecked("M+ Pre-Pull") and inMythic and pullTimer <= getOptionValue("M+ Meta Pre-Pull") then
+            -- Eye Beam
+            if cast.able.eyeBeam() then
+                cast.eyeBeam()
+            end
             -- Metamorphosis
-            -- metamorphosis,if=!azerite.chaotic_transformation.enabled
             if isChecked("Metamorphosis") and cast.able.metamorphosis() then
                 if cast.metamorphosis("player") then return end
             end
-        end -- End M+ Meta Pre-Pull
+        end -- End M+ Pre-Pull
         if isValidUnit("target") then
             if GetUnitReaction("target","player") < 4 then
                 -- Throw Glaive
