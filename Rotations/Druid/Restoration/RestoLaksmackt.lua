@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2002292")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 20200502-1205")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -1245,13 +1245,13 @@ local function runRotation()
                     return true
                 end
             end
-            if cast.able.swiftmend() and getHP(heal_target) < 80 then
+            if cast.able.swiftmend() and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 95)) then
                 if cast.swiftmend(heal_target) then
                     br.addonDebug("[BOSS]Swiftmend on: " .. UnitName(heal_target))
                     return true
                 end
             end
-            if cast.able.regrowth() and getHP(heal_target) < 80 then
+            if cast.able.regrowth() and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 98)) then
                 if cast.regrowth(heal_target) then
                     br.addonDebug("[BOSS]Regrowth on: " .. UnitName(heal_target))
                     return true
