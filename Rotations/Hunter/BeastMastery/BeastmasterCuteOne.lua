@@ -71,6 +71,7 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
@@ -223,7 +224,6 @@ local units
 local use
 -- General Locals
 local actionList = {}
-local critChance
 local focusedTime = GetTime()
 local flying
 local haltProfile
@@ -272,16 +272,18 @@ actionList.Extras = function()
     end -- End Dummy Test
     -- Misdirection
     if mode.misdirection == 1 then
+        local misdirectUnit = nil
         if isValidUnit("target") and getDistance("target") < 40 then
-            local misdirectUnit = "pet"
-            if getOptionValue("Misdirection") == 1 and (inInstance or inRaid) then
+            if getOptionValue("Misdirection") == 3 then
+                misdirectUnit = "pet"
+            end
+            if getOptionValue("Misdirection") == 1 then
                 for i = 1, #br.friend do
                     local thisFriend = br.friend[i].unit
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
+                    if (thisFriend == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
                         and not UnitIsDeadOrGhost(thisFriend)
                     then
                         misdirectUnit = thisFriend
-                        break
                     end
                 end
             end
@@ -349,15 +351,6 @@ actionList.Interrupts = function()
             thisUnit = enemies.yards40f[i]
                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                     if cast.counterShot(thisUnit) then return end
-                end
-            end
-        end
-        -- Freezing Trap
-        if isChecked("Freezing Trap") and cast.able.freezingTrap() then
-            for i = 1, #enemies.yards40f do
-                thisUnit = enemies.yards40f[i]
-                if getDistance(thisUnit) > 8 and getCastTimeRemain(thisUnit) > 3 then
-                    if cast.freezingTrap(thisUnit,"ground") then return true end
                 end
             end
         end
@@ -438,11 +431,6 @@ actionList.Cooldowns = function()
                 if cast.racial() then return end
             end
         end
-        -- Potion
-        --potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up&(target.health.pct<35|!talent.killer_instinct.enabled)|target.time_to_die<25
-        -- if cast.able.potion() and (buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() and (thp(units.dyn40) < 35 or not talent.killerInstinct) or ttd(units.dyn40) < 25) then
-        --     if cast.potion() then return end
-        -- end
     end -- End useCooldowns check
     -- Heart Essence
     if isChecked("Use Essence") then
@@ -675,10 +663,10 @@ actionList.St = function()
     end
     -- Concentrated Flame
     -- concentrated_flame,if=focus+focus.regen*gcd<focus.max&buff.bestial_wrath.down&(!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight)|full_recharge_time<gcd|target.time_to_die<5
-    if isChecked("Use Essence") and cast.able.concentratedFlame() and (focus + focusRegen * gcdMax < focusMax and not buff.bestialWrath.exists()
-        and (not debuff.concentratedFlame.exists(units.dyn40) or charges.concentratedFlame.timeTillFull() < gcdMax or (ttd(units.dyn40) < 5 and useCDs())))
-    then
-        if cast.concentratedFlame() then return end
+    if isChecked("Use Essence") and cast.able.concentratedFlame() then
+     	if (focus + focusRegen * gcdMax < focusMax and not buff.bestialWrath.exists() and (not debuff.concentratedFlame.exists(units.dyn40) and cast.timeSinceLast.concentratedFlame() >= 2)) or charges.concentratedFlame.timeTillFull() < gcdMax or (ttd(units.dyn40) < 5 and useCDs()) then
+        	if cast.concentratedFlame() then return end
+    	end
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild,if=buff.aspect_of_the_wild.down&(cooldown.barbed_shot.charges<1|!azerite.primal_instincts.enabled)
@@ -796,12 +784,12 @@ end -- End Action List - Single Target
 actionList.Cleave = function()
     -- Barbed Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-    if cast.able.barbedShot(lowestBarbedShot) and (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) then
+    if cast.able.barbedShot(lowestBarbedShot) and (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax + 0.1) then
         if cast.barbedShot(lowestBarbedShot) then return end
     end
     -- Multishot
     -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25
-    if cast.able.multishot() and (gcdMax - buff.beastCleave.remain("pet") > 0.25)
+    if cast.able.multishot() and buff.beastCleave.remain("pet") < gcdMax + 0.1
          and not isExplosive("target")
     then
         if cast.multishot() then return end
@@ -832,6 +820,9 @@ actionList.Cleave = function()
     then
         if cast.bestialWrath() then return end
     end
+    if cast.able.barbedShot(lowestBarbedShot) and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remain() < gcdMax + 0.5 then
+        if cast.barbedShot(lowestBarbedShot) then return end
+    end
     -- Chimaera Shot
     -- chimaera_shot
     if cast.able.chimaeraShot() then
@@ -849,7 +840,7 @@ actionList.Cleave = function()
     end
     -- Kill Command
     -- kill_command,if=active_enemies<4|!azerite.rapid_reload.enabled
-    if cast.able.killCommand() and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
+    if cast.able.killCommand() and (#enemies.yards8t < 3 or not traits.rapidReload.active) then
         if cast.killCommand() then return end
     end
     -- Dire Beast
@@ -897,7 +888,7 @@ actionList.Cleave = function()
     end
     -- Cobra Shot
     -- cobra_shot,if=cooldown.kill_command.remains>focus.time_to_max&(active_enemies<3|!azerite.rapid_reload.enabled)
-    if cast.able.cobraShot() and (cd.killCommand.remain() > ttm and (#enemies.yards8t < 3 or not traits.rapidReload.active)) then
+    if cast.able.cobraShot() and (cd.killCommand.remain() > ttm and (#enemies.yards8p < 3 or not traits.rapidReload.active)) then
         if cast.cobraShot() then return end
     end
     -- Spitting Cobra
@@ -970,7 +961,7 @@ local function runRotation()
     focusMax                           = br.player.power.focus.max()
     focusRegen                         = br.player.power.focus.regen()
     gcd                                = br.player.gcd
-    gcdMax                             = br.player.gcdMax
+    gcdMax                             = br.player.gcdMax + 0.2
     has                                = br.player.has
     inCombat                           = br.player.inCombat
     inInstance                         = br.player.instance=="party"
@@ -990,7 +981,6 @@ local function runRotation()
     use                                = br.player.use
 
     -- Global Functions
-    critChance                         = GetCritChance()
     flying                             = IsFlying()
     healPot                            = getHealthPot()
     pullTimer                          = PullTimerRemain()
@@ -1015,6 +1005,15 @@ local function runRotation()
     enemies.get(8,"player",false,true)
     enemies.get(8,"target")
     enemies.get(5,"pet")
+
+    --wipe timers table
+    if timersTable then
+        wipe(timersTable)
+    end
+
+    if isChecked("Enemy Target Lock") and inCombat and UnitIsFriend("target", "player") then
+        TargetLastEnemy()
+    end
 
     -- General Vars
     if isChecked("Spirit Mend") then br.friend:Update() end
@@ -1099,11 +1098,11 @@ local function runRotation()
                 -- call_action_list,name=cds
                 if actionList.Cooldowns() then return end
                 -- call_action_list,name=st,if=active_enemies<2
-                if (mode.rotation == 1 and #enemies.yards8t < getOptionValue("Units To AoE")) or mode.rotation == 3 or level < 16 then
+                if (mode.rotation == 1 and #enemies.yards8p < getOptionValue("Units To AoE")) or mode.rotation == 3 or level < 16 then
                     if actionList.St() then return end
                 end
                 -- call_action_list,name=cleave,if=active_enemies>1
-                if (mode.rotation == 1 and #enemies.yards8t >= getOptionValue("Units To AoE")) or mode.rotation == 2 then
+                if (mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE")) or mode.rotation == 2 then
                     if actionList.Cleave() then return end
                 end
             end -- End SimC APL
