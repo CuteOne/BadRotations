@@ -71,7 +71,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 200228")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 202005091319")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -340,7 +340,20 @@ local function runRotation()
 
     --Print(tostring(mode.DPS))
 
-
+    function getDebuffCount(spellID)
+        local counter = 0
+        for k, v in pairs(br.enemy) do
+            local thisUnit = br.enemy[k].unit
+            -- check if unit is valid
+            if GetObjectExists(thisUnit) then
+                -- increase counter for each occurences
+                if UnitDebuffID(thisUnit, spellID, "exact") then
+                    counter = counter + 1
+                end
+            end
+        end
+        return tonumber(counter)
+    end
     function getBiggestUnitCluster(maxRange, radius)
         -- Description:
         -- returns the enemy with most enemies in radius in maxRange from player
@@ -712,7 +725,7 @@ local function runRotation()
             end
         end
         --staff of neural
-                if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
+        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
                 and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
         then
             if br.player.use.neuralSynapseEnhancer() then
@@ -955,7 +968,7 @@ local function runRotation()
                                 or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff))
                                 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3 and buff.recklessForceCounter.stack() < 19 or buff.recklessForceCounter.exists())
                         and #enemies.yards12t < aoeTarget
-                        or ttd(thisUnit) <= (br.player.gcd * power / 40)
+                        or ttd(units.dyn45) <= (br.player.gcd * power / 40)
                         or astral_def <= 8 then
                     if cast.starsurge(units.dyn45) then
                         br.addonDebug("[STARSURGE]")
@@ -977,142 +990,162 @@ local function runRotation()
                 sunfire_radius = 8
             end
 
-            if not noDamageCheck(thisUnit) and (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
-                    or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
+            for i = 1, #enemies.yards45 do
+                thisUnit = enemies.yards45[i]
 
-                if isChecked("Safe Dots") and
-                        ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
-                                or (inInstance and #tanks == 0)
-                                or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
-                                or solo
-                                or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
-                        ) or not isChecked("Safe Dots") or #tanks == 0 then
+                if not noDamageCheck(thisUnit) and (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
+                        or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
 
-
-                    --quickdots
-                    if cast.able.sunfire()
-                            and
-                            (
-                                    (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remains() < gcd
-                                            or buff.celestialAlignment.exists() and buff.celestialAlignment.remains() < gcd)
-                            )
-                            and traits.streakingStars.active and debuff.moonfire.remain(thisUnit) > debuff.sunfire.remain(thisUnit) then
-                        if cast.sunfire(thisUnit) then
-                            --
-                            br.addonDebug("QuickDot: Sunfire: " .. buff.celestialAlignment.remains())
-                            return
-                        end
-
-                        --[[
-                        sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets&(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
-    DoTs]]
+                    if isChecked("Safe Dots") and
+                            ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
+                                    or (inInstance and #tanks == 0)
+                                    or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
+                                    or solo
+                                    or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+                            ) or not isChecked("Safe Dots") or #tanks == 0 then
 
 
-                    end
-                    if cast.able.moonfire()
-                            and ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd)
-                            or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < gcd))
-                            and traits.streakingStars.active then
-                        if cast.moonfire(thisUnit) then
-                            br.addonDebug("QuickDot: Moonfire: " .. buff.celestialAlignment.remains())
-                            return
-                        end
-                    end
-
-                    local moonfiretalent = 0
-                    if talent.twinMoons then
-                        moonfiretalent = moonfiretalent + 1
-                    end
-
-                    if debuff.sunfire.count() == 0 then
-                        if traits.highNoon.active then
-                            if cast.sunfire(getBiggestUnitCluster(45, sunfire_radius)) then
-                                br.addonDebug("Initial Sunfire - Cluster(" .. sunfire_radius .. ")")
-                                return true
-                            end
-                        end
-                    end
-
-
-
-                    -- sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets
-                    -- &(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
-
-
-
-
-                    if cast.able.sunfire() and astral_def >= 3 and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or debuff.sunfire.exists(thisUnit) or isBoss(thisUnit))
-                    then
-                        if not debuff.sunfire.exists(thisUnit) then
-                            if (
-                                    floor(ttd(thisUnit) / (2 * hasteAmount)) * sunfire_target >= ceil(floor(2 / sunfire_target) * 1.5) + 2 * sunfire_target
-                                            and (sunfire_target > 1 + moonfiretalent or debuff.moonfire.exists(thisUnit))
-                                            and (not traits.streakingStars.active or not pewbuff or cast.last.sunfire(1))
-                                            and ((buff.incarnationChoseOfElune.remain() > debuff.sunfire.remain(thisUnit)
-                                            or buff.celestialAlignment.remain() > debuff.sunfire.remain(thisUnit)) or not pewbuff)
-
-                            ) then
-                                if cast.sunfire(thisUnit) then
-                                    br.addonDebug("Initial Sunfire - non-Cluster")
-                                    return true
-                                end
-                            end
-                        elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
+                        --quickdots
+                        if cast.able.sunfire()
+                                and
+                                (
+                                        (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remains() < gcd
+                                                or buff.celestialAlignment.exists() and buff.celestialAlignment.remains() < gcd)
+                                )
+                                and traits.streakingStars.active and debuff.moonfire.remain(thisUnit) > debuff.sunfire.remain(thisUnit) then
                             if cast.sunfire(thisUnit) then
-                                br.addonDebug("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
-                                return true
+                                --
+                                br.addonDebug("QuickDot: Sunfire: " .. buff.celestialAlignment.remains())
+                                return
+                            end
+
+                            --[[
+                            sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets&(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
+        DoTs]]
+
+
+                        end
+                        if cast.able.moonfire()
+                                and ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd)
+                                or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < gcd))
+                                and traits.streakingStars.active then
+                            if cast.moonfire(thisUnit) then
+                                br.addonDebug("QuickDot: Moonfire: " .. buff.celestialAlignment.remains())
+                                return
                             end
                         end
-                    end
 
-                    if talent.twinMoons and debuff.moonfire.count() == 0 then
-                        if cast.moonfire(getBiggestUnitCluster(45, 15)) then
-                            br.addonDebug("Initial moonfire - Cluster")
-                            return true
+                        local moonfiretalent = 0
+                        if talent.twinMoons then
+                            moonfiretalent = moonfiretalent + 1
                         end
-                    end
 
-                    if cast.able.moonfire() and (debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or debuff.moonfire.exists(thisUnit)) or isBoss(thisUnit) and
-                            astral_def >= 3 then
-                        if not debuff.moonfire.exists(thisUnit) then
-                            if
-                            (floor(ttd(thisUnit) / (2 * hasteAmount)) * #enemies.yards8t >= 6
-                                    and (not traits.streakingStars.active or not pewbuff or lastSpellCast ~= spell.moonfire)
-                                    and
-                                    (
-                                            (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > debuff.moonfire.remain(thisUnit)
-                                                    or buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > debuff.moonfire.remain(thisUnit)
-                                            ) or not pewbuff
-                                    )
-                                    or isBoss(thisUnit)
-                            )
-                            then
-                                if cast.moonfire(thisUnit) then
-                                    br.addonDebug("Initial Moonfire")
+                        if debuff.sunfire.count() == 0 then
+                            if traits.highNoon.active then
+                                if cast.sunfire(getBiggestUnitCluster(45, sunfire_radius)) then
+                                    br.addonDebug("Initial Sunfire - Cluster(" .. sunfire_radius .. ")")
                                     return true
                                 end
                             end
-                        elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
+                        end
+
+
+
+                        -- sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets
+                        -- &(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
+
+
+
+
+                        if cast.able.sunfire() and astral_def >= 3 and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or debuff.sunfire.exists(thisUnit) or isBoss(thisUnit))
+                        then
+                            if not debuff.sunfire.exists(thisUnit) then
+                                if (
+                                        floor(ttd(thisUnit) / (2 * hasteAmount)) * sunfire_target >= ceil(floor(2 / sunfire_target) * 1.5) + 2 * sunfire_target
+                                                and (sunfire_target > 1 + moonfiretalent or debuff.moonfire.exists(thisUnit))
+                                                and (not traits.streakingStars.active or not pewbuff or cast.last.sunfire(1))
+                                                and ((buff.incarnationChoseOfElune.remain() > debuff.sunfire.remain(thisUnit)
+                                                or buff.celestialAlignment.remain() > debuff.sunfire.remain(thisUnit)) or not pewbuff)
+
+                                ) then
+                                    if cast.sunfire(thisUnit) then
+                                        br.addonDebug("Initial Sunfire - non-Cluster")
+                                        return true
+                                    end
+                                end
+                            elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
+                                if cast.sunfire(thisUnit) then
+                                    br.addonDebug("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
+                                    return true
+                                end
+                            end
+                        end
+
+
+                        --Initial Moonfire only
+                        if talent.twinMoons and getDebuffCount(164812) == 0 then
+                            if cast.moonfire(getBiggestUnitCluster(45, 15)) then
+                                br.addonDebug("Initial moonfire - Cluster(" .. tostring(getDebuffCount(164812)) .. "/" .. #enemies.yards45)
+                                return true
+                            end
+                        end
+                        -- more dots - moonfire
+                        if cast.able.moonfire() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") and astral_def >= 3 and #enemies.yards45 > debuff.moonfire.count() then
+                            --or debuff.moonfire.exists(thisUnit)) or isBoss(thisUnit) and
+                            if not debuff.moonfire.exists(thisUnit) then
+                                if cast.moonfire(thisUnit) then
+                                    br.addonDebug("Initial Moonfire -" .. tostring(getDebuffCount(164812)) .. "/" .. #enemies.yards45)
+                                    return true
+                                end
+                            end
+                        end
+                        if debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and (ttd(thisUnit) > 5 and ttd(thisUnit) > debuff.moonfire.remain(thisUnit)) then
                             if cast.moonfire(thisUnit) then
                                 br.addonDebug("Refreshing moonfire - remain: " .. debuff.moonfire.remain(thisUnit))
-
                                 return true
                             end
                         end
-                    end
+                        --[[
+                  if
 
-                    --stellarFlare
-                    if cast.able.stellarFlare() and not cast.last.stellarFlare() then
-                        if (not debuff.stellarFlare.exists(thisUnit) and (debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets"))
-                                or debuff.stellarFlare.remain(thisUnit) < 6 and ttd(thisUnit) > debuff.stellarFlare.remain(thisUnit) + 5)
-                                and (floor(ttd(thisUnit) / (2 * hasteAmount)) >= 5)
-                        then
-                            if cast.stellarFlare(thisUnit) then
-                                br.addonDebug("StellarFlare - remains:" .. tostring(debuff.stellarFlare.remain(thisUnit)))
-                                return true
+                  (floor(ttd(thisUnit) / (2 * hasteAmount)) * #enemies.yards8t >= 6
+                          and (not traits.streakingStars.active or not pewbuff or lastSpellCast ~= spell.moonfire)
+                          and
+                          (
+                                  (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > debuff.moonfire.remain(thisUnit)
+                                          or buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > debuff.moonfire.remain(thisUnit)
+                                  ) or not pewbuff
+                          )
+                          or isBoss(thisUnit)
+                  )
+                  then
+                      if cast.moonfire(thisUnit) then
+                          br.addonDebug("Initial Moonfire")
+                          return true
+                      end
+                  end
+              elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
+                  if cast.moonfire(thisUnit) then
+                      br.addonDebug("Refreshing moonfire - remain: " .. debuff.moonfire.remain(thisUnit))
+
+                      return true
+                  end
+              end
+          end
+    ]]
+                        --stellarFlare
+                        if cast.able.stellarFlare() and not cast.last.stellarFlare() then
+                            if (not debuff.stellarFlare.exists(thisUnit) and (debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets"))
+                                    or debuff.stellarFlare.remain(thisUnit) < 6 and ttd(thisUnit) > debuff.stellarFlare.remain(thisUnit) + 5)
+                                    and (floor(ttd(thisUnit) / (2 * hasteAmount)) >= 5)
+                            then
+                                if cast.stellarFlare(thisUnit) then
+                                    br.addonDebug("StellarFlare - remains:" .. tostring(debuff.stellarFlare.remain(thisUnit)))
+                                    return true
+                                end
                             end
-                        end
 
+                        end
                     end
                 end
             end -- end dots
@@ -1203,7 +1236,7 @@ local function runRotation()
                     return true
                 end
             end
-    ]]
+        ]]
         -- Pot/Stoned
         if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
             if inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
