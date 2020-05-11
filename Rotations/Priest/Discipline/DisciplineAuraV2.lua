@@ -48,7 +48,7 @@ local function createOptions()
         -------------------------
         -------- UTILITY --------
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Utility - Version 1.02")
+        section = br.ui:createSection(br.ui.window.profile, "Utility - Version 1.03")
         -- Pull Spell
         br.ui:createCheckbox(section, "Pull Spell", "Check this to use SW:P to pull when solo.")
         -- Auto Buff Fortitude
@@ -101,7 +101,8 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Essence")
         --Concentrated Flame
-        br.ui:createSpinner(section, "Concentrated Flame", 75, 0, 100, 5, colorWhite .. "Will cast Concentrated Flame if party member is below value. Default: 75")
+        br.ui:createDropdown(section, "Concentrated Flame", { "DPS", "Heal", "Hybrid"}, 1)
+        br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
         --Memory of Lucid Dreams
         br.ui:createCheckbox(section, "Lucid Dreams")
         -- Ever-Rising Tide
@@ -1002,10 +1003,10 @@ local function runRotation()
                 end
                 -- Concentrated Flame
                 if isChecked("Concentrated Flame") and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd then
-                    if lowest.hp <= getValue("Concentrated Flame") then
+                    if (getOptionValue("Concentrated Flame") == 2 or getOptionValue("Concentrated Flame") == 3) and lowest.hp <= getValue("Concentrated Flame Heal") then
                         if cast.concentratedFlame(lowest.unit) then
-                            br.addonDebug("Casting Concentrated Flame")
-                            return
+                            br.addonDebug("Casting Concentrated Flame (Heal)")
+                            return true
                         end
                     end
                 end
@@ -1573,10 +1574,17 @@ local function runRotation()
             end
             -- Concentrated Flame
             if isChecked("Concentrated Flame") and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd then
-                if lowest.hp <= getValue("Concentrated Flame") then
+                if (getOptionValue("Concentrated Flame") == 2 or getOptionValue("Concentrated Flame") == 3) and lowest.hp <= getValue("Concentrated Flame Heal") then
                     if cast.concentratedFlame(lowest.unit) then
-                        br.addonDebug("Casting Concentrated Flame")
+                        br.addonDebug("Casting Concentrated Flame (Heal)")
                         return true
+                    end
+                else
+                    if getOptionValue("Concentrated Flame") == 1 or (getOptionValue("Concentrated Flame") == 3 and lowest.hp > getValue("Concentrated Flame Heal")) then
+                        if cast.concentratedFlame("target") then
+                            br.addonDebug("Casting Concentrated Flame (Dmg)")
+                            return true
+                        end
                     end
                 end
             end

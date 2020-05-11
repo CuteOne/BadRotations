@@ -83,7 +83,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Vivify Spam Health", 75, 1, 100, 1, "min HP to spam vivify w/RM")
         br.ui:createSpinner(section, "Enveloping Mist Tank", 50, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Enveloping Mist", 50, 1, 100, 5, "Health Percent to Cast At")
-       -- br.ui:createCheckbox(section, "Soothing Mist Instant Cast", "Use Soothing Mist first for instant casts")
+        -- br.ui:createCheckbox(section, "Soothing Mist Instant Cast", "Use Soothing Mist first for instant casts")
         br.ui:createDropdownWithout(section, "EM Casts", { "pre-soothe", "hard" }, 1, "EM Cast Mode")
         br.ui:createDropdownWithout(section, "Vivify Casts", { "pre-soothe", "hard" }, 1, "Vivify Cast Mode")
 
@@ -839,9 +839,7 @@ local function runRotation()
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
                 if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
-
                     --           br.ui:createDropdown(section, "EM Casts", { "pre-soothe", "hard" }, 1, "EM Cast Mode")
-
                     if getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(tanks[i].unit, "exact") then
                         --  if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit, "exact") then
                         if cast.soothingMist(tanks[i].unit) then
@@ -859,21 +857,21 @@ local function runRotation()
             end
         end
 
-        if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
+        if not isMoving("player") and cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                if getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(tanks[i].unit, "exact") then
+                if getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
                     -- if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
                     if not buff.soothingMist.exists(healUnit, "exact") then
                         if cast.soothingMist(healUnit) then
                             br.addonDebug("[pre-soothe]:" .. UnitName(healUnit) .. " EM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                             return true
                         end
-                    elseif buff.envelopingMist.remains(healUnit) < 2 and (buff.soothingMist.exists(tanks[i].unit, "EXACT") or getOptionValue("EM Casts") == 2) then
+                    elseif buff.envelopingMist.remains(healUnit) < 2 and (buff.soothingMist.exists(healUnit, "EXACT")) then
                         if cast.envelopingMist(healUnit) then
                             br.addonDebug("[EM1]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                         end
                     end
-                elseif getOptionValue("EM Casts") == 2 and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
+                elseif (getOptionValue("EM Casts") == 2 or buff.soothingMist.exists(healUnit, "exact")) and buff.envelopingMist.remains(healUnit) < 2 then
                     if cast.envelopingMist(healUnit) then
                         br.addonDebug("[EM2]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                         return
@@ -951,9 +949,11 @@ local function runRotation()
                         return true
                     end
                 end
-                if cast.vivify("player") then
-                    br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName("player") .. " / " .. "VIVIFY-SPAM")
-                    return true
+                if getOptionValue("Vivify Casts") == 2 or buff.soothingMist.exists("player", "exact") then
+                    if cast.vivify("player") then
+                        br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName("player") .. " / " .. "VIVIFY-SPAM")
+                        return true
+                    end
                 end
             end
         end
