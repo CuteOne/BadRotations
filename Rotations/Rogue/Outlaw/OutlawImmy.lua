@@ -174,7 +174,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Crimson Vial", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:createSpinner(section, "Feint", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:createSpinner(section, "Riposte", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        br.ui:createSpinner(section, "Engineer's' Belt", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:createSpinner(section, "Engineer's Belt", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
 
         ----------------------
