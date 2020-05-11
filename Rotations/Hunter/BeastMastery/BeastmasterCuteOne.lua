@@ -460,22 +460,6 @@ actionList.Cooldowns = function()
             if cast.reapingFlames() then return end
         end
     end
-    -- Aspect of the Wild
-    -- aspect_of_the_wild,precast_time=1.1,if=!azerite.primal_instincts.enabled
-    if isChecked("Aspect of the Wild") and useCDs()
-        and cast.able.aspectOfTheWild() and (not traits.primalInstincts.active)
-        and ttd(units.dyn40) > 15
-    then
-        if cast.aspectOfTheWild() then return end
-    end
-    -- Bestial Wrath
-    -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!essence.essence_of_the_focusing_iris.major)&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
-    if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
-        and cast.able.bestialWrath() and (traits.primalInstincts.active) and ttd(units.dyn40) > 15
-        -- and (not equiped.pocketSizedComputationDevice() or cd.pocketSizedComputationDevice.remain() > 0)
-    then
-        if cast.bestialWrath() then return end
-    end
 end -- End Action List - Cooldowns
 
 -- Action List - Opener
@@ -726,8 +710,8 @@ actionList.St = function()
     end
     -- Kill Command
     -- kill_command
-    if cast.able.killCommand() then
-        if cast.killCommand() then return end
+    if cast.able.killCommand(br.petTarget) then
+        if cast.killCommand(br.petTarget) then return end
     end
     -- Chimaera Shot
     -- chimaera_shot
@@ -840,8 +824,8 @@ actionList.Cleave = function()
     end
     -- Kill Command
     -- kill_command,if=active_enemies<4|!azerite.rapid_reload.enabled
-    if cast.able.killCommand() and (#enemies.yards8t < 3 or not traits.rapidReload.active) then
-        if cast.killCommand() then return end
+    if cast.able.killCommand(br.petTarget) and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
+        if cast.killCommand(br.petTarget) then return end
     end
     -- Dire Beast
     -- dire_beast
@@ -924,6 +908,25 @@ actionList.PreCombat = function()
                 TargetUnit(v)
             end
         end
+        -- -- Pre-Pull
+        -- if true then -- Need to Code Pre-Pull Section
+        --     -- Aspect of the Wild
+        --     -- aspect_of_the_wild,precast_time=1.3,if=!azerite.primal_instincts.enabled&!essence.essence_of_the_focusing_iris.major&(equipped.azsharas_font_of_power|!equipped.cyclotronic_blast)
+        --     if isChecked("Aspect of the Wild") and useCDs()
+        --         and cast.able.aspectOfTheWild() and (not traits.primalInstincts.active and not essence.focusedAzeriteBeam.major and (equiped.azsharaFontOfPower() or not equiped.pocketSizedComputationDevice()))
+        --         and ttd(units.dyn40) > 15
+        --     then
+        --         if cast.aspectOfTheWild() then return end
+        --     end
+        --     -- Bestial Wrath
+        --     -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!essence.essence_of_the_focusing_iris.major)&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
+        --     if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
+        --         and cast.able.bestialWrath() and (traits.primalInstincts.active) and not essence.focusedAzeriteBeam.major and ttd(units.dyn40) > 15
+        --         and (not equiped.pocketSizedComputationDevice() or cd.pocketSizedComputationDevice.remain() > 0)
+        --     then
+        --         if cast.bestialWrath() then return end
+        --     end
+        -- end
         -- Init Combat
         if getDistance("target") < 40 and isValidUnit("target") and opener.complete then
             -- Auto Shot
@@ -942,6 +945,7 @@ local function runRotation()
     --- Load Additional Rotation Files ---
     --------------------------------------
     if actionList.PetManagement == nil then
+        br.petTarget = nil
         loadSupport("PetCuteOne")
         actionList.PetManagement = br.rotations.support["PetCuteOne"]
     end
