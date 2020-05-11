@@ -1580,7 +1580,7 @@ local function runRotation()
                         return true
                     end
                 else
-                    if getOptionValue("Concentrated Flame") == 1 or (getOptionValue("Concentrated Flame") == 3 and lowest.hp > getValue("Concentrated Flame Heal")) then
+                    if getOptionValue("Concentrated Flame") == 1 or (getOptionValue("Concentrated Flame") == 3 and not debuff.schism.exists(schismBuff) and lowest.hp > getValue("Concentrated Flame Heal")) then
                         if cast.concentratedFlame("target") then
                             br.addonDebug("Casting Concentrated Flame (Dmg)")
                             return true
