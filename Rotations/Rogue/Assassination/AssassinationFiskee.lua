@@ -580,7 +580,7 @@ local function runRotation()
             [120651]=true, -- Explosive
             [136330]=true, -- Soul Thorns Waycrest Manor
             [134388]=true, -- A Knot of Snakes
-            [159578]=true, -- Exposed Synapse
+            --[159578]=true, -- Exposed Synapse
         }
         if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (not isChecked("Dot Players") and UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
             if combo > 0 and GetObjectID("target") == 134388 then
