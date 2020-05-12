@@ -337,7 +337,7 @@ local function runRotation()
                     local x2, y2, z2 = ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                     if not (debuff.freezingTrap.exists(object) or debuff.intimidation.exists(object)) 
-                    and not (cast.last.freezingTrap() or cast.last.bindingShot() or cast.last.intimidation() or cast.last.feignDeath) then
+                    and not (cast.last.freezingTrap() or cast.last.bindingShot() or cast.last.intimidation() or cast.last.feignDeath()) then
                         if cast.able.freezingTrap() and isChecked("Ice Trap") then
                             if distance <= 40 then
                                 if cast.freezingTrap(object) then
