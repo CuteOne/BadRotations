@@ -401,11 +401,14 @@ local function runRotation()
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Blessing of Freedom
-		if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
-			if cast.blessingOfFreedom("player") then
-				return
-			end
-		end
+		if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and isMoving("player")
+                and (hasNoControl(spell.blessingOfFreedom)
+                or isChecked("Use Blessing of Freedom for Snare") and debuff.graspingTendrils.exists("player")
+                or debuff.vileCorruption.exists("player")) then
+            if cast.blessingOfFreedom("player") then
+                return true
+            end
+        end
 		-- Taunt
 		if isChecked("Taunt") and cast.able.handOfReckoning() and not inRaid then
 			for i = 1, #enemies.yards30 do
@@ -1227,7 +1230,7 @@ local function runRotation()
 	--Profile Stop | Pause
 	if not inCombat and not hastar and profileStop == true then
 		profileStop = false
-	elseif (inCombat and profileStop == true) or IsFlying() or pause() or mode.rotation == 3 then
+	elseif (inCombat and profileStop == true) or IsFlying() or pause(true) or mode.rotation == 3 then
 		return true
 	else
 		-----------------------
