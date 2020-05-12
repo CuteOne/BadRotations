@@ -639,11 +639,11 @@ end -- End Action List - Opener
 actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=pet.turtle.buff.frenzy.up&pet.turtle.buff.frenzy.remains<gcd|cooldown.bestial_wrath.remains&(full_recharge_time<gcd|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd)
-    if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax + 0.1)
+    if cast.able.barbedShot(br.petTarget) and ((buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax + 0.1)
         or (cd.bestialWrath.remain() > gcdMax and (charges.barbedShot.timeTillFull() < gcdMax
         or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < gcdMax))))
     then
-        if cast.barbedShot() then return end
+        if cast.barbedShot(br.petTarget) then return end
     end
     -- Concentrated Flame
     -- concentrated_flame,if=focus+focus.regen*gcd<focus.max&buff.bestial_wrath.down&(!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight)|full_recharge_time<gcd|target.time_to_die<5
@@ -698,8 +698,8 @@ actionList.St = function()
     end
     -- Barbed Shot
     -- barbed_shot,if=azerite.dance_of_death.rank>1&buff.dance_of_death.remains<gcd&crit_pct_current>40
-    if cast.able.barbedShot() and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remain() < gcdMax then
-        if cast.barbedShot() then return end
+    if cast.able.barbedShot(br.petTarget) and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remain() < gcdMax then
+        if cast.barbedShot(br.petTarget) then return end
     end
     -- Blood of the Enemy
     -- blood_of_the_enemy,if=buff.aspect_of_the_wild.remains>10+gcd|target.time_to_die<10+gcd
@@ -725,10 +725,10 @@ actionList.St = function()
     end
     -- Barbed Shot
     -- barbed_shot,if=talent.one_with_the_pack.enabled&charges_fractional>1.5|charges_fractional>1.8|cooldown.aspect_of_the_wild.remains<pet.turtle.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|target.time_to_die<9
-    if cast.able.barbedShot() and ((talent.oneWithThePack and charges.barbedShot.frac() > 1.5) or charges.barbedShot.frac() > 1.8
+    if cast.able.barbedShot(br.petTarget) and ((talent.oneWithThePack and charges.barbedShot.frac() > 1.5) or charges.barbedShot.frac() > 1.8
         or (cd.aspectOfTheWild.remain() < buff.frenzy.remain("pet") - gcdMax and traits.primalInstincts.active) or (ttd(units.dyn40) < 9 and useCDs()))
     then
-        if cast.barbedShot() then return end
+        if cast.barbedShot(br.petTarget) then return end
     end
     -- Purifying Blast
     -- purifying_blast,if=buff.bestial_wrath.down|target.time_to_die<8
@@ -755,8 +755,8 @@ actionList.St = function()
     end
     -- Barbed Shot
     -- barbed_shot,if=pet.turtle.buff.frenzy.duration-gcd>full_recharge_time
-    if cast.able.barbedShot() and buff.frenzy.duration("pet") - gcdMax > charges.barbedShot.timeTillFull() then
-        if cast.barbedShot() then return end
+    if cast.able.barbedShot(br.petTarget) and buff.frenzy.duration("pet") - gcdMax > charges.barbedShot.timeTillFull() then
+        if cast.barbedShot(br.petTarget) then return end
     end
     -- Cobra Shot - Low Level
     if cast.able.cobraShot() and level < 10 then
@@ -1028,7 +1028,7 @@ local function runRotation()
     minCount = useCDs() and 1 or 3
 
     -- Profile Specific Vars
-    lowestBarbedShot = debuff.barbedShot.lowest(40,"remain")
+    lowestBarbedShot = debuff.barbedShot.lowest(8,"remain","pet")
 
     -- Opener Reset
     if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then

@@ -103,10 +103,10 @@ br.api.debuffs = function(debuff,k,v)
     debuff.remainCount = function(remain)
         return tonumber(getDebuffRemainCount(v,remain))
     end
-    debuff.lowest = function(range,debuffType)
+    debuff.lowest = function(range,debuffType,source)
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
-        return getDebuffMinMax(k, range, debuffType, "min")
+        return getDebuffMinMax(k, range, debuffType, "min", source)
     end
     debuff.lowestPet = function(range,debuffType)
         if range == nil then range = 8 end
