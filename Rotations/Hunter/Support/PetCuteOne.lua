@@ -49,25 +49,29 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
-    if getOptionValue("Pet Target") == 4 or not UnitExists(petTarget) or not isValidUnit(petTarget) 
+    if getOptionValue("Pet Target") == 4 or not UnitExists(petTarget) or not isValidUnit(petTarget)
         or (getOptionValue("Pet Target") == 2 and (petTarget == nil or not UnitIsUnit("target","pettarget")))
     then
         if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
             petTarget = units.dyn40
+            -- Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))
         end
         if getOptionValue("Pet Target") == 2 and isValidUnit("target") then
             petTarget = "target"
+            -- Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))
         end
         if getOptionValue("Pet Target") == 3 then
             for i=1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (isValidUnit(thisUnit) or isDummy()) then petTarget = thisUnit break end
+                if (isValidUnit(thisUnit) or isDummy()) then petTarget = thisUnit --[[Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))]] break end
             end
         end
         if getOptionValue("Pet Target") == 4 and petTarget == nil then
             petTarget = "target"
+            -- Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))
         end
     end
+    if br.petTarget ~= petTarget then br.petTarget = petTarget end
 
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()

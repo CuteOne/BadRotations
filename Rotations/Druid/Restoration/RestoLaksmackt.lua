@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 20200502-1205")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 20200509-1317")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -691,6 +691,8 @@ local StunsBlackList = {
     [131812] = "Heartsbane Soulcharmer",
     [131670] = "Heartsbane Vinetwister",
     [135365] = "Matron Alma",
+    --mini bosses
+    [161241] = "Voidweaver Mal'thir",
 }
 
 ----------------
@@ -747,8 +749,6 @@ local function runRotation()
     local moving = isMoving("player") ~= false or br.player.moving
     local gcdMax = br.player.gcdMax
     local essence = br.player.essence
-    local traits = br.player.traits
-
     local healPot = getHealthPot()
     local inCombat = isInCombat("player")
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
@@ -1942,7 +1942,7 @@ local function runRotation()
         local aoe_count = 0
         for i = 1, #enemies.yards10tnc do
             local thisUnit = enemies.yards10tnc[i]
-            if ttd(thisUnit) > 4 then
+            if ttd(thisUnit) > 4  and not isExplosive(thisUnit) then
                 aoe_count = aoe_count + 1
             end
         end
@@ -1999,7 +1999,7 @@ local function runRotation()
 
             -- rip,target_if=refreshable&combo_points=5
             --   if combo == 5 then
-            if debuff.rip.count() < getOptionValue("Max RIP Targets") then
+            if debuff.rip.count() < getOptionValue("Max RIP Targets") and not isExplosive(thisUnit) then
                 if (not debuff.rip.exists(thisUnit) or (debuff.rip.remain(thisUnit) < 4) and (ttd(thisUnit) > (debuff.rip.remain(thisUnit) + 24)
                         or (debuff.rip.remain(thisUnit) + combo * 4 < ttd(thisUnit) and debuff.rip.remain(thisUnit) + 4 + combo * 4 > ttd(thisUnit))))
                 then
@@ -2012,7 +2012,7 @@ local function runRotation()
 
             -- Rake
             if (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and ttd(thisUnit) >= 10
-                    and (combo < 5 or debuff.rake.remain(thisUnit) < 1) and aoe_count < 4 then
+                    and (combo < 5 or debuff.rake.remain(thisUnit) < 1) and aoe_count < 4 and not isExplosive(thisUnit) then
                 if cast.rake(thisUnit) then
                     br.addonDebug("[CAT-DPS] Raking")
                     return true
