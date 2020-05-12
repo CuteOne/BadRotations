@@ -1198,6 +1198,9 @@ br.lists.spells = {
             },
             debuffs                         = {
                 bestialFerocity             = 191413,
+                freezingTrap                = 3355,
+                tarTrap                     = 135299,
+                intimidation                = 24934,
             },
             glyphs                          = {
 

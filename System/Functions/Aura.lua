@@ -427,6 +427,22 @@ function getDebuffMinMax(spell, range, debuffType, returnType)
 		return maxUnit
 	end
 end
+function getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
+	local thisMin = 99
+	local lowestUnit = "target"
+	for k, v in pairs(br.enemy) do
+		local thisUnit = br.enemy[k].unit
+		local distance = getDistance(thisUnit,"pet")
+		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
+		if getFacing("player",thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
+			if returnType == "min" or returnType == nil then
+				lowestUnit = thisUnit
+				thisMin = thisDebuff
+			end
+		end
+	end
+	return lowestUnit
+end
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit, BuffID, Source)
 	local duration = select(5, UnitBuffID(Unit, BuffID, Source))
@@ -466,8 +482,8 @@ function getBuffStacks(Unit, BuffID, Source)
 end
 function getBuffCount(spellID)
 	local counter = 0
-	for k, v in pairs(br.friend) do
-		local thisUnit = br.friend[k].unit
+	for i= 1, #br.friend do
+		local thisUnit = br.friend[i].unit
 		-- check if unit is valid
 		if GetObjectExists(thisUnit) then
 			-- increase counter for each occurences

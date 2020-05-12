@@ -58,4 +58,6 @@ br.lists.noTouchUnits = {
     {unitID = 158315}, -- Eye of Chaos
     -- N'zoth
     {unitID = 158041, buff = 310126}, -- Psychic Shell
+    -- Tol Dagor
+    {unitID = 133972}, -- Cannon in Tol Dagor
 }

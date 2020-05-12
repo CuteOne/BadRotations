@@ -108,6 +108,11 @@ br.api.debuffs = function(debuff,k,v)
         if debuffType == nil then debuffType = "remain" end
         return getDebuffMinMax(k, range, debuffType, "min")
     end
+    debuff.lowestPet = function(range,debuffType)
+        if range == nil then range = 8 end
+        if debuffType == nil then debuffType = "remain" end
+        return getDebuffMinMaxButForPetsThisTime(k, range, debuffType, "min")
+    end
     debuff.max = function(range,debuffType)
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
