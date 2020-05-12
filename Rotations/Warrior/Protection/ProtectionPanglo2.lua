@@ -165,6 +165,28 @@ local function createOptions()
     return optionTable
 end
 
+local function ipCapCheck()
+    if br.player.buff.ignorePain.exists() then
+        local ipValue = tonumber((select(1, GetSpellDescription(190456):match("%d+%S+%d"):gsub("%D", ""))), 10)
+        local ipMax = math.floor(ipValue * 1.3)
+        local ipCurrent = tonumber((select(16, UnitBuffID("player", 190456))), 10)
+        if ipCurrent == nil then
+            ipCurrent = 0
+            return
+        end
+        if ipCurrent <= (ipMax * 0.2) then
+            ---print("IP below cap")
+            return true
+        else
+            --print("dont cast IP")
+            return false
+        end
+    else
+        --print("IP not on")
+        return true
+    end
+end
+
 ----------------
 --- ROTATION ---
 ----------------
@@ -351,34 +373,11 @@ local function runRotation()
                 return false
             end
         end
-        local function ipCapCheck()
-            if buff.ignorePain.exists() then
-                local ipValue = tonumber((select(1, GetSpellDescription(190456):match("%d+%S+%d"):gsub("%D", ""))), 10)
-                local ipMax = math.floor(ipValue * 1.3)
-                local ipCurrent = tonumber((select(16, UnitBuffID("player", 190456))), 10)
-                if ipCurrent == nil then
-                    ipCurrent = 0
-                    return
-                end
-                if ipCurrent <= (ipMax * 0.2) then
-                    ---print("IP below cap")
-                    return true
-                else
-                    --print("dont cast IP")
-                    return false
-                end
-            else
-                --print("IP not on")
-                return true
-            end
-        end
 
         local function rageCap()
             if cast.able.ignorePain() and rage >= getValue("High Rage Dump") and mainTank() and ipCapCheck() then
                 --print("dumping IP")
-                if cast.ignorePain() then
-                    return
-                end
+                CastSpellByName(GetSpellInfo(190456))
             end
             if not isExplosive("target") and cast.able.revenge() and rage >= getValue("High Rage Dump") and (not ipCapCheck() or not mainTank()) then
                 --print("dumping R")
@@ -811,14 +810,10 @@ local function runRotation()
                 --ignore the painful ways
                 if cast.able.ignorePain() and mainTank() and ipCapCheck() then
                     if buff.vengeanceIgnorePain.exists() and rage >= 42 then
-                        if cast.ignorePain() then
-                            return
-                        end
+                        CastSpellByName(GetSpellInfo(190456))
                     end
                     if rage >= 55 and not buff.vengeanceRevenge.exists() then
-                        if cast.ignorePain() then
-                            return
-                        end
+                        CastSpellByName(GetSpellInfo(190456))
                     end
                 end
                 if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUseItem(6) then
@@ -964,6 +959,39 @@ local function runRotation()
             end
         end
 
+        local function corruptionstuff()
+            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak") or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                    if br.player.use.shroudOfResolve() then
+                        return
+                    end
+                end
+            end
+            if isChecked("Corruption Radar On") then    
+                for i = 1, GetObjectCountBR() do
+                    local object = GetObjectWithIndex(i)
+                    local ID = ObjectID(object)
+                    if isChecked("Use Storm Bolt on TFTB") then
+                        if ID == 161895 then
+                            local x1, y1, z1 = ObjectPosition("player")
+                            local x2, y2, z2 = ObjectPosition(object)
+                            local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                            if distance <= 9 and isChecked("Use Blinding Light on TFTB") and cd.blindingLight.remains() <= gcd and talent.blindingLight and not debuff.hammerOfJustice.exists(object) then
+                                if cast.blindingLight(object) then
+                                    return true
+                                end
+                            end
+                            if distance <= 11 and not isLongTimeCCed(object) and cd.hammerOfJustice.remains() <= gcd and not debuff.blindingLight.exists(object) then
+                                if cast.hammerOfJustice(object) then
+                                    return true
+                                end
+                            end
+                        end
+                    end -- end the thing
+                end
+            end
+        end
+
         local function technoViking()
             --Use Demo Shout on CD
             if getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 100 then
@@ -1002,9 +1030,7 @@ local function runRotation()
             end
             -- Drink
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) and ipCapCheck() and rage >= 55 then
-                if cast.ignorePain() then
-                    return
-                end
+                CastSpellByName(GetSpellInfo(190456))
             end
             if not cast.able.shieldSlam() or (isExplosive("target") or cast.able.thunderClap()) then
                 if cast.devastate() then
@@ -1013,32 +1039,8 @@ local function runRotation()
             end
         end
 
-        if isChecked("Corruption Radar On") then
-            for i = 1, GetObjectCountBR() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if isChecked("Use Storm Bolt on TFTB") then
-                    if ID == 161895 then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 8 and isChecked("Use Int Shout on TFTB") and cd.intimidatingShout.remains() <= gcd then
-                            if cast.intimidatingShout(object) then 
-                                return true
-                            end
-                        end
-                        if distance < 10 and not isLongTimeCCed(object) and cd.stormBolt.remains() <= gcd then
-                            if cast.stormBolt(object) then 
-                                return true
-                            end
-                        end
-                    end
-                end -- end the thing
-            end
-        end
-
         --- Lets do things now
-        if pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
+        if pause(true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
             return true
         else
             -- combat check
@@ -1053,6 +1055,10 @@ local function runRotation()
             if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards8 >= 1 then
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
+                end
+
+                if corruptionstuff() then
+                    return
                 end
 
                 if actionList_Extras() then
