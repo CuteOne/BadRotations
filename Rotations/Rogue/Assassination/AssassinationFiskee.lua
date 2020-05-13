@@ -262,7 +262,7 @@ local function runRotation()
     enemies.get(30, nil, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin.exists()  then
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin.exists() then
         if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
             tricksUnit = "focus"
         elseif getOptionValue("Auto Tricks") == 2 then
@@ -446,7 +446,7 @@ local function runRotation()
             local thisUnit = enemies.yards30[i]
             if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
              and (mode.rotation ~= 2  or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) 
-             and (not debuff.vendetta.exists("target") and not debuff.toxicBlade.exists("target")) then
+             and not debuff.vendetta.exists("target") then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
