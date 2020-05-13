@@ -967,7 +967,7 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Corruption Radar On") then    
+            if isChecked("Corruption Radar On") then
                 for i = 1, GetObjectCountBR() do
                     local object = GetObjectWithIndex(i)
                     local ID = ObjectID(object)
@@ -976,13 +976,13 @@ local function runRotation()
                             local x1, y1, z1 = ObjectPosition("player")
                             local x2, y2, z2 = ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                            if distance <= 9 and isChecked("Use Blinding Light on TFTB") and cd.blindingLight.remains() <= gcd and talent.blindingLight and not debuff.hammerOfJustice.exists(object) then
-                                if cast.blindingLight(object) then
+                            if distance <= 8 and isChecked("Use Int Shout on TFTB") and cd.intimidatingShout.remains() <= gcd then
+                                if cast.intimidatingShout(object) then 
                                     return true
                                 end
                             end
-                            if distance <= 11 and not isLongTimeCCed(object) and cd.hammerOfJustice.remains() <= gcd and not debuff.blindingLight.exists(object) then
-                                if cast.hammerOfJustice(object) then
+                            if distance < 10 and not isLongTimeCCed(object) and cd.stormBolt.remains() <= gcd then
+                                if cast.stormBolt(object) then 
                                     return true
                                 end
                             end

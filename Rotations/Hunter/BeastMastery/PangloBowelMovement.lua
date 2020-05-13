@@ -156,7 +156,7 @@ local function runRotation()
     local focusDeficit                       = br.player.power.focus.deficit()
     local gcd                                = br.player.gcd
     local gcdMax                             = br.player.gcdMax
-    local gcdFixed                           = br.player.gcdMax + .150
+    local gcdFixed                           = br.player.gcd + .150
     local has                                = br.player.has
     local inCombat                           = br.player.inCombat
     local inInstance                         = br.player.instance=="party"
@@ -499,15 +499,15 @@ local function runRotation()
             if cast.bestialWrath() then return end
         end
 
-        if cast.able.barbedShot and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < gcdFixed and charges.barbedShot.frac() > 1.2 then
+        if cast.able.barbedShot() and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < gcdFixed and charges.barbedShot.frac() >= 1.3 then
             if cast.barbedShot() then return end
         end
 
-        if not Barb1 and cast.able.killCommand() then
+        if cast.able.killCommand() then
             if cast.killCommand() then return end
         end
 
-        if cast.able.barbedShot() and charges.barbedShot.frac() >= 1.5 then
+        if cast.able.barbedShot() and charges.barbedShot.frac() >= 1.8 then
             if cast.barbedShot() then return end
         end
         if not Barb1 and cast.able.cobraShot() and (buff.frenzy.remains("pet") >= 2 or charges.barbedShot.frac() <= 0.7) and (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
@@ -600,7 +600,7 @@ local function runRotation()
         if Shadowshit() then return end
     end
     if feignTime == nil or (feignTime ~= nil and (GetTime() - feignTime > 1.2)) then
-        if pause(true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
+        if pause(true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 4 then
             return true
         else
             if inCombat then
@@ -609,9 +609,9 @@ local function runRotation()
                     StartAttack()
                 end
                     if actionlist_Pet() then return end
-                if unitcount >= getOptionValue("Units To AoE") then
+                if (unitcount >= getOptionValue("Units To AoE")) and (mode.rotation == 2 or mode.rotation == 1) then
                     if AOE() then return end
-                elseif unitcount < getOptionValue("Units To AoE") then
+                elseif unitcount < getOptionValue("Units To AoE") or mode.rotation == 3 then
                     if ST() then return end
                 end
             end
