@@ -262,7 +262,7 @@ local function runRotation()
     enemies.get(30, nil, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin.exists()  then
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin.exists() then
         if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
             tricksUnit = "focus"
         elseif getOptionValue("Auto Tricks") == 2 then
@@ -446,7 +446,7 @@ local function runRotation()
             local thisUnit = enemies.yards30[i]
             if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
              and (mode.rotation ~= 2  or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) 
-             and (not debuff.vendetta.exists("target") and not debuff.toxicBlade.exists("target")) then
+             and not debuff.vendetta.exists("target") then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -1021,7 +1021,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin)
+        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined)) and (not stealthedRogue or talent.masterAssassin) and (enemies10 > 1 or inCombat)
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
