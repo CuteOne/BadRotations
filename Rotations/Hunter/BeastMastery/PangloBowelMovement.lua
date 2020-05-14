@@ -491,7 +491,7 @@ local function runRotation()
             if cast.barbedShot() then return end
         end
 
-        if cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
+        if not buff.aspectOfTheWild.exists() and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
             if cast.aspectOfTheWild() then return end
         end
 
@@ -534,7 +534,7 @@ local function runRotation()
             if AoEBarbed() then return end
         end
 
-        if cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() then
+        if not buff.aspectOfTheWild.exists() and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() then
             if cast.aspectOfTheWild() then return end
         end
 
