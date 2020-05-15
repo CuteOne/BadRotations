@@ -36,6 +36,7 @@ br.lists.interruptWhitelist = {
 	[267809] = true, -- consume-essence
 	[268322] = true, -- drowned kick
 	[267977] = true, -- tidal surge
+	[267969] = true, -- Water Blast
 	-- Shrine of Storm end
 	-- Motherload! start
 	[268129] = true, -- kajacola-refresher
