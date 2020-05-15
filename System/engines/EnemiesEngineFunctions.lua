@@ -73,6 +73,12 @@ function updateOMEWT()
 				local enemyUnit = br.unitSetup:new(v)
 				if enemyUnit then
 					tinsert(om, enemyUnit)
+				elseif ObjectIsAreaTrigger(v) and ObjectID(v) == 12765 then
+					if not br.sanguine then
+						br.sanguine = {}
+					end
+					br.sanguine[v] = {}
+					br.sanguine[v].posX, br.sanguine[v].posY, br.sanguine[v].posZ = ObjectPosition(v)
 				end
 			end
 			-- Horrific Vision Object Tracking
@@ -91,8 +97,15 @@ function updateOMEWT()
 			end
 		end
 	end
-    refreshStored = true
-    -- Debugging
+	if updated and #removed > 0 then
+		for _, v in pairs(removed) do
+			if br.sanguine and br.sanguine[v] then
+				br.sanguine[v] = nil
+			end
+		end
+	end
+	refreshStored = true
+	-- Debugging
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
 		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
@@ -312,7 +325,7 @@ end
 	end
 
 	-- returns true if target is shielded or should be avoided
-	local function isShieldedTarget(unit)
+	function isShieldedTarget(unit)
 		local coef = 0
 		if getOptionCheck("Avoid Shields") then
 			-- check if unit is valid
@@ -486,41 +499,28 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
     local units = 0
-	local enemiesTable = getEnemies("player",length,checkNoCombat,true)
-	local inside = false
-    for i = 1, #enemiesTable do
-		local thisUnit = enemiesTable[i]
-		local radius = UnitCombatReach(thisUnit)
-        local unitX, unitY, unitZ = GetPositionBetweenObjects(thisUnit, "player", radius)
-		if playerX and unitX then
-			for i = radius, 0, -0.1 do
-				inside = false
-				if i > 0 then
-					unitX, unitY = GetPositionBetweenObjects(thisUnit, "player", i)
-				else
-					unitX, unitY = GetObjectPosition(thisUnit)
-				end
-				local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
-				local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-				local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
-				local finalAngle = shortestAngle/math.pi*180
-				if finalAngle < angle/2 then
-					inside = true
-					break
-				end
-			end
+	local enemiesTable = getEnemies("player",length,checkNoCombat)
 
-            if inside then
+    for i = 1, #enemiesTable do
+        local thisUnit = enemiesTable[i]
+        local unitX, unitY, unitZ = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))--GetObjectPosition(thisUnit)
+        if playerX and unitX then
+            local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+            local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+            local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
+            local finalAngle = shortestAngle/math.pi*180
+            if finalAngle < angle/2 then
                 units = units + 1
             end
         end
-	end
-
+    end
 	-- ChatOverlay(units)
     return units
 end
 
 local function getRect(width,length,showLines)
+	local width = width or 10
+	local length = length or 20
 	local px, py, pz = GetObjectPosition("player")
 	local facing = ObjectFacing("player") or 0
 	local halfWidth = width/2
@@ -583,7 +583,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local checkNoCombat = checkNoCombat or false
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
 	local enemyCounter = 0
-	local enemiesTable = getEnemies("player",length,checkNoCombat,true)
+	local enemiesTable = getEnemies("player",length,checkNoCombat)
 	local enemiesInRect = enemiesInRect or {}
 	local inside = false
 	if #enemiesTable > 0 then

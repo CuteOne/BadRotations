@@ -58,7 +58,18 @@ function ObjectManagerUpdate(self)
 		br.om:Update()
 	end
 end
-
+function br.alwaysFacing()
+	if isChecked("Always Facing") and br.unlocked then
+		if not IsHackEnabled("alwaysfacing") then
+			SetHackEnabled("alwaysfacing", true)
+		end
+	end
+	if not isChecked("Always Facing") and br.unlocked then
+		if IsHackEnabled("alwaysfacing") then
+			SetHackEnabled("alwaysfacing", false)
+		end
+	end
+end
 function br.antiAfk()
 	if isChecked("Anti-Afk") and br.unlocked then --EasyWoWToolbox ~= nil then
 		if not IsHackEnabled("antiafk") and getOptionValue("Anti-Afk") == 1 then
@@ -256,6 +267,8 @@ function BadRotationsUpdate(self)
 
 					--Tracker
 					br.objectTracker()
+
+					br.alwaysFacing()
 
 					-- Anti-Afk
 					br.antiAfk()

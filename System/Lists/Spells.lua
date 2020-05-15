@@ -2449,6 +2449,8 @@ br.lists.spells = {
             },
             debuffs                         = {
                 ghostlyStrike               = 196937,
+                gouge                       = 1776,
+                betweenTheEyes              = 199804,
             },
             glyphs                          = {
 
@@ -2470,6 +2472,8 @@ br.lists.spells = {
                 deadshot                    = 272935,
                 aceupyoursleeve             = 278676,
                 snakeeyes                   = 275846,
+                keepYourWitsAboutYou        = 288979,
+
             },
         },
         -- Subtlety

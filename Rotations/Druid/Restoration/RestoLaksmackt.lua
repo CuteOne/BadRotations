@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 20200509-1317")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 20200515-0718")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -2683,7 +2683,7 @@ local function runRotation()
     -- Print(tostring(mode.forms))
 
     -- Pause
-    if pause() or IsMounted() or flying or drinking or isCastingSpell(spell.tranquility) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) then
+    if pause() or IsMounted() or flying or drinking or isCasting(spell.focusedAzeriteBeam) or  isCastingSpell(spell.tranquility) or isCasting(spell.replicaOfKnowledge) or  isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) then
         --or stealthed (travel and not inCombat) or
         return true
     else
