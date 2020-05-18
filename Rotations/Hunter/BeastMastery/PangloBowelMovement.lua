@@ -208,7 +208,7 @@ local function runRotation()
 
     if mode.misdirection == 1 then
         local misdirectUnit
-        if getOptionValue("Misdireciton") == 1 then
+        if getOptionValue("Misdirection") == 1 then
             for i = 1, #br.friend do
                 local thisFriend = br.friend[i].unit
                 if (thisFriend == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
@@ -218,15 +218,20 @@ local function runRotation()
                 end
             end
         end
-        if getOptionValue("Misdireciton") == 2 and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player") then
+        if getOptionValue("Misdirection") == 2 and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player") then
             misdirectUnit = "focus"
         end
-        if getOptionValue("Misdireciton") == 3 then
+        if getOptionValue("Misdirection") == 3 then
             misdirectUnit = "pet"
         end
         if misdirectUnit ~= nil then
-            if cast.misdirection(misdirectUnit) then
-                return
+            for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+                if UnitThreatSituation(misdirectUnit, thisUnit) ~= nil and UnitThreatSituation(misdirectUnit, thisUnit) <= 2 then
+                    if cast.misdirection(misdirectUnit) then
+                        return
+                    end
+                end
             end
         end
     end
