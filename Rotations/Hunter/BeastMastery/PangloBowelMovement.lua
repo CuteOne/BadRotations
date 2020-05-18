@@ -47,15 +47,12 @@ local function createToggles()
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
     CreateButton("PetSummon",6,0)
---[[     DebugModes = {
-        [1] = { mode = "1", value = 1 , overlay = "Block 1", tip = "Block 1", highlight = 1, icon = br.player.spell.callPet1 },
-        [2] = { mode = "2", value = 2 , overlay = "Block 2", tip = "Block 2", highlight = 1, icon = br.player.spell.callPet2 },
-        [3] = { mode = "3", value = 3 , overlay = "Block 3", tip = "Block 3", highlight = 1, icon = br.player.spell.callPet3 },
-        [4] = { mode = "4", value = 4 , overlay = "Block 4", tip = "Block 4", highlight = 1, icon = br.player.spell.callPet4 },
-        [5] = { mode = "5", value = 5 , overlay = "Block 5", tip = "Block 5", highlight = 1, icon = br.player.spell.callPet5 },
-        [6] = { mode = "None", value = 6 , overlay = "No Block", tip = "Dont Block anything", highlight = 0, icon = br.player.spell.callPet }
+    -- MD Button
+    BestCleaveModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Best Cleave Target Enabled", tip = "Best Cleave Target Enabled", highlight = 1, icon = br.player.spell.misdirection },
+        [2] = { mode = "Off", value = 2 , overlay = "Best Cleave Target Disabled", tip = "Best Cleave Target Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Debug",7,0) ]]
+    CreateButton("BestCleave",0,1)
 end
 
 local function createOptions()
@@ -70,9 +67,9 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 2, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFSelect target to Misdirect to.")
-            -- Heart Essence
-            br.ui:createCheckbox(section,"Hunter Burn", "Only Used in Dungeons")
-            br.ui:createSpinnerWithout(section, "Humanize Switching", 2, 0.1, 5, 0.1)
+            br.ui:createCheckbox(section, "Use TTD for Aspect and Bestial")
+            -- Cleave
+            br.ui:createSpinnerWithout(section, "Humanize Switching for Burn", 2, 0.1, 5, 0.1)
         br.ui:checkSectionState(section)
         -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -238,7 +235,7 @@ local function runRotation()
     if timersTable then
         wipe(timersTable)
     end
-    if isChecked("Hunter Burn") then
+    if mode.bestCleave == 1 then
         local biggestGroup = 0
         local bestUnit
         for i = 1, #enemies.yards20p do
@@ -329,15 +326,14 @@ local function runRotation()
     end
 
     local function hunterTTD()
-        if #enemies.yards8p > 0 then
-            for i = 1, #enemies.yards8p do
-                local thisUnit = enemies.yards8p[i]
-                if ttd(thisUnit) >= 15 then
-                    return true
-                end
+        for i = 1, #enemies.yards8p do
+            local thisUnit = enemies.yards8p[i]
+            if ttd(thisUnit) >= 15 or not isChecked("Use TTD for Aspect and Bestial") then
+                return true
+            else 
+                return false
             end
         end
-        return false
     end
 
     local function Shadowshit()
