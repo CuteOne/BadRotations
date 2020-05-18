@@ -326,8 +326,8 @@ local function runRotation()
     end
 
     local function hunterTTD()
-        for i = 1, #enemies.yards8p do
-            local thisUnit = enemies.yards8p[i]
+        for i = 1, #enemies.yards20p do
+            local thisUnit = enemies.yards20p[i]
             if ttd(thisUnit) >= 15 or not isChecked("Use TTD for Aspect and Bestial") then
                 return true
             else 
