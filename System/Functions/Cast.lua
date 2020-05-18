@@ -1,25 +1,3 @@
-local CastSpellByNameFace = function(SpellName, Target, ...)
-	local castTime = select(4, GetSpellInfo(SpellName))
-	if isChecked("Auto Facing") and castTime == 0 and UnitIsVisible(Target or "Target") and not ObjectIsFacing("Player", Target or "Target") and not UnitIsUnit("Player", Target or "Target") then
-		local facing = ObjectFacing("Player")
-		local mouselookActive = false
-		if IsMouselooking() then
-			mouselookActive = true
-			MouselookStop()
-		end
-		FaceDirection(Target or "Target", true)
-		CastSpellByName(SpellName, Target, ...)
-		FaceDirection(facing)
-		if mouselookActive then
-			MouselookStart()
-		end
-		C_Timer.After(0.1, function()
-			FaceDirection(ObjectFacing("player"), true)
-        end)
-	else
-		CastSpellByName(SpellName, Target, ...)
-	end
-end
 -- if canCast(12345,true)
 function canCast(SpellID,KnownSkip,MovementCheck)
 	local myCooldown = getSpellCD(SpellID) or 0
@@ -105,14 +83,10 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 end
 -- castGroundBetween("target",12345,40)
 function castGroundBetween(Unit,SpellID,maxDistance)
-	if getSpellCD(SpellID) <= 0.4 and getLineOfSight("player",Unit) and getDistance("player",Unit) <= maxDistance then
+	if GetUnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player",Unit) and getDistance("player",Unit) <= maxDistance then
 		CastSpellByName(GetSpellInfo(SpellID))
 		local X,Y,Z = GetObjectPosition(Unit)
-		local pX,pY,pZ = GetObjectPosition("player")
-		local cX = (X + pX) /2
-		local cY = (Y + pY) /2
-		local cZ = (Z + pZ) /2
-		ClickPosition(cX,cY,cZ)
+		ClickPosition(X,Y,Z,true)
 		return true
 	end
 	return false
@@ -215,106 +189,86 @@ Tenth 		noCast			True to return True/False instead of casting spell.
 ]]
 -- castSpell("target",12345,true)
 --                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9      ,  10  )
-function castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, KnownSkip, DeadCheck, DistanceSkip, usableSkip, noCast)
-	if
-		GetObjectExists(Unit) and --and (select(2,GetSpellBaseCooldown(SpellID)) == 0 or checkQueue()) --and betterStopCasting(SpellID) ~= true
-			(not UnitIsDeadOrGhost(Unit) or DeadCheck)
-	 then
+function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip,noCast)
+	if GetObjectExists(Unit) --and betterStopCasting(SpellID) ~= true
+		and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
+
 		-- we create an usableSkip for some specific spells like hammer of wrath aoe mode
-		if usableSkip == nil then
-			usableSkip = false
-		end
+		if usableSkip == nil then usableSkip = false end
 		-- stop if not enough power for that spell
-		if usableSkip ~= true and IsUsableSpell(SpellID) ~= true then
-			return false
-		end
+		if usableSkip ~= true and IsUsableSpell(SpellID) ~= true then return false end
 		-- Table used to prevent refiring too quick
-		if timersTable == nil then
-			timersTable = {}
-		end
+		if timersTable == nil then timersTable = {}	end
 		-- default noCast to false
-		if noCast == nil then
-			noCast = false
-		end
+		if noCast == nil then noCast = false end
 		-- make sure it is a known spell
-		if not (KnownSkip == true or isKnown(SpellID)) then
-			return false
-		end
+		if not (KnownSkip == true or isKnown(SpellID)) then return false end
 		-- gather our spell range information
-		local spellRange = select(6, GetSpellInfo(SpellID))
-		if DistanceSkip == nil then
-			DistanceSkip = false
-		end
-		if spellRange == nil or (spellRange < 4 and DistanceSkip == false) then
-			spellRange = 4
-		end
-		if DistanceSkip == true then
-			spellRange = 40
-		end
+		local spellRange = select(6,GetSpellInfo(SpellID))
+		if DistanceSkip == nil then DistanceSkip = false end
+		if spellRange == nil or (spellRange < 4 and DistanceSkip==false) then spellRange = 4 end
+		if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
-		local castTime = select(4, GetSpellInfo(SpellID))
-		if
-			(Unit == nil or GetUnitIsUnit("player", Unit)) or -- Player
-				(Unit ~= nil and GetUnitIsFriend("player", Unit)) or -- Ally
-				(isChecked("Auto Facing") and castTime == 0)
-		 then
+		if (Unit == nil or GetUnitIsUnit("player",Unit)) -- Player
+			or (Unit ~= nil and GetUnitIsFriend("player",Unit))  -- Ally
+			or IsHackEnabled("AlwaysFacing")
+		then
 			FacingCheck = true
 		elseif isSafeToAttack(Unit) ~= true then -- enemy
 			return false
 		end
 		-- if MovementCheck is nil or false then we dont check it
-		if MovementCheck == false or isMoving("player") ~= true or -- skip movement check during spiritwalkers grace and aspect of the fox
-				UnitBuffID("player", 79206) ~= nil then
+		if MovementCheck == false or isMoving("player") ~= true
+			-- skip movement check during spiritwalkers grace and aspect of the fox
+			or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
-			-- if getSpellCD(SpellID) < select(4,GetNetStats()) / 1000
-			if getSpellCD(SpellID) == 0 and (DistanceSkip == true or getOptionCheck("Skip Distance Check") or IsSpellInRange(GetSpellInfo(SpellID), Unit) == 1 or getDistance("player", Unit) <= spellRange) then
+            -- if getSpellCD(SpellID) < select(4,GetNetStats()) / 1000
+			if (getSpellCD(SpellID) < select(4,GetNetStats()) / 1000) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true or inRange(SpellID,Unit)) then
 				-- if spam is not allowed
 				if SpamAllowed == false then
 					-- get our last/current cast
-					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= br.time - 0.6)) then
-						if (FacingCheck == true or getFacing("player", Unit) == true) and (GetUnitIsUnit("player", Unit) or br.units[Unit] ~= nil or getLineOfSight("player", Unit) == true) then
+					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
+						if (FacingCheck == true or getFacing("player",Unit) == true) and (GetUnitIsUnit("player",Unit) or br.units[Unit] ~= nil or getLineOfSight("player",Unit) == true) then
 							if noCast then
 								return true
 							else
-								timersTable[SpellID] = br.time
+								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
 								botCast = true
 								botSpell = SpellID
-								botSpellTime = br.time
-								CastSpellByNameFace(GetSpellInfo(SpellID), Unit)
+								CastSpellByName(GetSpellInfo(SpellID),Unit)
 								if IsAoEPending() then
-									local X, Y, Z = ObjectPosition(Unit)
-									ClickPosition(X, Y, Z)
+									local X,Y,Z = ObjectPosition(Unit)
+									ClickPosition(X,Y,Z)
 								end
 								--lastSpellCast = SpellID
 								-- change main button icon
-								if getOptionCheck("Start/Stop BadRotations") then
-									mainButton:SetNormalTexture(select(3, GetSpellInfo(SpellID)))
+								--if getOptionCheck("Start/Stop BadRotations") then
+									mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 									lastSpellCast = SpellID
 									lastSpellTarget = UnitGUID(Unit)
-								end
+								--end
 								return true
 							end
 						end
 					end
-				elseif (FacingCheck == true or getFacing("player", Unit) == true) and (GetUnitIsUnit("player", Unit) or br.units[Unit] ~= nil or getLineOfSight("player", Unit) == true) then
+				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (GetUnitIsUnit("player",Unit) or br.units[Unit] ~= nil or getLineOfSight("player",Unit) == true) then
 					if noCast then
 						return true
 					else
 						currentTarget = UnitGUID(Unit)
 						botCast = true
 						botSpell = SpellID
-						botSpellTime = br.time
-						CastSpellByNameFace(GetSpellInfo(SpellID), Unit)
+						CastSpellByName(GetSpellInfo(SpellID),Unit)
 						if IsAoEPending() then
-							local X, Y, Z = ObjectPosition(Unit)
-							ClickPosition(X, Y, Z)
+							local X,Y,Z = ObjectPosition(Unit)
+							ClickPosition(X,Y,Z)
 						end
-						if getOptionCheck("Start/Stop BadRotations") then
-							mainButton:SetNormalTexture(select(3, GetSpellInfo(SpellID)))
+						--if getOptionCheck("Start/Stop BadRotations") then
+							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 							lastSpellCast = SpellID
 							lastSpellTarget = UnitGUID(Unit)
-						end
+						--end
 						return true
 					end
 				end
@@ -660,13 +614,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
         -- Attempt to determine best unit for spell's range
         if thisUnit == nil then
 			if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then
-				if isChecked("Auto Facing") and castTime == 0 then
-					thisUnit = getSpellUnit(spellCast, true)
-				else
-					thisUnit = getSpellUnit(spellCast)
-				end
+				thisUnit = getSpellUnit(spellID)
 			else
-				thisUnit = getSpellUnit(spellCast, true)
+				thisUnit = getSpellUnit(spellID,true)
 			end
 		end
         -- Return specified/best cast method

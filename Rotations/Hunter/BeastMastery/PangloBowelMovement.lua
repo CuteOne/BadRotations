@@ -156,7 +156,7 @@ local function runRotation()
     local focusDeficit                       = br.player.power.focus.deficit()
     local gcd                                = br.player.gcd
     local gcdMax                             = br.player.gcdMax
-    local gcdFixed                           = br.player.gcd + .150
+    local gcdFixed                           = br.player.gcdMax + .150
     local has                                = br.player.has
     local inCombat                           = br.player.inCombat
     local inInstance                         = br.player.instance=="party"
@@ -224,13 +224,9 @@ local function runRotation()
         if getOptionValue("Misdireciton") == 3 then
             misdirectUnit = "pet"
         end
-
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if misdirectUnit ~= nil and UnitThreatSituation(misdirectUnit, thisUnit) ~= nil and UnitThreatSituation(misdirectUnit, thisUnit) <= 2 then
-                if cast.misdirection(misdirectUnit) then
-                    return
-                end
+        if misdirectUnit ~= nil then
+            if cast.misdirection(misdirectUnit) then
+                return
             end
         end
     end
@@ -263,7 +259,7 @@ local function runRotation()
         end
     end
     --75
-    local Barb1 = buff.frenzy.remains("pet") <= gcdFixed
+    local Barb1 = buff.frenzy.remains("pet") <= gcdFixed 
     --85
     local Barb2 = charges.barbedShot.timeTillFull() < gcdFixed and buff.bestialWrath.exists()
     --123
@@ -485,17 +481,16 @@ local function runRotation()
     end
 
     local function ST()
-        if Barb1 or (cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet"))
-            and (not useCDs() or (cd.aspectOfTheWild.remains() < gcdFixed)))
+        if Barb1 or (cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet")))
         then
             if cast.barbedShot() then return end
         end
 
-        if not buff.aspectOfTheWild.exists() and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
+        if not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
             if cast.aspectOfTheWild() then return end
         end
 
-        if cast.able.bestialWrath() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if cast.able.bestialWrath() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
@@ -534,15 +529,15 @@ local function runRotation()
             if AoEBarbed() then return end
         end
 
-        if not buff.aspectOfTheWild.exists() and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() then
+        if not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() then
             if cast.aspectOfTheWild() then return end
         end
 
-        if cast.able.bestialWrath() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if cast.able.bestialWrath() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
-        if not Barb1 and cast.able.killCommand() and (#enemies.yards8p < 3 or not traits.rapidReload.active) then
+        if not Barb1 and cast.able.killCommand() and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
             if cast.killCommand() then return end
         end
 

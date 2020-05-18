@@ -170,9 +170,6 @@ function getCreatureType(Unit)
 end
 -- if getFacing("target","player") == false then
 function getFacing(Unit1,Unit2,Degrees)
-	if IsHackEnabled("alwaysfacing") or isChecked("Auto Facing") then 
-		return true
-	end
 	if Degrees == nil then
 		Degrees = 90
 	end

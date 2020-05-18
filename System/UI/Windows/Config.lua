@@ -7,8 +7,6 @@ function br.ui:createConfigWindow()
     local function callGeneral()
         -- General
         section = br.ui:createSection(br.ui.window.config, "General")
-        br.ui:createCheckbox(section, "Always Facing", "Enables EWT Auto Facing Feature")
-        br.ui:createCheckbox(section, "Auto Facing", "Lua Auto face")
         br.ui:createCheckbox(section, "Auto Delay", "Check to dynamically change update rate based on current FPS.")
         br.ui:createSpinnerWithout(section, "Bot Update Rate", 0.1, 0.0, 1.0, 0.01, "Adjust the update rate of Bot operations. Increase to improve FPS but may cause reaction delays. Will be ignored if Auto Delay is checked. Default: 0.1")
         rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.");
