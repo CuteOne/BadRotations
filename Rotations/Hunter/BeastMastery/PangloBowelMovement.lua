@@ -156,7 +156,7 @@ local function runRotation()
     local focusDeficit                       = br.player.power.focus.deficit()
     local gcd                                = br.player.gcd
     local gcdMax                             = br.player.gcdMax
-    local gcdFixed                           = br.player.gcdMax + .150
+    local gcdFixed                           = GetSpellCooldown(61304) + .150
     local has                                = br.player.has
     local inCombat                           = br.player.inCombat
     local inInstance                         = br.player.instance=="party"
@@ -323,6 +323,18 @@ local function runRotation()
         profileStop = false
     end
 
+    local function hunterTTD()
+        if #enemies.yards8p > 0 then
+            for i = 1, #enemies.yards8p do
+                local thisUnit = enemies.yards8p[i]
+                if ttd(thisUnit) >= 15 then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
     local function Shadowshit()
         if isChecked("Enable Corruption") then
             for i = 1, GetObjectCountBR() do
@@ -481,31 +493,29 @@ local function runRotation()
     end
 
     local function ST()
-        if Barb1 or (cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet")))
+        if Barb1 or ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.5 or not buff.frenzy.exists("pet"))
         then
             if cast.barbedShot() then return end
         end
 
-        if not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
             if cast.aspectOfTheWild() then return end
         end
 
-        if cast.able.bestialWrath() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if hunterTTD() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
-        if cast.able.barbedShot() and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < gcdFixed and charges.barbedShot.frac() >= 1.3 then
+        if traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < gcdFixed and charges.barbedShot.frac() >= 1.3 then
             if cast.barbedShot() then return end
         end
 
-        if cast.able.killCommand() then
-            if cast.killCommand() then return end
-        end
+        if cast.killCommand() then return end
 
-        if cast.able.barbedShot() and charges.barbedShot.frac() >= 1.8 then
+        if charges.barbedShot.frac() >= 1.8 then
             if cast.barbedShot() then return end
         end
-        if not Barb1 and cast.able.cobraShot() and (buff.frenzy.remains("pet") >= 2 or charges.barbedShot.frac() <= 0.7) and (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
+        if not Barb1 and (buff.frenzy.remains("pet") >= 2 or charges.barbedShot.frac() <= 0.7) and (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
             if not buff.bestialWrath.exists() and buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdFixed*2 and focusTTM > gcdFixed *2 then
                 return false
             else 
@@ -515,41 +525,41 @@ local function runRotation()
     end
 
     local function AOE()
-        if cast.able.barbedShot() and (((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet"))
+        if (((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet"))
             and (not useCDs() or (cd.aspectOfTheWild.remains() < gcdFixed))) or Barb1
         then
             if AoEBarbed() then Print("Barbed1") return end
         end
 
-        if cast.able.multishot() and buff.beastCleave.remains("pet") < gcdFixed then
+        if buff.beastCleave.remains("pet") < gcdFixed then
             if cast.multishot() then return end
         end
 
-        if cast.able.barbedShot() and Barb2 then
+        if Barb2 then
             if AoEBarbed() then return end
         end
 
-        if not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and isChecked("Aspect of the Wild") and useCDs() then
             if cast.aspectOfTheWild() then return end
         end
 
-        if cast.able.bestialWrath() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if hunterTTD() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
-        if not Barb1 and cast.able.killCommand() and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
+        if not Barb1 and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
             if cast.killCommand() then return end
         end
 
-        if cast.able.barbedShot() and Barb3 then
+        if Barb3 then
             if AoEBarbed() then return end
         end
 
-        if cast.able.multishot() and traits.rapidReload.active and #enemies.yards8p > 2 and not Barb1 then
+        if traits.rapidReload.active and #enemies.yards8p > 2 and not Barb1 then
             if cast.multishot() then return end
         end
 
-        if cast.able.cobraShot() and cd.killCommand.remains() > focusTTM and (#enemies.yards8p < 3 or not traits.rapidReload.active) and not Barb1 then
+        if cd.killCommand.remains() > focusTTM and (#enemies.yards8p < 3 or not traits.rapidReload.active) and not Barb1 then
             if cast.cobraShot() then return end
         end
     end
