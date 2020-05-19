@@ -328,7 +328,7 @@ local function runRotation()
     local function hunterTTD()
         for i = 1, #enemies.yards20p do
             local thisUnit = enemies.yards20p[i]
-            if ttd(thisUnit) >= 15 or not isChecked("Use TTD for Aspect and Bestial") then
+            if ttd(thisUnit) >= 7 or not isChecked("Use TTD for Aspect and Bestial") then
                 return true
             else 
                 return false
@@ -494,16 +494,26 @@ local function runRotation()
     end
 
     local function ST()
+        if not Barb1 then
+            if buff.bestialWrath.exists("player") and talent.killerCobra then
+                if cast.killCommand() then return end
+                if (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
+                    if cast.cobraShot() then return end
+                end
+            end
+        end
+
+
         if Barb1 or ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.5 or not buff.frenzy.exists("pet"))
         then
             if cast.barbedShot() then return end
         end
 
-        if hunterTTD() and not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
             if cast.aspectOfTheWild() then return end
         end
 
-        if hunterTTD() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if hunterTTD() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
@@ -540,11 +550,11 @@ local function runRotation()
             if AoEBarbed() then return end
         end
 
-        if hunterTTD() and not buff.aspectOfTheWild.exists() and getDistance("target","pet") <= 8 and isChecked("Aspect of the Wild") and useCDs() then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and isChecked("Aspect of the Wild") and useCDs() then
             if cast.aspectOfTheWild() then return end
         end
 
-        if hunterTTD() and getDistance("target","pet") <= 8 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if hunterTTD() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
