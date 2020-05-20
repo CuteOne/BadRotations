@@ -105,14 +105,19 @@ function br.objectTracker()
 				end
 			end
 			-- Custom Tracker
-			if isChecked("Custom Tracker") and getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3 then
+			if (isChecked("Custom Tracker") and getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3) or isChecked("Rare Tracker") then
 				for i = 1, GetObjectCountBR() do
 					local object = GetObjectWithIndex(i)
 					local name = ObjectName(object)
 					local objectid = ObjectID(object)
-					for k in string.gmatch(tostring(getOptionValue("Custom Tracker")),"([^,]+)") do
-						if string.len(string.trim(k)) >= 3 and strmatch(strupper(name),strupper(string.trim(k))) then
-							trackObject(object,name,objectid)
+					if isChecked("Rare Tracker") and not UnitIsDeadOrGhost(object) and (UnitClassification(object) == "rare" or UnitClassification(object) == "rareelite") then
+						trackObject(object,name,objectid)
+					end
+					if isChecked("Custom Tracker") then
+						for k in string.gmatch(tostring(getOptionValue("Custom Tracker")),"([^,]+)") do
+							if string.len(string.trim(k)) >= 3 and strmatch(strupper(name),strupper(string.trim(k))) then
+								trackObject(object,name,objectid)
+							end
 						end
 					end
 				end

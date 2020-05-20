@@ -52,7 +52,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 200420-1657")
+        section = br.ui:createSection(br.ui.window.profile, "General - 20200515-0721")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createCheckbox(section, "Aggressive Glimmer")
@@ -84,10 +84,10 @@ local function createOptions()
         --br.ui:createCheckbox(section,"glimmer debug")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFDPS-Target" }, 1, "", "")
+        br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "DPS-Target", "w/DPS KEY" }, 1, "", "")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFDPS-Target" }, 1, "", "")
+        br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "DPS-Target", "w/DPS KEY" }, 1, "", "")
 
         -- br.ui:createCheckbox(section, "Advanced Trinket Support")
 
@@ -146,6 +146,10 @@ local function createOptions()
         br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Deadeye target|cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
         br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
+        br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
+        br.ui:checkSectionState(section)
     end
 
     local function oocoptions()
@@ -181,6 +185,7 @@ end
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
+local glimmerCount = 0
 local buff
 local cast
 local cd
@@ -445,9 +450,9 @@ actionList.glimmer = function()
     -- glimmer()
 
 
+    --  Print(mode.dPS)
 
-
-
+    br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
 
     if cast.able.holyShock() then
         local glimmerCount = 0
@@ -459,14 +464,15 @@ actionList.glimmer = function()
 
 
         --Glimmer support
-        if isChecked("Aggressive Glimmer") and mode.dps == 1 and br.player.inCombat and UnitIsEnemy("target", "player") then
-            -- Print("1")
-            if not debuff.glimmerOfLight.exists("target", "exact") and GetUnitExists("target") and getFacing("player", "target") then
-                --Print("2")
+        if isChecked("Aggressive Glimmer") and br.player.mode.DPS == 1 and br.player.inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
+            if br.player.mode.DPS == 1 and not debuff.glimmerOfLight.exists("target", "EXACT") and GetUnitExists("target") and getFacing("player", "target") then
                 if cast.holyShock("target") then
-                    br.addonDebug("[GLIM] Aggressive Glimmer on target" .. UnitName("target"))
+                    br.addonDebug("[GLIM] Aggressive Glimmer on: " .. UnitName("target"))
                     return true
                 end
+            end
+            if debuff.glimmerOfLight.exists("target", "EXACT") then
+                glimmerCount = glimmerCount + 1
             end
         end
 
@@ -524,7 +530,7 @@ actionList.glimmer = function()
         end
     end
 
-        -- Light of Dawn
+    -- Light of Dawn
     if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
         if EasyWoWToolbox == nil then
             if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff)
@@ -674,6 +680,19 @@ actionList.dps = function()
         if cast.avengingWrath() then
             return true
         end
+        --trinkets w/CD
+        if isChecked("Trinket 1") and getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+            if canUseItem(13) then
+                useItem(13)
+            end
+        end
+        if isChecked("Trinket 2") and getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+            if canUseItem(14) then
+                useItem(14)
+            end
+        end
+
+
     end
 
     if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 15
@@ -1448,17 +1467,15 @@ actionList.heal = function()
                 end
             end
         end
-    end
-
-    if healTarget ~= "none" then
-        healTargetHealth = round(getHP(healTarget), 1)
-        if cast.holyShock(healTarget) then
-            br.addonDebug("[" .. healReason .. "] Holyshock on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
-            healTarget = "none"
-            return true
+        if healTarget ~= "none" then
+            healTargetHealth = round(getHP(healTarget), 1)
+            if cast.holyShock(healTarget) then
+                br.addonDebug("[" .. healReason .. "] Holyshock on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
+                healTarget = "none"
+                return true
+            end
         end
-    end
-
+    end -- end holy shock
     -- Light of Dawn
     if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
         if EasyWoWToolbox == nil then
@@ -1652,6 +1669,9 @@ local function runRotation()
             glimmerCount = glimmerCount + 1
         end
     end
+
+    br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+
 
 
 

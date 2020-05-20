@@ -922,3 +922,14 @@ function br.store(key, value)
 	return value == nil and default or value
   end
 
+function br.sanguineCheck(unit)
+	if br.sanguine then
+		local x, y, z = ObjectPosition(unit)
+		for _, v in pairs(br.sanguine) do
+			if sqrt(((x - v.posX) ^ 2) + ((y - v.posY) ^ 2) + ((z - v.posZ) ^ 2)) < 5 then
+				return true
+			end
+		end
+	end
+	return false
+end

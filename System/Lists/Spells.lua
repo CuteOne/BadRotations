@@ -286,7 +286,7 @@ br.lists.spells = {
                 avalanche                   = 207142,
                 blindingSleet               = 207167,
                 breathOfSindragosa          = 152279,
-                coldHeart                   = 152279,
+                coldHeart                   = 281208,
                 deathPact                   = 48743,
                 deathsReach                 = 276079,
                 frostscythe                 = 207230,
@@ -2449,6 +2449,8 @@ br.lists.spells = {
             },
             debuffs                         = {
                 ghostlyStrike               = 196937,
+                gouge                       = 1776,
+                betweenTheEyes              = 199804,
             },
             glyphs                          = {
 
@@ -2470,6 +2472,8 @@ br.lists.spells = {
                 deadshot                    = 272935,
                 aceupyoursleeve             = 278676,
                 snakeeyes                   = 275846,
+                keepYourWitsAboutYou        = 288979,
+
             },
         },
         -- Subtlety

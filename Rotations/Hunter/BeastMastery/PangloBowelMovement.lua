@@ -47,15 +47,12 @@ local function createToggles()
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
     CreateButton("PetSummon",6,0)
---[[     DebugModes = {
-        [1] = { mode = "1", value = 1 , overlay = "Block 1", tip = "Block 1", highlight = 1, icon = br.player.spell.callPet1 },
-        [2] = { mode = "2", value = 2 , overlay = "Block 2", tip = "Block 2", highlight = 1, icon = br.player.spell.callPet2 },
-        [3] = { mode = "3", value = 3 , overlay = "Block 3", tip = "Block 3", highlight = 1, icon = br.player.spell.callPet3 },
-        [4] = { mode = "4", value = 4 , overlay = "Block 4", tip = "Block 4", highlight = 1, icon = br.player.spell.callPet4 },
-        [5] = { mode = "5", value = 5 , overlay = "Block 5", tip = "Block 5", highlight = 1, icon = br.player.spell.callPet5 },
-        [6] = { mode = "None", value = 6 , overlay = "No Block", tip = "Dont Block anything", highlight = 0, icon = br.player.spell.callPet }
+    -- MD Button
+    BestCleaveModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Best Cleave Target Enabled", tip = "Best Cleave Target Enabled", highlight = 1, icon = br.player.spell.misdirection },
+        [2] = { mode = "Off", value = 2 , overlay = "Best Cleave Target Disabled", tip = "Best Cleave Target Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Debug",7,0) ]]
+    CreateButton("BestCleave",0,1)
 end
 
 local function createOptions()
@@ -70,9 +67,9 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 2, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFSelect target to Misdirect to.")
-            -- Heart Essence
-            br.ui:createCheckbox(section,"Hunter Burn", "Only Used in Dungeons")
-            br.ui:createSpinnerWithout(section, "Humanize Switching", 2, 0.1, 5, 0.1)
+            br.ui:createCheckbox(section, "Use TTD for Aspect and Bestial")
+            -- Cleave
+            br.ui:createSpinnerWithout(section, "Humanize Switching for Burn", 2, 0.1, 5, 0.1)
         br.ui:checkSectionState(section)
         -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -156,7 +153,7 @@ local function runRotation()
     local focusDeficit                       = br.player.power.focus.deficit()
     local gcd                                = br.player.gcd
     local gcdMax                             = br.player.gcdMax
-    local gcdFixed                           = br.player.gcdMax + .150
+    local gcdFixed                           = GetSpellCooldown(61304) + .150
     local has                                = br.player.has
     local inCombat                           = br.player.inCombat
     local inInstance                         = br.player.instance=="party"
@@ -208,7 +205,7 @@ local function runRotation()
 
     if mode.misdirection == 1 then
         local misdirectUnit
-        if getOptionValue("Misdireciton") == 1 then
+        if getOptionValue("Misdirection") == 1 then
             for i = 1, #br.friend do
                 local thisFriend = br.friend[i].unit
                 if (thisFriend == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
@@ -218,18 +215,19 @@ local function runRotation()
                 end
             end
         end
-        if getOptionValue("Misdireciton") == 2 and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player") then
+        if getOptionValue("Misdirection") == 2 and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player") then
             misdirectUnit = "focus"
         end
-        if getOptionValue("Misdireciton") == 3 then
+        if getOptionValue("Misdirection") == 3 then
             misdirectUnit = "pet"
         end
-
-        for i = 1, #enemies.yards40 do
+        if misdirectUnit ~= nil then
+            for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if misdirectUnit ~= nil and UnitThreatSituation(misdirectUnit, thisUnit) ~= nil and UnitThreatSituation(misdirectUnit, thisUnit) <= 2 then
-                if cast.misdirection(misdirectUnit) then
-                    return
+                if UnitThreatSituation(misdirectUnit, thisUnit) ~= nil and UnitThreatSituation(misdirectUnit, thisUnit) <= 2 then
+                    if cast.misdirection(misdirectUnit) then
+                        return
+                    end
                 end
             end
         end
@@ -237,7 +235,7 @@ local function runRotation()
     if timersTable then
         wipe(timersTable)
     end
-    if isChecked("Hunter Burn") then
+    if mode.bestCleave == 1 then
         local biggestGroup = 0
         local bestUnit
         for i = 1, #enemies.yards20p do
@@ -263,7 +261,7 @@ local function runRotation()
         end
     end
     --75
-    local Barb1 = buff.frenzy.remains("pet") <= gcdFixed
+    local Barb1 = buff.frenzy.remains("pet") <= gcdFixed 
     --85
     local Barb2 = charges.barbedShot.timeTillFull() < gcdFixed and buff.bestialWrath.exists()
     --123
@@ -327,6 +325,17 @@ local function runRotation()
         profileStop = false
     end
 
+    local function hunterTTD()
+        for i = 1, #enemies.yards20p do
+            local thisUnit = enemies.yards20p[i]
+            if ttd(thisUnit) >= 7 or not isChecked("Use TTD for Aspect and Bestial") then
+                return true
+            else 
+                return false
+            end
+        end
+    end
+
     local function Shadowshit()
         if isChecked("Enable Corruption") then
             for i = 1, GetObjectCountBR() do
@@ -337,7 +346,7 @@ local function runRotation()
                     local x2, y2, z2 = ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                     if not (debuff.freezingTrap.exists(object) or debuff.intimidation.exists(object)) 
-                    and not (cast.last.freezingTrap() or cast.last.bindingShot() or cast.last.intimidation() or cast.last.feignDeath) then
+                    and not (cast.last.freezingTrap() or cast.last.bindingShot() or cast.last.intimidation() or cast.last.feignDeath()) then
                         if cast.able.freezingTrap() and isChecked("Ice Trap") then
                             if distance <= 40 then
                                 if cast.freezingTrap(object) then
@@ -485,32 +494,39 @@ local function runRotation()
     end
 
     local function ST()
-        if Barb1 or (cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet"))
-            and (not useCDs() or (cd.aspectOfTheWild.remains() < gcdFixed)))
+        if not Barb1 then
+            if buff.bestialWrath.exists("player") and talent.killerCobra then
+                if cast.killCommand() then return end
+                if (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
+                    if cast.cobraShot() then return end
+                end
+            end
+        end
+
+
+        if Barb1 or ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.5 or not buff.frenzy.exists("pet"))
         then
             if cast.barbedShot() then return end
         end
 
-        if cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
             if cast.aspectOfTheWild() then return end
         end
 
-        if cast.able.bestialWrath() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if hunterTTD() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
-        if cast.able.barbedShot and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < gcdFixed and charges.barbedShot.frac() > 1.2 then
+        if traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < gcdFixed and charges.barbedShot.frac() >= 1.3 then
             if cast.barbedShot() then return end
         end
 
-        if not Barb1 and cast.able.killCommand() then
-            if cast.killCommand() then return end
-        end
+        if cast.killCommand() then return end
 
-        if cast.able.barbedShot() and charges.barbedShot.frac() >= 1.5 then
+        if charges.barbedShot.frac() >= 1.8 then
             if cast.barbedShot() then return end
         end
-        if not Barb1 and cast.able.cobraShot() and (buff.frenzy.remains("pet") >= 2 or charges.barbedShot.frac() <= 0.7) and (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
+        if not Barb1 and (buff.frenzy.remains("pet") >= 2 or charges.barbedShot.frac() <= 0.7) and (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
             if not buff.bestialWrath.exists() and buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdFixed*2 and focusTTM > gcdFixed *2 then
                 return false
             else 
@@ -520,41 +536,41 @@ local function runRotation()
     end
 
     local function AOE()
-        if cast.able.barbedShot() and (((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet"))
+        if (((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet"))
             and (not useCDs() or (cd.aspectOfTheWild.remains() < gcdFixed))) or Barb1
         then
             if AoEBarbed() then Print("Barbed1") return end
         end
 
-        if cast.able.multishot() and buff.beastCleave.remains("pet") < gcdFixed then
+        if buff.beastCleave.remains("pet") < gcdFixed then
             if cast.multishot() then return end
         end
 
-        if cast.able.barbedShot() and Barb2 then
+        if Barb2 then
             if AoEBarbed() then return end
         end
 
-        if cast.able.aspectOfTheWild() and isChecked("Aspect of the Wild") and useCDs() then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and isChecked("Aspect of the Wild") and useCDs() then
             if cast.aspectOfTheWild() then return end
         end
 
-        if cast.able.bestialWrath() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
+        if hunterTTD() and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs())) and (buff.bestialWrath.remains() < gcdFixed) then
             if cast.bestialWrath() then return end
         end
 
-        if not Barb1 and cast.able.killCommand() and (#enemies.yards8p < 3 or not traits.rapidReload.active) then
+        if not Barb1 and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
             if cast.killCommand() then return end
         end
 
-        if cast.able.barbedShot() and Barb3 then
+        if Barb3 then
             if AoEBarbed() then return end
         end
 
-        if cast.able.multishot() and traits.rapidReload.active and #enemies.yards8p > 2 and not Barb1 then
+        if traits.rapidReload.active and #enemies.yards8p > 2 and not Barb1 then
             if cast.multishot() then return end
         end
 
-        if cast.able.cobraShot() and cd.killCommand.remains() > focusTTM and (#enemies.yards8p < 3 or not traits.rapidReload.active) and not Barb1 then
+        if cd.killCommand.remains() > focusTTM and (#enemies.yards8p < 3 or not traits.rapidReload.active) and not Barb1 then
             if cast.cobraShot() then return end
         end
     end
@@ -600,7 +616,7 @@ local function runRotation()
         if Shadowshit() then return end
     end
     if feignTime == nil or (feignTime ~= nil and (GetTime() - feignTime > 1.2)) then
-        if pause(true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
+        if pause(true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 4 then
             return true
         else
             if inCombat then
@@ -609,9 +625,9 @@ local function runRotation()
                     StartAttack()
                 end
                     if actionlist_Pet() then return end
-                if unitcount >= getOptionValue("Units To AoE") then
+                if (unitcount >= getOptionValue("Units To AoE")) and (mode.rotation == 2 or mode.rotation == 1) then
                     if AOE() then return end
-                elseif unitcount < getOptionValue("Units To AoE") then
+                elseif unitcount < getOptionValue("Units To AoE") or mode.rotation == 3 then
                     if ST() then return end
                 end
             end

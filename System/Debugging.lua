@@ -109,7 +109,7 @@ end
 br.timer = {}
 function br.timer:useTimer(timerName, interval)
     if self[timerName] == nil then
-        self[timerName] = 0
+        self[timerName] =  0
     end
     if GetTime() - self[timerName] >= interval then
         self[timerName] = GetTime()

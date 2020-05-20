@@ -23,6 +23,7 @@ br.lists.interruptWhitelist = {
     [250096] = true, -- wracking-pain
     [255041] = true, -- terrifying-screech
     [279118] = true, -- unstable-hex
+	[252923] = true, -- Venom Blast
 	-- Atal'Dazar end
 	-- Shrine of Storm start
 	[268030] = true, -- mending-rapids

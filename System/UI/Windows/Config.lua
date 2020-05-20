@@ -120,6 +120,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section,"Enable Tracker")
         br.ui:createCheckbox(section,"Draw Lines to Tracked Objects")
         br.ui:createCheckbox(section,"Auto Interact with Any Tracked Object")
+        br.ui:createCheckbox(section, "Rare Tracker", "Track All Rares In Range")
         br.ui:createScrollingEditBox(section,"Custom Tracker", nil, "Type custom search, Can Seperate items by comma", 300, 40)
         br.ui:checkSectionState(section)
         -- Horrific Visions

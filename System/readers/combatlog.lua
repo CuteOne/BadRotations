@@ -103,7 +103,7 @@ function cl:common(...)
         end
     end
     --In flight
-    if source == br.guid and param == "SPELL_CAST_SUCCESS" and br.unlocked then --EasyWoWToolbox ~= nil then
+    if source == br.guid and param == "SPELL_CAST_SUCCESS" and br.unlocked and destination ~= nil then --EasyWoWToolbox ~= nil then
         br.InFlight.Add(spell, destination)
     end
     -- br.tracker.handleEvent(...)
