@@ -61,7 +61,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General 5-21-20-18:42")
             br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
             -- AoE Units
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 2, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
