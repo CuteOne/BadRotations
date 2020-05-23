@@ -123,7 +123,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Pots")
-        br.ui:createDropdownWithout(section, "Pots - 1 target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:checkSectionState(section)
@@ -680,7 +680,7 @@ actionList.dps = function()
     --Consecration
     if cast.able.consecration() and not isMoving("player") then
         for i = 1, #enemies.yards8 do
-            if not noConc("target") and not debuff.consecration.exists(enemies.yards8[i]) or GetTotemTimeLeft(1) < 2 or (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
+            if not cast.last.consecration(1) and not noConc("target") and not debuff.consecration.exists(enemies.yards8[i]) or GetTotemTimeLeft(1) < 2 or (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
                 if cast.consecration() then
                 end
             end
@@ -967,16 +967,17 @@ actionList.Cooldown = function()
 
 
     if mode.pots == 1 then
-        local auto_pot = nil
-        if #enemies.yards8 == 1 and isBoss("target") then
-            auto_pot = getOptionValue("Pots - 1 target")
+        local auto_pot
+        if #enemies.yards8 == 1 and noConc("target") then
+            auto_pot = getOptionValue("Pots - 1 target (Boss)")
         elseif #enemies.yards8 >= 2 and #enemies.yards8 <= 3 then
             auto_pot = getOptionValue("Pots - 2-3 targets")
         elseif #enemies.yards8 >= 4 then
             auto_pot = getOptionValue("Pots - 4+ target")
         end
 
-        if not auto_pot == 1 and (buff.avengingWrath.remain() > 10 or buff.avengingCrusader.remain() > 10) then
+        if auto_pot ~= 1 and (buff.avengingWrath.remain() > 12 or buff.avengingCrusader.remain() > 12) then
+
             if auto_pot == 2 and canUseItem(163222) then
                 useItem(163222)
             elseif auto_pot == 3 and canUseItem(152559) then
@@ -1737,6 +1738,7 @@ local function runRotation()
             if not inCombat then
                 -- out of combat stuff
                 --  Print("Not in Combat")
+
                 if actionList.Extra() then
                     return true
                 end
