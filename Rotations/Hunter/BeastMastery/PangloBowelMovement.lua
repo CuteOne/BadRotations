@@ -247,7 +247,7 @@ local function runRotation()
                 bestUnit = thisUnit
             end
         end
-        if br.timer:useTimer("Hunter Burn Timer", getOptionValue("Humanize Switching")) then
+        if br.timer:useTimer("Hunter Burn Timer", getOptionValue("Humanize Switching for Burn")) then
             for i = 1, GetObjectCountBR() do
                 local object = GetObjectWithIndex(i)
                 local ID = ObjectID(object)
@@ -412,7 +412,7 @@ local function runRotation()
             if cast.catlikeReflexes() then return end
         end
         if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
-            --[[and petCombat ]]and petHealth <= getOptionValue("Survival of the Fittest")
+            --[[and petCombat ]]and (petHealth <= getOptionValue("Survival of the Fittest") or php <= getOptionValue("Survival of the Fittest"))
         then
             if cast.survivalOfTheFittest() then return end
         end
@@ -517,7 +517,7 @@ local function runRotation()
             if cast.bestialWrath() then return end
         end
 
-        if traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < gcdFixed and charges.barbedShot.frac() >= 1.3 then
+        if traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < (gcdFixed + 2) and charges.barbedShot.frac() >= 1.1 then
             if cast.barbedShot() then return end
         end
 
