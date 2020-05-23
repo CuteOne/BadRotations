@@ -43,6 +43,13 @@ local function createToggles()
         [2] = { mode = "Off", value = 2, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.judgment },
     }
     CreateButton("DPS", 6, 0)
+    PotsModes = {
+        [1] = { mode = "On", value = 1, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
+        [2] = { mode = "Off", value = 2, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
+    }
+    CreateButton("Pots", 7, 0)
+
+
 end
 
 ---------------
@@ -52,7 +59,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 20200515-0721")
+        section = br.ui:createSection(br.ui.window.profile, "General - 20200523-1018")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createCheckbox(section, "Aggressive Glimmer")
@@ -114,7 +121,11 @@ local function createOptions()
         end
         br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
-
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Pots")
+        br.ui:createDropdownWithout(section, "Pots - 1 target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -145,6 +156,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Motherload - Stun jockeys", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFStun ...jockeys ... |cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Deadeye target|cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
+        br.ui:createCheckbox(section, "Shrine - ignore adds last boss", "wont DPS those critters", 1)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Essences")
         br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
@@ -348,6 +360,9 @@ local function isCC(unit)
 end
 local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
+        return true
+    end
+    if isChecked("Shrine - ignore adds last boss") and GetObjectID(unit) == 135903 then
         return true
     end
     if isCC(unit) then
@@ -951,6 +966,37 @@ end -- End Action List - Interrupt
 actionList.Cooldown = function()
 
 
+    if mode.pots == 1 then
+        local auto_pot = nil
+        if #enemies.yards8 == 1 and isBoss("target") then
+            auto_pot = getOptionValue("Pots - 1 target")
+        elseif #enemies.yards8 >= 2 and #enemies.yards8 <= 3 then
+            auto_pot = getOptionValue("Pots - 2-3 targets")
+        elseif #enemies.yards8 >= 4 then
+            auto_pot = getOptionValue("Pots - 4+ target")
+        end
+
+        if not auto_pot == 1 and (buff.avengingWrath.remain() > 10 or buff.avengingCrusader.remain() > 10) then
+            if auto_pot == 2 and canUseItem(163222) then
+                useItem(163222)
+            elseif auto_pot == 3 and canUseItem(152559) then
+                useItem(152559)
+            elseif auto_pot == 4 and canUseItem(109218) then
+                useItem(109218)
+            elseif auto_pot == 5 and canUseItem(142117) then
+                useItem(142117)
+            elseif auto_pot == 6 and #enemies.yards8 > 3 and canUseItem(168529) then
+                useItem(168529)
+            elseif auto_pot == 7 and canUseItem(168506) then
+                useItem(168506)
+            elseif auto_pot == 8 and canUseItem(168498) then
+                useItem(168498)
+            elseif auto_pot == 9 and canUseItem(169299) then
+                useItem(169299)
+            end
+        end
+    end  -- end pots
+
     if isChecked("Bursting") and inInstance and #tanks > 0 then
         Burststack = getDebuffStacks(tanks[1].unit, 240443)
     end
@@ -1096,7 +1142,7 @@ actionList.Cooldown = function()
                     end
                 end
             end
-            if cast.able.blessingOfProtection() then
+            if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() then
                 if (br.friend[i].hp <= getValue("Blessing of Protection")
                         or getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
                         or (getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour

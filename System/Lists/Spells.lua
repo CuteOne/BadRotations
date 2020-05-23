@@ -2451,6 +2451,7 @@ br.lists.spells = {
                 ghostlyStrike               = 196937,
                 gouge                       = 1776,
                 betweenTheEyes              = 199804,
+                preyOnTheWeak               = 255909,
             },
             glyphs                          = {
 
@@ -2592,6 +2593,7 @@ br.lists.spells = {
                 markedForDeath              = 137619,
                 preyOnTheWeak               = 131511,
                 vigor                       = 14983,
+                blindingPowder              = 256165,
             },
         },
     },
