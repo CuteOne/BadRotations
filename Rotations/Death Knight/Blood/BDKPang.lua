@@ -108,9 +108,9 @@ local function createToggles()
         }
     }
     CreateButton("Interrupt", 4, 0)
---[[     DNDModes = {
+    DNDModes = {
         [1] = {
-            mode = "On",
+            mode = "Auto",
             value = 1,
             overlay = "Death and Decay Enabled",
             tip = "Use Death and Decay",
@@ -118,16 +118,16 @@ local function createToggles()
             icon = br.player.spell.deathAndDecay
         },
         [2] = {
-            mode = "Off",
+            mode = "Key",
             value = 2,
-            overlay = "Death and Decay Disabled",
-            tip = "Don't use Death and Decay",
+            overlay = "Key Usage of Death and Decay",
+            tip = "Use Key for Death and Decay",
             highlight = 0,
             icon = br.player.spell.deathAndDecay
         }
     }
     CreateButton("DND", 5, 0)
-    BoneStormModes = {
+--[[BoneStormModes = {
         [1] = {
             mode = "On",
             value = 1,
@@ -178,6 +178,7 @@ local function createOptions()
         br.ui:createDropdown(section, "Gorefiends Grasp Key", br.dropOptions.Toggle, 6, "", "Hold to activate Gorefiends Grasp on Target")
         br.ui:createDropdown(section, "Bone Storm Key", br.dropOptions.Toggle, 6, "", "Hold to Pool Energy for Bonestorm and cast ASAP")
         br.ui:createDropdown(section, "Hold RP", br.dropOptions.Toggle, 6, "", "This Key will prevent any RP from being spent")
+        br.ui:createDropdown(section, "Death and Decay Key", br.dropOptions.Toggle, 6 ,"","Use DnD when this key is held")
         br.ui:checkSectionState(section)
 
         -- Essence Options
@@ -231,9 +232,7 @@ end
 
 local function runRotation()
     --Additional Toggles
-    br.player.mode.DND = br.data.settings[br.selectedSpec].toggles["DND"]
-    br.player.mode.BoneStorm = br.data.settings[br.selectedSpec].toggles["BoneStorm"]
-
+    
     --Locals
     local addsExist = false
     local addsIn = 999
@@ -370,7 +369,7 @@ local function runRotation()
             end
         end
         --AoE DND
-        if #enemies.yards8 >= 3 then
+        if #enemies.yards8 >= 3 and mode.dND == 1 then
             if cast.deathAndDecay("player") then
                 return
             end
@@ -408,7 +407,7 @@ local function runRotation()
         end
 
         --Proc DnD
-        if buff.crimsonScourge.exists() or talent.rapidDecomposition or #enemies.yards8 >= 2 then
+        if (buff.crimsonScourge.exists() or talent.rapidDecomposition or #enemies.yards8 >= 2) and mode.dND == 1 then
             if cast.deathAndDecay("player") then
                 return
             end
@@ -545,6 +544,12 @@ local function runRotation()
                 if cast.deathsAdvance("player") then
                     return true
                 end
+            end
+        end
+
+        if isChecked("Death and Decay Key") and br.player.mode.dND == 2 and SpecificToggle("Death and Decay Key") then
+            if cast.deathAndDecay("player") then
+                return true
             end
         end
 
