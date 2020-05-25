@@ -2593,7 +2593,7 @@ br.lists.spells = {
                 markedForDeath              = 137619,
                 preyOnTheWeak               = 131511,
                 vigor                       = 14983,
-                blindingPowder              = 256165,
+              --  blindingPowder              = 256165,   commented it out as it created errors
             },
         },
     },
