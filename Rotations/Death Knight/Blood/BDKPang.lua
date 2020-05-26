@@ -323,8 +323,8 @@ local function runRotation()
         end
 
         --BloodDrinker
-        if not buff.dancingRuneWeapon.exists("player") and talent.bloodDrinker then
-            if cast.bloodDrinker("target") then
+        if not buff.dancingRuneWeapon.exists("player") and talent.blooddrinker then
+            if cast.blooddrinker("target") then
                 return
             end
         end
