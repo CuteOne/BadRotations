@@ -121,6 +121,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section,"Draw Lines to Tracked Objects")
         br.ui:createCheckbox(section,"Auto Interact with Any Tracked Object")
         br.ui:createCheckbox(section, "Rare Tracker", "Track All Rares In Range")
+        br.ui:createDropdown(section, "Quest Tracker", {"Units", "Objects", "Both"}, 3, "Track Quest Units/Objects")
         br.ui:createScrollingEditBox(section,"Custom Tracker", nil, "Type custom search, Can Seperate items by comma", 300, 40)
         br.ui:checkSectionState(section)
         -- Horrific Visions
@@ -172,6 +173,7 @@ function br.ui:createConfigWindow()
         br.ui:createSpinner(section, "Toxic Brand", 10, 1, 20, 1, "Set how many stacks of toxic brand to stop healing party members at.")
         br.ui:createCheckbox(section, "Arcane Burst", "Will dispel Arcane Burst if checked.")
         br.ui:createSpinner(section, "Necrotic Rot", 40, 1, 100, 5, "Set how many stacks of necrotic rot to stop healing party members at.")
+        br.ui:createSpinnerWithout(section, "Decaying Strike Timer", 5, 1, 20, 1, "Set how long to stop healing tank before Decaying Strike is cast.")
         br.ui:checkSectionState(section)
     end
 

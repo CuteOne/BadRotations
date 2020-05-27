@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.33.1
+## Version: 1.33.2
 ## SavedVariablesPerCharacter: brdata, brprofile
 
 BadRotations.lua
@@ -54,6 +54,7 @@ System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
+#System\Lists\Range.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
 
@@ -95,6 +96,7 @@ System\Engines\HealingEngineFunctions.lua
 #System\Engines\InterruptsFrame.lua -- Unused
 System\Engines\Interrupts.lua 
 System\Engines\ttdTable.lua
+System\Engines\QuestTracker.lua
 System\Engines\Tracker.lua
 
 ## BadRotations UI
