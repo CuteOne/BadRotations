@@ -105,7 +105,7 @@ function br.objectTracker()
 				end
 			end
 			-- Custom Tracker
-			if (isChecked("Custom Tracker") and getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3) or isChecked("Rare Tracker") then
+			if (isChecked("Custom Tracker") and getOptionValue("Custom Tracker") ~= "" and string.len(getOptionValue("Custom Tracker")) >= 3) or isChecked("Rare Tracker") or isChecked("Quest Tracker") then
 				for i = 1, GetObjectCountBR() do
 					local object = GetObjectWithIndex(i)
 					local name = ObjectName(object)
@@ -118,6 +118,14 @@ function br.objectTracker()
 							if string.len(string.trim(k)) >= 3 and strmatch(strupper(name),strupper(string.trim(k))) then
 								trackObject(object,name,objectid)
 							end
+						end
+					end
+					if isChecked("Quest Tracker") then
+						if (getOptionValue("Quest Tracker") == 1 or getOptionValue("Quest Tracker") == 3) and isQuestUnit(object) and (not UnitIsDeadOrGhost(object) or CanLootUnit(object)) and not UnitIsTapDenied(object) then
+							trackObject(object,name,objectid)
+						end
+						if (getOptionValue("Quest Tracker") == 2 or getOptionValue("Quest Tracker") == 3) and isQuestObject(object) then
+							trackObject(object,name,objectid)    
 						end
 					end
 				end
