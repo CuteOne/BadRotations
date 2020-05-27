@@ -187,11 +187,14 @@ if not metaTable1 then
 				end
 			end
 			if br.player.eID == 2331 then
-				for i = 1, GetObjectCountBR() do
-					local thisUnit = GetObjectWithIndex(i)
-					if GetObjectID(thisUnit) == 156866 and UnitTarget(thisUnit) ~= nil then
-						if  isCasting(313213,156866) and UnitTarget(thisUnit) == o.unit then
-							return 250,250,250
+				local time_remain = br.DBM:getPulltimer(nil, 313213)
+				if time_remain < getOptionValue("Decaying Strike Timer") then
+					for i = 1, GetObjectCountBR() do
+						local thisUnit = GetObjectWithIndex(i)
+						if GetObjectID(thisUnit) == 156866 and UnitTarget(thisUnit) ~= nil then
+							if UnitTarget(thisUnit) == o.unit then
+								return 250,250,250
+							end
 						end
 					end
 				end
