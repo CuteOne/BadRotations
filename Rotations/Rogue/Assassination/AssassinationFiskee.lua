@@ -102,6 +102,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Trinkets", "|cffFFFFFF Will use Trinkets")
             br.ui:createCheckbox(section, "Precombat", "|cffFFFFFF Will use items on pulltimer (don't move on pull timer)")
             br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
+            br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  20,  1,  "* 5k Put damage of your Reaping Flames")
             br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury"}, 1, "|cffFFFFFFPotion to use")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
             br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
@@ -446,7 +447,7 @@ local function runRotation()
             local thisUnit = enemies.yards30[i]
             if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
              and (mode.rotation ~= 2  or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) 
-             and not debuff.vendetta.exists("target") then
+             and (not debuff.vendetta.exists("target") or not talent.toxicBlade or (talent.toxicBlade and talent.subterfuge)) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -944,7 +945,7 @@ local function runRotation()
                 end
                 -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture and Garrote not in refresh range, Guardian of Azeroth used
                 -- actions.cds+=/vanish,if=talent.master_assassin.enabled&!stealthed.all&master_assassin_remains<=0&!dot.rupture.refreshable
-                if talent.masterAssassin and not stealthedAll and gcd < 0.1 and not buff.masterAssassin.exists() and not debuff.garrote.refresh("target") and not debuff.rupture.refresh("target") and debuff.vendetta.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) then
+                if talent.masterAssassin and not buff.masterAssassin.exists() and not debuff.garrote.refresh("target") and not debuff.rupture.refresh("target") and debuff.vendetta.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) then
                     if cast.vanish("player") then return true end
                 end
             end
@@ -962,7 +963,7 @@ local function runRotation()
                     if cast.guardianOfAzeroth("player") then return true end
                 end
                 --Blood Of The Enemy
-                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target") or not cd.toxicBlade.exists()) then -- cd.toxicBlade.remain() < 1
+                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target") or not cd.toxicBlade.exists()) and (not talent.exsanguinate or cd.exsanguinate.exists()) then
                     if cast.bloodOfTheEnemy("player") then return true end
                 end
                 --The Unbound Force
@@ -970,13 +971,50 @@ local function runRotation()
             end          
         end
         -- Essence: Reaping Flames
-        -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-        if cast.able.reapingFlames() and isChecked("Essences") and not stealthedRogue and not IsMounted() then
-            for i = 1, #enemies.yards30 do
-                local thisUnit = enemies.yards30[i]
-                local thisHP = getHP(thisUnit)
-                if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
-                    if cast.reapingFlames(thisUnit) then return true end
+        if cast.able.reapingFlames() and isChecked("Essences") and not stealthedRogue and not IsMounted() and inCombat then
+            local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 5000 * 2 or getValue("Reaping DMG") * 5000
+            local reapingPercentage = 0
+            local thisHP = 0
+            local thisABSHP = 0
+            local thisABSHPmax = 0
+            local reapTarget, thisUnit, reap_execute, reap_hold, reap_fallback = false, false, false, false, false
+
+            if #enemies.yards30 == 1 then
+                if ((br.player.essence.reapingFlames.rank >= 2 and getHP(enemies.yards30[1]) > 80) or getHP(enemies.yards30[1]) <= 20 or getTTD(enemies.yards30[1], 20) > 30) then
+                    reapTarget = enemies.yards30[1]
+                end
+            elseif #enemies.yards30 > 1 then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    local reapTTD = getTTD(thisUnit)
+                    if getTTD(thisUnit) ~= 999 then
+                        thisHP = getHP(thisUnit)
+                        thisABSHP = UnitHealth(thisUnit)
+                        thisABSHPmax = UnitHealthMax(thisUnit)
+                        reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
+                        Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
+                        if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 1.5 or buff.reapingFlames.remain() <= 1.5 then
+                            reap_execute = thisUnit
+                            break
+                        elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44) then
+                            reap_hold = true
+                        elseif (thisHP > 80 or thisHP <= 20) or getTTD(thisUnit, 20) > 30 then
+                            reap_fallback = thisUnit
+                        end
+                    end
+                end
+            end
+
+            if reap_execute then
+                reapTarget = reap_execute
+            elseif not reap_hold and reap_fallback then
+                reapTarget = reap_fallback
+            end
+
+            if reapTarget ~= nil and not isExplosive(reapTarget) then
+                if cast.reapingFlames(reapTarget) then
+                    --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+                    return true
                 end
             end
         end
@@ -1003,15 +1041,19 @@ local function runRotation()
     end
 
     local function actionList_Direct()
-        -- # Refresh rupture when we have Vendetta or Toxic Blade on a target
+        -- # Refresh rupture when we have Vendetta or Toxic Blade on a target with Master Assassin
         if talent.masterAssassin and combo >= 4 and debuff.rupture.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
             if cast.rupture("target") then return true end
         end
-        -- # Refresh garrote when we have Vendetta or Toxic Blade on a target
+        -- # Refresh rupture when we have Vendetta and don't have BotE buff Subter/Exsang
+        if (talent.exsanguinate or talent.subterfuge) and combo >= 4 and debuff.rupture.refresh("target") and debuff.vendetta.exists("target") and not buff.seethingRage.exists() then
+            if cast.rupture("target") then return true end
+        end  
+        -- # Refresh garrote when we have Vendetta or Toxic Blade on a target with Master Assassin
         if talent.masterAssassin and debuff.garrote.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
             if cast.garrote("target") then return true end
         end
-        -- # Rupture condition for opener
+        -- # Rupture condition for opener with MA
         if talent.masterAssassin and buff.masterAssassin.exists() and not debuff.rupture.exists("target") and combo > 1 then
             if cast.rupture("target") then return true end
         end
@@ -1021,7 +1063,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined)) and (not stealthedRogue or talent.masterAssassin) and (enemies10 > 1 or inCombat)
+        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin) and not GetUnitIsFriend("player", "target")
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
@@ -1222,16 +1264,6 @@ local function runRotation()
 --- In Combat - Rotations ---
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or mode.vanish == 1 or (validTarget and targetDistance < 5)))) and opener == true then
-            if buff.subterfuge.exists() and cast.able.garrote() then
-                for i = 1, #enemyTable5 do
-                    local thisUnit = enemyTable5[i].unit
-                    if not debuff.garrote.exists(thisUnit) or debuff.garrote.remain(thisUnit) < 5.4 then
-                        if cast.garrote(thisUnit) then
-                            return true
-                        end
-                    end
-                end
-            end
             if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
