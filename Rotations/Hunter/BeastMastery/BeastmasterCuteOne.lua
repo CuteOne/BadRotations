@@ -167,6 +167,17 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
+        -- corruption
+        section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
+            br.ui:createCheckbox(section,"Enable Corruption")
+            br.ui:createCheckbox(section,"Ice Trap")
+            br.ui:createCheckbox(section,"Binding Shot")
+            br.ui:createCheckbox(section,"Intimidation")
+            br.ui:createCheckbox(section,"Conc Shot")
+            br.ui:createCheckbox(section,"Tar Trap")
+            --br.ui:createCheckbox(section,"Disengage?")
+            br.ui:createCheckbox(section,"Feign Thing")
+        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -236,6 +247,7 @@ local thp
 local ttd
 -- Profile Specific Locals
 local lowestBarbedShot
+local feignTime
 
 -----------------
 --- Functions ---
@@ -337,6 +349,71 @@ actionList.Defensive = function()
         -- Feign Death
         if isChecked("Feign Death") and php <= getOptionValue("Feign Death") then
             if cast.feignDeath("player") then return end
+        end
+        if isChecked("Enable Corruption") then
+            for i = 1, GetObjectCountBR() do
+                local object = GetObjectWithIndex(i)
+                local ID = ObjectID(object)
+                if ID == 161895 then
+                    local x1, y1, z1 = ObjectPosition("player")
+                    local x2, y2, z2 = ObjectPosition(object)
+                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                    if not (debuff.freezingTrap.exists(object) or debuff.intimidation.exists(object)) 
+                    and not (cast.last.freezingTrap() or cast.last.bindingShot() or cast.last.intimidation() or cast.last.feignDeath()) then
+                        if cast.able.freezingTrap() and isChecked("Ice Trap") then
+                            if distance <= 40 then
+                                if cast.freezingTrap(object) then
+                                    return true
+                                end
+                            end
+                        elseif cast.able.bindingShot() and isChecked("Binding Shot") then
+                            if distance < 30 then
+                                if cast.bindingShot(object) then
+                                    return true
+                                end
+                            end
+                        elseif cast.able.intimidation() and getDistance(object,"pet") <= 8 and isChecked("Intimidation") then
+                            if cast.intimidation(object) then
+                                return true
+                            end
+                        elseif cast.able.concussiveShot() and isChecked("Conc Shot") then
+                            if distance < 40 then
+                                if cast.concussiveShot(object) then
+                                    return true
+                                end
+                            end
+                        elseif cast.able.tarTrap() and isChecked("Tar Trap") then
+                            if distance < 40 then
+                                if cast.tarTrap(object) then
+                                    return true
+                                end
+                            end
+                        --[[ elseif cast.able.disengage() and isChecked("Disengage?") then
+                            if distance < 30 then
+                                local facing = ObjectFacing("Player")
+                                local mouselookActive = false
+                                if IsMouselooking() then
+                                    mouselookActive = true
+                                    MouselookStop()
+                                end
+                                FaceDirection(object, true)
+                                CastSpellByName(GetSpellInfo(781))
+                                FaceDirection(facing)
+                                if mouselookActive then
+                                    MouselookStart()
+                                end
+                                C_Timer.After(0.1, function()
+                                    FaceDirection(ObjectFacing("player"), true)
+                                end)
+                            end ]]
+                        elseif cd.freezingTrap.remains() > gcdFixed and cast.able.feignDeath() and isChecked("Feign Thing") then
+                            if cast.feignDeath() then
+                                feignTime = GetTime()
+                            end
+                        end
+                    end
+                end
+            end
         end
     end -- End Defensive Toggle
 end -- End Action List - Defensive

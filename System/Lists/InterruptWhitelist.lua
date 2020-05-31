@@ -28,7 +28,7 @@ br.lists.interruptWhitelist = {
 	-- Shrine of Storm start
 	[268030] = true, -- mending-rapids
 	[274438] = true, -- tempest
-	-- [267818] = true, -- slicing-blast
+	[267818] = true, -- slicing-blast
 	[268309] = true, -- unending-darkness
 	[268317] = true, -- rip-mind
 	[276767] = true, -- consuming-void
