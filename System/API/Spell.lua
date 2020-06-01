@@ -111,14 +111,14 @@ br.api.spells = function(spells,k,v,subtable)
 
         if cast.last.time == nil then cast.last.time = {} end
         cast.last.time[k] = function()
-            local castTime = br.lastCast.castTime[v] or 0
-            return castTime
+            if br.lastCast.castTime[v] == nil then br.lastCast.castTime[v] = GetTime() end
+            return br.lastCast.castTime[v]
         end
 
         if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
         cast.timeSinceLast[k] = function()
-            local castTime = br.lastCast.castTime[v] or 0
-            return GetTime() - castTime
+            if br.lastCast.castTime[v] == nil then br.lastCast.castTime[v] = GetTime() end
+            return GetTime() - br.lastCast.castTime[v]
         end
 
         if cast.pool == nil then cast.pool = {} end

@@ -61,7 +61,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General 5-21-20-18:42")
+        section = br.ui:createSection(br.ui.window.profile, "General 5-22-20 22:42")
             br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
             -- AoE Units
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 2, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
@@ -186,6 +186,14 @@ local function runRotation()
 
     if buff.aspectOfTheWild.exists("player") then
         gcdFixed = math.max(0.75, gcdFixed - 0.2 / (1 + GetHaste() / 100))
+    end
+
+    local function ttd(unit)
+        if UnitIsPlayer(unit) then return 999 end
+        local ttdSec = getTTD(unit)
+        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
+        if ttdSec == -1 then return 999 end
+        return ttdSec
     end
     
 
@@ -494,11 +502,11 @@ local function runRotation()
     end
 
     local function ST()
-        if not Barb1 then
-            if buff.bestialWrath.exists("player") and talent.killerCobra then
-                if cast.killCommand() then return end
-                if (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
-                    if cast.cobraShot() then return end
+        if not Barb1  and talent.killerCobra then
+            if cast.killCommand("target") then return true end
+            if buff.bestialWrath.exists("player") then
+                if (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 60) then
+                    if cast.cobraShot("target") then return true end
                 end
             end
         end
@@ -506,7 +514,7 @@ local function runRotation()
 
         if Barb1 or ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.5 or not buff.frenzy.exists("pet"))
         then
-            if cast.barbedShot() then return end
+            if cast.barbedShot("target") then return end
         end
 
         if hunterTTD() and not buff.aspectOfTheWild.exists() and isChecked("Aspect of the Wild") and useCDs() and (charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) then
@@ -518,19 +526,19 @@ local function runRotation()
         end
 
         if traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remains() < (gcdFixed + 2) and charges.barbedShot.frac() >= 1.1 then
-            if cast.barbedShot() then return end
+            if cast.barbedShot("target") then return end
         end
 
-        if cast.killCommand() then return end
+        if cast.killCommand("target") then return end
 
         if charges.barbedShot.frac() >= 1.8 then
-            if cast.barbedShot() then return end
+            if cast.barbedShot("target") then return end
         end
         if not Barb1 and (buff.frenzy.remains("pet") >= 2 or charges.barbedShot.frac() <= 0.7) and (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 40) then
             if not buff.bestialWrath.exists() and buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdFixed*2 and focusTTM > gcdFixed *2 then
                 return false
             else 
-                if cast.cobraShot() then return end
+                if cast.cobraShot("target") then return end
             end
         end
     end
@@ -558,7 +566,7 @@ local function runRotation()
             if cast.bestialWrath() then return end
         end
 
-        if not Barb1 and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
+        if not Barb1 and (#enemies.yards8p < 3 or not traits.rapidReload.active) then
             if cast.killCommand() then return end
         end
 
@@ -610,21 +618,28 @@ local function runRotation()
         end
     end
 
+    local function offGCD()
+        if actionlist_Pet() then return end
+        if interrupt() then return end
+        if inCombat and #enemies.yards40 >= 1 then
+                PetAttack("target") 
+                StartAttack()
+        end
+    end
+
+    if offGCD() then return end
+
+
+
     if not Barb1 then 
         if defensive() then return end
-        if interrupt() then return end
         if Shadowshit() then return end
     end
     if feignTime == nil or (feignTime ~= nil and (GetTime() - feignTime > 1.2)) then
-        if pause(true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 4 then
+        if pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 4 then
             return true
         else
             if inCombat then
-                if #enemies.yards40 >= 1 then
-                    PetAttack("target") 
-                    StartAttack()
-                end
-                    if actionlist_Pet() then return end
                 if (unitcount >= getOptionValue("Units To AoE")) and (mode.rotation == 2 or mode.rotation == 1) then
                     if AOE() then return end
                 elseif unitcount < getOptionValue("Units To AoE") or mode.rotation == 3 then
