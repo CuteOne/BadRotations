@@ -1011,7 +1011,7 @@ local function runRotation()
                 reapTarget = reap_fallback
             end
 
-            if reapTarget ~= nil and not isExplosive(reapTarget) then
+            if reapTarget ~= nil and not isExplosive(reapTarget) and getFacing("player",reapTarget) then
                 if cast.reapingFlames(reapTarget) then
                     --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                     return true
