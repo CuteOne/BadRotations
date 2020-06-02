@@ -992,7 +992,7 @@ local function runRotation()
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
+                        --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
                         if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 1.5 or buff.reapingFlames.remain() <= 1.5 then
                             reap_execute = thisUnit
                             break
