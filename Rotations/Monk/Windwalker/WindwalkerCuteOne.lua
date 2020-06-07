@@ -435,6 +435,9 @@ actionList.Cooldowns = function()
             if cast.able.worldveinResonance() and (cd.touchOfDeath.remain() > 58 or cd.touchOfDeath.remain() < 2 or ttd < 20) then
                 if cast.worldveinResonance() then debug("Casting Worldvein Resonance") return true end
             end
+			    if cast.able.bloodOfTheEnemy() and debuff.touchOfDeath.exists("target") then
+                if cast.bloodOfTheEnemy() then return true end
+				end
         end
         -- Racial - Blood Fury / Berserking / Arcane Torrent / Fireblood
         -- blood_fury
@@ -663,8 +666,7 @@ actionList.SingleTarget = function()
     end
     -- Tiger Palm
     -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2
-    if cast.able.tigerPalm() and ((not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2)
-        or ttm < 3 or ttd < 3 or isExplosive("target"))
+    if cast.able.tigerPalm() and not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2
     then
         if cast.tigerPalm() then debug("Casting Tiger Palm [ST]") return true end
     end
@@ -730,8 +732,7 @@ actionList.AoE = function()
     end
     -- Tiger Palm
     -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2&(!talent.hit_combo.enabled|!prev_gcd.1.tiger_palm)
-    if cast.able.tigerPalm(lowestMark) and ((chiMax - chi >= 2 and (not talent.hitCombo or not wasLastCombo(spell.tigerPalm)))
-        or ttd < 3 or ttm < 3 or isExplosive("target"))
+    if cast.able.tigerPalm(lowestMark) and (chiMax - chi >= 2 and (not talent.hitCombo or not wasLastCombo(spell.tigerPalm)))
     then
         if cast.tigerPalm(lowestMark) then debug("Casting Tiger Palm [AOE]") return true end
     end
@@ -748,8 +749,7 @@ actionList.AoE = function()
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(buff.bok_proc.up|(talent.hit_combo.enabled&prev_gcd.1.tiger_palm&chi<4))
     if cast.able.blackoutKick(lowestMark) and ((not wasLastCombo(spell.blackoutKick)
-        and (buff.blackoutKick.exists() or (talent.hitCombo and wasLastCombo(spell.tigerPalm) and chi < 4)))
-        or ttd <= 3 or ttm <= 3 or isExplosive("target"))
+        and (buff.blackoutKick.exists() or (talent.hitCombo and wasLastCombo(spell.tigerPalm) and chi < 4))))
     then
         if cast.blackoutKick(lowestMark) then debug("Casting Blackout Kick [AOE]") return true end
     end
@@ -1143,7 +1143,7 @@ local function runRotation()
         SpellStopCasting()
     end
 
-    useFists = (ttm > 3 and #enemies.yards8f >= option.value("Fists of Fury Targets")) and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
+    useFists = #enemies.yards8f >= option.value("Fists of Fury Targets") and mode.fof == 1 and not isExplosive("target")
     lowestMark = debuff.markOfTheCrane.lowest(5,"remain") or units.dyn5
     if not inCombat or lastCombo == nil then lastCombo = 1822 end --6603 end
     if lastCast == nil then lastCast = 1822 end

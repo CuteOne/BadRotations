@@ -992,7 +992,7 @@ local function runRotation()
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
+                        --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
                         if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 1.5 or buff.reapingFlames.remain() <= 1.5 then
                             reap_execute = thisUnit
                             break
@@ -1011,7 +1011,7 @@ local function runRotation()
                 reapTarget = reap_fallback
             end
 
-            if reapTarget ~= nil and not isExplosive(reapTarget) then
+            if reapTarget ~= nil and not isExplosive(reapTarget) and getFacing("player",reapTarget) then
                 if cast.reapingFlames(reapTarget) then
                     --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                     return true

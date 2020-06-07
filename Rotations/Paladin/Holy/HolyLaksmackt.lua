@@ -1506,7 +1506,7 @@ local function runRotation()
                     end
                 end
             elseif getOptionValue("Trinket 1 Mode") == 4 then
-                if canUseItem(13) and (ttd(units.dyn40) < 5 and useCDs()) then
+                if canUseItem(13) and (getTTD(units.dyn40) < 5 and useCDs()) then
                     UseItemByName(select(1, GetInventoryItemID("player", 13)), units.dyn40)
                     return true
                 end
@@ -1556,7 +1556,7 @@ local function runRotation()
                     end
                 end
             elseif getOptionValue("Trinket 1 Mode") == 4 then
-                if canUseItem(14) and (ttd(units.dyn40) < 5 and useCDs()) then
+                if canUseItem(14) and (getTTD(units.dyn40) < 5 and useCDs()) then
                     UseItemByName(select(1, GetInventoryItemID("player", 14)), units.dyn40)
                     return true
                 end

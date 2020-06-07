@@ -996,6 +996,7 @@ br.lists.spells = {
                 barrage                     = 120360,
                 chimaeraShot                = 53209,
                 direBeast                   = 120679,
+                killerCobra                 = 199532,
                 spittingCobra               = 194407,
             },
             traits                          = {

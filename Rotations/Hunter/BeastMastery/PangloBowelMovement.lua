@@ -153,7 +153,7 @@ local function runRotation()
     local focusDeficit                       = br.player.power.focus.deficit()
     local gcd                                = br.player.gcd
     local gcdMax                             = br.player.gcdMax
-    local gcdFixed                           = GetSpellCooldown(61304) + .150
+    local gcdFixed                           = gcdMax + .150
     local has                                = br.player.has
     local inCombat                           = br.player.inCombat
     local inInstance                         = br.player.instance=="party"
@@ -269,7 +269,7 @@ local function runRotation()
         end
     end
     --75
-    local Barb1 = buff.frenzy.remains("pet") <= gcdFixed 
+    local Barb1 = buff.frenzy.remains("pet") <= (gcdFixed)
     --85
     local Barb2 = charges.barbedShot.timeTillFull() < gcdFixed and buff.bestialWrath.exists()
     --123
@@ -502,11 +502,12 @@ local function runRotation()
     end
 
     local function ST()
-        if not Barb1  and talent.killerCobra then
-            if cast.killCommand("target") then return true end
+        if not Barb1  and talent.killerCobra and buff.danceOfDeath.remains() < (gcdFixed + 2) then
             if buff.bestialWrath.exists("player") then
-                if (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 60) then
-                    if cast.cobraShot("target") then return true end
+                if useCDs() then if cast.aspectOfTheWild() then return end end
+                if cast.killCommand("target") then return end
+                if (cd.killCommand.remains() >= (gcdFixed+1) or focusDeficit <= 30) then
+                    if cast.cobraShot("target") then return end
                 end
             end
         end
@@ -566,7 +567,7 @@ local function runRotation()
             if cast.bestialWrath() then return end
         end
 
-        if not Barb1 and (#enemies.yards8p < 3 or not traits.rapidReload.active) then
+        if not Barb1 and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
             if cast.killCommand() then return end
         end
 
@@ -619,8 +620,8 @@ local function runRotation()
     end
 
     local function offGCD()
-        if actionlist_Pet() then return end
-        if interrupt() then return end
+        actionlist_Pet()
+        interrupt()
         if inCombat and #enemies.yards40 >= 1 then
                 PetAttack("target") 
                 StartAttack()
@@ -628,9 +629,6 @@ local function runRotation()
     end
 
     if offGCD() then return end
-
-
-
     if not Barb1 then 
         if defensive() then return end
         if Shadowshit() then return end
@@ -649,6 +647,7 @@ local function runRotation()
         end
     end
 end
+
 
 local id = 253
 if br.rotations[id] == nil then br.rotations[id] = {} end
