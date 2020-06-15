@@ -200,6 +200,7 @@ local bladeDanceVar
 local poolForMeta
 local poolForBladeDance
 local poolForEyeBeam
+local reapingDelay
 local waitForDarkSlash
 local waitForMomentum
 local waitForNemesis
@@ -510,12 +511,15 @@ actionList.Essence = function()
         if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
     end
     -- Essence: Reaping Flames
-    -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+    -- reaping_flames,target_if=target.time_to_die<1.5|((target.health.pct>80|target.health.pct<=20)&(active_enemies=1|variable.reaping_delay>29))|(target.time_to_pct_20>30&(active_enemies=1|variable.reaping_delay>44))
     if cast.able.reapingFlames() then
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
             local thisHP = getHP(thisUnit)
-            if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+            if ttd(thisUnit) < 1.5
+                or (((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 ) and (#enemies.yards40 == 1 or reapingDelay() > 29))
+                    or (ttd(thisUnit,20) > 30 and (#enemies.yards40 == 1 or reapingDelay() > 44))
+            then
                 if cast.reapingFlames(thisUnit) then debug("Casting Reaping Flames") return true end
             end
         end
@@ -884,6 +888,7 @@ local function runRotation()
     enemies.get(10)
     enemies.get(20)
     enemies.get(40)
+    enemies.get(40,"player",false,true)
     enemies.get(50)
     enemies.yards20r, enemies.yards20rTable = getEnemiesInRect(10,20,false)
     enemies.yards25r = getEnemiesInRect(8,25,false) or 0
@@ -921,6 +926,19 @@ local function runRotation()
     -- Wait for Momentum
     -- variable,name=waiting_for_momentum,value=talent.momentum.enabled&!buff.momentum.up
     waitForMomentum = talent.momentum and not buff.momentum.exists()
+    -- Reaping Delay
+    -- cycling_variable,name=reaping_delay,op=min,if=essence.breath_of_the_dying.major,value=target.time_to_die
+    reapingDelay = function()
+        local lowestTTD = 99
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
+            local thisTTD = ttd(thisUnit)
+            if ttd(thisUnit) < lowestTTD then
+                lowestTTD = thisTTD
+            end
+        end
+        return lowestTTD
+    end
 
     -- Check for Eye Beam During Metamorphosis
     if talent.demonic and buff.metamorphosis.exists() and cast.last.eyeBeam() then metaEyeBeam = true end
@@ -940,7 +958,7 @@ local function runRotation()
             if cast.felRush() then return end
         end
     end
-    
+
     ---------------------
     --- Begin Profile ---
     ---------------------

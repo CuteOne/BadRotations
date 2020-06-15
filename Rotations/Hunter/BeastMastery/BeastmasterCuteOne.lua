@@ -1098,7 +1098,7 @@ local function runRotation()
             ---------------------------
             if getOptionValue("APL Mode") == 1 then
                 -- auto_shot
-                StartAttack()
+                -- StartAttack()
                 -- call_action_list,name=cds
                 if actionList.Cooldowns() then return end
                 -- call_action_list,name=st,if=active_enemies<2
