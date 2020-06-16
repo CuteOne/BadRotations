@@ -1155,10 +1155,20 @@ local function runRotation()
             end
         end
         -- # Crimson Tempest only on multiple targets at 4+ CP when running out in 2s (up to 4 targets) or 3s (5+ targets)
-        -- actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&combo_points>=4
+        -- actions.dot+=/crimson_tempest,if=spell_targets>3&remains<2+(spell_targets>=5)&combo_points>=4
         local crimsonTargets
         if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-        if talent.crimsonTempest and enemies10 >= 2  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
+        if talent.crimsonTempest and enemies10 >= 3  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
+            if cast.crimsonTempest("player") then return true end
+        end
+        -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
+        -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spend-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
+        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+            if cast.crimsonTempest("player") then return true end
+        end
+        -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
+        -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>1&spell_targets<4&remains<2&combo_points>=4
+        if talent.crimsonTempest and not queenBuff and enemies10 > 1 and enemies10 < 4 and combo >= 4 and debuff.crimsonTempest.remain(units.dyn5) < 2 then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
