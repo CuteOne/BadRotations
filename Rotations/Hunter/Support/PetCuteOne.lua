@@ -175,7 +175,7 @@ br.rotations.support["PetCuteOne"] = function()
                     end
                 end
             end
-            if dispelled then Print("Casting dispel on ".. UnitName(dispelledUnit)); return end
+            if dispelled then return end
         end
     end
     -- Growl
