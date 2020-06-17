@@ -1,8 +1,11 @@
 if br.lists == nil then
     br.lists = {}
 end
--- Crowd Control Units = list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
+-- Crowd Control Units = list of units to stun, either always or under certain condition such as having a buff or whirlwind etc
+-- example
 br.lists.ccUnits = {
+    --Test unit outside Boralus
+    [123231] = { name = "Sharptail Beaver" },
     -- Shadowmoon Burial Grounds
     [75966] = { name = "Defiled Spirit" }, -- need to be cc and snared and is not allowed to reach boss.
     [76446] = { name = "Shadowmoon Enslavers" },
@@ -13,7 +16,6 @@ br.lists.ccUnits = {
     [80937] = { name = "Gromkar Gunner" },
     -- UBRS
     [76157] = { name = "Black Iron Leadbelcher" }, -- Activates canon, should be when/if moving
-    [76935] = { name = "Black Iron Drake-Keeper", fleeing = true }, -- Hhould be stunned/cc when running towards whelps
     -- Proving Ground
     [71415] = { name = "Banana Tosser", buff = 142639 }, -- Small
     [71414] = { name = "Banana Tosser", buff = 142639 }, -- Large
@@ -38,6 +40,14 @@ br.lists.ccUnits = {
     [144170] = { name = "Ricochet", spell = 272542 }, -- SIEGE OF BORALUS - ASHVANE SNIPER
     [137517] = { name = "Ferocity", spell = 272888 }, -- SIEGE OF BORALUS - ASHVANE DESTROYER
     [144168] = { name = "Ferocity", spell = 272888 }, -- SIEGE OF BORALUS - ASHVANE DESTROYER
+    [129928] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
+    [129989] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
+    [137521] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
+    [138254] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
+    [138254] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
+    [132491] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
+    [132532] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
+    [141285] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [137614] = { name = "Slam", spell = 269266 }, -- SIEGE OF BORALUS - DEMOLISHING TERROR
     [137625] = { name = "Slam", spell = 269266 }, -- SIEGE OF BORALUS - DEMOLISHING TERROR
     [137626] = { name = "Slam", spell = 269266 }, -- SIEGE OF BORALUS - DEMOLISHING TERROR
@@ -53,8 +63,6 @@ br.lists.ccUnits = {
     [131666] = { name = "Uproot", spell = 264038 }, -- WAYCREST MANOR - COVEN THRONSHAPER
     [122971] = { name = "Bwonsamdi's Mantle", spell = 253544 }, -- ATAL'DAZAR - Dazar'ai Confessor
     [122973] = { name = "Merciless Assault", spell = 253239 }, -- ATAL'DAZAR - DAZAR'AI JUGGERNAUT
-
-
     [134157] = { name = "Gust Slash", spell = 269931 }, -- KING'S REST - SHADOW-BRONE WARRIOR
     [137473] = { name = "Axe Barrage", spell = 270084 }, -- KING'S REST - GUARD CAPTAIN ATU
     [135167] = { name = "Blooded Leap", spell = 270482 }, -- KING'S REST - SPECTRAL BERSERKER
