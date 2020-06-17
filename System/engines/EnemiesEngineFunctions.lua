@@ -269,7 +269,7 @@ end
 		local crowdControlUnit = br.lists.ccUnits[unitID]
 		if crowdControlUnit then
 			-- is in the list of candidates
-			if crowdControlUnit.spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlUnit.spell) or UnitBuffID(Unit,crowdControlUnit.spell)
+			if crowdControlUnit.spell == nil or isCasting(crowdControlUnit.spell,Unit) or UnitBuffID(Unit,crowdControlUnit.spell)
 			then -- doesnt have more requirements or requirements are met
 				return true
 			end
