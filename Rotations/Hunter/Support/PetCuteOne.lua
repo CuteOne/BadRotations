@@ -32,6 +32,7 @@ br.rotations.support["PetCuteOne"] = function()
     local profileStop                                   = profileStop or false
     local haltProfile                                   = (inCombat and profileStop) or IsMounted() or IsFlying()
                                                             or pause(true) or buff.feignDeath.exists() or mode.rotation==4
+    local petTargetOp                                   = getOptionValue("Pet Target")
 
     -- Units
     units.get(5)
@@ -49,38 +50,37 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
-    if getOptionValue("Pet Target") == 4 or not UnitExists(petTarget) or not isValidUnit(petTarget)
-        or (getOptionValue("Pet Target") == 2 and (petTarget == nil or not UnitIsUnit("target","pettarget")))
+    if br.petTarget == nil
+        or ((petTargetOp == 1 or petTargetOp == 3) and (not isValidUnit(br.petTarget)))
+        or (petTargetOp == 2 and not UnitIsUnit(br.petTarget,"target"))
+        or petTargetOp == 4
     then
-        if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
-            petTarget = units.dyn40
-            -- Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))
+        if petTargetOp == 1 and units.dyn40 ~= nil and not UnitIsUnit(units.dyn40,br.petTarget) then
+            br.petTarget = units.dyn40
+            -- Print("[Dynamic] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
-        if getOptionValue("Pet Target") == 2 and isValidUnit("target") then
-            petTarget = "target"
-            -- Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))
+        if petTargetOp == 2 and isValidUnit("target") then
+            br.petTarget = "target"
+            -- Print("[Only Target] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
-        if getOptionValue("Pet Target") == 3 then
-            for i=1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if (isValidUnit(thisUnit) or isDummy()) then petTarget = thisUnit --[[Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))]] break end
-            end
+        if petTargetOp == 3 and enemies.yards40[1] ~= nil and not UnitIsUnit(enemies.yards40[1],br.petTarget) then
+            br.petTarget = enemies.yards40[1]
+            -- Print("[Any Unit] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
-        if getOptionValue("Pet Target") == 4 and petTarget == nil then
-            petTarget = "target"
-            -- Print("Pet is now attacking - "..UnitName(petTarget).." | This is your target: "..tostring(UnitIsUnit("target",petTarget)))
+        if petTargetOp == 4 then
+            br.petTarget = "pettarget"
+            -- Print("[Assist] Pet is now attacking - "..UnitName(br.petTarget).." | This is your pet's target: "..tostring(UnitIsUnit("pettarget",br.petTarget)))
         end
     end
-    if br.petTarget ~= petTarget then br.petTarget = petTarget end
 
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()
     local petCombat = UnitAffectingCombat("pet")
-    local petDistance = getDistance(petTarget,"pet") or 99
+    local petDistance = getDistance(br.petTarget,"pet") or 99
     local petExists = UnitExists("pet")
     local petHealth = getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = UnitExists(petTarget) and (isValidUnit(petTarget) or isDummy()) --or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
+    local validTarget = UnitExists(br.petTarget) and (isValidUnit(br.petTarget) or isDummy()) --or (not UnitExists("br.petTarget") and isValidUnit("target")) or isDummy()
 
     if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
@@ -105,17 +105,17 @@ br.rotations.support["PetCuteOne"] = function()
     end
     if isChecked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if getOptionValue("Pet Target") and inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
+        if petTargetOp == 4 and inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
             PetAssistMode()
-        elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
+        elseif ((not inCombat or petTargetOp ~= 4) and petMode == "Assist") and #enemies.yards40nc > 0 and not haltProfile then
             PetDefensiveMode()
         elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
             PetPassiveMode()
         end
         -- Pet Attack / retreat
         if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
-            PetAttack(petTarget)
-        elseif (not inCombat or (inCombat and not isValidUnit(petTarget)) or haltProfile)
+            PetAttack(br.petTarget)
+        elseif (not inCombat or (inCombat and not isValidUnit(br.petTarget)) or haltProfile)
             and IsPetAttackActive()
         then
             PetStopAttack()
@@ -136,16 +136,16 @@ br.rotations.support["PetCuteOne"] = function()
         if cast.survivalOfTheFittest() then return end
     end
     -- Bite/Claw
-    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem(petTarget) then
+    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem(br.petTarget) then
         if cast.able.bite() then
-            if cast.bite(petTarget,"pet") then return end
+            if cast.bite(br.petTarget,"pet") then return end
         end
         if cast.able.claw() then
-            if cast.claw(petTarget,"pet") then return end
+            if cast.claw(br.petTarget,"pet") then return end
         end
     end
     -- Dash
-    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance(pertTarget) < 40 then
+    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance(br.petTarget) < 40 then
         if cast.dash("pet") then return end
     end
     -- Purge
