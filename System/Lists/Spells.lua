@@ -2369,6 +2369,7 @@ br.lists.spells = {
                 echoingBlades               = 287649,
                 sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
+		twistTheKnife               = 273488,
             }
         },
         -- Outlaw
