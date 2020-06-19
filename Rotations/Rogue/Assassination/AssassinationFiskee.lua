@@ -922,7 +922,7 @@ local function runRotation()
             if mode.vanish == 1 and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") then
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") and combatTime > 10 then
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
@@ -1020,7 +1020,8 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 16 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 8 then
+        if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 20 and 
+         (debuff.garrote.remain("target") > 15 or (debuff.vendetta.exists("target") and not debuff.garrote.refresh("target")) or garroteCheck == false) and cd.vendetta.exists() and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -1096,7 +1097,7 @@ local function runRotation()
             end
         end
         -- Throw  Poisoned Knife if we can't reach the target
-        if isChecked("Poisoned Knife out of range") and not stealthedAll and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
+        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
             for i = 1, #enemyTable30 do
                 local thisUnit = enemyTable30[i].unit
                 --check if any targets are not poisoned firstget
