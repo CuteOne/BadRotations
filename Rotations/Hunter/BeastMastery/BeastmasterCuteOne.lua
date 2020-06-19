@@ -785,7 +785,7 @@ actionList.Cleave = function()
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild
-    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs()) then
+    if isChecked("Aspect of the Wild") and not buff.aspectOfTheWild.exists() and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs()) then
         if cast.aspectOfTheWild() then return end
     end
     -- Stampede
