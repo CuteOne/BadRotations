@@ -1172,10 +1172,6 @@ local function runRotation()
         if talent.crimsonTempest and enemies10 >= 3  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
             if cast.crimsonTempest("player") then return true end
         end
-        -- if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end
-        -- if exsanguinateCast and debuff.crimsonTempest.exists("target") then exCrimsonTempest = true end
-        -- if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end
-        -- and not exCrimsonTempest
         -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
         -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
         if talent.crimsonTempest and not queenBuff and enemies10 == 1 and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not debuff.crimsonTempest.exsang("target") and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
