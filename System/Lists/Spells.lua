@@ -2459,7 +2459,8 @@ br.lists.spells = {
 
             },
             talents                         = {
-                acrobaticStikes             = 196924,
+                acrobaticStikes             = 196924, -- typo, leaving in to not break old profiles
+                acrobaticStrikes            = 196924,
                 dirtyTricks                 = 108216,
                 bladeRush                   = 271877,
                 ghostlyStrike               = 196937,
