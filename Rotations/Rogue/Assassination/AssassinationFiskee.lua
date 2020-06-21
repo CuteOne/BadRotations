@@ -20,9 +20,9 @@ local function createToggles() -- Define custom toggles
     CreateButton("Rotation",1,0)
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.vendetta },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.vendetta },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.vendetta },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.vendetta },
-        [4] = { mode = "Lust", value = 4 , overlay = "Cooldowns With Bloodlust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.vendetta }
+        [4] = { mode = "Lust", value = 4 , overlay = "Cooldowns With Bloodlust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 1, icon = br.player.spell.vendetta }
     };
     CreateButton("Cooldown",2,0)
     DefensiveModes = {
@@ -103,7 +103,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Precombat", "|cffFFFFFF Will use items on pulltimer (don't move on pull timer)")
             br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
             br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  20,  1,  "* 5k Put damage of your Reaping Flames")
-            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury"}, 1, "|cffFFFFFFPotion to use")
+            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "|cffFFFFFFPotion to use")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
             br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
@@ -842,6 +842,9 @@ local function runRotation()
                 elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
                     use.potionOfUnbridledFury()
                     return true
+                elseif getOptionValue("Potion") == 3 and use.able.potionOfFocusedResolve() and not buff.potionOfFocusedResolve.exists() then
+                    use.potionOfFocusedResolve() 
+                    return true
                 end
             end
         end
@@ -849,12 +852,15 @@ local function runRotation()
 
     local function actionList_Cooldowns()
         -- actions.cds=potion,if=buff.bloodlust.react|debuff.vendetta.up
-        if useCDs() and ttd("target") > 15 and isChecked("Potion") and (hasBloodLust() or debuff.vendetta.exists("target")) and targetDistance < 5 then
-            if getOptionValue("Potion") == 1 and ttd("target") > 15 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
+        if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or debuff.vendetta.exists("target")) and targetDistance < 5 then
+            if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
                 use.superiorBattlePotionOfAgility()
                 return true
-            elseif getOptionValue("Potion") == 2 and ttd("target") > getOptionValue("CDs TTD Limit") and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
+            elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
                 use.potionOfUnbridledFury()
+                return true
+            elseif getOptionValue("Potion") == 3 and use.able.potionOfFocusedResolve() and not buff.potionOfFocusedResolve.exists() then
+                use.potionOfFocusedResolve() 
                 return true
             end
         end
@@ -922,13 +928,19 @@ local function runRotation()
             if mode.vanish == 1 and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") and combatTime > 10 then
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") then
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
-                -- # Vanish with Exsg + (Nightstalker, or Subterfuge only on 1T): Maximum CP and Exsg ready for next GCD
-                -- actions.cds+=/vanish,if=talent.exsanguinate.enabled&(talent.nightstalker.enabled|talent.subterfuge.enabled&variable.single_target)&combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier<=1)
-                if talent.exsanguinate and (talent.nightstalker or (talent.subterfuge and enemies10 == 1)) and combo >= comboMax and cd.exsanguinate.remain() < 1 and (not talent.subterfuge or not trait.shroudedSuffocation.active or debuff.garrote.applied("target") <= 1) and getSpellCD(spell.garrote) == 0 then
+                -- # Vanish with Exsg + Nightstalker: Maximum CP and Exsg ready for next GCD
+                -- actions.cds+=/vanish,if=talent.exsanguinate.enabled&talent.nightstalker.enabled&combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1
+                if talent.exsanguinate and talent.nightstalker and combo >= comboMax and cd.exsanguinate.remain() < 1 then
+                    if cast.pool.garrote() then return true end
+                    if cast.vanish("player") then return true end
+                end
+                -- # Vanish with Exsg + Subterfuge only on 1T: CP deficit > 1+2*SSActive and Exsg ready for next GCD
+                -- actions.cds+=/vanish,if=talent.subterfuge.enabled&cooldown.garrote.up&(dot.garrote.refreshable|debuff.vendetta.up&dot.garrote.pmultiplier<=1))&combo_points.deficit>=(1+2*azerite.shrouded_suffocation.enabled)
+                if talent.exsanguinate and talent.subterfuge and enemies10 == 1 and comboDeficit >=(1+2*sSActive) and cd.exsanguinate.remain() < 1 and debuff.garrote.refresh("target") and getSpellCD(spell.garrote) == 0 then
                     if cast.pool.garrote() then return true end
                     if cast.vanish("player") then return true end
                 end
@@ -992,7 +1004,6 @@ local function runRotation()
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
                         if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 1.5 or buff.reapingFlames.remain() <= 1.5 then
                             reap_execute = thisUnit
                             break
@@ -1013,15 +1024,14 @@ local function runRotation()
 
             if reapTarget ~= nil and not isExplosive(reapTarget) and getFacing("player",reapTarget) then
                 if cast.reapingFlames(reapTarget) then
-                    --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                     return true
                 end
             end
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 20 and 
-         (debuff.garrote.remain("target") > 15 or (debuff.vendetta.exists("target") and not debuff.garrote.refresh("target")) or garroteCheck == false) and cd.vendetta.exists() and ttd("target") > 8 then
+        if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 25 and 
+         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and (cd.vendetta.exists() or not useCDs()) and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -1162,9 +1172,13 @@ local function runRotation()
         if talent.crimsonTempest and enemies10 >= 3  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
             if cast.crimsonTempest("player") then return true end
         end
+        -- if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end
+        -- if exsanguinateCast and debuff.crimsonTempest.exists("target") then exCrimsonTempest = true end
+        -- if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end
+        -- and not exCrimsonTempest
         -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
-        -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spend-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
-        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+        -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
+        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not debuff.crimsonTempest.exsang("target") and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
