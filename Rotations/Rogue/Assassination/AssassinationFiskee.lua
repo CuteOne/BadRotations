@@ -928,7 +928,7 @@ local function runRotation()
             if mode.vanish == 1 and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") then
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") and comboDeficit >=(1+2*sSActive) then
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
@@ -1172,9 +1172,12 @@ local function runRotation()
         if talent.crimsonTempest and enemies10 >= 3  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
             if cast.crimsonTempest("player") then return true end
         end
+        if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end	
+        if exsanguinateCast and debuff.crimsonTempest.exists("target") then exCrimsonTempest = true end	
+        if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end	
         -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
         -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
-        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not debuff.crimsonTempest.exsang("target") and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not exCrimsonTempest and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
