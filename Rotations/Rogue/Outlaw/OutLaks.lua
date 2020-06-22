@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 105906212020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 022306222020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -175,7 +175,7 @@ local stealth
 local combo, comboDeficit, comboMax
 local ambush_flag = false
 local do_stun
-local dynamic_target
+local dynamic_target_melee_melee
 
 -- lists ...lots of lists
 
@@ -636,9 +636,11 @@ actionList.dps = function()
         end
     end
 
+    --Print(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
+
     --Auto attack
     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
-        StartAttack(dynamic_target)
+        StartAttack(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
     end
     --Marked for death, high priority
     if talent.markedForDeath and cast.able.markedForDeath() then
@@ -655,10 +657,13 @@ actionList.dps = function()
             end
         end
     end
+
     -- Finishers
-    if combo >= comboMax - buff_count() and not isExplosive(dynamic_target) then
-        if cast.able.betweenTheEyes(dynamic_target) and bte_condition and getBuffRemain(dynamic_target, 226510) == 0 then
-            if cast.betweenTheEyes(dynamic_target) then
+    -- test
+    if combo >= comboMax - buff_count() and not isExplosive(units.dyn20) then
+        if cast.able.betweenTheEyes() and bte_condition then
+            --  and getBuffRemain(units.dyn20, 226510) == 0 then
+            if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
         end
@@ -667,14 +672,14 @@ actionList.dps = function()
                 return true
             end
         end
-        if cast.able.betweenTheEyes(dynamic_target) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and getBuffRemain(dynamic_target, 226510) == 0 then
-            if cast.betweenTheEyes(dynamic_target) then
+        if cast.able.betweenTheEyes(units.dyn20) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and getBuffRemain(units.dyn20, 226510) == 0 then
+            if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
         end
 
-        if cast.able.dispatch(dynamic_target) then
-            if cast.dispatch(dynamic_target) then
+        if cast.able.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
+            if cast.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
                 return true
             end
         end
@@ -779,7 +784,7 @@ actionList.dps = function()
     variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
     ]]
     if talent.bladeRush and cast.able.bladeRush() then
-        if cast.bladeRush(units.dyn8) then
+        if cast.bladeRush(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
             return true
         end
     end
@@ -811,7 +816,7 @@ actionList.dps = function()
     ]]
 
 
-    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and #br.friend > 0 and not cast.last.shadowmeld(1) and getBuffRemain(dynamic_target, 226510) == 0 then
+    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and #br.friend > 0 and not cast.last.shadowmeld(1) and getBuffRemain(units.dyn5, 226510) == 0 then
         ambush_flag = true
         if mode.vanish == 1 then
             if cast.vanish() then
@@ -920,7 +925,7 @@ actionList.dps = function()
                 return true
             end
         end
-        if cast.sinisterStrike(units.dyn5)
+        if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
         then
             return true
         end
@@ -1361,9 +1366,9 @@ local function runRotation()
     end
 
     if talent.acrobaticStrikes then
-        dynamic_target = units.dyn8
+        dynamic_target_melee = units.dyn8
     else
-        dynamic_target = units.dyn5
+        dynamic_target_melee = units.dyn5
     end
 
 
