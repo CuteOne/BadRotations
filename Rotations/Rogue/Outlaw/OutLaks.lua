@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 105506222020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 160606222020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -114,13 +114,15 @@ local function createOptions()
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt Options")
+        section = br.ui:createSection(br.ui.window.profile, "Interrupt/stun Options")
         -- Interrupt Percentage
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
         br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
         br.ui:createCheckbox(section, "Gouge", "Will use Gouge to int")
         br.ui:createCheckbox(section, "Blind", "Will use Blind to int")
+        br.ui:createDropdownWithout(section, "Blind", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Blind?")
         br.ui:createCheckbox(section, "Between the Eyes", "Will use BTE to int")
+        br.ui:createDropdownWithout(section, "Between the Eyes", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use BtE?")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
         br.ui:createDropdown(section, "Shroud of Resolve", { "Snare", "Eye", "THING", "Eye/THING ", "Never" }, 4, " ", " ")
@@ -587,7 +589,7 @@ function getOutLaksTTD(ttd_time)
     local lowTTD = 100
     local lowTTDcount = 0
     for i = 1, #enemies.yards8 do
-        if getTTD(enemies.yards8[i]) < lowTTD then
+        if getTTD(enemies.yards8[i]) < lowTTD and not isExplosive(enemies.yards8[i]) then
             LowTTDtarget = enemies.yards8[i]
             lowTTD = getTTD(LowTTDtarget)
         end
@@ -681,9 +683,8 @@ actionList.dps = function()
 
     -- Finishers
     -- test
-    if combo >= comboMax - buff_count() and not isExplosive(units.dyn20) then
-        if cast.able.betweenTheEyes() and bte_condition then
-            --  and getBuffRemain(units.dyn20, 226510) == 0 then
+    if combo >= comboMax - buff_count() and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0 then
+        if cast.able.betweenTheEyes() and bte_condition and not buff.opportunity.exists() then
             if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
@@ -811,9 +812,6 @@ actionList.dps = function()
 
 
 
-
-
-
     --adrenaline_rush,if=!buff.adrenaline_rush.up&(!equipped.azsharas_font_of_power|cooldown.latent_arcana.remains>20)
     if mode.cooldown == 1 then
         if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(20) > 0 then
@@ -936,9 +934,9 @@ actionList.dps = function()
 
     if comboDeficit > 0 then
         if (br.player.talent.quickDraw and comboDeficit > 1 or not br.player.talent.quickDraw and comboDeficit > 0) then
-            if (br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
+            if ((br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
                     and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
-                    or (buff.opportunity.exists() and buff.deadShot.exists() and not isExplosive(units.dyn20)) then
+                    or (buff.opportunity.exists() and buff.deadShot.exists()) and not isExplosive(units.dyn20)) then
                 --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
                 if cast.pistolShot(units.dyn20) then
                     return true
@@ -1247,9 +1245,16 @@ actionList.Interrupt = function()
                             return true
                         end
                     end
-                    if isChecked("Between the Eyes") and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
+                    if (getValue("Between the Eyes") == 2 or getValue("Between the Eyes") == 4) and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
+                        --       if isChecked("Between the Eyes") and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
                         if cast.betweenTheEyes(interrupt_target) then
                             br.addonDebug("[int]BetweenTheEyes " .. UnitName(interrupt_target))
+                            return true
+                        end
+                    end
+                    if (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cd.blind.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
+                        if cast.blind(interrupt_target) then
+                            br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
                             return true
                         end
                     end
@@ -1267,12 +1272,12 @@ actionList.Interrupt = function()
                 distance = getDistance(interrupt_target)
                 if isCrowdControlCandidates(interrupt_target) and not already_stunned(interrupt_target)
                         and getBuffRemain(interrupt_target, 226510) == 0 and distance <= 20 then
-                    if isChecked("Blind") and cast.able.blind() and (distance <= 15 or talent.blindingPowder and distance <= 30) and not cd.blind.exists() then
+                    if (getValue("Blind") == 3 or getValue("Blind") == 4) and cast.able.blind() and (distance <= 15 or talent.blindingPowder and distance <= 30) and not cd.blind.exists() then
                         if cast.blind(interrupt_target) then
                             br.addonDebug("Blind/stunning")
                             return true
                         end
-                    elseif isChecked("Between the Eyes") and cast.able.betweenTheEyes(interrupt_target) and distance < 20 and not cd.betweenTheEyes.exists() then
+                    elseif (getValue("Between the Eyes") == 3 or getValue("Between the Eyes") == 4) and cast.able.betweenTheEyes(interrupt_target) and distance < 20 and not cd.betweenTheEyes.exists() then
                         if cast.betweenTheEyes(interrupt_target) then
                             br.addonDebug("Bte/stunning " .. interrupt_target)
                             return true
@@ -1355,6 +1360,7 @@ local function runRotation()
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(8) -- Makes a variable called, units.dyn8
+    units.get(20)
     units.get(40) -- Makes a variable called, units.dyn40
     -- Enemies
     enemies.get(5) -- Makes a variable  called, enemies.yards5
