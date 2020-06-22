@@ -90,6 +90,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createCheckbox(section, "Racial", "Use your racial")
         br.ui:createCheckbox(section, "Auto Sprint")
+        br.ui:createCheckbox(section, "Use Trinkets")
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -891,45 +892,46 @@ actionList.dps = function()
 
     --trinkets
 
-    local Trinket13 = GetInventoryItemID("player", 13)
-    local Trinket14 = GetInventoryItemID("player", 14)
+    if isChecked("Use Trinkets") then
 
-    local hold13, hold14
-    --trinket 13
-    if Trinket13 == 173946 and br.player.essence.bloodOfTheEnemy.active then
-        hold13 = true
-        if buff.seethingRage.exists() and canUseItem(173946) and #enemies.yards5 > 0 then
-            useItem(173946)
+        local Trinket13 = GetInventoryItemID("player", 13)
+        local Trinket14 = GetInventoryItemID("player", 14)
+
+        local hold13, hold14
+        --trinket 13
+        if Trinket13 == 173946 and br.player.essence.bloodOfTheEnemy.active then
+            hold13 = true
+            if buff.seethingRage.exists() and canUseItem(173946) and #enemies.yards5 > 0 then
+                useItem(173946)
+            end
         end
-    end
-    if not hold13 then
-        if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
-            --or comboDeficit <= 2
-            if canUseItem(13) then
-                useItem(13)
+        if not hold13 then
+            if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
+                --or comboDeficit <= 2
+                if canUseItem(13) then
+                    useItem(13)
+                end
+            end
+        end
+
+        --trinket 14
+        if Trinket14 == 173946 and br.player.essence.bloodOfTheEnemy.active then
+            hold14 = true
+            if buff.seethingRage.exists() and canUseItem(173946) and #enemies.yards5 > 0 then
+                useItem(173946)
+            end
+        end
+
+        if not hold14 then
+            if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
+                --or comboDeficit <= 2
+                if canUseItem(14) then
+                    useItem(14)
+                end
             end
         end
     end
-
-    --trinket 14
-    if Trinket14 == 173946 and br.player.essence.bloodOfTheEnemy.active then
-        hold14 = true
-        if buff.seethingRage.exists() and canUseItem(173946) and #enemies.yards5 > 0 then
-            useItem(173946)
-        end
-    end
-
-    if not hold14 then
-        if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
-            --or comboDeficit <= 2
-            if canUseItem(14) then
-                useItem(14)
-            end
-        end
-    end
-
     -- builders
-
 
 
     if comboDeficit > 0 then
@@ -1011,7 +1013,7 @@ actionList.Corruption = function()
 
     --shroudOfResolve / cloak
     if debuff.grandDelusions.exists("player") or debuff.graspingTendrils.exists("player") or getDebuffStacks("player", 315161) > 0 then
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and not IsMounted() then
+        if isChecked("Shroud of Resolve") and br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and not IsMounted() then
             if getValue("Shroud of Resolve") == 1 and debuff.graspingTendrils.exists("player")
                     or (getValue("Shroud of Resolve") == 2 or getValue("Shroud of Resolve") == 4) and getDebuffStacks("player", 315161) >= getOptionValue("Cloak - Eye Of Corruption Stacks") and php <= getOptionValue("Cloak - Min HP")
                     or (getValue("Shroud of Resolve") == 3 or getValue("Shroud of Resolve") == 4) and debuff.grandDelusions.exists("player") then
