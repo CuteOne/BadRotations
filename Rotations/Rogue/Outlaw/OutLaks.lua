@@ -436,7 +436,6 @@ local function already_stunned(Unit)
         [5211] = "Mighty Bash",
         [22570] = "Maim",
         [19577] = "Intimidation",
-        [113656] = "Fists of Fury",
         [119381] = "Leg Sweep",
         [853] = "Hammer of Justice",
         [408] = "Kidney Shot",
@@ -444,8 +443,18 @@ local function already_stunned(Unit)
         [199804] = "Between the eyes",
         [107570] = "Storm Bolt",
         [46968] = "Shockwave",
+        [221562] = "Asphyxiate",
+        [91797] = "Monstrous Blow",
+        [179057] = "Chaos Nova",
+        [211881] = "Fel Eruption",
+        [1822] = "Rake",
+        [192058] = "Capacitor Totem",
+        [118345] = "Pulverize",
+        [89766] = "Axe Toss",
+        [30283] = "Shadowfury",
+        [1122] = "Summon Infernal",
     }
-    for i = 1, 12 do
+    for i = 1, 21 do
         --  Print(select(10, UnitDebuff(Unit, i)))
         local debuffSpellID = select(10, UnitDebuff(Unit, i))
         if debuffSpellID == nil then
@@ -1022,7 +1031,6 @@ actionList.Corruption = function()
             if cast.vanish() then
                 return true
             end
-            isChecked()
         elseif isChecked("Shadowmeld THING") and cast.able.shadowmeld() and isChecked("use Racials") and #br.friend > 1 and not cast.last.vanish(1) then
             if cast.shadowmeld() then
                 return true
