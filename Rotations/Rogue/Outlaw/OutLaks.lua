@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 022306222020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 105506222020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -658,6 +658,17 @@ actionList.dps = function()
         end
     end
 
+
+    --  bloodOfTheEnemy
+    if combo >= comboMax - buff_count() and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition then
+        if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
+                and cast.able.betweenTheEyes() then
+            if cast.bloodOfTheEnemy() then
+                return true
+            end
+        end
+    end
+
     -- Finishers
     -- test
     if combo >= comboMax - buff_count() and not isExplosive(units.dyn20) then
@@ -708,15 +719,7 @@ actionList.dps = function()
                     return true
                 end
             end
-            --  bloodOfTheEnemy
-            if essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() then
-                if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
-                        and cast.able.betweenTheEyes() then
-                    if cast.bloodOfTheEnemy() then
-                        return true
-                    end
-                end
-            end
+
             -- Reaping Flames
             if essence.reapingFlames.major and cast.able.reapingFlames() then
                 local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
@@ -966,7 +969,7 @@ actionList.Extra = function()
         return
     end
 
-    if #enemies.yards25nc > 0 and not stealth and (not cast.last.rollTheBones(1) and getOutLaksTTD(8) >= 1 or not inCombat) and combo > 0 and (buff.rollTheBones.remain <= 3 or rollthebones()) then
+    if not inCombat and #enemies.yards40 > 0 and not stealth and combo > 0 and (buff.rollTheBones.remain <= 3 or rollthebones()) then
         if cast.rollTheBones() then
             return true
         end
@@ -1034,7 +1037,7 @@ actionList.Corruption = function()
                 stun = 199804
                 stun_range = 20
             elseif cast.able.gouge() and isChecked("Gouge the eyes THING") then
-                stun = 199804
+                stun = 174503
                 stun_range = 5
                 if talent.acrobaticStrikes then
                     stun_range = 8
