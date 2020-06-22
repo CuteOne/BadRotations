@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 105906212020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -175,6 +175,7 @@ local stealth
 local combo, comboDeficit, comboMax
 local ambush_flag = false
 local do_stun
+local dynamic_target
 
 -- lists ...lots of lists
 
@@ -595,12 +596,6 @@ end
 
 actionList.dps = function()
 
-
-    local dynamic_target = units.dyn5
-    if talent.acrobaticStrikes then
-        dynamic_target = units.dyn8
-        --Print(UnitName(dynamic_target))
-    end
 
     if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
         dps_key()
@@ -1363,6 +1358,12 @@ local function runRotation()
             buff.rollTheBones.duration = getBuffDuration("player", v)
             buff.rollTheBones.remain = getBuffRemain("player", v)
         end
+    end
+
+    if talent.acrobaticStrikes then
+        dynamic_target = units.dyn8
+    else
+        dynamic_target = units.dyn5
     end
 
 
