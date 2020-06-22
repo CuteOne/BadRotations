@@ -929,12 +929,18 @@ actionList.dps = function()
     end
 
     -- builders
+
+
+
     if comboDeficit > 0 then
-        if (br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
-                and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
-                or (buff.opportunity.exists() and buff.deadShot.exists() and not isExplosive(units.dyn20)) then
-            if cast.pistolShot(units.dyn20) then
-                return true
+        if (br.player.talent.quickDraw and comboDeficit > 1 or not br.player.talent.quickDraw and comboDeficit > 0) then
+            if (br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
+                    and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
+                    or (buff.opportunity.exists() and buff.deadShot.exists() and not isExplosive(units.dyn20)) then
+                --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
+                if cast.pistolShot(units.dyn20) then
+                    return true
+                end
             end
         end
         if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
