@@ -31,6 +31,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.windShear}
     };
     CreateButton("Interrupt",4,0)
+    FuryModes = {
+        [1] = { mode = "Auto", value = 1, overlay = "Fury Auto", tip = "Used per profile logic.", highlight = 1, icon = br.player.spell.furyOfAir},
+        [1] = { mode = "On", value = 1, overlay = "Fury On", tip = "Always used.", highlight = 0, icon = br.player.spell.furyOfAir}
+    };
+    CreateButton("Fury",5,0)
 end
 
 ---------------
@@ -500,11 +505,11 @@ actionList.Priority = function()
     end
     -- Fury of Air
     -- fury_of_air,if=!buff.fury_of_air.up&maelstrom>=20&spell_targets.fury_of_air_damage>=(1+variable.freezerburn_enabled)
-    if cast.able.furyOfAir() and not buff.furyOfAir.exists() and maelstrom >= 20 and #enemies.yards8 >= (1 + icyHot) then
+    if cast.able.furyOfAir() and not buff.furyOfAir.exists() and maelstrom >= 20 and (#enemies.yards8 >= (1 + icyHot) or mode.fury == 2) then
         if cast.furyOfAir() then return true end
     end
     -- fury_of_air,if=buff.fury_of_air.up&&spell_targets.fury_of_air_damage<(1+variable.freezerburn_enabled)
-    if cast.able.furyOfAir() and buff.furyOfAir.exists() and #enemies.yards8 < (1 + icyHot) then
+    if cast.able.furyOfAir() and buff.furyOfAir.exists() and (#enemies.yards8 < (1 + icyHot) or mode.fury == 2) then
         if cast.furyOfAir() then return true end
     end
     -- Totem Mastery
