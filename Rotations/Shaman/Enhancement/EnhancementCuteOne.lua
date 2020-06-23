@@ -33,7 +33,7 @@ local function createToggles()
     CreateButton("Interrupt",4,0)
     FuryModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Fury Auto", tip = "Used per profile logic.", highlight = 1, icon = br.player.spell.furyOfAir},
-        [1] = { mode = "On", value = 1, overlay = "Fury On", tip = "Always used.", highlight = 0, icon = br.player.spell.furyOfAir}
+        [2] = { mode = "On", value = 1, overlay = "Fury On", tip = "Always used.", highlight = 0, icon = br.player.spell.furyOfAir}
     };
     CreateButton("Fury",5,0)
 end
