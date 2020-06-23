@@ -672,11 +672,13 @@ actionList.dps = function()
 
 
     --  bloodOfTheEnemy
-    if combo >= comboMax - buff_count() and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition then
-        if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
-                and cast.able.betweenTheEyes() then
-            if cast.bloodOfTheEnemy() then
-                return true
+    if mode.essence == 1 then
+        if combo >= comboMax - buff_count() and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition then
+            if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
+                    and cast.able.betweenTheEyes() then
+                if cast.bloodOfTheEnemy() then
+                    return true
+                end
             end
         end
     end
