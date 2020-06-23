@@ -11,48 +11,48 @@ local function createToggles()
     -- Define custom toggles
     -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.bladeFlurry },
+        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.bladeFlurry },
         [2] = { mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.sinisterStrike },
         [3] = { mode = "Off", value = 3, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = 1804 }
     };
     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns Enabled", highlight = 0, icon = br.player.spell.adrenalineRush },
+        [1] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns Enabled", highlight = 1, icon = br.player.spell.adrenalineRush },
         [2] = { mode = "Off", value = 2, overlay = "Cooldowns Disabled", tip = "Cooldowns Disabled", highlight = 0, icon = br.player.spell.adrenalineRush }
     };
     CreateButton("Cooldown", 2, 0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 0, icon = br.player.spell.riposte },
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.riposte },
         [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.riposte }
     };
     CreateButton("Defensive", 3, 0)
     -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 0, icon = br.player.spell.kick },
+        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.kick },
         [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick }
     };
     CreateButton("Interrupt", 4, 0)
 
     VanishModes = {
-        [1] = { mode = "On", value = 1, overlay = "Vanish Enabled", tip = "Will use Vanish.", highlight = 0, icon = br.player.spell.vanish },
+        [1] = { mode = "On", value = 1, overlay = "Vanish Enabled", tip = "Will use Vanish.", highlight = 1, icon = br.player.spell.vanish },
         [2] = { mode = "Off", value = 2, overlay = "Vanish Disabled", tip = "Won't use Vanish.", highlight = 0, icon = br.player.spell.vanish }
     };
     CreateButton("Vanish", 1, -1)
 
     AmbushModes = {
-        [1] = { mode = "On", value = 1, overlay = "Ambush Enabled", tip = "Will use Ambush.", highlight = 0, icon = br.player.spell.ambush },
+        [1] = { mode = "On", value = 1, overlay = "Ambush Enabled", tip = "Will use Ambush.", highlight = 1, icon = br.player.spell.ambush },
         [2] = { mode = "Off", value = 2, overlay = "Ambush Disabled", tip = "Won't use Ambush.", highlight = 0, icon = br.player.spell.ambush }
     };
     CreateButton("Ambush", 2, -1)
     EssenceModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Essences", tip = "Use Essences", highlight = 0, icon = br.player.spell.reapingFlames },
+        [1] = { mode = "On", value = 1, overlay = "Use Essences", tip = "Use Essences", highlight = 1, icon = br.player.spell.reapingFlames },
         [2] = { mode = "Off", value = 2, overlay = "Use Essences", tip = "Use Essences", highlight = 0, icon = br.player.spell.reapingFlames },
     };
     CreateButton("Essence", 3, -1)
     PotsModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
+        [1] = { mode = "On", value = 1, overlay = "Use Pots", tip = "Use Pots", highlight = 1, icon = 2259 },
         [2] = { mode = "Off", value = 2, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
     }
     CreateButton("Pots", 4, -1)
@@ -672,7 +672,7 @@ actionList.dps = function()
 
 
     --  bloodOfTheEnemy
-    if combo >= comboMax - buff_count() and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition then
+    if combo >= comboMax - buff_count() and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition and mode.essence == 1 then
         if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
                 and cast.able.betweenTheEyes() then
             if cast.bloodOfTheEnemy() then
