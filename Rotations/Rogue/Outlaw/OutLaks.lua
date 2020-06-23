@@ -683,8 +683,8 @@ actionList.dps = function()
 
     -- Finishers
     -- test
-    if combo >= comboMax - buff_count() and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0 then
-        if cast.able.betweenTheEyes() and bte_condition and not buff.opportunity.exists() then
+    if combo >= comboMax - buff_count() then
+        if cast.able.betweenTheEyes() and bte_condition and not buff.opportunity.exists() and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
             if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
@@ -694,7 +694,7 @@ actionList.dps = function()
                 return true
             end
         end
-        if cast.able.betweenTheEyes(units.dyn20) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and getBuffRemain(units.dyn20, 226510) == 0 then
+        if cast.able.betweenTheEyes(units.dyn20) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
             if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
@@ -827,7 +827,7 @@ actionList.dps = function()
     ]]
 
 
-    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and #br.friend > 0 and not cast.last.shadowmeld(1) and getBuffRemain(units.dyn5, 226510) == 0 then
+    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and #br.friend > 0 and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0) then
         ambush_flag = true
         if mode.vanish == 1 then
             if cast.vanish() then
@@ -1271,7 +1271,7 @@ actionList.Interrupt = function()
             if cast.able.betweenTheEyes() or cast.able.blind() or cast.able.cheapShot() then
                 distance = getDistance(interrupt_target)
                 if isCrowdControlCandidates(interrupt_target) and not already_stunned(interrupt_target)
-                        and getBuffRemain(interrupt_target, 226510) == 0 and distance <= 20 then
+                        and GetUnitExists(interrupt_target) and getBuffRemain(interrupt_target, 226510) == 0 and distance <= 20 then
                     if (getValue("Blind") == 3 or getValue("Blind") == 4) and cast.able.blind() and (distance <= 15 or talent.blindingPowder and distance <= 30) and not cd.blind.exists() then
                         if cast.blind(interrupt_target) then
                             br.addonDebug("Blind/stunning")
@@ -1360,7 +1360,7 @@ local function runRotation()
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(8) -- Makes a variable called, units.dyn8
-    units.get(20)
+    units.get(20)-- Makes a variable called, units.dyn20
     units.get(40) -- Makes a variable called, units.dyn40
     -- Enemies
     enemies.get(5) -- Makes a variable  called, enemies.yards5
