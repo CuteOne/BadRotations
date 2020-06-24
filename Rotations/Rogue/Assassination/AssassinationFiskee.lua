@@ -911,8 +911,8 @@ local function runRotation()
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1&(spell_targets.fan_of_knives<6|!cooldown.vanish.up))&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
             if isChecked("Vendetta") and not stealthedRogue and not debuff.vendetta.exists("target") then
-                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 
-                 and (enemies10 < 6 or cd.vanish.remain() > 0)) or mode.vanish == 2 or cd.vanish.remain() > 110) 
+                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1
+                 and (enemies10 < 6 or combatTime < 10 or cd.vanish.remain() > 0)) or mode.vanish == 2 or cd.vanish.remain() > 110) 
                  and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
                  and (not essence.worldveinResonance.active or buff.worldveinResonance.exists() or cd.worldveinResonance.remain() > 1)
                  and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) 
@@ -1066,11 +1066,11 @@ local function runRotation()
         end
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB, or with MA; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.toxic_blade.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or buff.masterAssassin.exists() or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or not debuff.garrote.exists("target") or mode.exsang == 2 or ttd("target") < 8) then
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or buff.masterAssassin.exists() or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or not cd.vendetta.exists() or not debuff.garrote.exists("target") or mode.exsang == 2 or ttd("target") < 8) then
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin) and not GetUnitIsFriend("player", "target")
+        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin)
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
@@ -1135,12 +1135,13 @@ local function runRotation()
     local function actionList_Dot()
         -- # Special Garrote and Rupture setup prior to Exsanguinate cast
         -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
-        if mode.exsang == 1 and talent.exsanguinate and (mode.vanish == 0 or cd.vanish.remain() > 4) and not debuff.garrote.exsang("target") and debuff.garrote.applied("target") <= 1 and cd.exsanguinate.remain() < 2 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") then
+        if mode.exsang == 1 and talent.exsanguinate and debuff.garrote.remain("target") < 16 and (mode.vanish == 0 or cd.vanish.remain() > 4) and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 2 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") then
             if cast.garrote("target") then return true end
         end
         -- # Special Rupture setup for Exsg
+        -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&!dot.garrote.refreshable&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
         -- actions.dot=rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2)))
-        if mode.exsang == 1 and enemies10 < 3 and talent.exsanguinate and (not debuff.garrote.refresh("target") or debuff.vendetta.exists("target")) and ((combo >= comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
+        if mode.exsang == 1 and enemies10 < 3 and talent.exsanguinate and debuff.rupture.remain("target") < 25 and (not debuff.garrote.refresh("target") or debuff.vendetta.exists("target")) and ((combo >= comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
             if cast.rupture("target") then return true end
         end
         -- actions.dot+=/pool_resource,for_next=1
@@ -1178,7 +1179,8 @@ local function runRotation()
         if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end	
         -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
         -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
-        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not exCrimsonTempest and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and debuff.rupture.exists("target") and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") 
+         and not exCrimsonTempest and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
