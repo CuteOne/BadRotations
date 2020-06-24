@@ -928,7 +928,8 @@ local function runRotation()
             if mode.vanish == 1 and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") and comboDeficit >=(1+2*sSActive) then
+                -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!stealthed.rogue&cooldown.garrote.up&(!azerite.shrouded_suffocation.enabled&(dot.garrote.refreshable|debuff.vendetta.up&dot.garrote.pmultiplier<=1))&combo_points.deficit>=((1+2*azerite.shrouded_suffocation.enabled)*spell_targets.fan_of_knives)>?4&raid_event.adds.in>12
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target")) and comboDeficit >= (1+2*sSActive) then
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
@@ -1065,8 +1066,8 @@ local function runRotation()
             if cast.rupture("target") then return true end
         end
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB, or with MA; otherwise wait for some energy. Also wait if Exsg combo is coming up.
-        -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.toxic_blade.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or buff.masterAssassin.exists() or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or not cd.vendetta.exists() or not debuff.garrote.exists("target") or mode.exsang == 2 or ttd("target") < 8) then
+        -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.toxic_blade.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|!debuff.vendetta.up|cooldown.exsanguinate.remains>2)
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or buff.masterAssassin.exists() or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or not debuff.vendetta.exists() or mode.exsang == 2 or ttd("target") < 8) then
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
@@ -1214,7 +1215,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if shallWeDot(thisUnit) and garroteRemain <= 5.4 and (enemyTable5[i].ttd - garroteRemain) > 2 and not vanishCheck then
+                if shallWeDot(thisUnit) and garroteRemain <= 5.4 and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 and not vanishCheck then
                     if cast.pool.garrote() then return true end
                     if cast.garrote(thisUnit) then return true end
                 end
@@ -1226,7 +1227,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 then
                     if cast.pool.garrote() then return true end
                     if cast.garrote(thisUnit) then return true end
                 end
@@ -1268,7 +1269,7 @@ local function runRotation()
             end
         end
         -- actions.stealthed+=/garrote,if=talent.subterfuge.enabled&talent.exsanguinate.enabled&cooldown.exsanguinate.remains<1&prev_gcd.1.rupture&dot.rupture.remains>5+4*cp_max_spend
-        if mode.exsang == 1 and talent.subterfuge and talent.exsanguinate and cd.exsanguinate.remain() < 1 and cast.last.rupture(1) and debuff.rupture.remain("target") > 17.5 then
+        if mode.exsang == 1 and talent.subterfuge and talent.exsanguinate and cd.exsanguinate.remain() < 1 and cast.last.rupture(1) and debuff.rupture.remain("target") > 17.5 and not debuff.garrote.exsang("target") then
             if cast.pool.garrote() then return true end
             if cast.garrote("target") then return true end
         end
