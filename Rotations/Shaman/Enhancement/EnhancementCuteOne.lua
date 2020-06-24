@@ -499,11 +499,11 @@ actionList.Priority = function()
         if cast.crashLightning(nil,"cone",2,8) then return true end
     end
     -- Fury of Air
-    -- fury_of_air,if=!buff.fury_of_air.up&maelstrom>=20&spell_targets.fury_of_air_damage>=(1+variable.freezerburn_enabled)
+    -- fury_of_air,if=!buff.fury_of_air.up&maelstrom>=20&spell_targets.fury_of_air_damage>=(1+variable.freezerburn_enabled)    
     if cast.able.furyOfAir() and not buff.furyOfAir.exists() and maelstrom >= 20 and #enemies.yards8 >= (1 + icyHot) then
         if cast.furyOfAir() then return true end
     end
-    -- fury_of_air,if=buff.fury_of_air.up&&spell_targets.fury_of_air_damage<(1+variable.freezerburn_enabled)
+    -- fury_of_air,if=buff.fury_of_air.up&&spell_targets.fury_of_air_damage<(1+variable.freezerburn_enabled)    if cast.able.furyOfAir() and buff.furyOfAir.exists() and (#enemies.yards8 < (1 + icyHot) and mode.fury == 1) then	    if cast.able.furyOfAir() and buff.furyOfAir.exists() and #enemies.yards8 < (1 + icyHot) then
     if cast.able.furyOfAir() and buff.furyOfAir.exists() and #enemies.yards8 < (1 + icyHot) then
         if cast.furyOfAir() then return true end
     end
