@@ -1043,7 +1043,8 @@ actionList.Corruption = function()
             if cast.shadowmeld() then
                 return true
             end
-        elseif isChecked("Blind THING") or isChecked("Between the eyes THING") or isChecked("Gouge the eyes THING") and not cast.last.vanish(1) and not cast.last.shadowmeld(1) then
+        elseif isChecked("Blind THING") or isChecked("Between the eyes THING") or isChecked("Gouge the eyes THING") and not cast.last.vanish(1) and not cast.last.shadowmeld(1)
+                and not cast.last.vanish(1) and not cast.last.shadowmeld(1) then
             local stun = 0
             local stun_range = 10
             if cast.able.blind() and isChecked("Blind THING") then
@@ -1062,11 +1063,11 @@ actionList.Corruption = function()
             for i = 1, GetObjectCount() do
                 local object = GetObjectWithIndex(i)
                 local ID = ObjectID(object)
-                if ID == 161895 and not isLongTimeCCed(object) and not debuff.betweenTheEyes.exists() and not debuff.gouge.exists() then
+                if ID == 161895 and not isLongTimeCCed(object) and not debuff.betweenTheEyes.exists(object) and not debuff.gouge.exists(object) and not debuff.blind.exists(object) then
                     local x1, y1, z1 = ObjectPosition("player")
                     local x2, y2, z2 = ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                    if distance < stun_range then
+                    if distance < stun_range and object ~= nil and stun ~= nil then
                         CastSpellByName(GetSpellInfo(stun), object)
                         return true
                     end
