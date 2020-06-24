@@ -509,7 +509,7 @@ actionList.Priority = function()
         if cast.furyOfAir() then return true end
     end
     -- fury_of_air,if=buff.fury_of_air.up&&spell_targets.fury_of_air_damage<(1+variable.freezerburn_enabled)
-    if cast.able.furyOfAir() and buff.furyOfAir.exists() and (#enemies.yards8 < (1 + icyHot) or mode.fury == 2) then
+    if cast.able.furyOfAir() and buff.furyOfAir.exists() and (#enemies.yards8 < (1 + icyHot) and mode.fury == 1) then
         if cast.furyOfAir() then return true end
     end
     -- Totem Mastery
