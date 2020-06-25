@@ -66,6 +66,7 @@ br.lists.ccUnits = {
     [134157] = { name = "Gust Slash", spell = 269931 }, -- KING'S REST - SHADOW-BRONE WARRIOR
     [137473] = { name = "Axe Barrage", spell = 270084 }, -- KING'S REST - GUARD CAPTAIN ATU
     [135167] = { name = "Blooded Leap", spell = 270482 }, -- KING'S REST - SPECTRAL BERSERKER
+    [135167] = { name = "Severing Blade", spell = 270487 }, -- KING'S REST - SPECTRAL BERSERKER --https://www.wowhead.com/spell=270487/severing-blade
     [135235] = { name = "Deadeye Shot", spell = 270506 }, -- KING'S REST - SPECTRAL BEASTMASTER
     [135235] = { name = "Poison Barrage", spell = 270507 }, -- KING'S REST - SPECTRAL BEASTMASTER
     -- [130488] = { name = "Activate Mech", spell = 267433 }, -- THE MOTHERLODE!! - MECH JOCKEY
@@ -81,6 +82,7 @@ br.lists.ccUnits = {
     [134364] = { name = "Drain", spell = 267237 }, -- TEMPLE OF SETHRALISS - FAITHLESS TENDER
     [133685] = { name = "Dark Omen", spell = 265568 }, --THE UNDERROT - BEFOULED SPIRIT
     [130909] = { name = "Rotten Bile", spell = 265540 }, -- THE UNDERROT - FETID MAGGOT
+    [130909] = { name = "Rotten Bile", spell = 265542 }, -- THE UNDERROT - FETID MAGGOT
     [161895] = { name = "Thing from Beyond" } --corruption
 
 }
