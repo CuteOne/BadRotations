@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 205106222020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 121106252020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -79,6 +79,7 @@ local function createOptions()
         br.ui:createDropdown(section, "Auto Stealth", { "Always", "25 Yards" }, 1, "Auto stealth mode.")
         br.ui:createCheckbox(section, "Cheap Shot", "Will use cheap shot")
         br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
+        br.ui:createSpinner(section, "Pistol Spam", 50, 0, 100, 1, "", "Min Energy to spam pistol shots")
 
         br.ui:checkSectionState(section)
         ------------------------
@@ -119,14 +120,12 @@ local function createOptions()
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
         br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
         br.ui:createCheckbox(section, "Gouge", "Will use Gouge to int")
-        br.ui:createCheckbox(section, "Blind", "Will use Blind to int")
         br.ui:createDropdownWithout(section, "Blind", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Blind?")
-        br.ui:createCheckbox(section, "Between the Eyes", "Will use BTE to int")
         br.ui:createDropdownWithout(section, "Between the Eyes", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use BtE?")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
         br.ui:createDropdown(section, "Shroud of Resolve", { "Snare", "Eye", "THING", "Eye/THING ", "Never" }, 4, " ", " ")
-        br.ui:createDropdown(section, "Cloak of Shadows ", { "Snare", "Eye", "THING", "Eye/THING ", "Never" }, 4, " ", " ")
+        br.ui:createDropdown(section, "Cloak of Shadows", { "Snare", "Eye", "THING", "Eye/THING ", "Never" }, 4, " ", " ")
         br.ui:createSpinnerWithout(section, "Cloak - Eye Of Corruption Stacks", 1, 0, 20, 1)
         br.ui:createSpinnerWithout(section, "Cloak - Min HP", 75, 0, 100, 5, "Health Percentage to use corruption immunities. ")
         br.ui:createCheckbox(section, "Vanish THING", "Will use Vanish when Thing from beyond spawns ")
@@ -475,13 +474,14 @@ end
 local function rollthebones()
     local buff_count = 0
     local rtb_reroll
+    local crit = GetSpellCritChance(1)
 
     rtb_reroll = buff.rollTheBones.count < 2 and not buff.ruthlessPrecision.exists("player") and not buff.grandMelee.exists("player")
-    if br.player.traits.deadshot.active then
+    if br.player.traits.deadshot.active or crit > 42 then
         rtb_reroll = buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or not buff.broadside.exists())
     end
 
-    if br.player.traits.aceupyoursleeve.active and (br.player.traits.aceupyoursleeve.rank >= br.player.traits.deadshot.rank) then
+    if br.player.traits.aceupyoursleeve.active and (br.player.traits.aceupyoursleeve.rank >= br.player.traits.deadshot.rank and crit < 42) then
         rtb_reroll = buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or buff.ruthlessPrecision.remains() <= cd.betweenTheEyes.remains())
     end
     if br.player.traits.snakeeyes.rank >= 2 and buff.snakeeyes.stack() >= (2 - buff.broadside.exists()) then
@@ -630,9 +630,6 @@ actionList.dps = function()
     -- Print(tostring(getOutLaksTTD(1)))
 
 
-    --finishers
-    --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
-
 
 
     --[[
@@ -640,9 +637,12 @@ actionList.dps = function()
     Finish at maximum CP. Substract one for each Broadside and Opportunity when Quick Draw is selected and MfD is not ready after the next second. Always max BtE with 2+ Ace.
     ]]
 
+    local real_def = comboMax - buff_count()
+    --Print(real_def)
+
     local bte_condition = buff.ruthlessPrecision.exists() or (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and buff.rollTheBones.count >= 1
 
-    if stealth and ambush_flag then
+    if stealth and (ambush_flag or mode.ambush == 1) then
         if actionList.Stealth() then
             return true
         end
@@ -673,7 +673,7 @@ actionList.dps = function()
 
     --  bloodOfTheEnemy
     if mode.essence == 1 then
-        if combo >= comboMax - buff_count() and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition then
+        if combo >= real_def and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition then
             if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
                     and cast.able.betweenTheEyes() then
                 if cast.bloodOfTheEnemy() then
@@ -685,7 +685,11 @@ actionList.dps = function()
 
     -- Finishers
     -- test
-    if combo >= comboMax - buff_count() then
+    -- Print("Our current # buffs that reflects on combo points:" .. tostring(buff_count()))
+    -- Print("Combo: " .. combo .. " Execute at: " .. (tostring(comboMax - buff_count())))
+
+    if combo >= real_def then
+        --   Print("Executing Finishers [" .. combo .. "/" .. real_def .. "]")
         if cast.able.betweenTheEyes() and bte_condition and not buff.opportunity.exists() and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
             if cast.betweenTheEyes(units.dyn20) then
                 return true
@@ -701,7 +705,6 @@ actionList.dps = function()
                 return true
             end
         end
-
         if cast.able.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
             if cast.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
                 return true
@@ -799,7 +802,7 @@ actionList.dps = function()
     blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>2
     variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
     ]]
-    if talent.bladeRush and cast.able.bladeRush() then
+    if talent.bladeRush and cast.able.bladeRush() and ((#enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
         if cast.bladeRush(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
             return true
         end
@@ -867,7 +870,7 @@ actionList.dps = function()
             auto_pot = getOptionValue("Pots - 4+ target")
         end
 
-        if auto_pot ~= 1 and (buff.adrenalineRush.remain() > 12) then
+        if auto_pot ~= 1 and (buff.adrenalineRush.remain() > 12 or hasBloodLust()) then
 
             if auto_pot == 2 and canUseItem(163222) then
                 useItem(163222)
@@ -933,20 +936,22 @@ actionList.dps = function()
     end
     -- builders
 
-
-    if comboDeficit > 0 then
-        if (br.player.talent.quickDraw and comboDeficit > 1 or not br.player.talent.quickDraw and comboDeficit > 0) then
+    --Print("Combo: " .. combo .. "/ goal: " .. tostring((comboMax - buff_count())))
+    if combo < real_def then
+        if (br.player.talent.quickDraw and real_def > 1 or not br.player.talent.quickDraw and real_def > 0) then
             if ((br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
                     and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
-                    or (buff.opportunity.exists() and buff.deadShot.exists()) and not isExplosive(units.dyn20)) then
+                    or (buff.opportunity.exists() and buff.deadShot.exists()) and not isExplosive(units.dyn20))
+                    or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
+            then
                 --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
                 if cast.pistolShot(units.dyn20) then
                     return true
                 end
             end
         end
-        if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
-        then
+        if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
+            --  Print("Casting Sinister at: " .. combo)
             return true
         end
     end
@@ -1062,8 +1067,8 @@ actionList.Corruption = function()
             end
             for i = 1, GetObjectCount() do
                 local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if ID == 161895 and not isLongTimeCCed(object) and not debuff.betweenTheEyes.exists(object) and not debuff.gouge.exists(object) and not debuff.blind.exists(object) then
+                --    local ID = ObjectID(object)
+                if object ~= nil and ObjectID(object) == 161895 and not isLongTimeCCed(object) and not debuff.betweenTheEyes.exists(object) and not debuff.gouge.exists(object) and not debuff.blind.exists(object) then
                     local x1, y1, z1 = ObjectPosition("player")
                     local x2, y2, z2 = ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
@@ -1084,6 +1089,27 @@ actionList.Defensive = function()
     local should_feint
 
     if useDefensive() then
+
+
+        --cloak logic
+        local vanishList = {
+            [260551] = true, -- Soul Thorns WM
+            [261440] = true, -- Virulent Pathogen WM
+            [266231] = true, --Severing Axe KR
+            --[258338] = true, --Barrel fh 2nd boss
+            [263371] = true, --conduction
+            [260741] = true, --nettles wm
+            [291973] = true, --Explosive Leap
+        }
+
+
+
+
+
+
+
+
+
         --aggro management
         if isChecked("Aggro Management") and #br.friend > 1 then
             local tricksunit
@@ -1144,11 +1170,20 @@ actionList.Defensive = function()
                 if php <= getOptionValue("Feint") then
                     should_feint = true
                 end
+
+
+                --we stand in shit
+                if getDebuffRemain("player", 226512) > 0 -- Sanguine
+                        or getDebuffRemain("player", 314565) > 0 -- defiled-ground (from pillar mini boss)
+                then
+                    should_feint = true
+                end
                 if should_feint then
                     if cast.feint() then
                         return true
                     end
                 end
+
             end
         end
 
