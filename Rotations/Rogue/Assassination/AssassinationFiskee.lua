@@ -7,7 +7,7 @@ local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTa
 local resetButton
 local garrotePrioList = ""
 local fhbossPool = false
-local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
+local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
 --- Toggles ---
@@ -864,30 +864,38 @@ local function runRotation()
                 return true
             end
         end
-        -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
+
         if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13) or hasEquiped(169311, 13) or hasEquiped(169314, 13)) then
+            if canUseItem(13) and not (hasEquiped(169311, 13) or hasEquiped(169314, 13) or hasEquiped(159614, 13)) then
                 useItem(13)
             end
-            if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14) or hasEquiped(169311, 14) or hasEquiped(169314, 14)) then
+            if canUseItem(14) and not (hasEquiped(169311, 14) or hasEquiped(169314, 14) or hasEquiped(159614, 13)) then
                 useItem(14)
             end
         end
-        -- # Razor Coral
+    
+        -- # Specific trinktes
         if isChecked("Trinkets") and not stealthedRogue then
+        -- # Razor Coral
             if hasEquiped(169311, 13) and canUseItem(13) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
                 useItem(13)
             elseif hasEquiped(169311, 14) and canUseItem(14) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
                 useItem(14)
             end
         -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 31% of HP)
-            if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and debuff.conductiveInk.exists("target") and getHP("target") < 31 then
+            if hasEquiped(169311, 13) and isChecked("Trinkets") and canUseItem(13) and hasEquiped(169319, 14) and debuff.conductiveInk.exists("target") and getHP("target") < 31 then
                 useItem(13)
             elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and debuff.conductiveInk.exists("target") and getHP("target") < 31 then
                 useItem(14)
             end
+        -- # Galecallers Boon
+        -- actions.cds+=/use_item,name=galecallers_boon,if=(debuff.vendetta.up|(!talent.exsanguinate.enabled&cooldown.vendetta.remains>45|talent.exsanguinate.enabled&(cooldown.exsanguinate.remains<6|cooldown.exsanguinate.remains>20&fight_remains>65)))&!exsanguinated.rupture
+            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 and ttd("target") < 20)) then
+                useItem(13)
+            elseif hasEquiped(159614, 14) and canUseItem(14) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
+                useItem(14)
+            end
         end
-
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
         -- actions.cds+=/fireblood,if=debuff.vendetta.up
@@ -916,12 +924,11 @@ local function runRotation()
                  and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
                  and (not essence.worldveinResonance.active or buff.worldveinResonance.exists() or cd.worldveinResonance.remain() > 1)
                  and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) 
-                 and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 10) then
+                 and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 9 or debuff.toxicBlade.exists("target")) then
                     if cast.vendetta("target") then return true end
                 end
                 if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate 
-                 or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") 
-                 and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) then
+                 or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
                     if cast.vendetta("target") then return true end
                 end
             end
@@ -975,8 +982,9 @@ local function runRotation()
                 if not buff.masterAssassin.exists() then
                     if cast.guardianOfAzeroth("player") then return true end
                 end
-                --Blood Of The Enemy
-                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target") or not cd.toxicBlade.exists()) and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+                --Blood Of The Enemy (some additional for opener)
+                -- if=debuff.vendetta.up&(exsanguinated.garrote|debuff.toxic_blade.up&combo_points.deficit<=1|debuff.vendetta.remains<=10)|fight_remains<=10
+                if debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target") or not cd.toxicBlade.exists()) and (not talent.exsanguinate or cd.exsanguinate.exists() or debuff.garrote.exsang("target")) then
                     if cast.bloodOfTheEnemy("player") then return true end
                 end
                 --The Unbound Force
@@ -1005,7 +1013,7 @@ local function runRotation()
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 1.5 or buff.reapingFlames.remain() <= 1.5 then
+                        if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 or buff.reapingFlames.remain() <= 1.5 then
                             reap_execute = thisUnit
                             break
                         elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44) then
@@ -1029,10 +1037,15 @@ local function runRotation()
                 end
             end
         end
-        -- # Exsanguinate when both Rupture and Garrote are up for long enough
-        -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
+        -- # Exsanguinate when both Rupture and Garrote are up for long enough single target(tips from Raz)
+        -- actions.cds+=/exsanguinate,if=dot.rupture.remains>25&!dot.garrote.remains>15
         if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 25 and 
-         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and (cd.vendetta.exists() or not useCDs()) and ttd("target") > 8 then
+         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and (cd.vendetta.exists() or not useCDs()) and ttd("target") > 4 then
+            if cast.exsanguinate("target") then return true end
+        end
+        -- # Special Exsanguinate when we have more enemies around (simc)
+        -- actions.cds+=/exsanguinate,if=!stealthed.rogue&(!dot.garrote.refreshable&dot.rupture.remains>4+4*cp_max_spend|dot.rupture.remains*0.5>target.time_to_die)&target.time_to_die>4
+        if mode.exsang == 1 and enemies10 > 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 16 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -1175,18 +1188,24 @@ local function runRotation()
         if talent.crimsonTempest and enemies10 >= 3  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
             if cast.crimsonTempest("player") then return true end
         end
+        -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
+        -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
         if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end	
         if exsanguinateCast and debuff.crimsonTempest.exists("target") then exCrimsonTempest = true end	
         if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end	
-        -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
-        -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
         if talent.crimsonTempest and not queenBuff and enemies10 == 1 and debuff.rupture.exists("target") and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") 
-         and not exCrimsonTempest and not debuff.toxicBlade.exists() and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+         and not exCrimsonTempest and not debuff.toxicBlade.exists("target") and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
         -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>1&spell_targets<4&remains<2&combo_points>=4
         if talent.crimsonTempest and not queenBuff and enemies10 > 1 and enemies10 < 4 and combo >= 4 and debuff.crimsonTempest.remain(units.dyn5) < 2 then
+            if cast.crimsonTempest("player") then return true end
+        end
+        -- # Cast Crimson Tempest on AoE instead of Envenom at 7+ targets when Vendetta/TB is not up
+        -- actions.dot+=/crimson_tempest,if=spell_targets>(7-buff.envenom.up)&combo_points>=4+talent.deeper_stratagem.enabled&!debuff.vendetta.up&!debuff.toxic_blade.up&!azerite.twist_the_knife.enabled&energy.deficit<=25+variable.energy_regen_combined
+        if buff.envenom.exists() then buffEnvenom = 1 else buffEnvenom = 0 end
+        if talent.crimsonTempest and not queenBuff and enemies10 > (7 - buffEnvenom) and combo >= (4 + dSEnabled) and not debuff.vendetta.exists("target") and not debuff.toxicBlade.exists("target") and not trait.twistTheKnife.activede and energyDeficit > (25 + energyRegenCombined) then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
@@ -1222,12 +1241,12 @@ local function runRotation()
             end
         end
         -- # Subterfuge: Override normal Garrotes with snapshot versions
-        -- actions.stealthed+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&remains<=10&pmultiplier<=1&target.time_to_die-remains>2
+        -- actions.stealthed+=/garrote,target_if=min:remains,if=talent.subterfuge.enabled&(remains<12|pmultiplier<=1)&target.time_to_die-remains>2
         if talent.subterfuge then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                if debuff.garrote.exists(thisUnit) and (garroteRemain <= 12 or debuff.garrote.applied(thisUnit) <= 1) and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 then
                     if cast.pool.garrote() then return true end
                     if cast.garrote(thisUnit) then return true end
                 end
