@@ -924,7 +924,7 @@ local function runRotation()
                  and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
                  and (not essence.worldveinResonance.active or buff.worldveinResonance.exists() or cd.worldveinResonance.remain() > 1)
                  and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) 
-                 and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 9 or debuff.toxicBlade.exists("target")) then
+                 and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 9) then
                     if cast.vendetta("target") then return true end
                 end
                 if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate 
