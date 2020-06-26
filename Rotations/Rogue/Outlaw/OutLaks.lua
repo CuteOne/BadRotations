@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 121106252020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 082606262020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -90,8 +90,13 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createCheckbox(section, "Racial", "Use your racial")
+        if br.player.race == "BloodElf" then
+            br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "Minimum Torrent Targets")
+            br.ui:createCheckbox(section, "Arcane Torrent regen")
+        end
         br.ui:createCheckbox(section, "Auto Sprint")
         br.ui:createCheckbox(section, "Use Trinkets")
+        br.ui:createSpinnerWithout(section, "Reaping DMG", 10, 1, 20, 1, "* 5k Put damage of your Reaping Flames")
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -177,8 +182,8 @@ local stealth
 local combo, comboDeficit, comboMax
 local ambush_flag = false
 local do_stun
-local dynamic_target_melee_melee
-
+local dynamic_target_melee
+local auto_stealthed
 -- lists ...lots of lists
 
 local debuff_list = {
@@ -690,7 +695,7 @@ actionList.dps = function()
 
     if combo >= real_def then
         --   Print("Executing Finishers [" .. combo .. "/" .. real_def .. "]")
-        if cast.able.betweenTheEyes() and bte_condition and not buff.opportunity.exists() and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
+        if cast.able.betweenTheEyes() and bte_condition and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
             if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
@@ -738,7 +743,9 @@ actionList.dps = function()
 
             -- Reaping Flames
             if essence.reapingFlames.major and cast.able.reapingFlames() then
-                local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
+                -- local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
+                local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 5000 * 2 or getValue("Reaping DMG") * 5000
+
                 local reapingPercentage = 0
                 local thisHP = 0
                 local thisABSHP = 0
@@ -751,7 +758,7 @@ actionList.dps = function()
                     end
                 elseif #enemies.yards30 > 1 then
                     for i = 1, #enemies.yards30 do
-                        local thisUnit = enemies.yards30[i]
+                        thisUnit = enemies.yards30[i]
                         local reapTTD = getTTD(thisUnit)
                         if getTTD(thisUnit) ~= 999 then
                             --  Print("TTD:" .. tostring(getTTD(thisUnit)))
@@ -760,7 +767,7 @@ actionList.dps = function()
                             thisABSHPmax = UnitHealthMax(thisUnit)
                             reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
                             --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
-                            if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 1.5 or buff.reapingFlames.remain() <= 1.5 then
+                            if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 or buff.reapingFlames.remain() <= 1.5 then
                                 reap_execute = thisUnit
                                 break
                             elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)
@@ -1001,7 +1008,7 @@ actionList.Extra = function()
         dps_key()
     end
 
-    if isChecked("Auto Sprint") and cast.able.sprint() and isMoving("player") and (not inCombat or #enemies.yards8 == 0) and IsMovingTime(math.random(1, 5)) then
+    if isChecked("Auto Sprint") and cast.able.sprint() and isMoving("player") and (not inCombat or #enemies.yards8 == 0) and IsMovingTime(math.random(3, 6)) then
         if cast.sprint() then
             return true
         end
@@ -1222,6 +1229,31 @@ actionList.Defensive = function()
             end
         end
     end
+
+
+    -- Arcane Torrent
+    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(69179) == 0 then
+        local torrentUnit = 0
+        for i = 1, #enemies.yards8 do
+            local thisUnit = enemies.yards8[i]
+            if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+                torrentUnit = torrentUnit + 1
+                if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
+                    if castSpell("player", racial, false, false, false) then
+                        return true
+                    end
+                    break
+                end
+            end
+        end
+    end
+    if isChecked("Arcane Torrent regen") and inCombat and race == "BloodElf" and getSpellCD(69179) == 0 and (br.player.power.energy.deficit() >= 15 + br.player.power.energy.regen()) then
+        if castSpell("player", racial, false, false, false) then
+            return true
+        end
+    end
+
+
 
     -- Unstable Temporal Time Shifter
     if isChecked("Eng Brez") and canUseItem(158379) and not moving and inCombat then
@@ -1448,6 +1480,8 @@ local function runRotation()
     elseif haltProfile then
         return true
     else
+
+        --Print(tostring(auto_stealthed))
         ---------------------------------
         --- Out Of Combat - Rotations ---
         ---------------------------------
@@ -1455,8 +1489,9 @@ local function runRotation()
             if actionList.Stealth() then
                 return true
             end
-            if getOptionValue("Auto Stealth") == 2 and #enemies.yards25nc == 0 and buff.stealth.exists() then
+            if getOptionValue("Auto Stealth") == 2 and #enemies.yards25nc == 0 and buff.stealth.exists() and auto_stealthed then
                 cancelBuff(1784)
+                auto_stealthed = nil
             end
         else
             if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
@@ -1473,6 +1508,7 @@ local function runRotation()
                 end
                 if getOptionValue("Auto Stealth") == 2 then
                     if #enemies.yards25nc > 0 then
+                        auto_stealthed = true
                         if cast.stealth() then
                             return
                         end
