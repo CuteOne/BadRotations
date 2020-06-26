@@ -2454,7 +2454,7 @@ br.lists.spells = {
                 gouge                       = 1776,
                 betweenTheEyes              = 199804,
                 preyOnTheWeak               = 255909,
-                blind                       = 43433,
+                blind                       = 2094,
             },
             glyphs                          = {
 
