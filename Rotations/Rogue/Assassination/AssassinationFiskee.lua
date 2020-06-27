@@ -1194,7 +1194,7 @@ local function runRotation()
         if exsanguinateCast and debuff.crimsonTempest.exists("target") then exCrimsonTempest = true end	
         if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end	
         if talent.crimsonTempest and not queenBuff and enemies10 == 1 and debuff.rupture.exists("target") and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") 
-         and not exCrimsonTempest and not debuff.toxicBlade.exists("target") and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+         and (not talent.exsanguinate or not exCrimsonTempest) and not debuff.toxicBlade.exists("target") and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
