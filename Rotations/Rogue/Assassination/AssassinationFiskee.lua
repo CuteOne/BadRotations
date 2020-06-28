@@ -327,7 +327,7 @@ local function runRotation()
                 end
             end
         end
-        if unitsInRect >= minUnits then
+        if unitsInRect >= minUnits and fightRemain < 10 then
             CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
             return true
         else
@@ -437,6 +437,7 @@ local function runRotation()
     clearTable(enemyTable5)
     clearTable(enemyTable10)
     clearTable(enemyTable30)
+    local fightRemain
     local deadlyPoison10 = true
     local spell5y = GetSpellInfo(spell.kick)
     local spell10y = GetSpellInfo(spell.pickPocket)
@@ -457,6 +458,7 @@ local function runRotation()
                 tinsert(enemyTable30, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
                 if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
+                if fightRemain == nil or fightRemain < enemyUnit.ttd then fightRemain = enemyUnit.ttd end
                 if enemyTable30.lowestTTDUnit == nil or enemyTable30.lowestTTD > enemyUnit.ttd then
                     enemyTable30.lowestTTDUnit = enemyUnit.unit
                     enemyTable30.lowestTTD = enemyUnit.ttd
@@ -877,9 +879,9 @@ local function runRotation()
         -- # Specific trinktes
         if isChecked("Trinkets") and not stealthedRogue then
         -- # Razor Coral
-            if hasEquiped(169311, 13) and canUseItem(13) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
+            if hasEquiped(169311, 13) and canUseItem(13) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or fightRemain < 20 or (isBoss() and ttd("target") < 20)) then
                 useItem(13)
-            elseif hasEquiped(169311, 14) and canUseItem(14) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
+            elseif hasEquiped(169311, 14) and canUseItem(14) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or fightRemain < 20 or (isBoss() and ttd("target") < 20)) then
                 useItem(14)
             end
         -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 31% of HP)
@@ -890,9 +892,9 @@ local function runRotation()
             end
         -- # Galecallers Boon
         -- actions.cds+=/use_item,name=galecallers_boon,if=(debuff.vendetta.up|(!talent.exsanguinate.enabled&cooldown.vendetta.remains>45|talent.exsanguinate.enabled&(cooldown.exsanguinate.remains<6|cooldown.exsanguinate.remains>20&fight_remains>65)))&!exsanguinated.rupture
-            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20))) and not debuff.garrote.exsang("target") then
+            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain >65)) and not debuff.garrote.exsang("target") then
                 useItem(13)
-            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20))) and not debuff.garrote.exsang("target") then
+            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain >65)) and not debuff.garrote.exsang("target") then
                 useItem(14)
             end
         end
@@ -979,7 +981,10 @@ local function runRotation()
                     if cast.memoryOfLucidDreams("player") then return true end
                 end
                 --Guardian
-                if not buff.masterAssassin.exists() then
+                -- actions.essences+=/guardian_of_azeroth,if=cooldown.vendetta.remains<3|debuff.vendetta.up|fight_remains<30
+                -- actions.essences+=/guardian_of_azeroth,if=floor((fight_remains-30)%cooldown)>floor((fight_remains-30-cooldown.vendetta.remains)%cooldown)
+                if (not buff.masterAssassin.exists() and not buff.subterfuge.exists() and (cd.vendetta.remain() > 3 or debuff.vendetta.exists("target") or fightRemain < 30))
+                 or (((fightRemain - 30) % cd.guardianOfAzeroth.remain()) > ((fightRemain - 30 - cd.vendetta.remain()) % cd.guardianOfAzeroth.remain())) then
                     if cast.guardianOfAzeroth("player") then return true end
                 end
                 --Blood Of The Enemy (some additional for opener)
@@ -1306,6 +1311,7 @@ local function runRotation()
         if actionList_Extra() then return true end
 
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            fightRemain = nil
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
         if actionList_Opener() then return true end
