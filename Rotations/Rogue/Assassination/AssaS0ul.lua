@@ -1314,7 +1314,7 @@ local function runRotation()
         if actionList_Extra() then return true end
 
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-            fightRemain = nil
+            if fightRemain ~= nil then fightRemain = nil end
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
         if actionList_Opener() then return true end
