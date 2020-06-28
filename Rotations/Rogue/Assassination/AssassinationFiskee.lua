@@ -890,9 +890,9 @@ local function runRotation()
             end
         -- # Galecallers Boon
         -- actions.cds+=/use_item,name=galecallers_boon,if=(debuff.vendetta.up|(!talent.exsanguinate.enabled&cooldown.vendetta.remains>45|talent.exsanguinate.enabled&(cooldown.exsanguinate.remains<6|cooldown.exsanguinate.remains>20&fight_remains>65)))&!exsanguinated.rupture
-            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 and ttd("target") < 20)) then
+            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20))) and not debuff.garrote.exsang("target") then
                 useItem(13)
-            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 and ttd("target") < 20)) then
+            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20))) and not debuff.garrote.exsang("target") then
                 useItem(14)
             end
         end
