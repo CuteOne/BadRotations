@@ -713,7 +713,7 @@ actionList.dps = function()
         end
         if combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones()) then
             if cast.rollTheBones() then
-                Print("2: " .. tostring(buff_rollTheBones_remain))
+                --Print("2: " .. tostring(buff_rollTheBones_remain))
                 return true
             end
         end
