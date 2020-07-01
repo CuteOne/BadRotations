@@ -956,7 +956,7 @@ local function runRotation()
                 end
                 -- # Vanish with Exsg + Subterfuge only on 1T: CP deficit > 1+2*SSActive and Exsg ready for next GCD
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&cooldown.garrote.up&(dot.garrote.refreshable|debuff.vendetta.up&dot.garrote.pmultiplier<=1))&combo_points.deficit>=(1+2*azerite.shrouded_suffocation.enabled)
-                if talent.exsanguinate and talent.subterfuge and enemies10 == 1 and comboDeficit >=(1+2*sSActive) and cd.exsanguinate.remain() < 1 and debuff.garrote.refresh("target") and getSpellCD(spell.garrote) == 0 then
+                if talent.exsanguinate and talent.subterfuge and enemies10 == 1 and comboDeficit >=(1+2*sSActive) and cd.exsanguinate.remain() < 1 and debuff.garrote.refresh("target") and not debuff.garrote.exsang("target") and getSpellCD(spell.garrote) == 0 then
                     if cast.pool.garrote() then return true end
                     if cast.vanish("player") then return true end
                 end
