@@ -1,7 +1,10 @@
 -- Action List - Pet Management
 local fetching = false
 local fetchCount = 0
-local petTarget
+local paused = false
+local pausekey = false
+local petCalled = false
+local petRevived = false
 br.rotations.support["PetCuteOne"] = function()
     local function getCurrentPetMode()
         local petMode = "None"
@@ -16,6 +19,14 @@ br.rotations.support["PetCuteOne"] = function()
         return petMode
     end
 
+    --Set Pause Key
+    if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
+		pausekey = IsLeftAltKeyDown()
+	else
+		pausekey = SpecificToggle("Pause Mode")
+    end
+    paused = pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode")
+
     ---------------------
     --- Define Locals ---
     ---------------------
@@ -29,9 +40,16 @@ br.rotations.support["PetCuteOne"] = function()
     local spell                                         = br.player.spell
     local units                                         = br.player.units
     -- General Locals
-    local profileStop                                   = profileStop or false
-    local haltProfile                                   = (inCombat and profileStop) or IsMounted() or IsFlying()
-                                                            or pause(true) or buff.feignDeath.exists() or mode.rotation==4
+    local haltPetProfile                                = IsMounted() or IsFlying() or paused or buff.feignDeath.exists() or buff.playDead.exists("pet") or mode.rotation==4
+    -- Pet Specific Locals
+    local friendUnit                                    = br.friend[1].unit
+    local petActive                                     = IsPetActive()
+    local petCombat                                     = UnitAffectingCombat("pet")
+    local petDistance                                   = getDistance(br.petTarget,"pet") or 99
+    local petExists                                     = UnitExists("pet")
+    local petHealth                                     = getHP("pet")
+    local petMode                                       = getCurrentPetMode()
+    local validTarget                                   = UnitExists(br.petTarget) and (isValidUnit(br.petTarget) or isDummy()) --or (not UnitExists(br.petTarget) and isValidUnit("target")) or isDummy()
     local petTargetOp                                   = getOptionValue("Pet Target")
 
     -- Units
@@ -50,6 +68,7 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
+    -- Pet Target Modes
     if br.petTarget == nil
         or ((petTargetOp == 1 or petTargetOp == 3) and (not isValidUnit(br.petTarget)))
         or (petTargetOp == 2 and not UnitIsUnit(br.petTarget,"target"))
@@ -73,180 +92,186 @@ br.rotations.support["PetCuteOne"] = function()
         end
     end
 
-    local friendUnit = br.friend[1].unit
-    local petActive = IsPetActive()
-    local petCombat = UnitAffectingCombat("pet")
-    local petDistance = getDistance(br.petTarget,"pet") or 99
-    local petExists = UnitExists("pet")
-    local petHealth = getHP("pet")
-    local petMode = getCurrentPetMode()
-    local validTarget = UnitExists(br.petTarget) and (isValidUnit(br.petTarget) or isDummy()) --or (not UnitExists("br.petTarget") and isValidUnit("target")) or isDummy()
-
-    if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
+    -- Pet Summoning (Call, Dismiss, Revive)
+    if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") or waitForPetToAppear == nil then
         waitForPetToAppear = GetTime()
-    elseif mode.petSummon ~= 6 then
+    elseif mode.petSummon ~= 6 and not haltPetProfile then
         local callPet = spell["callPet"..mode.petSummon]
         if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
+            -- Check for Pet
+            if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
+            -- Dismiss Pet
             if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                 if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
-            elseif callPet ~= nil then
-                if deadPet or (petExists and petHealth == 0) then
+            end
+            if callPet ~= nil then
+                -- Call Pet
+                if ((not deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
+                    if castSpell("player",callPet,false,false,false,true,true,true,true,false) then waitForPetToAppear = GetTime(); petCalled = true; petRevived = false; return true end
+                end
+                -- Revive Pet
+                if deadPet or (petExists and petHealth == 0) or petCalled == true then
                     if cast.able.revivePet() and cast.timeSinceLast.revivePet() > gcdMax then
-                        if cast.revivePet("player") then waitForPetToAppear = GetTime(); return true end
+                        if cast.revivePet("player") then waitForPetToAppear = GetTime(); petRevived = true; petCalled = false; return true end
                     end
-                elseif not deadPet and not petExists and not buff.playDead.exists("pet") then
-                    if castSpell("player",callPet,false,false,false,true,true,true,true,false) then waitForPetToAppear = GetTime(); return true end
                 end
             end
         end
-        if waitForPetToAppear == nil then
-            waitForPetToAppear = GetTime()
-        end
     end
+
+    -- Pet Combat Modes
     if isChecked("Auto Attack/Passive") then
-        -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if petTargetOp == 4 and inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
+        -- Set Pet Modes
+        if petTargetOp == 4 and inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltPetProfile then
+            -- Print("Pet is now Assisting")
             PetAssistMode()
-        elseif ((not inCombat or petTargetOp ~= 4) and petMode == "Assist") and #enemies.yards40nc > 0 and not haltProfile then
+        elseif ((not inCombat and petMode == "Assist") or (inCombat and petTargetOp ~= 4)) and #enemies.yards40nc > 0 and not haltPetProfile then
+            -- Print("Pet is now Defending")
             PetDefensiveMode()
-        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
+        elseif petMode ~= "Passive" and ((not inCombat and #enemies.yards40nc == 0) or haltPetProfile) then
+            -- Print("Pet is now Passive")
             PetPassiveMode()
         end
-        -- Pet Attack / retreat
-        if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
+        -- Pet Attack / Retreat
+        if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltPetProfile and br.petTarget ~= nil then
+            -- Print("Pet is now attacking "..tostring(UnitName(br.petTarget)))
             PetAttack(br.petTarget)
-        elseif (not inCombat or (inCombat and not isValidUnit(br.petTarget)) or haltProfile)
+        elseif (not inCombat or (inCombat and not isValidUnit(br.petTarget)) or haltPetProfile)
             and IsPetAttackActive()
         then
+            -- Print("Pet stopped attacking!")
             PetStopAttack()
-            PetFollow()
+            if #enemies.yards40 == 0 or haltPetProfile then Print("Pet is now following, Enemies40: "..#enemies.yards40..", haltPetProfile: "..tostring(haltPetProfile)) PetFollow() end
         end
     end
+
     -- Manage Pet Abilities
-    -- Cat-like Refelexes / Spirit Mend / Survival of the Fittest
-    if isChecked("Spirit Mend") and cast.able.spiritmend() and getHP(friendUnit) <= getOptionValue("Spirit Mend") then
-        if cast.spiritmend(friendUnit) then return end
-    end
-    if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and petHealth <= getOptionValue("Cat-like Reflexes") then
-        if cast.catlikeReflexes() then return end
-    end
-    if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
-        --[[and petCombat ]]and petHealth <= getOptionValue("Survival of the Fittest")
-    then
-        if cast.survivalOfTheFittest() then return end
-    end
-    -- Bite/Claw
-    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem(br.petTarget) then
-        if cast.able.bite() then
-            if cast.bite(br.petTarget,"pet") then return end
+    if not haltPetProfile then
+        -- Cat-like Refelexes / Spirit Mend / Survival of the Fittest
+        if isChecked("Spirit Mend") and cast.able.spiritmend() and getHP(friendUnit) <= getOptionValue("Spirit Mend") then
+            if cast.spiritmend(friendUnit) then return end
         end
-        if cast.able.claw() then
-            if cast.claw(br.petTarget,"pet") then return end
+        if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and petHealth <= getOptionValue("Cat-like Reflexes") then
+            if cast.catlikeReflexes() then return end
         end
-    end
-    -- Dash
-    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance(br.petTarget) < 40 then
-        if cast.dash("pet") then return end
-    end
-    -- Purge
-    if isChecked("Purge") and inCombat then
-        if #enemies.yards5p > 0 then
-            local dispelled = false
-            local dispelledUnit = "player"
-            for i = 1, #enemies.yards5p do
-                local thisUnit = enemies.yards5p[i]
-                if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
-                    if isValidUnit(thisUnit) and canDispel(thisUnit,spell.spiritShock) then
-                        if cast.able.spiritShock(thisUnit,"pet") then
-                            if cast.spiritShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.chiJiTranq(thisUnit,"pet") then
-                            if cast.chiJiTranq(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.naturesGrace(thisUnit,"pet") then
-                            if cast.naturesGrace(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.netherShock(thisUnit,"pet") then
-                            if cast.netherShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.sonicBlast(thisUnit,"pet") then
-                            if cast.sonicBlast(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.soothingWater(thisUnit,"pet") then
-                            if cast.soothingWater(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.sporeCloud(thisUnit,"pet") then
-                            if cast.sporeCloud(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+        if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
+            --[[and petCombat ]]and petHealth <= getOptionValue("Survival of the Fittest")
+        then
+            if cast.survivalOfTheFittest() then return end
+        end
+        -- Bite/Claw
+        if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not isTotem(br.petTarget) then
+            if cast.able.bite() then
+                if cast.bite(br.petTarget,"pet") then return end
+            end
+            if cast.able.claw() then
+                if cast.claw(br.petTarget,"pet") then return end
+            end
+        end
+        -- Dash
+        if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance(br.petTarget) < 40 then
+            if cast.dash("pet") then return end
+        end
+        -- Purge
+        if isChecked("Purge") and inCombat then
+            if #enemies.yards5p > 0 then
+                local dispelled = false
+                local dispelledUnit = "player"
+                for i = 1, #enemies.yards5p do
+                    local thisUnit = enemies.yards5p[i]
+                    if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
+                        if isValidUnit(thisUnit) and canDispel(thisUnit,spell.spiritShock) then
+                            if cast.able.spiritShock(thisUnit,"pet") then
+                                if cast.spiritShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.chiJiTranq(thisUnit,"pet") then
+                                if cast.chiJiTranq(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.naturesGrace(thisUnit,"pet") then
+                                if cast.naturesGrace(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.netherShock(thisUnit,"pet") then
+                                if cast.netherShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.sonicBlast(thisUnit,"pet") then
+                                if cast.sonicBlast(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.soothingWater(thisUnit,"pet") then
+                                if cast.soothingWater(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.sporeCloud(thisUnit,"pet") then
+                                if cast.sporeCloud(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                            end
+                        end
+                    end
+                end
+                if dispelled then return end
+            end
+        end
+        -- Growl
+        if isChecked("Auto Growl") and inCombat then
+            local _, autoCastEnabled = GetSpellAutocast(spell.growl)
+            if autoCastEnabled then DisableSpellAutocast(spell.growl) end
+            if not isTankInRange() and not buff.prowl.exists("pet") then
+                if getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
+                    if cast.misdirection("pet") then return end
+                end
+                if cast.able.growl() then
+                    for i = 1, #enemies.yards30p do
+                        local thisUnit = enemies.yards30p[i]
+                        if isTanking(thisUnit) then
+                            if cast.growl(thisUnit,"pet") then return end
                         end
                     end
                 end
             end
-            if dispelled then return end
         end
-    end
-    -- Growl
-    if isChecked("Auto Growl") and inCombat then
-        local _, autoCastEnabled = GetSpellAutocast(spell.growl)
-        if autoCastEnabled then DisableSpellAutocast(spell.growl) end
-        if not isTankInRange() and not buff.prowl.exists("pet") then
-            if getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
-                if cast.misdirection("pet") then return end
+        -- Play Dead / Wake Up
+        if isChecked("Play Dead / Wake Up") and not deadPet then
+            if cast.able.playDead() and petCombat and not buff.playDead.exists("pet")
+                and petHealth < getOptionValue("Play Dead / Wake Up")
+            then
+                if cast.playDead() then return end
             end
-            if cast.able.growl() then
-                for i = 1, #enemies.yards30p do
-                    local thisUnit = enemies.yards30p[i]
-                    if isTanking(thisUnit) then
-                        if cast.growl(thisUnit,"pet") then return end
-                    end
+            if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists()
+                and petHealth >= getOptionValue("Play Dead / Wake Up")
+            then
+                if cast.wakeUp() then return end
+            end
+        end
+        -- Prowl
+        if isChecked("Prowl / Spirit Walk") and not petCombat
+            and (not IsResting() or isDummy()) and #enemies.yards40nc > 0
+        then
+            if cast.able.spiritWalk() and not buff.spiritWalk.exists("pet") then
+                if cast.spiritWalk("pet") then return end
+            end
+            if cast.able.prowl() and not buff.prowl.exists("pet") then
+                if cast.prowl("pet") then return end
+            end
+        end
+        -- Mend Pet
+        if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
+            and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet")
+        then
+            if cast.mendPet() then return end
+        end
+        -- Fetch
+        local function getLootableCount()
+            local count = 0
+            for k, v in pairs(br.lootable) do
+                if br.lootable[k] ~= nil and getDistance(br.lootable[k]) > 8 then
+                    count = count + 1
                 end
             end
+            return count
         end
-    end
-    -- Play Dead / Wake Up
-    if isChecked("Play Dead / Wake Up") and not deadPet then
-        if cast.able.playDead() and petCombat and not buff.playDead.exists("pet")
-            and petHealth < getOptionValue("Play Dead / Wake Up")
-        then
-            if cast.playDead() then return end
-        end
-        if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists()
-            and petHealth >= getOptionValue("Play Dead / Wake Up")
-        then
-            if cast.wakeUp() then return end
-        end
-    end
-    -- Prowl
-    if isChecked("Prowl / Spirit Walk") and not petCombat
-        and (not IsResting() or isDummy()) and #enemies.yards40nc > 0
-    then
-        if cast.able.spiritWalk() and not buff.spiritWalk.exists("pet") then
-            if cast.spiritWalk("pet") then return end
-        end
-        if cast.able.prowl() and not buff.prowl.exists("pet") then
-            if cast.prowl("pet") then return end
-        end
-    end
-    -- Mend Pet
-    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
-        and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile and not pause()
-    then
-        if cast.mendPet() then return end
-    end
-    -- Fetch
-    local function getLootableCount()
-        local count = 0
-        for k, v in pairs(br.lootable) do
-            if br.lootable[k] ~= nil and getDistance(br.lootable[k]) > 8 then
-                count = count + 1
-            end
-        end
-        return count
-    end
 
-    if isChecked("Fetch") and not inCombat and cast.able.fetch() and petExists and not deadPet and not haltProfile and not pause() then
-        if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
-        for k, v in pairs(br.lootable) do
-            if br.lootable[k] ~= nil then
-                if getDistance(br.lootable[k]) > 8 and not fetching then
-                    cast.fetch("pet")
-                    fetchCount = getLootableCount()
-                    fetching = true
-                    -- Print("Pet is fetching loot! "..fetchCount.." loots found!")
-                    break
+        if isChecked("Fetch") and not inCombat and cast.able.fetch() and petExists and not deadPet then
+            if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
+            for k, v in pairs(br.lootable) do
+                if br.lootable[k] ~= nil then
+                    if getDistance(br.lootable[k]) > 8 and not fetching then
+                        cast.fetch("pet")
+                        fetchCount = getLootableCount()
+                        fetching = true
+                        -- Print("Pet is fetching loot! "..fetchCount.." loots found!")
+                        break
+                    end
                 end
             end
         end
