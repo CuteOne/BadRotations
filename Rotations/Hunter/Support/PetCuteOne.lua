@@ -74,7 +74,7 @@ br.rotations.support["PetCuteOne"] = function()
         or (petTargetOp == 2 and not UnitIsUnit(br.petTarget,"target"))
         or petTargetOp == 4
     then
-        if petTargetOp == 1 and units.dyn40 ~= nil and not UnitIsUnit(units.dyn40,br.petTarget) then
+        if petTargetOp == 1 and units.dyn40 ~= nil and (br.petTarget == nil or not UnitIsUnit(units.dyn40,br.petTarget)) then
             br.petTarget = units.dyn40
             -- Print("[Dynamic] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
@@ -82,7 +82,7 @@ br.rotations.support["PetCuteOne"] = function()
             br.petTarget = "target"
             -- Print("[Only Target] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
-        if petTargetOp == 3 and enemies.yards40[1] ~= nil and not UnitIsUnit(enemies.yards40[1],br.petTarget) then
+        if petTargetOp == 3 and enemies.yards40[1] ~= nil and (br.petTarget == nil or not UnitIsUnit(enemies.yards40[1],br.petTarget)) then
             br.petTarget = enemies.yards40[1]
             -- Print("[Any Unit] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
