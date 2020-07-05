@@ -1286,6 +1286,10 @@ local function runRotation()
 
     if eagleUnit == nil then eagleUnit = "target" end
 
+    -----------------
+    --- Pet Logic ---
+    -----------------
+    if actionList.PetManagement() then return true end
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1293,10 +1297,6 @@ local function runRotation()
     if not inCombat and not hastar and profileStop then
         profileStop = false
     elseif haltProfile then
-        -----------------
-        --- Pet Logic ---
-        -----------------
-        if actionList.PetManagement() then return true end
         if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
             if cast.playDead() then return end
         end
@@ -1310,7 +1310,7 @@ local function runRotation()
         -----------------
         --- Pet Logic ---
         -----------------
-        if actionList.PetManagement() then return true end
+        -- if actionList.PetManagement() then return true end
         -----------------------
         --- Extras Rotation ---
         -----------------------
