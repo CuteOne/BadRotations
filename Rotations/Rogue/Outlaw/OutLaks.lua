@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 085306292020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 063707062020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -96,7 +96,7 @@ local function createOptions()
         end
         br.ui:createCheckbox(section, "Auto Sprint")
         br.ui:createCheckbox(section, "Use Trinkets")
-        br.ui:createSpinnerWithout(section, "Reaping DMG", 10, 1, 20, 1, "* 5k Put damage of your Reaping Flames")
+        br.ui:createSpinnerWithout(section, "Reaping DMG", 50, 1, 100, 1, "* 1k Put damage of your Reaping Flames")
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -888,7 +888,7 @@ actionList.dps = function()
             -- Reaping Flames
             if essence.reapingFlames.major and cast.able.reapingFlames() then
                 -- local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
-                local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 5000 * 2 or getValue("Reaping DMG") * 5000
+                local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 1000 * 2 or getValue("Reaping DMG") * 1000
 
                 local reapingPercentage = 0
                 local thisHP = 0
@@ -936,7 +936,7 @@ actionList.dps = function()
 
                 if reapTarget ~= nil and not isExplosive(reapTarget) then
                     if cast.reapingFlames(reapTarget) then
-                        Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+                        --Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                         return true
                     end
                 end
