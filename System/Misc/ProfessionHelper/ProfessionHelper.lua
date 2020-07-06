@@ -5,20 +5,30 @@ function ProfessionHelper()
       local function processThatTable(thisTable, spell)
         for i = 1, #thisTable do
           local thisItem = thisTable[i]
-          if GetItemCount(thisItem, false, false) >= 5 then
-            if lootTimer == nil or lootTimer <= GetTime() - lootDelay and not LootFrame:IsShown() then
-              CastSpellByName(GetSpellInfo(spell), "player")
-              UseItemByName(tostring(select(1, GetItemInfo(thisTable[i]))))
-              lootTimer = GetTime()
-              return
-            end
-          elseif LootFrame:IsShown() then
-            for l = 1, GetNumLootItems() do
-              if LootSlotHasItem(l) then
-                LootSlot(l)
+          if GetItemCount(thisItem, false, false) >= 5 or spell == 13262 then
+            for bagID = 0, NUM_BAG_SLOTS do
+              for slotID = 1, GetContainerNumSlots(bagID) do
+                if lootTimer == nil or lootTimer <= GetTime() - lootDelay and not LootFrame:IsShown() then
+                  local _, _, _, _, _, _, itemLink = GetContainerItemInfo(bagID, slotID);
+                  if itemLink ~= nil then
+                    local itemName, _, _, _, _, itemClass, itemSubClass = GetItemInfo(itemLink);
+                    local itemID = tonumber(string.match(itemLink, "Hitem:(%d+)"))
+                    if itemID == thisItem then
+                      RunMacroText("/cast "..GetSpellInfo(spell))
+                      RunMacroText("/use item:"..itemID)
+                      lootTimer = GetTime()           
+                    end
+                  end
+                elseif LootFrame:IsShown() then
+                  for l = 1, GetNumLootItems() do
+                    if LootSlotHasItem(l) then
+                      LootSlot(l)
+                    end
+                  end
+                  CloseLoot()
+                end
               end
             end
-            CloseLoot()
           end
         end
       end
@@ -153,7 +163,8 @@ function ProfessionHelper()
           136712, -- Queen's Opal Pendant (ilvl 765)
           136713, -- Shadowruby Band (ilvl 835)
           128899, -- Battlebound Armbands
-          128883 -- Warhide Bindings
+          128883, -- Warhide Bindings
+          154692, -- Tidespray Linen Bracers
         }
         processThatTable(tableDisenchant, 13262)
       end
