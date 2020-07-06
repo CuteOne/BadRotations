@@ -161,6 +161,7 @@ br.lists.interruptWhitelist = {
 	[313364] = true, -- Mental Decay, Servant of N'Zoth
 	[313400] = true, -- Corrupted Mind, Corruptor Tentacle
 	[316711] = true, -- Mindwrack, Psychus
+	[310842] = true, -- Shadow Heal, Occult Shadowmender
 	-- Ny'alotha, the Waking City End
 	-- Old Content start
 	[191823] = true, -- Furious Blast
