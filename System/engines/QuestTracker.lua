@@ -59,6 +59,12 @@ function isQuestUnit(Pointer)
 end
 
 local QuestCacheUpdate = function()
+
+	local ignoreQuest = {
+		[56064] = true, -- Assault Black Empire (Vale)
+		[55350] = true, -- Assault Amathet Advance
+		[56308] = true, -- Assault Aqir Unearthed
+	}
 	--clear the quest cache
 	wipe(br.QuestCache)
 
@@ -72,7 +78,7 @@ local QuestCacheUpdate = function()
 	local numEntries, numQuests = GetNumQuestLogEntries()
 	for questId = 1, numEntries do
 		local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
-		if (type (questId) == "number" and questId > 0) then -- and not isComplete
+		if (type (questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
 			br.QuestCache[title] = true
 		end
 	end
@@ -83,7 +89,7 @@ local QuestCacheUpdate = function()
 		if (type (worldQuests) == "table") then
 			for i, questTable in ipairs (worldQuests) do
 				local x, y, floor, numObjectives, questId, inProgress = questTable.x, questTable.y, questTable.floor, questTable.numObjectives, questTable.questId, questTable.inProgress
-				if (type (questId) == "number" and questId > 0) then
+				if (type (questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
 					local questName = C_TaskQuest.GetQuestInfoByQuestID (questId)
 					if (questName) then
 						br.QuestCache[questName] = true
@@ -102,7 +108,13 @@ local function FunctionQuestLogUpdate() --private
 end
 
 function isQuestObject(object) --Ty Ssateneth
-    local objectID = ObjectID(object)
+	local objectID = ObjectID(object)
+	local ignoreObjects = {
+		[327571] = true,
+	}
+	if ignoreObjects[objectID] ~= nil then 
+		return false
+	end
     if objectID == 325958 or objectID == 325962 or objectID == 325963 or objectID == 325959 or objectID == 335703 or objectID == 152692 or objectID == 163757 or objectID == 290542 or objectID == 113768 or objectID == 113771 or objectID == 113769 or objectID == 113770 or objectID == 153290 or
         objectID == 322413 or objectID == 326395 or objectID == 326399 or objectID == 326418 or objectID == 326413 or objectID == 327577 or objectID == 327576 or objectID == 327578 or objectID == 325799 or
         objectID == 326417 or objectID == 326411 or objectID == 326412 or objectID == 326413 or objectID == 326414 or objectID == 326415 or objectID == 326416 or objectID == 326417 or objectID == 326418 or objectID == 326419 or objectID == 326420 or objectID == 326403 or objectID == 326408 or objectID == 326407 or -- nasjatar chests
