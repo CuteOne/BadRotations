@@ -942,16 +942,22 @@ local function runRotation()
                 end
             end
             if mode.vanish == 1 and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
-                -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
-                -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and not debuff.vendetta.exists("target") and debuff.garrote.refresh("target")) or (sSActive and debuff.garrote.remain("target") < 18 and not debuff.vendetta.exists("target"))) and comboDeficit >= (1+2*sSActive) then
-                    if cast.pool.garrote(nil, nil, 2) then return true end
-                    if cast.vanish("player") then return true end
-                end
                 -- # Vanish with Exsg + Nightstalker: Maximum CP and Exsg ready for next GCD
                 -- actions.cds+=/vanish,if=talent.exsanguinate.enabled&talent.nightstalker.enabled&combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1
                 if talent.exsanguinate and talent.nightstalker and combo >= comboMax and cd.exsanguinate.remain() < 1 then
                     if cast.pool.garrote() then return true end
+                    if cast.vanish("player") then return true end
+                end
+                -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up (unless using VoP)
+                -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
+                -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&(debuff.vendetta.up|essence.vision_of_perfection.enabled)
+                if talent.nightstalker and not talent.exsanguinate and comboDeficit >= comboMax and (debuff.vendetta.exists("target") or not isChecked("Vendetta") or essence.visionOfPerfection.active) then
+                    if cast.vanish("player") then return true end
+                end
+                -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
+                -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and not debuff.vendetta.exists("target") and debuff.garrote.refresh("target")) or (sSActive and debuff.garrote.remain("target") < 18 and not debuff.vendetta.exists("target"))) and comboDeficit >= (1+2*sSActive) then
+                    if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Exsg + Subterfuge only on 1T: CP deficit > 1+2*SSActive and Exsg ready for next GCD
@@ -960,20 +966,16 @@ local function runRotation()
                     if cast.pool.garrote() then return true end
                     if cast.vanish("player") then return true end
                 end
-                -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
-                -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
-                if talent.nightstalker and not talent.exsanguinate and comboDeficit >= comboMax and (debuff.vendetta.exists("target") or not isChecked("Vendetta")) then
-                    if cast.vanish("player") then return true end
-                end
                 -- # Vanish with Subterfuge + (No Exsg or 2T+): No stealth/subterfuge, Garrote Refreshable, enough space for incoming Garrote CP
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&(!talent.exsanguinate.enabled|!variable.single_target)&!stealthed.rogue&cooldown.garrote.up&dot.garrote.refreshable&(spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives|spell_targets.fan_of_knives>=4&combo_points.deficit>=4)
                 if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and getSpellCD(spell.garrote) == 0 and debuff.garrote.refresh("target") and not debuff.garrote.exsang("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
-                -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture and Garrote not in refresh range, Guardian of Azeroth used
-                -- actions.cds+=/vanish,if=talent.master_assassin.enabled&!stealthed.all&master_assassin_remains<=0&!dot.rupture.refreshable
-                if talent.masterAssassin and not buff.masterAssassin.exists() and not debuff.garrote.refresh("target") and not debuff.rupture.refresh("target") and debuff.vendetta.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) then
+                -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range, during Vendetta+TB+BotE (unless using VoP) or GoA
+                -- actions.cds+=/vanish,if=talent.master_assassin.enabled&!stealthed.all&master_assassin_remains<=0&!dot.rupture.refreshable&dot.garrote.remains>3&(debuff.vendetta.up&(!talent.toxic_blade.enabled|debuff.toxic_blade.up)&(!essence.blood_of_the_enemy.major|debuff.blood_of_the_enemy.up)|essence.vision_of_perfection.enabled)
+                if talent.masterAssassin and not buff.masterAssassin.exists() and not debuff.garrote.refresh("target") and not debuff.rupture.refresh("target") and debuff.vendetta.exists("target") and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) and 
+                 (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) and (not essence.bloodOfTheEnemy.active or buff.seethingRage.exists()) then
                     if cast.vanish("player") then return true end
                 end
             end
@@ -1010,21 +1012,25 @@ local function runRotation()
             local thisABSHP = 0
             local thisABSHPmax = 0
             local reapTarget, thisUnit, reap_execute, reap_hold, reap_fallback = false, false, false, false, false
+            local mob_count = #enemies.yards30
+            if mob_count > 10 then
+                mob_count = 10
+            end
 
-            if #enemies.yards30 == 1 then
+            if mob_count == 1 then
                 if ((br.player.essence.reapingFlames.rank >= 2 and getHP(enemies.yards30[1]) > 80) or getHP(enemies.yards30[1]) <= 20 or getTTD(enemies.yards30[1], 20) > 30) then
                     reapTarget = enemies.yards30[1]
                 end
-            elseif #enemies.yards30 > 1 then
-                for i = 1, #enemies.yards30 do
-                    local thisUnit = enemies.yards30[i]
+            elseif mob_count > 1 then
+                for i = 1, mob_count do
+                    thisUnit = enemies.yards30[i]
                     local reapTTD = getTTD(thisUnit)
                     if getTTD(thisUnit) ~= 999 then
                         thisHP = getHP(thisUnit)
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 or buff.reapingFlames.remain() <= 1.5 then
+                        if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 then
                             reap_execute = thisUnit
                             break
                         elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44) then
