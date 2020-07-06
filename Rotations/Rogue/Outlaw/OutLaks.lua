@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 064407062020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 153007062020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -1679,7 +1679,7 @@ local function runRotation()
                 break
             end
         end
-        if buff_rollTheBones_remain == 0 then
+        if buff_rollTheBones_remain == 0 or buff_rollTheBones_remain == nil then
             if rollthebones() then
                 if cast.rollTheBones() then
                     return true
@@ -1700,7 +1700,7 @@ local function runRotation()
             end
         end
         dice_reroll = false
-        Print("count: " .. buff_rollTheBones_count)
+        -- Print("count: " .. buff_rollTheBones_count)
     end
 
     if talent.acrobaticStrikes then
