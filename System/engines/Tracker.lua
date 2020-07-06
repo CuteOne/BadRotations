@@ -10,7 +10,7 @@ local function trackObject(object,name,objectid,interact)
 			LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
 		end
 		if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
-			and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player")
+			and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player") and not isMoving("player") and br.timer:useTimer("Interact Delay", 1.5)
 		then
 			ObjectInteract(object)
 		end
@@ -60,7 +60,7 @@ end
 
 function br.objectTracker()
 	-- Track Objects
-	if br.timer:useTimer("Tracker Lag", 0.07) then
+	if (br.timer:useTimer("Tracker Lag", 0.07) or (isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
 		LibDraw.clearCanvas()
 		if isChecked("Enable Tracker") then
 			-- Horrific Vision - Objects Managed from OM from br.lists.horrificVisions and placed in br.objects when detected
@@ -111,7 +111,7 @@ function br.objectTracker()
 					local name = ObjectName(object)
 					local objectid = ObjectID(object)
 					if isChecked("Rare Tracker") and not UnitIsDeadOrGhost(object) and (UnitClassification(object) == "rare" or UnitClassification(object) == "rareelite") then
-						trackObject(object,name,objectid)
+						trackObject(object,name,objectid,false)
 					end
 					if isChecked("Custom Tracker") then
 						for k in string.gmatch(tostring(getOptionValue("Custom Tracker")),"([^,]+)") do
@@ -120,11 +120,21 @@ function br.objectTracker()
 							end
 						end
 					end
-					if isChecked("Quest Tracker") then
-						if (getOptionValue("Quest Tracker") == 1 or getOptionValue("Quest Tracker") == 3) and isQuestUnit(object) and (not UnitIsDeadOrGhost(object) or CanLootUnit(object)) and not UnitIsTapDenied(object) then
-							trackObject(object,name,objectid)
+					if isChecked("Quest Tracker") and not isInCombat("player") then
+						local ignoreList = {
+							[159784] = true, -- Wastewander Laborer
+							[159804] = true, -- Wastewander Tracker
+							[159803] = true, -- Wastewander Warrior
+							[162605] = true, -- Aqir Larva
+						}
+						if (getOptionValue("Quest Tracker") == 1 or getOptionValue("Quest Tracker") == 3) and ObjectIsUnit(object) and isQuestUnit(object) and (not UnitIsDeadOrGhost(object) or ignoreList[objectid] ~= nil or CanLootUnit(object)) and not UnitIsTapDenied(object) then
+							if ignoreList[objectid] ~= nil then
+								trackObject(object,name,objectid)
+							else
+								trackObject(object,name,objectid,false)
+							end
 						end
-						if (getOptionValue("Quest Tracker") == 2 or getOptionValue("Quest Tracker") == 3) and isQuestObject(object) then
+						if (getOptionValue("Quest Tracker") == 2 or getOptionValue("Quest Tracker") == 3) and isQuestObject(object) and not ObjectIsUnit(object) then
 							trackObject(object,name,objectid)    
 						end
 					end
