@@ -185,6 +185,9 @@ local do_stun
 local dynamic_target_melee
 local auto_stealthed
 local buff_rollTheBones_remain = 0
+local buff_rollTheBones_count = 0
+local real_def
+local bte_condition
 -- lists ...lots of lists
 
 local debuff_list = {
@@ -482,27 +485,32 @@ local function rollthebones()
     local rtb_reroll
     local crit = GetSpellCritChance(1)
 
-    rtb_reroll = buff.rollTheBones.count < 2 and not buff.ruthlessPrecision.exists("player") and not buff.grandMelee.exists("player")
+    rtb_reroll = buff_rollTheBones_count < 2 and not buff.ruthlessPrecision.exists("player") and not buff.grandMelee.exists("player")
     if br.player.traits.deadshot.active or crit > 42 then
-        rtb_reroll = buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or not buff.broadside.exists())
+        rtb_reroll = buff_rollTheBones_count < 2 and (buff.loadedDice.exists() or not buff.broadside.exists())
     end
 
     if br.player.traits.aceupyoursleeve.active and (br.player.traits.aceupyoursleeve.rank >= br.player.traits.deadshot.rank and crit < 42) then
-        rtb_reroll = buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or buff.ruthlessPrecision.remains() <= cd.betweenTheEyes.remains())
+        rtb_reroll = buff_rollTheBones_count < 2 and (buff.loadedDice.exists() or buff.ruthlessPrecision.remains() <= cd.betweenTheEyes.remains())
     end
+
+    if cd.betweenTheEyes.remains() == 0 and buff_rollTheBones_count > 0 then
+        rtb_reroll = false
+    end
+
     if br.player.traits.snakeeyes.rank >= 2 and buff.snakeeyes.stack() >= (2 - buff.broadside.exists()) then
         rtb_reroll = false
     end
-    if buff.bladeFlurry.exists() then
+    if (buff.bladeFlurry.exists() or #enemies > 1) then
         buff_count = 0
         if buff.skullAndCrossbones.exists() then
             buff_count = 1
         end
-        rtb_reroll = ((buff.rollTheBones.count - buff_count) < 2)
+        rtb_reroll = ((buff_rollTheBones_count - buff_count) < 2)
                 and (buff.loadedDice.exists() or not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists() and not buff.broadside.exists())
     end
     if buff.loadedDice.exists() then
-        rtb_reroll = buff.rollTheBones.count - buff.buriedTreasure.exists() < 2 or buff_rollTheBones_remain < 10.8 + (1.8 * br.player.talent.deeperStratagem)
+        rtb_reroll = buff_rollTheBones_count - buff.buriedTreasure.exists() < 2 or buff_rollTheBones_remain < 10.8 + (1.8 * br.player.talent.deeperStratagem)
     end
     return (rtb_reroll)
 
@@ -540,11 +548,23 @@ local function dps_key()
     end
 
     --marked for death
-    if talent.markedForDeath and cast.able.markedForDeath() then
-        if cast.markedForDeath(units.dyn25) then
-        end
-    end
-
+    --[[
+      if talent.markedForDeath and cast.able.markedForDeath() then
+          --lets find the lowest health mob to cast this on
+          for i = 1, #enemies.yards25nc do
+              local unit_health = UnitHealth(enemies.yards25nc[1])
+              local mfd_target
+              if UnitHealth(enemies.yards25nc[i]) < unit_health then
+                  unit_health = UnitHealth(enemies.yards25nc[i])
+                  mfd_target = enemies.yards25nc[i]
+                  Print("mfd_target: " .. mfd_target .. " health: " .. unit_health)
+              end
+          end
+          if cast.markedForDeath(mfd_target.dyn25) then
+              return true
+          end
+      end
+  ]]
     --trinkets w/CD
     if isChecked("Trinket 1") and getOptionValue("Trinket 1 Mode") == 5 and inCombat then
         if canUseItem(13) then
@@ -618,12 +638,89 @@ end
 
 actionList.nogcd = function()
     --skills that can be used without waiting for a gcd
+end
 
+-- essences
+actionList.essences = function()
+
+    real_def = br.player.power.comboPoints.max() - buff_count()
+
+
+    -- Reaping Flames
+    if essence.reapingFlames.major and cast.able.reapingFlames() then
+        -- local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
+        local reapingDamage = buff.reapingFlames.exists("player") and 72000 * 2 or 72000
+
+        local reapingPercentage = 0
+        local thisHP = 0
+        local thisABSHP = 0
+        local mob_count = #enemies.yards30
+        if mob_count > 10 then
+            mob_count = 10
+        end
+
+        local thisABSHPmax = 0
+        local reapTarget, thisUnit, reap_execute, reap_hold, reap_fallback = false, false, false, false, false
+        if mob_count == 1 then
+            if ((br.player.essence.reapingFlames.rank >= 2 and getHP(enemies.yards30[1]) > 80) or getHP(enemies.yards30[1]) <= 20 or getTTD(enemies.yards30[1], 20) > 30) then
+                reapTarget = enemies.yards30[1]
+            end
+        elseif mob_count > 1 then
+            for i = 1, mob_count do
+                thisUnit = enemies.yards30[i]
+                local reapTTD = getTTD(thisUnit)
+                if getTTD(thisUnit) ~= 999 then
+                    --  Print("TTD:" .. tostring(getTTD(thisUnit)))
+                    thisHP = getHP(thisUnit)
+                    thisABSHP = UnitHealth(thisUnit)
+                    thisABSHPmax = UnitHealthMax(thisUnit)
+                    reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
+                    --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
+                    if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 then
+                        reap_execute = thisUnit
+                        break
+                    elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)
+                    then
+                        reap_hold = true
+                    elseif (thisHP > 80 or thisHP <= 20) or getTTD(thisUnit, 20) > 30 then
+                        reap_fallback = thisUnit
+                    end
+                end
+            end
+        end
+
+        if reap_execute then
+            reapTarget = reap_execute
+        elseif not reap_hold and reap_fallback then
+            reapTarget = reap_fallback
+        end
+
+        if reapTarget ~= nil and not isExplosive(reapTarget) then
+            if cast.reapingFlames(reapTarget) then
+                --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+                return true
+            end
+        end
+    end
 
 end
 
---dps()
+--  bloodOfTheEnemy
 
+if inCombat and br.player.power.comboPoints.amount() >= (br.player.power.comboPoints.max() - buff_count())
+        and essence.bloodOfTheEnemy.major
+        and cast.able.bloodOfTheEnemy()
+        and bte_condition and not rollthebones() then
+    if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
+            and cast.able.betweenTheEyes() then
+        if cast.bloodOfTheEnemy() then
+            return true
+        end
+    end
+end
+
+
+--dps()
 actionList.dps = function()
 
 
@@ -632,31 +729,8 @@ actionList.dps = function()
     end
 
 
-    --  Print("Enemies: "..tostring(#enemies.yards8))
-
-    -- dps cooldowns
-
-    --    blade_flurry,if=spell_targets>=2&!buff.blade_flurry.up&(!raid_event.adds.exists|raid_event.adds.remains>8|raid_event.adds.in>(2-cooldown.blade_flurry.charges_fractional)*25)
-    --Blade Flurry on 2+ enemies. With adds: Use if they stay for 8+ seconds or if your next charge will be ready in time for the next wave.
-
-    --get lowest ttd in group
-
-
-    -- Print(tostring(getOutLaksTTD(1)))
-
-
-
-
-    --[[
-    run_action_list,name=finish,if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))*(azerite.ace_up_your_sleeve.rank<2|!cooldown.between_the_eyes.up|!buff.roll_the_bones.up)
-    Finish at maximum CP. Substract one for each Broadside and Opportunity when Quick Draw is selected and MfD is not ready after the next second. Always max BtE with 2+ Ace.
-    ]]
-
-
-    local real_def = comboMax - buff_count()
     --Print(real_def)
 
-    local bte_condition = buff.ruthlessPrecision.exists() or (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and buff.rollTheBones.count >= 1
 
     if stealth and (ambush_flag or mode.ambush == 1) then
         if actionList.Stealth() then
@@ -670,34 +744,44 @@ actionList.dps = function()
     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
         StartAttack(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
     end
-    --Marked for death, high priority
-    if talent.markedForDeath and cast.able.markedForDeath() then
-        local mfdhealth = 100
-        local mfdtarget
+    --[[
+        --Marked for death, high priority
+        if talent.markedForDeath and cast.able.markedForDeath() then
+            local mfdhealth = 100
+            local mfdtarget
+            for i = 1, #enemies.yards8 do
+                if getTTD(enemies.yards8[i]) < mfdhealth then
+                    mfdtarget = enemies.yards8[i]
+                    mfdhealth = getTTD(enemies.yards8[i])
+                end
+                if cast.able.markedForDeath() and mfdtarget then
+                    if cast.markedForDeath(mfdtarget) then
+                    end
+                end
+            end]]
+
+    --marked for death
+    --marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
+    if talent.markedForDeath and cast.able.markedForDeath() and not stealth and (real_def >= comboMax - 1) then
+        --lets find the lowest health mob to cast this on
         for i = 1, #enemies.yards8 do
-            if getTTD(enemies.yards8[i]) < mfdhealth then
-                mfdtarget = enemies.yards8[i]
-                mfdhealth = getTTD(enemies.yards8[i])
+            local unit_health = UnitHealth(enemies.yards8[1])
+            local mfd_target = enemies.yards8[1]
+            if UnitHealth(enemies.yards8[i]) < unit_health then
+                unit_health = UnitHealth(enemies.yards8[i])
+                mfd_target = enemies.yards8[i]
+                --      Print("mfd_target: " .. mfd_target .. " health: " .. unit_health)
             end
-            if cast.able.markedForDeath() and mfdtarget then
-                if cast.markedForDeath(mfdtarget) then
-                end
-            end
+        end
+        if cast.markedForDeath(mfd_target) then
+            --         Print("BAM BAM BAM : " .. mfd_target .. " health: " .. unit_health)
+            return true
         end
     end
 
 
-    --  bloodOfTheEnemy
-    if mode.essence == 1 then
-        if combo >= real_def and essence.bloodOfTheEnemy.major and cast.able.bloodOfTheEnemy() and bte_condition and not rollthebones() then
-            if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists()) and (getOutLaksTTD(8) >= 2 or isBoss("target"))
-                    and cast.able.betweenTheEyes() then
-                if cast.bloodOfTheEnemy() then
-                    return true
-                end
-            end
-        end
-    end
+
+
 
     -- Finishers
     -- test
@@ -754,6 +838,54 @@ actionList.dps = function()
             end
 
             -- Reaping Flames
+
+            --[[ method a
+             if cast.able.reapingFlames() then
+                 -- local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
+                 local reapingDamage = buff.reapingFlames.exists("player") and (getValue("Reaping DMG") * 5000 * 2) or getValue("Reaping DMG") * 5000
+                 local reapingPercentage = 0
+                 local thisHP = 0
+                 local thisABSHP = 0
+                 local reapTTD = 999
+                 local mob_count = #enemies.yards30 > 6 and 6 or #enemies.yards30
+                 local thisABSHPmax = 0
+                 local reapTarget, thisUnit, reap_execute, reap_hold, reap_fallback = false, false, false, false, false
+                 if mob_count == 1 then
+                     if ((br.player.essence.reapingFlames.rank >= 2 and getHP(enemies.yards30[1]) > 80) or getHP(enemies.yards30[1]) <= 20 or getTTD(enemies.yards30[1], 20) > 30) then
+                         if cast.reapingFlames(enemies.yards30[1]) then
+                             return true
+                         end
+                     end
+                 elseif mob_count > 1 then
+                     for i = 1, mob_count do
+                         thisUnit = enemies.yards30[i]
+                         reapTTD = getTTD(thisUnit)
+                         thisHP = getHP(thisUnit)
+                         thisABSHP = UnitHealth(thisUnit)
+                         thisABSHPmax = UnitHealthMax(thisUnit)
+                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
+                         if not isExplosive(thisUnit) then
+                             if thisABSHP <= reapingDamage or reapTTD < 2 then
+                                 -- or buff.reapingFlames.remain() <= 1.5 then
+                                 if cast.reapingFlames(thisUnit) then
+                                     Print("Reap SNIP: " .. reapingDamage .. "| mob health: " .. thisABSHP .. "|" .. "reapttd: " .. tostring(reapTTD))
+                                     return true
+                                 end
+                             end
+                         end
+                         if (thisHP > 80 or thisHP <= 20) or getTTD(thisUnit, 20) > 30 and not (getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)) then
+                             if cast.reapingFlames(thisUnit) then
+                                 Print("Reap Damage: " .. reapingDamage .. "| mob health: " .. thisABSHP .. "|" .. "reapttd: " .. tostring(reapTTD))
+                                 return true
+                             end
+                         end
+                     end
+                 end
+             end
+         end
+     end -- end essence]]
+
+            -- Reaping Flames
             if essence.reapingFlames.major and cast.able.reapingFlames() then
                 -- local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
                 local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 5000 * 2 or getValue("Reaping DMG") * 5000
@@ -762,8 +894,8 @@ actionList.dps = function()
                 local thisHP = 0
                 local thisABSHP = 0
                 local mob_count = #enemies.yards30
-                if mob_count > 6 then
-                    mob_count = 6
+                if mob_count > 10 then
+                    mob_count = 10
                 end
 
                 local thisABSHPmax = 0
@@ -783,7 +915,7 @@ actionList.dps = function()
                             thisABSHPmax = UnitHealthMax(thisUnit)
                             reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
                             --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
-                            if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 or buff.reapingFlames.remain() <= 1.5 then
+                            if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 then
                                 reap_execute = thisUnit
                                 break
                             elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)
@@ -794,7 +926,6 @@ actionList.dps = function()
                             end
                         end
                     end
-                    --        end
                 end
 
                 if reap_execute then
@@ -805,22 +936,21 @@ actionList.dps = function()
 
                 if reapTarget ~= nil and not isExplosive(reapTarget) then
                     if cast.reapingFlames(reapTarget) then
-                        --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+                        Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+                        return true
+                    end
+                end
+            end
+            --  Print(tostring(getOutLaksTTD(8)))
+            if mode.rotation == 1 then
+                if cast.able.bladeFlurry() and #enemies.yards8 >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
+                    if cast.bladeFlurry() then
                         return true
                     end
                 end
             end
         end
-    end -- end essence
-    --  Print(tostring(getOutLaksTTD(8)))
-    if mode.rotation == 1 then
-        if cast.able.bladeFlurry() and #enemies.yards8 >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
-            if cast.bladeFlurry() then
-                return true
-            end
-        end
     end
-
     --[[
     blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>2
     variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
@@ -918,9 +1048,9 @@ actionList.dps = function()
 
     --[[
     blood_fury
-0.00	berserking
-0.00	fireblood
-0.00	ancestral_call]]
+    0.00	berserking
+    0.00	fireblood
+    0.00	ancestral_call]]
 
 
     if isChecked("Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "DarkIronDwarf" or br.player.race == "Orc") then
@@ -1105,7 +1235,8 @@ actionList.Corruption = function()
                     local x2, y2, z2 = ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                     if distance < stun_range and object ~= nil and stun ~= nil then
-                        CastSpellByName(GetSpellInfo(stun), object)
+                        --CastSpellByName(GetSpellInfo(stun), object)
+                        CastSpellByID(stun, object)
                         return true
                     end
                 end
@@ -1122,7 +1253,6 @@ actionList.Defensive = function()
 
 
     --just testing stuff
-
 
 
     if useDefensive() then
@@ -1504,6 +1634,8 @@ local function runRotation()
     profileStop = profileStop or false
     ttd = getTTD
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam()
+    real_def = br.player.power.comboPoints.max() - buff_count()
+    bte_condition = buff.ruthlessPrecision.exists() or (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and buff_rollTheBones_count >= 1
 
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
@@ -1526,6 +1658,8 @@ local function runRotation()
 
     -- Profile Specific Locals
 
+
+    --We will check for interrupt whenever someone is casting (based on log)
     if someone_casting == true then
         if actionList.Interrupt() then
             --  return true
@@ -1552,16 +1686,16 @@ local function runRotation()
     if br.player.buff.rollTheBones == nil then
         br.player.buff.rollTheBones = { count = 0, duration = 0, remain = 0 }
     end
-    -- Print("count: " .. buff.rollTheBones.count)
+    -- Print("count: " .. buff_rollTheBones_count)
     if dice_reroll == true then
-        br.player.buff.rollTheBones.count = 0
+        br.player.buff_rollTheBones_count = 0
         for k, v in pairs(br.player.spell.buffs.rollTheBones) do
             if UnitBuffID("player", v) ~= nil then
-                br.player.buff.rollTheBones.count = br.player.buff.rollTheBones.count + 1
+                br.player.buff_rollTheBones_count = br.player.buff_rollTheBones_count + 1
             end
         end
         dice_reroll = false
-        --  Print("count: " .. buff.rollTheBones.count)
+        --  Print("count: " .. buff_rollTheBones_count)
     end
 
     if talent.acrobaticStrikes then
@@ -1646,7 +1780,11 @@ local function runRotation()
             if actionList.Corruption() then
                 return true
             end
-
+            if mode.essence == 1 then
+                if actionList.essences() then
+                    return true
+                end
+            end
             if cd.global.remain() == 0 then
                 -- isValidUnit("target") and
                 if timersTable then
