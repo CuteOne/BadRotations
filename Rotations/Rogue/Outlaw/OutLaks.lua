@@ -210,6 +210,7 @@ local debuff_list = {
     { spellID = 257437, stacks = 0, secs = 5 }, -- Poisoning Strike
     { spellID = 267523, stacks = 0, secs = 5 }, -- Cutting Surge
     { spellID = 256363, stacks = 0, secs = 5 }, -- Ripper Punch
+    { spellID = 256979, stacks = 0, secs = 2 }, -- Powder Shot
     -- Shrine of the Storm
     { spellID = 264526, stacks = 0, secs = 5 }, -- Grasp from the Depths
     { spellID = 264166, stacks = 0, secs = 1 }, -- Undertow
@@ -486,16 +487,14 @@ local function rollthebones()
     local crit = GetSpellCritChance(1)
 
     rtb_reroll = buff_rollTheBones_count < 2 and not buff.ruthlessPrecision.exists("player") and not buff.grandMelee.exists("player")
+
     if br.player.traits.deadshot.active or crit > 42 then
         rtb_reroll = buff_rollTheBones_count < 2 and (buff.loadedDice.exists() or not buff.broadside.exists())
+        --    Print("2: " .. tostring(rtb_reroll) .. "|" .. tostring(buff_rollTheBones_count))
     end
 
     if br.player.traits.aceupyoursleeve.active and (br.player.traits.aceupyoursleeve.rank >= br.player.traits.deadshot.rank and crit < 42) then
         rtb_reroll = buff_rollTheBones_count < 2 and (buff.loadedDice.exists() or buff.ruthlessPrecision.remains() <= cd.betweenTheEyes.remains())
-    end
-
-    if cd.betweenTheEyes.remains() == 0 and buff_rollTheBones_count > 0 then
-        rtb_reroll = false
     end
 
     if br.player.traits.snakeeyes.rank >= 2 and buff.snakeeyes.stack() >= (2 - buff.broadside.exists()) then
@@ -512,6 +511,11 @@ local function rollthebones()
     if buff.loadedDice.exists() then
         rtb_reroll = buff_rollTheBones_count - buff.buriedTreasure.exists() < 2 or buff_rollTheBones_remain < 10.8 + (1.8 * br.player.talent.deeperStratagem)
     end
+
+    if cd.betweenTheEyes.remains() == 0 and buff_rollTheBones_count > 0 then
+        rtb_reroll = false
+    end
+
     return (rtb_reroll)
 
 end
@@ -1157,7 +1161,7 @@ actionList.Extra = function()
         return
     end
 
-    if not inCombat and #enemies.yards40 > 0 and not stealth and combo > 0 and (buff.rollTheBones.remain <= 3 or rollthebones()) then
+    if not inCombat and #enemies.yards40 > 0 and not stealth and combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones()) then
         if cast.rollTheBones() then
             return true
         end
@@ -1689,14 +1693,14 @@ local function runRotation()
     end
     -- Print("count: " .. buff_rollTheBones_count)
     if dice_reroll == true then
-        br.player.buff_rollTheBones_count = 0
+        buff_rollTheBones_count = 0
         for k, v in pairs(br.player.spell.buffs.rollTheBones) do
             if UnitBuffID("player", v) ~= nil then
-                br.player.buff_rollTheBones_count = br.player.buff_rollTheBones_count + 1
+                buff_rollTheBones_count = buff_rollTheBones_count + 1
             end
         end
         dice_reroll = false
-        --  Print("count: " .. buff_rollTheBones_count)
+        Print("count: " .. buff_rollTheBones_count)
     end
 
     if talent.acrobaticStrikes then
