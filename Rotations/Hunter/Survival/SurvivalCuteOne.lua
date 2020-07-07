@@ -224,7 +224,7 @@ local eagleUnit
 local lowestBloodseeker
 local lowestSerpentSting
 local maxLatentPoison
-local thisRange
+local eagleRange
 
 -----------------
 --- Functions ---
@@ -274,7 +274,7 @@ local function outOfMelee()
     if focus + castRegen(spell.killCommand) < focusMax then return false end
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
-        if getDistance(thisUnit) > thisRange and debuff.serpentSting.refresh(thisUnit) then return false end
+        if getDistance(thisUnit) > eagleRange and debuff.serpentSting.refresh(thisUnit) then return false end
     end
     return true
 end
@@ -415,7 +415,7 @@ end -- End Action List - Interrupt
 
 -- Action List - Cooldowns
 actionList.Cooldown = function()
-    if useCDs() and getDistance(eagleUnit) < thisRange then
+    if useCDs() and getDistance(eagleUnit) < eagleRange then
         -- Trinkets
         if isChecked("Trinkets") then
             for i = 13, 14 do
@@ -515,7 +515,7 @@ actionList.Cooldown = function()
             if cast.theUnboundForce() then return end
         end
         -- worldvein_resonance
-        if cast.able.worldveinResonance() and getDistance(eagleUnit) < thisRange then
+        if cast.able.worldveinResonance() and getDistance(eagleUnit) < eagleRange then
             if cast.worldveinResonance() then return end
         end
         -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
@@ -537,7 +537,7 @@ actionList.Cooldown = function()
     end
     -- Memory of Lucid Dreams
     -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
-    if useCDs() and isChecked("Use Essence") and cast.able.memoryOfLucidDreams() and getDistance(eagleUnit) < thisRange
+    if useCDs() and isChecked("Use Essence") and cast.able.memoryOfLucidDreams() and getDistance(eagleUnit) < eagleRange
         and focus < focusMax - 30 and buff.coordinatedAssault.exists()
     then
         if cast.memoryOfLucidDreams() then return end
@@ -558,19 +558,19 @@ actionList.St = function()
     end
     -- Raptor Strike
     -- raptor_strike,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
-    if cast.able.raptorStrike() and not talent.mongooseBite
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax
             or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
     then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then debug("[ST] Raptor Strike (Coordinated Assault) - "..UnitName(eagleUnit)) return end
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then debug("[ST] Raptor Strike (Coordinated Assault) - "..UnitName(eagleUnit)) return end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
-    if cast.able.mongooseBite() and talent.mongooseBite
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax
             or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
     then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then debug("[ST] Mongoose Bite (Coordinated Assault) - "..UnitName(eagleUnit)) return end
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then debug("[ST] Mongoose Bite (Coordinated Assault) - "..UnitName(eagleUnit)) return end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
@@ -600,7 +600,7 @@ actionList.St = function()
     -- if cast.able.mongooseBite() and talent.mongooseBite
     --     and buff.mongooseFury.stack() > 5 and cd.coordinatedAssault.remain() == 0
     -- then
-    --     if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+    --     if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     -- end
     -- Serpent Sting
     -- serpent_sting,if=buff.vipers_venom.up&dot.serpent_sting.remains<4*gcd|dot.serpent_sting.refreshable&!buff.coordinated_assault.up
@@ -625,15 +625,16 @@ actionList.St = function()
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.mongoose_fury.up|focus+cast_regen>focus.max-20&talent.vipers_venom.enabled|focus+cast_regen>focus.max-1&talent.terms_of_engagement.enabled|buff.coordinated_assault.up
-    if cast.able.mongooseBite() and talent.mongooseBite and ((buff.mongooseFury.exists() or (focus + focusRegen > focusMax - 20 and talent.vipersVenom))
-        or (focus + focusRegen > focusMax - 1 and talent.termsOfEngagement) or buff.coordinatedAssault.exists())
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
+        and ((buff.mongooseFury.exists() or (focus + focusRegen > focusMax - 20 and talent.vipersVenom))
+            or (focus + focusRegen > focusMax - 1 and talent.termsOfEngagement) or buff.coordinatedAssault.exists())
     then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then debug("[ST] Mongoose Bite - "..UnitName(eagleUnit)) return end
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then debug("[ST] Mongoose Bite - "..UnitName(eagleUnit)) return end
     end
     -- Raptor Strike
     -- raptor_strike
-    if cast.able.raptorStrike() and not talent.mongooseBite then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then debug("[ST] Raptor Strike - "..UnitName(eagleUnit)) return end
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange then
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then debug("[ST] Raptor Strike - "..UnitName(eagleUnit)) return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable
@@ -674,7 +675,7 @@ actionList.Cleave = function()
     -- Mongoose Bite
     -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack=10
     if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite and debuff.latentPoison.stack(maxLatentPoison) == 10 then
-        if cast.mongooseBite(maxLatentPoison,nil,1,thisRange) then return end
+        if cast.mongooseBite(maxLatentPoison,nil,1,eagleRange) then return end
     end
     -- Chakrams
     -- chakrams
@@ -737,13 +738,13 @@ actionList.Cleave = function()
     end
     -- Mongoose Bite
     -- mongoose_bite,target_if=max:debuff.latent_poison.stack
-    if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite then
-        if cast.mongooseBite(maxLatentPoison,nil,1,thisRange) then return end
+    if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite and getDistance(maxLatentPoison) <= eagleRange then
+        if cast.mongooseBite(maxLatentPoison,nil,1,eagleRange) then return end
     end
     -- Raptor Strike
     -- raptor_strike,target_if=max:debuff.latent_poison.stack
-    if cast.able.raptorStrike(maxLatentPoison) and not talent.mongooseBite then
-        if cast.raptorStrike(maxLatentPoison,nil,1,thisRange) then return end
+    if cast.able.raptorStrike(maxLatentPoison) and not talent.mongooseBite and getDistance(maxLatentPoison) <= eagleRange then
+        if cast.raptorStrike(maxLatentPoison,nil,1,eagleRange) then return end
     end
 end -- End Action List - Cleave
 
@@ -751,19 +752,19 @@ end -- End Action List - Cleave
 actionList.ApSt = function()
     -- Mongoose Bite
     -- mongoose_bite,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
-    if cast.able.mongooseBite() and talent.mongooseBite
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax
             or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
     then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Raptor Strike
     -- raptor_strike,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
-    if cast.able.raptorStrike() and not talent.mongooseBite
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax
             or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
     then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
@@ -823,13 +824,15 @@ actionList.ApSt = function()
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.mongoose_fury.up|focus+cast_regen>focus.max-10|buff.coordinated_assault.up
-    if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus + focusRegen > focusMax - 10 or buff.coordinatedAssault.exists()) then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
+        and (buff.mongooseFury.exists() or focus + focusRegen > focusMax - 10 or buff.coordinatedAssault.exists())
+    then
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Raptor Strike
     -- raptor_strike
-    if cast.able.raptorStrike() and not talent.mongooseBite then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange then
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=!ticking
@@ -842,17 +845,17 @@ end
 actionList.ApWfi = function()
     -- Mongoose Bite
     -- mongoose_bite,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
-    if cast.able.mongooseBite() and talent.mongooseBite
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax
     then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Raptor Strike
     -- raptor_strike,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
-    if cast.able.raptorStrike() and not talent.mongooseBite
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax
     then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Serpent Sting
     -- serpent_sting,if=!dot.serpent_sting.ticking
@@ -882,7 +885,7 @@ actionList.ApWfi = function()
     -- Mongoose Bite
     -- mongoose_bite,if=buff.mongoose_fury.remains&next_wi_bomb.pheromone
     if cast.able.mongooseBite() and talent.mongooseBite and buff.mongooseFury.exists() and nextBomb(spell.pheromone) then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Kill Command
     -- kill_command,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max-20
@@ -898,13 +901,17 @@ actionList.ApWfi = function()
     end
     -- Raptor Strike
     -- raptor_strike,if=buff.tip_of_the_spear.stack=3|dot.shrapnel_bomb.ticking
-    if cast.able.raptorStrike() and (buff.tipOfTheSpear.stack() == 3 or debuff.shrapnelBomb.exists(units.dyn40)) then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
+        and (buff.tipOfTheSpear.stack() == 3 or debuff.shrapnelBomb.exists(units.dyn40))
+    then
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=dot.shrapnel_bomb.ticking
-    if cast.able.mongooseBite() and talent.mongooseBite and debuff.shrapnelBomb.exists(units.dyn40) then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
+        and debuff.shrapnelBomb.exists(units.dyn40)
+    then
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.shrapnel&focus>30&dot.serpent_sting.remains>5*gcd
@@ -929,13 +936,15 @@ actionList.ApWfi = function()
     end
     -- Raptor Strike
     -- raptor_strike
-    if cast.able.raptorStrike() and not talent.mongooseBite then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange then
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.mongoose_fury.up|focus>40|dot.shrapnel_bomb.ticking
-    if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus > 40 or debuff.shrapnelBomb.exists(units.dyn40)) then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
+        and (buff.mongooseFury.exists() or focus > 40 or debuff.shrapnelBomb.exists(units.dyn40))
+    then
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel&focus>50
@@ -957,17 +966,17 @@ actionList.Wfi = function()
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
-    if cast.able.mongooseBite() and talent.mongooseBite
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax
     then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Raptor Strike
     -- raptor_strike,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
-    if cast.able.raptorStrike() and not talent.mongooseBite
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange
         and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax
     then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Serpent Sting
     -- serpent_sting,if=buff.vipers_venom.up&buff.vipers_venom.remains<1.5*gcd|!dot.serpent_sting.ticking
@@ -1021,7 +1030,7 @@ actionList.Wfi = function()
     -- Mongoose Bite
     -- mongoose_bite,if=dot.shrapnel_bomb.ticking|buff.mongoose_fury.stack=5
     if cast.able.mongooseBite() and talent.mongooseBite and (debuff.shrapnelBomb.exists(units.dyn40) or buff.mongooseFury.stack() == 5) then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.shrapnel&dot.serpent_sting.remains>5*gcd
@@ -1040,13 +1049,13 @@ actionList.Wfi = function()
     end
     -- Mongoose Bite
     -- mongoose_bite
-    if cast.able.mongooseBite() and talent.mongooseBite then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.mongooseBite(eagleUnit) and talent.mongooseBite and getDistance(eagleUnit) <= eagleRange then
+        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Raptor Strike
     -- raptor_strike
-    if cast.able.raptorStrike() and not talent.mongooseBite then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+    if cast.able.raptorStrike(eagleUnit) and not talent.mongooseBite and getDistance(eagleUnit) <= eagleRange then
+        if cast.raptorStrike(eagleUnit,nil,1,eagleRange) then return end
     end
     -- Serpent Sting
     -- serpent_sting,if=buff.vipers_venom.up
@@ -1073,7 +1082,7 @@ actionList.Opener = function()
     -- Start Attack
     -- auto_attack
     if (getOptionValue("Opener") == 1 or (getOptionValue("Opener") == 2 and useCDs())) and not opener.complete then
-        if isValidUnit("target") and getDistance("target") < thisRange
+        if isValidUnit("target") and getDistance("target") < eagleRange
             and getFacing("player","target") and getSpellCD(61304) == 0
         then
             -- Begin
@@ -1094,7 +1103,7 @@ actionList.Opener = function()
                 return
             -- Serpent Sting
             elseif opener.CA1 and not opener.SS1 then
-                if debuff.serpentSting.exists("target") then
+                if level < 12 or debuff.serpentSting.exists("target") then
                     castOpenerFail("serpentSting","SS1",opener.count)
                 elseif cast.able.serpentSting() then
                     castOpener("serpentSting","SS1",opener.count)
@@ -1103,7 +1112,7 @@ actionList.Opener = function()
                 return
             -- Wildfire Bomb
             elseif opener.SS1 and not opener.WB1 then
-                if charges.wildfireBomb.count() == 0 then
+                if level < 20 or charges.wildfireBomb.count() == 0 then
                     castOpenerFail("wildfireBomb","WB1",opener.count)
                 elseif cast.able.wildfireBomb() then
                     castOpener("wildfireBomb","WB1",opener.count)
@@ -1267,16 +1276,20 @@ local function runRotation()
     end
     -- Profile Specific Locals
     eagleUnit                                     = buff.aspectOfTheEagle.exists() and units.dyn40 or units.dyn5
+    eagleRange                                    = buff.aspectOfTheEagle.exists() and 40 or 5
     lowestBloodseeker                             = debuff.bloodseeker.lowest(40,"remain")
     lowestSerpentSting                            = debuff.serpentSting.lowest(40,"remain")
-    thisRange                                     = buff.aspectOfTheEagle.exists() and 40 or 5
-    maxLatentPoison                               = debuff.latentPoison.max(thisRange,"stack")
+    maxLatentPoison                               = debuff.latentPoison.max(eagleRange,"stack")
 
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
     if #enemies.yards5 < 5 then carveCdr = #enemies.yards5 else carveCdr = 5 end
 
     if eagleUnit == nil then eagleUnit = "target" end
 
+    -----------------
+    --- Pet Logic ---
+    -----------------
+    if actionList.PetManagement() then return true end
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1284,10 +1297,6 @@ local function runRotation()
     if not inCombat and not hastar and profileStop then
         profileStop = false
     elseif haltProfile then
-        -----------------
-        --- Pet Logic ---
-        -----------------
-        if actionList.PetManagement() then return true end
         if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
             if cast.playDead() then return end
         end
@@ -1301,7 +1310,7 @@ local function runRotation()
         -----------------
         --- Pet Logic ---
         -----------------
-        if actionList.PetManagement() then return true end
+        -- if actionList.PetManagement() then return true end
         -----------------------
         --- Extras Rotation ---
         -----------------------
@@ -1340,7 +1349,7 @@ local function runRotation()
                     if cast.able.mongooseBite() and (mode.rotation == 3 or #enemies.yards5 == 1) and (talent.mongooseBite
                         and ((talent.alphaPredator and ttd(eagleUnit) < 10) or ttd(eagleUnit) < 5))
                     then
-                        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+                        if cast.mongooseBite(eagleUnit,nil,1,eagleRange) then return end
                     end
                     -- Call Action List - Alpha Predator / Wildfire Infusion
                     -- call_action_list,name=apwfi,if=active_enemies<3&talent.chakrams.enabled&talent.alpha_predator.enabled

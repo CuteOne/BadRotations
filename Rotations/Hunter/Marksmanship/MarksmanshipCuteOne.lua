@@ -196,10 +196,10 @@ local function runRotation()
 --------------------------------------
 --- Load Additional Rotation Files ---
 --------------------------------------
-        if actionList_PetManagement == nil then
-            loadSupport("PetCuteOne")
-            actionList_PetManagement = br.rotations.support["PetCuteOne"]
-        end
+        -- if actionList_PetManagement == nil then
+        --     loadSupport("PetCuteOne")
+        --     actionList_PetManagement = br.rotations.support["PetCuteOne"]
+        -- end
 
 --------------
 --- Locals ---
@@ -714,7 +714,7 @@ local function runRotation()
                 end
             -- Summon Pet
                 -- summon_pet
-                if actionList_PetManagement() then return end
+                -- if actionList_PetManagement() then return end
                 if isValidUnit("target") and getDistance("target") < 40 then
             -- Hunter's Mark
                     -- hunters_mark
@@ -751,10 +751,10 @@ local function runRotation()
             -----------------
             --- Pet Logic ---
             -----------------
-            if actionList_PetManagement() then return true end
-            if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
-                if cast.playDead() then return end
-            end
+            -- if actionList_PetManagement() then return true end
+            -- if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
+            --     if cast.playDead() then return end
+            -- end
             StopAttack()
             if isDummy() then ClearTarget() end
             return true
@@ -770,7 +770,7 @@ local function runRotation()
 -----------------
 --- Pet Logic ---
 -----------------
-            if actionList_PetManagement() then return end
+            -- if actionList_PetManagement() then return end
 ------------------
 --- Pre-Combat ---
 ------------------

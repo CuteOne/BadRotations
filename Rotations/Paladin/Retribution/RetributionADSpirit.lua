@@ -47,7 +47,7 @@ local function createOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.020")
+		section = br.ui:createSection(br.ui.window.profile,  "General - 20200622 - 0615")
 		-- APL
 		br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
 		-- Boss Encounter
@@ -987,7 +987,7 @@ local function runRotation()
         end
             -- actions.essences+=/concentrated_flame
         if isChecked("Concentrated Flame DPS") and cast.able.concentratedFlame() and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and (not debuff.concentratedFlame.exists("target") and not cast.last.concentratedFlame()
-        or charges.concentratedFlame.timeTillFull() < gcd) and not buff.runeOfPower.exists("player") then
+        or charges.concentratedFlame.timeTillFull() < gcd) then
             if cast.concentratedFlame() then br.addonDebug("Concentrated Flame (DPS)") return true end
         end
         if isChecked("Concentrated Flame HP") and cast.able.concentratedFlame() and cd.concentratedFlame.remain() <= gcd and php <= getValue("Concentrated Flame HP") then

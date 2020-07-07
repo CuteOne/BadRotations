@@ -258,21 +258,20 @@ end
 	end
 	-- check for a unit see if its a cc candidate
 	function isCrowdControlCandidates(Unit)
+		local unitID
 		-- check if unit is valid
 		if GetObjectExists(Unit) then
-			local unitID = GetObjectID(Unit)
+			unitID = GetObjectID(Unit)
+		else
+			return false
 		end
 		-- cycle list of candidates
 		local crowdControlUnit = br.lists.ccUnits[unitID]
 		if crowdControlUnit then
-			-- check if unit is valid
-			if GetObjectExists(crowdControlUnit.unit) then
-				-- is in the list of candidates
-				if (crowdControlUnit.buff == nil or UnitBuffID(Unit,crowdControlUnit.buff))
-						and (crowdControlUnit.spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlUnit.spell))
-				then -- doesnt have more requirements or requirements are met
-					return true
-				end
+			-- is in the list of candidates
+			if crowdControlUnit.spell == nil or isCasting(crowdControlUnit.spell,Unit) or UnitBuffID(Unit,crowdControlUnit.spell)
+			then -- doesnt have more requirements or requirements are met
+				return true
 			end
 		end
 		return false

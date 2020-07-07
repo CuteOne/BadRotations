@@ -253,7 +253,7 @@ local function createOptions()
         ----------------------
         --- General Options---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.010")
+        section = br.ui:createSection(br.ui.window.profile, "General - 20200622 - 0631")
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -292,7 +292,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")               
         br.ui:checkSectionState(section)
         -- Radar
-        section = br.ui:createSection(br.ui.window.profile, "Radar")
+        section = br.ui:createSection(br.ui.window.profile, "Radar |cffFFBB00(Require Mass Entanglement)")
         br.ui:createCheckbox(section, "All - Root the thing")
         br.ui:createCheckbox(section, "FH - Root grenadier")
         br.ui:createCheckbox(section, "AD - Root Spirit of Gold")
@@ -647,7 +647,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if UnitInRange(br.friend[i].unit) then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getOptionValue("OOC Wild Growth"), #br.friend)
-                        if (#lowHealthCandidates >= getOptionValue("Friendly Targets")) and not moving then
+                        if (#lowHealthCandidates >= getOptionValue("Friendly Targets")) and not moving and not inCombat then
                             if cast.wildGrowth(br.friend[i].unit) then
                                 return true
                             end
@@ -937,12 +937,8 @@ local function runRotation()
 
         if radar == "on" then
 
-            local root = "Entangling Roots"
-            local root_range = 35
-            if talent.massEntanglement and cast.able.massEntanglement then
-                root = "Mass Entanglement"
-                local root_range = 30
-            end
+            local root = "Mass Entanglement"
+            local root_range = 30
 
             for i = 1, GetObjectCountBR() do
                 local object = GetObjectWithIndex(i)
@@ -963,7 +959,7 @@ local function runRotation()
                     if br.player.equiped.shroudOfResolve and not debuff.massEntanglement.exists(object) and canUseItem(br.player.items.shroudOfResolve) and br.timer:useTimer("Cloak Delay", 2)then
                         if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                                 or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
-                                or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
+                                or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") and not debuff.massEntanglement.exists(object)
                                 or getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks"))
                         then
                             if br.player.use.shroudOfResolve() then

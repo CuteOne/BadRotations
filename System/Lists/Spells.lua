@@ -2369,6 +2369,7 @@ br.lists.spells = {
                 echoingBlades               = 287649,
                 sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
+		twistTheKnife               = 273488,
             }
         },
         -- Outlaw
@@ -2453,12 +2454,14 @@ br.lists.spells = {
                 gouge                       = 1776,
                 betweenTheEyes              = 199804,
                 preyOnTheWeak               = 255909,
+                blind                       = 2094,
             },
             glyphs                          = {
 
             },
             talents                         = {
-                acrobaticStikes             = 196924,
+                acrobaticStikes             = 196924, -- typo, leaving in to not break old profiles
+                acrobaticStrikes            = 196924,
                 dirtyTricks                 = 108216,
                 bladeRush                   = 271877,
                 ghostlyStrike               = 196937,

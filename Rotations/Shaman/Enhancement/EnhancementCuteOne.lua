@@ -31,6 +31,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.windShear}
     };
     CreateButton("Interrupt",4,0)
+    FuryModes = {
+        [1] = { mode = "Auto", value = 1, overlay = "Fury Auto", tip = "Used per profile logic.", highlight = 1, icon = br.player.spell.furyOfAir},
+        [2] = { mode = "On", value = 1, overlay = "Fury On", tip = "Always used.", highlight = 0, icon = br.player.spell.furyOfAir}
+    };
+    CreateButton("Fury",5,0)
 end
 
 ---------------
@@ -365,7 +370,8 @@ actionList.Interrupts = function()
 end -- End Action List - Interrupts
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if useCDs() and getDistance("target") < 5 then
+    local usableCD = useCDs() and getDistance("target") < 5 or false
+    if usableCD then
         -- Bloodlust/Heroism
         -- bloodlust,if=azerite.ancestral_resonance.enabled
         -- Heart Essence - Worldvein Resonance
@@ -400,11 +406,13 @@ actionList.Cooldowns = function()
         if option.checked("Use Essence") and cast.able.memoryOfLucidDreams() then
             if cast.memoryOfLucidDreams() then return true end
         end
-        -- Feral Spirit
-        -- feral_spirit
-        if cast.able.feralSpirit() and (option.value("Feral Spirit") == 1 or (option.value("Feral Spirit") == 2 and useCDs())) then
-            if cast.feralSpirit() then return true end
-        end
+    end
+    -- Feral Spirit
+    -- feral_spirit
+    if cast.able.feralSpirit() and (option.value("Feral Spirit") == 1 or (option.value("Feral Spirit") == 2 and useCDs())) then
+        if cast.feralSpirit() then return true end
+    end
+    if usableCD then
         -- Heart Essence - Blood of the Enemy
         -- blood_of_the_enemy
         if option.checked("Use Essence") and cast.able.bloodOfTheEnemy() then
@@ -429,20 +437,6 @@ actionList.Cooldowns = function()
             end
             if canUseItem(14) then
                 useItem(14)
-            end
-        end
-        -- Earth Elemental
-        -- earth_elemental
-        if option.checked("Earth Elemental") and cast.able.earthElemental() then
-            if cast.earthElemental() then return true end
-        end
-    end
-    if useCDs() and getDistance("target") < 5 then
-        -- Ascendance
-        -- ascendance,if=cooldown.strike.remains>0
-        if option.checked("Ascendance") and cast.able.ascendance() then
-            if cd.stormstrike.remain() > 0 then
-                if cast.ascendance() then return true end
             end
         end
         -- Earth Elemental
@@ -500,11 +494,11 @@ actionList.Priority = function()
     end
     -- Fury of Air
     -- fury_of_air,if=!buff.fury_of_air.up&maelstrom>=20&spell_targets.fury_of_air_damage>=(1+variable.freezerburn_enabled)
-    if cast.able.furyOfAir() and not buff.furyOfAir.exists() and maelstrom >= 20 and #enemies.yards8 >= (1 + icyHot) then
+    if cast.able.furyOfAir() and not buff.furyOfAir.exists() and maelstrom >= 20 and (#enemies.yards8 >= (1 + icyHot) or mode.fury == 2) then
         if cast.furyOfAir() then return true end
     end
     -- fury_of_air,if=buff.fury_of_air.up&&spell_targets.fury_of_air_damage<(1+variable.freezerburn_enabled)
-    if cast.able.furyOfAir() and buff.furyOfAir.exists() and #enemies.yards8 < (1 + icyHot) then
+    if cast.able.furyOfAir() and buff.furyOfAir.exists() and (#enemies.yards8 < (1 + icyHot) and mode.fury == 1) then
         if cast.furyOfAir() then return true end
     end
     -- Totem Mastery

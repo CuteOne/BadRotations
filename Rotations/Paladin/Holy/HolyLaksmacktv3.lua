@@ -59,7 +59,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 20200523-1018")
+        section = br.ui:createSection(br.ui.window.profile, "General - 20200609-1605")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createCheckbox(section, "Aggressive Glimmer")
@@ -152,7 +152,8 @@ local function createOptions()
         -- m+ Rot
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
         br.ui:createCheckbox(section, "Freehold - pig", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFCatches pig in Freehold|cffFFBB00.", 1)
-        br.ui:createCheckbox(section, "Freehold - Blackout Barrel", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble blacout barrel|cffFFBB00.", 1)
+        br.ui:createCheckbox(section, "Freehold - Blackout Barrel", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble blackout barrel|cffFFBB00.", 1)
+        br.ui:createCheckbox(section, "KR - Severing axe", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Severing Axe|cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Motherload - Stun jockeys", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFStun ...jockeys ... |cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Deadeye target|cffFFBB00.", 1)
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
@@ -235,6 +236,8 @@ local BleedStack = 0
 local healTarget
 local healReason
 local healTargetHealth
+
+
 
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
@@ -680,7 +683,11 @@ actionList.dps = function()
     --Consecration
     if cast.able.consecration() and not isMoving("player") then
         for i = 1, #enemies.yards8 do
-            if not cast.last.consecration(1) and not noConc("target") and not debuff.consecration.exists(enemies.yards8[i]) or GetTotemTimeLeft(1) < 2 or (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
+            if not cast.last.consecration(1)
+                    and not noConc("target")
+                    and not debuff.consecration.exists(enemies.yards8[i])
+                    or GetTotemTimeLeft(1) < 2
+                    or not cast.able.holyShock() and (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
                 if cast.consecration() then
                 end
             end
@@ -706,8 +713,6 @@ actionList.dps = function()
                 useItem(14)
             end
         end
-
-
     end
 
     if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 15
@@ -913,7 +918,8 @@ actionList.Interrupt = function()
             [267237] = true,
             [265568] = true,
             [277567] = true,
-            [265540] = true
+            [265540] = true,
+            [253544] = true
         }
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
@@ -1148,7 +1154,9 @@ actionList.Cooldown = function()
                         or getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
                         or (getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
                         or (isChecked("Tol Dagor - Deadeye") and getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
-                        or (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0 and cd.remain.blessingOfFreedom.remain() ~= 0) then
+                        or (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
+                        or (isChecked("KR - Severing axe") and getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
+                then
                     if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
                             and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                         if cast.blessingOfProtection(br.friend[i].unit) then
