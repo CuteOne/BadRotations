@@ -52,7 +52,7 @@ local function trackObject(object,name,objectid,interact)
 		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
 			--LibDraw.Circle(xOb,yOb,zOb, 2)
 			if name == "" or name == "Unknown" then name = ObjectName(object) end
-			local text = name .. " " .. objectid .. " id"
+			local text = name .. " " .. objectid
 			DrawTargets[ObjectGUID(object)] = {obj=object, text=text}
 			if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
 				and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player") and not isMoving("player") and br.timer:useTimer("Interact Delay", 1.5)
