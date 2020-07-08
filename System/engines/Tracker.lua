@@ -26,13 +26,13 @@ trackerFrame:SetScript("OnUpdate", function(...)
 						SetDrawColor(0, 1, 0, 1)
 						Draw2DLine(p2dX * sWidth, p2dY * sHeight, o2dX * sWidth, o2dY * sHeight, 4)
 					else
-						LibDraw.Line(pX, pY, pZ, drawTarget["xOb"], drawTarget["yOb"], drawTarget["zOb"])
+						LibDraw.Line(pX, pY, pZ, oX, oY, oZ)
 					end
 		 		end
 				if EasyWoWToolbox then
 					Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * magicScale), text)
 				else
-					LibDraw.Text(text,"GameFontNormal", drawTarget["xOb"], drawTarget["yOb"], drawTarget["zOb"]+3)
+					LibDraw.Text(text,"GameFontNormal", oX, oY, oZ+3)
 				end
 			end
 		end
