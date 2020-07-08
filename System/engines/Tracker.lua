@@ -105,7 +105,7 @@ function br.objectTracker()
 	if (br.timer:useTimer("Tracker Lag", 0.07) or (isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
 		LibDraw.clearCanvas()
 		if isChecked("Enable Tracker") then
-			if not EnabledDx then
+			if not EnabledDx and EasyWowToolbox then
 				-- this cmd a secret not usable with ishackenabled or sethackenabled
 				RunMacroText(".enabledx")
 				EnabledDx = true
