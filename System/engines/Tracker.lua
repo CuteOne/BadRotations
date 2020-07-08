@@ -1,10 +1,8 @@
 local trackerFrame = CreateFrame("Frame")
 local drawInterval = 0.006
 DrawTargets = {}
-local lastDrawTime = 0
 local magicScale = 5/768
-trackerFrame:SetScript("OnUpdate", function(self, elapsed)
-	if GetTime() - lastDrawTime < drawInterval then return end
+trackerFrame:SetScript("OnUpdate", function(...)
 	if not GetWoWWindow then return end -- a
 	local sWidth, sHeight = GetWoWWindow()
 	for name, object in pairs(DrawTargets) do
@@ -105,7 +103,7 @@ function br.objectTracker()
 	if (br.timer:useTimer("Tracker Lag", 0.07) or (isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
 		LibDraw.clearCanvas()
 		if isChecked("Enable Tracker") then
-			if not EnabledDx and EasyWowToolbox then
+			if not EnabledDx then
 				-- this cmd a secret not usable with ishackenabled or sethackenabled
 				RunMacroText(".enabledx")
 				EnabledDx = true
