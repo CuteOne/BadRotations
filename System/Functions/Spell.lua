@@ -1,5 +1,5 @@
 function castInterrupt(SpellID,Percent,Unit)
-	Percent = Math.min(Percent + math.random(-6.5, 6.5), 99) end
+	Percent = Math.min(Percent + math.random(-6.5, 6.5), 99)
 	if Unit == nil then Unit = "target" end
 	if GetObjectExists(Unit) then
 		local castName, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(Unit)
