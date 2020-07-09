@@ -3,42 +3,36 @@ local drawInterval = 0.006
 DrawTargets = {}
 local magicScale = 5/768
 trackerFrame:SetScript("OnUpdate", function(...)
-	if not GetWoWWindow then return end -- a
-	local sWidth, sHeight = GetWoWWindow()
-	for guid, target in pairs(DrawTargets) do
-		local object = target["obj"]
-		local text = target["text"]
-		local pX,pY,pZ = ObjectPosition("player")
-		local oX,oY,oZ = ObjectPosition(object)
-		local isNull = false
-		if not (oX and oY and oZ and pX and pY and pZ) then
-			isNull = true
-		end
-		if isNull then
-			DrawTargets[guid] = nil
-		end
-		if object ~= nil and not isNull then
-			local p2dX, p2dY, _ = WorldToScreenRaw(pX, pY, pZ)
-			local o2dX, o2dY, oFront = WorldToScreenRaw(oX, oY, oZ)
-			if oFront then
-				if isChecked("Draw Lines to Tracked Objects") then
-					if EasyWoWToolbox and not (p2dX > sWidth or p2dX < 0 or p2dY > sHeight or p2dY < 0) then
-						SetDrawColor(0, 1, 0, 1)
-						Draw2DLine(p2dX * sWidth, p2dY * sHeight, o2dX * sWidth, o2dY * sHeight, 4)
-					else
-						LibDraw.Line(pX, pY, pZ, oX, oY, oZ)
+	if EasyWoWToolbox and GetCVar("gxApi") =="D3D11" then
+		if not GetWoWWindow then return end -- a
+		local sWidth, sHeight = GetWoWWindow()
+		for guid, target in pairs(DrawTargets) do
+			local object = target["obj"]
+			local text = target["text"]
+			local pX,pY,pZ = ObjectPosition("player")
+			local oX,oY,oZ = ObjectPosition(object)
+			local isNull = false
+			if not (oX and oY and oZ and pX and pY and pZ) then
+				isNull = true
+			end
+			if isNull then
+				DrawTargets[guid] = nil
+			end
+			if object ~= nil and not isNull then
+				local p2dX, p2dY, _ = WorldToScreenRaw(pX, pY, pZ)
+				local o2dX, o2dY, oFront = WorldToScreenRaw(oX, oY, oZ)
+				if oFront then
+					if isChecked("Draw Lines to Tracked Objects") then
+						if not (p2dX > sWidth or p2dX < 0 or p2dY > sHeight or p2dY < 0) then
+							SetDrawColor(0, 1, 0, 1)
+							Draw2DLine(p2dX * sWidth, p2dY * sHeight, o2dX * sWidth, o2dY * sHeight, 4)
+						end
 					end
-		 		end
-				if EasyWoWToolbox then
 					Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * magicScale), text)
-				else
-					LibDraw.Text(text,"GameFontNormal", oX, oY, oZ+3)
 				end
 			end
 		end
 	end
-	-- clear the canvas after all draws/will redraw next frame
-	lastDrawTime = GetTime()
 end)
 
 local function trackObject(object,name,objectid,interact)
@@ -52,8 +46,15 @@ local function trackObject(object,name,objectid,interact)
 		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
 			--LibDraw.Circle(xOb,yOb,zOb, 2)
 			if name == "" or name == "Unknown" then name = ObjectName(object) end
-			local text = name .. " " .. objectid
-			DrawTargets[ObjectGUID(object)] = {obj=object, text=text}
+			if EasyWoWToolbox and GetCVar("gxApi") =="D3D11" then
+				local text = name .. " " .. objectid
+				DrawTargets[ObjectGUID(object)] = {obj=object, text=text}
+			else
+				LibDraw.Text(name.." "..objectid,"GameFontNormal",xOb,yOb,zOb+3)
+				if isChecked("Draw Lines to Tracked Objects") then
+					LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
+				end
+			end
 			if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
 				and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player") and not isMoving("player") and br.timer:useTimer("Interact Delay", 1.5)
 			then
@@ -179,6 +180,7 @@ function br.objectTracker()
 							[159804] = true, -- Wastewander Tracker
 							[159803] = true, -- Wastewander Warrior
 							[162605] = true, -- Aqir Larva
+							[156079] = true, -- Blood Font
 						}
 						if (getOptionValue("Quest Tracker") == 1 or getOptionValue("Quest Tracker") == 3) and ObjectIsUnit(object) and isQuestUnit(object) and (not UnitIsDeadOrGhost(object) or ignoreList[objectid] ~= nil or CanLootUnit(object)) and not UnitIsTapDenied(object) then
 							if ignoreList[objectid] ~= nil then
