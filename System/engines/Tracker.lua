@@ -1,18 +1,64 @@
+local trackerFrame = CreateFrame("Frame")
+local drawInterval = 0.006
+DrawTargets = {}
+local magicScale = 5/768
+trackerFrame:SetScript("OnUpdate", function(...)
+	if not GetWoWWindow then return end -- a
+	local sWidth, sHeight = GetWoWWindow()
+	for guid, target in pairs(DrawTargets) do
+		local object = target["obj"]
+		local text = target["text"]
+		local pX,pY,pZ = ObjectPosition("player")
+		local oX,oY,oZ = ObjectPosition(object)
+		local isNull = false
+		if not (oX and oY and oZ and pX and pY and pZ) then
+			isNull = true
+		end
+		if isNull then
+			DrawTargets[guid] = nil
+		end
+		if object ~= nil and not isNull then
+			local p2dX, p2dY, _ = WorldToScreenRaw(pX, pY, pZ)
+			local o2dX, o2dY, oFront = WorldToScreenRaw(oX, oY, oZ)
+			if oFront then
+				if isChecked("Draw Lines to Tracked Objects") then
+					if EasyWoWToolbox and not (p2dX > sWidth or p2dX < 0 or p2dY > sHeight or p2dY < 0) then
+						SetDrawColor(0, 1, 0, 1)
+						Draw2DLine(p2dX * sWidth, p2dY * sHeight, o2dX * sWidth, o2dY * sHeight, 4)
+					else
+						LibDraw.Line(pX, pY, pZ, oX, oY, oZ)
+					end
+		 		end
+				if EasyWoWToolbox then
+					Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * magicScale), text)
+				else
+					LibDraw.Text(text,"GameFontNormal", oX, oY, oZ+3)
+				end
+			end
+		end
+	end
+	-- clear the canvas after all draws/will redraw next frame
+	lastDrawTime = GetTime()
+end)
+
 local function trackObject(object,name,objectid,interact)
 	local xOb, yOb, zOb = ObjectPosition(object)
 	local pX,pY,pZ = ObjectPosition("player")
+	local cX, cY, cZ = GetCameraPosition()
 	if interact == nil then interact = true end
-	if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
-		--LibDraw.Circle(xOb,yOb,zOb, 2)
-		if name == "" or name == "Unknown" then name = ObjectName(object) end
-		LibDraw.Text(name.." "..objectid,"GameFontNormal",xOb,yOb,zOb+3)
-		if isChecked("Draw Lines to Tracked Objects") then
-			LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
-		end
-		if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
-			and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player") and not isMoving("player") and br.timer:useTimer("Interact Delay", 1.5)
-		then
-			ObjectInteract(object)
+	local playerDistance = GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb)
+	local cameraDistance = GetDistanceBetweenPositions(cX, cY, cZ, xOb, yOb, zOb)
+	if playerDistance <= cameraDistance then
+		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
+			--LibDraw.Circle(xOb,yOb,zOb, 2)
+			if name == "" or name == "Unknown" then name = ObjectName(object) end
+			local text = name .. " " .. objectid
+			DrawTargets[ObjectGUID(object)] = {obj=object, text=text}
+			if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
+				and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player") and not isMoving("player") and br.timer:useTimer("Interact Delay", 1.5)
+			then
+				ObjectInteract(object)
+			end
 		end
 	end
 end
@@ -58,11 +104,18 @@ local function storeChestNotInList(object)
 	end
 end
 
+EnabledDx = false
 function br.objectTracker()
 	-- Track Objects
+	DrawTargets = {}
 	if (br.timer:useTimer("Tracker Lag", 0.07) or (isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
 		LibDraw.clearCanvas()
 		if isChecked("Enable Tracker") then
+			if not EnabledDx and EasyWowToolbox then
+				-- this cmd a secret not usable with ishackenabled or sethackenabled
+				RunMacroText(".enabledx")
+				EnabledDx = true
+			end
 			-- Horrific Vision - Objects Managed from OM from br.lists.horrificVisions and placed in br.objects when detected
 			local instanceID = IsInInstance() and select(8,GetInstanceInfo()) or 0
 			-- Reset Horrific Vision Potion Blacklist out of instance
@@ -135,7 +188,7 @@ function br.objectTracker()
 							end
 						end
 						if (getOptionValue("Quest Tracker") == 2 or getOptionValue("Quest Tracker") == 3) and isQuestObject(object) and not ObjectIsUnit(object) then
-							trackObject(object,name,objectid)    
+							trackObject(object,name,objectid)
 						end
 					end
 				end

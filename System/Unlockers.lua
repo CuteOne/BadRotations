@@ -54,6 +54,11 @@ function loadUnlockerAPI()
         -- Misc
         SendHTTPRequest = SendHTTPRequest
         GetKeyState = GetKeyState
+        -- Drawing
+        GetWoWWindow = GetWoWWindow
+        Draw2DLine = Draw2DLine
+        Draw2DText = Draw2DText
+        WorldToScreenRaw = WorldToScreenRaw
         unlocked = true
     end
     -- No Unlocker
