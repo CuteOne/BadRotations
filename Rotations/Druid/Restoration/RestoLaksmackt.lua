@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 20200515-0718")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 092607092020")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -148,7 +148,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
         br.ui:createSpinner(section, "Memory of Lucid Dreams", 50, 0, 100, 5, "", "mana to pop it at")
         br.ui:createCheckbox(section, "Lucid Cat")
-
+        --
+        br.ui:createSpinner(section, "Vitality Conduit", 50, 0, 100, 5, "", "health to heal at")
         br.ui:createDropdown(section, "Ever Rising Tide", { "Always", "Pair with CDs", "Based on health" }, 1, "When to use this essence")
         br.ui:createSpinner(section, "Ever Rising Tide - Mana", 30, 0, 100, 5, "", "min mana to use")
         br.ui:createSpinner(section, "Ever Rising Tide - Health", 30, 0, 100, 5, "", "health threshold to pop at")
@@ -699,6 +700,34 @@ local StunsBlackList = {
 --- ROTATION ---
 ---------------_
 
+
+
+--listener based on combatlog
+
+local someone_casting = false
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local function reader()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    -- print(...)
+    --[[
+     if param == "SPELL_CAST_SUCCESS" and spell == 193316 then
+         -- or param == "SPELL_AURA_REMOVED" then
+         C_Timer.After(0.02, function()
+             --    print("refresh rtb")
+             dice_reroll = true
+         end)
+     end]]
+    if param == "SPELL_CAST_START" then
+        C_Timer.After(0.02, function()
+            someone_casting = true
+            --Print(source .. "/" .. sourceName .. " is casting " .. spellName)
+        end)
+    end
+end
+frame:SetScript("OnEvent", reader)
+
 local function runRotation()
     -- if br.timer:useTimer("debugRestoration", 0.1) then
     --print("Running: "..rotationName)
@@ -1039,26 +1068,28 @@ local function runRotation()
 
                 if mode.HEALS == 1 then
                     if isChecked("Smart Hot") then
-                        if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
-                            if cast.cenarionWard(spellTarget) then
-                                br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
-                                return true
-                            end
-                            if talent.germination and not buff.rejuvenationGermination.exists(spellTarget) then
-                                if cast.rejuvenation(spellTarget) then
-                                    br.addonDebug("[Snipe]Germination on: " .. UnitName(spellTarget))
+                        if someone_casting then
+                            if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
+                                if cast.cenarionWard(spellTarget) then
+                                    br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
                                     return true
                                 end
-                            elseif not talent.germination and not buff.rejuvenation.exists(spellTarget) then
-                                if cast.rejuvenation(spellTarget) then
-                                    br.addonDebug("[Snipe]Rejuvenation on: " .. UnitName(spellTarget))
-                                    return true
+                                if talent.germination and not buff.rejuvenationGermination.exists(spellTarget) then
+                                    if cast.rejuvenation(spellTarget) then
+                                        br.addonDebug("[Snipe]Germination on: " .. UnitName(spellTarget))
+                                        return true
+                                    end
+                                elseif not talent.germination and not buff.rejuvenation.exists(spellTarget) then
+                                    if cast.rejuvenation(spellTarget) then
+                                        br.addonDebug("[Snipe]Rejuvenation on: " .. UnitName(spellTarget))
+                                        return true
+                                    end
                                 end
-                            end
-                            if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) > getValue("Use Bark w/Smart Hot") then
-                                if cast.ironbark(spellTarget) then
-                                    br.addonDebug("[Snipe]Bark on: " .. UnitName(spellTarget))
-                                    return true
+                                if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) > getValue("Use Bark w/Smart Hot") then
+                                    if cast.ironbark(spellTarget) then
+                                        br.addonDebug("[Snipe]Bark on: " .. UnitName(spellTarget))
+                                        return true
+                                    end
                                 end
                             end
                         end
@@ -1119,29 +1150,6 @@ local function runRotation()
                                             br.addonDebug("[PRE-HOT]Rejuv on: " .. UnitName(br.friend[j].unit) .. " because: " .. spell_name)
                                             return true
                                         end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    local Casting = {
-                        --spell_id	, spell_name
-                        { 196587, 'Soul Burst' }, --Amalgam of Souls
-                        { 211464, 'Fel Detonation' }, --Advisor Melandrus
-                        { 237276, 'Pulverizing Cudgel' }, --Thrashbite the Scornful
-                        { 193611, 'Focused Lightning' }, --Lady Hatecoil
-                        { 192305, 'Eye of the Storm' }, --Hyrja
-                        { 239132, 'Rupture Realities' }, --Fallen Avatar
-                    }
-                    for i = 1, #Casting do
-                        local spell_id = Casting[i][1]
-                        local spell_name = Casting[i][2]
-                        for j = 1, #br.friend do
-                            if UnitInRange(br.friend[j].unit) then
-                                if UnitCastingInfo("boss1") == GetSpellInfo(spell_id) and not buff.rejuvenation.exists(br.friend[j].unit) then
-                                    if cast.rejuvenation(br.friend[j].unit) then
-                                        br.addonDebug("[DBM PRE-HOT]Rejuv on: " .. UnitName(br.friend[j].unit) .. " because: " .. spell_name)
-                                        return
                                     end
                                 end
                             end
@@ -1514,6 +1522,20 @@ local function runRotation()
         end
         --Essence Support
         --overchargeMana
+        --[[
+                if isChecked("Vitality Conduit") and cast.able.vitalityConduit() and lowest.hp < getOptionValue("Vitality Conduit") or burst == true then
+                    Print("should cast it now!!!!!")
+                    if cast.vitalityConduit(lowest.unit) then
+                        CastSpellByID(296230, "player")
+                        return true
+                    end
+        ]]
+
+        if getSpellCD(296230) <= gcd and lowest.hp < getOptionValue("Vitality Conduit") then
+            if CastSpellByID(296230, "player") then
+                return true
+            end
+        end
 
         if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd then
             if getOptionValue("Ever Rising Tide") == 1 then
@@ -1942,7 +1964,7 @@ local function runRotation()
         local aoe_count = 0
         for i = 1, #enemies.yards10tnc do
             local thisUnit = enemies.yards10tnc[i]
-            if ttd(thisUnit) > 4  and not isExplosive(thisUnit) then
+            if ttd(thisUnit) > 4 and not isExplosive(thisUnit) then
                 aoe_count = aoe_count + 1
             end
         end
@@ -2683,7 +2705,7 @@ local function runRotation()
     -- Print(tostring(mode.forms))
 
     -- Pause
-    if pause() or IsMounted() or flying or drinking or isCasting(spell.focusedAzeriteBeam) or  isCastingSpell(spell.tranquility) or isCasting(spell.replicaOfKnowledge) or  isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) then
+    if pause() or IsMounted() or flying or drinking or isCasting(spell.focusedAzeriteBeam) or isCastingSpell(spell.tranquility) or isCasting(spell.replicaOfKnowledge) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) then
         --or stealthed (travel and not inCombat) or
         return true
     else
