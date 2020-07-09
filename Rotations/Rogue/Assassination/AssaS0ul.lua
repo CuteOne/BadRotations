@@ -1163,15 +1163,17 @@ local function runRotation()
     end
 
     local function actionList_Dot()
-        -- # Special Garrote and Rupture setup prior to Exsanguinate cast
-        -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
-        if mode.exsang == 1 and talent.exsanguinate and debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 2 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") then
-            if cast.garrote("target") then return true end
-        end
-        -- # Special Rupture setup for Exsg
-        -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
-        if mode.exsang == 1 and talent.exsanguinate and (combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target")*0.5 < ttd("target")) then
-            if cast.rupture("target") then return true end
+        if mode.exsang == 1 and talent.exsanguinate then
+            -- # Special Garrote and Rupture setup prior to Exsanguinate cast
+            -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
+            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
+                if cast.garrote("target") then return true end
+            end
+            -- # Special Rupture setup for Exsg
+            -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
+            if combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target")*0.5 < ttd("target") and debuff.rupture.remain("target") < 26 then
+                if cast.rupture("target") then return true end
+            end
         end
         -- actions.dot+=/pool_resource,for_next=1
         -- actions.dot+=/garrote,cycle_targets=1,if=(!talent.subterfuge.enabled|!(cooldown.vanish.up&cooldown.vendetta.remains<=4))&combo_points.deficit>=1&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(target.time_to_die-remains>4&spell_targets.fan_of_knives<=1|target.time_to_die-remains>12)
