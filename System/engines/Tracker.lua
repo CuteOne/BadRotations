@@ -3,7 +3,7 @@ local drawInterval = 0.006
 DrawTargets = {}
 local magicScale = 5/768
 trackerFrame:SetScript("OnUpdate", function(...)
-	if EasyWoWToolbox and GetCVar("gxApi") =="D3D11" then
+	if getOptionValue("Enable Tracker") == 2 and br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 0 then
 		if not GetWoWWindow then return end -- a
 		local sWidth, sHeight = GetWoWWindow()
 		for guid, target in pairs(DrawTargets) do
@@ -46,7 +46,7 @@ local function trackObject(object,name,objectid,interact)
 		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
 			--LibDraw.Circle(xOb,yOb,zOb, 2)
 			if name == "" or name == "Unknown" then name = ObjectName(object) end
-			if EasyWoWToolbox and GetCVar("gxApi") =="D3D11" then
+			if getOptionValue("Enable Tracker") == 2 then
 				local text = name .. " " .. objectid
 				DrawTargets[ObjectGUID(object)] = {obj=object, text=text}
 			else
