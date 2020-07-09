@@ -949,12 +949,11 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up (unless using VoP)
-                -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
                 -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&(debuff.vendetta.up|essence.vision_of_perfection.enabled)
                 if talent.nightstalker and not talent.exsanguinate and comboDeficit >= comboMax and (debuff.vendetta.exists("target") or not isChecked("Vendetta") or essence.visionOfPerfection.active) then
                     if cast.vanish("player") then return true end
                 end
-                -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
+                -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target or with SS just overwrite
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and not debuff.vendetta.exists("target") and debuff.garrote.refresh("target")) or (sSActive and debuff.garrote.remain("target") < 18 and not debuff.vendetta.exists("target"))) and comboDeficit >= (1+2*sSActive) then
                     if cast.pool.garrote(nil, nil, 2) then return true end
@@ -1057,12 +1056,12 @@ local function runRotation()
         -- # Exsanguinate when both Rupture and Garrote are up for long enough single target(tips from Raz)
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>25&!dot.garrote.remains>15
         if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 25 and 
-         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and (cd.vendetta.exists() or not useCDs()) and ttd("target") > 4 then
+         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and ttd("target") > 4 then
             if cast.exsanguinate("target") then return true end
         end
         -- # Special Exsanguinate when we have more enemies around (simc)
         -- actions.cds+=/exsanguinate,if=!stealthed.rogue&(!dot.garrote.refreshable&dot.rupture.remains>4+4*cp_max_spend|dot.rupture.remains*0.5>target.time_to_die)&target.time_to_die>4
-        if mode.exsang == 1 and enemies10 > 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 16 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 then
+        if mode.exsang == 1 and enemies10 > 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 15 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -1134,7 +1133,7 @@ local function runRotation()
             end
         end
         -- Throw  Poisoned Knife if we can't reach the target
-        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
+        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") and inCombat then
             for i = 1, #enemyTable30 do
                 local thisUnit = enemyTable30[i].unit
                 --check if any targets are not poisoned firstget
@@ -1166,12 +1165,12 @@ local function runRotation()
     local function actionList_Dot()
         -- # Special Garrote and Rupture setup prior to Exsanguinate cast
         -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
-        if mode.exsang == 1 and talent.exsanguinate and (mode.vanish == 0 or cd.vanish.remain() > 4) and debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 2 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") then
+        if mode.exsang == 1 and talent.exsanguinate and debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 2 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") then
             if cast.garrote("target") then return true end
         end
         -- # Special Rupture setup for Exsg
         -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
-        if mode.exsang == 1 and talent.exsanguinate and (combo >= comboMax and cd.exsanguinate.remain() < 1 and debuff.rupture.remain("target")*0.5 < ttd("target")) then
+        if mode.exsang == 1 and talent.exsanguinate and (combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target")*0.5 < ttd("target")) then
             if cast.rupture("target") then return true end
         end
         -- actions.dot+=/pool_resource,for_next=1
