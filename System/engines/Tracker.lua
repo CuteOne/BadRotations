@@ -1,7 +1,7 @@
 local trackerFrame = CreateFrame("Frame")
 local drawInterval = 0.006
 DrawTargets = {}
-local magicScale = 5/768
+local magicScale = 5/256
 trackerFrame:SetScript("OnUpdate", function(...)
 	if getOptionValue("Enable Tracker") == 2 and br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 0 then
 		if not GetWoWWindow then return end -- a
@@ -28,7 +28,7 @@ trackerFrame:SetScript("OnUpdate", function(...)
 							Draw2DLine(p2dX * sWidth, p2dY * sHeight, o2dX * sWidth, o2dY * sHeight, 4)
 						end
 					end
-					Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * magicScale), text)
+					Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * (magicScale * 1/2)), text, 24)
 				end
 			end
 		end
@@ -105,18 +105,12 @@ local function storeChestNotInList(object)
 	end
 end
 
-EnabledDx = false
 function br.objectTracker()
 	-- Track Objects
 	DrawTargets = {}
 	if (br.timer:useTimer("Tracker Lag", 0.07) or (isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
 		LibDraw.clearCanvas()
 		if isChecked("Enable Tracker") then
-			if not EnabledDx and EasyWowToolbox then
-				-- this cmd a secret not usable with ishackenabled or sethackenabled
-				RunMacroText(".enabledx")
-				EnabledDx = true
-			end
 			-- Horrific Vision - Objects Managed from OM from br.lists.horrificVisions and placed in br.objects when detected
 			local instanceID = IsInInstance() and select(8,GetInstanceInfo()) or 0
 			-- Reset Horrific Vision Potion Blacklist out of instance
