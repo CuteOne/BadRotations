@@ -43,7 +43,7 @@ local function trackObject(object,name,objectid,interact)
 	local playerDistance = GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb)
 	local cameraDistance = GetDistanceBetweenPositions(cX, cY, cZ, xOb, yOb, zOb)
 	if playerDistance <= cameraDistance then
-		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
+		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 500 then
 			--LibDraw.Circle(xOb,yOb,zOb, 2)
 			if name == "" or name == "Unknown" then name = ObjectName(object) end
 			if getOptionValue("Enable Tracker") == 2 then
@@ -105,18 +105,12 @@ local function storeChestNotInList(object)
 	end
 end
 
-EnabledDx = false
 function br.objectTracker()
 	-- Track Objects
 	DrawTargets = {}
 	if (br.timer:useTimer("Tracker Lag", 0.07) or (isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
 		LibDraw.clearCanvas()
 		if isChecked("Enable Tracker") then
-			if not EnabledDx and EasyWowToolbox then
-				-- this cmd a secret not usable with ishackenabled or sethackenabled
-				RunMacroText(".enabledx")
-				EnabledDx = true
-			end
 			-- Horrific Vision - Objects Managed from OM from br.lists.horrificVisions and placed in br.objects when detected
 			local instanceID = IsInInstance() and select(8,GetInstanceInfo()) or 0
 			-- Reset Horrific Vision Potion Blacklist out of instance
