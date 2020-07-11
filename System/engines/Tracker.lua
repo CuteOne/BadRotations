@@ -43,7 +43,7 @@ local function trackObject(object,name,objectid,interact)
 	local playerDistance = GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb)
 	local cameraDistance = GetDistanceBetweenPositions(cX, cY, cZ, xOb, yOb, zOb)
 	if playerDistance <= cameraDistance then
-		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 500 then
+		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
 			--LibDraw.Circle(xOb,yOb,zOb, 2)
 			if name == "" or name == "Unknown" then name = ObjectName(object) end
 			if getOptionValue("Enable Tracker") == 2 then
