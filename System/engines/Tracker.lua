@@ -1,7 +1,7 @@
 local trackerFrame = CreateFrame("Frame")
 local drawInterval = 0.006
 DrawTargets = {}
-local magicScale = 5/768
+local magicScale = 5/256
 trackerFrame:SetScript("OnUpdate", function(...)
 	if getOptionValue("Enable Tracker") == 2 and br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 0 then
 		if not GetWoWWindow then return end -- a
@@ -28,7 +28,7 @@ trackerFrame:SetScript("OnUpdate", function(...)
 							Draw2DLine(p2dX * sWidth, p2dY * sHeight, o2dX * sWidth, o2dY * sHeight, 4)
 						end
 					end
-					Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * magicScale), text)
+					Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * (magicScale * 1/2)), text, 24)
 				end
 			end
 		end
@@ -43,7 +43,7 @@ local function trackObject(object,name,objectid,interact)
 	local playerDistance = GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb)
 	local cameraDistance = GetDistanceBetweenPositions(cX, cY, cZ, xOb, yOb, zOb)
 	if playerDistance <= cameraDistance then
-		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 500 then
+		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
 			--LibDraw.Circle(xOb,yOb,zOb, 2)
 			if name == "" or name == "Unknown" then name = ObjectName(object) end
 			if getOptionValue("Enable Tracker") == 2 then
