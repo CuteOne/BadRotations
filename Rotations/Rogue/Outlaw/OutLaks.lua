@@ -69,7 +69,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 181607072020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 102107112020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -457,6 +457,33 @@ local actionList = {}
 --- Functions --- -- List all profile specific custom functions here
 -----------------
 
+local function noDamageCheck(unit)
+    if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
+        return true
+    end
+    if isChecked("Shrine - ignore adds last boss") and GetObjectID(unit) == 135903 then
+        return true
+    end
+    if hasBuff(263246, unit) then
+        -- shields on first boss in temple
+        return true
+    end
+    if hasBuff(260189, unit) then
+        -- shields on last boss in MOTHERLODE
+        return true
+    end
+    if hasBuff(261264, unit) or hasBuff(261265, unit) or hasBuff(261266, unit) then
+        -- shields on witches in wm
+        return true
+    end
+    if GetObjectID(thisUnit) == 128652 then
+        --https://www.wowhead.com/npc=128652/viqgoth
+        return true
+    end
+
+    return false --catchall
+end
+
 local function already_stunned(Unit)
     if Unit == nil then
         return false
@@ -670,8 +697,6 @@ actionList.essences = function()
 
     -- Reaping Flames
     if essence.reapingFlames.major and cast.able.reapingFlames() then
-        -- local reapingDamage = buff.reapingFlames.exists("player") and 66769 * 2 or 66769
-        --    local reapingDamage = buff.reapingFlames.exists("player") and 72000 * 2 or 72000
         local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 1000 * 2 or getValue("Reaping DMG") * 1000
 
         local reapingPercentage = 0
@@ -691,7 +716,6 @@ actionList.essences = function()
         elseif mob_count > 1 then
             for i = 1, mob_count do
                 thisUnit = enemies.yards30[i]
-                local reapTTD = getTTD(thisUnit)
                 if getTTD(thisUnit) ~= 999 then
                     --  Print("TTD:" .. tostring(getTTD(thisUnit)))
                     thisHP = getHP(thisUnit)
@@ -699,7 +723,7 @@ actionList.essences = function()
                     thisABSHPmax = UnitHealthMax(thisUnit)
                     reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
                     --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
-                    if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 then
+                    if UnitHealth(thisUnit) <= reapingDamage or getTTD(thisUnit) < 2.5 or getTTD(thisUnit, reapingPercentage) < 2 then
                         reap_execute = thisUnit
                         break
                     elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)
@@ -718,7 +742,7 @@ actionList.essences = function()
             reapTarget = reap_fallback
         end
 
-        if reapTarget ~= nil and not isExplosive(reapTarget) then
+        if reapTarget ~= nil and not isExplosive(reapTarget) and not noDamageCheck(reapTarget) then
             if cast.reapingFlames(reapTarget) then
                 --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                 return true
@@ -801,19 +825,24 @@ actionList.dps = function()
     -- Print("Combo: " .. combo .. " Execute at: " .. (tostring(comboMax - buff_count())))
 
     if combo >= real_def then
+
+
         --   Print("Executing Finishers [" .. combo .. "/" .. real_def .. "]")
-        if not stealth and cast.able.betweenTheEyes() and bte_condition and buff_rollTheBones_count >= 1 and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
+        if not stealth and not noDamageCheck(units.dyn20) and cast.able.betweenTheEyes() and bte_condition and buff_rollTheBones_count >= 1 and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
             if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
         end
-        if combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones()) then
+        if combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones())
+                or buff_rollTheBones_remain == 0 or buff_rollTheBones_remain == nil or
+                not buff.skullAndCrossbones.exists() and not buff.broadside.exists() and not buff.buriedTreasure.exists() and not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists() and not buff.trueBearing.exists()
+        then
             if cast.rollTheBones() then
                 --Print("2: " .. tostring(buff_rollTheBones_remain))
                 return true
             end
         end
-        if cast.able.betweenTheEyes(units.dyn20) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
+        if cast.able.betweenTheEyes(units.dyn20) and not noDamageCheck(units.dyn20) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
             if cast.betweenTheEyes(units.dyn20) then
                 return true
             end
@@ -1006,7 +1035,7 @@ actionList.dps = function()
         if (br.player.talent.quickDraw and real_def > 1 or not br.player.talent.quickDraw and real_def > 0) then
             if ((br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
                     and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
-                    or (buff.opportunity.exists() and buff.deadShot.exists()) and not isExplosive(units.dyn20))
+                    or (buff.opportunity.exists() and buff.deadShot.exists()) and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20))
                     or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
             then
                 --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
@@ -1083,7 +1112,8 @@ actionList.Corruption = function()
 
     --shroudOfResolve / cloak
     if debuff.grandDelusions.exists("player") or debuff.graspingTendrils.exists("player") or getDebuffStacks("player", 315161) > 0 then
-        if isChecked("Shroud of Resolve") and br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and not IsMounted() then
+        if isChecked("Shroud of Resolve") and br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and not IsMounted()
+                and not cast.last.cloakOfShadows(1) then
             if getValue("Shroud of Resolve") == 1 and debuff.graspingTendrils.exists("player")
                     or (getValue("Shroud of Resolve") == 2 or getValue("Shroud of Resolve") == 4) and getDebuffStacks("player", 315161) >= getOptionValue("Cloak - Eye Of Corruption Stacks") and php <= getOptionValue("Cloak - Min HP")
                     or (getValue("Shroud of Resolve") == 3 or getValue("Shroud of Resolve") == 4) and debuff.grandDelusions.exists("player") then
@@ -1096,7 +1126,9 @@ actionList.Corruption = function()
         if isChecked("Cloak of Shadows") and cast.able.cloakOfShadows() and cd.global.remain() == 0 then
             if getValue("Cloak of Shadows") == 1 and debuff.graspingTendrils.exists("player")
                     or (getValue("Cloak of Shadows") == 2 or getValue("Cloak of Shadows") == 4) and getDebuffStacks("player", 315161) >= getOptionValue("Cloak - Eye Of Corruption Stacks") and php <= getOptionValue("Cloak - Min HP")
-                    or (getValue("Cloak of Shadows") == 3 or getValue("Cloak of Shadows") == 4) and debuff.grandDelusions.exists("player") then
+                    or (getValue("Cloak of Shadows") == 3 or getValue("Cloak of Shadows") == 4) and debuff.grandDelusions.exists("player")
+            --  and not cast.last.shroudOfResolve(1) then
+            then
                 if cast.cloakOfShadows() then
                     return true
                 end
@@ -1601,13 +1633,12 @@ local function runRotation()
                 break
             end
         end
-        if buff_rollTheBones_remain == 0 or buff_rollTheBones_remain == nil then
-            if rollthebones() then
-                if cast.rollTheBones() then
-                    return true
-                end
-            end
-        end
+        --[[
+             Print("foo")
+             if cast.rollTheBones() then
+                 return true
+             end
+         end]]
     end
 
     if br.player.buff.rollTheBones == nil then
