@@ -757,17 +757,14 @@ local function runRotation()
                 if useInterrupts() and canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
                         if cast.kick(thisUnit) then return end
-                        someone_casting = false
                     end
                     if cd.kick.remain() ~= 0 then
                         if isChecked("Kidney Shot") then
                             if cast.kidneyShot(thisUnit) then return true end
-                            someone_casting = false
                         end
                     end
                     if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
                         if cast.blind(thisUnit) then return end
-                        someone_casting = false
                     end
                 end
                 if isChecked("Stuns") and distance < 5 and combo > 0 and combo <= getOptionValue("Max CP For Stun") then
@@ -781,7 +778,6 @@ local function runRotation()
                     end
                     if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
                         if cast.kidneyShot(thisUnit) then return true end
-                        someone_casting = false
                     end
                 end
             end
@@ -1320,21 +1316,6 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-    --listener based on combatlog (Laks yoink)
-    local someone_casting = false
-
-    local frame = CreateFrame("Frame")
-    frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    local function reader()
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-        if param == "SPELL_CAST_START" then
-            C_Timer.After(0.02, function()
-                someone_casting = true
-            end)
-        end
-    end
-    frame:SetScript("OnEvent", reader)
-
     -- Pause
     if IsMounted() or IsFlying() or pause() then
         return true
@@ -1354,10 +1335,7 @@ local function runRotation()
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or (validTarget and targetDistance < 15)))) and opener == true then
             if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
-            --We will check for interrupt whenever someone is casting (based on log)
-            if someone_casting == true then
-                if actionList_Interrupts() then return true end
-            end
+            if actionList_Interrupts() then return true end
             --pre mfd
             if stealth and comboDeficit > 2 and talent.markedForDeath and validTarget and targetDistance < 5 then
                 if cast.markedForDeath("target") then
