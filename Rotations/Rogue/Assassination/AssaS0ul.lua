@@ -81,7 +81,7 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createDropdownWithout(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
+            br.ui:createDropdown(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000025 Yards"},  1, "Auto stealth mode.")
             br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
@@ -90,7 +90,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
-            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
+            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "|cffFFFFFFUse Poisoned Knife out of range.")
             br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for Fan of Knives and Crimson Tempest usage")
             br.ui:createSpinner(section,  "Disable Garrote on # Units",  7,  1,  20,  1,  "|cffFFFFFF Max units within 10 yards for garrote usage outside stealth (FoK spam)")
             br.ui:createCheckbox(section, "Dot Players", "|cffFFFFFF Check to dot player targets (MC ect.)")
@@ -106,7 +106,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Precombat", "|cffFFFFFF Will use items on pulltimer (don't move on pull timer)")
             br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
             br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  20,  1,  "* 5k Put damage of your Reaping Flames")
-            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "|cffFFFFFFPotion to use")
+            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "|cffFFFFFFPotion with CDs")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
             br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
@@ -334,7 +334,7 @@ local function runRotation()
                 end
             end
         end
-        if unitsInRect >= minUnits and fightRemain < 10 then
+        if unitsInRect >= minUnits then
             CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
             return true
         else
@@ -565,14 +565,16 @@ local function runRotation()
     local function actionList_Extra()
         if not inCombat then
             -- actions.precombat+=/apply_poison
-            if not moving and getOptionValue("Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison(1) then
-                if cast.deadlyPoison("player") then return true end
-            end
-            if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
-                if cast.woundPoison("player") then return true end
-            end
-            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
-                if cast.cripplingPoison("player") then return true end
+            if isChecked("Poison") then
+                if not moving and getOptionValue("Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison(1) then
+                    if cast.deadlyPoison("player") then return true end
+                end
+                if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+                    if cast.woundPoison("player") then return true end
+                end
+                if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+                    if cast.cripplingPoison("player") then return true end
+                end
             end
             -- actions.precombat+=/stealth
             if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
@@ -755,14 +757,17 @@ local function runRotation()
                 if useInterrupts() and canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
                         if cast.kick(thisUnit) then return end
+                        someone_casting = false
                     end
                     if cd.kick.remain() ~= 0 then
                         if isChecked("Kidney Shot") then
                             if cast.kidneyShot(thisUnit) then return true end
+                            someone_casting = false
                         end
                     end
                     if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
                         if cast.blind(thisUnit) then return end
+                        someone_casting = false
                     end
                 end
                 if isChecked("Stuns") and distance < 5 and combo > 0 and combo <= getOptionValue("Max CP For Stun") then
@@ -776,6 +781,7 @@ local function runRotation()
                     end
                     if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
                         if cast.kidneyShot(thisUnit) then return true end
+                        someone_casting = false
                     end
                 end
             end
@@ -1314,6 +1320,21 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
+    --listener based on combatlog (Laks yoink)
+    local someone_casting = false
+
+    local frame = CreateFrame("Frame")
+    frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    local function reader()
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+        if param == "SPELL_CAST_START" then
+            C_Timer.After(0.02, function()
+                someone_casting = true
+            end)
+        end
+    end
+    frame:SetScript("OnEvent", reader)
+
     -- Pause
     if IsMounted() or IsFlying() or pause() then
         return true
@@ -1322,9 +1343,10 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
         if actionList_Extra() then return true end
-
-        if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+        if not inCombat then
             if fightRemain ~= nil then fightRemain = nil end
+        end
+        if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
         if actionList_Opener() then return true end
@@ -1334,7 +1356,10 @@ local function runRotation()
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or mode.vanish == 1 or (validTarget and targetDistance < 5)))) and opener == true then
             if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
-            if actionList_Interrupts() then return true end
+            --We will check for interrupt whenever someone is casting (based on log)
+            if someone_casting == true then
+                if actionList_Interrupts() then return true end
+            end
             --pre mfd
             if stealth and comboDeficit > 2 and talent.markedForDeath and validTarget and targetDistance < 5 then
                 if cast.markedForDeath("target") then
