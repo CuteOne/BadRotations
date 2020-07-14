@@ -297,51 +297,6 @@ local function runRotation()
         standingTime = GetTime() - DontMoveStartTime
     end
 
-    local function castBeam(minUnits, safe, minttd)
-        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
-            return false
-        end
-        if isChecked("Ignore Azerite Beam Units During CDs") and useCDs() and energy < 70 then
-            minUnits = 1
-        end
-        local x, y, z = ObjectPosition("player")
-        local length = 30
-        local width = 6
-        ttd = ttd or 0
-        safe = safe or true
-        local function getRectUnit(facing)
-            local halfWidth = width/2
-            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
-            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
-            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
-            return nlX, nlY, nrX, nrY, frX, frY
-        end
-        local enemiesTable = getEnemies("player", length, true)
-        local facing = ObjectFacing("player")
-        local unitsInRect = 0
-        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
-        local thisUnit
-        for i = 1, #enemiesTable do
-            thisUnit = enemiesTable[i]
-            local uX, uY, uZ = ObjectPosition(thisUnit)
-            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
-                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
-                    unitsInRect = 0
-                    break
-                end
-                if ttd(thisUnit) >= minttd then
-                    unitsInRect = unitsInRect + 1
-                end
-            end
-        end
-        if unitsInRect >= minUnits then
-            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
-            return true
-        else
-            return false
-        end
-    end
-
     local function shallWeDot(unit)
         if isChecked("Auto Garrote HP Limit") and ttd(unit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
             local hpLimit = 0
@@ -444,7 +399,7 @@ local function runRotation()
     clearTable(enemyTable5)
     clearTable(enemyTable10)
     clearTable(enemyTable30)
-    local fightRemain
+    local fightRemain = 0
     local deadlyPoison10 = true
     local spell5y = GetSpellInfo(spell.kick)
     local spell10y = GetSpellInfo(spell.pickPocket)
@@ -529,6 +484,51 @@ local function runRotation()
                     end
                 end
             end
+        end
+    end
+
+    local function castBeam(minUnits, safe, minttd)
+        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
+            return false
+        end
+        if isChecked("Ignore Azerite Beam Units During CDs") and useCDs() and energy < 70 then
+            minUnits = 1
+        end
+        local x, y, z = ObjectPosition("player")
+        local length = 30
+        local width = 6
+        ttd = ttd or 0
+        safe = safe or true
+        local function getRectUnit(facing)
+            local halfWidth = width/2
+            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+            return nlX, nlY, nrX, nrY, frX, frY
+        end
+        local enemiesTable = getEnemies("player", length, true)
+        local facing = ObjectFacing("player")
+        local unitsInRect = 0
+        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
+        local thisUnit
+        for i = 1, #enemiesTable do
+            thisUnit = enemiesTable[i]
+            local uX, uY, uZ = ObjectPosition(thisUnit)
+            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
+                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+                    unitsInRect = 0
+                    break
+                end
+                if ttd(thisUnit) >= minttd then
+                    unitsInRect = unitsInRect + 1
+                end
+            end
+        end
+        if unitsInRect >= minUnits and fightRemain > 10 then
+            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
+            return true
+        else
+            return false
         end
     end
     --Just nil fixes
@@ -905,9 +905,9 @@ local function runRotation()
             end
         -- # Galecallers Boon
         -- actions.cds+=/use_item,name=galecallers_boon,if=(debuff.vendetta.up|(!talent.exsanguinate.enabled&cooldown.vendetta.remains>45|talent.exsanguinate.enabled&(cooldown.exsanguinate.remains<6|cooldown.exsanguinate.remains>20&fight_remains>65)))&!exsanguinated.rupture
-            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain >65)) and not debuff.garrote.exsang("target") then
+            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain > 65)) and not debuff.garrote.exsang("target") then
                 useItem(13)
-            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain >65)) and not debuff.garrote.exsang("target") then
+            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain > 65)) and not debuff.garrote.exsang("target") then
                 useItem(14)
             end
         end
@@ -1343,9 +1343,7 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
         if actionList_Extra() then return true end
-        if not inCombat then
-            if fightRemain ~= nil then fightRemain = nil end
-        end
+
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
@@ -1353,7 +1351,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or mode.vanish == 1 or (validTarget and targetDistance < 5)))) and opener == true then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or (validTarget and targetDistance < 15)))) and opener == true then
             if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
             --We will check for interrupt whenever someone is casting (based on log)
@@ -1373,7 +1371,7 @@ local function runRotation()
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth
-            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() then
+            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not IsStealthed() and not inCombat and not cast.last.vanish() then
                 cast.stealth("player")
             end
             -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue
