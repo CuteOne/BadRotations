@@ -10,7 +10,7 @@ local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTa
 local resetButton
 local garrotePrioList = ""
 local fhbossPool = false
-local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315"
+local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315|157461"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
 --- Toggles ---
@@ -1025,13 +1025,12 @@ local function runRotation()
             elseif mob_count > 1 then
                 for i = 1, mob_count do
                     thisUnit = enemies.yards30[i]
-                    local reapTTD = getTTD(thisUnit)
                     if getTTD(thisUnit) ~= 999 then
                         thisHP = getHP(thisUnit)
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 then
+                        if UnitHealth(thisUnit) <= reapingDamage or getTTD(thisUnit) < 2.5 or getTTD(thisUnit, reapingPercentage) < 2 then
                             reap_execute = thisUnit
                             break
                         elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44) then
