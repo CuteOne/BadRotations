@@ -92,6 +92,17 @@ br.api.spells = function(spells,k,v,subtable)
             return canDispel(unit,v) or false
         end
 
+        if cast.id == nil then 
+            cast.id = function(spellID,thisUnit,debug,minUnits,effectRng,predict,predictPad)
+                if spellID == nil then return end
+                for j,w in pairs(br.player.spell.abilities) do
+                    if spellID == w then cast[j](thisUnit,debug,minUnits,effectRng,predict,predictPad) return end
+                end
+                Print("No cast function found for spellID: "..spellID)
+                return
+            end
+        end
+
         if cast.inFlight == nil then cast.inFlight = {} end
         cast.inFlight[k] = function(unit)
             return br.InFlight.Check(v, unit)
