@@ -10,7 +10,7 @@ local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTa
 local resetButton
 local garrotePrioList = ""
 local fhbossPool = false
-local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315"
+local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315|157461"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
 --- Toggles ---
@@ -81,7 +81,7 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createDropdownWithout(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
+            br.ui:createDropdown(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000025 Yards"},  1, "Auto stealth mode.")
             br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
@@ -90,7 +90,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
-            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
+            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "|cffFFFFFFUse Poisoned Knife out of range.")
             br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for Fan of Knives and Crimson Tempest usage")
             br.ui:createSpinner(section,  "Disable Garrote on # Units",  7,  1,  20,  1,  "|cffFFFFFF Max units within 10 yards for garrote usage outside stealth (FoK spam)")
             br.ui:createCheckbox(section, "Dot Players", "|cffFFFFFF Check to dot player targets (MC ect.)")
@@ -106,7 +106,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Precombat", "|cffFFFFFF Will use items on pulltimer (don't move on pull timer)")
             br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
             br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  20,  1,  "* 5k Put damage of your Reaping Flames")
-            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "|cffFFFFFFPotion to use")
+            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "|cffFFFFFFPotion with CDs")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
             br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
@@ -297,51 +297,6 @@ local function runRotation()
         standingTime = GetTime() - DontMoveStartTime
     end
 
-    local function castBeam(minUnits, safe, minttd)
-        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
-            return false
-        end
-        if isChecked("Ignore Azerite Beam Units During CDs") and useCDs() and energy < 70 then
-            minUnits = 1
-        end
-        local x, y, z = ObjectPosition("player")
-        local length = 30
-        local width = 6
-        ttd = ttd or 0
-        safe = safe or true
-        local function getRectUnit(facing)
-            local halfWidth = width/2
-            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
-            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
-            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
-            return nlX, nlY, nrX, nrY, frX, frY
-        end
-        local enemiesTable = getEnemies("player", length, true)
-        local facing = ObjectFacing("player")
-        local unitsInRect = 0
-        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
-        local thisUnit
-        for i = 1, #enemiesTable do
-            thisUnit = enemiesTable[i]
-            local uX, uY, uZ = ObjectPosition(thisUnit)
-            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
-                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
-                    unitsInRect = 0
-                    break
-                end
-                if ttd(thisUnit) >= minttd then
-                    unitsInRect = unitsInRect + 1
-                end
-            end
-        end
-        if unitsInRect >= minUnits and fightRemain < 10 then
-            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
-            return true
-        else
-            return false
-        end
-    end
-
     local function shallWeDot(unit)
         if isChecked("Auto Garrote HP Limit") and ttd(unit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
             local hpLimit = 0
@@ -444,7 +399,7 @@ local function runRotation()
     clearTable(enemyTable5)
     clearTable(enemyTable10)
     clearTable(enemyTable30)
-    local fightRemain
+    local fightRemain = 0
     local deadlyPoison10 = true
     local spell5y = GetSpellInfo(spell.kick)
     local spell10y = GetSpellInfo(spell.pickPocket)
@@ -531,6 +486,51 @@ local function runRotation()
             end
         end
     end
+
+    local function castBeam(minUnits, safe, minttd)
+        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
+            return false
+        end
+        if isChecked("Ignore Azerite Beam Units During CDs") and useCDs() and energy < 70 then
+            minUnits = 1
+        end
+        local x, y, z = ObjectPosition("player")
+        local length = 30
+        local width = 6
+        ttd = ttd or 0
+        safe = safe or true
+        local function getRectUnit(facing)
+            local halfWidth = width/2
+            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+            return nlX, nlY, nrX, nrY, frX, frY
+        end
+        local enemiesTable = getEnemies("player", length, true)
+        local facing = ObjectFacing("player")
+        local unitsInRect = 0
+        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
+        local thisUnit
+        for i = 1, #enemiesTable do
+            thisUnit = enemiesTable[i]
+            local uX, uY, uZ = ObjectPosition(thisUnit)
+            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
+                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+                    unitsInRect = 0
+                    break
+                end
+                if ttd(thisUnit) >= minttd then
+                    unitsInRect = unitsInRect + 1
+                end
+            end
+        end
+        if unitsInRect >= minUnits and fightRemain > 10 then
+            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
+            return true
+        else
+            return false
+        end
+    end
     --Just nil fixes
     if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
 
@@ -565,14 +565,16 @@ local function runRotation()
     local function actionList_Extra()
         if not inCombat then
             -- actions.precombat+=/apply_poison
-            if not moving and getOptionValue("Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison(1) then
-                if cast.deadlyPoison("player") then return true end
-            end
-            if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
-                if cast.woundPoison("player") then return true end
-            end
-            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
-                if cast.cripplingPoison("player") then return true end
+            if isChecked("Poison") then
+                if not moving and getOptionValue("Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison(1) then
+                    if cast.deadlyPoison("player") then return true end
+                end
+                if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+                    if cast.woundPoison("player") then return true end
+                end
+                if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+                    if cast.cripplingPoison("player") then return true end
+                end
             end
             -- actions.precombat+=/stealth
             if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
@@ -899,9 +901,9 @@ local function runRotation()
             end
         -- # Galecallers Boon
         -- actions.cds+=/use_item,name=galecallers_boon,if=(debuff.vendetta.up|(!talent.exsanguinate.enabled&cooldown.vendetta.remains>45|talent.exsanguinate.enabled&(cooldown.exsanguinate.remains<6|cooldown.exsanguinate.remains>20&fight_remains>65)))&!exsanguinated.rupture
-            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain >65)) and not debuff.garrote.exsang("target") then
+            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain > 65)) and not debuff.garrote.exsang("target") then
                 useItem(13)
-            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain >65)) and not debuff.garrote.exsang("target") then
+            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain > 65)) and not debuff.garrote.exsang("target") then
                 useItem(14)
             end
         end
@@ -949,12 +951,11 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up (unless using VoP)
-                -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
                 -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&(debuff.vendetta.up|essence.vision_of_perfection.enabled)
                 if talent.nightstalker and not talent.exsanguinate and comboDeficit >= comboMax and (debuff.vendetta.exists("target") or not isChecked("Vendetta") or essence.visionOfPerfection.active) then
                     if cast.vanish("player") then return true end
                 end
-                -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
+                -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target or with SS just overwrite
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and not debuff.vendetta.exists("target") and debuff.garrote.refresh("target")) or (sSActive and debuff.garrote.remain("target") < 18 and not debuff.vendetta.exists("target"))) and comboDeficit >= (1+2*sSActive) then
                     if cast.pool.garrote(nil, nil, 2) then return true end
@@ -1024,13 +1025,12 @@ local function runRotation()
             elseif mob_count > 1 then
                 for i = 1, mob_count do
                     thisUnit = enemies.yards30[i]
-                    local reapTTD = getTTD(thisUnit)
                     if getTTD(thisUnit) ~= 999 then
                         thisHP = getHP(thisUnit)
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        if UnitHealth(thisUnit) <= reapingDamage or reapTTD < 2 then
+                        if UnitHealth(thisUnit) <= reapingDamage or getTTD(thisUnit) < 2.5 or getTTD(thisUnit, reapingPercentage) < 2 then
                             reap_execute = thisUnit
                             break
                         elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44) then
@@ -1057,12 +1057,12 @@ local function runRotation()
         -- # Exsanguinate when both Rupture and Garrote are up for long enough single target(tips from Raz)
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>25&!dot.garrote.remains>15
         if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 25 and 
-         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and (cd.vendetta.exists() or not useCDs()) and ttd("target") > 4 then
+         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and ttd("target") > 4 then
             if cast.exsanguinate("target") then return true end
         end
         -- # Special Exsanguinate when we have more enemies around (simc)
         -- actions.cds+=/exsanguinate,if=!stealthed.rogue&(!dot.garrote.refreshable&dot.rupture.remains>4+4*cp_max_spend|dot.rupture.remains*0.5>target.time_to_die)&target.time_to_die>4
-        if mode.exsang == 1 and enemies10 > 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 16 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 then
+        if mode.exsang == 1 and enemies10 > 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 15 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -1134,7 +1134,7 @@ local function runRotation()
             end
         end
         -- Throw  Poisoned Knife if we can't reach the target
-        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
+        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") and inCombat then
             for i = 1, #enemyTable30 do
                 local thisUnit = enemyTable30[i].unit
                 --check if any targets are not poisoned firstget
@@ -1164,15 +1164,17 @@ local function runRotation()
     end
 
     local function actionList_Dot()
-        -- # Special Garrote and Rupture setup prior to Exsanguinate cast
-        -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
-        if mode.exsang == 1 and talent.exsanguinate and (mode.vanish == 0 or cd.vanish.remain() > 4) and debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 2 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") then
-            if cast.garrote("target") then return true end
-        end
-        -- # Special Rupture setup for Exsg
-        -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
-        if mode.exsang == 1 and talent.exsanguinate and (combo >= comboMax and cd.exsanguinate.remain() < 1 and debuff.rupture.remain("target")*0.5 < ttd("target")) then
-            if cast.rupture("target") then return true end
+        if mode.exsang == 1 and talent.exsanguinate then
+            -- # Special Garrote and Rupture setup prior to Exsanguinate cast
+            -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
+            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
+                if cast.garrote("target") then return true end
+            end
+            -- # Special Rupture setup for Exsg
+            -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
+            if combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target")*0.5 < ttd("target") and debuff.rupture.remain("target") < 26 then
+                if cast.rupture("target") then return true end
+            end
         end
         -- actions.dot+=/pool_resource,for_next=1
         -- actions.dot+=/garrote,cycle_targets=1,if=(!talent.subterfuge.enabled|!(cooldown.vanish.up&cooldown.vendetta.remains<=4))&combo_points.deficit>=1&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(target.time_to_die-remains>4&spell_targets.fan_of_knives<=1|target.time_to_die-remains>12)
@@ -1323,14 +1325,13 @@ local function runRotation()
         if actionList_Extra() then return true end
 
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-            if fightRemain ~= nil then fightRemain = nil end
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
         if actionList_Opener() then return true end
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or mode.vanish == 1 or (validTarget and targetDistance < 5)))) and opener == true then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or (validTarget and targetDistance < 15)))) and opener == true then
             if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
@@ -1347,7 +1348,7 @@ local function runRotation()
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth
-            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() then
+            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not IsStealthed() and not inCombat and not cast.last.vanish() then
                 cast.stealth("player")
             end
             -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue

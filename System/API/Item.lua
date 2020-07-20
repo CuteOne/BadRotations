@@ -65,12 +65,26 @@ br.api.items = function(item,k,v,subtable)
             if slotID == nil then return canUseItem(v) else return canUseItem(slotID) end
         end
         -- br.player.use.able.slot()
-        use.able.slot = function(slotID)
-            return canUseItem(slotID)
+        if use.able.slot == nil then
+            use.able.slot = function(slotID)
+                return canUseItem(slotID)
+            end
+        end
+        if use.id == nil then
+            use.id = function(itemID)
+                if itemID == nil then return end
+                if canUseItem(itemID) then
+                    return useItem(itemID)
+                else
+                    return
+                end
+            end
         end
         -- br.player.use.slot()
-        use.slot = function(slotID)
-            if canUseItem(slotID) then return useItem(slotID) else return end
+        if use.slot == nil then 
+            use.slot = function(slotID)
+                if canUseItem(slotID) then return useItem(slotID) else return end
+            end
         end
     end
 end

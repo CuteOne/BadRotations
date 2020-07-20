@@ -187,12 +187,12 @@ function cl:common(...)
                     else
                         queueDest = destination
                     end
-                    if #br.player.queue == 0 and notOnCD then
+                    if br.player ~= nil and #br.player.queue == 0 and notOnCD then
                         tinsert(br.player.queue, {id = spell, name = spellName, target = queueDest})
                         if not isChecked("Mute Queue") then
                             Print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
                         end
-                    elseif #br.player.queue ~= 0 then
+                    elseif br.player ~= nil and #br.player.queue ~= 0 then
                         for i = 1, #br.player.queue do
                             if spell == br.player.queue[i].id then
                                 tremove(br.player.queue,i)

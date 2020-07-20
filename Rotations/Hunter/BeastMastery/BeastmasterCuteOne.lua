@@ -944,7 +944,7 @@ actionList.Cleave = function()
     end
     -- Multishot
     -- multishot,if=azerite.rapid_reload.enabled&active_enemies>2
-    if cast.able.multishot() and traits.rapidReload.active and not isExplosive("target") then
+    if cast.able.multishot() and traits.rapidReload.active and #enemies.yards40 > 2 and not isExplosive("target") then
         if cast.multishot() then return end
     end
     -- Cobra Shot

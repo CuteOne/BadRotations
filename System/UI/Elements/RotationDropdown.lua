@@ -30,11 +30,15 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
     newDropdown:SetValue(value)
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
-        br.data.settings[br.selectedSpec][text.."Drop"]  = key
-        br.data.settings[br.selectedSpec][text.."DropValue"]  = value
-        br.selectedProfile = key
-        br.selectedProfileName = value
+        if UnitAffectingCombat("player") then
+            Print("Unable to change profile in combat.  Please try again when combat ends.")
+        else
+            br.data.settings[br.selectedSpec][text.."Drop"] = key
+            br.data.settings[br.selectedSpec][text.."DropValue"] = value
+            br.selectedProfile = key
+            br.selectedProfileName = value
         -- br.ui:recreateWindows()
+        end
         br.rotationChanged = true
     end)
     -- Event: Tooltip

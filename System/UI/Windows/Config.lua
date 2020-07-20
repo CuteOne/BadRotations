@@ -117,7 +117,7 @@ function br.ui:createConfigWindow()
     local function callTrackerEngine()
         -- Main
         section = br.ui:createSection(br.ui.window.config, "Main Settings")
-        br.ui:createCheckbox(section,"Enable Tracker")
+        br.ui:createDropdown(section,"Enable Tracker", {"Default","Alternate"}, 1, "Use alternate drawing mode in DX11 if you experience issues with Default. You must type .enabledx at least once to enable EWT's DX Drawing. This is automatically saved by EWT.")
         br.ui:createCheckbox(section,"Draw Lines to Tracked Objects")
         br.ui:createCheckbox(section,"Auto Interact with Any Tracked Object")
         br.ui:createCheckbox(section, "Rare Tracker", "Track All Rares In Range")
@@ -143,7 +143,7 @@ function br.ui:createConfigWindow()
                 local i = 0      -- iterator variable
                 local iter = function ()   -- iterator function
                 i = i + 1
-                if a[i] == nil then 
+                if a[i] == nil then
                     return nil
                 else return a[i], t[a[i]]
                 end

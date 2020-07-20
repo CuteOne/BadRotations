@@ -36,6 +36,11 @@ local function createToggles()
         [2] = { mode = "On", value = 1, overlay = "Fury On", tip = "Always used.", highlight = 0, icon = br.player.spell.furyOfAir}
     };
     CreateButton("Fury",5,0)
+    SunderModes = {
+        [1] = { mode = "On", value = 1, overlay = "Sundering On", tip = "Auto Use", highlight = 1, icon = br.player.spell.sundering},
+        [2] = { mode = "Off", value = 1, overlay = "Sundering Off", tip = "Manual Use", highlight = 0, icon = br.player.spell.sundering}
+    };
+    CreateButton("Sunder",6,0)
 end
 
 ---------------
@@ -508,7 +513,7 @@ actionList.Priority = function()
     end
     -- Sundering
     -- sundering,if=active_enemies>=3&(!essence.blood_of_the_enemy.major|(essence.blood_of_the_enemy.major&(buff.seething_rage.up|cooldown.blood_of_the_enemy.remains>40)))
-    if cast.able.sundering() and activeEnemiesMore2 and (not essence.bloodOfTheEnemy.active
+    if mode.sunder == 1 and cast.able.sundering() and activeEnemiesMore2 and (not essence.bloodOfTheEnemy.active
         or (essence.bloodOfTheEnemy.active and (buff.seethingRage.exists() or cd.bloodOfTheEnemy.remain() > 40)))
     then
         if cast.sundering(nil,"rect",3,11) then return true end
@@ -659,7 +664,7 @@ end -- End Action List - Defualt Core
 actionList.Filler = function()
     -- Sundering
     -- sundering,if=active_enemies<3
-    if cast.able.sundering() and activeEnemiesLess3 then
+    if mode.sunder == 1 and cast.able.sundering() and activeEnemiesLess3 then
         if cast.sundering(nil,"rect",1,11) then return true end
     end
     -- Heart Essence - Focused Azerite Beam

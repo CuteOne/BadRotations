@@ -116,6 +116,7 @@ function BadRotationsUpdate(self)
 						if not isChecked("Mute Queue") then Print("BR Disabled! - Queue Cleared.") end
 					end
 					br.ui:closeWindow("all")
+					LibDraw.clearCanvas()
 					return false
 				elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
 					br.fallDist = getFallDistance() or 0
