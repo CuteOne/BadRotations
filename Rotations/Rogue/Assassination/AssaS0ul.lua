@@ -1167,7 +1167,7 @@ local function runRotation()
         if mode.exsang == 1 and talent.exsanguinate then
             -- # Special Garrote and Rupture setup prior to Exsanguinate cast
             -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
-            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
+            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1 and (enemies10 == 1 or isBoss()) and debuff.garrote.remain("target")*0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
                 if cast.garrote("target") then return true end
             end
             -- # Special Rupture setup for Exsg
