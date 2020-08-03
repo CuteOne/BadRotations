@@ -1075,6 +1075,9 @@ local function runRotation()
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList.Interrupts() then return true end
+            if isChecked("Shadowfury Key") and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
+                if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
+            end
              -----------------
             ---  AMR APL  ---
             -----------------
