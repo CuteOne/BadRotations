@@ -1,10 +1,13 @@
 -- Action List - Pet Management
+local currentTarget
 local fetching = false
 local fetchCount = 0
 local paused = false
 local pausekey = false
 local petCalled = false
 local petRevived = false
+local petui = {}
+
 br.rotations.support["PetCuteOne"] = function()
     local function getCurrentPetMode()
         local petMode = "None"
@@ -51,6 +54,7 @@ br.rotations.support["PetCuteOne"] = function()
     local petMode                                       = getCurrentPetMode()
     local validTarget                                   = UnitExists(br.petTarget) and (isValidUnit(br.petTarget) or isDummy()) --or (not UnitExists(br.petTarget) and isValidUnit("target")) or isDummy()
     local petTargetOp                                   = getOptionValue("Pet Target")
+    petui.debug                                         = br.addonDebug
 
     -- Units
     units.get(5)
@@ -69,26 +73,30 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
     -- Pet Target Modes
-    if br.petTarget == nil
+    if br.petTarget ~= nil and (not isValidUnit(br.petTarget) or not br.player.inCombat or not UnitExists(br.petTarget) or UnitIsDeadOrGhost(br.petTarget)) then 
+        br.petTarget = nil 
+        petui.debug("[Pet] Pet no longer has a target")
+    end
+    if (br.player.inCombat or petCombat) and (br.petTarget == nil
         or ((petTargetOp == 1 or petTargetOp == 3) and (not isValidUnit(br.petTarget)))
         or (petTargetOp == 2 and not UnitIsUnit(br.petTarget,"target"))
-        or petTargetOp == 4
+        or petTargetOp == 4)
     then
         if petTargetOp == 1 and units.dyn40 ~= nil and (br.petTarget == nil or not UnitIsUnit(units.dyn40,br.petTarget)) then
             br.petTarget = units.dyn40
-            -- Print("[Dynamic] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
+            petui.debug("[Pet - Target Mode Dynamic] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
-        if petTargetOp == 2 and isValidUnit("target") then
+        if petTargetOp == 2 and isValidUnit("target") and (br.petTarget == nil or not UnitIsUnit(br.petTarget,"target")) then
             br.petTarget = "target"
-            -- Print("[Only Target] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
+            petui.debug("[Pet - Target Mode Only Target] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
         if petTargetOp == 3 and enemies.yards40[1] ~= nil and (br.petTarget == nil or not UnitIsUnit(enemies.yards40[1],br.petTarget)) then
             br.petTarget = enemies.yards40[1]
-            -- Print("[Any Unit] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
+                petui.debug("[Pet - Target Mode Any Unit] Pet is now attacking - "..UnitName(br.petTarget).." | This is your target: "..tostring(UnitIsUnit("target",br.petTarget)))
         end
-        if petTargetOp == 4 then
+        if petTargetOp == 4 and UnitExists("pettarget") and (br.petTarget == nil or not UnitIsUnit(br.petTarget,"pettarget")) then
             br.petTarget = "pettarget"
-            -- Print("[Assist] Pet is now attacking - "..UnitName(br.petTarget).." | This is your pet's target: "..tostring(UnitIsUnit("pettarget",br.petTarget)))
+            petui.debug("[Pet - Target Mode Assist] Pet is now attacking - "..UnitName(br.petTarget).." | This is your pet's target: "..tostring(UnitIsUnit("pettarget",br.petTarget)))
         end
     end
 
@@ -120,28 +128,30 @@ br.rotations.support["PetCuteOne"] = function()
     end
 
     -- Pet Combat Modes
-    if isChecked("Auto Attack/Passive") then
-        -- Set Pet Modes
-        if petTargetOp == 4 and inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltPetProfile then
-            -- Print("Pet is now Assisting")
-            PetAssistMode()
-        elseif ((not inCombat and petMode == "Assist") or (inCombat and petTargetOp ~= 4)) and #enemies.yards40nc > 0 and not haltPetProfile then
-            -- Print("Pet is now Defending")
-            PetDefensiveMode()
-        elseif petMode ~= "Passive" and ((not inCombat and #enemies.yards40nc == 0) or haltPetProfile) then
-            -- Print("Pet is now Passive")
-            PetPassiveMode()
-        end
+    if isChecked("Auto Attack/Passive") and petActive and petExists then
+        -- -- Set Pet Modes
+        -- if petTargetOp == 4 and inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltPetProfile and petMode ~= "Assist" then
+        --     petui.debug("[Pet] Pet is now Assisting")
+        --     PetAssistMode()
+        -- elseif ((not inCombat and petMode == "Assist") or (inCombat and petTargetOp ~= 4)) and #enemies.yards40nc > 0 and not haltPetProfile and petMode ~= "Defensive" then
+        --     petui.debug("[Pet] Pet is now Defending")
+        --     PetDefensiveMode()
+        -- elseif petMode ~= "Passive" and ((not inCombat and #enemies.yards40nc == 0) or haltPetProfile) and petMode ~= "Passive" then
+        --     petui.debug("[Pet] Pet is now Passive")
+        --     PetPassiveMode()
+        -- end
         -- Pet Attack / Retreat
-        if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltPetProfile and br.petTarget ~= nil then
-            -- Print("Pet is now attacking "..tostring(UnitName(br.petTarget)))
+        if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltPetProfile and br.petTarget ~= nil and (currentTarget == nil or not UnitIsUnit(br.petTarget,currentTarget)) then
+            petui.debug("[Pet] Pet is now attacking "..tostring(UnitName(br.petTarget)))
             PetAttack(br.petTarget)
-        elseif (not inCombat or (inCombat and not isValidUnit(br.petTarget)) or haltPetProfile)
-            and IsPetAttackActive()
-        then
-            -- Print("Pet stopped attacking!")
+            currentTarget = br.petTarget
+        elseif (not inCombat or (inCombat and not isValidUnit(br.petTarget)) or haltPetProfile) and IsPetAttackActive() then
+            petui.debug("[Pet] Pet stopped attacking!")
             PetStopAttack()
-            if #enemies.yards40 == 0 or haltPetProfile then Print("Pet is now following, Enemies40: "..#enemies.yards40..", haltPetProfile: "..tostring(haltPetProfile)) PetFollow() end
+            if #enemies.yards40 == 0 or haltPetProfile then 
+                petui.debug("[Pet] Pet is now following, Enemies40: "..#enemies.yards40..", haltPetProfile: "..tostring(haltPetProfile)) 
+                PetFollow()
+            end
         end
     end
 
@@ -269,7 +279,7 @@ br.rotations.support["PetCuteOne"] = function()
                         cast.fetch("pet")
                         fetchCount = getLootableCount()
                         fetching = true
-                        -- Print("Pet is fetching loot! "..fetchCount.." loots found!")
+                        petui.debug("[Pet] Pet is fetching loot! "..fetchCount.." loots found!")
                         break
                     end
                 end
