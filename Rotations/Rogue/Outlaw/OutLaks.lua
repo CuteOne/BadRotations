@@ -548,7 +548,7 @@ local function rollthebones()
         rtb_reroll = buff_rollTheBones_count < 2 and (buff.loadedDice.exists() or buff.ruthlessPrecision.remains() <= cd.betweenTheEyes.remains())
     end
 
-    if br.player.traits.snakeeyes.rank >= 2 and buff.snakeeeyes.stack() >= (2 - buff.broadside.exists()) then
+    if br.player.traits.snakeeyes.rank >= 2 and buff.snakeeyes.stack() >= (2 - buff.broadside.exists()) then
         rtb_reroll = false
     end
     if (buff.bladeFlurry.exists() or #enemies > 1) then
@@ -856,9 +856,7 @@ actionList.dps = function()
 
     if combo >= real_def then
 
-
         --need to count buffs again here
-
 
         --   Print("Executing Finishers [" .. combo .. "/" .. real_def .. "]")
 
@@ -1275,48 +1273,7 @@ actionList.Defensive = function()
 
 
 
-        --aggro management
-        if isChecked("Aggro Management") and #br.friend > 1 and inCombat then
-            local tricksunit
-            local mob_count = #enemies.yards20
-            if mob_count > 6 then
-                mob_count = 6
-            end
-            for i = 1, mob_count do
-                if not isExplosive(enemies.yards20[i]) and UnitThreatSituation("player", enemies.yards20[i]) ~= nil and UnitThreatSituation("player", enemies.yards20[i]) > 0 then
-                    if isChecked("[AM] - Tricks") and cast.able.tricksOfTheTrade() and #br.friend > 1 then
-                        for i = 1, #br.friend do
-                            if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK"
-                                    and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight("player", br.friend[i].unit) and getDistance("player", br.friend[i].unit) < 25 then
-                                tricksunit = br.friend[i].unit
-                                break
-                            end
-                        end
-                        if tricksunit ~= nil then
-                            -- and getFacing(tricksunit, "player", 45) then
-                            if cast.tricksOfTheTrade(tricksunit) then
-                                br.addonDebug("[AM] - Tricks on: " .. tricksunit)
-                                return true
-                            end
-                        end
-                    end
-                    if not stealth then
-                        if isChecked("[AM] - Shadowmeld") and br.player.race == "NightElf" and cast.able.shadowmeld() and isChecked("Use Racial") and not cast.last.tricksOfTheTrade(1) then
-                            if cast.shadowmeld() then
-                                br.addonDebug("[AM] - Shadowmeld")
-                                return true
-                            end
-                        end
-                        if isChecked("[AM] - Vanish") and mode.vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
-                            if cast.vanish() then
-                                br.addonDebug("[AM] - Vanish")
-                                return true
-                            end
-                        end
-                    end
-                end
-            end
-        end
+
 
 
         -- vanish/cloak/riposte logic
@@ -1743,7 +1700,7 @@ local function runRotation()
 
     -- Profile Specific Locals
 
-
+    -- executed outside of gcd
     --We will check for interrupt whenever someone is casting (based on log)
     if someone_casting == true then
         if actionList.Interrupt() then
@@ -1812,6 +1769,47 @@ local function runRotation()
         dynamic_target_melee = units.dyn8
     else
         dynamic_target_melee = units.dyn5
+    end
+
+
+    --aggro management
+    if isChecked("Aggro Management") and #br.friend > 1 and inCombat then
+        local tricksunit
+        local mob_count = #enemies.yards20
+        if mob_count > 6 then
+            mob_count = 6
+        end
+        for i = 1, mob_count do
+            if not isExplosive(enemies.yards20[i]) and UnitThreatSituation("player", enemies.yards20[i]) ~= nil and UnitThreatSituation("player", enemies.yards20[i]) > 0 then
+                if isChecked("[AM] - Tricks") and cast.able.tricksOfTheTrade() and #br.friend > 1 and not buff.tricksOfTheTrade.exists() then
+                    for i = 1, #br.friend do
+                        if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK"
+                                and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight("player", br.friend[i].unit) and getDistance("player", br.friend[i].unit) < 25 then
+                            tricksunit = br.friend[i].unit
+                            break
+                        end
+                    end
+                    if tricksunit ~= nil then
+                        -- and getFacing(tricksunit, "player", 45) then
+                        if cast.tricksOfTheTrade(tricksunit) then
+                            br.addonDebug("[AM] - Tricks on: " .. tricksunit)
+                        end
+                    end
+                end
+                if not stealth then
+                    if isChecked("[AM] - Shadowmeld") and br.player.race == "NightElf" and cast.able.shadowmeld() and isChecked("Use Racial") and not cast.last.tricksOfTheTrade(1) then
+                        if cast.shadowmeld() then
+                            br.addonDebug("[AM] - Shadowmeld")
+                        end
+                    end
+                    if isChecked("[AM] - Vanish") and mode.vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
+                        if cast.vanish() then
+                            br.addonDebug("[AM] - Vanish")
+                        end
+                    end
+                end
+            end
+        end
     end
 
 
