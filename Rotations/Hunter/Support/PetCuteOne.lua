@@ -71,7 +71,7 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",true)
     enemies.get(40,"pet",true)
     enemies.get(40,"player",false,true)
-    enemies.get(40,"pet",false,true)
+    enemies.get(40,"pet")
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
     -- Pet Target Modes
