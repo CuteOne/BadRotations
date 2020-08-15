@@ -1202,13 +1202,6 @@ local function runRotation()
                 end
             end
         end
-        -- # Crimson Tempest only on multiple targets at 4+ CP when running out in 2s (up to 4 targets) or 3s (5+ targets)
-        -- actions.dot+=/crimson_tempest,if=spell_targets>3&remains<2+(spell_targets>=5)&combo_points>=4
-        local crimsonTargets
-        if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-        if talent.crimsonTempest and enemies10 >= 3  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
-            if cast.crimsonTempest("player") then return true end
-        end
         -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
         -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
         if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end	
@@ -1218,10 +1211,20 @@ local function runRotation()
          and (not talent.exsanguinate or not exCrimsonTempest) and not debuff.toxicBlade.exists("target") and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists() or mode.exsang == 2) then
             if cast.crimsonTempest("player") then return true end
         end
+        -- # Crimson Tempest on multiple targets at 4+ CP when running out in 2-3s (based on target count) on any target
+        -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>3&remains<2+(spell_targets>=5)&combo_points>=4
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
-        -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>1&spell_targets<4&remains<2&combo_points>=4
-        if talent.crimsonTempest and not queenBuff and enemies10 > 1 and enemies10 < 4 and combo >= 4 and debuff.crimsonTempest.remain(units.dyn5) < 2 then
-            if cast.crimsonTempest("player") then return true end
+        --actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>1&spell_targets<4&remains<2&combo_points>=4
+        if talent.crimsonTempest and not queenBuff and enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists() then
+            local crimsonTargets
+            if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
+            for i = 1, #enemyTable10 do
+                local thisUnit = enemyTable5[i].unit
+                local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
+                if ((enemies10 >= 3 and crimsonRemain < (2+crimsonTargets)) or (enemies10 < 4 and crimsonRemain < 2)) and combo >= 4 then
+                    if cast.crimsonTempest("player") then return true end
+                end
+            end
         end
         -- # Cast Crimson Tempest on AoE instead of Envenom at 7+ targets when Vendetta/TB is not up
         -- actions.dot+=/crimson_tempest,if=spell_targets>(7-buff.envenom.up)&combo_points>=4+talent.deeper_stratagem.enabled&!debuff.vendetta.up&!debuff.toxic_blade.up&!azerite.twist_the_knife.enabled&energy.deficit<=25+variable.energy_regen_combined
