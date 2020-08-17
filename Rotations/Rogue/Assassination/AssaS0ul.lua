@@ -1170,12 +1170,12 @@ local function runRotation()
         if mode.exsang == 1 and talent.exsanguinate then
             -- # Special Garrote and Rupture setup prior to Exsanguinate cast
             -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
-            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1 and (enemies10 == 1 or isBoss()) and debuff.garrote.remain("target")*0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
+            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1.5 and debuff.garrote.remain("target") * 0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
                 if cast.garrote("target") then return true end
             end
             -- # Special Rupture setup for Exsg
             -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
-            if combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target")*0.5 < ttd("target") and debuff.rupture.remain("target") < 26 then
+            if combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target") * 0.5 < ttd("target") and debuff.rupture.remain("target") < 26 then
                 if cast.rupture("target") then return true end
             end
         end
@@ -1219,8 +1219,9 @@ local function runRotation()
             local crimsonTargets
             if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
             for i = 1, #enemyTable10 do
-                local thisUnit = enemyTable5[i].unit
+                local thisUnit = enemyTable10[i].unit
                 local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
+                --print("crimson Targets: " .. tostring(crimsonTargets) .. " crimson Remain: " .. tostring(crimsonRemain))
                 if ((enemies10 >= 3 and crimsonRemain < (2+crimsonTargets)) or (enemies10 < 4 and crimsonRemain < 2)) and combo >= 4 then
                     if cast.crimsonTempest("player") then return true end
                 end
