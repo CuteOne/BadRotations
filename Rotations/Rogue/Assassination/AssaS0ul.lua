@@ -1208,7 +1208,7 @@ local function runRotation()
         if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end	
         if exsanguinateCast and debuff.crimsonTempest.exists("target") then exCrimsonTempest = true end	
         if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end	
-        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and debuff.rupture.exists("target") and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and not GetObjectID("target") == 157620
+        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and debuff.rupture.exists("target") and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") and GetObjectID("target") ~= 157620
          and (not talent.exsanguinate or not exCrimsonTempest) and not debuff.toxicBlade.exists("target") and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists() or mode.exsang == 2) then
             if cast.crimsonTempest("player") then return true end
         end
@@ -1216,7 +1216,7 @@ local function runRotation()
         -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>3&remains<2+(spell_targets>=5)&combo_points>=4
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
         --actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>1&spell_targets<4&remains<2&combo_points>=4
-        if talent.crimsonTempest and not queenBuff and enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists() and not GetObjectID("target") == 157620 then
+        if talent.crimsonTempest and not queenBuff and enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists() and GetObjectID("target") ~= 157620 then
             local crimsonTargets
             if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
             for i = 1, #enemyTable10 do
@@ -1232,7 +1232,7 @@ local function runRotation()
         -- actions.dot+=/crimson_tempest,if=spell_targets>(7-buff.envenom.up)&combo_points>=4+talent.deeper_stratagem.enabled&!debuff.vendetta.up&!debuff.toxic_blade.up&!azerite.twist_the_knife.enabled&energy.deficit<=25+variable.energy_regen_combined
         if buff.envenom.exists() then buffEnvenom = 1 else buffEnvenom = 0 end
         if talent.crimsonTempest and not queenBuff and enemies10 > (7 - buffEnvenom) and combo >= (4 + dSEnabled) and not debuff.vendetta.exists("target") and 
-         not debuff.toxicBlade.exists("target") and not trait.twistTheKnife.activede and energyDeficit > (25 + energyRegenCombined) and not GetObjectID("target") == 157620 then
+         not debuff.toxicBlade.exists("target") and not trait.twistTheKnife.activede and energyDeficit > (25 + energyRegenCombined) and GetObjectID("target") ~= 157620 then
             if cast.crimsonTempest("player") then return true end
         end
 
