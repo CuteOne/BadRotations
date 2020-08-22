@@ -80,7 +80,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 130007302020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 135008222020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -798,6 +798,7 @@ end
 --dps()
 actionList.dps = function()
 
+
     bte_condition = buff.ruthlessPrecision.exists() or (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and buff_rollTheBones_count >= 1
 
     if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
@@ -854,14 +855,9 @@ actionList.dps = function()
     -- Print("Our current # buffs that reflects on combo points:" .. tostring(buff_count()))
     -- Print("Combo: " .. combo .. " Execute at: " .. (tostring(comboMax - buff_count())))
 
-    if combo >= real_def then
-
-        --need to count buffs again here
-
-        --   Print("Executing Finishers [" .. combo .. "/" .. real_def .. "]")
+    if combo >= real_def or cast.last.markedForDeath(1) then
 
         buff_rollTheBones_count = 0
-
         if br.timer:useTimer("recount_buffrolls", 1) then
             for k, v in pairs(br.player.spell.buffs.rollTheBones) do
                 if UnitBuffID("player", v) ~= nil then
@@ -1717,11 +1713,11 @@ local function runRotation()
 
     --marked for death
     --marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
-    if talent.markedForDeath and cast.able.markedForDeath() and not stealth and (real_def >= comboMax - 1) then
+    if talent.markedForDeath and cast.able.markedForDeath() and not stealth and (combo_max >= 4) then
         --lets find the lowest health mob to cast this on
+        local unit_health = UnitHealth(enemies.yards8[1])
+        local mfd_target = enemies.yards8[1]
         for i = 1, #enemies.yards8 do
-            local unit_health = UnitHealth(enemies.yards8[1])
-            local mfd_target = enemies.yards8[1]
             if UnitHealth(enemies.yards8[i]) < unit_health then
                 unit_health = UnitHealth(enemies.yards8[i])
                 mfd_target = enemies.yards8[i]
@@ -1771,6 +1767,11 @@ local function runRotation()
         dynamic_target_melee = units.dyn5
     end
 
+    --if buff.bladeFlurry.exists() then
+    --    local playerX, playerY, playerZ = GetObjectPosition("player")
+    --    LibDraw.SetColorRaw(1, 0, 0, 1)
+    --    LibDraw.Circle(playerX, playerY, playerZ, 8)
+    --end
 
     --aggro management
     if isChecked("Aggro Management") and #br.friend > 1 and inCombat then
