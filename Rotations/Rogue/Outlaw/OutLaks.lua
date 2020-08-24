@@ -91,7 +91,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Cheap Shot", "Will use cheap shot")
         br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
         br.ui:createSpinner(section, "Pistol Spam", 50, 0, 100, 1, "", "Min Energy to spam pistol shots")
-
+        br.ui:createDropdownWithout(section, "Draw Range", { "Never", "Blade Flurry", "always" }, 1, "Draw range on screen")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -1713,7 +1713,7 @@ local function runRotation()
 
     --marked for death
     --marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
-    if talent.markedForDeath and cast.able.markedForDeath() and not stealth and (combo_max >= 4) then
+    if #enemies.yards8 > 0 and talent.markedForDeath and cast.able.markedForDeath() and not stealth and (comboDeficit >= 4) then
         --lets find the lowest health mob to cast this on
         local unit_health = UnitHealth(enemies.yards8[1])
         local mfd_target = enemies.yards8[1]
@@ -1767,12 +1767,13 @@ local function runRotation()
         dynamic_target_melee = units.dyn5
     end
 
-    --if buff.bladeFlurry.exists() then
-    --    local playerX, playerY, playerZ = GetObjectPosition("player")
-    --    LibDraw.SetColorRaw(1, 0, 0, 1)
-    --    LibDraw.Circle(playerX, playerY, playerZ, 8)
-    --end
-
+    --        br.ui:createDropdown(section, "Draw Range", { "Never", "Blade Flurry", "always" }, 1, "Draw range on screen")
+    if inCombat and getOptionValue("Draw Range") == 3 or getOptionValue("Draw Range") == 2 and buff.bladeFlurry.exists() then
+        local draw_range = talent.acrobaticStrikes and 8 or 5
+        local playerX, playerY, playerZ = GetObjectPosition("player")
+        LibDraw.SetColorRaw(1, 0, 0, 1)
+        LibDraw.Circle(playerX, playerY, playerZ, draw_range)
+    end
     --aggro management
     if isChecked("Aggro Management") and #br.friend > 1 and inCombat then
         local tricksunit
