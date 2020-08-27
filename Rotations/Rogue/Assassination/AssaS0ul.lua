@@ -705,7 +705,7 @@ local function runRotation()
             end
             -- Corruption stuff
             -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
-            if php <= getOptionValue("Corruption Immunity") and not IsMounted() then
+            if php <= getOptionValue("Corruption Immunity") and not IsMounted() and cd.global.remain() == 0 then
                 if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
                     if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                         or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
@@ -734,7 +734,7 @@ local function runRotation()
                                 local x1, y1, z1 = ObjectPosition("player")
                                 local x2, y2, z2 = ObjectPosition(object)
                                 local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                                if distance <= 10 then
+                                if distance <= 15 and object ~= nil then
                                     if cast.blind(object) then return end
                                 end
                             end
@@ -958,7 +958,7 @@ local function runRotation()
                 end
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target or with SS just overwrite
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and not debuff.vendetta.exists("target") and debuff.garrote.refresh("target")) or (sSActive and debuff.garrote.remain("target") < 18 and not debuff.vendetta.exists("target"))) and comboDeficit >= (1+2*sSActive) then
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and debuff.garrote.refresh("target") or debuff.vendetta.exists("target") and debuff.garrote.applied("target") <= 1) or (sSActive and not debuff.vendetta.exists("target"))) and not debuff.garrote.exsang("target") and comboDeficit >= (1+2*sSActive) then
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
@@ -1131,7 +1131,7 @@ local function runRotation()
             end
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit)) then
+                if getFacing("player", thisUnit) and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit)) then
                     if cast.mutilate(thisUnit) then return true end
                 end
             end
@@ -1192,7 +1192,7 @@ local function runRotation()
                     local thisUnit = enemyTable5[i].unit
                     local garroteRemain = debuff.garrote.remain(thisUnit)
                     if ((garroteRemain == 0 and garroteCount < getOptionValue("Multidot Limit")) or (garroteRemain > 0 and garroteCount <= getOptionValue("Multidot Limit"))) and
-                    debuff.garrote.refresh(thisUnit) and
+                    debuff.garrote.refresh(thisUnit) and getFacing("player", thisUnit) and
                     (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
                     (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
                     (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
@@ -1242,7 +1242,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local ruptureRemain = debuff.rupture.remain(thisUnit)
-                if debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= (3 + sSActive))) and
+                if getFacing("player", thisUnit) and debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= (3 + sSActive))) and
                 (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= (3 + sSActive))) and (enemyTable5[i].ttd-ruptureRemain)>4 then
                     if cast.rupture(thisUnit) then return true end
                 end
@@ -1262,7 +1262,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if shallWeDot(thisUnit) and garroteRemain <= 5.4 and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 and not vanishCheck then
+                if shallWeDot(thisUnit) and garroteRemain <= 5.4 and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 and not vanishCheck and getFacing("player", thisUnit) then
                     if cast.pool.garrote() then return true end
                     if cast.garrote(thisUnit) then return true end
                 end
@@ -1274,7 +1274,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if debuff.garrote.exists(thisUnit) and (garroteRemain <= 12 or debuff.garrote.applied(thisUnit) <= 1) and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                if debuff.garrote.exists(thisUnit) and (garroteRemain <= 12 or debuff.garrote.applied(thisUnit) <= 1) and not debuff.garrote.exsang(thisUnit) and (enemyTable5[i].ttd - garroteRemain) > 2 and getFacing("player", thisUnit) then
                     if cast.pool.garrote() then return true end
                     if cast.garrote(thisUnit) then return true end
                 end
@@ -1306,7 +1306,9 @@ local function runRotation()
                         return x.garroteRemain < y.garroteRemain
                     end)
                     for i = 1, #garroteTable do
-                        if cast.garrote(garroteTable[i].unit) then return true end
+                        if getFacing("player", garroteTable[i].unit) then
+                            if cast.garrote(garroteTable[i].unit) then return true end
+                        end
                     end
                 else
                     if not vanishCheck then
