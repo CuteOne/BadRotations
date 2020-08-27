@@ -1063,7 +1063,7 @@ local function runRotation()
         end
         -- # Special Exsanguinate when we have more enemies around (simc)
         -- actions.cds+=/exsanguinate,if=!stealthed.rogue&(!dot.garrote.refreshable&dot.rupture.remains>4+4*cp_max_spend|dot.rupture.remains*0.5>target.time_to_die)&target.time_to_die>4
-        if mode.exsang == 1 and enemies10 > 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 15 and 
+        if mode.exsang == 1 and enemies10 > 1 and not isBoss() and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 15 and 
          (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 and (not cast.last.vanish(1) and not cast.last.vanish(2)) then
             if cast.exsanguinate("target") then return true end
         end
