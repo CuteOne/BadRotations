@@ -93,22 +93,7 @@ function BadRotationsUpdate(self)
 		return false
 	else 
 		if br.unlocked and GetObjectCountBR() ~= nil then
-			if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
-				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-				if brlocVersion and brcurrVersion then
-					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-					brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-					 if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
-						local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
-						if isChecked("Overlay Messages") then
-							RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
-						else
-							Print(msg)
-						end
-					end
-					brUpdateTimer = GetTime()
-				end
-			end
+			checkBrOutOfDate() -- Check BR Out of Date
 			if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then 

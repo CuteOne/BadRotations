@@ -133,3 +133,45 @@ function loadUnlockerAPI()
 
     return unlocked
 end
+
+-- Checks for BR Out of Date with current version based on TOC file
+local brlocVersion = GetAddOnMetadata("BadRotations","Version")
+local brcurrVersion
+local brUpdateTimer
+function checkBrOutOfDate()
+    if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
+        -- Request Current Version from GitHub
+        if EasyWoWToolbox ~= nil then
+            print("BR - Checking Current Version")
+            SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+        elseif wmbapi then
+            local info = {
+            Url = 'https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc',
+            Method = 'GET'
+            }
+            if not brlocVersionRequest then
+                brlocVersionRequest = SendHTTPRequest(info)
+            else
+                brlocVersionStatus, brlocVersionResponce = wmbapi.ReceiveHttpResponse(brlocVersionRequest)
+                if brlocVersionResponce then
+                    brcurrVersion = string.match(brlocVersionResponce.Body, "(%d+%p%d+%p%d+)")
+                end
+            end
+        end
+        -- Check against current version installed
+        if brlocVersion and brcurrVersion then
+            brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+            brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+            print("BR - Comparing Current Version")
+            if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+                local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
+                if isChecked("Overlay Messages") then
+                    RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
+                else
+                    Print(msg)
+                end
+            end
+            brUpdateTimer = GetTime()
+        end
+    end
+end
