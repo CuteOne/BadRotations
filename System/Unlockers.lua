@@ -141,10 +141,9 @@ local brUpdateTimer
 function checkBrOutOfDate()
     if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
         -- Request Current Version from GitHub
-        if EasyWoWToolbox ~= nil then
-            print("BR - Checking Current Version")
+        if EasyWoWToolbox ~= nil then -- EWT
             SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-        elseif wmbapi then
+        elseif wmbapi ~= nil then -- MB
             local info = {
             Url = 'https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc',
             Method = 'GET'
@@ -162,7 +161,6 @@ function checkBrOutOfDate()
         if brlocVersion and brcurrVersion then
             brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
             brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-            print("BR - Comparing Current Version")
             if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
                 local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
                 if isChecked("Overlay Messages") then
