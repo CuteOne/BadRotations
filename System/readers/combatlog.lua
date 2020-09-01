@@ -644,17 +644,19 @@ function cl:Priest(...)
         discHealCount = 0
     end
     if sourceName == UnitName("player") then
-        local thisUnit = GetObjectWithGUID(destination)
-        if thisUnit~=nil and param == "SPELL_CAST_SUCCESS" and (UnitIsFriend(thisUnit,"player") or UnitIsUnit(thisUnit,"player")) then
-            --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
-            Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
-            Print("Adding 1 to heal counter") ]]
-            discHealCount = discHealCount + 1
-        elseif thisUnit ~= nil and param == "SPELL_CAST_SUCCESS" and not UnitIsFriend(thisUnit, "player") then
-            --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
-            Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
-            Print("Resetting Heal Count") ]]
-            discHealCount = 0
+        if EWT ~= nil then
+            local thisUnit = GetObjectWithGUID(destination)
+            if thisUnit~=nil and param == "SPELL_CAST_SUCCESS" and (UnitIsFriend(thisUnit,"player") or UnitIsUnit(thisUnit,"player")) then
+                --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
+                Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
+                Print("Adding 1 to heal counter") ]]
+                discHealCount = discHealCount + 1
+            elseif thisUnit ~= nil and param == "SPELL_CAST_SUCCESS" and not UnitIsFriend(thisUnit, "player") then
+                --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
+                Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
+                Print("Resetting Heal Count") ]]
+                discHealCount = 0
+            end
         end
     end
 end
