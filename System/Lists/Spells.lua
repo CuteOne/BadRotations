@@ -2051,6 +2051,7 @@ br.lists.spells = {
                 symbolOfHope                = 64901,
             },
             debuffs                         = {
+                weakenedSoul                = 6788,
                 purgeTheWicked              = 204213,
                 schism                      = 214621,
                 shadowWordPain              = 589,
@@ -2130,6 +2131,7 @@ br.lists.spells = {
                 spiritOfRedemption          = 27827,
             },
             debuffs                         = {
+
 
             },
             glyphs                          = {
@@ -3473,6 +3475,7 @@ br.lists.spells = {
                 greaterFlaskOfEndlessFathoms    = 298837,
                 guidingHand                     = 242622, -- from The Deceiver's Grand Design
                 heroism                         = 32182,
+                ineffableTruth                  = 316801,
                 latentArcana                    = 296962,
                 netherwinds                     = 160452,
                 norgannonsForesight             = 236373,

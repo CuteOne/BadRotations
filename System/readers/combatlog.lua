@@ -640,6 +640,23 @@ function cl:Priest(...)
         lastVTTarget = destination
         lastVTTime = GetTime()
     end
+    if not discHealCount then
+        discHealCount = 0
+    end
+    if sourceName == UnitName("player") then
+        local thisUnit = GetObjectWithGUID(destination)
+        if thisUnit~=nil and param == "SPELL_CAST_SUCCESS" and (UnitIsFriend(thisUnit,"player") or UnitIsUnit(thisUnit,"player")) then
+            --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
+            Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
+            Print("Adding 1 to heal counter") ]]
+            discHealCount = discHealCount + 1
+        elseif thisUnit ~= nil and param == "SPELL_CAST_SUCCESS" and not UnitIsFriend(thisUnit, "player") then
+            --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
+            Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
+            Print("Resetting Heal Count") ]]
+            discHealCount = 0
+        end
+    end
 end
 function cl:Paladin(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
@@ -837,6 +854,11 @@ function cl:Warrior(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     ----------------------------------
     --[[ Bleed Recorder (Warrior) --]]
+    if destName == UnitName("player") then
+        reflectPlayer = true
+    elseif br.timer:useTimer("reflect reset", 0.8) then
+        reflectPlayer = false
+    end
     if GetSpecialization("player") == 1 then
         -- snapshot on spellcast
         if source == br.guid and param == "SPELL_CAST_SUCCESS" then
