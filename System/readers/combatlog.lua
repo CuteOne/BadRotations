@@ -644,7 +644,7 @@ function cl:Priest(...)
         discHealCount = 0
     end
     if sourceName == UnitName("player") then
-        if EWT ~= nil then
+        if br.unlocked then
             local thisUnit = GetObjectWithGUID(destination)
             if thisUnit~=nil and param == "SPELL_CAST_SUCCESS" and (UnitIsFriend(thisUnit,"player") or UnitIsUnit(thisUnit,"player")) then
                 --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
