@@ -1,5 +1,7 @@
 local rotationName = "PangDisc"
 
+-- Version: 1350-02-09-2020
+
 local function createToggles()
     -- Cooldown Button
     CooldownModes = {
