@@ -78,6 +78,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Penance Heal", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Pain Suppression Tank", 30, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Pain Suppression Party", 30, 0, 100, 5, "Health Percent to Cast At")
+        if br.player.level < 28 then
+            br.ui:createSpinner(section, "Low Level Flash Heal",60, 0, 100, 5)
+        end
 
         br.ui:checkSectionState(section)
         -------------------------
@@ -217,11 +220,6 @@ local function runRotation()
 
 
     if isChecked("Enemy Target Lock") then
-        if #enemies.yards30 ~= nil then
-            if not UnitExists("target") then
-                TargetUnit(enemies.yards30[1])
-            end
-        end
         if (UnitIsFriend("target", "player") or UnitIsDeadOrGhost("target")) then
             TargetLastEnemy()
         end
@@ -474,7 +472,7 @@ local function runRotation()
                 end
             end
         end
-        if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", math.random(120, 300)) then
+        if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", math.random(20, 50)) then
             for i = 1, #br.friend do
                 if not buff.powerWordFortitude.exists(br.friend[i].unit, "any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                     if cast.powerWordFortitude() then
@@ -488,20 +486,23 @@ local function runRotation()
     local function HealingTime()
         -- Atonement Key
         if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
-            if not buff.atonement.exists(thisUnit) then
-                if notAtoned >= getOptionValue("Minimum PWR Targets") and not isMoving("player") then
-                    if cast.powerWordRadiance(thisUnit) then 
-                        return
-                    end
-                elseif notAtoned <= getOptionValue("Minimum PWR Targets") or charges.powerWordRadiance.frac() < 1 then
-                    if cast.powerWordShield(thisUnit) then
-                        return
+            for i = 1, #br.friend do
+                local thisUnit = br.friend[i].unit
+                if not buff.atonement.exists(thisUnit) then
+                    if notAtoned >= getOptionValue("Minimum PWR Targets") and not isMoving("player") then
+                        if cast.powerWordRadiance(thisUnit) then 
+                            return true
+                        end
+                    elseif notAtoned <= getOptionValue("Minimum PWR Targets") or charges.powerWordRadiance.frac() < 1 and not debuff.weakenedSoul.exists(thisUnit) then
+                        if cast.powerWordShield(thisUnit) then
+                            return true
+                        end
                     end
                 end
-            end
-            if isChecked("Evangelism") and atonementCount >= getOptionValue("Atonement for Evangelism") and (charges.powerWordRadiance.count() == 0 or notAtoned <= getOptionValue("Minimum PWR Targets")) then
-                if cast.evangelism() then
-                    return
+                if isChecked("Evangelism") and atonementCount >= getOptionValue("Atonement for Evangelism") and (charges.powerWordRadiance.count() == 0 or notAtoned <= getOptionValue("Minimum PWR Targets")) then
+                    if cast.evangelism() then
+                        return true
+                    end
                 end
             end
         end
@@ -512,13 +513,13 @@ local function runRotation()
                     if maxAtonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                         if getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then
-                                return
+                                return true
                             end
                         end
                     end
                     if maxAtonementCount >= getValue("Max Atonements") then
                         if cast.powerWordShield(lowest.unit) then
-                            return
+                            return true
                         end
                     end
                 end
@@ -526,14 +527,14 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if not buff.atonement.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
                         if cast.powerWordShield(br.friend[i].unit) then
-                            return
+                            return true
                         end
                     end
                 end
                 for i = 1, #br.friend do
                     if getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
                         if cast.powerWordShield(br.friend[i].unit) then
-                            return
+                            return true
                         end
                     end
                 end
@@ -543,7 +544,7 @@ local function runRotation()
         if isChecked("Evangelism") and talent.evangelism and (atonementCount >= getValue("Atonement for Evangelism") or (not inRaid and atonementCount >= 3)) and not buff.rapture.exists("player") then
             if getLowAllies(getValue("Evangelism")) >= getValue("Evangelism Targets") then
                 if cast.evangelism() then
-                    return
+                    return true
                 end
             end
         end
@@ -554,7 +555,7 @@ local function runRotation()
                     for i = 1, #br.friend do
                         if not buff.atonement.exists(br.friend[i].unit) and br.friend[i].hp <= getValue("Power Word: Radiance") and not isMoving("player") then
                             if cast.powerWordRadiance(br.friend[i].unit) then
-                                return
+                                return true
                             end
                         end
                     end
@@ -565,14 +566,14 @@ local function runRotation()
         if isChecked("Shadow Covenant") and talent.shadowCovenant then
             if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") then
                 if cast.shadowCovenant(lowest.unit) then
-                    return
+                    return true
                 end
             end
         end
 
-        if (isChecked("Penance Heal") and talent.contrition and atonementCount >= 3) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) then
+        if (isChecked("Penance Heal") and talent.contrition and atonementCount >= 3) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) or level < 28 and lowest.hp < getOptionValue("Penance Heal") then
             if cast.penance(lowest.unit) then
-                return
+                return true
             end
         end
 
@@ -580,24 +581,34 @@ local function runRotation()
             for i = 1, #br.friend do
                 if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or not IsInRaid())) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) then
                     if cast.shadowMend(br.friend[i].unit) then
-                        return
+                        return true
                     end
                 end
             end
         end
 
         for i = 1, #tanks do
-            if (tanks[i].hp <= getOptionValue("Tank Atonement HP") or getValue("Tank Atonement HP") == 100) and not buff.atonement.exists(tanks[i].unit) then
+            if (tanks[i].hp <= getOptionValue("Tank Atonement HP") or getValue("Tank Atonement HP") == 100) and not buff.atonement.exists(tanks[i].unit) and not debuff.weakenedSoul.exists(tanks[i].unit) then
                 if cast.powerWordShield(tanks[i].unit) then
-                    return
+                    return true
                 end
             end
         end
 
         for i = 1, #br.friend do
-            if (br.friend[i].hp <= getOptionValue("Party Atonement HP") or getOptionValue("Party Atonement HP") == 100) and not buff.atonement.exists(br.friend[i].unit) and (maxAtonementCount < getValue("Max Atonements") or not isChecked("Obey Atonement Limits")) then
+            if (br.friend[i].hp <= getOptionValue("Party Atonement HP") or getOptionValue("Party Atonement HP") == 100) and not debuff.weakenedSoul.exists(br.friend[i].unit) and not buff.atonement.exists(br.friend[i].unit) and (maxAtonementCount < getValue("Max Atonements") or not isChecked("Obey Atonement Limits")) then
                 if cast.powerWordShield(br.friend[i].unit) then
-                    return
+                    return true
+                end
+            end
+        end
+
+        if level < 28 then
+            for i = 1, #br.friend do
+                if isChecked("Low Level Flash Heal") and br.friend[i].hp <= getOptionValue("Low Level Flash Heal") then
+                    if cast.flashHeal(br.friend[i].unit) then
+                        return true
+                    end
                 end
             end
         end
@@ -710,7 +721,7 @@ local function runRotation()
     else
         if not inCombat then
             if isChecked("Heal OoC") then
-                if HealingTime() then return end
+                if HealingTime() then return true end
             end
             if Extrastuff() then return end
             if Dispelstuff() then return end
@@ -721,7 +732,7 @@ local function runRotation()
             if DefensiveTime() then return end
             if CooldownTime() then return end
             if discHealCount < getOptionValue("Heal Counter") or not isChecked("Heal Counter") then
-                if HealingTime() then return end
+                if HealingTime() then return true end
             end
             if DamageTime() then return end
         end
