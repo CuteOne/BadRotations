@@ -258,12 +258,12 @@ local function runRotation()
     local garroteCount = 0
 
     if isChecked("Auto Target Burn Units") then
-        enemies.get(5, nil, nil, nil, spell.kick)
+        enemies.get(5, nil, nil, nil)
     end
-    enemies.get(15, nil, nil, nil, spell.blind)
-    enemies.get(15,"player",true, nil, spell.blind)
+    enemies.get(15, nil, nil, nil)
+    enemies.get(15,"player",true, nil)
     enemies.get(25,"player", true) -- makes enemies.yards25nc
-    enemies.get(30, nil, nil, nil, spell.poisonedKnife)
+    enemies.get(30, nil, nil, nil)
 
     if timersTable then
         wipe(timersTable)
@@ -545,12 +545,12 @@ local function runRotation()
     local ctenemies10 = #enemyTable10
     if isChecked("Ignore Blacklist for FoK/CT") and mode.rotation ~= 2 then
         if getOptionValue("Ignore Blacklist for FoK/CT") == 1 then --Both
-            fokenemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
-            ctenemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
+            fokenemies10 = #enemies.get(10, nil, nil, nil)
+            ctenemies10 = #enemies.get(10, nil, nil, nil)
         elseif getOptionValue("Ignore Blacklist for FoK/CT") == 2 then --Fan of Knifes
-            fokenemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
+            fokenemies10 = #enemies.get(10, nil, nil, nil)
         elseif getOptionValue("Ignore Blacklist for FoK/CT") == 3 then --CT
-            ctenemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
+            ctenemies10 = #enemies.get(10, nil, nil, nil)
         end
     end
 
@@ -600,7 +600,6 @@ local function runRotation()
             [120651]=true, -- Explosive
             [136330]=true, -- Soul Thorns Waycrest Manor
             [134388]=true, -- A Knot of Snakes
-            --[159578]=true, -- Exposed Synapse
         }
         if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (not isChecked("Dot Players") and UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
             if combo > 0 and GetObjectID("target") == 134388 then
@@ -849,22 +848,16 @@ local function runRotation()
 
     local function actionList_PreCombat()
         -- actions.precombat+=/potion
-        -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
-
-        -- # Precombat Font_of_Azshara (channel time 4 seconds), Prepots
-        if isChecked("Trinkets") and isChecked("Precombat") and pullTimer <= 6 then
-            if hasEquiped(169314) and canUseItem(169314) then
-                useItem(169314)
-                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
-                    use.superiorBattlePotionOfAgility()
-                    return true
-                elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
-                    use.potionOfUnbridledFury()
-                    return true
-                elseif getOptionValue("Potion") == 3 and use.able.potionOfFocusedResolve() and not buff.potionOfFocusedResolve.exists() then
-                    use.potionOfFocusedResolve() 
-                    return true
-                end
+        if isChecked("Precombat") and pullTimer <= 1.5 then
+            if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
+                use.superiorBattlePotionOfAgility()
+                return true
+            elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
+                use.potionOfUnbridledFury()
+                return true
+            elseif getOptionValue("Potion") == 3 and use.able.potionOfFocusedResolve() and not buff.potionOfFocusedResolve.exists() then
+                use.potionOfFocusedResolve() 
+                return true
             end
         end
     end
@@ -1350,7 +1343,7 @@ local function runRotation()
             if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
-            --pre mfd
+            -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
             if stealth and comboDeficit > 2 and talent.markedForDeath and validTarget and targetDistance < 5 then
                 if cast.markedForDeath("target") then
                     combo = comboMax
