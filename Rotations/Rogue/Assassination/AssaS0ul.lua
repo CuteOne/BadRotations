@@ -82,17 +82,17 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
             br.ui:createDropdown(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply")
-            br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000025 Yards"},  1, "Auto stealth mode")
-            br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target" )
+            br.ui:createDropdown(section, "Auto Stealth", {"Always", "25 Yards"},  1, "Auto stealth mode")
+            br.ui:createDropdown(section, "Auto Tricks", {"Focus", "Tank"},  1, "Tricks of the Trade target" )
             br.ui:createCheckbox(section, "Auto Target", "Will auto change to a new target, if current target is dead")
             br.ui:createCheckbox(section, "Auto Target Burn Units", "Will auto change target to high prio units if they are in range")
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "Check to ignore certain units when multidotting")
-            br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "Max units to dot with garrote.")
-            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "|cffFFFFFFUse Poisoned Knife out of range.")
+            br.ui:createSpinnerWithout(section,  "Multidot Limit",  5,  0,  8,  1,  "Max units to dot with garrote.")
+            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "Use Poisoned Knife out of range.")
             br.ui:createDropdown(section, "Ignore Blacklist for FoK/CT", {"Both","FoK","CT",}, 1, "Ignore blacklist for Fan of Knives and/or Crimson Tempest usage")
-            br.ui:createSpinner(section,  "Disable Garrote on # Units",  7,  1,  20,  1,  "Max units within 10 yards for garrote usage outside stealth (FoK spam)")
+            br.ui:createSpinner(section,  "Disable Garrote on # Units",  5,  1,  20,  1,  "Max units within 10 yards for garrote usage outside stealth (FoK spam)")
             br.ui:createCheckbox(section, "Dot Players", "Check to dot player targets (MC ect.)")
             br.ui:createSpinner(section,  "Focused Azerite Beam",  3,  1,  10,  1,  "Min. units hit to use Focused Azerite Beam")
             br.ui:createCheckbox(section, "Ignore Azerite Beam Units During CDs", "Check to use use on CD regardless of units on bosses/with CDs on")
@@ -106,7 +106,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Precombat", "Will use items on pulltimer (don't move on pull timer)")
             br.ui:createCheckbox(section, "Essences", "Will use Essences")
             br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  20,  1,  "* 5k Put damage of your Reaping Flames")
-            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "|cffFFFFFFPotion with CDs")
+            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "Potion with CDs")
             br.ui:createCheckbox(section, "Vendetta", "Will use Vendetta")
             br.ui:createCheckbox(section, "Hold Vendetta", "Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "Time to die limit for using cooldowns.")
@@ -915,7 +915,7 @@ local function runRotation()
         -- actions.cds+=/ancestral_call,if=debuff.vendetta.up
         if useCDs() and isChecked("Racial") and debuff.vendetta.exists("target") and ttd("target") > 5 and targetDistance < 5  then
             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
-                if cast.racial("player") then return true end
+                if cast.racial("player") then end
             end
         end
         -- # If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or without any CP.
@@ -1219,8 +1219,8 @@ local function runRotation()
         if talent.crimsonTempest and not queenBuff and enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists() and GetObjectID("target") ~= 157620 then
             local crimsonTargets
             if ctenemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-            for i = 1, #ctenemies10 do
-                local thisUnit = ctenemies10[i].unit
+            for i = 1, ctenemies10 do
+                local thisUnit = enemyTable10[i].unit
                 local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
                 --print("crimson Targets: " .. tostring(crimsonTargets) .. " crimson Remain: " .. tostring(crimsonRemain))
                 if ((enemies10 >= 3 and crimsonRemain < (2+crimsonTargets)) or (enemies10 < 4 and crimsonRemain < 2)) and combo >= 4 then
