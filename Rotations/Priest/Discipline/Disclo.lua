@@ -48,7 +48,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Heal OoC")
         br.ui:createCheckbox(section, "Power Word: Fortitude", "Maintain Fort Buff on Group")
         br.ui:createDropdown(section, "Dispel Magic", {"Only Target", "Auto"}, 1, "Dispel Target or Auto")
-        br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 1, "Select Key for Auto Dispel")
+        br.ui:createDropdown(section, "Oh shit need heals", br.dropOptions.Toggle, 1, "Ignore dps limit")
         br.ui:createSpinner(section, "Body and Soul", 2, 0, 100, 1, "Movement (seconds) before Body and Soul")
         br.ui:createSpinner(section, "Angelic Feather", 2, 0, 100, 1, "Movement (seconds) before Feather")
         br.ui:createSpinner(section, "Fade", 95, 0, 100, 1, "Health to cast Fade if agro")
@@ -215,8 +215,7 @@ local function runRotation()
     enemies.get(40)
     friends.yards40 = getAllies("player", 40)
 
-    local atonementCount = 0
-    local maxAtonementCount = 0
+    local atonementCount = br.player.buff.atonement.count()
     local schismBuff
     local ptwDebuff
 
@@ -231,24 +230,12 @@ local function runRotation()
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
 
-        if debuff.schism.exists(thisUnit) then
+        if debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
             schismBuff = thisUnit
         end
-
-        if debuff.purgeTheWicked.exists(thisUnit) then
-            ptwDebuff = thisUnit
-        end
-    end
-
-    -- Atonement Count
-    for i = 1, #br.friend do
-        local atonementRemain = getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") or 0 -- 194384
-        if atonementRemain > 0 then
-            if (br.friend[i].role ~= "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK") then
-                maxAtonementCount = maxAtonementCount + 1
-                atonementCount = atonementCount + 1
-            else
-                atonementCount = atonementCount + 1
+        if schismBuff == nil then 
+            if debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+                ptwDebuff = thisUnit
             end
         end
     end
@@ -485,8 +472,7 @@ local function runRotation()
         end
     end
 
-    local function HealingTime()
-        -- Atonement Key
+    local function Keyshit()
         if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
@@ -508,18 +494,20 @@ local function runRotation()
                 end
             end
         end
+    end
 
+    local function HealingTime()
         if buff.rapture.exists("player") then
             if isChecked("Obey Atonement Limits") then
                 for i = 1, #br.friend do
-                    if maxAtonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                    if atonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                         if getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then
                                 return true
                             end
                         end
                     end
-                    if maxAtonementCount >= getValue("Max Atonements") then
+                    if atonementCount >= getValue("Max Atonements") then
                         if cast.powerWordShield(lowest.unit) then
                             return true
                         end
@@ -551,7 +539,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Power Word: Radiance") and notAtoned > 2 and not cast.last.powerWordRadiance() then
+        if isChecked("Power Word: Radiance") and notAtoned >= 2 and not cast.last.powerWordRadiance() then
             if charges.powerWordRadiance.count() >= 1 then
                 if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
                     for i = 1, #br.friend do
@@ -573,7 +561,7 @@ local function runRotation()
             end
         end
 
-        if (isChecked("Penance Heal") and talent.contrition and atonementCount >= 3) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) or level < 28 and lowest.hp < getOptionValue("Penance Heal") then
+        if (isChecked("Penance Heal") and talent.contrition and atonementCount >= 3) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) or (level < 28 and lowest.hp < getOptionValue("Penance Heal")) then
             if cast.penance(lowest.unit) then
                 return true
             end
@@ -581,7 +569,7 @@ local function runRotation()
 
         if isChecked("Shadow Mend") and not isMoving("player") then
             for i = 1, #br.friend do
-                if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or not IsInRaid())) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) then
+                if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) then
                     if cast.shadowMend(br.friend[i].unit) then
                         return true
                     end
@@ -598,7 +586,9 @@ local function runRotation()
         end
 
         for i = 1, #br.friend do
-            if (br.friend[i].hp <= getOptionValue("Party Atonement HP") or getOptionValue("Party Atonement HP") == 100) and not debuff.weakenedSoul.exists(br.friend[i].unit) and not buff.atonement.exists(br.friend[i].unit) and (maxAtonementCount < getValue("Max Atonements") or not isChecked("Obey Atonement Limits")) then
+            if (br.friend[i].hp <= getOptionValue("Party Atonement HP") or getOptionValue("Party Atonement HP") == 100) 
+                and not debuff.weakenedSoul.exists(br.friend[i].unit) and not buff.atonement.exists(br.friend[i].unit) 
+                and (atonementCount < getOptionValue("Max Atonements") or not isChecked("Obey Atonement Limits")) then
                 if cast.powerWordShield(br.friend[i].unit) then
                     return true
                 end
@@ -621,13 +611,14 @@ local function runRotation()
             if talent.purgeTheWicked then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if ptwTargets() < getValue("SW:P/PtW Targets") then
-                        if GetUnitIsUnit(thisUnit, "target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if debuff.purgeTheWicked.remain(thisUnit) < 6 then
-                                if cast.purgeTheWicked(thisUnit) then
-                                    ptwDebuff = thisUnit
-                                    return
-                                end
+                    if ptwTargets() < getValue("SW:P/PtW Targets")  then
+                        if not debuff.purgeTheWicked.exists("target") then
+                            if cast.purgeTheWicked("target") then
+                                return 
+                            end
+                        elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not UnitIsOtherPlayersPet(thisUnit) then
+                            if cast.purgeTheWicked(thisUnit) then
+                                return
                             end
                         end
                     end
@@ -637,11 +628,13 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ptwTargets() < getValue("SW:P/PtW Targets") then
-                        if GetUnitIsUnit(thisUnit, "target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if debuff.shadowWordPain.remain(thisUnit) < 4.8 then
-                                if cast.shadowWordPain(thisUnit) then
-                                    return
-                                end
+                        if not debuff.shadowWordPain.exists("target") then
+                            if cast.shadowWordPain("target") then
+                                return 
+                            end
+                        elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not UnitIsOtherPlayersPet(thisUnit) then
+                            if cast.shadowWordPain(thisUnit) then
+                                return
                             end
                         end
                     end
@@ -733,7 +726,8 @@ local function runRotation()
             if Interruptstuff() then return end
             if DefensiveTime() then return end
             if CooldownTime() then return end
-            if discHealCount < getOptionValue("Heal Counter") or not isChecked("Heal Counter") then
+            if Keyshit() then return true end
+            if discHealCount < getOptionValue("Heal Counter") or not isChecked("Heal Counter") or #enemies.yards40 == 0 or buff.rapture.exists("player") or SpecificToggle("Oh shit need heals") then
                 if HealingTime() then return true end
             end
             if DamageTime() then return end
