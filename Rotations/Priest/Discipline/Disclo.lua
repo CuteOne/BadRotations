@@ -30,8 +30,7 @@ local function createToggles()
     CreateButton("Interrupt", 4, 0)
     BurstModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Auto Ramp Enabled", tip = "Will Automatically Ramp based on DBM", highlight = 1, icon = br.player.spell.powerWordShield},
-        [2] = {mode = "Ramp", value = 2, overlay = "Manual Ramp Disabled", tip = "Manually Ramping for damage", highlight = 0, icon = br.player.spell.powerWordShield},
-        [3] = {mode = "Hold", value = 3, overlay = "Ramp Disabled", tip = "No Ramp Logic.", highlight = 0, icon = br.player.spell.powerWordShield}
+        [2] = {mode = "Hold", value = 2, overlay = "Ramp Disabled", tip = "No Ramp Logic.", highlight = 0, icon = br.player.spell.powerWordShield}
     }
     CreateButton("Burst", 0, -1)
 end
@@ -80,6 +79,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Penance Heal", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Pain Suppression Tank", 30, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Pain Suppression Party", 30, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinner(section,"Revitalizing Voodoo Totem - Tank",30, 0, 100, 5 )
+        br.ui:createSpinner(section,"Revitalizing Voodoo Totem - Party",30, 0, 100, 5 )
         if br.player.level < 28 then
             br.ui:createSpinner(section, "Low Level Flash Heal",60, 0, 100, 5)
         end
@@ -126,6 +127,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Rapture Targets", 3, 0, 40, 1, "Minimum Rapture Targets")
         --Evangelism
         br.ui:createSpinner(section, "Evangelism", 70, 0, 100, 1, "Health Percent to Cast At")
+        br.ui:createCheckbox(section, "Evangelism Ramp")
         br.ui:createSpinnerWithout(section, "Evangelism Targets", 3, 0, 40, 1, "Target count to Cast At")
         br.ui:createSpinnerWithout(section, "Atonement for Evangelism", 3, 0, 40, 1, "Minimum Atonement count to Cast At")
         br.ui:checkSectionState(section)
@@ -220,8 +222,8 @@ local function runRotation()
     local ptwDebuff
 
 
-    if isChecked("Enemy Target Lock") then
-        if (UnitIsFriend("target", "player") or UnitIsDeadOrGhost("target")) then
+    if isChecked("Enemy Target Lock") and inCombat then
+        if UnitIsFriend("target", "player") or UnitIsDeadOrGhost("target") or not UnitExists("target") or UnitIsPlayer("target") then
             TargetLastEnemy()
         end
     end
@@ -229,23 +231,29 @@ local function runRotation()
     -- set penance target
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-
-        if debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+        if debuff.schism.exists("target") then
+            schismBuff = "target"
+        elseif debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
             schismBuff = thisUnit
         end
         if schismBuff == nil then 
-            if debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+            if debuff.purgeTheWicked.exists("target") then
+                ptwDebuff = "target"
+            elseif debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
                 ptwDebuff = thisUnit
             end
         end
     end
 
-    notAtoned = 0
-    for i = 1, #br.friend do
-        thisUnit = br.friend[1].unit
-        if not buff.atonement.exists(thisUnit) then
-            notAtoned = notAtoned + 1
+    local function atoneCount()
+        notAtoned = 0
+        for i = 1, #br.friend do
+            thisUnit = br.friend[1].unit
+            if not buff.atonement.exists(thisUnit) then
+                notAtoned = notAtoned + 1
+            end
         end
+        return notAtoned
     end
 
     local current
@@ -334,54 +342,23 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("PW:B/LB") then
-                if isChecked("PW:B/LB on Melee") then
-                    -- get melee players
-                    for i = 1, #tanks do
-                        -- get the tank's target
-                        local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil and getDistance(tankTarget) <= 40 then
-                            -- get players in melee range of tank's target
-                            local meleeFriends = getAllies(tankTarget, 5)
-                            -- get the best ground circle to encompass the most of them
-                            local loc = nil
-                            local meleeHurt = {}
-                            for j = 1, #meleeFriends do
-                                if meleeFriends[j].hp < getValue("PW:B/LB") then
-                                    tinsert(meleeHurt, meleeFriends[j])
-                                end
-                            end
-                            if #meleeHurt >= getValue("PW:B/LB Targets") then
-                                loc = getBestGroundCircleLocation(meleeHurt, getValue("PW:B/LB Targets"), 6, 8)
-                            end
-                            if loc ~= nil then
-                                if talent.luminousBarrier then
-                                    if castGroundAtLocation(loc, spell.luminousBarrier) then
-                                        return
-                                    end
-                                else
-                                    if castGroundAtLocation(loc, spell.powerWordBarrier) then
-                                        return
-                                    end
-                                end
-                            end
-                        end
-                    end
-                else
-                    if talent.luminousBarrier then
-                        if castWiseAoEHeal(br.friend, spell.luminousBarrier, 10, getValue("PW:B/LB"), getValue("PW:B/LB Targets"), 6, true, true) then
-                            return
-                        end
-                    else
-                        if castWiseAoEHeal(br.friend, spell.powerWordBarrier, 10, getValue("PW:B/LB"), getValue("PW:B/LB Targets"), 6, true, true) then
-                            return
-                        end
-                    end
-                end
-            end
             if isChecked("Rapture when get Innervate") and freeMana then
                 if cast.rapture() then
                     return
+                end
+            end
+            for i = 1, #br.friend do
+                if isChecked("Revitalizing Voodoo Totem - Tank") and hasEquiped(158320) and br.friend[i].hp <= getValue("Revitalizing Voodoo Totem - Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if GetItemCooldown(158320) <= gcdMax then
+                        UseItemByName(158320, lowest.unit)
+                        br.addonDebug("Using Revitalizing Voodoo Totem")
+                    end
+                end
+            end
+            if isChecked("Revitalizing Voodoo Totem - Party") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem - Party") or getValue("Revitalizing Voodoo Totem - Party") == 100 then
+                if GetItemCooldown(158320) <= gcdMax then
+                    UseItemByName(158320, lowest.unit)
+                    br.addonDebug("Using Revitalizing Voodoo Totem")
                 end
             end
             if isChecked("Rapture") then
@@ -477,18 +454,19 @@ local function runRotation()
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
                 if not buff.atonement.exists(thisUnit) then
-                    if notAtoned >= getOptionValue("Minimum PWR Targets") and not isMoving("player") then
+                    if atoneCount() >= getOptionValue("Minimum PWR Targets") and not isMoving("player") and charges.powerWordRadiance.frac() >= 1 then
                         if cast.powerWordRadiance(thisUnit) then 
                             return true
                         end
-                    elseif notAtoned <= getOptionValue("Minimum PWR Targets") or charges.powerWordRadiance.frac() < 1 and not debuff.weakenedSoul.exists(thisUnit) then
+                    elseif atonementCount <= getOptionValue("Atonement for Evangelism") or charges.powerWordRadiance.frac() < 1 and not debuff.weakenedSoul.exists(thisUnit) then
                         if cast.powerWordShield(thisUnit) then
                             return true
                         end
                     end
                 end
-                if isChecked("Evangelism") and atonementCount >= getOptionValue("Atonement for Evangelism") and (charges.powerWordRadiance.count() == 0 or notAtoned <= getOptionValue("Minimum PWR Targets")) then
+                if useCDs() and isChecked("Evangelism Ramp") and atonementCount >= getOptionValue("Atonement for Evangelism") and (charges.powerWordRadiance.count() == 0 or atoneCount() <= getOptionValue("Minimum PWR Targets")) then
                     if cast.evangelism() then
+                        RunMacroText("/br toggle burst 1")
                         return true
                     end
                 end
@@ -539,7 +517,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Power Word: Radiance") and notAtoned >= 2 and not cast.last.powerWordRadiance() then
+        if isChecked("Power Word: Radiance") and atoneCount() >= 2 and not cast.last.powerWordRadiance() and mode.burst ~= 2 then
             if charges.powerWordRadiance.count() >= 1 then
                 if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
                     for i = 1, #br.friend do
@@ -607,6 +585,17 @@ local function runRotation()
     end
 
     local function DamageTime()
+        if isChecked("Power Word: Solace") and talent.powerWordSolace then
+            if schismBuff ~= nil then
+                if cast.powerWordSolace(schismBuff) then
+                    return
+                end
+            elseif schismBuff == nil then
+                if cast.powerWordSolace("target") then
+                    return
+                end
+            end
+        end
         if isChecked("Shadow Word: Pain/Purge The Wicked") and (getSpellCD(spell.penance) > gcdMax or (getSpellCD(spell.penance) <= gcdMax and debuff.purgeTheWicked.count() == 0)) then
             if talent.purgeTheWicked then
                 for i = 1, #enemies.yards40 do
@@ -666,18 +655,6 @@ local function runRotation()
         if talent.schism and isChecked("Schism") and cd.penance.remain() <= gcdMax and not isMoving("player") and ttd("target") > 9 and not isExplosive("target") then
             if cast.schism("target") then
                 return
-            end
-        end
-
-        if isChecked("Power Word: Solace") and talent.powerWordSolace then
-            if schismBuff ~= nil then
-                if cast.powerWordSolace(schismBuff) then
-                    return
-                end
-            elseif schismBuff == nil then
-                if cast.powerWordSolace("target") then
-                    return
-                end
             end
         end
 
