@@ -1,7 +1,7 @@
 function loadUnlockerAPI()
     local unlocked = false
     -- EWT Unlocker
-    if EasyWoWToolbox ~= nil then
+    if EasyWoWToolbox ~= nil then -- Native Support - API found at https://ewtwow.com/EWT/ewt.lua
         -- Active Player
         StopFalling = StopFalling
         FaceDirection = FaceDirection
@@ -61,8 +61,112 @@ function loadUnlockerAPI()
         WorldToScreenRaw = WorldToScreenRaw
         unlocked = true
     end
+    -- Minibot
+    if wmbapi ~= nil then
+        -- Active Player
+        StopFalling = wmbapi.StopFalling
+        FaceDirection = wmbapi.FaceDirection
+        -- Object
+        ObjectTypeFlags = wmbapi.ObjectTypeFlags
+        ObjectPointer = function(...)
+            if not UnitIsVisible(...) then
+                return
+            end
+            local pointer = nil
+            for i=1,wmbapi.GetNpcCount() do
+                pointer = wmbapi.GetNpcWithIndex(i)
+                if UnitIsVisible(pointer) and UnitIsUnit(pointer,...) then
+                    return pointer
+                end	
+            end
+            for i=1,wmbapi.GetPlayerCount() do
+                pointer = wmbapi.GetPlayerWithIndex(i)
+                if UnitIsVisible(pointer) and UnitIsUnit(pointer,...) then
+                    return pointer
+                end
+            end
+        end
+        ObjectExists = wmbapi.ObjectExists
+        ObjectIsVisible = UnitIsVisible
+        ObjectPosition = wmbapi.ObjectPosition
+        ObjectFacing = wmbapi.ObjectFacing
+        ObjectName = UnitName
+        ObjectID = function(...) return ... and tonumber(string.match(UnitGUID(...), "-(%d+)-%x+$"), 10) end
+        ObjectIsUnit = function(...) return ... and ObjectIsType(...,ObjectTypes.Unit) end
+        GetDistanceBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2) return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2)) end
+        GetDistanceBetweenObjects = wmbapi.GetDistanceBetweenObjects
+        GetPositionBetweenObjects = function(obj1,obj2,dist) 
+            local X1,Y1,Z1 = ObjectPosition(obj1)
+            local X2,Y2,Z2 = ObjectPosition(obj2)
+            local AngleXY, AngleXYZ = math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
+            return math.cos(AngleXY) * dist + X1, math.sin(AngleXY) * dist + Y1, math.sin(AngleXYZ) * dist + Z1
+        end
+        GetPositionFromPosition = function(X, Y, Z, dist, angle) return math.cos(angle) * dist + X, math.sin(angle) * dist + Y, math.sin(0) * dist + Z end
+        ObjectIsFacing = wmbapi.ObjectIsFacing
+        ObjectInteract = InteractUnit
+        -- Object Manager
+        GetObjectCountBR = wmbapi.GetObjectCount
+        GetObjectWithIndex = wmbapi.GetObjectWithIndex
+        GetObjectWithGUID = wmbapi.GetObjectWithGUID
+        -- Unit
+        UnitBoundingRadius = wmbapi.UnitBoundingRadius
+        UnitCombatReach = wmbapi.UnitCombatReach
+        UnitTarget = wmbapi.UnitTarget
+        UnitCastID = function(...) return select(7,GetSpellInfo(UnitCastingInfo(...))) , select(7,GetSpellInfo(UnitChannelInfo(...))), wmbapi.UnitCastingTarget, wmbapi.UnitCastingTarget end
+        UnitCreator = wmbapi.UnitCreator 
+        -- World
+        TraceLine = wmbapi.TraceLine
+        GetCameraPosition = wmbapi.GetCameraPosition
+        CancelPendingSpell = wmbapi.CancelPendingSpell
+        ClickPosition = wmbapi.ClickPosition
+        IsAoEPending = wmbapi.IsAoEPending
+        GetTargetingSpell = function()
+            while true do
+                local spellName,_,_,_,_,_,spellID = GetSpellInfo(i,"spell")
+                if not spellName then
+                    break
+                elseif IsCurrentSpell(i,"spell") then
+                    return spellID
+                end
+            end
+        end
+        WorldToScreen = wmbapi.WorldToScreen
+        ScreenToWorld = wmbapi.ScreenToWorld
+        GetMousePosition = 0,0,0,0
+        -- Hacks
+        IsHackEnabled = function() return end
+        SetHackEnabled = function() return true end
+        -- Files
+        GetDirectoryFiles = wmbapi.GetDirectoryFiles
+        ReadFile = wmbapi.ReadFile
+        WriteFile = wmbapi.WriteFile
+        CreateDirectory = wmbapi.CreateDirectory
+        GetWoWDirectory = wmbapi.GetWoWDirectory
+        -- Callbacks
+        AddEventCallback = function(Event, Callback)
+            if not BRFrames then
+                BRFrames = CreateFrame("Frame")
+                BRFrames:SetScript("OnEvent",BRFrames_OnEvent)
+            end
+            BRFrames:RegisterEvent(Event)
+            if not BRFramesEvent[Event] then
+                BRFramesEvent[Event] = Callback
+            end
+        end
+        -- Misc
+        SendHTTPRequest = wmbapi.SendHttpRequest
+        GetKeyState = wmbapi.GetKeyState
+        -- Drawing
+        GetWoWWindow = function()
+            return GetScreenWidth(), GetScreenHeight()
+        end
+        Draw2DLine = function() return end
+        Draw2DText = function() return end
+        WorldToScreenRaw = function() return 0, 0 end
+        unlocked = true
+    end
     -- No Unlocker
-    if EasyWoWToolbox == nil then
+    if EasyWoWToolbox == nil and wmbapi == nil then
         -- -- Active Player
         -- StopFalling = function() return true end
         -- FaceDirection = function() return true end

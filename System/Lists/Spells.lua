@@ -2003,6 +2003,7 @@ br.lists.spells = {
                 divineStar                  = 110744,
                 desperatePrayer             = 19236,
                 evangelism                  = 246287,
+                flashHeal                   = 2061,
                 halo                        = 120517,
                 leapOfFaith                 = 73325,
                 luminousBarrier             = 271466,
