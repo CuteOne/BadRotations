@@ -75,7 +75,7 @@ function loadUnlockerAPI()
         ObjectFacing = wmbapi.ObjectFacing
         ObjectName = UnitName
         ObjectID = wmbapi.ObjectId
-        ObjectIsUnit = function(...) return ... and ObjectIsType(...,ObjectTypes.Unit) end
+        ObjectIsUnit = function(...) return ... and ObjectIsType(...,wmbapi.GetObjectTypeFlagsTable().Unit) end
         GetDistanceBetweenPositions = wmbapi.GetDistanceBetweenPositions
         GetDistanceBetweenObjects = wmbapi.GetDistanceBetweenObjects
         GetPositionBetweenObjects = wmbapi.GetPositionBetweenObjects
