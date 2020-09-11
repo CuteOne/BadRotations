@@ -65,43 +65,21 @@ function loadUnlockerAPI()
     if wmbapi ~= nil then
         -- Active Player
         StopFalling = wmbapi.StopFalling
-        FaceDirection = wmbapi.FaceDirection
+        FaceDirection = function(a) if wmbapi.GetObject(a) then wmbapi.FaceDirection(GetAnglesBetweenObjects(a,"player"),true) else wmbapi.FaceDirection(a,true) end end
         -- Object
         ObjectTypeFlags = wmbapi.ObjectTypeFlags
-        ObjectPointer = function(...)
-            if not UnitIsVisible(...) then
-                return
-            end
-            local pointer = nil
-            for i=1,wmbapi.GetNpcCount() do
-                pointer = wmbapi.GetNpcWithIndex(i)
-                if UnitIsVisible(pointer) and UnitIsUnit(pointer,...) then
-                    return pointer
-                end	
-            end
-            for i=1,wmbapi.GetPlayerCount() do
-                pointer = wmbapi.GetPlayerWithIndex(i)
-                if UnitIsVisible(pointer) and UnitIsUnit(pointer,...) then
-                    return pointer
-                end
-            end
-        end
+        ObjectPointer = wmbapi.GetObject
         ObjectExists = wmbapi.ObjectExists
         ObjectIsVisible = UnitIsVisible
         ObjectPosition = wmbapi.ObjectPosition
         ObjectFacing = wmbapi.ObjectFacing
         ObjectName = UnitName
-        ObjectID = function(...) return ... and tonumber(string.match(UnitGUID(...), "-(%d+)-%x+$"), 10) end
+        ObjectID = wmbapi.ObjectId
         ObjectIsUnit = function(...) return ... and ObjectIsType(...,ObjectTypes.Unit) end
-        GetDistanceBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2) return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2)) end
+        GetDistanceBetweenPositions = wmbapi.GetDistanceBetweenPositions
         GetDistanceBetweenObjects = wmbapi.GetDistanceBetweenObjects
-        GetPositionBetweenObjects = function(obj1,obj2,dist) 
-            local X1,Y1,Z1 = ObjectPosition(obj1)
-            local X2,Y2,Z2 = ObjectPosition(obj2)
-            local AngleXY, AngleXYZ = math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
-            return math.cos(AngleXY) * dist + X1, math.sin(AngleXY) * dist + Y1, math.sin(AngleXYZ) * dist + Z1
-        end
-        GetPositionFromPosition = function(X, Y, Z, dist, angle) return math.cos(angle) * dist + X, math.sin(angle) * dist + Y, math.sin(0) * dist + Z end
+        GetPositionBetweenObjects = wmbapi.GetPositionBetweenObjects
+        GetPositionFromPosition = wmbapi.GetPositionFromPosition
         ObjectIsFacing = wmbapi.ObjectIsFacing
         ObjectInteract = InteractUnit
         -- Object Manager
@@ -112,7 +90,7 @@ function loadUnlockerAPI()
         UnitBoundingRadius = wmbapi.UnitBoundingRadius
         UnitCombatReach = wmbapi.UnitCombatReach
         UnitTarget = wmbapi.UnitTarget
-        UnitCastID = function(...) return select(7,GetSpellInfo(UnitCastingInfo(...))) , select(7,GetSpellInfo(UnitChannelInfo(...))), wmbapi.UnitCastingTarget, wmbapi.UnitCastingTarget end
+        UnitCastID = function(...) return select(7,GetSpellInfo(UnitCastingInfo(...))) , select(7,GetSpellInfo(UnitChannelInfo(...))), wmbapi.UnitCastingTarget(...), wmbapi.UnitCastingTarget(...) end
         UnitCreator = wmbapi.UnitCreator 
         -- World
         TraceLine = wmbapi.TraceLine
@@ -120,19 +98,10 @@ function loadUnlockerAPI()
         CancelPendingSpell = wmbapi.CancelPendingSpell
         ClickPosition = wmbapi.ClickPosition
         IsAoEPending = wmbapi.IsAoEPending
-        GetTargetingSpell = function()
-            while true do
-                local spellName,_,_,_,_,_,spellID = GetSpellInfo(i,"spell")
-                if not spellName then
-                    break
-                elseif IsCurrentSpell(i,"spell") then
-                    return spellID
-                end
-            end
-        end
+        GetTargetingSpell = function() return end
         WorldToScreen = wmbapi.WorldToScreen
         ScreenToWorld = wmbapi.ScreenToWorld
-        GetMousePosition = 0,0,0,0
+        GetMousePosition = function() return 0,0,0,0 end
         -- Hacks
         IsHackEnabled = function() return end
         SetHackEnabled = function() return true end
