@@ -68,14 +68,14 @@ function loadUnlockerAPI()
         FaceDirection = function(a) if wmbapi.GetObject(a) then wmbapi.FaceDirection(GetAnglesBetweenObjects(a,"player"),true) else wmbapi.FaceDirection(a,true) end end
         -- Object
         ObjectTypeFlags = wmbapi.ObjectTypeFlags
-        ObjectPointer = wmbapi.GetObject
+        ObjectPointer = function(...) return ... and wmbapi.GetObject(...) end
         ObjectExists = wmbapi.ObjectExists
         ObjectIsVisible = UnitIsVisible
         ObjectPosition = wmbapi.ObjectPosition
         ObjectFacing = wmbapi.ObjectFacing
         ObjectName = UnitName
         ObjectID = wmbapi.ObjectId
-        ObjectIsUnit = function(...) return ... and ObjectIsType(...,wmbapi.GetObjectTypeFlagsTable().Unit) end
+        ObjectIsUnit = function(...) return ... and wmbapi.ObjectIsType(...,wmbapi.GetObjectTypeFlagsTable().Unit) end
         GetDistanceBetweenPositions = wmbapi.GetDistanceBetweenPositions
         GetDistanceBetweenObjects = wmbapi.GetDistanceBetweenObjects
         GetPositionBetweenObjects = wmbapi.GetPositionBetweenObjects
