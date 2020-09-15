@@ -45,6 +45,16 @@ local function GetKeyBindings()
 				return name
 			end
 		end
+		if Dominos then
+			for i = 1, 60 do
+				if _G["DominosActionButton" .. i] and _G["DominosActionButton" .. i]["action"] == slot then
+					name = "CLICK DominosActionButton" .. i .. ":LeftButton"
+					if GetBindingKey(name) ~= nil then
+						return name
+					end
+				end
+			end
+		end
 		local bonusBar = GetBonusBarOffset()
 		local slotID = (1 + (NUM_ACTIONBAR_PAGES + bonusBar - 1) * NUM_ACTIONBAR_BUTTONS)
 		if (bonusBar == 0 and slot <= 12) or (bonusBar > 0 and slot >= slotID and slot < (slotID + 12)) then
