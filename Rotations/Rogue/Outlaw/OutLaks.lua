@@ -551,7 +551,8 @@ local function rollthebones()
     if br.player.traits.snakeeyes.rank >= 2 and buff.snakeeyes.stack() >= (2 - buff.broadside.exists()) then
         rtb_reroll = false
     end
-    if (buff.bladeFlurry.exists() or #enemies > 1) then
+    if (buff.bladeFlurry.exists()) then
+        --or #enemies > 1) then
         buff_count = buff.skullAndCrossbones.exists() and 1 or 0
         --[[     if buff.skullAndCrossbones.exists() then
                  buff_count = 1
@@ -717,7 +718,7 @@ actionList.essences = function()
     if (getCombatTime() > 2 or buff.tricksOfTheTrade.exists() or #br.friend == 1) and not stealth and not IsMounted() then
         -- Reaping Flames
         if essence.reapingFlames.major and cast.able.reapingFlames() then
-            local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 1000 * 2 or getValue("Reaping DMG") * 1000
+            local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 2000 or getValue("Reaping DMG") * 1000
 
             local reapingPercentage = 0
             local thisHP = 0
@@ -728,34 +729,76 @@ actionList.essences = function()
             end
 
             local thisABSHPmax = 0
+            local reap_flag = "foo"
             local reapTarget, thisUnit, reap_execute, reap_hold, reap_fallback = false, false, false, false, false
             if mob_count == 1 then
                 if ((br.player.essence.reapingFlames.rank >= 2 and getHP(enemies.yards30[1]) > 80) or getHP(enemies.yards30[1]) <= 20 or getTTD(enemies.yards30[1], 20) > 30) then
                     reapTarget = enemies.yards30[1]
+                    reap_flag = "single"
                 end
             elseif mob_count > 1 then
                 for i = 1, mob_count do
                     thisUnit = enemies.yards30[i]
                     if getTTD(thisUnit) ~= 999 then
-                        --  Print("TTD:" .. tostring(getTTD(thisUnit)))
                         thisHP = getHP(thisUnit)
                         thisABSHP = UnitHealth(thisUnit)
                         thisABSHPmax = UnitHealthMax(thisUnit)
                         reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        --Print("H:" .. tostring(thisABSHP) .. "  D:" .. tostring(reapingDamage) .. "  goal %:" .. tostring(reapingPercentage) .. "  current %:" .. tostring(round2(reapingDamage / thisABSHP, 2)))
-                        if UnitHealth(thisUnit) <= reapingDamage or getTTD(thisUnit) < 2.5 or getTTD(thisUnit, reapingPercentage) < 2 then
+                        if getTTD(thisUnit, (UnitHealth(thisUnit) - reapingDamage)) < 2.5 then
                             reap_execute = thisUnit
+                            reap_flag = "snipe2"
                             break
-                        elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)
-                        then
-                            reap_hold = true
-                        elseif (thisHP > 80 or thisHP <= 20) or getTTD(thisUnit, 20) > 30 then
-                            reap_fallback = thisUnit
+                        end
+                    end
+                end
+                if reap_execute == false then
+                    for i = 1, mob_count do
+                        thisUnit = enemies.yards30[i]
+                        if getTTD(thisUnit) ~= 999 then
+                            thisHP = getHP(thisUnit)
+                            thisABSHP = UnitHealth(thisUnit)
+                            thisABSHPmax = UnitHealthMax(thisUnit)
+                            if getTTD(thisUnit) < 2.5 then
+                                reap_execute = thisUnit
+                                reap_flag = "TTD"
+                                break
+                            end
+                        end
+                    end
+                end
+                if reap_execute == false then
+                    for i = 1, mob_count do
+                        thisUnit = enemies.yards30[i]
+                        if getTTD(thisUnit) ~= 999 then
+                            thisHP = getHP(thisUnit)
+                            thisABSHP = UnitHealth(thisUnit)
+                            thisABSHPmax = UnitHealthMax(thisUnit)
+                            if UnitHealth(thisUnit) <= reapingDamage then
+                                reap_execute = thisUnit
+                                reap_flag = "KILL"
+                                break
+                            end
+                        end
+                    end
+                end
+                if reap_execute == false then
+                    for i = 1, mob_count do
+                        thisUnit = enemies.yards30[i]
+                        if getTTD(thisUnit) ~= 999 then
+                            thisHP = getHP(thisUnit)
+                            thisABSHP = UnitHealth(thisUnit)
+                            thisABSHPmax = UnitHealthMax(thisUnit)
+                            if getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)
+                            then
+                                reap_hold = true
+                            elseif (thisHP > 80 or thisHP <= 20) or getTTD(thisUnit, 20) > 30 then
+                                reap_fallback = thisUnit
+                                reap_flag = "fallback"
+                            end
                         end
                     end
                 end
             end
-
             if reap_execute then
                 reapTarget = reap_execute
             elseif not reap_hold and reap_fallback then
@@ -764,7 +807,7 @@ actionList.essences = function()
 
             if reapTarget ~= nil and not isExplosive(reapTarget) and not noDamageCheck(reapTarget) then
                 if cast.reapingFlames(reapTarget) then
-                    --  Print("REAP: " .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+                    Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                     return true
                 end
             end
@@ -842,7 +885,15 @@ actionList.dps = function()
 
     --  Print(tostring(getOutLaksTTD(8)))
     if mode.rotation == 1 then
-        if cast.able.bladeFlurry() and #enemies.yards8 >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
+        local explosiveCount = 0
+        for i = 1, #enemies.yards8 do
+            thisUnit = enemies.yards8[i]
+            if isExplosive(thisUnit) then
+                explosiveCount = explosiveCount + 1
+            end
+        end
+
+        if cast.able.bladeFlurry() and (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
             if cast.bladeFlurry() then
                 return true
             end
@@ -1074,7 +1125,7 @@ actionList.dps = function()
                 end
             end
         end
-        if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
+        if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) and not noDamageCheck(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
             --  Print("Casting Sinister at: " .. combo)
             return true
         end
@@ -1181,7 +1232,7 @@ actionList.Corruption = function()
             local stun_range = 10
             if cast.able.blind() and isChecked("Blind THING") then
                 stun = 2094
-                stun_range = 10
+                stun_range = 15
             elseif cast.able.betweenTheEyes() and isChecked("Between the eyes THING") then
                 stun = 199804
                 stun_range = 20
@@ -1222,7 +1273,7 @@ actionList.Defensive = function()
     --[[
        Print("Cloak mode: " .. tostring(mode.cloak))
        Print("Stun mode: " .. tostring(mode.stun))
-   ]]
+    ]]
     if useDefensive() then
 
         -- dwarf racial
@@ -1232,6 +1283,7 @@ actionList.Defensive = function()
                     or UnitDebuffID("player", 266231) --266231/severing-axe
                     or UnitDebuffID("player", 270507) --270507/poison-barrage
                     or UnitDebuffID("player", 270084) --270084/axe-barrage
+                    or UnitDebuffID("player", 314483) -- 314483/cascading-terror
                     --catchall
                     or canDispel("player", spell.cleanse)
             then
@@ -1403,7 +1455,7 @@ actionList.Defensive = function()
             end
         end
         -- Crimson Vial
-        if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
+        if cast.able.crimsonVial() and isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
             if cast.crimsonVial() then
                 return true
             end
@@ -1415,7 +1467,7 @@ actionList.Defensive = function()
                 return true
             end
         end
-        if isChecked("Engineer's Belt") and php <= getOptionValue("Engineer's Belt") and inCombat then
+        if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and inCombat then
             if canUseItem(6) then
                 useItem(6)
             end
@@ -1444,7 +1496,6 @@ actionList.Defensive = function()
             return true
         end
     end
-
 
 
     -- Unstable Temporal Time Shifter
