@@ -83,7 +83,7 @@ end)
 GameTooltip:HookScript("OnTooltipSetUnit", function(self)
 	if C_PetBattles.IsInBattle() then return end
 	local unit = select(2, self:GetUnit())
-	if getOptionValue("Unit ID In Tooltip") and unit then
+	if isChecked("Unit ID In Tooltip") and unit then
 		local guid = UnitGUID(unit) or ""
 		local id   = tonumber(guid:match("-(%d+)-%x+$"), 10)
 		local type = guid:match("%a+")
