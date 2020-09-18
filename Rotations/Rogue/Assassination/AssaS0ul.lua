@@ -8,9 +8,9 @@ local rogueTables = br.rogueTables
 rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}, {}, {}
 local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30
 local resetButton
-local garrotePrioList = ""
+local garrotePrioList = "157475"
 local fhbossPool = false
-local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315|157461"
+local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315|157461|157452|161019|159173|144081"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
 --- Toggles ---
@@ -81,35 +81,35 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createDropdown(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
-            br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000025 Yards"},  1, "Auto stealth mode.")
-            br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
-            br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
-            br.ui:createCheckbox(section, "Auto Target Burn Units", "|cffFFFFFF Will auto change target to high prio units if they are in range")
-            br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
-            br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
-            br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
-            br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
-            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "|cffFFFFFFUse Poisoned Knife out of range.")
-            br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for Fan of Knives and Crimson Tempest usage")
-            br.ui:createSpinner(section,  "Disable Garrote on # Units",  7,  1,  20,  1,  "|cffFFFFFF Max units within 10 yards for garrote usage outside stealth (FoK spam)")
-            br.ui:createCheckbox(section, "Dot Players", "|cffFFFFFF Check to dot player targets (MC ect.)")
-            br.ui:createSpinner(section,  "Focused Azerite Beam",  3,  1,  10,  1,  "|cffFFFFFF Min. units hit to use Focused Azerite Beam")
-            br.ui:createCheckbox(section, "Ignore Azerite Beam Units During CDs", "|cffFFFFFF Check to use use on CD regardless of units on bosses/with CDs on")
+            br.ui:createDropdown(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply")
+            br.ui:createDropdown(section, "Auto Stealth", {"Always", "25 Yards"},  1, "Auto stealth mode")
+            br.ui:createDropdown(section, "Auto Tricks", {"Focus", "Tank"},  1, "Tricks of the Trade target" )
+            br.ui:createCheckbox(section, "Auto Target", "Will auto change to a new target, if current target is dead")
+            br.ui:createCheckbox(section, "Auto Target Burn Units", "Will auto change target to high prio units if they are in range")
+            br.ui:createCheckbox(section, "Auto Garrote HP Limit", "Will try to calculate if we should garrote from stealth on units, based on their HP")
+            br.ui:createCheckbox(section, "Disable Auto Combat", "Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
+            br.ui:createCheckbox(section, "Dot Blacklist", "Check to ignore certain units when multidotting")
+            br.ui:createSpinnerWithout(section,  "Multidot Limit",  5,  0,  8,  1,  "Max units to dot with garrote.")
+            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "Use Poisoned Knife out of range.")
+            br.ui:createDropdown(section, "Ignore Blacklist for FoK/CT", {"Both","FoK","CT",}, 1, "Ignore blacklist for Fan of Knives and/or Crimson Tempest usage")
+            br.ui:createSpinner(section,  "Disable Garrote on # Units",  5,  1,  20,  1,  "Max units within 10 yards for garrote usage outside stealth (FoK spam)")
+            br.ui:createCheckbox(section, "Dot Players", "Check to dot player targets (MC ect.)")
+            br.ui:createSpinner(section,  "Focused Azerite Beam",  3,  1,  10,  1,  "Min. units hit to use Focused Azerite Beam")
+            br.ui:createCheckbox(section, "Ignore Azerite Beam Units During CDs", "Check to use use on CD regardless of units on bosses/with CDs on")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-            br.ui:createCheckbox(section, "Racial", "|cffFFFFFF Will use Racial")
-            br.ui:createCheckbox(section, "Trinkets", "|cffFFFFFF Will use Trinkets")
-            br.ui:createCheckbox(section, "Precombat", "|cffFFFFFF Will use items on pulltimer (don't move on pull timer)")
-            br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
+            br.ui:createCheckbox(section, "Racial", "Will use Racial")
+            br.ui:createCheckbox(section, "Trinkets", "Will use Trinkets")
+            br.ui:createCheckbox(section, "Precombat", "Will use items on pulltimer (don't move on pull timer)")
+            br.ui:createCheckbox(section, "Essences", "Will use Essences")
             br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  20,  1,  "* 5k Put damage of your Reaping Flames")
-            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "|cffFFFFFFPotion with CDs")
-            br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
-            br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
-            br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
+            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "Potion with CDs")
+            br.ui:createCheckbox(section, "Vendetta", "Will use Vendetta")
+            br.ui:createCheckbox(section, "Hold Vendetta", "Will hold Vendetta for Vanish")
+            br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
         ------------------------
         --- CORRUPTION 8.3 --- -- Define Cloak Usage
@@ -118,9 +118,9 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Corruption Immunity", 75, 0, 100, 5, "Health Percentage to use corruption immunities.")
             br.ui:createDropdown(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
             br.ui:createDropdown(section, "Cloak of Shadows Corruption", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
-            br.ui:createCheckbox(section, "Vanish THING", "|cffFFFFFF Will use Vanish when Thing from beyond spawns")
-            br.ui:createCheckbox(section, "Shadowmeld THING", "|cffFFFFFF Will use shadowmeld when Thing from beyond spawns")
-            br.ui:createCheckbox(section, "Blind THING", "|cffFFFFFF Will use blind on Thing from beyond")
+            br.ui:createCheckbox(section, "Vanish THING", "Will use Vanish when Thing from beyond spawns")
+            br.ui:createCheckbox(section, "Shadowmeld THING", "Will use shadowmeld when Thing from beyond spawns")
+            br.ui:createCheckbox(section, "Blind THING", "Will use blind on Thing from beyond")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -133,9 +133,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Concentrated Flame",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            br.ui:createCheckbox(section, "Auto Defensive Unavoidables", "|cffFFFFFF Will use feint/evasion on certain unavoidable boss abilities")
-            br.ui:createSpinnerWithout(section,  "Evasion Unavoidables HP Limit",  85,  0,  100,  5,  "|cffFFFFFF Player HP to use evasion on unavoidables.")
-            br.ui:createCheckbox(section, "Cloak Unavoidables", "|cffFFFFFF Will cloak on unavoidables")
+            br.ui:createCheckbox(section, "Auto Defensive Unavoidables", "Will use feint/evasion on certain unavoidable boss abilities")
+            br.ui:createSpinnerWithout(section,  "Evasion Unavoidables HP Limit",  85,  0,  100,  5,  "Player HP to use evasion on unavoidables.")
+            br.ui:createCheckbox(section, "Cloak Unavoidables", "Will cloak on unavoidables")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -145,7 +145,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kidney Shot")
             br.ui:createCheckbox(section, "Blind")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "|cffFFBB00Remaining Cast Percentage to interrupt at.")
-            br.ui:createCheckbox(section, "Stuns", "|cffFFFFFF Auto stun mobs from whitelist")
+            br.ui:createCheckbox(section, "Stuns", "Auto stun mobs from whitelist")
             br.ui:createSpinnerWithout(section,  "Max CP For Stun",  3,  1,  6,  1,  "|cffFFBB00 Maximum number of combo points to stun")
         br.ui:checkSectionState(section)
         ----------------------
@@ -258,19 +258,19 @@ local function runRotation()
     local garroteCount = 0
 
     if isChecked("Auto Target Burn Units") then
-        enemies.get(5, nil, nil, nil, spell.kick)
+        enemies.get(5, nil, nil, nil)
     end
-    enemies.get(15, nil, nil, nil, spell.blind)
-    enemies.get(15,"player",true, nil, spell.blind)
+    enemies.get(15, nil, nil, nil)
+    enemies.get(15,"player",true, nil)
     enemies.get(25,"player", true) -- makes enemies.yards25nc
-    enemies.get(30, nil, nil, nil, spell.poisonedKnife)
+    enemies.get(30, nil, nil, nil)
 
     if timersTable then
         wipe(timersTable)
     end
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat and not buff.subterfuge.exists() and not buff.masterAssassin.exists() then
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
         if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
             tricksUnit = "focus"
         elseif getOptionValue("Auto Tricks") == 2 then
@@ -478,7 +478,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 local objID = GetObjectID(thisUnit)
-                if autoTargetUnits[objID] ~= nil and (IsHackEnabled("AlwaysFacing") or getFacing("player", thisUnit)) then
+                if autoTargetUnits[objID] ~= nil and (IsHackEnabled("Auto Facing") or getFacing("player", thisUnit)) then
                     if (objID == 120651 and getCastTimeRemain(thisUnit) > 0 and getCastTimeRemain(thisUnit) < 5) or objID ~= 120651 then
                         TargetUnit(thisUnit)
                     end
@@ -541,9 +541,17 @@ local function runRotation()
     if trait.doubleDose.rank > 2 then dDRank = 1 else dDRank = 0 end
     if stealthedRogue == true then sRogue = 1 else sRogue = 0 end
     local enemies10 = #enemyTable10
-
-    if isChecked("Ignore Blacklist for FoK and CT") and mode.rotation ~= 2 then
-        enemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
+    local fokenemies10 = #enemyTable10
+    local ctenemies10 = #enemyTable10
+    if isChecked("Ignore Blacklist for FoK/CT") and mode.rotation ~= 2 then
+        if getOptionValue("Ignore Blacklist for FoK/CT") == 1 then --Both
+            fokenemies10 = #enemies.get(10, nil, nil, nil)
+            ctenemies10 = #enemies.get(10, nil, nil, nil)
+        elseif getOptionValue("Ignore Blacklist for FoK/CT") == 2 then --Fan of Knifes
+            fokenemies10 = #enemies.get(10, nil, nil, nil)
+        elseif getOptionValue("Ignore Blacklist for FoK/CT") == 3 then --CT
+            ctenemies10 = #enemies.get(10, nil, nil, nil)
+        end
     end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
@@ -592,7 +600,6 @@ local function runRotation()
             [120651]=true, -- Explosive
             [136330]=true, -- Soul Thorns Waycrest Manor
             [134388]=true, -- A Knot of Snakes
-            --[159578]=true, -- Exposed Synapse
         }
         if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (not isChecked("Dot Players") and UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
             if combo > 0 and GetObjectID("target") == 134388 then
@@ -705,7 +712,7 @@ local function runRotation()
             end
             -- Corruption stuff
             -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
-            if php <= getOptionValue("Corruption Immunity") and not IsMounted() then
+            if php <= getOptionValue("Corruption Immunity") and not IsMounted() and cd.global.remain() == 0 then
                 if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
                     if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                         or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
@@ -734,7 +741,7 @@ local function runRotation()
                                 local x1, y1, z1 = ObjectPosition("player")
                                 local x2, y2, z2 = ObjectPosition(object)
                                 local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                                if distance <= 10 then
+                                if distance <= 15 and object ~= nil then
                                     if cast.blind(object) then return end
                                 end
                             end
@@ -841,29 +848,7 @@ local function runRotation()
 
     local function actionList_PreCombat()
         -- actions.precombat+=/potion
-        -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
-
-        -- # Precombat Font_of_Azshara (channel time 4 seconds), Prepots
-        if isChecked("Trinkets") and isChecked("Precombat") and pullTimer <= 6 then
-            if hasEquiped(169314) and canUseItem(169314) then
-                useItem(169314)
-                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
-                    use.superiorBattlePotionOfAgility()
-                    return true
-                elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
-                    use.potionOfUnbridledFury()
-                    return true
-                elseif getOptionValue("Potion") == 3 and use.able.potionOfFocusedResolve() and not buff.potionOfFocusedResolve.exists() then
-                    use.potionOfFocusedResolve() 
-                    return true
-                end
-            end
-        end
-    end
-
-    local function actionList_Cooldowns()
-        -- actions.cds=potion,if=buff.bloodlust.react|debuff.vendetta.up
-        if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or debuff.vendetta.exists("target")) and targetDistance < 5 then
+        if isChecked("Precombat") and pullTimer <= 1.5 then
             if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
                 use.superiorBattlePotionOfAgility()
                 return true
@@ -875,7 +860,24 @@ local function runRotation()
                 return true
             end
         end
+    end
 
+    local function actionList_Cooldowns()
+        -- actions.cds=potion,if=buff.bloodlust.react|debuff.vendetta.up
+        if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() and cd.vendetta.remain() > 0 or debuff.vendetta.exists("target")) and targetDistance < 5 then
+            if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
+                use.superiorBattlePotionOfAgility()
+                return true
+            elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
+                use.potionOfUnbridledFury()
+                return true
+            elseif getOptionValue("Potion") == 3 and use.able.potionOfFocusedResolve() and not buff.potionOfFocusedResolve.exists() then
+                use.potionOfFocusedResolve() 
+                return true
+            end
+        end
+        
+        -- General trinkets
         if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
             if canUseItem(13) and not (hasEquiped(169311, 13) or hasEquiped(169314, 13) or hasEquiped(159614, 13)) then
                 useItem(13)
@@ -901,9 +903,9 @@ local function runRotation()
             end
         -- # Galecallers Boon
         -- actions.cds+=/use_item,name=galecallers_boon,if=(debuff.vendetta.up|(!talent.exsanguinate.enabled&cooldown.vendetta.remains>45|talent.exsanguinate.enabled&(cooldown.exsanguinate.remains<6|cooldown.exsanguinate.remains>20&fight_remains>65)))&!exsanguinated.rupture
-            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain > 65)) and not debuff.garrote.exsang("target") then
+            if hasEquiped(159614, 13) and canUseItem(13) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 4 or cd.exsanguinate.remain() > 25) and fightRemain > 65)) and not debuff.rupture.exsang("target") and targetDistance <= 5 then
                 useItem(13)
-            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 6 or cd.exsanguinate.remain() > 20) and fightRemain > 65)) and not debuff.garrote.exsang("target") then
+            elseif hasEquiped(159614, 14) and canUseItem(14) and (debuff.vendetta.exists("target") or (not talent.exsanguinate and cd.vendetta.remain() > 45 or talent.exsanguinate and (cd.exsanguinate.remain() < 4 or cd.exsanguinate.remain() > 25) and fightRemain > 65)) and not debuff.rupture.exsang("target") and targetDistance <= 5 then
                 useItem(14)
             end
         end
@@ -913,7 +915,7 @@ local function runRotation()
         -- actions.cds+=/ancestral_call,if=debuff.vendetta.up
         if useCDs() and isChecked("Racial") and debuff.vendetta.exists("target") and ttd("target") > 5 and targetDistance < 5  then
             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
-                if cast.racial("player") then return true end
+                if cast.racial("player") then end
             end
         end
         -- # If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or without any CP.
@@ -957,7 +959,7 @@ local function runRotation()
                 end
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target or with SS just overwrite
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and not debuff.vendetta.exists("target") and debuff.garrote.refresh("target")) or (sSActive and debuff.garrote.remain("target") < 18 and not debuff.vendetta.exists("target"))) and comboDeficit >= (1+2*sSActive) then
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and (not debuff.garrote.exists("target") or (not sSActive and debuff.garrote.refresh("target") or debuff.vendetta.exists("target") and debuff.garrote.applied("target") <= 1) or (sSActive and debuff.garrote.applied("target") <= 1 and not debuff.vendetta.exists("target"))) and not debuff.garrote.exsang("target") and comboDeficit >= (1+2*sSActive) then
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
@@ -1056,13 +1058,14 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough single target(tips from Raz)
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>25&!dot.garrote.remains>15
-        if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 25 and 
-         (debuff.garrote.remain("target") > 15 or garroteCheck == false) and ttd("target") > 4 then
+        if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 25 and ttd("target") > 4 and
+         (debuff.garrote.remain("target") > 15 or garroteCheck == false or debuff.garrote.applied("target") > 1) and (not cast.last.vanish(1) and not cast.last.vanish(2)) then
             if cast.exsanguinate("target") then return true end
         end
         -- # Special Exsanguinate when we have more enemies around (simc)
         -- actions.cds+=/exsanguinate,if=!stealthed.rogue&(!dot.garrote.refreshable&dot.rupture.remains>4+4*cp_max_spend|dot.rupture.remains*0.5>target.time_to_die)&target.time_to_die>4
-        if mode.exsang == 1 and enemies10 > 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 15 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 then
+        if mode.exsang == 1 and enemies10 > 1 and not isBoss() and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 15 and 
+         (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 4 and (not cast.last.vanish(1) and not cast.last.vanish(2)) then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -1097,23 +1100,24 @@ local function runRotation()
         end
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB, or with MA; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.toxic_blade.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|!debuff.vendetta.up|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or buff.masterAssassin.exists() or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or (not debuff.vendetta.exists() and comboDeficit >= comboMax) or mode.exsang == 2) then
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or buff.masterAssassin.exists() or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and 
+         (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or debuff.rupture.remain("target") > 27 or ttd("target") < 4 or (not debuff.vendetta.exists() and comboDeficit >= comboMax) or mode.exsang == 2) then
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
         local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin) and not GetUnitIsFriend("player", "target")
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
-        if useFiller and enemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
+        if useFiller and fokenemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|spell_targets.fan_of_knives>=4+(azerite.double_dose.rank>2)+stealthed.rogue)
-        if useFiller and (buff.hiddenBlades.stack() >= 19 or enemies10 >= (4 + dDRank + sRogue)) and not queenBuff then
+        if useFiller and (buff.hiddenBlades.stack() >= 19 or fokenemies10 >= (4 + dDRank + sRogue)) and not queenBuff then
             if cast.fanOfKnives("player") then return true end
         end
         -- # Fan of Knives to apply Deadly Poison if inactive on any target at 3 targets
         -- actions.direct+=/fan_of_knives,target_if=!dot.deadly_poison_dot.ticking,if=variable.use_filler&spell_targets.fan_of_knives>=3
-        if not deadlyPoison10 and useFiller and enemies10 >= 3 and not queenBuff then
+        if not deadlyPoison10 and useFiller and fokenemies10 >= 3 and not queenBuff then
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled&!azerite.double_dose.enabled)
@@ -1167,12 +1171,12 @@ local function runRotation()
         if mode.exsang == 1 and talent.exsanguinate then
             -- # Special Garrote and Rupture setup prior to Exsanguinate cast
             -- actions.dot+=/garrote,if=talent.exsanguinate.enabled&!exsanguinated.garrote&dot.garrote.pmultiplier<=1&cooldown.exsanguinate.remains<2&spell_targets.fan_of_knives=1&raid_event.adds.in>6&dot.garrote.remains*0.5<target.time_to_die
-            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1 and enemies10 == 1 and debuff.garrote.remain("target")*0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
+            if debuff.garrote.applied("target") <= 1 and not debuff.garrote.exsang("target") and cd.exsanguinate.remain() < 1.5 and debuff.garrote.remain("target") * 0.5 < ttd("target") and debuff.garrote.remain("target") < 16 then
                 if cast.garrote("target") then return true end
             end
             -- # Special Rupture setup for Exsg
             -- actions.dot+=/rupture,if=talent.exsanguinate.enabled&(combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&dot.rupture.remains*0.5<target.time_to_die)
-            if combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target")*0.5 < ttd("target") and debuff.rupture.remain("target") < 26 then
+            if combo >= comboMax and cd.exsanguinate.remain() < 2 and debuff.rupture.remain("target") * 0.5 < ttd("target") and debuff.rupture.remain("target") < 26 then
                 if cast.rupture("target") then return true end
             end
         end
@@ -1189,8 +1193,7 @@ local function runRotation()
                     local thisUnit = enemyTable5[i].unit
                     local garroteRemain = debuff.garrote.remain(thisUnit)
                     if ((garroteRemain == 0 and garroteCount < getOptionValue("Multidot Limit")) or (garroteRemain > 0 and garroteCount <= getOptionValue("Multidot Limit"))) and
-                    debuff.garrote.refresh(thisUnit) and
-                    (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
+                    debuff.garrote.refresh(thisUnit) and (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
                     (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
                     (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
                         if cast.pool.garrote() then return true end
@@ -1199,33 +1202,40 @@ local function runRotation()
                 end
             end
         end
-        -- # Crimson Tempest only on multiple targets at 4+ CP when running out in 2s (up to 4 targets) or 3s (5+ targets)
-        -- actions.dot+=/crimson_tempest,if=spell_targets>3&remains<2+(spell_targets>=5)&combo_points>=4
-        local crimsonTargets
-        if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-        if talent.crimsonTempest and enemies10 >= 3  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
-            if cast.crimsonTempest("player") then return true end
-        end
+        
         -- # Crimson Tempest on ST if in pandemic and it will do less damage than Envenom due to TB/MA/TtK
         -- actions.dot+=/crimson_tempest,if=spell_targets=1&combo_points>=(cp_max_spenwdd-1)&refreshable&!exsanguinated&!debuff.toxic_blade.up&master_assassin_remains=0&!azerite.twist_the_knife.enabled&target.time_to_die-remains>4
         if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end	
         if exsanguinateCast and debuff.crimsonTempest.exists("target") then exCrimsonTempest = true end	
         if not debuff.crimsonTempest.exists("target") then exCrimsonTempest = false end	
-        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and debuff.rupture.exists("target") and combo >= (4 + dSEnabled) and debuff.crimsonTempest.refresh("target") 
-         and (not talent.exsanguinate or not exCrimsonTempest) and not debuff.toxicBlade.exists("target") and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists()) then
+        if talent.crimsonTempest and not queenBuff and enemies10 == 1 and debuff.rupture.exists("target") and combo >= (comboMax - 1) and debuff.crimsonTempest.refresh("target") and GetObjectID("target") ~= 157620
+         and (not talent.exsanguinate or not exCrimsonTempest) and not debuff.toxicBlade.exists("target") and not buff.masterAssassin.exists() and not trait.twistTheKnife.active and (not talent.exsanguinate or cd.exsanguinate.exists() or mode.exsang == 2) then
             if cast.crimsonTempest("player") then return true end
         end
+        -- # Crimson Tempest on multiple targets at 4+ CP when running out in 2-3s (based on target count) on any target
+        -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>3&remains<2+(spell_targets>=5)&combo_points>=4
         -- # Crimson Tempest on 1-3 multiple targets at 4+ CP when running out in 2s on any target
-        -- actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>1&spell_targets<4&remains<2&combo_points>=4
-        if talent.crimsonTempest and not queenBuff and enemies10 > 1 and enemies10 < 4 and combo >= 4 and debuff.crimsonTempest.remain(units.dyn5) < 2 then
-            if cast.crimsonTempest("player") then return true end
+        --actions.dot+=/crimson_tempest,target_if=min:remains,if=spell_targets>1&spell_targets<4&remains<2&combo_points>=4
+        if talent.crimsonTempest and not queenBuff and enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists() and GetObjectID("target") ~= 157620 then
+            local crimsonTargets
+            if ctenemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
+            for i = 1, ctenemies10 do
+                local thisUnit = enemyTable10[i].unit
+                local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
+                --print("crimson Targets: " .. tostring(crimsonTargets) .. " crimson Remain: " .. tostring(crimsonRemain))
+                if ((enemies10 >= 3 and crimsonRemain < (2+crimsonTargets)) or (enemies10 < 4 and crimsonRemain < 2)) and combo >= 4 then
+                    if cast.crimsonTempest("player") then return true end
+                end
+            end
         end
         -- # Cast Crimson Tempest on AoE instead of Envenom at 7+ targets when Vendetta/TB is not up
         -- actions.dot+=/crimson_tempest,if=spell_targets>(7-buff.envenom.up)&combo_points>=4+talent.deeper_stratagem.enabled&!debuff.vendetta.up&!debuff.toxic_blade.up&!azerite.twist_the_knife.enabled&energy.deficit<=25+variable.energy_regen_combined
         if buff.envenom.exists() then buffEnvenom = 1 else buffEnvenom = 0 end
-        if talent.crimsonTempest and not queenBuff and enemies10 > (7 - buffEnvenom) and combo >= (4 + dSEnabled) and not debuff.vendetta.exists("target") and not debuff.toxicBlade.exists("target") and not trait.twistTheKnife.activede and energyDeficit > (25 + energyRegenCombined) then
+        if talent.crimsonTempest and not queenBuff and ctenemies10 > (7 - buffEnvenom) and combo >= (4 + dSEnabled) and not debuff.vendetta.exists("target") and 
+         not debuff.toxicBlade.exists("target") and not trait.twistTheKnife.activede and energyDeficit > (25 + energyRegenCombined) and GetObjectID("target") ~= 157620 then
             if cast.crimsonTempest("player") then return true end
         end
+
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
         -- actions.dot+=/rupture,cycle_targets=1,if=combo_points>=4&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&target.time_to_die-remains>4
         if combo >= 4 and getSpellCD(spell.rupture) == 0 and (mode.focus == 1 or energyDeficit > (25 + energyRegenCombined)) then
@@ -1289,7 +1299,7 @@ local function runRotation()
                     tinsert(garroteTable, addUnit)
                 end
             end
-            if #garroteTable > 0 then
+            if #garroteTable > 0 and not vanishCheck then
                 if cast.pool.garrote() then return true end
                 if #garroteTable > 1 then
                     table.sort(garroteTable, function(x,y)
@@ -1299,9 +1309,7 @@ local function runRotation()
                         if cast.garrote(garroteTable[i].unit) then return true end
                     end
                 else
-                    if not vanishCheck then
-                        if cast.garrote(garroteTable[1].unit) then return true end
-                    end 
+                    if cast.garrote(garroteTable[1].unit) then return true end
                 end
             end
         end
@@ -1335,7 +1343,7 @@ local function runRotation()
             if (cast.last.vanish(1) and mode.vanish == 2) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
-            --pre mfd
+            -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
             if stealth and comboDeficit > 2 and talent.markedForDeath and validTarget and targetDistance < 5 then
                 if cast.markedForDeath("target") then
                     combo = comboMax
@@ -1343,7 +1351,7 @@ local function runRotation()
                 end
             end
             --tricks
-            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") >= 2 then
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") >= 1 then
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)

@@ -233,6 +233,7 @@ local traits
 local ttm
 local units
 local use
+local ui = {}
 -- General Locals
 local actionList = {}
 local focusedTime = GetTime()
@@ -720,7 +721,7 @@ actionList.St = function()
         or (cd.bestialWrath.remain() > gcdMax and (charges.barbedShot.timeTillFull() < gcdMax
         or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < gcdMax))))
     then
-        if cast.barbedShot(br.petTarget) then return end
+        if cast.barbedShot(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST 1] Casting Barbed Shot on "..UnitName(br.petTarget)) else ui.debug("[ST 1] Casting Barbed Shot on nil") end return end
     end
     -- Concentrated Flame
     -- concentrated_flame,if=focus+focus.regen*gcd<focus.max&buff.bestial_wrath.down&(!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight)|full_recharge_time<gcd|target.time_to_die<5
@@ -776,7 +777,7 @@ actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=azerite.dance_of_death.rank>1&buff.dance_of_death.remains<gcd&crit_pct_current>40
     if cast.able.barbedShot(br.petTarget) and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remain() < gcdMax then
-        if cast.barbedShot(br.petTarget) then return end
+        if cast.barbedShot(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST 2] Casting Barbed Shot on "..UnitName(br.petTarget)) else ui.debug("[ST 2] Casting Barbed Shot on nil") end return end
     end
     -- Blood of the Enemy
     -- blood_of_the_enemy,if=buff.aspect_of_the_wild.remains>10+gcd|target.time_to_die<10+gcd
@@ -788,7 +789,7 @@ actionList.St = function()
     -- Kill Command
     -- kill_command
     if cast.able.killCommand(br.petTarget) then
-        if cast.killCommand(br.petTarget) then return end
+        if cast.killCommand(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST] Casting Kill Command on "..UnitName(br.petTarget)) else ui.debug("[ST] Casting Kill Command on nil") end return end
     end
     -- Chimaera Shot
     -- chimaera_shot
@@ -805,7 +806,7 @@ actionList.St = function()
     if cast.able.barbedShot(br.petTarget) and ((talent.oneWithThePack and charges.barbedShot.frac() > 1.5) or charges.barbedShot.frac() > 1.8
         or (cd.aspectOfTheWild.remain() < buff.frenzy.remain("pet") - gcdMax and traits.primalInstincts.active) or (ttd(units.dyn40) < 9 and useCDs()))
     then
-        if cast.barbedShot(br.petTarget) then return end
+        if cast.barbedShot(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST 3] Casting Barbed Shot on "..UnitName(br.petTarget)) else ui.debug("[ST 3] Casting Barbed Shot on nil") end return end
     end
     -- Purifying Blast
     -- purifying_blast,if=buff.bestial_wrath.down|target.time_to_die<8
@@ -833,7 +834,7 @@ actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=pet.turtle.buff.frenzy.duration-gcd>full_recharge_time
     if cast.able.barbedShot(br.petTarget) and buff.frenzy.duration("pet") - gcdMax > charges.barbedShot.timeTillFull() then
-        if cast.barbedShot(br.petTarget) then return end
+        if cast.barbedShot(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST 4] Casting Barbed Shot on "..UnitName(br.petTarget)) else ui.debug("[ST 4] Casting Barbed Shot on nil") end return end
     end
     -- Cobra Shot - Low Level
     if cast.able.cobraShot() and level < 10 then
@@ -846,7 +847,7 @@ actionList.Cleave = function()
     -- Barbed Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
     if cast.able.barbedShot(lowestBarbedShot) and (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax + 0.1) then
-        if cast.barbedShot(lowestBarbedShot) then return end
+        if cast.barbedShot(lowestBarbedShot) then if lowestBarbedShot ~= nil then ui.debug("[AOE 1] Casting Barbed Shot on "..UnitName(lowestBarbedShot)) else ui.debug("[AOE 1] Casting Barbed Shot on nil") end return end
     end
     -- Multishot
     -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25
@@ -858,7 +859,7 @@ actionList.Cleave = function()
     -- Barbeb Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains
     if cast.able.barbedShot(lowestBarbedShot) and (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax) then
-        if cast.barbedShot(lowestBarbedShot) then return end
+        if cast.barbedShot(lowestBarbedShot) then if lowestBarbedShot ~= nil then ui.debug("[AOE 2] Casting Barbed Shot on "..UnitName(lowestBarbedShot)) else ui.debug("[AOE 2] Casting Barbed Shot on nil") end return end
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild
@@ -882,7 +883,7 @@ actionList.Cleave = function()
         if cast.bestialWrath() then return end
     end
     if cast.able.barbedShot(lowestBarbedShot) and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remain() < gcdMax + 0.5 then
-        if cast.barbedShot(lowestBarbedShot) then return end
+        if cast.barbedShot(lowestBarbedShot) then if lowestBarbedShot ~= nil then ui.debug("[AOE 3] Casting Barbed Shot on "..UnitName(lowestBarbedShot)) else ui.debug("[AOE 3] Casting Barbed Shot on nil") end return end
     end
     -- Chimaera Shot
     -- chimaera_shot
@@ -902,7 +903,7 @@ actionList.Cleave = function()
     -- Kill Command
     -- kill_command,if=active_enemies<4|!azerite.rapid_reload.enabled
     if cast.able.killCommand(br.petTarget) and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
-        if cast.killCommand(br.petTarget) then return end
+        if cast.killCommand(br.petTarget) then if br.petTarget ~= nil then ui.debug("[AOE] Casting Kill Command on "..UnitName(br.petTarget)) else ui.debug("[AOE] Casting Kill Command on nil") end return end
     end
     -- Dire Beast
     -- dire_beast
@@ -915,7 +916,7 @@ actionList.Cleave = function()
         or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < (buff.frenzy.remain("pet") - gcdMax))
         or (useCDs() and ttd(units.dyn40) < 9))
     then
-        if cast.barbedShot(lowestBarbedShot) then return end
+        if cast.barbedShot(lowestBarbedShot) then if lowestBarbedShot ~= nil then ui.debug("[AOE 4] Casting Barbed Shot on "..UnitName(lowestBarbedShot)) else ui.debug("[AOE 4] Casting Barbed Shot on nil") end return end
     end
     -- Heart Essence
     if isChecked("Use Essence") then
@@ -1060,6 +1061,7 @@ local function runRotation()
     ttm                                = br.player.power.focus.ttm()
     units                              = br.player.units
     use                                = br.player.use
+    ui.debug                           = br.addonDebug
 
     -- Global Functions
     flying                             = IsFlying()
