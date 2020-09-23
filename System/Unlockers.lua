@@ -98,10 +98,25 @@ function loadUnlockerAPI()
         CancelPendingSpell = wmbapi.CancelPendingSpell
         ClickPosition = wmbapi.ClickPosition
         IsAoEPending = wmbapi.IsAoEPending
-        GetTargetingSpell = function() return end
-        WorldToScreen = wmbapi.WorldToScreen
-        ScreenToWorld = wmbapi.ScreenToWorld
-        GetMousePosition = function() return 0,0,0,0 end
+        GetTargetingSpell = wmbapi.IsAoEPending
+        WorldToScreen = function(...) 
+            local scale, x, y = UIParent:GetEffectiveScale(), select(2,wmbapi.WorldToScreen(...))
+            local sx = GetScreenWidth() * scale
+            local sy = GetScreenHeight() * scale
+            return x * sx, y * sy
+        end
+        ScreenToWorld = function(X, Y) 
+            local scale = UIParent:GetEffectiveScale()
+            local sx = GetScreenWidth() * scale
+            local sy = GetScreenHeight() * scale
+            return wmbapi.ScreenToWorld(X / sx, Y / sy)
+        end
+        GetMousePosition = function()
+            local def_x, def_y, real_x, real_y = 768*(GetScreenWidth()/GetScreenHeight()), 768, GetPhysicalScreenSize()
+            local cur_x, cur_y = GetCursorPosition()
+            local res_x, res_y = cur_x*(real_x/def_x), real_y-cur_y*(real_y/def_y)
+            return res_x, res_y, res_x, res_y
+        end
         -- Hacks
         IsHackEnabled = function() return end
         SetHackEnabled = function() return true end
@@ -125,13 +140,37 @@ function loadUnlockerAPI()
         -- Misc
         SendHTTPRequest = wmbapi.SendHttpRequest
         GetKeyState = wmbapi.GetKeyState
-        -- Drawing
-        GetWoWWindow = function()
-            return GetScreenWidth(), GetScreenHeight()
+        Offsets = {            
+            ["cggameobjectdata__flags"]="CGGameObjectData__Flags",
+            ["cgobjectdata__dynamicflags"]="CGObjectData__DynamicFlags"
+        }
+        GetOffset = function(offset)
+            return wmbapi.GetObjectDescriptorsTable()[Offsets[string.lower(offset)]]
         end
-        Draw2DLine = function() return end
-        Draw2DText = function() return end
-        WorldToScreenRaw = function() return 0, 0 end
+        -- Drawing
+        GetWoWWindow = GetPhysicalScreenSize
+        Draw2DLine = LibDraw.Draw2DLine
+        Draw2DText = function(textX, textY, text)
+            local F = tremove(LibDraw.fontstrings) or LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
+            F:SetFontObject("GameFontNormal")
+            F:SetText(text)
+            F:SetTextColor(LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a)
+            if p then
+                local width = F:GetStringWidth() - 4
+                local offsetX = width*0.5
+                local offsetY = F:GetStringHeight() + 3.5
+                local pwidth = width*p*0.01
+                FHAugment.drawLine(textX-offsetX, textY-offsetY, (textX+offsetX), textY-offsetY, 4, r, g, b, 0.25)
+                FHAugment.drawLine(textX-offsetX, textY-offsetY, (textX+offsetX)-(width-pwidth), textY-offsetY, 4, r, g, b, 1)
+            end
+            F:SetPoint("TOPLEFT", UIParent, "TOPLEFT", textX-(F:GetStringWidth()*0.5), textY)
+            F:Show()
+            tinsert(LibDraw.fontstrings_used, F) 
+        end
+        WorldToScreenRaw = function(...)
+            local x, y = select(2,wmbapi.WorldToScreen(...))
+            return x, 1-y
+        end
         unlocked = true
     end
     -- No Unlocker

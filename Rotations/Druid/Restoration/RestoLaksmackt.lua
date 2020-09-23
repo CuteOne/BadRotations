@@ -141,6 +141,13 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Photosynthesis Count", 3, 0, 40, 1, "Minimum hurt Targets")
         br.ui:createCheckbox(section, "pre-hot in combat", "apply pre-hotting routine while in combat")
         br.ui:checkSectionState(section)
+
+        br.ui:createSpinner(section, "Flourish", 60, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Flourish Targets", 3, 0, 40, 1, "Minimum Flourish Targets")
+        br.ui:createSpinnerWithout(section, "Flourish HOT Targets", 5, 0, 40, 1, "Minimum HOT Targets cast Flourish")
+        br.ui:createSpinnerWithout(section, "HOT Time count", 8, 0, 25, 1, "HOT Less than how many seconds to count")
+        br.ui:checkSectionState(section)
+
         -- Essences
         --"Memory of Lucid Dreams"
         section = br.ui:createSection(br.ui.window.profile, "Essences")
@@ -231,6 +238,48 @@ end
 local function isCC(unit)
     if getOptionCheck("Don't break CCs") then
         return isLongTimeCCed(Unit)
+    end
+    return false
+end
+
+local function already_stunned(Unit)
+    if Unit == nil then
+        return false
+    end
+    local already_stunned_list = {
+        [47481] = "Gnaw",
+        [5211] = "Mighty Bash",
+        [22570] = "Maim",
+        [19577] = "Intimidation",
+        [119381] = "Leg Sweep",
+        [853] = "Hammer of Justice",
+        [408] = "Kidney Shot",
+        [1833] = "Cheap Shot",
+        [199804] = "Between the eyes",
+        [107570] = "Storm Bolt",
+        [46968] = "Shockwave",
+        [221562] = "Asphyxiate",
+        [91797] = "Monstrous Blow",
+        [179057] = "Chaos Nova",
+        [211881] = "Fel Eruption",
+        [1822] = "Rake",
+        [192058] = "Capacitor Totem",
+        [118345] = "Pulverize",
+        [89766] = "Axe Toss",
+        [30283] = "Shadowfury",
+        [1122] = "Summon Infernal",
+    }
+    for i = 1, #already_stunned_list do
+        --  Print(select(10, UnitDebuff(Unit, i)))
+        local debuffSpellID = select(10, UnitDebuff(Unit, i))
+        if debuffSpellID == nil then
+            return false
+        end
+
+        --    Print(tostring(already_stunned_list[tonumber(debuffSpellID)]))
+        if already_stunned_list[tonumber(debuffSpellID)] ~= nil then
+            return true
+        end
     end
     return false
 end
@@ -861,8 +910,6 @@ local function runRotation()
     end
 
     --old un-used feng functions
-    --[[
-    -- All Hot Cnt
     local function getAllHotCnt(time_remain)
         hotCnt = 0
         for i = 1, #br.friend do
@@ -898,7 +945,6 @@ local function runRotation()
         return hotCnt
     end
 
-
     -- wildGrowth Exist
     local function wildGrowthExist()
         for i = 1, #br.friend do
@@ -917,7 +963,7 @@ local function runRotation()
             bloomCount = bloomCount + 1
         end
     end
-    ]]
+
     local function BossEncounterCase()
 
         local burst = false
@@ -1326,7 +1372,7 @@ local function runRotation()
             end
         end -- End Shapeshift Form Management
         -- Revive
-        if isChecked("Revive") then
+        if isChecked("Revive") and not cast.last.revive(1) then
             if getOptionValue("Revive") == 1 and hastar and playertar and deadtar then
                 if cast.revive("target", "dead") then
                     br.addonDebug("Casting Revive")
@@ -1450,9 +1496,17 @@ local function runRotation()
     -- Interrupt
     local function Interrupts()
         if useInterrupts() then
-            if (isChecked("Typhoon") and talent.typhoon) or (isChecked("Mighty Bash") and talent.mightyBash) then
+            if (isChecked("Typhoon") and talent.typhoon and cast.able.typhoon()) or (isChecked("Mighty Bash") and talent.mightyBash and cast.able.mightyBash()) then
                 for i = 1, #enemies.yards15 do
                     local thisUnit = enemies.yards15[i]
+                    if cast.able.mightyBash() and isCrowdControlCandidates(thisUnit) and not getUnitID(thisUnit) == 130488
+                            and not already_stunned(thisUnit)
+                            and GetUnitExists(thisUnit) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 5 then
+                        if cast.mightyBash(thisUnit) then
+                            --Print("Stun")
+                            return true
+                        end
+                    end
                     if canInterrupt(thisUnit, getOptionValue("InterruptAt")) then
                         -- Typhoon
                         if isChecked("Typhoon") and talent.typhoon and getFacing("player", thisUnit) then
@@ -1647,6 +1701,20 @@ local function runRotation()
                 if lowest.hp <= getValue("Ironbark") then
 
                     if cast.ironbark(lowest.unit) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        -- Ghetto Flourish Support
+        if isChecked("Flourish") and inCombat and talent.flourish and buff.wildGrowth.exists() then
+            if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then
+                local c = getAllHotCnt(getValue("HOT Time count"))
+                if c >= getValue("Flourish HOT Targets") or buff.tranquility.exists() then
+                    --clearform()
+                    if cast.flourish() then
+                        br.addonDebug("Casting Flourish")
                         return true
                     end
                 end
