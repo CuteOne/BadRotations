@@ -86,8 +86,6 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs/AoE Healing will be triggered.")
         -- DPS Threshold
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
-        -- Critical HP
-            br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "|cffFFFFFFWill stop casting a DPS Spell if party member drops below value. Default: 30" )
         -- Mana Pot
             br.ui:createSpinner(section, "Mana Pot", 30, 0, 100, 5, "|cffFFFFFFWill use mana pot if mana below this value. Default: 30")
 
@@ -1125,13 +1123,6 @@ local function runRotation()
         if inCombat then
            if IsAoEPending()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
         end
-        -- Dps Spell Cancel
-        for i = 1, #dpsSpells do
-            if isCastingSpell(dpsSpells[i]) and isChecked("Critical HP") and lowest.hp <= getValue("Critical HP") then
-                SpellStopCasting()
-                break
-            end
-        end
         -- Pause
         if pause() then
             return true
@@ -1182,7 +1173,7 @@ local function runRotation()
                         br.addonDebug("Using Sapphire of Brilliance")
                         useItem(166801)
                     end
-                    if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > (getOptionValue("Critical HP") + 10) and lowest.hp > getOptionValue("DPS Threshold") then
+                    if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
                         if isExplosive("target") then
                             actionList_Explosive()
                         else
