@@ -117,23 +117,37 @@ function br:loadSavedSettings()
 			local name, title = GetAddOnInfo(i)
 			if title == "|cffa330c9BadRotations" then
 				br.addonName = name
-				Print("Currently known as "..tostring(br.addonName))
+				if br.addonName ~= "BadRotations" then
+					Print("Currently known as "..tostring(br.addonName))
+				end
 				break
 			end
 		end
 		-- Set the Settings Directory
 		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
+		if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
 		local brdata
 		local brprofile
+		br.fileList = {}
 		Print("Loading Saved Settings")
-		-- loading br.data
-		brdata = br.tableLoad(br.settingsDir .. "savedData.lua")
-		br.data = deepcopy(brdata)
-		brdata = nil
-		-- loading br.profile
-		brprofile = br.tableLoad(br.settingsDir .. "savedProfile.lua")
-		br.profile = deepcopy(brprofile)
-		brprofile = nil
+		br.fileList = GetDirectoryFiles(br.settingsDir..'*.lua')
+		for i = 1, #br.fileList do
+			-- Print("File: "..br.fileList[i])
+			-- loading br.data
+			if br.fileList[i] == "savedData.lua" then
+				brdata = br.tableLoad(br.settingsDir .. "savedData.lua")
+				br.data = deepcopy(brdata)
+				brdata = nil
+				-- Print("Saved Settings Loaded")
+			end
+			if br.fileList[i] == "savedProfile.lua" then
+				-- loading br.profile
+				brprofile = br.tableLoad(br.settingsDir .. "savedProfile.lua")
+				br.profile = deepcopy(brprofile)
+				brprofile = nil
+				-- Print("Saved Profiles Loaded")
+			end
+		end
 		-- Restore Initial Settings
 		if br.data ~= nil then
 			br.data.loadedSettings = true

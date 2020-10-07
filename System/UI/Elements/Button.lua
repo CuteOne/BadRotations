@@ -312,8 +312,19 @@ function br.ui:createImportButton(parent, buttonName, x, y)
     importButton:SetHeight(20)
     importButton:SetEventListener("OnClick", function()
         -- Load settings file matching profile to br.data
+        if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
         local loadSettings = br.tableLoad(br.settingsFile)
-        if assert(loadSettings ~= nil) then
+        local fileFound = false
+        local settingsFile = ""
+        settingsFile = string.gsub(br.settingsFile, br.settingsDir, "")
+        br.fileList = GetDirectoryFiles(br.settingsDir..'*.lua')
+		for i = 1, #br.fileList do
+            if br.fileList[i] == settingsFile then
+                fileFound = true
+                break
+            end
+        end
+        if fileFound and assert(loadSettings ~= nil) then
             br.ui:closeWindow("all")
             mainButton:Hide()
             br.data.settings[br.selectedSpec] = loadSettings
@@ -324,6 +335,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
             ReloadUI() 
         else
             Print("Error Loading Settings File")
+            if not fileFound then Print("No File Called "..settingsFile.." Found In "..br.settingsDir) end
         end
     end)
 
@@ -382,7 +394,7 @@ br.tableSave = function(tbl,filename)
         for i,v in pairs( t ) do
             -- escape handled values
             if (not thandled[i]) then
-            
+
                 local str = ""
                 local stype = type( i )
                 -- handle index
@@ -399,7 +411,7 @@ br.tableSave = function(tbl,filename)
                 elseif stype == "boolean" then
                     str = charS.."["..i.."]="
                 end
-            
+
                 if str ~= "" then
                     stype = type( v )
                     -- handle value
@@ -432,7 +444,7 @@ end
 
 --// The Load Function
 br.tableLoad = function( sfile )
-    local file = assert(ReadFile(sfile))
+    local file = ReadFile(sfile)
     if file == nil then return end
     local ftables = loadstring(file,sfile)
     -- local ftables,err = loadfile( sfile )
