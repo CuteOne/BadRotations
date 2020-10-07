@@ -3,7 +3,6 @@
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
 ## Version: 1.33.3
-## SavedVariablesPerCharacter: brdata, brprofile
 
 BadRotations.lua
 bindings.xml

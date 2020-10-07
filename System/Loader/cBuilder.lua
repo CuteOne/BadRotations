@@ -12,7 +12,7 @@ local function getFolderSpecName(class,specID)
     end
 end
 local function rotationsDirectory()
-    return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
+    return GetWoWDirectory() .. '\\Interface\\AddOns\\' .. br.addonName .. '\\Rotations\\'
 end
 local function loadFile(profile,file,support)
     local loadProfile = loadstring(profile,file)

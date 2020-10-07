@@ -1,8 +1,10 @@
 -- define br global that will hold the bot global background features
 br = {}
+br.addonName = "BadRotations"
 br.data = {}
-br.profile = {}
 br.data.ui = {}
+br.profile = {}
+br.settingsDir = "\\"
 br.settingsFile = "None.lua"
 br.selectedSpec = "None"
 br.selectedProfile = 1
@@ -68,51 +70,109 @@ function br:Run()
 	}
 	-- load common used stuff on first load
 	br:loadSettings()
-	-- add minimap fire icon
-	br:MinimapButton()
-	-- build up UI
-	TogglesFrame()
 	-- Build up pulse frame (hearth)
 	if not br.loadedIn then
 		br:Engine()
-        br:ObjectManager()
+		br:ObjectManager()
 		ChatOverlay("-= BadRotations Loaded =-")
 		Print("Loaded")
 		br.loadedIn = true
 	end
 end
-
 -- Load Settings
 function br:loadSettings()
 	-- Base Settings
-	if br.data == nil then br.data = {} end
-	if br.data.settings == nil then
-		br.data.settings = {
-			mainButton = {
-				pos = {
-					anchor = "CENTER",
-					x = -75,
-					y = -200
-				}
-			},
-			buttonSize = 32,
-			font = "Fonts/arialn.ttf",
-			fontsize = 16,
-			wiped = true,
-		}
+	if br.data == nil then br.data = {} br.data.loadedSettings = false end
+	if not br.data.loadedSettings then
+		if br.data.settings == nil then
+			br.data.settings = {
+				mainButton = {
+					pos = {
+						anchor = "CENTER",
+						x = -75,
+						y = -200
+					}
+				},
+				buttonSize = 32,
+				font = "Fonts/arialn.ttf",
+				fontsize = 16,
+				wiped = true,
+			}
+		end
+		-- Settings Per Spec
+		if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+		if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
+		if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
+			br.selectedProfile = 1
+		else
+			br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
+		end
+		if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
 	end
-	br.ui.window.config = {}
-	br.ui:createConfigWindow()
-	br.ui:toggleWindow("config")
-	-- Settings Per Spec
-    if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
-	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
-    if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-        br.selectedProfile = 1
-    else
-        br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
-    end
-	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+end
+function br:loadSavedSettings()
+	-- Get Current Addon Name and Load Saved Settings
+	if not br.data.loadedSettings then
+		for i = 1, GetNumAddOns() do
+			local name, title = GetAddOnInfo(i)
+			if title == "|cffa330c9BadRotations" then
+				br.addonName = name
+				Print("Currently known as "..tostring(br.addonName))
+				break
+			end
+		end
+		-- Set the Settings Directory
+		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
+		local brdata
+		local brprofile
+		Print("Loading Saved Settings")
+		-- loading br.data
+		brdata = br.tableLoad(br.settingsDir .. "savedData.lua")
+		br.data = deepcopy(brdata)
+		brdata = nil
+		-- loading br.profile
+		brprofile = br.tableLoad(br.settingsDir .. "savedProfile.lua")
+		br.profile = deepcopy(brprofile)
+		brprofile = nil
+		-- Restore Initial Settings
+		if br.data ~= nil then
+			br.data.loadedSettings = true
+			if br.data.blacklistVisionPotion == nil then br.data.blacklistVisionPotion = 0 end
+			if br.data.chests == nil then br.data.chests = {} end
+			if not br.data.settings.mainButton then
+				br.data.settings = {
+					mainButton = {
+						pos = {
+							anchor = "CENTER",
+							x = -75,
+							y = -200
+						}
+					},
+					buttonSize = 32,
+					font = "Fonts/arialn.ttf",
+					fontsize = 16,
+					wiped = true,
+				}
+			end
+			-- Settings Per Spec
+			if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+			if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
+			if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
+				br.selectedProfile = 1
+			else
+				br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
+			end
+			if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+		end
+		-- Initialize UI
+		br:MinimapButton()
+		TogglesFrame()
+		br.ui.window.config = {}
+		br.ui:createConfigWindow()
+		br.ui:toggleWindow("config")
+		br.ui:toggleWindow("config")
+		br.data.loadedSettings = true
+	end
 end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
@@ -127,29 +187,27 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "LOADING_SCREEN_DISABLED" then
 		br.disablePulse = false
 	end
-	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
-		-- Load Settings
-		br.data = deepcopy(brdata)
-		br.profile = deepcopy(brprofile)
-		if br.data ~= nil then
-			if br.data.blacklistVisionPotion == nil then br.data.blacklistVisionPotion = 0 end
-			if br.data.chests == nil then br.data.chests = {} end
+	if event == "PLAYER_LOGOUT" then
+		if br.unlocked then
+			br.ui:saveWindowPosition()
+			-- Make Settings Directory if not exist
+			CreateDirectory(br.settingsDir)
+			if getOptionCheck("Reset Options") then
+				-- Reset Settings
+				brdata = {}
+				br.tableSave(brdata,br.settingsDir .. "savedData.lua")
+			else
+				-- Save Settings
+				brdata = deepcopy(br.data)
+				brprofile = deepcopy(br.profile)
+				br.tableSave(brdata,br.settingsDir .. "savedData.lua")
+				br.tableSave(brprofile,br.settingsDir .. "savedProfile.lua")
+				-- dungeondata = deepcopy(br.dungeon)
+				-- mdungeondata = deepcopy(br.mdungeon)
+				-- raiddata = deepcopy(br.raid)
+				-- mraiddata = deepcopy(br.mraid)
+			end
 		end
-	end
-    if event == "PLAYER_LOGOUT" then
-        br.ui:saveWindowPosition()
-        if getOptionCheck("Reset Options") then
-			-- Reset Settings
-			brdata = {}
-        else
-			-- Save Settings
-			brdata = deepcopy(br.data)
-			brprofile = deepcopy(br.profile)
-			-- dungeondata = deepcopy(br.dungeon)
-			-- mdungeondata = deepcopy(br.mdungeon)
-			-- raiddata = deepcopy(br.raid)
-			-- mraiddata = deepcopy(br.mraid)
-        end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
 		-- Update Selected Spec
