@@ -126,6 +126,7 @@ function loadUnlockerAPI()
         WriteFile = wmbapi.WriteFile
         CreateDirectory = wmbapi.CreateDirectory
         GetWoWDirectory = wmbapi.GetWoWDirectory
+        DirectoryExists = wmbapi.DirectoryExists
         -- Callbacks
         AddEventCallback = function(Event, Callback)
             if not BRFrames then
