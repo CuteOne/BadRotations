@@ -189,6 +189,7 @@ function BadRotationsUpdate(self)
 					-- Update Selected Spec/Profile
 					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
 					br.activeSpecGroup = GetActiveSpecGroup()
+					br.data.loadedSettings = false
 					br:loadSettings()
 					br:loadSavedSettings()
 					br.rotationChanged = true

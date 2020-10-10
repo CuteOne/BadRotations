@@ -21,6 +21,7 @@ br.debug = {}
 br.unlocked = false
 
 br.pauseCast = GetTime()
+local nameSet = false
 -- Cache all non-nil return values from GetSpellInfo in a table to improve performance
 local spellcache = setmetatable({}, {__index=function(t,v) local a = {GetSpellInfo(v)} if GetSpellInfo(v) then t[v] = a end return a end})
 local function GetSpellInfo(a)
@@ -74,6 +75,20 @@ function br:Run()
 	if not br.loadedIn then
 		br:Engine()
 		br:ObjectManager()
+		-- Get Current Addon Name
+		if not nameSet then
+			for i = 1, GetNumAddOns() do
+				local name, title = GetAddOnInfo(i)
+				if title == "|cffa330c9BadRotations" then
+					br.addonName = name
+					if br.addonName ~= "BadRotations" then
+						Print("Currently known as "..tostring(br.addonName))
+					end
+					nameSet = true
+					break
+				end
+			end
+		end
 		ChatOverlay("-= BadRotations Loaded =-")
 		Print("Loaded")
 		br.loadedIn = true
@@ -110,19 +125,9 @@ function br:loadSettings()
 		if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
 	end
 end
+-- Load Saved Settings
 function br:loadSavedSettings()
-	-- Get Current Addon Name and Load Saved Settings
 	if not br.data.loadedSettings then
-		for i = 1, GetNumAddOns() do
-			local name, title = GetAddOnInfo(i)
-			if title == "|cffa330c9BadRotations" then
-				br.addonName = name
-				if br.addonName ~= "BadRotations" then
-					Print("Currently known as "..tostring(br.addonName))
-				end
-				break
-			end
-		end
 		-- Set the Settings Directory
 		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
 		if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
