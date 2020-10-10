@@ -315,10 +315,9 @@ function br.ui:createImportButton(parent, buttonName, x, y)
         if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
         local loadSettings = br.tableLoad(br.settingsFile)
         local fileFound = false
-        local settingsFile = ""
-        settingsFile = string.gsub(br.settingsFile, br.settingsDir, "")
+        local settingsFile = br.selectedSpec..br.selectedProfileName..".lua"
         br.fileList = GetDirectoryFiles(br.settingsDir..'*.lua')
-		for i = 1, #br.fileList do
+        for i = 1, #br.fileList do
             if br.fileList[i] == settingsFile then
                 fileFound = true
                 break
@@ -332,7 +331,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
             br.data.settings.buttonSize = br.data.settings[br.selectedSpec].toggleBar.size
             br.ui:recreateWindows()
             Print("Loaded Settings for Profile "..br.selectedProfile..": "..br.selectedProfileName..br.selectedSpec..", from Settings Folder")
-            ReloadUI() 
+            ReloadUI()
         else
             Print("Error Loading Settings File")
             if not fileFound then Print("No File Called "..settingsFile.." Found In "..br.settingsDir) end
