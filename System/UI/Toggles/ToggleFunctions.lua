@@ -216,82 +216,84 @@ end
 
 -- /run CreateButton("AoE",2,2)
 function CreateButton(Name,x,y)
-	local Icon
-	-- local Name = string.upper(Name)
-    -- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
-	if br.data.settings[br.selectedSpec].toggles[Name] == nil or br.data.settings[br.selectedSpec].toggles[Name] > #_G[Name.."Modes"] then br.data.settings[br.selectedSpec].toggles[Name] = 1 end
-	tinsert(buttonsTable, { name = Name, bx = x, by = y })
-	_G["button"..Name] = CreateFrame("Button", "MyButtonBR", mainButton, "SecureHandlerClickTemplate")
-	_G["button"..Name]:SetWidth(br.data.settings["buttonSize"])
-	_G["button"..Name]:SetHeight(br.data.settings["buttonSize"])
-	_G["button"..Name]:SetPoint("LEFT",x*(br.data.settings["buttonSize"])+(x*2),y*(br.data.settings["buttonSize"])+(y*2))
-	_G["button"..Name]:RegisterForClicks("AnyUp")
-	if _G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon ~= nil and type(_G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number" then
-		Icon = select(3,GetSpellInfo(_G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
-	else
-		Icon = _G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
-	end
-	_G["button"..Name]:SetNormalTexture(Icon or emptyIcon)
-	--CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6)
-	_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY")
-	_G["text"..Name]:SetFont(br.data.settings.font,br.data.settings.fontsize,"THICKOUTLINE")
-	_G["text"..Name]:SetJustifyH("CENTER")
-	_G["text"..Name]:SetTextHeight(br.data.settings["buttonSize"]/3)
-	_G["text"..Name]:SetPoint("CENTER",3,-(br.data.settings["buttonSize"]/8))
-	_G["text"..Name]:SetTextColor(1,1,1,1)
-	_G["frame"..Name] = CreateFrame("Frame", nil, _G["button"..Name])
-	_G["frame"..Name]:SetWidth(br.data.settings["buttonSize"]*1.67)
-	_G["frame"..Name]:SetHeight(br.data.settings["buttonSize"]*1.67)
-	_G["frame"..Name]:SetPoint("CENTER")
-	_G["frame"..Name].texture = _G["frame"..Name]:CreateTexture(_G["button"..Name], "OVERLAY")
-	_G["frame"..Name].texture:SetAllPoints()
-	_G["frame"..Name].texture:SetWidth(br.data.settings["buttonSize"]*1.67)
-	_G["frame"..Name].texture:SetHeight(br.data.settings["buttonSize"]*1.67)
-	_G["frame"..Name].texture:SetAlpha(100)
-	_G["frame"..Name].texture:SetTexture(genericIconOn)
-	local modeTable
-	if _G[Name.."Modes"] == nil then Print("No table found for ".. Name); _G[Name.."Modes"] = tostring(Name) else _G[Name.."Modes"] = _G[Name.."Modes"] end
-	local modeValue
-	if br.data.settings[br.selectedSpec].toggles[tostring(Name)] == nil then br.data.settings[br.selectedSpec].toggles[tostring(Name)] = 1 modeValue = 1 else modeValue = br.data.settings[br.selectedSpec].toggles[tostring(Name)] end
-	_G["button"..Name]:SetScript("OnClick", function(self, button)
-		if button == "RightButton" then
-			ToggleMinus(Name)
+	if br.data.settings[br.selectedSpec] ~= nil then
+		local Icon
+		-- local Name = string.upper(Name)
+		-- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
+		if br.data.settings[br.selectedSpec].toggles[Name] == nil or br.data.settings[br.selectedSpec].toggles[Name] > #_G[Name.."Modes"] then br.data.settings[br.selectedSpec].toggles[Name] = 1 end
+		tinsert(buttonsTable, { name = Name, bx = x, by = y })
+		_G["button"..Name] = CreateFrame("Button", "MyButtonBR", mainButton, "SecureHandlerClickTemplate")
+		_G["button"..Name]:SetWidth(br.data.settings["buttonSize"])
+		_G["button"..Name]:SetHeight(br.data.settings["buttonSize"])
+		_G["button"..Name]:SetPoint("LEFT",x*(br.data.settings["buttonSize"])+(x*2),y*(br.data.settings["buttonSize"])+(y*2))
+		_G["button"..Name]:RegisterForClicks("AnyUp")
+		if _G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon ~= nil and type(_G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number" then
+			Icon = select(3,GetSpellInfo(_G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
 		else
-			ToggleValue(Name)
+			Icon = _G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
 		end
-	end )
-	local actualTip = _G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip
-	_G["button"..Name]:SetScript("OnMouseWheel", function(self, delta)
-		local Go = false
-		if delta < 0 and br.data.settings[br.selectedSpec].toggles[tostring(Name)] > 1 then
-			Go = true
-		elseif delta > 0 and br.data.settings[br.selectedSpec].toggles[tostring(Name)] < #_G[Name.."Modes"] then
-			Go = true
-		end
-		if Go == true then
-			br.data.settings[br.selectedSpec].toggles[tostring(Name)] = br.data.settings[br.selectedSpec].toggles[tostring(Name)] + delta
-		end
-	end)
-	_G["button"..Name]:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(_G["button"..Name], UIParent, 0 , 0)
-		GameTooltip:SetText(_G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip, 225/255, 225/255, 225/255, nil, true)
-		GameTooltip:Show()
-	end)
-	_G["button"..Name]:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-	end)
-	_G["text"..Name]:SetText(_G[Name.."Modes"][modeValue].mode)
-	if _G[Name.."Modes"][modeValue].highlight == 0 then
-		_G["frame"..Name].texture:SetTexture(genericIconOff)
-	else
+		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon)
+		--CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6)
+		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY")
+		_G["text"..Name]:SetFont(br.data.settings.font,br.data.settings.fontsize,"THICKOUTLINE")
+		_G["text"..Name]:SetJustifyH("CENTER")
+		_G["text"..Name]:SetTextHeight(br.data.settings["buttonSize"]/3)
+		_G["text"..Name]:SetPoint("CENTER",3,-(br.data.settings["buttonSize"]/8))
+		_G["text"..Name]:SetTextColor(1,1,1,1)
+		_G["frame"..Name] = CreateFrame("Frame", nil, _G["button"..Name])
+		_G["frame"..Name]:SetWidth(br.data.settings["buttonSize"]*1.67)
+		_G["frame"..Name]:SetHeight(br.data.settings["buttonSize"]*1.67)
+		_G["frame"..Name]:SetPoint("CENTER")
+		_G["frame"..Name].texture = _G["frame"..Name]:CreateTexture(_G["button"..Name], "OVERLAY")
+		_G["frame"..Name].texture:SetAllPoints()
+		_G["frame"..Name].texture:SetWidth(br.data.settings["buttonSize"]*1.67)
+		_G["frame"..Name].texture:SetHeight(br.data.settings["buttonSize"]*1.67)
+		_G["frame"..Name].texture:SetAlpha(100)
 		_G["frame"..Name].texture:SetTexture(genericIconOn)
+		local modeTable
+		if _G[Name.."Modes"] == nil then Print("No table found for ".. Name); _G[Name.."Modes"] = tostring(Name) else _G[Name.."Modes"] = _G[Name.."Modes"] end
+		local modeValue
+		if br.data.settings[br.selectedSpec].toggles[tostring(Name)] == nil then br.data.settings[br.selectedSpec].toggles[tostring(Name)] = 1 modeValue = 1 else modeValue = br.data.settings[br.selectedSpec].toggles[tostring(Name)] end
+		_G["button"..Name]:SetScript("OnClick", function(self, button)
+			if button == "RightButton" then
+				ToggleMinus(Name)
+			else
+				ToggleValue(Name)
+			end
+		end )
+		local actualTip = _G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip
+		_G["button"..Name]:SetScript("OnMouseWheel", function(self, delta)
+			local Go = false
+			if delta < 0 and br.data.settings[br.selectedSpec].toggles[tostring(Name)] > 1 then
+				Go = true
+			elseif delta > 0 and br.data.settings[br.selectedSpec].toggles[tostring(Name)] < #_G[Name.."Modes"] then
+				Go = true
+			end
+			if Go == true then
+				br.data.settings[br.selectedSpec].toggles[tostring(Name)] = br.data.settings[br.selectedSpec].toggles[tostring(Name)] + delta
+			end
+		end)
+		_G["button"..Name]:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(_G["button"..Name], UIParent, 0 , 0)
+			GameTooltip:SetText(_G[Name.."Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip, 225/255, 225/255, 225/255, nil, true)
+			GameTooltip:Show()
+		end)
+		_G["button"..Name]:SetScript("OnLeave", function(self)
+			GameTooltip:Hide()
+		end)
+		_G["text"..Name]:SetText(_G[Name.."Modes"][modeValue].mode)
+		if _G[Name.."Modes"][modeValue].highlight == 0 then
+			_G["frame"..Name].texture:SetTexture(genericIconOff)
+		else
+			_G["frame"..Name].texture:SetTexture(genericIconOn)
+		end
+		if br.data.settings[br.selectedSpec].toggles["Main"] == 1 and not UnitAffectingCombat("player") then
+			mainButton:Show()
+		elseif not UnitAffectingCombat("player") then
+			mainButton:Hide()
+		elseif UnitAffectingCombat("player") then
+			Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+		end		 
+		SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 	end
-	if br.data.settings[br.selectedSpec].toggles["Main"] == 1 and not UnitAffectingCombat("player") then
-		mainButton:Show()
-	elseif not UnitAffectingCombat("player") then
-		mainButton:Hide()
-	elseif UnitAffectingCombat("player") then
-		Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
-	end		 
-	SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 end

@@ -58,6 +58,7 @@ function br.loader:new(spec,specName)
     local brLoaded = brLoaded
 
     if not brLoaded then
+        br:loadSavedSettings()
         br.loader.loadProfiles()
         brLoaded = true
     end

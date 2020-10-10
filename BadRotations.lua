@@ -123,11 +123,13 @@ function br:loadSettings()
 			br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
 		end
 		if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+		-- Initialize UI
+		br:MinimapButton()
 	end
 end
 -- Load Saved Settings
 function br:loadSavedSettings()
-	if not br.data.loadedSettings then
+	if br.unlocked and not br.data.loadedSettings then
 		-- Set the Settings Directory
 		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
 		if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
@@ -153,38 +155,7 @@ function br:loadSavedSettings()
 				-- Print("Saved Profiles Loaded")
 			end
 		end
-		-- Restore Initial Settings
-		if br.data ~= nil then
-			br.data.loadedSettings = true
-			if br.data.blacklistVisionPotion == nil then br.data.blacklistVisionPotion = 0 end
-			if br.data.chests == nil then br.data.chests = {} end
-			if not br.data.settings.mainButton then
-				br.data.settings = {
-					mainButton = {
-						pos = {
-							anchor = "CENTER",
-							x = -75,
-							y = -200
-						}
-					},
-					buttonSize = 32,
-					font = "Fonts/arialn.ttf",
-					fontsize = 16,
-					wiped = true,
-				}
-			end
-			-- Settings Per Spec
-			if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
-			if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
-			if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-				br.selectedProfile = 1
-			else
-				br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
-			end
-			if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
-		end
-		-- Initialize UI
-		br:MinimapButton()
+		br:loadSettings()
 		TogglesFrame()
 		br.ui.window.config = {}
 		br.ui:createConfigWindow()
@@ -192,6 +163,13 @@ function br:loadSavedSettings()
 		br.ui:toggleWindow("config")
 		br.data.loadedSettings = true
 	end
+end
+-- Save Settings
+function br:saveSettings()
+	brdata = deepcopy(br.data)
+	brprofile = deepcopy(br.profile)
+	br.tableSave(brdata,br.settingsDir .. "savedData.lua")
+	br.tableSave(brprofile,br.settingsDir .. "savedProfile.lua")
 end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
@@ -217,10 +195,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 				br.tableSave(brdata,br.settingsDir .. "savedData.lua")
 			else
 				-- Save Settings
-				brdata = deepcopy(br.data)
-				brprofile = deepcopy(br.profile)
-				br.tableSave(brdata,br.settingsDir .. "savedData.lua")
-				br.tableSave(brprofile,br.settingsDir .. "savedProfile.lua")
+				br:saveSettings()
 				-- dungeondata = deepcopy(br.dungeon)
 				-- mdungeondata = deepcopy(br.mdungeon)
 				-- raiddata = deepcopy(br.raid)

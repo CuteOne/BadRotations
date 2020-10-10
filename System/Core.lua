@@ -80,9 +80,9 @@ function BadRotationsUpdate(self)
 	-- Load and Cycle BR
 	elseif br.unlocked and GetObjectCountBR() ~= nil then
 		checkBrOutOfDate() -- Check BR Out of Date
-		br:loadSavedSettings() -- Loads Saved Settings
+		-- br:loadSavedSettings() -- Loads Saved Settings
 		-- Continue Load
-		if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
+		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 			-- BR Main Toggle Off
 			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 				-- Clear Queue
@@ -184,14 +184,16 @@ function BadRotationsUpdate(self)
 				autoLoot()
 				-- Close windows and swap br.selectedSpec on Spec Change
 				if select(2, GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
+					-- Save settings
+					br:saveSettings()
 					-- Closing the windows will save the position
 					br.ui:closeWindow("all")
 					-- Update Selected Spec/Profile
 					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
 					br.activeSpecGroup = GetActiveSpecGroup()
 					br.data.loadedSettings = false
-					br:loadSettings()
-					br:loadSavedSettings()
+					-- br:loadSettings()
+					-- br:loadSavedSettings()
 					br.rotationChanged = true
 					commandHelp = nil
 					commandHelp = ""

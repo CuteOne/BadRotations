@@ -33,6 +33,8 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
         if UnitAffectingCombat("player") then
             Print("Unable to change profile in combat.  Please try again when combat ends.")
         else
+            -- Save Settings
+            br:saveSettings()
             br.data.settings[br.selectedSpec][text.."Drop"] = key
             br.data.settings[br.selectedSpec][text.."DropValue"] = value
             br.selectedProfile = key
