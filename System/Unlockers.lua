@@ -48,6 +48,7 @@ function loadUnlockerAPI()
         ReadFile = ReadFile
         WriteFile = WriteFile
         CreateDirectory = CreateDirectory
+        DirectoryExists = DirectoryExists
         GetWoWDirectory = GetWoWDirectory
         -- Callbacks
         AddEventCallback = AddEventCallback
