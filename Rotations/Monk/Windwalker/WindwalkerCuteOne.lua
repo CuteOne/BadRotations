@@ -248,6 +248,7 @@ end
 local actionList = {}
 -- Action List - Extras
 actionList.Extras = function()
+    local startTime = debugprofilestop()
     -- Stop Casting
     if isCastingSpell(spell.cracklingJadeLightning) then
         --   Print("channeling cjl")
@@ -326,11 +327,14 @@ actionList.Extras = function()
     then
         if cast.stormEarthAndFireFixate("target") then fixateTarget = "target" debug("Casting SEF [Fixate]") return true end
     end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.extras")
 end -- End Action List - Extras
 
 -- Action List - Defensive
 actionList.Defensive = function()
     if useDefensive() then
+        local startTime = debugprofilestop()
         -- Pot/Stoned
         if option.checked("Healthstone") and getHP("player") <= option.value("Healthstone") and inCombat then
             if canUseItem(5512) then
@@ -387,12 +391,15 @@ actionList.Defensive = function()
         if option.checked("Vivify") and ((php <= option.value("Vivify") and not inCombat) or (php <= option.value("Vivify")/2 and inCombat)) and cast.able.vivify() then
             if cast.vivify() then debug("Casting Vivfy") return true end
         end
+        -- Debugging
+	    br.debug.cpu:updateDebug(startTime,"rotation.profile.defensive")
     end -- End Defensive Check
 end -- End Action List - Defensive
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
     if useInterrupts() then
+        local startTime = debugprofilestop()
         for i=1, #getEnemies("player",20) do
             local thisUnit = getEnemies("player",20)[i]
             local distance = getDistance(thisUnit)
@@ -411,11 +418,14 @@ actionList.Interrupts = function()
                 end
             end
         end
+        -- Debugging
+	    br.debug.cpu:updateDebug(startTime,"rotation.profile.interrupts")
     end -- End Interrupt Check
 end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
+    local startTime = debugprofilestop()
     if useCDs() and getDistance(units.dyn5) < 5 then
         -- Invoke Xuen
         -- invoke_xuen_the_white_tiger
@@ -577,10 +587,13 @@ actionList.Cooldowns = function()
     if option.checked("Use Essence") and cast.able.rippleInSpace() then
         if cast.rippleInSpace() then debug("Casting Ripple In Space") return end
     end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.cooldowns")
 end -- End Cooldown - Action List
 
 -- Action List - Touch Of Death
 actionList.TouchOfDeath = function()
+    local startTime = debugprofilestop()
     -- touch_of_death,if=equipped.cyclotronic_blast&target.time_to_die>9&cooldown.cyclotronic_blast.remains<=1
     if equiped.pocketSizedComputationDevice() and ttd > 9 and cd.pocketSizedComputationDevice.remain() <= 1 then
         if cast.touchOfDeath() then debug("Casting Touch Of Death [Cyclotronic Blast]") return true end
@@ -593,10 +606,13 @@ actionList.TouchOfDeath = function()
     if not equiped.pocketSizedComputationDevice() and not equiped.dribblingInkpod() and ttd > 9 then
         if cast.touchOfDeath() then debug("Casting Touch Of Death") return true end
     end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.touchOfDeath")
 end -- End Action List - Touch Of Death
 
 -- Action List - Single Target
 actionList.SingleTarget = function()
+    local startTime = debugprofilestop()
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
     if option.checked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch and not moving and not isExplosive("target")
@@ -675,10 +691,13 @@ actionList.SingleTarget = function()
     if mode.fsk == 1 and cast.able.flyingSerpentKick() and wasLastCombo(spell.blackoutKick) and chi > 3 then
         if cast.flyingSerpentKick() then debug("Casting Flying Serpent Kick [ST]") return true end
     end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.singleTarget")
 end -- End Action List - Single Target
 
 -- Action List - AoE
 actionList.AoE = function()
+    local startTime = debugprofilestop()
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<5)&cooldown.fists_of_fury.remains>3
     if cast.able.risingSunKick(lowestMark) and (((talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5)
@@ -753,10 +772,13 @@ actionList.AoE = function()
     then
         if cast.blackoutKick(lowestMark) then debug("Casting Blackout Kick [AOE]") return true end
     end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.aoe")
 end -- End Action List - AoE
 
 -- Action List - Serenity
 actionList.Serenity = function()
+    local startTime = debugprofilestop()
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=active_enemies<3|prev_gcd.1.spinning_crane_kick
     if chi >= 2 and cast.able.risingSunKick(lowestMark) and (#enemies.yards8 < 3 or wasLastCombo(spell.spinningCraneKick)) then
@@ -793,10 +815,13 @@ actionList.Serenity = function()
     if chi >= 1 and cast.able.blackoutKick(lowestMark) then
         if cast.blackoutKick(lowestMark) then debug("Casting Blackout Kick [Serenity]") return true end
     end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.serenity")
 end -- End Action List - Serenity
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
+    local startTime = debugprofilestop()
     if not inCombat then
         -- Flask / Crystal
         -- flask
@@ -852,10 +877,13 @@ actionList.PreCombat = function()
     end -- End No Combat Check
     -- Opener
     if actionList.Opener() then debug("=== Opener [Action List] ===") return true end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.precombat")
 end --End Action List - Pre-Combat
 
 -- Action List - Opener
 actionList.Opener = function()
+    local startTime = debugprofilestop()
     -- Start Attack
     -- auto_attack
     if mode.opener == 1 and isBoss("target") and not opener.complete then
@@ -1077,12 +1105,15 @@ actionList.Opener = function()
     elseif (UnitExists("target") and not isBoss("target")) or mode.opener == 2 then
         opener.complete = true
     end -- End Boss and Opener Check
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.opener")
 end -- End Action List - Opener
 
 ----------------
 --- ROTATION ---
 ----------------
 local function runRotation()
+    local startTime = debugprofilestop()
     --------------
     --- Locals ---
     --------------
@@ -1307,6 +1338,8 @@ local function runRotation()
             end -- End AskMrRobot APL
         end -- End Combat Check
     end -- End Pause
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile")
 end -- End Timer
 local id = 269
 if br.rotations[id] == nil then br.rotations[id] = {} end

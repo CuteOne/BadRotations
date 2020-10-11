@@ -255,6 +255,7 @@ local brUpdateTimer
 function checkBrOutOfDate()
     brlocVersion = GetAddOnMetadata(br.addonName,"Version")
     if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
+        local startTime = debugprofilestop()
         -- Request Current Version from GitHub
         if EasyWoWToolbox ~= nil then -- EWT
             SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
@@ -287,5 +288,6 @@ function checkBrOutOfDate()
             end
             brUpdateTimer = GetTime()
         end
+        br.debug.cpu:updateDebug(startTime, "outOfDate")
     end
 end

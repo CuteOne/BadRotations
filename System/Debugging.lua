@@ -18,57 +18,25 @@ br.debug.cpu.healingEngine = {
     GetPosition = 0,
     absorbANDhp = 0
 }
-br.debug.cpu.enemiesEngine = {
-    objects = {
-        elapsedTime = 0,
-        totalIterations = 0,
-        currentTime = 0,
-        averageTime = 0,
-        targets = 0,
-        addTime = 0,
-        cycleTime = 0
-    },
-    units = {
-        elapsedTime = 0,
-        totalIterations = 0,
-        currentTime = 0,
-        averageTime = 0,
-        targets = 0,
-        addTime = 0,
-        cycleTime = 0
-    },
-    enemy = {
-        elapsedTime = 0,
-        totalIterations = 0,
-        currentTime = 0,
-        averageTime = 0,
-        targets = 0,
-        addTime = 0
-    },
-    dynamicTarget = 0,
-    getEnemies = 0,
-    bestUnitFinder = 0
-}
-br.debug.cpu.rotation = {
-    loadTime = 0,
-    elapsedTime = 0,
-    totalIterations = 0,
-    currentTime = 0,
-    averageTime = 0,
-    baseUpdate = 0,
-    inCombat = 0,
-    maxTimeOoC = 0,
-    minTimeOoC = 999,
-    maxTimeInC = 0,
-    minTimeInC = 999,
-    profile = {}
-}
-br.debug.cpu.pulse = {
-    elapsedTime = 0,
-    totalIterations = 0,
-    currentTime = 0,
-    averageTime = 0
-}
+-- Debug Timing - add local startTime = debugprofilestop() to start of function and call this at the end, pass a unique table name and the startTime variable.
+function br.debug.cpu:updateDebug(startTime, table)
+    local startTime = startTime
+    local endTime = debugprofilestop()
+    if br.debug.cpu[table] == nil then
+        br.debug.cpu[table] = {
+            totalIterations = 0,
+            currentTime = 0,
+            elapsedTime = 0,
+            averageTime = 0
+        }
+    end
+    if isChecked("Debug Timers") then
+		br.debug.cpu[table].totalIterations = br.debug.cpu[table].totalIterations + 1
+		br.debug.cpu[table].currentTime = endTime - startTime
+		br.debug.cpu[table].elapsedTime = br.debug.cpu[table].elapsedTime + br.debug.cpu[table].currentTime
+		br.debug.cpu[table].averageTime = br.debug.cpu[table].elapsedTime / br.debug.cpu[table].totalIterations
+	end
+end
 -- just for testing
 function br.debug.cpu:getHealingEngine()
     local usage, calls

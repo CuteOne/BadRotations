@@ -612,7 +612,7 @@ function br.loader:new(spec,specName)
     end
 
     -- Debugging
-    br.debug.cpu.rotation.loadTime = debugprofilestop()-loadStart
+	br.debug.cpu:updateDebug(loadStart,"rotation.loadTime")
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
     -----------------------------

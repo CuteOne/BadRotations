@@ -117,7 +117,7 @@ function cCharacter:new(class)
 			bagsUpdated = false
 		end
 		-- Get selected rotation
-    self.getRotation()
+		self.getRotation()
 		-- Get toggle modes
 		self.getToggleModes()
 		-- Combat state update
@@ -126,9 +126,8 @@ function cCharacter:new(class)
 		if canRun() ~= true then
 			return false
 		end
-		if isChecked("Debug Timers") then
-			br.debug.cpu.rotation.baseUpdate = debugprofilestop()-startTime or 0
-		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"rotation.baseUpdate")
 	end
 
 -- Update Character Stats
@@ -228,20 +227,24 @@ function cCharacter:new(class)
 			self.rotation.run()
         else
 			return
-        end
-		if isChecked("Debug Timers") then
-	        br.debug.cpu.rotation.currentTime = debugprofilestop()-startTime
-			br.debug.cpu.rotation.totalIterations = br.debug.cpu.rotation.totalIterations + 1
-			br.debug.cpu.rotation.elapsedTime = br.debug.cpu.rotation.elapsedTime + debugprofilestop()-startTime
-			br.debug.cpu.rotation.averageTime = br.debug.cpu.rotation.elapsedTime / br.debug.cpu.rotation.totalIterations
-			if not self.inCombat then
-				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeOoC then br.debug.cpu.rotation.maxTimeOoC = br.debug.cpu.rotation.currentTime end
-				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeOoC then br.debug.cpu.rotation.minTimeOoC = br.debug.cpu.rotation.currentTime end
-			else
-				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeInC then br.debug.cpu.rotation.maxTimeInC = br.debug.cpu.rotation.currentTime end
-				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeInC then br.debug.cpu.rotation.minTimeInC = br.debug.cpu.rotation.currentTime end
-			end
 		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"rotation")
+		-- if isChecked("Debug Timers") then
+		-- 	-- br.debug.cpu.rotation = {
+		-- 	-- 	maxTimeOoC = 0,
+		-- 	-- 	minTimeOoC = 999,
+		-- 	-- 	maxTimeInC = 0,
+		-- 	-- 	minTimeInC = 999,
+		-- 	-- }
+		-- 	if not self.inCombat then
+		-- 		if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeOoC then br.debug.cpu.rotation.maxTimeOoC = br.debug.cpu.rotation.currentTime end
+		-- 		if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeOoC then br.debug.cpu.rotation.minTimeOoC = br.debug.cpu.rotation.currentTime end
+		-- 	else
+		-- 		if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeInC then br.debug.cpu.rotation.maxTimeInC = br.debug.cpu.rotation.currentTime end
+		-- 		if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeInC then br.debug.cpu.rotation.minTimeInC = br.debug.cpu.rotation.currentTime end
+		-- 	end
+		-- end
     end
 
 -- Updates special Equipslots

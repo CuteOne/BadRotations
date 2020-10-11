@@ -92,13 +92,8 @@ function updateOM()
 		end
 	end
     refreshStored = true
-    -- Debugging
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
-		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
-    end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
 end
 
 -- /dump getEnemies("target",10)
@@ -119,7 +114,7 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 			if br.storedTables[checkNoCombat][thisUnit] ~= nil then
 				if br.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 					if br.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
-				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
+						--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 						return br.storedTables[checkNoCombat][thisUnit][radius][facing]
 					end
 				end
@@ -138,10 +133,6 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 		tinsert(enemiesTable,"target")
 	end
     ---
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
-	end
-    ---
 	if #enemiesTable > 0 and thisUnit ~= nil then
 		if br.storedTables[checkNoCombat] == nil then br.storedTables[checkNoCombat] = {} end
 		if br.storedTables[checkNoCombat][thisUnit] == nil then br.storedTables[checkNoCombat][thisUnit] = {} end
@@ -149,6 +140,8 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 		br.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.getEnemies")
     return enemiesTable
 end
 
@@ -213,6 +206,7 @@ end
 -- returns true if we can safely attack this target
 function isSafeToAttack(unit)
 	if getOptionCheck("Safe Damage Check") == true then
+		local startTime = debugprofilestop()
 		-- check if unit is valid
 		local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
 		for i = 1, #br.lists.noTouchUnits do
@@ -238,6 +232,8 @@ function isSafeToAttack(unit)
 				end
 			end
 		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"enemiesEngine.isSafeToAttack")
 	end
 	-- if all went fine return true
 	return true
@@ -263,6 +259,7 @@ end
 
 -- This function will set the prioritisation of the units, ie which target should i attack
 local function getUnitCoeficient(unit)
+	local startTime = debugprofilestop()
 	local coef = 0
 	-- if distance == nil then distance = getDistance("player",unit) end
 	local distance = getDistance("player",unit)
@@ -321,6 +318,8 @@ local function getUnitCoeficient(unit)
 			-- Print("Unit "..displayName.." - "..displayCoef)
 		end
 	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.unitCoef")
 	return coef
 end
 
@@ -374,9 +373,8 @@ local function findBestUnit(range,facing)
 			end
 		end
 	end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
-	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.findBestUnit")
 	return bestUnit
 end
 
@@ -407,9 +405,8 @@ function dynamicTarget(range,facing)
 	then
 		TargetUnit(bestUnit)
 	end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
-	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.dynamicTarget")
 	return bestUnit
 end
 

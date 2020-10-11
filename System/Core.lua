@@ -62,12 +62,12 @@ end
 
 local collectGarbage = true
 function BadRotationsUpdate(self)
+	local startTime = debugprofilestop()
 	-- Check for Unlocker
 	if not br.unlocked then
 		br.unlocked = loadUnlockerAPI()
 	end
 	if br.disablePulse == true then return end
-	local startTime = debugprofilestop()
 	-- BR Not Unlocked
 	if not br.unlocked then
 		-- Notify Not Unlocked
@@ -261,10 +261,5 @@ function BadRotationsUpdate(self)
 			end --End Update Check
 		end -- End Settings Loaded Check
 	end -- End Unlock Check
-	if isChecked("Debug Timers") then
-		br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
-		br.debug.cpu.pulse.currentTime = debugprofilestop() - startTime
-		br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop() - startTime
-		br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
-	end
+	br.debug.cpu:updateDebug(startTime,"pulse")
 end -- End Bad Rotations Update Function
