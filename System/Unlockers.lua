@@ -248,10 +248,11 @@ function loadUnlockerAPI()
 end
 
 -- Checks for BR Out of Date with current version based on TOC file
-local brlocVersion = GetAddOnMetadata("BadRotations","Version")
+local brlocVersion
 local brcurrVersion
 local brUpdateTimer
 function checkBrOutOfDate()
+    brlocVersion = GetAddOnMetadata(br.addonName,"Version")
     if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
         -- Request Current Version from GitHub
         if EasyWoWToolbox ~= nil then -- EWT
@@ -272,6 +273,7 @@ function checkBrOutOfDate()
         end
         -- Check against current version installed
         if brlocVersion and brcurrVersion then
+            -- Print("Local: "..tostring(brlocVersion).." | Remote: "..tostring(brcurrVersion))
             brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
             brcleanLoc = gsub(tostring(brlocVersion),"%p","")
             if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
