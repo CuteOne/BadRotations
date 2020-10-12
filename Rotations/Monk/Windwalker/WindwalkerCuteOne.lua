@@ -1225,9 +1225,9 @@ local function runRotation()
         if buff.rushingJadeWind.cancel() then return true end
     end
 
-    -- In Combat Debug Reset on New Combat
-    if combatCheck and not inCombat then combatCheck = false end
-    if inCombat and not combatCheck and br.debug.cpu.rotation.profile.inCombat ~= nil then table.wipe(br.debug.cpu.rotation.profile.inCombat) combatCheck = true end
+    -- -- In Combat Debug Reset on New Combat
+    -- if combatCheck and not inCombat then combatCheck = false end
+    -- if inCombat and not combatCheck and br.debug.cpu.rotation.profile.inCombat ~= nil then table.wipe(br.debug.cpu.rotation.profile.inCombat) combatCheck = true end
 
     ---------------------
     --- Begin Profile ---
