@@ -228,6 +228,7 @@ local use
 
 -- General API Locals
 local castFSK
+local combatCheck = false
 local combatTime
 local fixateTarget
 local FoFTimerOpener
@@ -1224,6 +1225,10 @@ local function runRotation()
         if buff.rushingJadeWind.cancel() then return true end
     end
 
+    -- In Combat Debug Reset on New Combat
+    if combatCheck and not inCombat then combatCheck = false end
+    if inCombat and not combatCheck and br.debug.cpu.rotation.profile.inCombat ~= nil then table.wipe(br.debug.cpu.rotation.profile.inCombat) combatCheck = true end
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1252,6 +1257,7 @@ local function runRotation()
         if inCombat and profileStop==false and isValidUnit(units.dyn5) and opener.complete
             and not cast.current.spinningCraneKick() and not cast.current.fistsOfFury()
         then
+            local startTimeInC = debugprofilestop()
             ------------------
             --- Interrupts ---
             ------------------
@@ -1336,6 +1342,8 @@ local function runRotation()
             if option.value("APL Mode") == 2 then
 
             end -- End AskMrRobot APL
+            -- Debugging
+	        br.debug.cpu:updateDebug(startTimeInC,"rotation.profile.inCombat")
         end -- End Combat Check
     end -- End Pause
     -- Debugging

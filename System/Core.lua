@@ -192,7 +192,7 @@ function BadRotationsUpdate(self)
 					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
 					br.activeSpecGroup = GetActiveSpecGroup()
 					br.data.loadedSettings = false
-					-- br:loadSettings()
+					br:defaultSettings()
 					-- br:loadSavedSettings()
 					br.rotationChanged = true
 					commandHelp = nil

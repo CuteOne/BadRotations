@@ -70,6 +70,7 @@ function br:Run()
 		grey = "9d9d9d"
 	}
 	-- load common used stuff on first load
+	br:defaultSettings()
 	br:loadSettings()
 	-- Build up pulse frame (hearth)
 	if not br.loadedIn then
@@ -94,35 +95,40 @@ function br:Run()
 		br.loadedIn = true
 	end
 end
+-- Default Settings
+function br:defaultSettings()
+	if br.data.settings == nil then
+		br.data.settings = {
+			mainButton = {
+				pos = {
+					anchor = "CENTER",
+					x = -75,
+					y = -200
+				}
+			},
+			buttonSize = 32,
+			font = "Fonts/arialn.ttf",
+			fontsize = 16,
+			wiped = true,
+		}
+	end
+	-- Settings Per Spec
+	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
+	if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
+		br.selectedProfile = 1
+	else
+		br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
+	end
+	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+end
 -- Load Settings
 function br:loadSettings()
 	-- Base Settings
 	if br.data == nil then br.data = {} br.data.loadedSettings = false end
 	if not br.data.loadedSettings then
-		if br.data.settings == nil then
-			br.data.settings = {
-				mainButton = {
-					pos = {
-						anchor = "CENTER",
-						x = -75,
-						y = -200
-					}
-				},
-				buttonSize = 32,
-				font = "Fonts/arialn.ttf",
-				fontsize = 16,
-				wiped = true,
-			}
-		end
-		-- Settings Per Spec
-		if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
-		if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
-		if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-			br.selectedProfile = 1
-		else
-			br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
-		end
-		if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+		-- Load Default Settings
+		br:defaultSettings()
 		-- Initialize UI
 		br:MinimapButton()
 	end
@@ -155,7 +161,9 @@ function br:loadSavedSettings()
 				-- Print("Saved Profiles Loaded")
 			end
 		end
-		br:loadSettings()
+		-- Load Default Settings
+		br:defaultSettings()
+		-- br:loadSettings()
 		TogglesFrame()
 		br.ui.window.config = {}
 		br.ui:createConfigWindow()
