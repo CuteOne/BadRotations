@@ -34,7 +34,12 @@ function br.debug.cpu:updateDebug(startTime, table)
 		br.debug.cpu[table].totalIterations = br.debug.cpu[table].totalIterations + 1
 		br.debug.cpu[table].currentTime = endTime - startTime
 		br.debug.cpu[table].elapsedTime = br.debug.cpu[table].elapsedTime + br.debug.cpu[table].currentTime
-		br.debug.cpu[table].averageTime = br.debug.cpu[table].elapsedTime / br.debug.cpu[table].totalIterations
+        br.debug.cpu[table].averageTime = br.debug.cpu[table].elapsedTime / br.debug.cpu[table].totalIterations
+    else
+        br.debug.cpu[table].totalIterations = 0
+		br.debug.cpu[table].currentTime = 0
+		br.debug.cpu[table].elapsedTime = 0
+        br.debug.cpu[table].averageTime = 0
 	end
 end
 -- just for testing

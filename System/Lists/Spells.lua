@@ -656,6 +656,7 @@ br.lists.spells = {
                 stellarDrift                = 202354,
                 stellarFlare                = 202347,
                 twinMoons                   = 279620,
+                typhoon                     = 132469,
                 warriorOfElune              = 202425,
             },
             traits                          = {
@@ -709,7 +710,7 @@ br.lists.spells = {
             },
             talents                         = {
                 balanceAffinity             = 197488,
-                bloodtalons                 = 155672,
+                bloodtalons                 = 319439,
                 brutalSlash                 = 202028,
                 feralFrenzy                 = 274837,
                 guardianAffinity            = 217615,
@@ -935,7 +936,6 @@ br.lists.spells = {
                 massEntanglement            = 102359,
                 mightyBash                  = 5211,
                 tigerDash                   = 252216,
-                typhoon                     = 132469,
                 wildCharge                  = 102401,
             },
             traits                          = {
