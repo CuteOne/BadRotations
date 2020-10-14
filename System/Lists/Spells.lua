@@ -587,7 +587,6 @@ br.lists.spells = {
         -- Balance
         [102] = {
             abilities                       = {
-                barkskin                    = 22812,
                 celestialAlignment          = 194223,
                 fullMoon                    = 274283,
                 furyOfElune                 = 202770,
@@ -620,7 +619,6 @@ br.lists.spells = {
                 balanceForm                 = 24858,
                 stellarDrift                = 202461,
                 emeraldDreamcatcher         = 208190,
-                barkskin                    = 22812,
                 owlkinFrenzy                = 157228,
                 powerOfEluneTheMoonGoddness = 208284,
                 sephuzSecret                = 208052,
@@ -679,7 +677,6 @@ br.lists.spells = {
                 moonfireFeral               = 155625,
                 removeCorruption            = 2782,
                 skullBash                   = 106839,
-                stampedingRoar              = 106898,
                 survivalInstincts           = 61336,
                 tigersFury                  = 5217,
             },
@@ -699,7 +696,6 @@ br.lists.spells = {
                 predatorySwiftness          = 69369,
                 savageRoar                  = 52610,
                 scentOfBlood                = 285646,
-                stampedingRoar              = 77764,
                 survivalInstincts           = 61336,
                 tigersFury                  = 5217,
             },
@@ -739,7 +735,6 @@ br.lists.spells = {
         -- Guardian
         [104] = {
             abilities                       = {
-                barkskin                    = 22812,
                 incapacitatingRoar          = 99,
                 incarnationGuardianOfUrsoc  = 102558,
                 maul                        = 6807,
@@ -756,7 +751,6 @@ br.lists.spells = {
                 goryFur                     = 201671,
                 incarnationGuardianOfUrsoc  = 102558,
                 gore    					= 93622,
-                barkskin                    = 22812,
                 pulverize                   = 158792,
                 survivalInstincts           = 61336,
             },
@@ -791,7 +785,6 @@ br.lists.spells = {
         -- Restoration
         [105] = {
             abilities                       = {
-                barkskin                    = 22812,
                 efflorescence               = 145205,
                 innervate                   = 29166,
                 ironbark                    = 102342,
@@ -863,8 +856,10 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                barkskin                    = 22812,
                 bearForm                    = 5487,
                 catForm                     = 768,
+                cyclone                     = 33786,
                 dash                        = 1850,
                 dreamwalk                   = 193753,
                 entanglingRoots             = 339,
@@ -888,6 +883,7 @@ br.lists.spells = {
                 shred                       = 5221,
                 solarWrathMoonkin           = 197629,
                 soothe                      = 2908,
+                stampedingRoar              = 106898,
                 starsurgeAff                = 197626,
                 sunfireMoonkin              = 197630,
                 swiftmend                   = 18562,
@@ -897,11 +893,13 @@ br.lists.spells = {
                 thrashCat                   = 106830,
                 travelForm                  = 783,
                 wildGrowth                  = 48438,
+                wrath                       = 5176,
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                barkskin                    = 22812,
                 bearForm                    = 5487,
                 burningEssence              = 138927,
                 catForm                     = 768,
@@ -915,10 +913,12 @@ br.lists.spells = {
                 rejuvenation                = 774,
                 shadowmeld                  = 58984,
                 stagForm                    = 210053,
+                stampedingRoar              = 77764,
                 travelForm                  = 783,
                 wildGrowth                  = 48438,
             },
             debuffs                         = {
+                cyclone                     = 33786,
                 entanglingRoots             = 339,
                 growl                       = 6795,
                 hibernate                   = 2637,
