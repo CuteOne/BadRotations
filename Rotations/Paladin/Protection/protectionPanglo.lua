@@ -124,9 +124,9 @@ local function createOptions()
 		-- Hammer of Justice
 		br.ui:createSpinner(section, "Hammer of Justice - HP", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at")
 		-- Light of the Protector
-		br.ui:createSpinner(section, "Light of the Protector", 70, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+		br.ui:createSpinner(section, "Word of Glory", 70, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
 		-- Hand of the Protector - on others
-		br.ui:createSpinner(section, "Hand of the Protector - Party", 40, 0, 100, 5, "|cffFFBB00Teammate Health Percentage to use at.")
+		br.ui:createSpinner(section, "Word of Glory - Party", 40, 0, 100, 5, "|cffFFBB00Teammate Health Percentage to use at.(Requires hand of the protector Talent)")
 		-- Lay On Hands
 		br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "", "Health Percentage to use at")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
@@ -447,7 +447,7 @@ local function runRotation()
 				hpShield = true
 			end
 		end
-		if isChecked("Shield of the Righteous") and GetUnitExists(units.dyn5) and not buff.shieldOfTheRighteous.exists("player") then
+		if isChecked("Shield of the Righteous") and GetUnitExists(units.dyn5) and (not buff.shieldOfTheRighteous.exists("player") or buff.shieldOfTheRighteous.remains() <= 0.5) then
 			if botSpell ~= spell.shieldOfTheRighteous then
 				regularShield = true
 			end
@@ -673,19 +673,15 @@ local function runRotation()
 				end
 			end
 			-- Light of the Protector
-			if isChecked("Light of the Protector") and cast.able.lightOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and not talent.handOfTheProtector then
-				if cast.lightOfTheProtector() then
-					return
-				end
-			elseif isChecked("Light of the Protector") and cast.able.handOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and talent.handOfTheProtector then
-				if cast.handOfTheProtector("player") then
+			if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") and ((holyPower >=3 and buff.shieldOfTheRighteous.remain() >= 3.5) or buff.shiningLight.exists("player")) then
+				if cast.wordOfGlory() then
 					return
 				end
 			end
 			-- Hand of the Protector - Others
-			if isChecked("Hand of the Protector - Party") and cast.able.handOfTheProtector() and talent.handOfTheProtector then
-				if lowest.hp <= getOptionValue("Hand of the Protector - Party") then
-					if cast.handOfTheProtector(lowest.unit) then
+			if isChecked("Word of Glory - Party") and talent.handOfTheProtector and ((holyPower >=3 and buff.shieldOfTheRighteous.remain() >= 3.5)  or buff.shiningLight.exists("player")) then
+				if lowest.hp <= getOptionValue("Word of Glory - Party") then
+					if cast.wordOfGlory(lowest.unit) then
 						return
 					end
 				end

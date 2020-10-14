@@ -1849,6 +1849,7 @@ br.lists.spells = {
                 rebuke                      = 96231,
                 righteousFury               = 25780,
                 shieldOfTheRighteous        = 53600,
+                wordOfGlory                 = 85673,
             },
             artifacts                       = {
 
@@ -1862,6 +1863,7 @@ br.lists.spells = {
                 guardianOfAncientKings      = 86659,
                 seraphim                    = 152262,
                 shieldOfTheRighteous        = 132403,
+                shiningLight                = 327510,
                 avengersValor               = 197561,
             },
             debuffs                         = {
