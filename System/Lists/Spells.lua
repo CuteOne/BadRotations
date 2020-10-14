@@ -104,11 +104,7 @@ local function flipRace()
     end
 end
 
-
-
-
-
-function br:getRacial()
+function br.getRacial()
     local forTheAlliance = UnitBuffID("player",193863) or false
     local forTheHorde = UnitBuffID("player", 193864) or false
     local race = select(2,UnitRace("player"))
@@ -2382,7 +2378,7 @@ br.lists.spells = {
                 sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
 		        twistTheKnife               = 273488,
-            }
+            },
             runeforge                         = {
                 dashingScoundrel            = 340081,
                 doomblade                   = 340082,
@@ -3492,7 +3488,7 @@ br.lists.spells = {
                 latentArcana                    = 296971,
                 lightsJudgment                  = 247427,
                 quakingPalm                     = 107079,
-                racial                          = br:getRacial(),
+                racial                          = br.getRacial(),
                 shadowmeld                      = 58984,
             },
             artifacts                           = {
@@ -3549,7 +3545,7 @@ br.lists.spells = {
                 potionOfBurstingBlood           = 265514,
                 potionOfFocusedResolve          = 298317,
                 prolongedPower                  = 229206,
-                racial                          = br:getRacial(),
+                racial                          = br.getRacial(),
                 razorCoral                      = 303570, -- Crit Buff from Ashvane's Razor Coral
                 sephuz1                         = 208051, -- the fulltime 10% movement, 2% haste buff
                 sephuz2                         = 208052, -- the proc, 70% movement, 25% haste buff

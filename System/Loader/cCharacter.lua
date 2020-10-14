@@ -74,7 +74,7 @@ function cCharacter:new(class)
 	self.profile        = "None"    -- Spec
 	self.queue 	    		= {} 	-- Table for Queued Spells
 	self.race     	    = select(2,UnitRace("player"))  -- Race as non-localised name (undead = Scourge) !
-	self.racial   	    = br:getRacial()     -- Contains racial spell id
+	self.racial   	    = 0     -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
 	self.rechargeFull   = {}
 	self.selectedRotation = 1       -- Default: First avaiable rotation
@@ -277,7 +277,7 @@ function cCharacter:new(class)
 
 	-- Sets the racial
 	 function self.getRacial()
-		return br:getRacial()
+		return br.getRacial()
 	 end
 
     -- Casts the racial
