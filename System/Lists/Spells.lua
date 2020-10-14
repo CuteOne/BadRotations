@@ -2302,6 +2302,7 @@ br.lists.spells = {
         [259] = {
             abilities                       = {
                 blindside                   = 111240,
+                ambush                      = 8676,
                 crimsonTempest              = 121411,
                 cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
@@ -2320,6 +2321,7 @@ br.lists.spells = {
                 toxicBlade                  = 245388,
                 vendetta                    = 79140,
                 woundPoison                 = 8679,
+                shiv                        = 5938,
             },
             artifacts                       = {
 
@@ -2340,7 +2342,7 @@ br.lists.spells = {
                 woundPoison                 = 8679,
             },
             debuffs                         = {
-                crimsonTempest              = 121411,
+                crimsonTempest              = 121411,                
                 cripplingPoison             = 3409,
                 deadlyPoison                = 2818,
                 garrote                     = 703,
@@ -2350,7 +2352,8 @@ br.lists.spells = {
                 surgeOfToxins               = 192425,
                 toxicBlade                  = 245389,
                 vendetta                    = 79140,
-                woundPoison                 = 8680,
+                woundPoison                 = 8679,
+                shiv                        = 319504,
             },
             glyphs                          = {
 
@@ -2378,8 +2381,14 @@ br.lists.spells = {
                 echoingBlades               = 287649,
                 sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
-		twistTheKnife               = 273488,
+		        twistTheKnife               = 273488,
             }
+            runeforge                         = {
+                dashingScoundrel            = 340081,
+                doomblade                   = 340082,
+                zoldyckInsignia             = 340083,
+                duskwalkersPatch            = 340084,
+            },
         },
         -- Outlaw
         [260] = {
@@ -2490,11 +2499,18 @@ br.lists.spells = {
                 keepYourWitsAboutYou        = 288979,
 
             },
+            runeforge                         = {
+                greenskinsWickers           = 340085,
+                guileCharm                  = 340086,
+                celerity                    = 340087,
+                concealedBlunderbuss        = 340088,
+            },
         },
         -- Subtlety
         [261] = {
             abilities                       = {
                 backstab                    = 53,
+                rupture                     = 1943,
                 evasion                     = 5277,
                 eviscerate                  = 196819,
                 gloomblade                  = 200758,
@@ -2522,8 +2538,12 @@ br.lists.spells = {
                 subterfuge                  = 115192,
                 symbolsOfDeath              = 212283,
                 theDreadlordsDeceit         = 228224,
+                theRotten                   = 341134,
+                deathlyShadows              = 341202,
+                perforatedVeins             = 341572,
             },
             debuffs                         = {
+                rupture                     = 1943,
                 findWeakness                = 91021,
                 nightblade                  = 195452,
                 shadowsGrasp                = 206760,
@@ -2553,12 +2573,29 @@ br.lists.spells = {
                 nightsVengeance             = 273418,
                 replicatingShadows          = 286121,
                 sharpenedBlades             = 272911,
-                theFirstDance               = 278681
-            }
+                theFirstDance               = 278681,
+                perforate                   = 277720,
+            },
+            runeforge                         = {
+                finality                    = 340089,
+                akaarisSoulFragment         = 340090,
+                theRotten                   = 340091,
+                deathlyShadows              = 340092,
+            },
+            conduit                           = {
+                deeperDaggers               = 341549,
+                perforatedVeins             = 341567,
+                plannedExecution            = 341556,
+                stilettoStaccato            = 341559,
+            },
         },
         -- All
         Shared = {
             abilities                       = {
+                numbingPoison               = 5761,
+                instantPoison               = 315496,
+                woundPoison                 = 8679,
+                sliceAndDice                = 315496,
                 blind                       = 2094,
                 cheapShot                   = 1833,
                 cloakOfShadows              = 31224,
@@ -2581,6 +2618,11 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                numbingPoison               = 5761,
+                sliceAndDice                = 315496,
+                instantPoison               = 315496,
+                woundPoison                 = 8679,
+                sliceAndDice                = 315496,
                 cloakOfShadows              = 31224,
                 deathFromAbove              = 152150,
                 feint                       = 1966,
@@ -2589,8 +2631,13 @@ br.lists.spells = {
                 sprint                      = 2983,
                 stealth                     = 115191,
                 vanish                      = 11327 or 115193,
+                --sliceAndDice                = 5171,
             },
             debuffs                         = {
+                instantPoison               = 315496,
+                woundPoison                 = 8679,
+                numbingPoison               = 5761,
+                kidneyShot                  = 408,
                 cheapShot                   = 1833,
                 markedForDeath              = 137619,
                 sap                         = 6770,
@@ -2610,6 +2657,18 @@ br.lists.spells = {
                 vigor                       = 14983,
               --  blindingPowder              = 256165,   commented it out as it created errors
             },
+            runeforge                         = {
+                markOfTheMasterAssassin     = 340076,
+                essenceOfBloodfang          = 340079,
+                invigoratingShadowdust      = 340080,
+                tinyToxicBlades             = 340078,
+            },
+            -- covenant                        = {
+            --     echoingReprimand            = 323547,
+            --     serratedBoneSpike           = 328547,
+            --     sepsis                      = 328305,
+            --     slaughter                   = 323654,
+            -- },
         },
     },
     SHAMAN = {
