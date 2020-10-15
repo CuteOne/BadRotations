@@ -263,6 +263,8 @@ local function runRotation()
     local cat = br.player.buff.catForm.exists()
     local moonkin = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
+    local eclips_next = "any"
+
 
     -------------
     -- Raid
@@ -750,13 +752,14 @@ local function runRotation()
         local is_cleave = #enemies.yards45 > 1 or false
         local starfall_wont_fall_off = power > 80 - (buff.starfall.remains() * 3 % hasteAmount) and buff.starfall.exists() or false
         local starfire_in_solar = #enemies.yards45 > 8 + floor(masteryAmount % 20)
-        local eclips_next = "none"
 
-        if buff.eclipse_solar.exists() then
-            eclips_next = "lunar"
-        end
-        if buff.eclipse_lunar.exists() then
-            eclips_next = "solar"
+        local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
+        if eclipse_in then
+            if buff.eclipse_solar.exists() then
+                eclipse_next = "lunar"
+            elseif buff.eclipse_lunar.exists() then
+                eclipse_next = "solar"
+            end
         end
 
         if mode.DPS < 4 then
@@ -822,7 +825,7 @@ local function runRotation()
                 end
             end
 
-            if is_aoe then
+            if is_aoe and mode.rotation ~= 3 then
                 -- AOE rotation
                 --starfall
                 if cast.able.starfall()
@@ -883,10 +886,9 @@ local function runRotation()
                     end
                 end
                 -- wrath
-                if cast.able.wrath() --eclipse.lunar_next|eclipse.any_next&variable.is_cleave
-                        and not buff.eclipse_lunar.exists()
-                        or eclips_next == "lunar" or is_cleave
-                        or buff.eclipse_solar.exists() and starfire_in_solar
+                if cast.able.wrath() --eclipse.in_solar&!variable.starfire_in_solar|buff.ca_inc.remains<action.starfire.execute_time&!variable.is_cleave&buff.ca_inc.remains<execute_time&buff.ca_inc.up|buff.ravenous_frenzy.up&spell_haste>0.6|!variable.is_cleave&buff.ca_inc.remains>execute_time
+                        and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_cleave)
+                        or eclipse_in and buff.eclipse_solar.exists() and not starfire_in_solar
                         or (buff.celestialAlignment.remain() < buff.eclipse_lunar.remain() or buff.incarnationChoseOfElune.remain() < buff.eclipse_lunar.remain())
                         and pewbuff or buff.ravenousFrenzy.exists() and hasteAmount > 0.6
                         or not is_cleave and (buff.celestialAlignment.remain() > buff.eclipse_lunar.remain() or buff.incarnationChoseOfElune.remain() > buff.eclipse_lunar.remain())
@@ -977,7 +979,8 @@ local function runRotation()
                 --starfire
                 if cast.able.starfire() and
                         --eclipse.in_lunar | eclipse.solar_next | eclipse.any_next |
-                        eclips_next == "solar" or eclips_next == "none" or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists()
+                        eclipse_in and buff.eclipse_lunar.exists() or not eclipse_in and (eclipse_next == "solar" or eclipse_next == "any")
+                        or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists()
                         or ((buff.incarnationChoseOfElune.remain() < getCastTime(spell.wrath) or buff.celestialAlignment.exists() < getCastTime(wrath)) and pewbuff)
                 then
                     if cast.starfire(getBiggestUnitCluster(45, 8)) then
