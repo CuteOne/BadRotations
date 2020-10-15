@@ -434,7 +434,6 @@ br.lists.spells = {
                 felRush                     = 195072,
                 metamorphosis               = 191427,
                 netherwalk                  = 196555,
-                torment                     = 281854,
                 throwGlaive                 = 185123,
                 vengefulRetreat             = 198793,
             },
@@ -442,7 +441,6 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                immolationAura              = 258920,
                 metamorphosis               = 162264,
                 momentum                    = 208628,
                 prepared                    = 203650,
@@ -456,24 +454,24 @@ br.lists.spells = {
             },
             talents                         = {
                 blindFury                   = 203550,
+                burningHatred               = 320374,
                 cycleOfHatred               = 258887,
-                darkSlash                   = 258860,
                 demonBlades                 = 203555,
                 demonic                     = 213410,
                 demonicAppetite             = 206478,
                 desperateInstincts          = 205411,
+                essenceBreak                = 258860,
                 felBarrage                  = 258925,
                 felEruption                 = 211881,
-                felMastery                  = 192939,
                 firstBlood                  = 206416,
-                immolationAura              = 258920,
+                glaiveTempest               = 342817,
                 insatiableHunger            = 258876,
                 masterOfTheGlaive           = 203556,
                 momentum                    = 206476,
-                nemesis                     = 206491,
                 netherwalk                  = 196555,
                 soulRending                 = 204909,
                 trailOfRuin                 = 258881,
+                unboundChaos                = 275144,
                 unleashedPower              = 206477,
             },
             traits                          = {
@@ -489,7 +487,6 @@ br.lists.spells = {
             abilities                       = {
                 demonSpikes                 = 203720,
                 fieryBrand                  = 204021,
-                immolationAura              = 178740,
                 infernalStrike              = 189110,
                 metamorphosis               = 187827,
                 shear                       = 203782,
@@ -498,7 +495,6 @@ br.lists.spells = {
                 sigilOfSilence              = 202137,
                 soulCleave                  = 228477,
                 throwGlaive                 = 204157,
-                torment                     = 185245,
             },
             artifacts                       = {
 
@@ -508,7 +504,6 @@ br.lists.spells = {
                 demonSpikes                 = 203819,
                 empowerWards                = 218256,
                 feastofSouls                = 207693,
-                immolationAura              = 178740,
                 metamorphosis               = 187827,
                 soulFragments               = 203981,
                 siphonedPower               = 218561,
@@ -550,8 +545,10 @@ br.lists.spells = {
                 consumeMagic                = 278326,
                 disrupt                     = 183752,
                 glide                       = 131347,
+                immolationAura              = 258920,
                 imprison                    = 217832,
                 spectralSight               = 188501,
+                torment                     = 185245,
             },
             artifacts                       = {
 
@@ -559,6 +556,7 @@ br.lists.spells = {
             buffs                           = {
                 gazeOfTheLegion             = 193456,
                 glide                       = 131347,
+                immolationAura              = 258920,
             },
             debuffs                         = {
 
@@ -3482,6 +3480,7 @@ br.lists.spells = {
     Shared = {
         Shared = {
             abilities                           = {
+                autoAttack                      = 6603,
                 giftOfTheNaaru                  = 28880,
                 global                          = 61304,
                 latentArcana                    = 296971,
