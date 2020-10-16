@@ -1261,7 +1261,7 @@ local function runRotation()
 
             -- Unstable Affliction
             --(debuff.unstableAffliction.stack("target") < 5  and debuff.agony.remain("target") > shards * gcdMax and debuff.corruption.remain("target") > shards * gcdMax and (debuff.siphonLife.remain("target") > shards *gcdMax or not talent.siphonLife))
-            if not moving and not debuff.unstableAffliction.exist("target") and cd.summonDarkglare.remain() < 8 and debuff.agony.remain("target") > gcdMax and debuff.corruption.remain("target") > gcdMax and (debuff.siphonLife.remain("target") > gcdMax or not talent.siphonLife) then
+            if not moving and not debuff.unstableAffliction.exists("target") and cd.summonDarkglare.remain() < 8 and debuff.agony.remain("target") > gcdMax and debuff.corruption.remain("target") > gcdMax and (debuff.siphonLife.remain("target") > gcdMax or not talent.siphonLife) then
                 if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
             end
 
