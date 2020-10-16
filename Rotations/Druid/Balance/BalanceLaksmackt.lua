@@ -263,7 +263,7 @@ local function runRotation()
     local cat = br.player.buff.catForm.exists()
     local moonkin = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
-    local eclips_next = "any"
+    local eclipse_next = "any"
 
 
     -------------
@@ -978,7 +978,6 @@ local function runRotation()
                 end
                 --starfire
                 if cast.able.starfire() and
-                        --eclipse.in_lunar | eclipse.solar_next | eclipse.any_next |
                         eclipse_in and buff.eclipse_lunar.exists() or not eclipse_in and (eclipse_next == "solar" or eclipse_next == "any")
                         or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists()
                         or ((buff.incarnationChoseOfElune.remain() < getCastTime(spell.wrath) or buff.celestialAlignment.exists() < getCastTime(wrath)) and pewbuff)
