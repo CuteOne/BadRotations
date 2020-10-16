@@ -63,15 +63,6 @@ local function createOptions()
 		------------------------
 		--- COOLDOWN OPTIONS ---
 		------------------------
-		section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
-        br.ui:createCheckbox(section, "Corruption Radar On")
-        br.ui:createCheckbox(section, "Use Hammer of Justice on TFTB")
-        br.ui:createCheckbox(section, "Use Blinding Light on TFTB")
-        br.ui:createCheckbox(section, "Use Blessing of Freedom for Snare")
-        br.ui:createDropdownWithout(section, "Use Cloak", {"snare", "Eye", "THING", "Never"}, 4, "", "")
-        br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
-        br.ui:checkSectionState(section)
-		
 		section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
 		-- Racial
 		br.ui:createCheckbox(section, "Racial")
@@ -447,12 +438,12 @@ local function runRotation()
 				hpShield = true
 			end
 		end
-		if isChecked("Shield of the Righteous") and GetUnitExists(units.dyn5) and (not buff.shieldOfTheRighteous.exists("player") or buff.shieldOfTheRighteous.remains() <= 0.5) then
+		if isChecked("Shield of the Righteous") and #enemies.yards10 >= 1 and (holyPower == 5 or (not buff.shieldOfTheRighteous.exists("player")) or buff.shieldOfTheRighteous.remains() <= 0.5) then
 			if botSpell ~= spell.shieldOfTheRighteous then
 				regularShield = true
 			end
 		end
-		if (debuffShield or castingShield or hpShield or regularShield) and holyPower >= 3 then
+		if (debuffShield or castingShield or hpShield or regularShield) and (holyPower >= 3 or buff.divinePurpose.exists("player")) then
 			if cast.shieldOfTheRighteous() then return end
 		end
 	end
@@ -611,40 +602,6 @@ local function runRotation()
 		end
 	end
 
-	local function corruptionstuff()
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak") or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    return
-                end
-            end
-        end
-        if isChecked("Corruption Radar On") then
-            local stun = "Hammer of Justice"
-
-            for i = 1, GetObjectCountBR() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if isChecked("Use Hammer of Justice on TFTB") then
-                    if ID == 161895 then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 9 and isChecked("Use Blinding Light on TFTB") and cd.blindingLight.remains() <= gcd and talent.blindingLight and not debuff.hammerOfJustice.exists(object) then
-                            if cast.blindingLight(object) then
-                                return true
-                            end
-                        end
-                        if distance <= 11 and not isLongTimeCCed(object) and cd.hammerOfJustice.remains() <= gcd and not debuff.blindingLight.exists(object) then
-                            if cast.hammerOfJustice(object) then
-                                return true
-                            end
-                        end
-                    end
-                end -- end the thing
-            end
-        end
-    end
 	-- Action List - Defensives
 	local function actionList_Defensive()
 		if useDefensive() then
@@ -673,13 +630,13 @@ local function runRotation()
 				end
 			end
 			-- Light of the Protector
-			if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") and ((holyPower >=3 and buff.shieldOfTheRighteous.remain() >= 3.5) or buff.shiningLight.exists("player")) then
+			if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") and (buff.shiningLight.exists("player")) then
 				if cast.wordOfGlory() then
 					return
 				end
 			end
 			-- Hand of the Protector - Others
-			if isChecked("Word of Glory - Party") and talent.handOfTheProtector and ((holyPower >=3 and buff.shieldOfTheRighteous.remain() >= 3.5)  or buff.shiningLight.exists("player")) then
+			if isChecked("Word of Glory - Party") and talent.handOfTheProtector and ( buff.shiningLight.exists("player")) then
 				if lowest.hp <= getOptionValue("Word of Glory - Party") then
 					if cast.wordOfGlory(lowest.unit) then
 						return
@@ -1230,7 +1187,7 @@ local function runRotation()
 	end -- end Action List - PreCombat
 
 
-	if offGCD() then return end
+	if offGCD() then return true end
 	---------------------
 	--- Begin Profile ---
 	---------------------
@@ -1244,9 +1201,6 @@ local function runRotation()
 		--- Extras Rotation ---
 		-----------------------
 		if actionList_Extras() then
-			return
-		end
-		if corruptionstuff() then
 			return
 		end
 		---------------------------
