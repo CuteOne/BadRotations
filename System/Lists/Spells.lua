@@ -3030,6 +3030,7 @@ br.lists.spells = {
                 deadwindHarvester           = 216708,
                 demonicPower                = 196099,
                 empoweredLifeTap            = 235156,
+		felDomination               = 333889,
                 nightfall                   = 264571,
                 tormentedSouls              = 216695,
                 wrathOfConsumption          = 199646,
