@@ -2988,6 +2988,7 @@ br.lists.spells = {
                 howlOfTerror                = 5484,
 		maleficRapture1             = 316107,
                 maleficRapture2             = 324536,
+		mortalCoil                  = 6789,
                 phantomSingularity          = 205179,
                 reapSouls                   = 216698,
                 seedOfCorruption            = 27243,
