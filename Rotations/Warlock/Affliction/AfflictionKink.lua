@@ -67,7 +67,7 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.1.1")
+		section = br.ui:createSection(br.ui.window.profile,  "General - Version 1.1.2")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
@@ -446,7 +446,7 @@ actionList.Defensive = function()
 
         -- Mortal Coil
         if option.checked("Mortal Coil") and php <= option.value("Mortal Coil") and isValidTarget("target") then
-            if cast.drainLife() then br.addonDebug("Casting Mortal Coil") return true end
+            if cast.mortalCoil() then br.addonDebug("Casting Mortal Coil") return true end
         end
 
 
@@ -591,9 +591,9 @@ end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    if (not inCombat or buff.felDomination.exists("player")) and not (IsFlying() or IsMounted()) then
+    if not inCombat and not (IsFlying() or IsMounted()) then
         --actions.precombat+=/summon_pet
-        if option.checked("Pet Management") and not moving and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
+        if option.checked("Pet Management") and (not inCombat or buff.felDomination.exists("player")) and not moving and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
         then
             if mode.petSummon == 5 and pet.active.id() ~= 0 then
                 PetDismiss()
