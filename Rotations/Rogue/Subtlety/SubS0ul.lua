@@ -214,6 +214,7 @@ local function runRotation()
 
     enemies.get(20)
     enemies.get(20,"player",true)
+    enemies.get(25,"player", true) -- makes enemies.yards25nc
     enemies.get(30)
 
     if timersTable then
@@ -595,7 +596,7 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 then
+        if mode.sod == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) then
             if cast.symbolsOfDeath("player") then return true end
         end
     end
