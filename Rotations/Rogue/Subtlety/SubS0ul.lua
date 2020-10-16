@@ -808,7 +808,7 @@ local function runRotation()
         if ((not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 6) then skipRupture = 1 else skipRupture = 0 end -- buff.masterAssassin.exists() or 
         -- # Keep up Rupture if it is about to run out.
         -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
-        print("skipRupture: " .. skipRupture .. " TTD: " .. ttd("target") .. " rupRefresh: " .. (debuff.rupture.refresh("target") and 'true' or 'false') .. " shallWeDot: " .. (shallWeDot("target")and 'true' or 'false'))
+        --print("skipRupture: " .. skipRupture .. " TTD: " .. ttd("target") .. " rupRefresh: " .. (debuff.rupture.refresh("target") and 'true' or 'false') .. " shallWeDot: " .. (shallWeDot("target")and 'true' or 'false'))
         if not skipRupture and ttd("target") > 6 and debuff.rupture.refresh("target") and shallWeDot("target") then
             if cast.rupture("target") then return true end
         end
@@ -834,7 +834,6 @@ local function runRotation()
         end
         -- actions.finish+=/eviscerate
         if cast.eviscerate("target") then return true end
-        print("Valid target: " .. (validTarget and 'true' or 'false'))
     end
 
     local function actionList_StealthCD()
@@ -924,7 +923,7 @@ local function runRotation()
         end
         -- actions.stealthed+=/shuriken_storm,if=spell_targets>=3+(buff.premeditation.up|buff.the_rotten.up|runeforge.akaaris_soul_fragment.equipped&conduit.deeper_daggers.rank>=7)
         local stealthedsStorm = 0
-        if buff.premeditation.exists() and conduit.deeperDaggers.rank >= 7 then stealthedsStorm = 1 else stealthedsStorm = 0 end -- or buff.theRotten.exists() or runeforge.akaarisSoulFragment.active
+        if buff.premeditation.exists() then stealthedsStorm = 1 else stealthedsStorm = 0 end -- or buff.theRotten.exists() or runeforge.akaarisSoulFragment.active and conduit.deeperDaggers.rank >= 7
         if enemies10 >= 3 + stealthedsStorm then
             if cast.shurikenStorm("player") then return true end
         end
@@ -1088,13 +1087,11 @@ local function runRotation()
                 -- # Finish at 4+ without DS, 5+ with DS (outside stealth)
                 -- actions+=/call_action_list,name=finish,if=combo_points.deficit<=1|fight_remains<=1&combo_points>=3
                 if comboDeficit <= 1 or (ttd("target") <= 1 and combo >= 3) then
-                    print("finish1")
                     if actionList_Finishers() then return true end
                 end
                 -- # With DS also finish at 4+ against exactly 4 targets (outside stealth)
                 -- actions+=/call_action_list,name=finish,if=spell_targets.shuriken_storm=4&combo_points>=4
                 if enemies10 == 4 and combo >= 4 then
-                    print("finish2")
                     if actionList_Finishers() then return true end
                 end
                 -- # Use a builder when reaching the energy threshold
