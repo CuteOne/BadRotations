@@ -804,8 +804,7 @@ local function runRotation()
         end
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
         -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=6
-        local skipRupture = 0
-        if ((not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 6) then skipRupture = 1 else skipRupture = 0 end -- buff.masterAssassin.exists() or 
+        local skipRupture = ((not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 6)  or false -- buff.masterAssassin.exists() or 
         -- # Keep up Rupture if it is about to run out.
         -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
         --print("skipRupture: " .. skipRupture .. " TTD: " .. ttd("target") .. " rupRefresh: " .. (debuff.rupture.refresh("target") and 'true' or 'false') .. " shallWeDot: " .. (shallWeDot("target")and 'true' or 'false'))
@@ -897,7 +896,7 @@ local function runRotation()
         -- actions.stealthed+=/call_action_list,name=finish,if=combo_points.deficit<=1-(talent.deeper_stratagem.enabled&buff.vanish.up)
         local finishThd = 0
         if dSEnabled and (buff.vanish.exists() or cast.last.vanish(1)) then finishThd = 1 else finishThd = 0 end
-        if (buff.shurikenTornado.exists() and comboDeficit <= 2) or (enemies10 == 4 and comboPoints >= 4) or (comboDeficit <= (1 - finishThd)) then
+        if (buff.shurikenTornado.exists() and comboDeficit <= 2) or (enemies10 == 4 and combo >= 4) or (comboDeficit <= (1 - finishThd)) then
             if actionList_Finishers() then return true end
         end
         -- # Up to 3 targets keep up Find Weakness by cycling Shadowstrike.
