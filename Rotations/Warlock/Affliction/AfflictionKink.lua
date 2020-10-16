@@ -593,7 +593,7 @@ end -- End Action List - Cooldowns
 actionList.PreCombat = function()
     if not inCombat and not (IsFlying() or IsMounted()) then
         --actions.precombat+=/summon_pet
-        if option.checked("Pet Management") and (not inCombat or buff.felDomination.exists("player")) and not moving and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
+        if option.checked("Pet Management") and (not inCombat or buff.felDomination.exists()) and not moving and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
         then
             if mode.petSummon == 5 and pet.active.id() ~= 0 then
                 PetDismiss()
