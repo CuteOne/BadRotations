@@ -2986,6 +2986,8 @@ br.lists.spells = {
                 grimoireOfSacrifice         = 108503,
                 haunt                       = 48181,
                 howlOfTerror                = 5484,
+		maleficRapture1             = 316107,
+                maleficRapture2             = 324536,
                 phantomSingularity          = 205179,
                 reapSouls                   = 216698,
                 seedOfCorruption            = 27243,
@@ -3044,6 +3046,7 @@ br.lists.spells = {
                 unstableAffliction3         = 233497,
                 unstableAffliction4         = 233498,
                 unstableAffliction5         = 233499,
+		vileTaint                   = 278350,
             },
             glyphs                          = {
 
