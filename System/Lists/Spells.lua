@@ -2983,6 +2983,7 @@ br.lists.spells = {
                 deathbolt                   = 264106,
                 drainLife                   = 234153,
                 drainSoul                   = 198590,
+		felDomination               = 333889,
                 grimoireOfSacrifice         = 108503,
                 haunt                       = 48181,
                 howlOfTerror                = 5484,
