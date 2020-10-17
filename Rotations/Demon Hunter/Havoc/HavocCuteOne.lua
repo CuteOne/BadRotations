@@ -866,7 +866,7 @@ local function runRotation()
     inCombat                                      = br.player.inCombat
     inRaid                                        = br.player.instance=="raid"
     item                                          = br.player.items
-    mode                                          = br.player.mode
+    mode                                          = br.player.ui.mode
     php                                           = br.player.health
     power, powerDeficit                           = br.player.power.fury.amount(), br.player.power.fury.deficit()
     pullTimer                                     = br.DBM:getPulltimer()
