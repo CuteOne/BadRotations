@@ -754,16 +754,19 @@ local function runRotation()
         local starfall_wont_fall_off = power > 80 - (buff.starfall.remains() * 3 % hasteAmount) and buff.starfall.exists() or false
         local starfire_in_solar = #enemies.yards45 > 8 + floor(masteryAmount % 20)
 
+
+
+        local cast_fallback = cast.last.starfire(1) and cast.last.starfire(2) and cast.last.starfire(3) or false
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
-        if eclipse_in then
-            if buff.eclipse_solar.exists() then
+        if eclipse_in or cast_fallback then
+            if buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
                 eclipse_next = "lunar"
-            elseif buff.eclipse_lunar.exists() then
+            elseif buff.eclipse_lunar.exists() and not buff.eclipse_solar.exists() or cast_fallback then
                 eclipse_next = "solar"
             end
         end
 
-        if mode.DPS < 4 then
+        if mode.rotation < 4 then
 
 
             --trinkets
@@ -913,7 +916,7 @@ local function runRotation()
                         and debuff.moonfire.remain(enemies.yards45[1]) < 6.6
                         and ttd(enemies.yards45[1]) > 12 then
                     if ((buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
-                            and (buff.ravenousFrenzy.remains() > 5 or not buff.buff.ravenousFrenzy.exists())
+                            and (buff.ravenousFrenzy.remains() > 5 or not buff.ravenousFrenzy.exists())
                             or not pewbuff or power < 30)
                             and (not buff.kindredEmpowerment.exists() or power < 30) and astral_def > 8
                     then
@@ -1080,10 +1083,10 @@ local function runRotation()
                 end
             end
 
-            if mode.DPS < 4 then
-                if mode.DPS == 3 then
+            if mode.rotation < 4 then
+                if mode.rotation == 3 then
                     thisUnit = "target"
-                elseif mode.DPS < 3 then
+                elseif mode.rotation < 3 then
                     for i = 1, #enemies.yards45 do
                         thisUnit = enemies.yards45[i]
                     end
@@ -1323,12 +1326,12 @@ local function runRotation()
                     if cast.able.lunarStrike and buff.solarEmpowerment.stack() < 3 and (astral_def >= 12 or buff.lunarEmpowerment.stack() == 3)
                             and ((buff.warriorOfElune.exists() or buff.lunarEmpowerment.exists() or #enemies.yards8t >= 2 and not buff.solarEmpowerment.exists())
                             and (not traits.streakingStars.active or not pewbuff) or traits.streakingStars.active and pewbuff and cast.last.solarWrath()) then
-                        if mode.DPS < 3 then
+                        if mode.rotation < 3 then
                             if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
                                 br.addonDebug("Lunarstrike(cluster) Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
                                 return true
                             end
-                        elseif mode.DPS == 3 then
+                        elseif mode.rotation == 3 then
                             if cast.lunarStrike(units.dyn45) then
                                 br.addonDebug("Lunarstrike Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
                                 return true
