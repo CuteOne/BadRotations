@@ -2395,7 +2395,7 @@ br.lists.spells = {
             abilities                       = {
                 adrenalineRush              = 13750,
                 ambush                      = 8676,
-                betweenTheEyes              = 199804,
+                betweenTheEyes              = 315341,
                 bladeFlurry                 = 13877,
                 bladeRush                   = 271877,
                 blind                       = 2094,
@@ -2624,7 +2624,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                sliceAndDice                = 5171,
+                sliceAndDice                = 315496,
                 numbingPoison               = 5761,
                 cripplingPoison             = 3408,
                 instantPoison               = 315584,
