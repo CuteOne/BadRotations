@@ -1225,7 +1225,7 @@ local function runRotation()
             end
 
             -- Unstable Affliction
-            if not cast.last.unstableAffliction() and not moving and (not debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax and debuff.corruption.remain("target") > gcdMax and (debuff.siphonLife.remain("target") > gcdMax or not talent.siphonLife)) then
+            if not cast.last.unstableAffliction(3) and not moving and (not debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax and debuff.corruption.remain("target") > gcdMax and (debuff.siphonLife.remain("target") > gcdMax or not talent.siphonLife)) then
                 if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
             end
 
@@ -1384,7 +1384,7 @@ local function runRotation()
 
             -- Drain Soul
             if not moving and talent.drainSoul 
-            and (debuff.unstableAffliction.remain("target") > gcdMax + 0.5 and debuff.agony.remain("target") > gcdMax + 0.5 and debuff.corruption.remain("target") > gcdMax + 0.5 and (debuff.siphonLife.remain("target") > gcdMax + 0.5 or not talent.siphonLife)) then
+            and (debuff.unstableAffliction.remain("target") > gcdMax + 1 and debuff.agony.remain("target") > gcdMax + 1 and debuff.corruption.remain("target") > gcdMax + 1 and (debuff.siphonLife.remain("target") > gcdMax + 1 or not talent.siphonLife)) then
                 if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
             end
 
