@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.1.7" -- Change to name of profile listed in options drop down
+local rotationName = "Kink v1.1.8" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
@@ -128,6 +128,10 @@ local function createOptions ()
 			-- Trinkets
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 
+            -- Soulstone
+		    br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFMax-Dot Duration","|cffFFFFFFOn CD",	"|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"},
+            1, "|cffFFFFFFWhen to cast Darkglare")
+
             br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.")
 
 			-- Spread agony on single target
@@ -168,8 +172,11 @@ local function createOptions ()
             -- Dark Pact
             br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
 
+            -- Mortal Coil 
+            br.ui:createSpinner(section, "Mortal Coil",  23,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At", true)
+
             -- Drain Life
-            br.ui:createSpinner(section, "Drain Life", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Drain Life", 48, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At", true)
 
             -- Health Funnel
             br.ui:createSpinner(section, "Health Funnel (Demon)", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Demon to Cast At")
@@ -430,8 +437,13 @@ actionList.Defensive = function()
             if cast.darkPact() then br.addonDebug("Casting Dark Pact") return true end
         end
 
+        -- Mortal Coil
+        if ui.checked("Mortal Coil") and php <= ui.value("Mortal Coil") then
+            if cast.mortalCoil() then br.addonDebug("Casting Mortal Coil") return true end
+        end
+
         -- Drain Life
-        if ui.checked("Drain Life") and php <= ui.value("Drain Life") and isValidTarget("target") and not isCastingSpell(spell.drainLife) then
+        if ui.checked("Drain Life") and php <= ui.value("Drain Life") and not isCastingSpell(spell.drainLife) then
             if cast.drainLife() then br.addonDebug("Casting Drain Life") return true end
         end
 
@@ -947,11 +959,17 @@ local function runRotation()
             end
 
             -- Summon Darkglare
-            if isKnown(205180) and getTTD("target") >= 20 and useCDs() and cd.summonDarkglare.remain() <= gcdMax and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots") and debuff.agony.exists("target")
-            and (debuff.siphonLife.exists("target") or not talent.siphonLife) and debuff.corruption.exists("target"))) or (shards == 0)
-            then
-                CastSpellByName(GetSpellInfo(spell.summonDarkglare))
-                br.addonDebug("Casting Darkglare")
+            if GetSpellCooldown(205180) == 0 and isKnown(205180) and getTTD("target") >= 20 and useCDs() 
+            and cd.summonDarkglare.remain() <= gcdMax and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots"))) then
+                -- If we have Maximum Dots selected, check if dots are near their maximum refresh time. 
+                if ui.checked("Darkglare") and getOptionValue("Darkglare") == 1
+               -- and (debuff.unstableAffliction.exists("target")
+                and (debuff.agony.remain("target") >= 15 and ((debuff.siphonLife.remain("target") > 10 or not talent.siphonLife)) 
+                and (debuff.corruption.remain("target") > 10 or talent.absoluteCorruption and debuff.corruption.exists("target")))
+                then
+                    CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+                    br.addonDebug("Casting Darkglare (Maximum Dots)")
+                end
                 --if cast.summonDarkglare() then return true end
                 return true
             end
