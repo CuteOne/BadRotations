@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.1.5" -- Change to name of profile listed in options drop down
+local rotationName = "Kink v1.1.6" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
@@ -1042,9 +1042,8 @@ local function runRotation()
         end
         return true
     end
-
 --[[    if debuff.unstableAffliction == nil then debuff.unstableAffliction = {} end
-
+    function unstableAfflictionFUCK(unit)
 		function debuff.unstableAffliction.stack(unit)
 			local uaStack = 0
 			if unit == nil then
@@ -1085,6 +1084,18 @@ local function runRotation()
         return dots
     end
 
+    function unstableAfflictionFUCK(unit)
+        if unit == nil then unit = "target" end
+        if moving then return false end
+        if cast.last.unstableAffliction(6) then return false end
+        if debuff.unstableAffliction.exists("target") then return false end
+        if  debuff.agony.remain("target") < gcdMax + 0.5 and (debuff.corruption.remain("target") < gcdMax + 0.5 and (debuff.siphonLife.remain("target") < gcdMax + 0.5 or not talent.siphonLife)) then return false end
+
+        if debuff.unstableAffliction.remains("target") < gcdMax + cast.time.unstableAffliction() + 0.65 then
+           if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
+        end
+    end
+    
     -- SimC specific variables
     --actions=variable,name=use_seed,value=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>=3+raid_event.invulnerable.up|talent.siphon_life.enabled&spell_targets.seed_of_corruption>=5+raid_event.invulnerable.up|spell_targets.seed_of_corruption>=8+raid_event.invulnerable.up
     if talent.sowTheSeeds and ((not talent.siphonLife and #enemies.yards10t >= 2) or (talent.siphonLife and #enemies.yards10t >= 4) or (#enemies.yards10t >= 8)) then
@@ -1225,9 +1236,7 @@ local function runRotation()
             end
 
             -- Unstable Affliction
-            if not cast.last.unstableAffliction(3) and not moving and (not debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax and debuff.corruption.remain("target") > gcdMax and (debuff.siphonLife.remain("target") > gcdMax or not talent.siphonLife)) then
-                if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
-            end
+            unstableAfflictionFUCK()
 
             -- Multi Target
             if #enemies.yards10t >= 3 and mode.single ~= 1 then if actionList.multi() then return true end end
@@ -1358,6 +1367,18 @@ local function runRotation()
                 if cast.concentratedFlame("target") then br.addonDebug("Casting Concentrated Flame Damage") return true end
             end
 
+            -- Malefic Rapture
+            if option.checked("Malefic Rapture") and not moving then
+                -- Vile Taint ticking
+                if (talent.vileTaint and debuff.vileTaint.exists("target")) then 
+                    if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture (Vile Taint)") return true end    
+                end
+                -- Vile Taint not talented
+                if not talent.vileTaint or shards > 3 then 
+                    if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end    
+                end 
+            end
+
             -- Drain Life
             if not moving and buff.inevitableDemise.stack() >= 45 and br.timer:useTimer("ID Delay", 5) then
                 if cast.drainLife() then br.addonDebug("Casting Drain Life") return true end
@@ -1383,8 +1404,7 @@ local function runRotation()
             end
 
             -- Drain Soul
-            if not moving and talent.drainSoul 
-            and (debuff.unstableAffliction.remain("target") > gcdMax + 1 and debuff.agony.remain("target") > gcdMax + 1 and debuff.corruption.remain("target") > gcdMax + 1 and (debuff.siphonLife.remain("target") > gcdMax + 1 or not talent.siphonLife)) then
+            if not moving and talent.drainSoul and (debuff.unstableAffliction.remain("target") > gcdMax and debuff.agony.remain("target") > gcdMax) then
                 if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
             end
 
