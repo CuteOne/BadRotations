@@ -918,7 +918,7 @@ local function runRotation()
     inCombat                                      = br.player.inCombat
     item                                          = br.player.items
     level                                         = br.player.level
-    mode                                          = br.player.mode
+    mode                                          = br.player.ui.mode
     moving                                        = GetUnitSpeed("player") > 0
     option                                        = br.player.option
     pet                                           = br.player.pet

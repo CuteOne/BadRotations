@@ -813,13 +813,13 @@ local function runRotation()
 
             -- Force Of Nature / treants
             if talent.forceOfNature and cast.able.forceOfNature() and astral_def > 20 then
-                if br.player.mode.forceOfNature == 1 and getTTD("target") >= 10
+                if br.player.ui.mode.forceOfNature == 1 and getTTD("target") >= 10
                         and (isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group treants with CD"))
                         and (#enemies.yards12t >= getValue("Treant Targets") or isBoss()) then
                     if cast.forceOfNature("best", nil, 1, 15, true) then
                         return true
                     end
-                elseif br.player.mode.forceOfNature == 2 and isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
+                elseif br.player.ui.mode.forceOfNature == 2 and isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
                     if cast.forceOfNature("best", nil, 1, 15, true) then
                         return true
                     end

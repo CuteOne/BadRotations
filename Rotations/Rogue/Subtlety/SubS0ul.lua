@@ -156,10 +156,10 @@ local function runRotation()
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
-    br.player.mode.aoe = br.data.settings[br.selectedSpec].toggles["Aoe"]
-    br.player.mode.sd = br.data.settings[br.selectedSpec].toggles["SD"]
-    br.player.mode.sod = br.data.settings[br.selectedSpec].toggles["SoD"]
-    br.player.mode.st = br.data.settings[br.selectedSpec].toggles["ST"]
+    br.player.ui.mode.aoe = br.data.settings[br.selectedSpec].toggles["Aoe"]
+    br.player.ui.mode.sd = br.data.settings[br.selectedSpec].toggles["SD"]
+    br.player.ui.mode.sod = br.data.settings[br.selectedSpec].toggles["SoD"]
+    br.player.ui.mode.st = br.data.settings[br.selectedSpec].toggles["ST"]
     if not UnitAffectingCombat("player") then
         if not br.player.talent.secretTechnique then
             buttonST:Hide()
@@ -190,7 +190,7 @@ local function runRotation()
     local has                                           = br.player.has
     local inCombat                                      = br.player.inCombat
     local level                                         = br.player.level
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local race                                          = br.player.race
     local racial                                        = br.player.getRacial()
     local spell                                         = br.player.spell

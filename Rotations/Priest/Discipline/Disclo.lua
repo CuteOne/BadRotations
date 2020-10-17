@@ -194,7 +194,7 @@ local function runRotation()
     local lootDelay = getOptionValue("LootDelay")
     local lowest = br.friend[1]
     local mana = getMana("player")
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local perk = br.player.perk
     local php = br.player.health
     local power, powmax, powgen = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()

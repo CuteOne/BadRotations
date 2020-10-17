@@ -197,12 +197,12 @@ local function runRotation()
     UpdateToggle("Garrote",0.25)
     UpdateToggle("Focus",0.25)
     UpdateToggle("Vanish",0.25)
-    br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
-    br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
-    br.player.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
-    br.player.mode.garrote = br.data.settings[br.selectedSpec].toggles["Garrote"]
-    br.player.mode.focus = br.data.settings[br.selectedSpec].toggles["Focus"]
-    br.player.mode.vanish = br.data.settings[br.selectedSpec].toggles["Vanish"]
+    br.player.ui.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
+    br.player.ui.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
+    br.player.ui.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
+    br.player.ui.mode.garrote = br.data.settings[br.selectedSpec].toggles["Garrote"]
+    br.player.ui.mode.focus = br.data.settings[br.selectedSpec].toggles["Focus"]
+    br.player.ui.mode.vanish = br.data.settings[br.selectedSpec].toggles["Vanish"]
 --------------
 --- Locals ---
 --------------
@@ -221,7 +221,7 @@ local function runRotation()
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance == "party"
     local level                                         = br.player.level
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local php                                           = br.player.health
     local pullTimer                                     = br.DBM:getPulltimer()

@@ -201,7 +201,7 @@ local function runRotation()
     local gcd                                           = br.player.gcdMax
     local inCombat                                      = br.player.inCombat
     local inRaid                                        = br.player.instance=="raid"
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local pet                                           = br.player.pet
     local runes                                         = br.player.power.runes.amount()
     local runeDeficit                                   = br.player.power.runes.deficit()

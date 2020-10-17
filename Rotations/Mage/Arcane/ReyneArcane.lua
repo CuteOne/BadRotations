@@ -91,7 +91,7 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local power                                         = br.player.power.mana.amount()

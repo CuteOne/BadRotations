@@ -173,9 +173,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("BladeFlurry",0.25)
-        br.player.mode.bladeflurry = br.data.settings[br.selectedSpec].toggles["BladeFlurry"]
+        br.player.ui.mode.bladeflurry = br.data.settings[br.selectedSpec].toggles["BladeFlurry"]
         UpdateToggle("MFD",0.25)
-        br.player.mode.mfd = br.data.settings[br.selectedSpec].toggles["MFD"]
+        br.player.ui.mode.mfd = br.data.settings[br.selectedSpec].toggles["MFD"]
 
 --------------
 --- Locals ---
@@ -195,7 +195,7 @@ local function runRotation()
         local inCombat                                      = isInCombat("player")
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local php                                           = br.player.health
         local power, powerDeficit, powerRegen               = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
         local race                                          = br.player.race

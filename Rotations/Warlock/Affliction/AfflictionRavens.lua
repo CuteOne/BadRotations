@@ -173,8 +173,8 @@ local function runRotation ()
 		UpdateToggle("Cooldown",0.25)
 		UpdateToggle("Defensive",0.25)
 		UpdateToggle("Interrupt",0.25)
-		br.player.mode.ps = br.data.settings[br.selectedSpec].toggles["PS"]
-		br.player.mode.seed = br.data.settings[br.selectedSpec].toggles["Seed"]
+		br.player.ui.mode.ps = br.data.settings[br.selectedSpec].toggles["PS"]
+		br.player.ui.mode.seed = br.data.settings[br.selectedSpec].toggles["Seed"]
 		
 		--------------
 		--- Locals ---
@@ -200,7 +200,7 @@ local function runRotation ()
 		local inRaid											= br.player.instance=="raid"
         local lastCast                                          = br.lastCast.tracker
         local level												= br.player.level
-        local mode												= br.player.mode
+        local mode												= br.player.ui.mode
 		local moving                                            = isMoving("player") ~= false or br.player.moving
 		local padding													= padding or gcd
 		local perk												= br.player.perk		

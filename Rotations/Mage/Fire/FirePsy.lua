@@ -172,7 +172,7 @@ local function runRotation()
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.items
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local moving                                        = isMoving("player")     
         local php                                           = br.player.health
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()

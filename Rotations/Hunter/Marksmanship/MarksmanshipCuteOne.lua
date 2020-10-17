@@ -221,7 +221,7 @@ local function runRotation()
         local item                                          = br.player.items
         local level                                         = br.player.level
         local mode                                          = br.player.ui.mode
-        local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
+        local multidot                                      = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation == 2) and br.player.ui.mode.rotation ~= 3
         local php                                           = br.player.health
         local potion                                        = br.player.potion
         local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()

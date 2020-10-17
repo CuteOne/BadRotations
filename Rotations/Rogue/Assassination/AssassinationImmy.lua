@@ -249,21 +249,21 @@ local function runRotation()
 ---------------
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Interrupt",0.25)
-        br.player.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
+        br.player.ui.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
         UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]        
+        br.player.ui.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]        
         UpdateToggle("Opener",0.25)
-        br.player.mode.opener = br.data.settings[br.selectedSpec].toggles["Opener"]
+        br.player.ui.mode.opener = br.data.settings[br.selectedSpec].toggles["Opener"]
         UpdateToggle("Stun",0.25)
-        br.player.mode.stun = br.data.settings[br.selectedSpec].toggles["Stun"]      
+        br.player.ui.mode.stun = br.data.settings[br.selectedSpec].toggles["Stun"]      
         UpdateToggle("Feint",0.25)
-        br.player.mode.feint = br.data.settings[br.selectedSpec].toggles["Feint"]
+        br.player.ui.mode.feint = br.data.settings[br.selectedSpec].toggles["Feint"]
         UpdateToggle("Van1",0.25)
-        br.player.mode.van1 = br.data.settings[br.selectedSpec].toggles["Van1"]
+        br.player.ui.mode.van1 = br.data.settings[br.selectedSpec].toggles["Van1"]
         UpdateToggle("Van2",0.25)
-        br.player.mode.van2 = br.data.settings[br.selectedSpec].toggles["Van2"]        
+        br.player.ui.mode.van2 = br.data.settings[br.selectedSpec].toggles["Van2"]        
         UpdateToggle("Special",0.25)
-        br.player.mode.special = br.data.settings[br.selectedSpec].toggles["Special"]        
+        br.player.ui.mode.special = br.data.settings[br.selectedSpec].toggles["Special"]        
 --------------
 --- Locals ---
 --------------
@@ -284,8 +284,8 @@ local function runRotation()
         local inCombat                                      = isInCombat("player")
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
-        local mode                                          = br.player.mode
-        local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
+        local mode                                          = br.player.ui.mode
+        local multidot                                      = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation == 2) and br.player.ui.mode.rotation ~= 3
         local php                                           = br.player.health
         local power, powerDeficit, powerRegen               = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
         local race                                          = br.player.race

@@ -171,7 +171,7 @@ local function runRotation()
     inCombat                                      = br.player.inCombat
     item                                          = br.player.items
     level                                         = br.player.level
-    mode                                          = br.player.mode
+    mode                                          = br.player.ui.mode
     php                                           = br.player.health
     spell                                         = br.player.spell
     talent                                        = br.player.talent

@@ -1136,7 +1136,7 @@ local function runRotation()
     inCombat          = br.player.inCombat
     inRaid            = select(2,IsInInstance())=="raid"
     level             = br.player.level
-    mode              = br.player.mode
+    mode              = br.player.ui.mode
     moving            = GetUnitSpeed("player")>0
     opener            = br.player.opener
     option            = br.player.option

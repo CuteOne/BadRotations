@@ -169,7 +169,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
-        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+        br.player.ui.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
 
 --------------
 --- Locals ---
@@ -188,7 +188,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local moving                                        = GetUnitSpeed("player")>0
         local php                                           = br.player.health
         local pullTimer                                     = br.DBM:getPulltimer()

@@ -380,10 +380,10 @@ local function runRotation()
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
     UpdateToggle("Cleanse", 0.25)
-    br.player.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
-    br.player.mode.Glimmer = br.data.settings[br.selectedSpec].toggles["Glimmer"]
-    br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
-    br.player.mode.Beacon = br.data.settings[br.selectedSpec].toggles["Beacon"]
+    br.player.ui.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
+    br.player.ui.mode.Glimmer = br.data.settings[br.selectedSpec].toggles["Glimmer"]
+    br.player.ui.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+    br.player.ui.mode.Beacon = br.data.settings[br.selectedSpec].toggles["Beacon"]
     --------------
     --- Locals ---
     --------------
@@ -442,7 +442,7 @@ local function runRotation()
     -------------
     local enemies = br.player.enemies
     local lastSpell = lastSpellCast
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local pullTimer = br.DBM:getPulltimer()
     local units = br.player.units
     local LightCount = 0
@@ -1077,7 +1077,7 @@ local function runRotation()
     ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     local function Cleanse()
         -- Cleanse
-        if br.player.mode.cleanse == 1 and cast.able.cleanse() and not cast.last.cleanse() then
+        if br.player.ui.mode.cleanse == 1 and cast.able.cleanse() and not cast.last.cleanse() then
             for i = 1, #br.friend do
                 --[[ DEBUG
                 if getDebuffStacks(br.friend[i].unit, 288388) > 0 then

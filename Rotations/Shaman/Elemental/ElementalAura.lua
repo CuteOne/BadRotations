@@ -209,7 +209,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
         local mana                                          = br.player.power.mana.amount()
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local perk                                          = br.player.perk
         local pet                                           = br.player.pet.list     
         local php                                           = br.player.health

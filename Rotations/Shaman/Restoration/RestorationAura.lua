@@ -266,7 +266,7 @@ local function runRotation()
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local mana                                          = br.player.power.mana.percent()
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
@@ -695,7 +695,7 @@ local function runRotation()
                 if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
             end
         -- Purify Spirit
-            if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+            if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                 for i = 1, #friends.yards40 do
                     if canDispel(br.friend[i].unit,spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
@@ -1137,7 +1137,7 @@ local function runRotation()
                         actionList_PreCombat()
                     end
                     -- Purify Spirit
-                    if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+                    if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                         for i = 1, #friends.yards40 do
                             if canDispel(br.friend[i].unit,spell.purifySpirit) then
                                 if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
@@ -1173,14 +1173,14 @@ local function runRotation()
                         br.addonDebug("Using Sapphire of Brilliance")
                         useItem(166801)
                     end
-                    if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
+                    if br.player.ui.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
                         if isExplosive("target") then
                             actionList_Explosive()
                         else
                             actionList_DPS()
                         end
                     end
-                    if movingCheck and br.player.mode.dPS == 1 then
+                    if movingCheck and br.player.ui.mode.dPS == 1 then
                         if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
                     end
                 end

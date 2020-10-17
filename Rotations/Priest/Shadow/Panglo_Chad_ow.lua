@@ -139,9 +139,9 @@ local function runRotation()
     UpdateToggle("Cooldown", 0.25)
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
-    br.player.mode.void = br.data.settings[br.selectedSpec].toggles["Void"]
-    br.player.mode.essence = br.data.settings[br.selectedSpec].toggles["Essence"]
-    br.player.mode.dotcleave = br.data.settings[br.selectedSpec].toggles["DotCleave"]
+    br.player.ui.mode.void = br.data.settings[br.selectedSpec].toggles["Void"]
+    br.player.ui.mode.essence = br.data.settings[br.selectedSpec].toggles["Essence"]
+    br.player.ui.mode.dotcleave = br.data.settings[br.selectedSpec].toggles["DotCleave"]
 
     local addsExist = false
     local addsIn = 999
@@ -168,7 +168,7 @@ local function runRotation()
     local inRaid = br.player.instance == "raid"
     local level = br.player.level
     local lowestHP = br.friend[1].unit
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local moveIn = 999
     local moving = isMoving("player")
     local perk = br.player.perk
@@ -281,13 +281,13 @@ local function runRotation()
             end
         end
 
-        if mode.essence == 1 and inCombat and not br.player.mode.cooldown ~= 3 and voidForm and isChecked("Use lucid dreams") and ((power <= getOptionValue("Lucid - insanity")) and (buff.voidForm.stack() >= getOptionValue("Lucid - void stacks"))) then
+        if mode.essence == 1 and inCombat and not br.player.ui.mode.cooldown ~= 3 and voidForm and isChecked("Use lucid dreams") and ((power <= getOptionValue("Lucid - insanity")) and (buff.voidForm.stack() >= getOptionValue("Lucid - void stacks"))) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end
         end
 
-        if mode.essence == 1 and inCombat and not br.player.mode.cooldown ~= 3 and not voidForm and isChecked("Use Laser Beam") and (getEnemiesInRect(5, 30) >= getOptionValue("Laser Units") or useCDs()) then
+        if mode.essence == 1 and inCombat and not br.player.ui.mode.cooldown ~= 3 and not voidForm and isChecked("Use Laser Beam") and (getEnemiesInRect(5, 30) >= getOptionValue("Laser Units") or useCDs()) then
             if cast.focusedAzeriteBeam("player") then
                 return
             end
@@ -669,7 +669,7 @@ local function runRotation()
                         return
                     end
                 else
-                    if #enemies.yards40 == 1 or br.player.mode.rotation == 2 then
+                    if #enemies.yards40 == 1 or br.player.ui.mode.rotation == 2 then
                         if actionlist_Single() then
                             return
                         end

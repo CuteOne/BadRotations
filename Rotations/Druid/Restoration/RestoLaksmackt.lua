@@ -793,11 +793,11 @@ local function runRotation()
 
     units.get(5)
     units.get(8)
-    units.get(40)
-
-    enemies.get(5)
-    enemies.get(8)
-    enemies.get(8, "target") -- enemies.yards8t
+    br.player.ui.mode
+br.player.ui.mode
+    br.player.ui.mode
+    br.player.ui.mode
+    br.player.ui.mode "target") -- enemies.yards8t
     enemies.get(10, "target", true)
     enemies.get(11, "target") -- enemies.yards8t
     enemies.get(15)
@@ -836,7 +836,7 @@ local function runRotation()
 
     --old un-used feng functions
     local function getAllHotCnt(time_remain)
-        hotCnt = 0
+        hotCnt = br.player.ui.mode
         for i = 1, #br.friend do
             local lifebloomRemain = buff.lifebloom.remain(br.friend[i].unit)
             local rejuvenationRemain = buff.rejuvenation.remain(br.friend[i].unit)
@@ -2164,7 +2164,7 @@ local function runRotation()
                         local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                         if talent.mightyBash and cast.able.mightyBash() then
                             if not debuff.mightyBash.exists(object) then
-                                if root == 339 and distance <= 8 then
+           br.player.ui.mode       if root == 339 and distance <= 8 then
                                     root = 5211
                                     root_range = 8
                                     --CastSpellByName("Mighty Bash", object)

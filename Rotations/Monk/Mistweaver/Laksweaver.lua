@@ -189,9 +189,9 @@ local function runRotation()
      UpdateToggle("Interrupt", 0.25)
      UpdateToggle("Detox", 0.25)
      UpdateToggle("DPS", 0.25) ]]
-    br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
-    br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
-    --br.player.mode.prehot = br.data.settings[br.selectedSpec].toggles["prehot"]
+    br.player.ui.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
+    br.player.ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
+    --br.player.ui.mode.prehot = br.data.settings[br.selectedSpec].toggles["prehot"]
     -------------
     --- Locals ---
     --------------
@@ -217,7 +217,7 @@ local function runRotation()
     local ttd = getTTD
     local essence = br.player.essence
     local mana = br.player.power.mana.percent()
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local perk = br.player.perk
     local php = br.player.health
     local power, powmax, powgen = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
@@ -238,7 +238,7 @@ local function runRotation()
     local enemies = br.player.enemies
     local lastSpell = lastSpellCast
     local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player")
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local pullTimer = br.DBM:getPulltimer()
     local units = br.player.units
     local tanks = getTanksTable()
@@ -551,15 +551,15 @@ local function runRotation()
             end
         end
 
-        if (br.player.mode.dps < 4 or buff.wayOfTheCrane.exists()) and not buff.thunderFocusTea.exists() then
+        if (br.player.ui.mode.dps < 4 or buff.wayOfTheCrane.exists()) and not buff.thunderFocusTea.exists() then
 
 
             local dps_mode
-            if br.player.mode.dps == 1 then
+            if br.player.ui.mode.dps == 1 then
                 dps_mode = "auto"
-            elseif br.player.mode.dps == 2 then
+            elseif br.player.ui.mode.dps == 2 then
                 dps_mode = "single"
-            elseif br.player.mode.dps == 3 then
+            elseif br.player.ui.mode.dps == 3 then
                 dps_mode = "multi"
             end
 
@@ -585,7 +585,7 @@ local function runRotation()
                     end
                 end
 
-                if br.player.mode.dps ~= 2 and isChecked("Spinning Crane Kick") and not isCastingSpell(spell.spinningCraneKick) and
+                if br.player.ui.mode.dps ~= 2 and isChecked("Spinning Crane Kick") and not isCastingSpell(spell.spinningCraneKick) and
                         ((mysticTouchCounter > 0 and #enemies.yards8 > 1)
                                 or #enemies.yards8 >= 4
                                 or #enemy_count_facing_5 == 0) then
@@ -883,7 +883,7 @@ local function runRotation()
 
         --Revival
         if isChecked("Revival") and cast.able.revival() then
-            if isChecked("Use Revival as detox") and br.player.mode.detox == 1 and not cast.last.detox() and cd.detox.exists() then
+            if isChecked("Use Revival as detox") and br.player.ui.mode.detox == 1 and not cast.last.detox() and cd.detox.exists() then
                 local detoxCounter = 0
                 for i = 1, #br.friend do
                     if canDispel(br.friend[i].unit, spell.detox) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
@@ -1361,7 +1361,7 @@ local function runRotation()
         end --End defensive check
 
 
-        if br.player.mode.detox == 1 and cast.able.detox() and not cast.last.detox() then
+        if br.player.ui.mode.detox == 1 and cast.able.detox() and not cast.last.detox() then
             for i = 1, #br.friend do
                 if canDispel(br.friend[i].unit, spell.detox) and (getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
                     if cast.detox(br.friend[i].unit) then

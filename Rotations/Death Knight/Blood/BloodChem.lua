@@ -154,9 +154,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("DND",0.25)
-        br.player.mode.DND = br.data.settings[br.selectedSpec].toggles["DND"]
+        br.player.ui.mode.DND = br.data.settings[br.selectedSpec].toggles["DND"]
         UpdateToggle("BoneStorm",0.25)
-        br.player.mode.BoneStorm = br.data.settings[br.selectedSpec].toggles["BoneStorm"]
+        br.player.ui.mode.BoneStorm = br.data.settings[br.selectedSpec].toggles["BoneStorm"]
 
 --------------
 --- Locals ---
@@ -188,8 +188,8 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.mode
-        local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
+        local mode                                          = br.player.ui.mode
+        local multidot                                      = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation == 2) and br.player.ui.mode.rotation ~= 3
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")

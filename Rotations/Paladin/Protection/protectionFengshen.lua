@@ -192,7 +192,7 @@ local function runRotation()
 		UpdateToggle("Defensive",0.25)
 		UpdateToggle("Interrupt",0.25)
 		UpdateToggle("BossCase",0.25)
-		br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
+		br.player.ui.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
 		--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
 
 		--------------
@@ -214,7 +214,7 @@ local function runRotation()
 		local inInstance    = br.player.instance=="party"
 		local inRaid        = br.player.instance=="raid"
 		local lowest        = br.friend[1]
-		local mode          = br.player.mode
+		local mode          = br.player.ui.mode
 		local php           = br.player.health
 		local race          = br.player.race
 		local racial        = br.player.getRacial()
@@ -347,7 +347,7 @@ local function runRotation()
                 end
             end
         end
-		if br.player.mode.BossCase == 1 then
+		if br.player.ui.mode.BossCase == 1 then
 			bossHelper()
 		end
 		--------------------
@@ -856,7 +856,7 @@ local function runRotation()
 			---------------------------
 			--- Boss Encounter Case ---
 			---------------------------
-			if br.player.mode.BossCase == 1 then
+			if br.player.ui.mode.BossCase == 1 then
 				if BossEncounterCase() then return end
 			end
 			--------------------------

@@ -172,9 +172,9 @@ local function runRotation()
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
-    br.player.mode.ua = br.data.settings[br.selectedSpec].toggles["UA"]
-    br.player.mode.ps = br.data.settings[br.selectedSpec].toggles["PS"]
-    br.player.mode.seed = br.data.settings[br.selectedSpec].toggles["Seed"]
+    br.player.ui.mode.ua = br.data.settings[br.selectedSpec].toggles["UA"]
+    br.player.ui.mode.ps = br.data.settings[br.selectedSpec].toggles["PS"]
+    br.player.ui.mode.seed = br.data.settings[br.selectedSpec].toggles["Seed"]
 
 --------------
 --- Locals ---
@@ -207,7 +207,7 @@ local function runRotation()
     local lastSpell                                     = lastSpellCast
     local level                                         = br.player.level
     local manaPercent                                   = br.player.power.mana.percent()
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local pet                                           = br.player.pet.list
     local php                                           = br.player.health

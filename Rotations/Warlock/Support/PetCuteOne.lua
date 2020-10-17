@@ -21,7 +21,7 @@ br.rotations.support["PetCuteOne"] = function()
     local cast                                          = br.player.cast
     local enemies                                       = br.player.enemies
     local inCombat                                      = br.player.inCombat
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local spell                                         = br.player.spell
     local units                                         = br.player.units
     -- General Locals

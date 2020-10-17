@@ -229,10 +229,10 @@ local function runRotation()
     UpdateToggle("Cooldown", 0.25)
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
-    br.player.mode.frozenOrb = br.data.settings[br.selectedSpec].toggles["FrozenOrb"]
-    br.player.mode.cometStorm = br.data.settings[br.selectedSpec].toggles["CometStorm"]
-    br.player.mode.ebonbolt = br.data.settings[br.selectedSpec].toggles["Ebonbolt"]
-    br.player.mode.coc = br.data.settings[br.selectedSpec].toggles["ConeOfCold"]
+    br.player.ui.mode.frozenOrb = br.data.settings[br.selectedSpec].toggles["FrozenOrb"]
+    br.player.ui.mode.cometStorm = br.data.settings[br.selectedSpec].toggles["CometStorm"]
+    br.player.ui.mode.ebonbolt = br.data.settings[br.selectedSpec].toggles["Ebonbolt"]
+    br.player.ui.mode.coc = br.data.settings[br.selectedSpec].toggles["ConeOfCold"]
     --------------
     --- Locals ---
     --------------
@@ -267,7 +267,7 @@ local function runRotation()
     local level = br.player.level
     local lootDelay = getOptionValue("LootDelay")
     local manaPercent = br.player.power.mana.percent()
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local moving = isMoving("player") ~= false or br.player.moving
     local pet = br.player.pet.list
     local php = br.player.health
