@@ -822,25 +822,29 @@ local function runRotation()
 
             -- Force Of Nature / treants
             if talent.forceOfNature and cast.able.forceOfNature() and astral_def > 20 then
-                if br.player.ui.mode.forceOfNature == 1 and getTTD("target") >= 10
+                if br.player.ui.mode.forceofNature == 1 and getTTD("target") >= 10
                         and (isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group treants with CD"))
                         and (#enemies.yards12t >= getValue("Treant Targets") or isBoss()) then
                     if cast.forceOfNature("best", nil, 1, 15, true) then
                         return true
                     end
-                elseif br.player.ui.mode.forceOfNature == 2 and isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
+                elseif br.player.ui.mode.forceofNature == 2 and isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
                     if cast.forceOfNature("best", nil, 1, 15, true) then
                         return true
                     end
                 end
             end
 
-            if is_aoe and mode.rotation ~= 3 then
+
+            --debug section
+            -- Print(getCastTime(spell.wrath))
+
+            if mode.rotation == 1 and is_aoe or mode.rotation == 2 then
                 -- AOE rotation
                 --starfall
                 if cast.able.starfall()
-                        and (buff.starfall.exists() and buff.starfall.refresh())
-                        or br.timer:useTimer("starfall_timer", 5.6) then
+                        and not buff.starfall.exists() or buff.starfall.refresh() then
+                    --  or br.timer:useTimer("starfall_timer", 5.6) then
                     -- and (!runeforge.lycaras_fleeting_glimpse.equipped or time%%45>buff.starfall.remains+2)
                     if cast.starfall("best", false, 1, 40) then
                         return true
@@ -882,13 +886,31 @@ local function runRotation()
                     end
                 end
 
+                -- celestialAlignment
+
+
+
+                if mode.cooldown == 2 or (isBoss("target") and mode.cooldown == 1) and isChecked("Incarnation/Celestial Alignment") then
+                    if (buff.starfall.exists() or power > 50) and not buff.solstice.exists() and not pewbuff then
+                        -- and (interpolated_fight_remains < cooldown.convoke_the_spirits.remains + 7 | interpolated_fight_remains % % 180 < 22 | cooldown.convoke_the_spirits.up |!covenant.night_fae)
+                        if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
+                            if cast.celestialAlignment() then
+                                return true
+                            end
+                        elseif talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
+                            if cast.incarnationChoseOfElune() then
+                                return true
+                            end
+                        end
+                    end
+                end
 
 
                 --starsurge
                 if cast.able.starsurge()
                         and buff.onethsClearVision.exists()
                         or astral_def < 8
-                        or ((buff.incarnationChoseOfElune.remains() < 5 or buff.celestialAlignment < 5) and pewbuff
+                        or ((buff.incarnationChoseOfElune.remains() < 5 or buff.celestialAlignment.remains() < 5) and pewbuff
                         or (buff.ravenousFrenzy.remains() < gcd * ceil(power % 30) and buff.ravenousFrenzy.exists()))
                         and starfall_wont_fall_off and #enemies.yards45 < 3 then
                     if cast.starsurge(units.dyn45) then
@@ -937,7 +959,7 @@ local function runRotation()
                 Print(tostring((not buff.kindredEmpowerment.exists() or power < 30) and astral_def > 2))
                 Print(tostring(debuff.sunfire.remain(enemies.yards45[1]) < 2.4))
                 Print(tostring(ttd(enemies.yards45[1])))
-]]
+    ]]
 
                 --   if=(buff.ca_inc.remains>5&(buff.ravenous_frenzy.remains>5|!buff.ravenous_frenzy.up)|!buff.ca_inc.up|astral_power<30)&(!buff.kindred_empowerment_energize.up|astral_power<30)&ap_check
 
@@ -953,6 +975,25 @@ local function runRotation()
                         end
                     end
                 end
+
+                -- pew
+                if talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
+                    Print("really?")
+                    if (power > 90 or hasBloodLustRemain() < 36) then
+                        if cast.incarnationChoseOfElune() then
+                            return true
+                        end
+                    end
+                elseif not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
+                    if (power > 90 or hasBloodLustRemain() < 26) then
+                        if cast.celestialAlignment() then
+                            return true
+                        end
+                    end
+                end
+
+
+
                 --starfall
                 if cast.able.starfall()
                         and talent.stellarDrift and not talent.starlord and buff.starfall.refresh()
@@ -964,33 +1005,35 @@ local function runRotation()
                     end
                 end
                 --starsurge
+                --starsurge,if=(!azerite.streaking_stars.rank|buff.ca_inc.remains<execute_time|!variable.prev_starsurge)&(buff.ca_inc.up|astral_power>90&eclipse.in_any)
+                if cast.able.starsurge() then
 
-                if cast.able.starsurge()
-                        and (
-                        buff.onethsClearVision.exists()
-                                or buff.kindredEmpowerment.exists()
-                                or pewbuff and (buff.ravenousFrenzy.exists() and buff.ravenousFrenzy.remains() < gcd * ceil(power % 30)
-                                --or not buff.ravenousFrenzy.exists()    cd.ravenousFrenzy.remains() > 1) --!covenant.venthyr)
-                        )
-                                or power > 90 and (buff.eclipse_lunar.exists() or buff.eclipse_solar.exists())
-                )
-                        or (
-                        talent.starlord and (buff.starlord.exists() or power > 90) and buff.starlord.stack() < 3 and (buff.eclipse_solar.exists()
-                                or buff.eclipse_lunar.exists()) and buff.PrimordialArcanicPulsar.stack() < 270 and (cd.incarnationChoseOfElune.remain() > 10 or cd.celestialAlignment.remain() > 10)
-                ) --!variable.convoke_condition and covenant.night_fae)
-                --                or (
-                --               (buff.PrimordialArcanicPulsar.stack() < 270 or buff.PrimordialArcanicPulsar.stack() < 250 and talent.stellar_drift) and buff.eclipse_solar.remains > 7 and not buff.onethsClearVision.exists() and not talent.starlord and (cd.incarnationChoseOfElune.remain() > 7 or cd.celestialAlignment.remain() > 7)
-                --        )-- (cooldown.kindred_spirits.remains>7 or !covenant.kyrian)
-                then
-                    if cast.starsurge(units.dyn45) then
-                        return true
+                    if (pewbuff and br.player.traits.streakingStars.rank > 0
+                            and not cast.last.starsurge(1)) and (pewbuff or power > 90 and eclipse_in) then
+                        if cast.starsurge(units.dyn45) then
+                            return true
+                        end
+                    end
+                    if (br.player.traits.streakingStars.rank == 0 or pewbuff or not cast.last.starsurge(1))
+                            and talent.starlord and (buff.starlord.exists() or power > 90)
+                            and buff.starlord.stacks() < 3 and eclipse_in then
+                        if cast.starsurge(units.dyn45) then
+                            return true
+                        end
+                    end
+                    if (br.player.traits.streakingStars.rank == 0 or pewbuff or not cast.last.starsurge(1))
+                            and buff.eclipse_solar.remains() > 7 or talent.starlord then
+                        if cast.starsurge(units.dyn45) then
+                            return true
+                        end
                     end
                 end
+
                 --starfire
                 if cast.able.starfire() and
                         eclipse_in and buff.eclipse_lunar.exists() or not eclipse_in and (eclipse_next == "solar" or eclipse_next == "any")
                         or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists()
-                        or ((buff.incarnationChoseOfElune.remain() < getCastTime(spell.wrath) or buff.celestialAlignment.exists() < getCastTime(wrath)) and pewbuff)
+                        or ((buff.incarnationChoseOfElune.remain() < getCastTime(spell.wrath) or buff.celestialAlignment.remain() < getCastTime(spell.wrath)) and pewbuff)
                 then
                     if cast.starfire(getBiggestUnitCluster(45, 8)) then
                         return true
