@@ -954,7 +954,6 @@ local function runRotation()
             end
         end
 
-        Print(tostring(count_hots("player")))
         if mode.hEALS == 1 then
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
@@ -1860,7 +1859,7 @@ local function runRotation()
 
 
     local function DPS()
-        clearForm()
+        -- clearForm()
 
         --dots
 
@@ -1921,6 +1920,46 @@ local function runRotation()
                     end
                 end
             end
+        end
+
+
+        -- balance affinity here
+        if talent.balanceAffinity and lowest.hp > getOptionValue("Critical HP") then
+
+            if not buff.moonkinForm.exists() then
+                if cast.moonkinForm() then
+                    return true
+                end
+            end
+            --dots
+            for i = 1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
+                if not noDamageCheck(thisUnit) then
+                    if isChecked("Safe Dots") and
+                            ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
+                                    or (inInstance and #tanks == 0)
+                                    or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
+                                    or solo
+                                    or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+                                    --need to add, or if tank is dead
+                            ) or not isChecked("Safe Dots") then
+
+                        if cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
+                            if cast.sunfire(thisUnit) then
+                                return true
+                            end
+                        end
+                        if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and not cast.last.moonfire(1) then
+                            if cast.moonfire(thisUnit) then
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+            --eclipse
+
+
         end
 
         if not buff.prowl.exists() then
@@ -2247,7 +2286,7 @@ local function runRotation()
                     return true
                 end
             end
-            if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getValue("Nourish - hot count") then
+            if talent.nourish and cast.able.nourish() and php < getValue("Nourish") and count_hots(lowest.unit) >= getValue("Nourish - hot count") then
                 if cast.nourish(lowest.unit) then
                     br.addonDebug("[HEAL]nourish on: " .. UnitName(lowest.unit))
                     return true
@@ -2270,7 +2309,6 @@ local function runRotation()
                 freemana = false
             end
 
-            clearForm()
 
 
             --lifebloom
@@ -2673,7 +2711,7 @@ local function runRotation()
     end
 
     local function pre_combat()
-        clearForm()
+        -- clearForm()
         if not cat and not travel and not bear then
 
             if (#tanks > 0 or UnitExists("focus")) and (mode.prehot == 1 or mode.prehot == 2) and mode.HEALS == 1 then
