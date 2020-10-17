@@ -994,7 +994,7 @@ local function runRotation()
             and cd.summonDarkglare.remain() <= gcdMax and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots"))) then
                 
                 -- If we have auto selected, check if we're in an instance or raid. Or we have Max-Dots selected. 
-                if (ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and inInstance or imRaid) 
+                if (ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and inInstance or imRaid) or (not inInstance or not inRaid and isKnown(205180) and GetSpellCooldown(205180) == 0 and (shards == 0) )
                 or (ui.checked("Darkglare") and getOptionValue("Darkglare") == 2)
                 -- and (debuff.unstableAffliction.exists("target")
                 and (debuff.agony.remain("target") >= 15 
