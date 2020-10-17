@@ -432,7 +432,7 @@ actionList.Extras = function()
     end -- End Perma Fire Cat
     -- Death Cat mode
     if ui.checked("Death Cat Mode") and cat then
-        if UnitExists("target") and unit.distance(units.dyn8AOE) > 8 then
+        if unit.exists("target") and unit.distance(units.dyn8AOE) > 8 then
             ClearTarget()
         end
         if autoProwl() then
@@ -461,11 +461,11 @@ actionList.Extras = function()
     end -- End Death Cat Mode
     -- Dummy Test
     if ui.checked("DPS Testing") then
-        if GetObjectExists("target") then
+        if unit.exists("target") then
             if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
                 StopAttack()
                 ClearTarget()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -474,7 +474,7 @@ end -- End Action List - Extras
 
 -- Action List - Defensive
 actionList.Defensive = function()
-    if useDefensive() and not IsMounted() and not stealth and not flight and not buff.prowl.exists() then
+    if ui.useDefensive() and not IsMounted() and not stealth and not flight and not buff.prowl.exists() then
         local opValue
         local thisUnit
         -- Rebirth
@@ -485,10 +485,10 @@ actionList.Defensive = function()
             elseif opValue == 2 then
                 thisUnit = "mouseover"
             end
-            if cast.able.rebirth(thisUnit,"dead") and UnitIsDeadOrGhost(thisUnit)
-                and (GetUnitIsFriend(thisUnit,"player") or UnitIsPlayer(thisUnit))
+            if cast.able.rebirth(thisUnit,"dead") and unit.deadOrGhost(thisUnit)
+                and (unit.friend(thisUnit) or unit.player(thisUnit))
             then
-                if cast.rebirth(thisUnit,"dead") then ui.debug("Casting Rebirth on "..UnitName(thisUnit)) return true end
+                if cast.rebirth(thisUnit,"dead") then ui.debug("Casting Rebirth on "..unit.name(thisUnit)) return true end
             end
         end
         -- Revive
@@ -499,10 +499,10 @@ actionList.Defensive = function()
             elseif opValue == 2 then
                 thisUnit = "mouseover"
             end
-            if cast.able.revive(thisUnit,"dead") and UnitIsDeadOrGhost(thisUnit)
-                and (GetUnitIsFriend(thisUnit,"player") or UnitIsPlayer(thisUnit))
+            if cast.able.revive(thisUnit,"dead") and unit.deadOrGhost(thisUnit)
+                and (unit.friend(thisUnit) or unit.player(thisUnit))
             then
-                if cast.revive(thisUnit,"dead") then ui.debug("Casting Revive on "..UnitName(thisUnit)) return true end
+                if cast.revive(thisUnit,"dead") then ui.debug("Casting Revive on "..unit.name(thisUnit)) return true end
             end
         end
         -- Remove Corruption
@@ -515,10 +515,10 @@ actionList.Defensive = function()
             elseif opValue == 3 then
                 thisUnit = "mouseover"
             end
-            if cast.able.removeCorruption() and (GetUnitIsFriend(thisUnit) or UnitIsPlayer(thisUnit))
+            if cast.able.removeCorruption() and (unit.friend(thisUnit) or unit.player(thisUnit))
                 and canDispel(thisUnit,spell.removeCorruption)
             then
-                if cast.removeCorruption(thisUnit) then ui.debug("Casting Remove Corruption on "..UnitName(thisUnit)) return true end
+                if cast.removeCorruption(thisUnit) then ui.debug("Casting Remove Corruption on "..unit.name(thisUnit)) return true end
             end
         end
         -- Soothe
@@ -526,7 +526,7 @@ actionList.Defensive = function()
             for i=1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if canDispel(thisUnit, spell.soothe) then
-                    if cast.soothe(thisUnit) then ui.debug("Casting Soothe on "..UnitName(thisUnit)) return true end
+                    if cast.soothe(thisUnit) then ui.debug("Casting Soothe on "..unit.name(thisUnit)) return true end
                 end
             end
         end
@@ -590,14 +590,14 @@ actionList.Defensive = function()
             if ui.checked("Swiftmend") and cast.able.swiftmend()
                 and ((not inCombbat and thisHP <= swiftPercent) or (unit.inCombat() and thisHP <= swiftPercent/2))
             then
-                if cast.swiftmend(thisUnit) then ui.debug("Casting Swiftmend on "..UnitName(thisUnit)) return true end
+                if cast.swiftmend(thisUnit) then ui.debug("Casting Swiftmend on "..unit.name(thisUnit)) return true end
             end
             -- Rejuvenation
             local rejuvPercent = ui.value("Rejuvenation")
             if ui.checked("Rejuvenation") and cast.able.rejuvenation() and buff.rejuvenation.refresh(thisUnit)
                 and ((not inCombbat and thisHP <= rejuvPercent) or (unit.inCombat() and thisHP <= rejuvPercent/2))
             then
-                if cast.rejuvenation(thisUnit) then ui.debug("Casting Rejuvenation on "..UnitName(thisUnit)) return true end
+                if cast.rejuvenation(thisUnit) then ui.debug("Casting Rejuvenation on "..unit.name(thisUnit)) return true end
             end
             -- Wild Growth
             if ui.checked("Wild Growth") and not unit.inCombat() and cast.able.wildGrowth() then
@@ -606,7 +606,7 @@ actionList.Defensive = function()
                     local thisHP = unit.hp(thisUnit)
                     local lowHealthCandidates = getUnitsToHealAround(thisUnit, 30, ui.value("Wild Growth"), #br.friend)
                     if #lowHealthCandidates > 1 and not unit.moving() then
-						if cast.wildGrowth(br.friend[i].unit) then ui.debug("Casting Wild Growth on "..UnitName(thisUnit)) return true end
+						if cast.wildGrowth(br.friend[i].unit) then ui.debug("Casting Wild Growth on "..unit.name(thisUnit)) return true end
 					end
                 end
             end
@@ -628,7 +628,7 @@ actionList.Defensive = function()
                     if (thisHP <= ui.value("Regrowth") and not unit.moving())
                         and (GetShapeshiftForm() == 0 or buff.predatorySwiftness.exists())
                     then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [OoC No Break] on "..UnitName(thisUnit)) return true end
+                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [OoC No Break] on "..unit.name(thisUnit)) return true end
                     end
                 end
                 -- Break Form
@@ -637,7 +637,7 @@ actionList.Defensive = function()
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                     else
-                       if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..UnitName(thisUnit)) return true end
+                       if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..unit.name(thisUnit)) return true end
                     end
                 end
             elseif unit.inCombat() and (buff.predatorySwiftness.exists() or unit.level() < 49) then
@@ -645,14 +645,14 @@ actionList.Defensive = function()
                 if ui.value("Regrowth - InC") == 1 or not talent.bloodtalons then
                     -- Lowest Party/Raid or Player
                     if (thisHP <= ui.value("Regrowth") and unit.level() >= 49) or (unit.level() < 49 and thisHP <= ui.value("Regrowth") / 2) then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC Instant] on "..UnitName(thisUnit)) return true end
+                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC Instant] on "..unit.name(thisUnit)) return true end
                     end
                 end
                 -- Hold Predatory Swiftness for Bloodtalons unless Health is Below Half of Threshold or Predatory Swiftness is about to Expire.
                 if ui.value("Regrowth - InC") == 2 and talent.bloodtalons then
                     -- Lowest Party/Raid or Player
                     if (thisHP <= ui.value("Regrowth") / 2) or buff.predatorySwiftness.remain() < unit.gcd(true) * 2 then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC BT Hold] on "..UnitName(thisUnit)) return true end
+                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC BT Hold] on "..unit.name(thisUnit)) return true end
                     end
                 end
             end
@@ -676,7 +676,7 @@ actionList.Interrupts = function()
             for i=1, #enemies.yards13f do
                 thisUnit = enemies.yards13f[i]
                 if canInterrupt(thisUnit,ui.value("Interrupt At")) then
-                    if cast.skullBash(thisUnit) then ui.debug("Casting Skull Bash on "..UnitName(thisUnit)) return true end
+                    if cast.skullBash(thisUnit) then ui.debug("Casting Skull Bash on "..unit.name(thisUnit)) return true end
                 end
             end
         end
@@ -685,7 +685,7 @@ actionList.Interrupts = function()
             for i=1, #enemies.yards5f do
                 thisUnit = enemies.yards5f[i]
                 if canInterrupt(thisUnit,ui.value("Interrupt At")) then
-                    if cast.mightyBash(thisUnit) then ui.debug("Casting Mighty Bash on "..UnitName(thisUnit)) return true end
+                    if cast.mightyBash(thisUnit) then ui.debug("Casting Mighty Bash on "..unit.name(thisUnit)) return true end
                 end
             end
         end
@@ -696,7 +696,7 @@ actionList.Interrupts = function()
                 if canInterrupt(thisUnit,ui.value("Interrupt At"))
                     and comboPoints > 0 and not buff.fieryRedMaimers.exists()
                 then
-                    if cast.maim(thisUnit) then ui.debug("Casting Maim on "..UnitName(thisUnit)) return true end
+                    if cast.maim(thisUnit) then ui.debug("Casting Maim on "..unit.name(thisUnit)) return true end
                 end
             end
         end
@@ -747,7 +747,7 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=buff.berserk_cat.up|buff.incarnation_king_of_the_jungle.up
-        if ui.value("Potion") ~= 2 and isBoss("target") then
+        if ui.value("Potion") ~= 2 and unit.isBoss("target") then
             if ((inRaid or (inInstance and unit.ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
                 or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28))
             then
@@ -901,17 +901,17 @@ actionList.Opener = function()
     if ui.checked("Wild Charge") and cast.able.wildCharge("target") and unit.valid("target")
         and unit.distance("target") >= 8 and unit.distance("target") < 30
     then
-        if cast.wildCharge("target") then ui.debug("Casting Wild Charge on "..UnitName("target").." [Opener]") return true end
+        if cast.wildCharge("target") then ui.debug("Casting Wild Charge on "..unit.name("target").." [Opener]") return true end
     end
     -- Start Attack
     -- auto_attack
-    if ui.checked("Opener") and isBoss("target") and not opener.complete then
+    if ui.checked("Opener") and unit.isBoss("target") and not opener.complete then
         if unit.valid("target") and unit.distance("target") < 5
             and unit.facing("player","target") and unit.gcd() == 0
         then
             -- Begin
             if not opener.OPN1 then
-                Print("Starting Opener")
+                ui.print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
             -- Tiger's Fury
@@ -960,12 +960,12 @@ actionList.Opener = function()
                 return
             -- Finish (rip exists)
             elseif opener.RIP1 and (debuff.rip.exists("target") or comboPoints == 0) then
-                Print("Opener Complete")
+                ui.print("Opener Complete")
                 opener.count = 0
                 opener.complete = true
             end
         end
-    elseif (UnitExists("target") and not isBoss("target")) or not ui.checked("Opener") then
+    elseif (unit.exists("target") and not unit.isBoss("target")) or not ui.checked("Opener") then
         opener.complete = true
     end
 end -- End Action List - Opener
@@ -1012,7 +1012,7 @@ actionList.Finisher = function()
             -- or UnitIsCharmed(units.dyn5) or not canDoT(units.dyn5) or unit.isDummy(units.dyn5))
     then
         --if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(units.dyn5) then
-            --Print("Ferocious Bite Finished! "..UnitName(units.dyn5).." with "..round2(thp(units.dyn5),0).."% health remaining.")
+            --ui.print("Ferocious Bite Finished! "..unit.name(units.dyn5).." with "..round2(thp(units.dyn5),0).."% health remaining.")
         --end
         if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
     end
@@ -1207,7 +1207,7 @@ end -- End Action List - Bloodtalons
 --             local opValue = ui.value("Auto Heal")
 --             local thisUnit = br.friend[1].unit
 --             if opvalue == 1 and unit.distance(thisUnit) < 40 then
---                 if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth on "..UnitName(thisUnit).." [BT]") return true end
+--                 if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth on "..unit.name(thisUnit).." [BT]") return true end
 --             elseif opValue == 2 then
 --                 if cast.regrowth("player") then ui.debug("Casting Regrowth [BT < 5cp]") return true end
 --             end
@@ -1286,13 +1286,13 @@ end -- End Action List - Bloodtalons
 --         end
 --         if rakeLogic("target") then
 --             if cast.pool.rake() then ChatOverlay("Pooling For Rake") return true end
---             if cast.rake("target") then ui.debug("Casting Rake on "..UnitName("target").." [Target]") return true end
+--             if cast.rake("target") then ui.debug("Casting Rake on "..unit.name("target").." [Target]") return true end
 --         end
 --         for i = 1, #enemies.yards5f do
 --             local thisUnit = enemies.yards5f[i]
 --             if rakeLogic(thisUnit) then
 --                 if cast.pool.rake() then ChatOverlay("Pooling For Rake") return true end
---                 if cast.rake(thisUnit) then ui.debug("Casting Rake on "..UnitName(thisUnit).." [Multi-DoT]") return true end
+--                 if cast.rake(thisUnit) then ui.debug("Casting Rake on "..unit.name(thisUnit).." [Multi-DoT]") return true end
 --             end
 --         end
 --     end
@@ -1303,7 +1303,7 @@ end -- End Action List - Bloodtalons
 --         and (#enemies.yards40 < ui.value("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
 --     then
 --         if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
---             if cast.moonfireFeral() then ui.debug("Casting Moonfire on "..UnitName(units.dyn40).." [BT]") return true end
+--             if cast.moonfireFeral() then ui.debug("Casting Moonfire on "..unit.name(units.dyn40).." [BT]") return true end
 --         end
 --     end
 --     -- Brutal Slash
@@ -1326,7 +1326,7 @@ end -- End Action List - Bloodtalons
 --             local thisUnit = enemies.yards40[i]
 --             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
 --                 if canDoT(thisUnit) and debuff.moonfireFeral.refresh(thisUnit) then --or (unit.isDummy(thisUnit) and unit.distance(thisUnit) < 8) then
---                     if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire on "..UnitName(thisUnit).." [Multi-DoT]") return true end
+--                     if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire on "..unit.name(thisUnit).." [Multi-DoT]") return true end
 --                 end
 --             end
 --         end
@@ -1422,7 +1422,7 @@ actionList.PreCombat = function()
         end -- End No Stealth
         -- Wild Charge
         if ui.checked("Displacer Beast / Wild Charge") and cast.able.wildCharge("target") and unit.valid("target") then
-            if cast.wildCharge("target") then ui.debug("Wild Charge on "..UnitName("target")) return true end
+            if cast.wildCharge("target") then ui.debug("Wild Charge on "..unit.name("target")) return true end
         end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Regrowth
@@ -1485,9 +1485,9 @@ actionList.PreCombat = function()
         -- buff.prowl.up|buff.shadowmeld.up
         if unit.valid("target") and opener.complete and unit.distance("target") < 5 then
             -- if cast.able.rake() and unit.level() >= 12 and not var.noDoT and not debuff.rake.exists("target") then
-            --     if cast.rake("target") then ui.debug("Casting Rake on "..UnitName("target").." [Pull]"); return true end
+            --     if cast.rake("target") then ui.debug("Casting Rake on "..unit.name("target").." [Pull]"); return true end
             -- elseif cast.able.shred() then
-            --     if cast.shred("target") then ui.debug("Casting Shred on "..UnitName("target").." [Pull]"); return true end
+            --     if cast.shred("target") then ui.debug("Casting Shred on "..unit.name("target").." [Pull]"); return true end
             -- end
 
             -- Run Action List - Stealth
@@ -1571,7 +1571,7 @@ local function runRotation()
     enemies.get(5,"player",false,true) -- makes enemies.yards5f
 
     -- General Vars
-    if not unit.inCombat() and not UnitExists("target") then
+    if not unit.inCombat() and not unit.exists("target") then
         if var.profileStop then var.profileStop = false end
         var.leftCombat = GetTime()
     end
@@ -1713,7 +1713,7 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not unit.inCombat() and not UnitExists("target") and var.profileStop then
+    if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
     elseif (unit.inCombat() and var.profileStop) or pause() or ui.mode.rotation==4 then
         return true
@@ -1739,13 +1739,13 @@ local function runRotation()
         then
             if cast.catForm("player") then ui.debug("Casting Cat Form [Combat]"); return true end
         elseif unit.inCombat() and cat and not var.profileStop
-            and not ui.checked("Death Cat Mode") and UnitExists("target") and opener.complete and cd.global.remain() == 0
+            and not ui.checked("Death Cat Mode") and unit.exists("target") and opener.complete and cd.global.remain() == 0
         then
             -- Wild Charge
             if ui.checked("Wild Charge")
                 and cast.able.wildCharge("player") and unit.valid("target")
             then
-                if cast.wildCharge("target") then ui.debug("Casting Wild Charge on "..UnitName("target").." [Out of Melee]"); return true end
+                if cast.wildCharge("target") then ui.debug("Casting Wild Charge on "..unit.name("target").." [Out of Melee]"); return true end
             end
             -- -- Rake/Shred from Stealth
             -- -- rake,if=buff.prowl.up|buff.shadowmeld.up
@@ -1754,9 +1754,9 @@ local function runRotation()
             --     if cast.able.rake() and unit.level() >= 12 and not var.noDoT and (not debuff.rake.exists(units.dyn5)
             --         or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85)
             --     then
-            --         if cast.rake(units.dyn5) then --[[ui.debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
+            --         if cast.rake(units.dyn5) then --[[ui.debug("Casting Rake on "..unit.name(units.dyn5).." [Stealth Break]");]] return true end
             --     elseif cast.able.shred() and debuff.rake.exists(units.dyn5) and debuff.rake.calc() <= debuff.rake.applied(units.dyn5) * 0.85 then
-            --         if cast.shred(units.dyn5) then --[[ui.debug("Casting Shred on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
+            --         if cast.shred(units.dyn5) then --[[ui.debug("Casting Shred on "..unit.name(units.dyn5).." [Stealth Break]");]] return true end
             --     end
             -- elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then
 
@@ -1860,9 +1860,9 @@ local function runRotation()
                 --             and talent.sabertooth) or (ferociousBiteFinish(thisUnit) and not usePrimalWrath())
                 --         then
                 --             if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
-                --                 Print("Ferocious Bite Finished! "..UnitName(thisUnit).." with "..round2(unit.hp(thisUnit),0).."% health remaining.")
+                --                 ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..round2(unit.hp(thisUnit),0).."% health remaining.")
                 --             end
-                --             if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..UnitName(thisUnit).." [Sabertooth / Execute]"); return true end
+                --             if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Sabertooth / Execute]"); return true end
                 --         end
                 --     end
                 -- end
