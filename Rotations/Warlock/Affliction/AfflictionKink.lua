@@ -994,7 +994,7 @@ local function runRotation()
             and cd.summonDarkglare.remain() <= gcdMax and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots"))) then
                 
                 -- If we have auto selected, check if we're in an instance or raid. Or we have Max-Dots selected. 
-                if (ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and inInstance or imRaid) or (not inInstance or not inRaid and isKnown(205180) and GetSpellCooldown(205180) == 0 and (shards == 0) )
+                if (ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and inInstance or imRaid) 
                 or (ui.checked("Darkglare") and getOptionValue("Darkglare") == 2)
                 -- and (debuff.unstableAffliction.exists("target")
                 and (debuff.agony.remain("target") >= 15 
@@ -1005,8 +1005,9 @@ local function runRotation()
                     br.addonDebug("Casting Darkglare (Maximum Dots)")
                 end
 
-                -- If we have On CD selected.
-                if ui.checked("Darkglare") and getOptionValue("Darkglare") == 3
+                -- If we have On CD selected or we're not in a raid/instance. 
+                if ui.checked("Darkglare") and getOptionValue("Darkglare") == 3 
+                or ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and not inInstance and not inRaid
                 and isKnown(205180) and GetSpellCooldown(205180) == 0 and (shards == 0) 
                 then
                     CastSpellByName(GetSpellInfo(spell.summonDarkglare))
