@@ -1,4 +1,17 @@
-local rotationName = "Kink v1.1.8" -- Change to name of profile listed in options drop down
+local rotationName = "Kink v1.1.9"
+----------------------------------------------------
+-- Credit to Aura for this rotation's base.
+----------------------------------------------------
+
+----------------------------------------------------
+-- Credit and huge thanks  to:
+----------------------------------------------------
+-- Damply#3489
+-- .G.#1338 
+-- Netpunk | Ben#7486 
+----------------------------------------------------
+-- on Discord!
+----------------------------------------------------
 
 ---------------
 --- Toggles ---
@@ -128,14 +141,14 @@ local function createOptions ()
 			-- Trinkets
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 
-            -- Soulstone
-		    br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFMax-Dot Duration","|cffFFFFFFOn CD",	"|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"},
-            1, "|cffFFFFFFWhen to cast Darkglare")
+            -- Darkglare
+            br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown",},
+            1, "|cffFFFFFFWhen to cast Darkglare",true)
 
-            br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.")
+            br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.",true)
 
 			-- Spread agony on single target
-            br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3")
+            br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3", true)
 
             -- Max Dots
             br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)
@@ -160,6 +173,9 @@ local function createOptions ()
             
             -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+
+            -- Demonic Gateway
+            br.ui:createDropdown(section, "Demonic Gateway", br.dropOptions.Toggle, 6, true)
 
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
@@ -236,6 +252,8 @@ local tanks
 local traits
 local units
 local use
+local inInstance
+local inRaid
 -- General Locals - Common Non-BR API Locals used in profiles
 local agonyCount
 local castSummonId = 0
@@ -415,6 +433,17 @@ actionList.Defensive = function()
                 end
             end
         end
+
+        -- Demonic Gateway
+        if isChecked("Demonic Gateway") and SpecificToggle("Demonic Gateway") 
+        and not GetCurrentKeyBoardFocus() and getDistance("target") <= 40 
+        then
+            if CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
+         end
+        
+        --[[ if getDistance("target") <= 40 then
+            if br.timer:useTimer("RoF Delay", 1) and cast.demonicGateway(nil,"aoe",1,8,true) then br.addonDebug("Cast Demonic Gateway") return true end
+        end--]]
 
         -- Heirloom Neck
         if ui.checked("Heirloom Neck") and php <= ui.value("Heirloom Neck") then
@@ -761,6 +790,8 @@ local function runRotation()
     tanks                                         = getTanksTable()
     units                                         = br.player.units
     use                                           = br.player.use
+    inInstance                                    = br.player.unit.instance() == "party"
+    inRaid                                        = br.player.unit.instance() == "raid"
     -- General Locals
     agonyCount                                    = br.player.debuff.agony.count()
     combatTime                                    = getCombatTime()
@@ -961,11 +992,22 @@ local function runRotation()
             -- Summon Darkglare
             if GetSpellCooldown(205180) == 0 and isKnown(205180) and getTTD("target") >= 20 and useCDs() 
             and cd.summonDarkglare.remain() <= gcdMax and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots"))) then
-                -- If we have Maximum Dots selected, check if dots are near their maximum refresh time. 
-                if ui.checked("Darkglare") and getOptionValue("Darkglare") == 1
-               -- and (debuff.unstableAffliction.exists("target")
-                and (debuff.agony.remain("target") >= 15 and ((debuff.siphonLife.remain("target") > 10 or not talent.siphonLife)) 
+                
+                -- If we have auto selected, check if we're in an instance or raid. Or we have Max-Dots selected. 
+                if (ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and inInstance or imRaid) 
+                or (ui.checked("Darkglare") and getOptionValue("Darkglare") == 2)
+                -- and (debuff.unstableAffliction.exists("target")
+                and (debuff.agony.remain("target") >= 15 
+                and ((debuff.siphonLife.remain("target") > 10 or not talent.siphonLife)) 
                 and (debuff.corruption.remain("target") > 10 or talent.absoluteCorruption and debuff.corruption.exists("target")))
+                then
+                    CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+                    br.addonDebug("Casting Darkglare (Maximum Dots)")
+                end
+
+                -- If we have On CD selected.
+                if ui.checked("Darkglare") and getOptionValue("Darkglare") == 3
+                and isKnown(205180) and GetSpellCooldown(205180) == 0 and (shards == 0) 
                 then
                     CastSpellByName(GetSpellInfo(spell.summonDarkglare))
                     br.addonDebug("Casting Darkglare (Maximum Dots)")
