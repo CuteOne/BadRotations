@@ -2488,7 +2488,6 @@ br.lists.spells = {
                 hitAndRun                   = 196922,
                 ironStomach                 = 193546,
                 killingSpree                = 51690,
-                sliceAndDice                = 5171,
                 weaponmaster                = 200733,
                 quickDraw                   = 196938,
             },
