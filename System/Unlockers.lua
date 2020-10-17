@@ -244,7 +244,8 @@ function loadUnlockerAPI()
         -- GetKeyState = function() return false end
         unlocked = false
     end
-
+    -- Set Spell Queue Window to 0
+    if unlocked then RunMacroText("/console SpellQueueWindow 0") end
     return unlocked
 end
 
