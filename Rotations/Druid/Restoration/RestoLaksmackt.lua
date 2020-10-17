@@ -795,11 +795,8 @@ local function runRotation()
 
     units.get(5)
     units.get(8)
-    br.player.ui.mode
-br.player.ui.mode
-    br.player.ui.mode
-    br.player.ui.mode
-    br.player.ui.mode "target") -- enemies.yards8t
+
+    enemies.get(8, "target") -- enemies.yards8t
     enemies.get(10, "target", true)
     enemies.get(11, "target") -- enemies.yards8t
     enemies.get(15)
@@ -2209,7 +2206,7 @@ br.player.ui.mode
                         local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                         if talent.mightyBash and cast.able.mightyBash() then
                             if not debuff.mightyBash.exists(object) then
-           br.player.ui.mode       if root == 339 and distance <= 8 then
+                                if root == 339 and distance <= 8 then
                                     root = 5211
                                     root_range = 8
                                     --CastSpellByName("Mighty Bash", object)
