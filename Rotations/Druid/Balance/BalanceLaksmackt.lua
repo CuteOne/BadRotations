@@ -754,14 +754,20 @@ local function runRotation()
         local starfall_wont_fall_off = power > 80 - (buff.starfall.remains() * 3 % hasteAmount) and buff.starfall.exists() or false
         local starfire_in_solar = #enemies.yards45 > 8 + floor(masteryAmount % 20)
 
-
-
-        local cast_fallback = cast.last.starfire(1) and cast.last.starfire(2) and cast.last.starfire(3) or false
+        local starfire_fallback = cast.last.starfire(1) and cast.last.starfire(2) and cast.last.starfire(3) or false
+        local wrath_fallback = cast.last.wrath(1) and cast.last.wrath(2) and cast.last.wrath(3) or false
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
-        if eclipse_in or cast_fallback then
+        if eclipse_in then
             if buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
                 eclipse_next = "lunar"
-            elseif buff.eclipse_lunar.exists() and not buff.eclipse_solar.exists() or cast_fallback then
+            elseif buff.eclipse_lunar.exists() and not buff.eclipse_solar.exists() then
+                eclipse_next = "solar"
+            end
+        elseif not eclipse_in then
+            if starfire_fallback then
+                eclipse_next = "lunar"
+            end
+            if wrath_fallback then
                 eclipse_next = "solar"
             end
         end
