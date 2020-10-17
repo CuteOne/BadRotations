@@ -6,31 +6,25 @@ local rotationName = "Initial Druid" -- Change to name of profile listed in opti
 local function createToggles() -- Define custom toggles
     -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.wrath },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.moonfire },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shred },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
     CreateButton("Rotation",1,0)
-    -- Cooldown Button
-    CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
-    };
-    CreateButton("Cooldown",2,0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.regrowth },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.regrowth }
     };
-    CreateButton("Defensive",3,0)
-    -- Interrupt Button
-    InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
+    CreateButton("Defensive",2,0)
+    -- Form Button
+    FormModes = {
+        [1] = { mode = "Caster", value = 1 , overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spell.moonkinForm },
+        [2] = { mode = "Cat", value = 2 , overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spell.catForm },
+        [3] = { mode = "Bear", value = 3 , overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spell.bearForm }
     };
-    CreateButton("Interrupt",4,0)
+    CreateButton("Form",3,0)
 end
 
 ---------------
@@ -44,26 +38,14 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-
+            br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1, "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            -- Regrowth
+            br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -71,14 +53,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
             br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
             --Defensive Key Toggle
             br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -95,60 +73,128 @@ end
 local buff
 local cast
 local cd
+local comboPoints
 local debuff
 local enemies
-local equiped
-local gcd
-local gcdMax
-local has
+local energy
 local inCombat
-local item
-local level
-local mode
-local php
-local spell
-local talent
+local ui
+local unit
 local units
-local use
+local spell
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
-local hastar
-local healPot
 local profileStop
-local ttd
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
+local fbMaxEnergy
+local movingTimer
 
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+-- Ferocious Bite Finish
+local function ferociousBiteFinish(thisUnit)
+    local GetSpellDescription = _G["GetSpellDescription"]
+    local desc = GetSpellDescription(spell.ferociousBite)
+    local damage = 0
+    local finishHim = false
+    if thisUnit == nil then thisUnit = units.dyn5 end
+    if comboPoints > 0 and not unit.isDummy(thisUnit) then
+        local comboStart = desc:find(" "..comboPoints.." ",1,true)
+        if comboStart ~= nil then
+            comboStart = comboStart + 2
+            local damageList = desc:sub(comboStart,desc:len())
+            comboStart = damageList:find(": ",1,true)+2
+            damageList = damageList:sub(comboStart,desc:len())
+            local comboEnd = damageList:find(" ",1,true)-1
+            damageList = damageList:sub(1,comboEnd)
+            damage = damageList:gsub(",","")
+        end
+        finishHim = tonumber(damage) >= unit.health(thisUnit)
+    end
+    return finishHim
+end
+-- Time Moving
+local function timeMoving()
+    if movingTimer == nil then movingTimer = GetTime() end
+    if not unit.moving() then
+        movingTimer = GetTime()
+    end
+    return GetTime() - movingTimer
+end
 
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
-
+    -- Auto Shapeshift
+    if (not buff.travelForm.exists() and unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() then
+        local formValue = ui.mode.form
+        -- Bear Form
+        if formValue == 3 and unit.level() >= 8 and cast.able.bearForm() and not buff.bearForm.exists() then
+            if cast.bearForm() then ui.debug("Casting Bear Form") return true end
+        end
+        -- Caster Form
+        if unit.level() < 5 or (formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists())) then
+            RunMacroText("/CancelForm")
+            ui.debug("Casting Caster Form")
+            return true
+        end
+        --Cat Form
+        if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5 and cast.able.catForm() and not buff.catForm.exists() then
+            if cast.catForm() then ui.debug("Casting Cat Form") return true end
+        end
+    end
 end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
-
+    if ui.useDefensive() then
+        if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
+            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") then
+                if buff.catForm.exists() or buff.bearForm.exists() then
+                    -- CancelShapeshiftForm()
+                    RunMacroText("/CancelForm")
+                else
+                    if cast.regrowth("player") then ui.debug("Casting Regrowth on "..unit.name("target")) return true end
+                end
+            end
+            if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
+                if buff.catForm.exists() or buff.bearForm.exists() then
+                    -- CancelShapeshiftForm()
+                    RunMacroText("/CancelForm")
+                else
+                    if cast.regrowth("player") then ui.debug("Casting Regrowth on "..unit.name("player")) return true end
+                end
+            end
+        end
+    end
 end -- End Action List - Defensive
-
--- Action List - Interrrupt
-actionList.Interrupt = function()
-
-end -- End Action List - Interrupt
-
--- Action List - Cooldowns
-actionList.Cooldown = function()
-
-end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-
+    if not unit.inCombat() then
+        if unit.valid("target") then
+            local thisDistance = unit.distance("target") or 99
+            if not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
+                if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or not unit.inCombat()) then
+                    if cast.wrath("target") then ui.debug("Casting Wrath [Pre-Pull]") return true end
+                end
+            end
+            if thisDistance < 5 then
+                -- Shred
+                if cast.able.shred() and buff.catForm.exists() then
+                    if cast.shred() then ui.debug("Casting Shred [Pre-Pull]") return true end
+                end
+                -- Auto Attack
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
+                    StartAttack(units.dyn5)
+                end
+            end
+        end
+    end
 end -- End Action List - PreCombat
 
 ----------------
@@ -159,30 +205,22 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff                                          = br.player.buff
-    cast                                          = br.player.cast
-    cd                                            = br.player.cd
-    debuff                                        = br.player.debuff
-    enemies                                       = br.player.enemies
-    equiped                                       = br.player.equiped
-    gcd                                           = br.player.gcd
-    gcdMax                                        = br.player.gcdMax
-    has                                           = br.player.has
-    inCombat                                      = br.player.inCombat
-    item                                          = br.player.items
-    level                                         = br.player.level
-    mode                                          = br.player.ui.mode
-    php                                           = br.player.health
-    spell                                         = br.player.spell
-    talent                                        = br.player.talent
-    units                                         = br.player.units
-    use                                           = br.player.use
+    buff                                        = br.player.buff
+    cast                                        = br.player.cast
+    cd                                          = br.player.cd
+    comboPoints                                 = br.player.power.comboPoints.amount()
+    debuff                                      = br.player.debuff
+    enemies                                     = br.player.enemies
+    energy                                      = br.player.power.energy.amount()
+    inCombat                                    = br.player.inCombat
+    ui                                          = br.player.ui
+    unit                                        = br.player.unit
+    units                                       = br.player.units
+    spell                                       = br.player.spell
     -- General Locals
-    hastar                                        = GetObjectExists("target")
-    healPot                                       = getHealthPot()
-    profileStop                                   = profileStop or false
-    ttd                                           = getTTD
-    haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4
+    movingTimer                                 = timeMoving()
+    profileStop                                 = profileStop or false
+    haltProfile                                 = (inCombat and profileStop) or pause() or ui.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -191,15 +229,16 @@ local function runRotation()
     enemies.get(40) -- Makes a varaible called, enemies.yards40
 
     -- Profile Specific Locals
-
-    -- SimC specific variables
-    
+    fbMaxEnergy = energy >= 50
+    if not unit.inCombat() and not unit.exists("target") then
+        if profileStop then profileStop = false end
+    end
 
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not hastar and profileStop then
+    if not inCombat and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
         return true
@@ -222,30 +261,52 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if inCombat and isValidUnit("target") and cd.global.remain() == 0 then
-            ------------------------------
-            --- In Combat - Interrupts ---
-            ------------------------------
-            if actionList.Interrupt() then return true end
-            ---------------------------
-            --- SimulationCraft APL ---
-            ---------------------------
-            if getOptionValue("APL Mode") == 1 then
+        if inCombat and unit.valid("target") and cd.global.remain() == 0 then
+
+            ------------------------
+            --- In Combat - Main ---
+            ------------------------
+            -- Melee in melee range
+            if unit.distance(units.dyn5) < 5 then
                 -- Start Attack
-                -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
                     StartAttack(units.dyn5)
                 end
-                -- Cooldowns
-                -- call_action_list,name=CDs
-                if actionList.Cooldown() then return true end
-            end -- End SimC APL
-            ------------------------
-            --- Ask Mr Robot APL ---
-            ------------------------
-            if getOptionValue("APL Mode") == 2 then
-
-            end -- End AMR
+                -- Bear Form
+                if buff.bearForm.exists() then
+                    -- Mangle
+                    if cast.able.mangle(units.dyn5) then
+                        if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end
+                    end
+                end
+                -- Cat Form
+                if buff.catForm.exists() then
+                    local finish = ferociousBiteFinish()
+                    -- Ferocious Bite
+                    if cast.able.ferociousBite() and ((comboPoints == 5 and fbMaxEnergy) or finish) then
+                        if finish then
+                            if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
+                        else
+                            if cast.ferociousBite() then ui.debug("Casting Ferocious Bite") return true end
+                        end
+                    end
+                    -- Shred
+                    if cast.able.shred() and (comboPoints < 5 or unit.level() < 7) then
+                        if cast.shred() then ui.debug("Casting Shred") return true end
+                    end
+                end
+            end
+            -- Caster Form
+            if not (buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists()) then
+                -- Moonfire
+                if cast.able.moonfire() and (unit.level() < 5 or not buff.catForm.exists()) and debuff.moonfire.refresh(units.dyn40) then
+                    if cast.moonfire() then ui.debug("Casting Moonfire") return true end
+                end
+                -- Wrath
+                if cast.able.wrath() and (unit.level() < 2 or not cast.last.wrath() or not debuff.moonfire.refresh(units.dyn40)) then
+                    if cast.wrath() then ui.debug("Casting Wrath") return true end
+                end
+            end
         end -- End In Combat Rotation
     end -- Pause
     return true

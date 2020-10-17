@@ -100,13 +100,9 @@ br.api.unit = function(self,unit)
             local UnitAffectingCombat = _G["UnitAffectingCombat"]
             local GetNumGroupMembers = _G["GetNumGroupMembers"]
             if thisUnit == nil then thisUnit = "player" end
-            if UnitAffectingCombat(thisUnit) or self.ui.checked("Ignore Combat") 
+            return UnitAffectingCombat(thisUnit) or self.ui.checked("Ignore Combat") 
                 or (self.ui.checked("Tank Aggro = Player Aggro") and self.tankAggro())
                 or (GetNumGroupMembers()>1 and (UnitAffectingCombat(thisUnit) or UnitAffectingCombat("target")))
-            then
-                return true
-            end
-            return false
         end
     end
     -- Instance Type (IE: "party" / "raid")
@@ -120,6 +116,13 @@ br.api.unit = function(self,unit)
         unit.isBoss = function(thisUnit)
             local isBoss = _G["isBoss"]
             return isBoss(thisUnit)
+        end
+    end
+    -- Is Dummy
+    if unit.isDummy == nil then
+        unit.isDummy = function(thisUnit)
+            local isDummy = _G["isDummy"]
+            return isDummy(thisUnit)
         end
     end
     -- Is Explosive
