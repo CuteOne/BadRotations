@@ -61,7 +61,7 @@ function cCharacter:new(class)
 	self.inCombat       = false     -- if is in combat
 	self.instance 	    = select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
 	self.level	    		= 0 	-- Player Level
-	self.mode           = {}        -- Toggles
+	-- self.mode           = {}        -- Toggles
 	self.moving         = false        -- Moving event
 	self.opener 				= {} 	-- Opener flag tracking, reduce global vars
 	self.pandemic 			= {}  -- Tracking Base Duration per Unit/Debuff
@@ -84,6 +84,7 @@ function cCharacter:new(class)
 	self.timeToMax	    = 0		-- Time To Max Power
 	self.traits         = {}	-- Azerite Traits
 	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
+	self.ui 			= {}
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -164,10 +165,10 @@ function cCharacter:new(class)
     -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
 
-		self.mode.rotation  = br.data.settings[br.selectedSpec].toggles["Rotation"]
-		self.mode.cooldown 	= br.data.settings[br.selectedSpec].toggles["Cooldown"]
-		self.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
-		self.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
+		self.ui.mode.rotation  = br.data.settings[br.selectedSpec].toggles["Rotation"]
+		self.ui.mode.cooldown 	= br.data.settings[br.selectedSpec].toggles["Cooldown"]
+		self.ui.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
+		self.ui.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
 	end
 
 -- Returns the Global Cooldown time

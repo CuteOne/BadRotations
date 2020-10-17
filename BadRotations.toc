@@ -123,6 +123,7 @@ System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
 
 ## API
+
 System\API\Buff.lua
 System\API\Debuff.lua
 System\API\Essence.lua
@@ -131,6 +132,7 @@ System\API\Pet.lua
 System\API\Power.lua
 System\API\Spell.lua
 System\API\UI.lua
+System\API\Unit.lua
 
 ## Loader
 

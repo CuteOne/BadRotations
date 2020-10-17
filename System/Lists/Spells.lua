@@ -917,6 +917,7 @@ br.lists.spells = {
                 shadowmeld                  = 58984,
                 stagForm                    = 210053,
                 stampedingRoar              = 77764,
+                suddenAmbush                = 340698,
                 travelForm                  = 783,
                 wildGrowth                  = 48438,
             },

@@ -1,5 +1,6 @@
 br.loader = {}
 local class = select(2,UnitClass('player'))
+local level = UnitLevel('player')
 local function getFolderClassName(class)
     local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
     if formatClass == "Deathknight" then formatClass = "Death Knight" end
@@ -35,7 +36,12 @@ function br.loader.loadProfiles()
     for _, file in pairs(profiles) do
         local profile = ReadFile(path..file)
         local start = string.find(profile,"local id = ",1,true) or 0
-        local profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
+        local profileID = 0
+        if folderSpec == "Initial" then 
+            profileID = tonumber(string.sub(profile,start+10,start+14))
+        else
+            profileID = tonumber(string.sub(profile,start+10,start+13))
+        end
         if profileID == specID then loadFile(profile,file,false) end
     end
 end
@@ -75,6 +81,34 @@ function br.loader:new(spec,specName)
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
 
+        local function getSpellsTest()
+            local i = 1
+            while true do
+                local spellName, spellSubName = GetSpellBookItemName(i, BOOKTYPE_SPELL)
+                if not spellName then
+                    do break end
+                end
+                local id = select(2,GetSpellBookItemInfo(i," "))
+                if isKnown(id) and not IsPassiveSpell(id) then
+                    local spellFound = false
+                    for k,v in pairs(self.spell.abilities) do
+                        if GetSpellInfo(v) == GetSpellInfo(id) then spellFound = true end
+                    end
+                    if not spellFound then Print("Spell: "..spellName.." ("..id..") not found in Spells List, please notify developer.")
+                    -- if br.spells == nil then br.spells = {} br.spells.abilities = {} end
+                    -- if br.spells.abilities[id] == nil then
+                    --     br.spells.abilities[id] = spellName
+                    -- local thisSpell = convertName(spellName)
+                    -- if br.spells.abilities[thisSpell] == nil then
+                    --     br.spells.abilities[thisSpell] = id
+                    -- elseif id ~= br.spells.abilities[thisSpell] then
+                    --     Print("Spell: "..spellName.." was already added. Current ID: "..br.spells.abilities[thisSpell].." Alternate ID: "..id)
+                    end
+                end
+                i = i + 1
+            end
+        end
+
         -- Get the new spells
         local function getSpells(spellTable)
             -- Look through spell type subtables
@@ -97,12 +131,14 @@ function br.loader:new(spec,specName)
             end
         end
 
-        -- Spec Spells
-        getSpells(specSpells)
+        -- Spec Spells - Don't Load on Initial Levels
+        if spec < 1400 then getSpells(specSpells) end
         -- Shared Class Spells
         getSpells(sharedClassSpells)
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
+        -- -- Spell Test
+        -- getSpellsTest()
 
         -- Ending the Race War!
         if self.spell.abilities["racial"] == nil then
@@ -275,6 +311,10 @@ function br.loader:new(spec,specName)
             return enemyTable  -- Backwards compatability for old way
         end
 
+        -- Make Unit Functions from br.api.unit
+        if self.unit == nil then self.unit = {} br.api.unit(self,self.unit) end
+
+        -- Make Pet Functions from br.api.pets
         if self.pets ~= nil then
             for k,v in pairs(self.pets) do
                 if self.pet[k] == nil then self.pet[k] = {} end
@@ -348,6 +388,9 @@ function br.loader:new(spec,specName)
             -- Build Cast Funcitons
             br.api.spells(self.cast,k,v,"cast")
         end
+
+        -- Make Unit Functions from br.api.unit
+        if self.ui == nil then self.ui = {} br.api.ui(self,self.ui) end
     end
 
     if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then 
@@ -422,7 +465,8 @@ function br.loader:new(spec,specName)
     function self.getToggleModes()
         for k,v in pairs(br.data.settings[br.selectedSpec].toggles) do
             local toggle = k:sub(1,1):lower()..k:sub(2)
-            self.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
+            br.api.ui(self,self.ui)
+            self.ui.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
             UpdateToggle(k,0.25)
         end
     end
@@ -509,8 +553,8 @@ function br.loader:new(spec,specName)
         -- br:checkProfileWindowStatus()
         br.ui:checkWindowStatus("profile")
 
-        if self.option == nil then self.option = {} end
-        br.api.ui(self.option)
+        -- if self.option == nil then self.option = {} end
+        -- br.api.ui(nil,self.option)
         -- for k,v in pairs(br.data.ui) do
         --     if self.option[k] == nil then self.option[k] = {} end
         --     local option = self.option[k]
@@ -522,7 +566,7 @@ function br.loader:new(spec,specName)
     ------------------------
 
     function useAoE()
-        local rotation = self.mode.rotation
+        local rotation = self.ui.mode.rotation
         if (rotation == 1 and #self.enemies.get(8) >= 3) or rotation == 2 then
             return true
         else
@@ -531,7 +575,7 @@ function br.loader:new(spec,specName)
     end
 
     function useCDs()
-        local cooldown = self.mode.cooldown
+        local cooldown = self.ui.mode.cooldown
         if (cooldown == 1 and isBoss()) or cooldown == 2 or (cooldown == 4 and hasBloodLust()) then
             return true
         else
@@ -540,7 +584,7 @@ function br.loader:new(spec,specName)
     end
 
     function useDefensive()
-        if self.mode.defensive == 1 then
+        if self.ui.mode.defensive == 1 then
             return true
         else
             return false
@@ -548,7 +592,7 @@ function br.loader:new(spec,specName)
     end
 
     function useInterrupts()
-        if self.mode.interrupt == 1 then
+        if self.ui.mode.interrupt == 1 then
             return true
         else
             return false
@@ -556,7 +600,7 @@ function br.loader:new(spec,specName)
     end
 
     function useMfD()
-        if self.mode.mfd == 1 then
+        if self.ui.mode.mfd == 1 then
             return true
         else
             return false
@@ -564,7 +608,7 @@ function br.loader:new(spec,specName)
     end
 
     function useRollForTB()
-        if self.mode.RerollTB == 1 then
+        if self.ui.mode.RerollTB == 1 then
             return true
         else
             return false
@@ -572,7 +616,7 @@ function br.loader:new(spec,specName)
     end
 
      function useRollForOne()
-        if self.mode.RollForOne == 1  then
+        if self.ui.mode.RollForOne == 1  then
             return true
         else
             return false
