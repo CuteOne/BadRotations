@@ -52,6 +52,11 @@ br.api.ui = function(self,ui)
             return ui.mode.defensive == 1
         end
     end
+    if ui.useInterrupt == nil then
+        ui.useInterrupt = function()
+            return ui.mode.interrupt == 1
+        end
+    end
     if ui.print == nil then
         ui.print = function(text)
             local Print = _G["Print"]

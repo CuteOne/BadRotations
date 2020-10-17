@@ -13,6 +13,13 @@ br.api.unit = function(self,unit)
             return UnitCanAttack(thisUnit,playerUnit)
         end
     end
+    -- Dead
+    if unit.deadOrGhost == nil then
+        unit.deadOrGhost = function(thisUnit)
+            local UnitIsDeadOrGhost = _G["UnitIsDeadOrGhost"]
+            return UnitIsDeadOrGhost(thisUnit)
+        end
+    end
     -- Distance
     if unit.distance == nil then
         unit.distance = function(thisUnit)
@@ -26,6 +33,13 @@ br.api.unit = function(self,unit)
             local UnitIsEnemy = _G["UnitIsEnemy"]
             if playerUnit == nil then playerUnit = "player" end
             return UnitIsEnemy(thisUnit,playerUnit)
+        end
+    end
+    -- Exists
+    if unit.exists == nil then
+        unit.exists = function(thisUnit)
+            local UnitExists = _G["GetUnitExists"]
+            return UnitExists(thisUnit)
         end
     end
     -- Facing
@@ -42,10 +56,42 @@ br.api.unit = function(self,unit)
             return IsFlying()
         end
     end
+    -- Friend
+    if unit.friend == nil then
+        unit.friend = function(thisUnit,playerUnit)
+            local UnitIsFriend = _G["GetUnitIsFriend"]
+            if playerUnit == nil then playerUnit = "player" end
+            return UnitIsFriend(thisUnit,playerUnit)
+        end
+    end
     -- Global Cooldown (option: Max Global Cooldown)
     if unit.gcd == nil then
         unit.gcd = function(max)
             return getGlobalCD(max)
+        end
+    end
+    -- Health
+    if unit.health == nil then
+        unit.health = function(thisUnit)
+            local UnitHealth = _G["UnitHealth"]
+            if thisUnit == nil then thisUnit = "player" end
+            return UnitHealth(thisUnit)
+        end
+    end
+    -- Health Max
+    if unit.healthMax == nil then
+        unit.healthMax = function(thisUnit)
+            local UnitHealthMax = _G["UnitHealthMax"]
+            if thisUnit == nil then thisUnit = "player" end
+            return UnitHealthMax(thisUnit)
+        end
+    end
+    -- Health Percent
+    if unit.hp == nil then
+        unit.hp = function(thisUnit)
+            local getHP = _G["getHP"]
+            if thisUnit == nil then thisUnit = "player" end
+            return getHP(thisUnit)
         end
     end
     --  In Combat
@@ -83,30 +129,6 @@ br.api.unit = function(self,unit)
             return isExplosive(thisUnit)
         end
     end
-    -- Health
-    if unit.health == nil then
-        unit.health = function(thisUnit)
-            local UnitHealth = _G["UnitHealth"]
-            if thisUnit == nil then thisUnit = "player" end
-            return UnitHealth(thisUnit)
-        end
-    end
-    -- Health Max
-    if unit.healthMax == nil then
-        unit.healthMax = function(thisUnit)
-            local UnitHealthMax = _G["UnitHealthMax"]
-            if thisUnit == nil then thisUnit = "player" end
-            return UnitHealthMax(thisUnit)
-        end
-    end
-    -- Health Percent
-    if unit.hp == nil then
-        unit.hp = function(thisUnit)
-            local getHP = _G["getHP"]
-            if thisUnit == nil then thisUnit = "player" end
-            return getHP(thisUnit)
-        end
-    end
     -- Level
     if unit.level == nil then
         unit.level = function(thisUnit)
@@ -117,8 +139,23 @@ br.api.unit = function(self,unit)
     -- Moving
     if unit.moving == nil then
         unit.moving = function(thisUnit)
+            local GetUnitSpeed = _G["GetUnitSpeed"]
             if thisUnit == nil then thisUnit = "player" end
             return GetUnitSpeed(thisUnit) > 0
+        end
+    end
+    -- Name
+    if unit.name == nil then
+        unit.name = function(thisUnit)
+            local UnitName = _G["UnitName"]
+            return UnitName(thisUnit)
+        end
+    end
+    -- Player
+    if unit.player == nil then
+        unit.player = function(thisUnit)
+            local UnitIsPlayer = _G["UnitIsPlayer"]
+            return UnitIsPlayer(thisUnit)
         end
     end
     -- Reaction
