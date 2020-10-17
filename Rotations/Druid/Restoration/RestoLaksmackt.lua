@@ -48,8 +48,8 @@ local function createToggles()
     -- Rejuvenation Button
     PrehotModes = {
         [1] = { mode = "On", value = 1, overlay = "Pre-Hot", tip = "Pre-hot Enabled", highlight = 0, icon = br.player.spell.rejuvenation },
-        [2] = { mode = "Tank", value = 2, overlay = "Pre-Hot", tip = "Pre-hot Disabled", highlight = 0, icon = br.player.spell.rejuvenation },
-        [3] = { mode = "Off", value = 3, overlay = "Pre-Hot", tip = "Pre-hots on Tank", highlight = 0, icon = br.player.spell.rejuvenation }
+        [2] = { mode = "Tank", value = 2, overlay = "Pre-Hot", tip = "Pre-hot on TANK", highlight = 0, icon = br.player.spell.rejuvenation },
+        [3] = { mode = "Off", value = 3, overlay = "Pre-Hot", tip = "Pre-hots disabled", highlight = 0, icon = br.player.spell.rejuvenation }
 
     };
     CreateButton("Prehot", 5, -1)
@@ -125,6 +125,8 @@ local function createOptions()
 
         br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "When to stop what we do, emergency heals!")
         br.ui:createSpinner(section, "Swiftmend", 45, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Nourish", 45, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Nourish - hot count", 3, 0, 5, 1, "Hot count where we like this option")
         br.ui:createSpinner(section, "Rejuvenation", 85, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Rejuvenation Tank", 90, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Germination", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -762,7 +764,7 @@ local function runRotation()
     local level = br.player.level
     local lowestHP = br.friend[1].unit
     local mana = br.player.power.mana.percent()
-    local mode = br.player.mode
+    -- local mode = br.player.mode
     local php = br.player.health
     local power, powmax, powgen = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
     local pullTimer = br.DBM:getPulltimer()
@@ -835,6 +837,36 @@ br.player.ui.mode
     end
 
     --old un-used feng functions
+
+    local function count_hots(unit)
+        local count = 0
+        if buff.lifebloom.exists(unit) then
+            count = count + 1
+        end
+        if buff.rejuvenation.exists(unit) then
+            count = count + 1
+        end
+        if buff.regrowth.exists(unit) then
+            count = count + 1
+        end
+        if buff.wildGrowth.exists(unit) then
+            count = count + 1
+        end
+        if buff.cenarionWard.exists(unit) then
+            count = count + 1
+        end
+        if buff.cultivat.exists(unit) then
+            count = count + 1
+        end
+        if buff.springblossom.exists(unit) then
+            count = count + 1
+        end
+        if buff.rejuvenationGermination.exists(unit) then
+            count = count + 1
+        end
+        return count
+    end
+
     local function getAllHotCnt(time_remain)
         hotCnt = br.player.ui.mode
         for i = 1, #br.friend do
@@ -925,7 +957,8 @@ br.player.ui.mode
             end
         end
 
-        if mode.HEALS == 1 then
+        Print(tostring(count_hots("player")))
+        if mode.hEALS == 1 then
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
                 if cast.able.cenarionWard() then
@@ -951,6 +984,12 @@ br.player.ui.mode
                         return true
                     end
                 end
+                if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getOptionCheck("Nourish - hot count") then
+                    if cast.nourish(lowest.unit) then
+                        br.addonDebug("[BOSS]nourish on: " .. UnitName(lowest.unit))
+                        return true
+                    end
+                end
                 if cast.able.regrowth() then
                     if cast.regrowth(lowest.unit) then
                         br.addonDebug("[CRIT]Regrowth on: " .. UnitName(lowest.unit))
@@ -961,7 +1000,7 @@ br.player.ui.mode
         end
 
         -- aggressive dots
-        if isChecked("Aggressive Dots") and mode.DPS == 1 and lowest.hp > getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
+        if isChecked("Aggressive Dots") and mode.dPS == 1 and lowest.hp > getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
             thisUnit = "target"
             if isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
                     ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
@@ -1218,6 +1257,12 @@ br.player.ui.mode
             if cast.able.swiftmend() and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 95)) then
                 if cast.swiftmend(heal_target) then
                     br.addonDebug("[BOSS]Swiftmend on: " .. UnitName(heal_target))
+                    return true
+                end
+            end
+            if talent.nourish and cast.able.nourish() and count_hots(heal_target) >= getOptionCheck("Nourish - hot count") then
+                if cast.nourish(heal_target) then
+                    br.addonDebug("[BOSS]nourish on: " .. UnitName(heal_target))
                     return true
                 end
             end
@@ -2080,7 +2125,7 @@ br.player.ui.mode
             end
         end
         -- Nature's Cure / Cleanse   --Shrine == 1864  getDebuffStacks("player", 267034)
-        if br.player.mode.decurse == 1 and cast.able.naturesCure() and not cast.last.naturesCure() then
+        if mode.decurse == 1 and cast.able.naturesCure() and not cast.last.naturesCure() then
             for i = 1, #br.friend do
                 if canDispel(br.friend[i].unit, spell.naturesCure) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
                     if cast.naturesCure(br.friend[i].unit) then
@@ -2195,18 +2240,22 @@ br.player.ui.mode
             return
         end
 
-        if mode.HEALS == 1 then
+        if mode.hEALS == 1 then
 
-            --Swiftmend
-            --Print("Lowest is: " .. lowest.unit)
-            if isChecked("Swiftmend") and cast.able.swiftmend()
+
+            if isChecked("Swiftmend") and cast.able.swiftmend() and count_hots(lowest.unit) > 0
                     and (lowest.hp <= getValue("Swiftmend") or (talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists()))
                     and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
                 if cast.swiftmend(lowest.unit) then
                     return true
                 end
             end
-
+            if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getOptionCheck("Nourish - hot count") then
+                if cast.nourish(lowest.unit) then
+                    br.addonDebug("[HEAL]nourish on: " .. UnitName(lowest.unit))
+                    return true
+                end
+            end
             if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
                 if cast.concentratedFlame(lowest.unit) then
                     return true
@@ -2665,7 +2714,7 @@ br.player.ui.mode
 
 
             --rejuvenation
-            if mode.prehot == 1 and mode.HEALS == 1 then
+            if mode.prehot == 1 and mode.hEALS == 1 then
                 for i = 1, #br.friend do
                     if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
                         if cast.rejuvenation(br.friend[i].unit) then
@@ -2893,7 +2942,7 @@ br.player.ui.mode
                         return true
                     end
                 end
-                if mode.DPS == 1 and lowest.hp > getValue("DPS Min % health") then
+                if mode.dPS == 1 and lowest.hp > getValue("DPS Min % health") then
                     if DPS() then
                         return true
                     end
