@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.1.9"
+local rotationName = "Kink v1.2.0"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -149,6 +149,12 @@ local function createOptions ()
 
 			-- Spread agony on single target
             br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3", true)
+
+            -- Haunt TTD
+            br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
+
+            -- Seed of Corruption Unit Count
+            br.ui:createSpinner(section, "Seed of Corruption Unit", 2, 1, 15, 1, nil, "Minimum amount of AoE units before casting SoC", true)
 
             -- Max Dots
             br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)
@@ -673,7 +679,7 @@ actionList.PreCombat = function()
                 end
 
                 -- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3&!equipped.169314
-            elseif not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and #enemies.yards10t >= 2 then
+            elseif not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and #enemies.yards10t >= ui.value("Seed of Corruption Unit") then
                 CastSpellByName(GetSpellInfo(spell.seedOfCorruption)) br.addonDebug("Casting Seed of Corruption [Pre-Pull]") return
             elseif pullTimer <= 2 and br.timer:useTimer("Haunt Delay", 2) and GetUnitExists("target") then
                 if talent.haunt then    
@@ -691,7 +697,7 @@ end -- End Action List - PreCombat
 
 actionList.multi = function()
     -- Seed of Corruption
-    if not moving and not cast.last.seedOfCorruption() and not debuff.seedOfCorruption.exists(seedTarget) then
+    if not moving and not cast.last.seedOfCorruption() and not debuff.seedOfCorruption.exists(seedTarget) and #enemies.yards10t >= ui.value("Seed of Corruption Unit") then
         if cast.seedOfCorruption(seedTarget) then br.addonDebug("Casting Seed of Corruption") return true end
     end
 
@@ -973,7 +979,7 @@ local function runRotation()
             end
 
             -- Haunt
-            if not moving and talent.haunt and not debuff.haunt.exists("target") then
+            if not moving and talent.haunt and not debuff.haunt.exists("target") and getTTD("target") >= ui.value("Haunt TTD") then
                 if cast.haunt("target") then br.addonDebug("Casting Haunt") return true end
             end
 
