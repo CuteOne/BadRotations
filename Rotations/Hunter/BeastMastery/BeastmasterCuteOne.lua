@@ -973,7 +973,7 @@ local function runRotation()
     inRaid                             = br.player.instance=="raid"
     item                               = br.player.items
     level                              = br.player.level
-    mode                               = br.player.mode
+    mode                               = br.player.ui.mode
     opener                             = br.player.opener
     php                                = br.player.health
     potion                             = br.player.potion

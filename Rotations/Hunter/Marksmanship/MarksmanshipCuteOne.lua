@@ -220,7 +220,7 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.items
         local level                                         = br.player.level
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
         local php                                           = br.player.health
         local potion                                        = br.player.potion
