@@ -1059,7 +1059,8 @@ local function runRotation()
                 end
                 -- # Priority Rotation? Let's give a crap about energy for the stealth CDs (builder still respect it). Yup, it can be that simple.
                 -- actions+=/call_action_list,name=stealth_cds,if=variable.use_priority_rotation
-                if priorityRotation and validTarget and not stealthedAll and targetDistance < 5 then
+                if priorityRotation and not stealthedAll and targetDistance < 5 then -- and validTarget
+                    --print("Valid target: " .. (validTarget and 'true' or 'false'))
                     if actionList_StealthCD() then return true end
                 end
                     -- # Used to define when to use stealth CDs or builders
@@ -1067,7 +1068,8 @@ local function runRotation()
                 local stealthThd = 25 + vEnabled * 20 + mosEnabled * 20 + sfEnabled * 25 + aEnabled * 20 + 25 * ssThd
                 -- # Consider using a Stealth CD when reaching the energy threshold
                 -- actions+=/call_action_list,name=stealth_cds,if=energy.deficit<=variable.stealth_threshold
-                if energyDeficit <= stealthThd and not stealthedAll and targetDistance < 5 then --and validTarget 
+                if energyDeficit <= stealthThd and not stealthedAll and targetDistance < 5 then --and validTarget
+                    --print("Valid target: " .. (validTarget and 'true' or 'false'))
                     if actionList_StealthCD() then return true end
                 end
 ---------------------------- SHADOWLANDS               
