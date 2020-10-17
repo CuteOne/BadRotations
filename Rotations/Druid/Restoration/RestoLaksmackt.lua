@@ -126,7 +126,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "When to stop what we do, emergency heals!")
         br.ui:createSpinner(section, "Swiftmend", 45, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Nourish", 45, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Nourish - hot count", 3, 0, 5, 1, "Hot count where we like this option")
+        br.ui:createSpinnerWithout(section, "Nourish - hot count", 3, 0, 5, 1, "Hot count where we like this option")
         br.ui:createSpinner(section, "Rejuvenation", 85, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Rejuvenation Tank", 90, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Germination", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -2247,7 +2247,7 @@ local function runRotation()
                     return true
                 end
             end
-            if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getOptionCheck("Nourish - hot count") then
+            if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getValue("Nourish - hot count") then
                 if cast.nourish(lowest.unit) then
                     br.addonDebug("[HEAL]nourish on: " .. UnitName(lowest.unit))
                     return true
