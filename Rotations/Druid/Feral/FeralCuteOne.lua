@@ -1022,7 +1022,8 @@ end -- End Action List - Finisher
 actionList.Filler = function()
     -- Rake
     -- rake,target_if=variable.filler=1&dot.rake.pmultiplier<=persistent_multiplier
-    if cast.able.rake() and filler == 1 and range.dyn5
+    if cast.able.rake() and filler == 1
+        and range.dyn5 and debuff.rake.refresh(units.dyn5)
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
     then
@@ -1035,7 +1036,8 @@ actionList.Filler = function()
     end
     -- Rake
     -- rake,if=variable.filler=2
-    if cast.able.rake() and filler == 2 and range.dyn5
+    if cast.able.rake() and filler == 2
+        and range.dyn5 and debuff.rake.refresh(units.dyn5)
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
     then
@@ -1043,7 +1045,8 @@ actionList.Filler = function()
     end
     -- Lunar Inspiration
     -- lunar_inspiration,if=variable.filler=3
-    if cast.able.moonfireFeral() and talent.lunarInspiration and not var.noDoT and range.dyn40
+    if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfire.refresh(units.dyn40)
+        and not var.noDoT and range.dyn40
         and canDoT(units.dyn40) and debuff.moonfireFeral.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards40 < ui.value("Multi-DoT Limit") and filler == 3
     then
@@ -1061,7 +1064,7 @@ actionList.Filler = function()
     if cast.able.shred() and range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists())
         and (((ui.mode.rotation == 1 and #enemies.yards5f == 1) or (ui.mode.rotation == 3 and #enemies.yards5f > 0)
             or talent.brutalSlash or not cast.safe.swipeCat("player",8,1))
-        and (unit.ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists())
+        and (unit.isDummy() or unit.ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists())
         or unit.isExplosive("target"))
     then
         if cast.shred() then ui.debug("Casting Shred [Filler]") return true end
