@@ -87,6 +87,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
+        br.ui:createDropdown(section, "Poison", { "Instant", "Wound", }, 1, "Poison to apply")
         br.ui:createDropdown(section, "Auto Stealth", { "Always", "25 Yards" }, 1, "Auto stealth mode.")
         br.ui:createCheckbox(section, "Cheap Shot", "Will use cheap shot")
         br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
@@ -182,6 +183,9 @@ end
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
+
+-- BR API Locals
+local ui
 local buff
 local cast
 local cd
@@ -879,7 +883,13 @@ actionList.dps = function()
                     end
                 end
             end]]
-
+    -- new roll the rollTheBones
+    --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
+    if buff_rollTheBones_remain < 3 then
+        if cast.rollTheBones() then
+            return true
+        end
+    end
 
 
 
@@ -900,43 +910,32 @@ actionList.dps = function()
         end
     end
 
+    -- killing_spree,if=variable.blade_flurry_sync&energy.time_to_max>2
+
 
     -- Finishers
     -- test
     -- Print("Our current # buffs that reflects on combo points:" .. tostring(buff_count()))
     -- Print("Combo: " .. combo .. " Execute at: " .. (tostring(comboMax - buff_count())))
 
-    if combo >= real_def or cast.last.markedForDeath(1) then
-
-        buff_rollTheBones_count = 0
-        if br.timer:useTimer("recount_buffrolls", 1) then
-            for k, v in pairs(br.player.spell.buffs.rollTheBones) do
-                if UnitBuffID("player", v) ~= nil then
-                    buff_rollTheBones_count = buff_rollTheBones_count + 1
+    if combo >= real_def or cast.last.markedForDeath(1) and not stealth then
+        if cast.able.betweenTheEyes() then
+            if (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20)) then
+                if cast.betweenTheEyes(units.dyn20) then
+                    return true
                 end
             end
         end
 
-        if not stealth and not noDamageCheck(units.dyn20) and cast.able.betweenTheEyes() and bte_condition and buff_rollTheBones_count >= 1 and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
-            if cast.betweenTheEyes(units.dyn20) then
-                br.addonDebug("DPS BTE at count: " .. tostring(buff_rollTheBones_count))
-                return true
+        --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
+        if cast.able.sliceAndDice() then
+            if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+                if cast.sliceAndDice() then
+                    return true
+                end
             end
         end
-        if combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones())
-                or buff_rollTheBones_remain == 0 or buff_rollTheBones_remain == nil or
-                not buff.skullAndCrossbones.exists() and not buff.broadside.exists() and not buff.buriedTreasure.exists() and not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists() and not buff.trueBearing.exists()
-        then
-            if cast.rollTheBones() then
-                --Print("2: " .. tostring(buff_rollTheBones_remain))
-                return true
-            end
-        end
-        if cast.able.betweenTheEyes(units.dyn20) and not noDamageCheck(units.dyn20) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
-            if cast.betweenTheEyes(units.dyn20) then
-                return true
-            end
-        end
+
         if cast.able.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
             if cast.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
                 return true
@@ -959,6 +958,13 @@ actionList.dps = function()
 
     stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists()
 
+    --variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
+
+    if talent.killingSpree and cast.able.killingSpree() and ((#enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
+        if cast.killingSpree() then
+            return true
+        end
+    end
 
 
     --[[
@@ -1109,20 +1115,22 @@ actionList.dps = function()
             end
         end
     end
-    -- builders
+    -- builders\
+    --serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
 
+
+    -- echoing_reprimand
     --Print("Combo: " .. combo .. "/ goal: " .. tostring((comboMax - buff_count())))
     if combo < real_def and not stealth and not should_pool then
-        if (br.player.talent.quickDraw and real_def > 1 or not br.player.talent.quickDraw and real_def > 0) then
-            if ((br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
-                    and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
-                    or (buff.opportunity.exists() and buff.deadShot.exists()) and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20))
-                    or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
-            then
-                --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
-                if cast.pistolShot(units.dyn20) then
-                    return true
-                end
+
+        if (talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
+                and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
+                or (buff.opportunity.exists() and buff.deadShot.exists())
+                or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
+                and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
+            --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
+            if cast.pistolShot(units.dyn20) then
+                return true
             end
         end
         if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) and not noDamageCheck(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
@@ -1708,7 +1716,7 @@ local function runRotation()
     inCombat = br.player.inCombat
     item = br.player.items
     level = br.player.level
-    mode = br.player.mode
+    mode = br.player.ui.mode
     php = br.player.health
     spell = br.player.spell
     talent = br.player.talent
@@ -1797,21 +1805,6 @@ local function runRotation()
          end]]
     end
 
-    if br.player.buff.rollTheBones == nil then
-        br.player.buff.rollTheBones = { count = 0, duration = 0, remain = 0 }
-    end
-    -- Print("count: " .. buff_rollTheBones_count)
-    if dice_reroll == true then
-        buff_rollTheBones_count = 0
-        for k, v in pairs(br.player.spell.buffs.rollTheBones) do
-            if UnitBuffID("player", v) ~= nil then
-                buff_rollTheBones_count = buff_rollTheBones_count + 1
-            end
-        end
-        dice_reroll = false
-        -- Print("count: " .. buff_rollTheBones_count)
-    end
-
     if talent.acrobaticStrikes then
         dynamic_target_melee = units.dyn8
     else
@@ -1855,7 +1848,7 @@ local function runRotation()
                             br.addonDebug("[AM] - Shadowmeld")
                         end
                     end
-                    if isChecked("[AM] - Vanish") and mode.vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
+                    if isChecked("[AM] - Vanish") and mode .. vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
                         if cast.vanish() then
                             br.addonDebug("[AM] - Vanish")
                         end
@@ -1879,7 +1872,23 @@ local function runRotation()
     elseif haltProfile then
         return true
     else
-
+        if isChecked("Poison") then
+            if not moving and getOptionValue("Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison(1) then
+                if cast.instantPoison("player") then
+                    return true
+                end
+            end
+            if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+                if cast.woundPoison("player") then
+                    return true
+                end
+            end
+            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+                if cast.cripplingPoison("player") then
+                    return true
+                end
+            end
+        end
         --Print(tostring(auto_stealthed))
         ---------------------------------
         --- Out Of Combat - Rotations ---
