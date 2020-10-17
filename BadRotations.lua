@@ -19,6 +19,7 @@ br.rotations = {}
 -- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
 br.debug = {}
 br.unlocked = false
+br.prevQueueWindow = GetCVar("SpellQueueWindow")
 
 br.pauseCast = GetTime()
 local nameSet = false
@@ -194,6 +195,10 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	end
 	if event == "PLAYER_LOGOUT" then
 		if br.unlocked then
+			-- Return queue window to previous setting
+			if GetCVar("SpellQueueWindow") =="0" then 
+				RunMacroText("/console SpellQueueWindow "..br.prevQueueWindow)
+			end 
 			br.ui:saveWindowPosition()
 			-- Make Settings Directory if not exist
 			CreateDirectory(br.settingsDir)
