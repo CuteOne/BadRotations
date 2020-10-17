@@ -948,7 +948,7 @@ local function runRotation()
 
             -- Summon Darkglare
             if isKnown(205180) and getTTD("target") >= 20 and useCDs() and cd.summonDarkglare.remain() <= gcdMax and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots") and debuff.agony.exists("target")
-            and (debuff.siphonLife.exists("target") or not talent.siphonLife) and debuff.corruption.exists("target"))) and (shards == 0)
+            and (debuff.siphonLife.exists("target") or not talent.siphonLife) and debuff.corruption.exists("target"))) or (shards == 0)
             then
                 CastSpellByName(GetSpellInfo(spell.summonDarkglare))
                 br.addonDebug("Casting Darkglare")
@@ -1012,6 +1012,10 @@ local function runRotation()
                     end
                 end
             end
+
+
+
+
 
             -- Siphon Life
             if talent.siphonLife then
@@ -1125,7 +1129,7 @@ local function runRotation()
             end
 
             -- Drain Soul
-            if not moving and talent.drainSoul and (debuff.unstableAffliction.remain("target") > gcdMax and debuff.agony.remain("target") > gcdMax) then
+            if not moving and talent.drainSoul and (debuff.unstableAffliction.remain("target") > gcdMax + 0.45 and debuff.agony.remain("target") > gcdMax + 0.45) then
                 if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
             end
 
