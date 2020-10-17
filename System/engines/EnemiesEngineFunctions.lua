@@ -313,6 +313,25 @@ local function getUnitCoeficient(unit)
 			if getOptionCheck("Avoid Shields") then
 				coef = coef + isShieldedTarget(unit)
 			end
+			-- Outlaw - Blind Shot 10% dmg increase all sources
+			if select(2,UnitClass('player')) == "ROGUE" and GetSpecializationInfo(GetSpecialization()) == 260 then
+				-- Between the eyes
+				if getDebuffRemain(unit, 315341) > 0 then
+					coef = coef + 75
+				end
+				-- Blood of the enemy
+				if getDebuffRemain(unit, 297108) > 0 then
+					coef = coef + 50
+				end
+				-- Marked for death
+				if getDebuffRemain(unit, 137619) > 0 then
+					coef = coef + 75
+				end
+				-- Prey on the weak
+				if getDebuffRemain(unit, 131511) > 0 then
+					coef = coef + 50
+				end
+			end
 			local displayCoef = math.floor(coef*10)/10
 			local displayName = UnitName(unit) or "invalid"
 			-- Print("Unit "..displayName.." - "..displayCoef)
