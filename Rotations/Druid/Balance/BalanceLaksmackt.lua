@@ -224,9 +224,9 @@ local function runRotation()
     UpdateToggle("Forms", 0.25)
     --UpdateToggle("Pots", 0.25)
 
-    br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
-    br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["Rotation"]
-    br.player.mode.forms = br.data.settings[br.selectedSpec].toggles["Forms"]
+    --    br.ui.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
+    --  br.ui.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["Rotation"]
+    --br.ui.player.mode.forms = br.data.settings[br.selectedSpec].toggles["Forms"]
 
 
     --------------
@@ -264,6 +264,7 @@ local function runRotation()
     local moonkin = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
     local eclipse_next = "any"
+    local ui
 
 
     -------------
@@ -275,7 +276,7 @@ local function runRotation()
     -- Enemies
     -------------
     local enemies = br.player.enemies
-    local mode = br.player.mode
+    local mode
     local units = br.player.units
     local pewbuff = buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()
     local starfallRadius
@@ -291,7 +292,7 @@ local function runRotation()
     if timersTable then
         wipe(timersTable)
     end
-
+    mode = br.player.ui.mode
     enemies.get(5)
 
     enemies.get(8, "target") -- enemies.yards8t
