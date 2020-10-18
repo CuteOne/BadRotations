@@ -3210,7 +3210,7 @@ br.lists.spells = {
             }
         },
         -- Inital Warlock (1-10)
-        Initial = {
+        [1454] = {
             abilities                       = {
                 controlDemon                = 93375,
                 corruption                  = 172,
