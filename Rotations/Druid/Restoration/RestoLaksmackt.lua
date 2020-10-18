@@ -1864,7 +1864,7 @@ local function runRotation()
 
 
     local function DPS()
-        -- clearForm()
+        clearForm()
 
         --dots
 
@@ -2097,7 +2097,12 @@ local function runRotation()
                 return true
             end
         end
-
+        if SpecificToggle("Owl Key") and not GetCurrentKeyBoardFocus()
+                and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+                and isChecked("Break form for dots") and (not debuff.moonfire.exists("target") or not debuff.sunfire.exists("target")) or not isChecked("Break form for dots")
+        then
+            return
+        end
 
     end
 
@@ -2987,6 +2992,8 @@ local function runRotation()
                 elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical")) then
                     travel_rest()
                     return true
+                else
+                    clearForm()
                 end
             elseif mode.forms == 1 then
                 auto_forms()
