@@ -214,6 +214,7 @@ local function runRotation()
         enemies.get(10)
         enemies.get(20)
         enemies.get(30)
+        enemies.get(40)
         enemies.get(8,"target") -- enemies.yards8t
         
         
@@ -494,10 +495,6 @@ local function runRotation()
             -- Flametongue
             if talent.hotHand and not buff.flametongue.exists() then
                 if cast.flametongue() then return true end
-            end
-            -- Frostbrand
-            if talent.hailstorm and not buff.frostbrand.exists() and furyCheck25 and (#enemies.yards10 < 3 or (traits.naturalHarmony.active and buff.naturalHarmonyFrost.remain()<= 2* gcdMax)) then
-                if cast.frostbrand() then return true end
             end
             -- Flametongue Refresh
             if talent.hotHand and buff.flametongue.exists() and buff.flametongue.remain() < 4.8 + gcd then

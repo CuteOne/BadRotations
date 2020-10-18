@@ -1782,6 +1782,19 @@ local function runRotation()
             --- SimulationCraft APL ---
             ---------------------------
             if ui.value("APL Mode") == 1 then
+                -- Ferocious Bite
+                -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(talent.sabertooth.enabled)
+                if cast.able.ferociousBite() and range.dyn5 then
+                    for i = 1, #enemies.yards5f do
+                        local thisUnit = enemies.yards5f[i]
+                        if ferociousBiteFinish(thisUnit) and not usePrimalWrath() then
+                            if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
+                                ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..round2(unit.hp(thisUnit),0).."% health remaining.")
+                            end
+                            if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Execute]"); return true end
+                        end
+                    end
+                end
                 -- Call Action List - Cooldowns
                 -- call_action_list,name=cooldown
                 if actionList.Cooldowns() then return true end
@@ -1854,21 +1867,6 @@ local function runRotation()
                         if actionList.Filler() then return true end
                     end
                 end -- End Combo Point Check for Finisher
-                -- -- Ferocious Bite
-                -- -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(talent.sabertooth.enabled)
-                -- if cast.able.ferociousBite() and range.dyn5 then
-                --     for i = 1, #enemies.yards5f do
-                --         local thisUnit = enemies.yards5f[i]
-                --         if (debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 3 and unit.unit.ttd(thisUnit) > 10
-                --             and talent.sabertooth) or (ferociousBiteFinish(thisUnit) and not usePrimalWrath())
-                --         then
-                --             if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
-                --                 ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..round2(unit.hp(thisUnit),0).."% health remaining.")
-                --             end
-                --             if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Sabertooth / Execute]"); return true end
-                --         end
-                --     end
-                -- end
             end -- End SimC APL
         end --End In Combat
     end --End Rotation Logic

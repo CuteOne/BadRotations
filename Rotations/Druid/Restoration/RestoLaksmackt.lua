@@ -74,6 +74,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Forms - 092607092020")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
+        br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
         br.ui:createCheckbox(section, "Cat Charge", "Use Wild Charge to close distance.", 1)
         br.ui:createCheckbox(section, "Break form for critical", "", 1)
@@ -706,6 +707,10 @@ local function reader()
 end
 frame:SetScript("OnEvent", reader)
 
+local eclipse_next = "any"
+local wrath_counter = 0
+local starfire_counter = 0
+
 local function runRotation()
     -- if br.timer:useTimer("debugRestoration", 0.1) then
     --print("Running: "..rotationName)
@@ -774,7 +779,7 @@ local function runRotation()
     local talent = br.player.talent
     local travel = br.player.buff.travelForm.exists()
     local cat = br.player.buff.catForm.exists()
-    local moonkin = br.player.buff.moonkinForm.exists()
+    local owl = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
     local noform = GetShapeshiftForm() == 0
     local units = br.player.units
@@ -832,7 +837,6 @@ local function runRotation()
             RunMacroText("/CancelForm")
         end
     end
-
     --old un-used feng functions
 
     local function count_hots(unit)
@@ -1924,62 +1928,13 @@ local function runRotation()
 
 
         -- balance affinity here
-        if talent.balanceAffinity and lowest.hp > getOptionValue("Critical HP") then
-
-            if not buff.moonkinForm.exists() then
-                if cast.moonkinForm() then
-                    return true
-                end
-            end
-            --dots
-            for i = 1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
-                if not noDamageCheck(thisUnit) then
-                    if isChecked("Safe Dots") and
-                            ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
-                                    or (inInstance and #tanks == 0)
-                                    or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
-                                    or solo
-                                    or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
-                                    --need to add, or if tank is dead
-                            ) or not isChecked("Safe Dots") then
-
-                        if cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
-                            if cast.sunfire(thisUnit) then
-                                return true
-                            end
-                        end
-                        if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and not cast.last.moonfire(1) then
-                            if cast.moonfire(thisUnit) then
-                                return true
-                            end
-                        end
-                    end
-                end
-            end
-            --eclipse
-
-
-        end
-
-        if not buff.prowl.exists() then
-            if cast.able.concentratedFlame() and not buff.prowl.exists() then
-                if isChecked("ConcentratedFlame - DPS") and ttd(units.dyn40) > 8 and not debuff.concentratedFlame.exists(units.dyn40) then
-                    if cast.concentratedFlame(units.dyn40) then
-                        return true
-                    end
-                end
-            end
-        end
-
-        -- Solar Wrath
-        if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
-            if cast.solarWrath(units.dyn40) then
+        if talent.balanceAffinity and lowest.hp > getOptionValue("Critical HP") and mode.forms == 1 then
+            if owl_combat() then
                 return true
             end
-
         end
     end -- End Action List - DPS
+
 
     -----------------------------
     --- In Combat - Rotations ---
@@ -2014,6 +1969,119 @@ local function runRotation()
         J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
         0.00	shred
         ]]
+
+
+    end
+
+    local function owl_combat()
+
+        --  Print("star :" .. tostring(starfire_counter) .. eclipse_next)
+        --  Print("wrath:" .. tostring(wrath_counter) .. eclipse_next)
+
+        local starfire_fallback = starfire_counter >= 2 or false
+        local wrath_fallback = wrath_counter >= 2 or false
+        local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
+
+        if eclipse_in then
+            starfire_counter = 0
+            wrath_counter = 0
+            if buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
+                eclipse_next = "lunar"
+            elseif buff.eclipse_lunar.exists() and not buff.eclipse_solar.exists() then
+                eclipse_next = "solar"
+            end
+        elseif not eclipse_in then
+            if starfire_fallback then
+                eclipse_next = "lunar"
+            end
+            if wrath_fallback then
+                eclipse_next = "solar"
+            end
+        end
+
+        if not buff.moonkinForm.exists() then
+            if cast.moonkinForm() then
+                return true
+            end
+        end
+        --dots
+        for i = 1, #enemies.yards40 do
+            thisUnit = enemies.yards40[i]
+            if not noDamageCheck(thisUnit) then
+                if isChecked("Safe Dots") and
+                        ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
+                                or (inInstance and #tanks == 0)
+                                or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
+                                or solo
+                                or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+                                --need to add, or if tank is dead
+                        ) or not isChecked("Safe Dots") then
+
+                    if cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
+                        if cast.sunfire(thisUnit) then
+                            return true
+                        end
+                    end
+                    if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and not cast.last.moonfire(1) then
+                        if cast.moonfire(thisUnit) then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+        --eclipse
+
+        --[[7	69.05	moonfire,target_if=refreshable
+        --8	27.90	sunfire,target_if=refreshable
+
+
+        --0.00	heart_of_the_wild
+        --0.00	convoke_the_spirits,if=buff.eclipse_solar.up
+        --9	22.86	starsurge
+        --A	66.20	wrath,if=buff.eclipse_solar.up|eclipse.lunar_next
+        --B	39.13	starfire]]
+        if talent.heartOfTheWild then
+            if cast.heartOfTheWild() then
+                return true
+            end
+        end
+
+        if not buff.prowl.exists() then
+            if cast.able.concentratedFlame() and not buff.prowl.exists() then
+                if isChecked("ConcentratedFlame - DPS") and ttd(units.dyn40) > 8 and not debuff.concentratedFlame.exists(units.dyn40) then
+                    if cast.concentratedFlame(units.dyn40) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        if cast.able.starsurge(units.dyn45) and eclipse_in then
+            if cast.starsurge(units.dyn45) then
+                return true
+            end
+        end
+
+        if cast.able.wrath(units.dyn45) and buff.eclipse_solar.exists() or eclipse_next == "lunar" then
+            if cast.wrath(units.dyn45) then
+                if not eclipse_in then
+                    starfire_counter = 0
+                    wrath_counter = wrath_counter + 1
+                end
+                return true
+            end
+        end
+
+        if cast.able.starfire(units.dyn45) then
+            if cast.starfire(units.dyn45) then
+                if not eclipse_in then
+                    starfire_counter = starfire_counter + 1
+                    wrath_counter = 0
+                end
+                return true
+            end
+        end
 
 
     end
@@ -2667,6 +2735,14 @@ local function runRotation()
         end
     end
 
+    local function owl_rest()
+        if not owl then
+            if cast.moonkinForm("player") then
+                return true
+            end
+        end
+    end
+
     local function cat_rest()
         if not cat then
             if cast.catForm("player") then
@@ -2880,6 +2956,11 @@ local function runRotation()
                 then
                     cat_rest()
                     return true
+                elseif SpecificToggle("Owl Key") and not GetCurrentKeyBoardFocus()
+                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP")) or not isChecked("Break form for critical")
+                then
+                    owl_rest()
+                    return true
                 elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
                     bear_rest()
                     return true
@@ -2928,6 +3009,11 @@ local function runRotation()
                 then
                     cat_combat()
                     return true
+                elseif SpecificToggle("Owl Key") and not GetCurrentKeyBoardFocus()
+                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+                then
+                    owl_combat()
+                    return true
                 elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
                     bear_combat()
                     return true
@@ -2943,6 +3029,10 @@ local function runRotation()
                 end
                 if bear then
                     bear_combat()
+                    return true
+                end
+                if owl then
+                    owl_combat()
                     return true
                 end
                 if travel then
