@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.2.3"
+local rotationName = "Kink v1.2.5"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -159,11 +159,16 @@ local function createOptions ()
 			-- Spread agony on single target
             br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3", true)
 
+            -- Unstable Affliction Sniping
+            br.ui:createSpinner(section, "Unstable Affliction TTD", 6, 1, 15, 1, nil, "Time to Die of unit inside instance/raid to apply unstable affliction to", true)
+
             -- Haunt TTD
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
             -- Seed of Corruption
-            br.ui:createSpinner(section, "Seed of Corruption Unit", 3, 1, 15, 1, nil, "Unit Count to cast Seed of Corruption at", true)
+            br.ui:createSpinner(section, "Seed of Corruption Unit", 3, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
+
+
 
             -- Max Dots
             br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)
@@ -633,7 +638,7 @@ end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-            -- Fel Domination
+    -- Fel Domination
     if ui.checked("Fel Domination")
     and inCombat
     and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet")
@@ -732,7 +737,8 @@ actionList.multi = function()
 
     -- Focused Azerite Beam
     if ui.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
-    and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 25 and getFacing("player","target", 5))) 
+    and ((essence.focusedAzeriteBeam.rank < 3 and not moving) or essence.focusedAzeriteBeam.rank >= 3) 
+    and (getEnemiesInRect(2,25,isChecked("Show Drawings"),false) >= getOptionValue("Azerite Beam Units") or (isBoss("target") and getDistance("player","target") <= 25 and getFacing("player","target", 5))) 
     then
         if cast.focusedAzeriteBeam() then
             br.addonDebug("Casting Focused Azerite Beam")
@@ -877,17 +883,26 @@ local function runRotation()
         if unit == nil then unit = "target" end
         if moving then return false end
         if cast.last.unstableAffliction(4) then return false end
-        if debuff.unstableAffliction.exists("target") then return false end
-        if  debuff.agony.remain("target") < gcdMax + 0.25 and (debuff.corruption.remain("target") < gcdMax + 0.25 and (debuff.siphonLife.remain("target") < gcdMax + 0.25 or not talent.siphonLife)) then return false end
+        if debuff.unstableAffliction.exists(unit) then return false end
+        if  debuff.agony.remain(unit) < gcdMax + 0.25 and (debuff.corruption.remain(unit) < gcdMax + 0.25 and (debuff.siphonLife.remain(unit) < gcdMax + 0.25 or not talent.siphonLife)) then return false end
 
-        if debuff.unstableAffliction.remains("target") < gcdMax + cast.time.unstableAffliction() + 0.65 then
+
+        if ui.checked("Unstable Affliction TTD") and ( inInstance or InRaid )
+        and getTTD(unit) <= ui.value("Unstable Affliction TTD")
+        then
+            if debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 0.30 then
+               if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
+            end
+        end
+
+        if debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 0.30 then
            if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
         end
     end
     
     -- SimC specific variables
     --actions=variable,name=use_seed,value=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>=3+raid_event.invulnerable.up|talent.siphon_life.enabled&spell_targets.seed_of_corruption>=5+raid_event.invulnerable.up|spell_targets.seed_of_corruption>=8+raid_event.invulnerable.up
-    if talent.sowTheSeeds and ((not talent.siphonLife and #enemies.yards10t >= 2) or (talent.siphonLife and #enemies.yards10t >= 4) or (#enemies.yards10t >= 8)) then
+    if talent.sowTheSeeds and ((not talent.siphonLife and #enemies.yards10t >= ui.value("Seed of Corruption Unit")) or (talent.siphonLife and #enemies.yards10t >= ui.value("Seed of Corruption Unit")) or (#enemies.yards10t >= 7)) then
         useSeed = true
     else
         useSeed = false
@@ -902,7 +917,7 @@ local function runRotation()
 
     --actions+=/variable,name=maintain_se,value=spell_targets.seed_of_corruption_aoe<=1+talent.writhe_in_agony.enabled+talent.absolute_corruption.enabled*2+(talent.writhe_in_agony.enabled&talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>2)+(talent.siphon_life.enabled&!talent.creeping_death.enabled&!talent.drain_soul.enabled)+raid_event.invulnerable.up
     maintainSE = (talent.writheInAgony and 1 or 0) + (talent.absoluteCorruption and 1 or 0) * 2 + ((talent.writheInAgony and 1 or 0) and 
-    (talent.sowTheSeeds and 1 or 0) and (#enemies.yards10t > 1 and 1 or 0))+((talent.siphonLife and 1 or 0) and (not talent.creepingDeath and 1 or 0) and (not talent.drainSoul and 1 or 0))
+    (talent.sowTheSeeds and 1 or 0) and (#enemies.yards10t >= ui.value("Seed of Corruption Unit") and 1 or 0))+((talent.siphonLife and 1 or 0) and (not talent.creepingDeath and 1 or 0) and (not talent.drainSoul and 1 or 0))
     ---------------------
     --- Begin Profile ---
     ---------------------
