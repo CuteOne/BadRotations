@@ -7,6 +7,7 @@ Please refer to list below for status of profiles.
 ## First Setup
 
 Little How-To for the first run: <https://gyazo.com/d11da29a9d7dba4c93e5b65c008c433c>
+
 Also be sure to check the Wiki: <https://github.com/CuteOne/BadRotations/wiki>
 
 ## About
