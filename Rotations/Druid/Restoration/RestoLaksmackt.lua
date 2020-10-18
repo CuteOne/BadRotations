@@ -1934,6 +1934,20 @@ local function runRotation()
                 return true
             end
         end
+
+        if owl and #enemies.yards40 > 2 and cast.able.starfire() then
+            if cast.starfire(getBiggestUnitCluster(45, 8)) then
+                return true
+            end
+        end
+        --wrath fall back
+        if cast.able.wrath() then
+            if cast.wrath(units.dyn45) then
+                return true
+            end
+        end
+
+
     end -- End Action List - DPS
 
 
