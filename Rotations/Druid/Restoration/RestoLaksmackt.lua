@@ -2167,7 +2167,7 @@ local function runRotation()
             end
 
             -- Rake
-            if (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and ttd(thisUnit) >= 10
+            if cast.able.rake() and (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and ttd(thisUnit) >= 10
                     and (combo < 5 or debuff.rake.remain(thisUnit) < 1) and aoe_count < 4 and not isExplosive(thisUnit) then
                 if cast.rake(thisUnit) then
                     br.addonDebug("[CAT-DPS] Raking")
@@ -2177,7 +2177,7 @@ local function runRotation()
 
             -- Ferocious Bite
             --ferocious_bite,if=(combo_points>3&target.time_to_die<3)|(combo_points=5&energy>=50&dot.rip.remains>14)&spell_targets.swipe_cat<5
-            if cat and combo > 3 and ttd(thisUnit) < 3 or (combo == 5 and br.player.power.energy.amount() >= 40 and debuff.rip.remain(thisUnit) > 8)
+            if cast.able.ferociousBite() and cat and combo > 3 and ttd(thisUnit) < 3 or (combo == 5 and br.player.power.energy.amount() >= 40 and (debuff.rip.remain(thisUnit) > 8 or not cast.able.rip()))
                     and #enemies.yards8 < 5 and not noDamageCheck(thisUnit) then
                 if cast.ferociousBite(thisUnit)
                 then
@@ -2185,24 +2185,29 @@ local function runRotation()
                     return true
                 end
             end
+
             if combo < 5 then
                 --swipe_cat,if=spell_targets.swipe_cat>=6
-                if #enemies.yards8 >= 6 then
-                    if cast.swipeCat() then
-                        br.addonDebug("[CAT-DPS] Swipe - aoe: " .. aoe_count)
-                        return true
+                if cast.able.swipeCat() then
+                    if #enemies.yards8 >= 6 then
+                        if cast.swipeCat() then
+                            br.addonDebug("[CAT-DPS] Swipe - aoe: " .. aoe_count)
+                            return true
+                        end
+                    end
+                    --swipe_cat,if=spell_targets.swipe_cat>=2
+                    if aoe_count >= 2 then
+                        if cast.swipeCat() then
+                            br.addonDebug("[CAT-DPS] Multiple targets - swiping")
+                            return true
+                        end
                     end
                 end
-                --swipe_cat,if=spell_targets.swipe_cat>=2
-                if aoe_count >= 2 then
-                    if cast.swipeCat() then
-                        br.addonDebug("[CAT-DPS] Multiple targets - swiping")
+                if cast.able.shred() then
+                    if cast.shred(thisUnit) then
+                        br.addonDebug("[CAT-DPS] Shred")
                         return true
                     end
-                end
-                if cast.shred(thisUnit) then
-                    br.addonDebug("[CAT-DPS] Shred")
-                    return true
                 end
             end
         end
