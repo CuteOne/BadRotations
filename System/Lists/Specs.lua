@@ -66,7 +66,7 @@ br.lists.spec = {
 		Affliction = 265,
 		Demonology = 266,
 		Destruction = 267,
-		Initial = 1451,
+		Initial = 1454,
 	},
 	WARRIOR = {
 		Arms = 71,
