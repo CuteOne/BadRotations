@@ -694,12 +694,12 @@ function cl:Rogue(...)
                     local destination = GetObjectWithGUID(destination)
                     if GetObjectExists(destination) then
                         thisUnit = destination
-                    elseif GetObjectExists("target") then
-                        thisUnit = GetObjectWithGUID(UnitGUID("target"))
+                    -- elseif GetObjectExists("target") then
+                    --     thisUnit = GetObjectWithGUID(UnitGUID("target"))
                     else
                         thisUnit = GetObjectWithGUID(UnitGUID("player"))
                     end
-                    if br.player ~= nil and getDistance(thisUnit) < 40 then
+                    if br.player ~= nil and getDistance(thisUnit) < 40 and thisUnit ~= nil then
                         local debuff = br.player.debuff
                         local debuffID = br.player.spell.debuffs
                         if debuffID ~= nil then

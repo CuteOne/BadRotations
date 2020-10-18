@@ -55,4 +55,5 @@ br.lists.threatBypass = {
     [160249] = "Spike Tentacle", -- Ny'alotha - N'zoth
     [162933] = "Thought Harvester", -- Ny'alotha - N'zoth
     [161895] = "The Thing from beyond", -- corruption thingy
+    [157486] = "Horrific Hemorrhage", 
 }

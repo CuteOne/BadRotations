@@ -296,4 +296,12 @@ function CreateButton(Name,x,y)
 		end		 
 		SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 	end
+	if br.data.settings[br.selectedSpec].toggles["Main"] == 1 and not UnitAffectingCombat("player") then
+		mainButton:Show()
+	elseif not UnitAffectingCombat("player") then
+		mainButton:Hide()
+	elseif UnitAffectingCombat("player") then
+		--Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+	end		 
+	SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 end

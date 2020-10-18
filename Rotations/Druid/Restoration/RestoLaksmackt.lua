@@ -685,27 +685,27 @@ local StunsBlackList = {
 
 local someone_casting = false
 
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-local function reader()
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    -- print(...)
-    --[[
-     if param == "SPELL_CAST_SUCCESS" and spell == 193316 then
-         -- or param == "SPELL_AURA_REMOVED" then
-         C_Timer.After(0.02, function()
-             --    print("refresh rtb")
-             dice_reroll = true
-         end)
-     end]]
-    if param == "SPELL_CAST_START" then
-        C_Timer.After(0.02, function()
-            someone_casting = true
-            --Print(source .. "/" .. sourceName .. " is casting " .. spellName)
-        end)
-    end
-end
-frame:SetScript("OnEvent", reader)
+-- local frame = CreateFrame("Frame")
+-- frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+-- local function reader()
+--     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+--     -- print(...)
+--     --[[
+--      if param == "SPELL_CAST_SUCCESS" and spell == 193316 then
+--          -- or param == "SPELL_AURA_REMOVED" then
+--          C_Timer.After(0.02, function()
+--              --    print("refresh rtb")
+--              dice_reroll = true
+--          end)
+--      end]]
+--     if param == "SPELL_CAST_START" then
+--         C_Timer.After(0.02, function()
+--             someone_casting = true
+--             --Print(source .. "/" .. sourceName .. " is casting " .. spellName)
+--         end)
+--     end
+-- end
+-- frame:SetScript("OnEvent", reader)
 
 local eclipse_next = "any"
 local wrath_counter = 0
@@ -1071,6 +1071,7 @@ local function runRotation()
                     end
     ]]
                     if isChecked("Smart Hot") then
+<<<<<<< Updated upstream
                         --        if someone_casting then
                         if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
                             if cast.cenarionWard(spellTarget) then
@@ -1080,6 +1081,12 @@ local function runRotation()
                             if talent.germination and not buff.rejuvenationGermination.exists(spellTarget) then
                                 if cast.rejuvenation(spellTarget) then
                                     br.addonDebug("[Snipe]Germination on: " .. UnitName(spellTarget))
+=======
+                        --if someone_casting then
+                            if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
+                                if cast.cenarionWard(spellTarget) then
+                                    br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
+>>>>>>> Stashed changes
                                     return true
                                 end
                             elseif not talent.germination and not buff.rejuvenation.exists(spellTarget) then
@@ -1094,7 +1101,7 @@ local function runRotation()
                                     return true
                                 end
                             end
-                        end
+                       -- end
                     end
                 end
             end
@@ -1797,7 +1804,9 @@ local function runRotation()
                         end
                     end
                     if Trinket14 ~= 168905 and Trinket14 ~= 167555 then
-                        if canUseItem(14) then
+                        if Trinket14 == 173944 and mana < 90 and canUseItem(14) then
+                            useItem(14)
+                        elseif canUseItem(14) then
                             useItem(14)
                         end
                     end

@@ -261,7 +261,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if talent.kindling then kindle = 1 else kindle = 0 end
         if not talent.kindling then notKindle = 1 else notKindle = 0 end
-        if talent.runeOfPower then powerRune = true else runeOfPower = false end
+        if talent.runeOfPower then runeOfPower = true else runeOfPower = false end
 
         if co_opn_fblast == nil or not UnitAffectingCombat("player") then co_opn_fblast = false end
         if fballLast == nil or not UnitAffectingCombat("player") then fballLast = false end
@@ -612,7 +612,7 @@ local function runRotation()
 
             if isChecked("Trinket 1") or isChecked("Trinket 2") then
 
-            -- Ignition Mages Fuse
+            -- Ignition Mages Fuse 174103
                 -- use_item,name=ignition_mages_fuse
 
                 if (pSlot13 == 159615 or pSlot14 == 159615) then
@@ -620,7 +620,13 @@ local function runRotation()
                         useItem(159615)
                     end
                 end
-
+            -- Manifesto of Madness
+                
+                if (pSlot13 == 174103 or pSlot14 == 174103) then
+                    if canUseItem(174103) then
+                        useItem(174103)
+                    end
+                end
             -- Azurethos Singed Plumage
                 --use_item,use_off_gcd=1,name=azurethos_singed_plumage,if=buff.combustion.up|action.meteor.in_flight&action.meteor.in_flight_remains<=0.5
 
@@ -632,6 +638,14 @@ local function runRotation()
                     end
                 end
 
+            -- Gladiator's Badge/ Medallion
+                if (pSlot13 == 172669 or pSlot14 == 172669 or pSlot13 == 172666 or pSlot14 == 172666) then
+                    if buff.combustion.exists() or cast.inFlight.meteor() then
+                        if canUseItem(172669) then
+                            useItem(172669)
+                        end
+                    end
+                end
             -- Balefire Branch
                 --use_item,use_off_gcd=1,name=balefire_branch,if=buff.combustion.up|action.meteor.in_flight&action.meteor.in_flight_remains<=0.5
 
@@ -950,6 +964,14 @@ local function runRotation()
             if lucisDreams then --and teorLast == true then --and (talent.meteor and cd.meteor.remain() == 0 or debuff.meteorBurn.exists("target") or not talent.meteor) then --and cast.able.memoryOfLucidDreams() then --and cast.last.runeOfPower() then
                 if cd.combustion.remain() < gcdMax or cd.combustion.remain() == 0 and not tmoving then
                     if cast.memoryOfLucidDreams() then dPrint("Comb Lucid") return end
+                end
+            end
+
+        -- Worldvein Resonance
+            --worldvein_resonance
+            if worldvein then
+                if cd.combustion.remain() < gcdMax or cd.combustion.remain() == 0 and not tmoving then
+                    if cast.worldveinResonance() then dPrint("Comb Worldvein") return end
                 end
             end
 

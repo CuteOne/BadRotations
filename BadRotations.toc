@@ -53,7 +53,7 @@ System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
-#System\Lists\Range.lua
+System\Lists\Range.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
 
@@ -160,3 +160,12 @@ System\Misc\ProfessionHelper\ProfessionHelper.lua
 System\Misc\Zu\BossManager.lua
 System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
 System\Misc\Zu\MawOfSouls\Helya.lua
+
+
+const cache = {};
+function memoizedFibonacci(n) {
+  if(cache[n]) return cache[n];
+  /* expensive calculation */
+  cache[n] = result;
+  return result;
+}  

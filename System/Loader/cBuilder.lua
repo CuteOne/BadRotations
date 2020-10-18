@@ -522,7 +522,6 @@ function br.loader:new(spec,specName)
             local thisName = br.rotations[spec][i].name
             tinsert(names, thisName)
         end
-
         br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
         -- Create Base and Class option table

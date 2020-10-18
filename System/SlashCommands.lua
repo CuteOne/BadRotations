@@ -325,7 +325,11 @@ function handler(message, editbox)
 		end
 	elseif msg == "disengage" then
 -- Forward Disengage
-		forewardDisengage()
+		if IsLeftShiftKeyDown() then
+			CastSpellByName(GetSpellInfo(781))
+		else
+			forewardDisengage()
+		end
 	elseif msg1 == "ui" then
 -- Other
 		if msg2 == "main" then

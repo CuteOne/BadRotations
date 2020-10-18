@@ -261,7 +261,7 @@ function br.read.commonReaders()
 			local targeting = isTargeting(unit)
 			local hasThreat = hasThreat(unit) or targeting or isInProvingGround() or burnUnit
 			local reaction = GetUnitReaction(unit, "player") or 10
-			if isChecked("Target Validation Debug") and not UnitIsPlayer(unit) then
+			if isChecked("Target Validation Debug") and (not UnitIsPlayer(unit) or UnitIsCharmed(unit)) then
 				if isValidUnit(unit) then
 					self:AddLine("Unit is Valid",0,1,0)
 				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or br.lists.threatBypass[GetObjectID(unit)] ~= nil or burnUnit) then
