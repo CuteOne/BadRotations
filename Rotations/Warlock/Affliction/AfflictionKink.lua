@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.2.6"
+local rotationName = "Kink v1.2.7"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -198,6 +198,9 @@ local function createOptions ()
 		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover",	"|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
             
+            --- Healthstone Creation
+            br.ui:createSpinner(section, "Create Healthstone",  1,  0,  100,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more", true)
+
             -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
@@ -667,6 +670,13 @@ actionList.PreCombat = function()
     end
 
     if not inCombat and not (IsFlying() or IsMounted()) then
+        
+        if getOptionValue("Soulstone") == 7 then -- Player
+            if not UnitIsDeadOrGhost("player") then
+                if cast.soulstone("player") then br.addonDebug("Casting Soulstone [Player]" ) return true end
+            end
+        end
+
         --actions.precombat+=/summon_pet
         if ui.checked("Pet Management") 
         and (not moving or buff.felDomination.exists()) 
@@ -688,6 +698,11 @@ actionList.PreCombat = function()
                     if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
                 end
             end
+        end
+
+        -- Create Healthstone
+        if ui.option("Create Healthstone") and not has.healthstone() or GetItemCount(5512) <= ui.value("Create Healthstone") then
+            if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
         end
 
         if ui.checked("Pre-Pull Timer") then
