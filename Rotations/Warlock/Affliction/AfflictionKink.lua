@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.2.7"
+local rotationName = "Kink v1.2.8"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -677,6 +677,11 @@ actionList.PreCombat = function()
             end
         end
 
+        -- Create Healthstone
+        if ui.checked("Create Healthstone") and GetItemCount(5512) <= ui.value("Create Healthstone") then
+            if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
+        end
+
         --actions.precombat+=/summon_pet
         if ui.checked("Pet Management") 
         and (not moving or buff.felDomination.exists()) 
@@ -698,11 +703,6 @@ actionList.PreCombat = function()
                     if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
                 end
             end
-        end
-
-        -- Create Healthstone
-        if ui.option("Create Healthstone") and not has.healthstone() or GetItemCount(5512) <= ui.value("Create Healthstone") then
-            if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
         end
 
         if ui.checked("Pre-Pull Timer") then
