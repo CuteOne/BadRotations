@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.2.2"
+local rotationName = "Kink v1.2.3"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -162,8 +162,8 @@ local function createOptions ()
             -- Haunt TTD
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
-            -- Seed of Corruption Unit Count
-            br.ui:createSpinner(section, "Seed of Corruption Unit", 2, 1, 15, 1, nil, "Minimum amount of AoE units before casting SoC", true)
+            -- Seed of Corruption
+            br.ui:createSpinner(section, "Seed of Corruption Unit", 3, 1, 15, 1, nil, "Unit Count to cast Seed of Corruption at", true)
 
             -- Max Dots
             br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)
@@ -450,8 +450,7 @@ actionList.Defensive = function()
         end
 
         -- Demonic Gateway
-        if isChecked("Demonic Gateway") and SpecificToggle("Demonic Gateway") 
-        and not GetCurrentKeyBoardFocus() and getDistance("target") <= 40 
+        if isChecked("Demonic Gateway") and SpecificToggle("Shadowfury Key")and not GetCurrentKeyBoardFocus()
         then
             if CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
          end
@@ -634,16 +633,16 @@ end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
+            -- Fel Domination
+    if ui.checked("Fel Domination")
+    and inCombat
+    and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet")
+    and cd.felDomination.remain() <= gcdMax
+    then
+        if cast.felDomination() then br.addonDebug("Fel Domination") return true end
+    end
+
     if not inCombat and not (IsFlying() or IsMounted()) then
-
-        -- Fel Domination
-        if ui.checked("Fel Domination") 
-        and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet")
-        and cd.felDomination.remain() <= gcdMax
-        then
-            if cast.felDomination() then br.addonDebug("Fel Domination") return true end
-        end
-
         --actions.precombat+=/summon_pet
         if ui.checked("Pet Management") 
         and (not moving or buff.felDomination.exists()) 
@@ -877,9 +876,9 @@ local function runRotation()
     function unstableAfflictionFUCK(unit)
         if unit == nil then unit = "target" end
         if moving then return false end
-        if cast.last.unstableAffliction(6) then return false end
+        if cast.last.unstableAffliction(4) then return false end
         if debuff.unstableAffliction.exists("target") then return false end
-        if  debuff.agony.remain("target") < gcdMax + 0.5 and (debuff.corruption.remain("target") < gcdMax + 0.5 and (debuff.siphonLife.remain("target") < gcdMax + 0.5 or not talent.siphonLife)) then return false end
+        if  debuff.agony.remain("target") < gcdMax + 0.25 and (debuff.corruption.remain("target") < gcdMax + 0.25 and (debuff.siphonLife.remain("target") < gcdMax + 0.25 or not talent.siphonLife)) then return false end
 
         if debuff.unstableAffliction.remains("target") < gcdMax + cast.time.unstableAffliction() + 0.65 then
            if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
@@ -1100,10 +1099,6 @@ local function runRotation()
                 end
             end
 
-
-
-
-
             -- Siphon Life
             if talent.siphonLife then
                 if traits.pandemicInvocation.active then
@@ -1222,7 +1217,7 @@ local function runRotation()
 
             -- Shadow Bolt
             if not moving and (cd.summonDarkglare.remain() > gcdMax or not useCDs() or (ui.checked("Darkglare Dots") and totalDots() < ui.value("Darkglare Dots"))) then
-                if cast.shadowBolt() then br.addonDebug("Casting Shadow Bolt") return true end
+                if cast.shadowBolt2() then br.addonDebug("Casting Shadow Bolt") return true end
             end
             
             -- Agony
