@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.2.5"
+local rotationName = "Kink v1.2.6"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -86,7 +86,7 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "General")
+		section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
@@ -121,6 +121,7 @@ local function createOptions ()
             br.ui:createSpinner(section, "Pre-Pull Timer", 2, 0, 10, 0.1, "Set desired time offset to opener (DBM Required). Min: 0 / Max: 10 / Interval: 0.1")
             
         br.ui:checkSectionState(section)
+
         ----------------------
 		--- TOGGLE OPTIONS ---
 		----------------------
@@ -134,6 +135,29 @@ local function createOptions ()
             -- Interrupts Key Toggle
             br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)  
         br.ui:checkSectionState(section)
+
+        -------------------------
+        --- Damage Over Time  ---
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. DoTs")
+            -- Max Dots
+            br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)   
+            br.ui:createSpinner(section, "Corruption Count", 8, 1, 15, 1, nil, "The maximum amount of running Corruption. Standard is 8", true)
+            br.ui:createSpinner(section, "Siphon Life Count", 8, 1, 15, 1, nil, "The maximum amount of running Siphon Life. Standard is 8", true)
+            
+			-- No Dot units
+            br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
+
+            -- Unstable Affliction Sniping
+            br.ui:createSpinner(section, "Unstable Affliction TTD", 6, 1, 15, 1, nil, "Time to Die of unit inside instance/raid to apply unstable affliction to", true)
+
+            -- Darkglare dots
+            br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.",true)
+
+			-- Spread agony on single target
+            br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3", true)
+        br.ui:checkSectionState(section)
+
 		-------------------------
         --- OFFENSIVE OPTIONS ---
         -------------------------
@@ -150,35 +174,18 @@ local function createOptions ()
 			-- Trinkets
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 
+            -- Unstable Affliction Priority Mark
+            br.ui:createDropdown(section, "Priority Unit", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize",true)
+
             -- Darkglare
-            br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown",},
-            1, "|cffFFFFFFWhen to cast Darkglare",true)
-
-            br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.",true)
-
-			-- Spread agony on single target
-            br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3", true)
-
-            -- Unstable Affliction Sniping
-            br.ui:createSpinner(section, "Unstable Affliction TTD", 6, 1, 15, 1, nil, "Time to Die of unit inside instance/raid to apply unstable affliction to", true)
-
+            br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare",true)
+ 
             -- Haunt TTD
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
             -- Seed of Corruption
             br.ui:createSpinner(section, "Seed of Corruption Unit", 3, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
 
-
-
-            -- Max Dots
-            br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)
-            
-            br.ui:createSpinner(section, "Corruption Count", 8, 1, 15, 1, nil, "The maximum amount of running Corruption. Standard is 8", true)
-            
-            br.ui:createSpinner(section, "Siphon Life Count", 8, 1, 15, 1, nil, "The maximum amount of running Siphon Life. Standard is 8", true)
-            
-			-- No Dot units
-            br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
             
 			-- UA Shards
 			--br.ui:createSpinner(section, "UA Shards", 5, 1, 5, 1, nil, "Use UA on Shards", true)
@@ -188,7 +195,7 @@ local function createOptions ()
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Soulstone
-		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover",	"|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"},
+		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover",	"|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
             
             -- Healthstone
@@ -384,8 +391,7 @@ actionList.Defensive = function()
 
         -- Soulstone
         if isChecked("Soulstone") and not moving and inCombat and br.timer:useTimer("Soulstone", 4) then
-            if
-                getOptionValue("Soulstone") == 1 and -- Target
+            if getOptionValue("Soulstone") == 1 and -- Target
                     UnitIsPlayer("target") and
                     UnitIsDeadOrGhost("target") and
                     GetUnitIsFriend("target", "player")
@@ -395,8 +401,8 @@ actionList.Defensive = function()
                     return true
                 end
             end
-            if
-                getOptionValue("Soulstone") == 2 and -- Mouseover
+
+            if getOptionValue("Soulstone") == 2 and -- Mouseover
                     UnitIsPlayer("mouseover") and
                     UnitIsDeadOrGhost("mouseover") and
                     GetUnitIsFriend("mouseover", "player")
@@ -406,6 +412,7 @@ actionList.Defensive = function()
                     return true
                 end
             end
+
             if getOptionValue("Soulstone") == 3 then -- Tank
                 for i = 1, #tanks do
                     if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 then
@@ -416,6 +423,7 @@ actionList.Defensive = function()
                     end
                 end
             end
+
             if getOptionValue("Soulstone") == 4 then -- Healer
                 for i = 1, #br.friend do
                     if
@@ -429,6 +437,7 @@ actionList.Defensive = function()
                     end
                 end
             end
+
             if getOptionValue("Soulstone") == 5 then -- Tank/Healer
                 for i = 1, #br.friend do
                     if
@@ -442,6 +451,7 @@ actionList.Defensive = function()
                     end
                 end
             end
+
             if getOptionValue("Soulstone") == 6 then -- Any
                 for i = 1, #br.friend do
                     if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
@@ -452,13 +462,21 @@ actionList.Defensive = function()
                     end
                 end
             end
+
+            if getOptionValue("Soulstone") == 7 then -- Player
+                if not UnitIsDeadOrGhost("player") then
+                    if cast.soulstone("player") then br.addonDebug("Casting Soulstone [Player]" )return true end
+                end
+            end
         end
 
         -- Demonic Gateway
-        if isChecked("Demonic Gateway") and SpecificToggle("Shadowfury Key")and not GetCurrentKeyBoardFocus()
+        if isChecked("Demonic Gateway") 
+        and SpecificToggle("Shadowfury Key") 
+        and not GetCurrentKeyBoardFocus() 
         then
             if CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
-         end
+        end
         
         --[[ if getDistance("target") <= 40 then
             if br.timer:useTimer("RoF Delay", 1) and cast.demonicGateway(nil,"aoe",1,8,true) then br.addonDebug("Cast Demonic Gateway") return true end
@@ -522,6 +540,7 @@ actionList.Defensive = function()
         end 
     end -- End Defensive Toggle
 end
+
 -- Action List - Interrupts
 actionList.Interrupts = function()
     if useInterrupts() and (pet.active.id() == 417 or pet.active.id() == 78158) then
@@ -835,6 +854,7 @@ local function runRotation()
     spellHaste                                    = (1 + (GetHaste()/100))
     ttd                                           = getTTD
     haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==2
+
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -871,6 +891,18 @@ local function runRotation()
         return true
     end
 
+    local priorityTarget
+    local mob_count = #enemies.yards40
+    -- Set Priority Target
+    if isChecked("Priority Unit") then
+        for i = 1, mob_count do
+            if inInstance or InRaid and GetRaidTargetIndex(enemies.yards40[i]) == getOptionValue("Priority Unit") then
+                priorityTarget = enemies.yards40[i]
+                break
+            end
+        end
+    end
+
     local function totalDots()
         local dots = 0
         if GetUnitExists("target") then 
@@ -884,10 +916,17 @@ local function runRotation()
         if moving then return false end
         if cast.last.unstableAffliction(4) then return false end
         if debuff.unstableAffliction.exists(unit) then return false end
-        if  debuff.agony.remain(unit) < gcdMax + 0.25 and (debuff.corruption.remain(unit) < gcdMax + 0.25 and (debuff.siphonLife.remain(unit) < gcdMax + 0.25 or not talent.siphonLife)) then return false end
+        if debuff.agony.remain(unit) < gcdMax + 0.25 and (debuff.corruption.remain(unit) < gcdMax + 0.25 and (debuff.siphonLife.remain(unit) < gcdMax + 0.25 or not talent.siphonLife)) then return false end
 
+        for i = 1, mob_count do
+            if priorityTarget ~= nil then
+                if debuff.unstableAffliction.remains(priorityTarget) < gcdMax + cast.time.unstableAffliction() + 0.3 then
+                    if cast.unstableAffliction(priorityTarget) then br.addonDebug("Casting Unstable Affliction") return true end
+                end
+            end
+        end
 
-        if ui.checked("Unstable Affliction TTD") and ( inInstance or InRaid )
+        if ui.checked("Unstable Affliction TTD") and ( inInstance or InRaid and priorityTarget == nil)
         and getTTD(unit) <= ui.value("Unstable Affliction TTD")
         then
             if debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 0.30 then
@@ -899,7 +938,7 @@ local function runRotation()
            if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
         end
     end
-    
+
     -- SimC specific variables
     --actions=variable,name=use_seed,value=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>=3+raid_event.invulnerable.up|talent.siphon_life.enabled&spell_targets.seed_of_corruption>=5+raid_event.invulnerable.up|spell_targets.seed_of_corruption>=8+raid_event.invulnerable.up
     if talent.sowTheSeeds and ((not talent.siphonLife and #enemies.yards10t >= ui.value("Seed of Corruption Unit")) or (talent.siphonLife and #enemies.yards10t >= ui.value("Seed of Corruption Unit")) or (#enemies.yards10t >= 7)) then
