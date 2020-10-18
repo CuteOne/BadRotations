@@ -2856,7 +2856,7 @@ br.lists.spells = {
                 hailstorm                   = 334195,
                 hotHand                     = 201900,
                 lightningShield             = 192106,
-                lashingFlames               = 334046
+                lashingFlames               = 334046,
                 sundering                   = 197214,
             },
             traits                          = {
