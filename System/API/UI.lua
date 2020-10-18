@@ -20,6 +20,11 @@ br.api.ui = function(self,ui)
             return br.addonDebug(text)
         end
     end
+    if ui.fullBags == nil then
+        ui.fullBags = function()
+            return br.lootManager:emptySlots() == 0
+        end
+    end
     if ui.pullTimer == nil then 
         ui.pullTimer = function()
             local PullTimerRemain = _G["PullTimerRemain"]
