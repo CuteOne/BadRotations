@@ -5,6 +5,13 @@ if br.api == nil then br.api = {} end
 -- v is the spellID passed from the builder which cycles all the collected ability spells from the spell list for the spec
 -- spell in the examples represent the name in the ability list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 br.api.spells = function(spells,k,v,subtable)
+    if subtable == "known" then
+        if spells.known == nil then spells.known = {} end
+        local known = spells.known
+        known[k] = function()
+            return isKnown(v)
+        end
+    end
     if subtable == "cd" then
         if spells[k] == nil then spells[k] = {} end
         local cd = spells[k]

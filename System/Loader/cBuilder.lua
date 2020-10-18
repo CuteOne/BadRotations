@@ -380,6 +380,7 @@ function br.loader:new(spec,specName)
             if self.cast                == nil then self.cast               = {} end    -- Cast Spell Functions
             if self.charges             == nil then self.charges            = {} end    -- Spell Charge Functions
             if self.cd                  == nil then self.cd                 = {} end    -- Spell Cooldown Functions
+            -- if self.spell.known         == nil then self.spell.known        = {} end    -- Spell Known Function
 
             -- Build Spell Charges
             br.api.spells(self.charges,k,v,"charges")
@@ -387,6 +388,8 @@ function br.loader:new(spec,specName)
             br.api.spells(self.cd,k,v,"cd")
             -- Build Cast Funcitons
             br.api.spells(self.cast,k,v,"cast")
+            -- build Spell Known
+            br.api.spells(self.spell,k,v,"known")
         end
 
         -- Make Unit Functions from br.api.unit
