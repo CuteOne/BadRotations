@@ -445,10 +445,10 @@ br.lists.spells = {
                 metamorphosis               = 162264,
                 momentum                    = 208628,
                 prepared                    = 203650,
+                innerDemon                  = 337313,
             },
             debuffs                         = {
                 darkSlash                   = 258860,
-                nemesis                     = 206491,
             },
             glyphs                          = {
 
