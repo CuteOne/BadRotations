@@ -150,14 +150,14 @@ Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
-Laksmackt        |  Full   | 8.3   |   100% | :white_check_mark:
+Laksmackt        |  Full   | 9.0   |   98% | :white_check_mark:
 
 - Restoration
 
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
 Aura             |  Full   | 8.2   |   99%  | :white_check_mark:
-Laksmackt        |  M+     | 8.3   |   100%  | :x:
+Laksmackt        |  M+     | 9.0   |   100%  | :x:
 
 ### Hunter
 - Beastmaster
@@ -278,6 +278,7 @@ author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Vilt    | Inactive| 8.0   |   90%  | :white_check_mark:
 Immy    |  Full   | 8.3   |   95% | :white_check_mark:
+Laks    |  Full   | 9.0   |  100%  | :heavy_check_mark:
 
 - Subtlety
 
