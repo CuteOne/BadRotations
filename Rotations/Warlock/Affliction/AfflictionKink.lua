@@ -175,7 +175,7 @@ local function createOptions ()
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 
             -- Unstable Affliction Priority Mark
-            br.ui:createDropdown(section, "Priority Unit", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize",true)
+            --br.ui:createDropdown(section, "Priority Unit", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize",true)
 
             -- Darkglare
             br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare",true)
@@ -891,7 +891,7 @@ local function runRotation()
         return true
     end
 
-    local priorityTarget
+   --[[local priorityTarget
     local mob_count = #enemies.yards40
     -- Set Priority Target
     if isChecked("Priority Unit") then
@@ -901,7 +901,7 @@ local function runRotation()
                 break
             end
         end
-    end
+    end--]]
 
     local function totalDots()
         local dots = 0
@@ -918,15 +918,7 @@ local function runRotation()
         if debuff.unstableAffliction.exists(unit) then return false end
         if debuff.agony.remain(unit) < gcdMax + 0.25 and (debuff.corruption.remain(unit) < gcdMax + 0.25 and (debuff.siphonLife.remain(unit) < gcdMax + 0.25 or not talent.siphonLife)) then return false end
 
-        for i = 1, mob_count do
-            if priorityTarget ~= nil then
-                if debuff.unstableAffliction.remains(priorityTarget) < gcdMax + cast.time.unstableAffliction() + 0.3 then
-                    if cast.unstableAffliction(priorityTarget) then br.addonDebug("Casting Unstable Affliction") return true end
-                end
-            end
-        end
-
-        if ui.checked("Unstable Affliction TTD") and ( inInstance or InRaid and priorityTarget == nil)
+        if ui.checked("Unstable Affliction TTD") and ( inInstance or InRaid)
         and getTTD(unit) <= ui.value("Unstable Affliction TTD")
         then
             if debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 0.30 then
