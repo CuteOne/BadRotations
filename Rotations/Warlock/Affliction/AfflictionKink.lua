@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.2.9"
+local rotationName = "Kink v1.3.0"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -148,9 +148,6 @@ local function createOptions ()
 			-- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
 
-            -- Unstable Affliction Sniping
-            br.ui:createSpinner(section, "Unstable Affliction TTD", 6, 1, 15, 1, nil, "Time to Die of unit inside instance/raid to apply unstable affliction to", true)
-
             -- Darkglare dots
             br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.",true)
 
@@ -161,7 +158,7 @@ local function createOptions ()
 		-------------------------
         --- OFFENSIVE OPTIONS ---
         -------------------------
-		section = br.ui:createSection(br.ui.window.profile,  "Offensive")
+		section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. Offensive")
 			-- Agi Pot
             br.ui:createCheckbox(section, "Potion", "Use Potion")
 
@@ -184,7 +181,7 @@ local function createOptions ()
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
             -- Seed of Corruption
-            br.ui:createSpinner(section, "Seed of Corruption Unit", 3, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
+            br.ui:createSpinner(section, "Seed of Corruption Unit", 4, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
 
             
 			-- UA Shards
@@ -193,7 +190,7 @@ local function createOptions ()
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
 		-------------------------
-		section = br.ui:createSection(br.ui.window.profile, "Defensive")
+		section = br.ui:createSection(br.ui.window.profile, "Affliction .:|:. Defensive")
             -- Soulstone
 		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover",	"|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
@@ -237,7 +234,7 @@ local function createOptions ()
 
         br.ui:checkSectionState(section)
         -- Interrupt Options
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+        section = br.ui:createSection(br.ui.window.profile, "Affliction .:|:. Interrupts")
             br.ui:createDropdown(section, "Shadowfury Key", br.dropOptions.Toggle, 6)
 
             -- Interrupt Percentage
@@ -589,7 +586,7 @@ actionList.Cooldown = function()
         end
 
         -- actions.cooldowns+=/use_items,if=cooldown.summon_darkglare.remains>70|time_to_die<20|((buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)&(!talent.deathbolt.enabled|cooldown.deathbolt.remains<=gcd|!cooldown.deathbolt.remains)&!cooldown.summon_darkglare.remains)
-        if ui.checked("Trinkets") and cd.summonDarkglare.remain() > 70 or getTTD("target") < 20 or ((debuff.unstableAffliction.stack() == 5 or shards == 0) and 
+        if ui.checked("Trinkets") and cd.summonDarkglare.remain() > 70 or getTTD("target") < 20 or ((shards == 0) and 
             (not talent.phantomSingularity or cd.phantomSingularity.remain() > gcdMax) and (not talent.deathbolt or cd.deathbolt.remain <= gcdMax) and cd.summonDarkglare.remain <= gcdMax)
         then
             local mainHand = GetInventorySlotInfo("MAINHANDSLOT")
@@ -662,8 +659,7 @@ end -- End Action List - Cooldowns
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     -- Fel Domination
-    if ui.checked("Fel Domination")
-    and inCombat
+    if ui.checked("Fel Domination")and inCombat
     and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet")
     and cd.felDomination.remain() <= gcdMax
     then
@@ -761,9 +757,7 @@ actionList.multi = function()
     end
 
     -- Phantom Singularity
-    if talent.phantomSingularity then
-        if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end
-    end
+    if talent.phantomSingularity then if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end end
 
     -- Vile Taint
     if talent.vileTaint and shards > 1 then
@@ -801,7 +795,7 @@ actionList.multi = function()
     if agonyCount < getOptionValue("Agony Count") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not noDotCheck(thisUnit) and  debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste)  then
+            if not noDotCheck(thisUnit) and debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste)  then
                 if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Multi]") return true end
             end
         end
@@ -930,20 +924,11 @@ local function runRotation()
     function unstableAfflictionFUCK(unit)
         if unit == nil then unit = "target" end
         if moving then return false end
-        if cast.last.unstableAffliction(4) then return false end
-        if debuff.unstableAffliction.exists(unit) then return false end
-        if debuff.agony.remain(unit) < gcdMax + 0.25 and (debuff.corruption.remain(unit) < gcdMax + 0.25 and (debuff.siphonLife.remain(unit) < gcdMax + 0.25 or not talent.siphonLife)) then return false end
 
-        if ui.checked("Unstable Affliction TTD") and ( inInstance or InRaid)
-        and getTTD(unit) <= ui.value("Unstable Affliction TTD")
-        then
-            if debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 0.30 then
-               if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
-            end
-        end
-
-        if debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 0.30 then
-           if cast.unstableAffliction() then br.addonDebug("Casting Unstable Affliction") return true end
+        if (not debuff.unstableAffliction.exists(unit) or debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction())
+        and debuff.agony.remain(unit) > gcdMax + 0.3 and (debuff.corruption.remain(unit) > gcdMax + 0.30 
+        and (debuff.siphonLife.remain(unit) > gcdMax + 0.3 or not talent.siphonLife)) then
+           if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
         end
     end
 
@@ -1108,7 +1093,9 @@ local function runRotation()
             unstableAfflictionFUCK()
 
             -- Multi Target
-            if #enemies.yards10t >= 3 and mode.single ~= 1 then if actionList.multi() then return true end end
+            if #enemies.yards10t >= 3 and mode.single ~= 1 then 
+                if actionList.multi() then return true end 
+            end
 
             -- Agony
             if traits.pandemicInvocation.active then
