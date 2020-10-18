@@ -3054,6 +3054,7 @@ br.lists.spells = {
                 absoluteCorruption          = 196103,
                 creepingDeath               = 264000,
                 darkSoul                    = 113860,
+                demonicSacrifice            = 108503,
                 drainSoul                   = 198590,
                 grimoireOfSacrifice         = 108503,
                 haunt                       = 48181,

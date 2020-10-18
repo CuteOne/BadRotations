@@ -1,14 +1,20 @@
-local rotationName = "Kink v1.2.0"
+local rotationName = "Kink v1.2.2"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
 
 ----------------------------------------------------
--- Credit and huge thanks  to:
+-- Credit and huge thanks to:
 ----------------------------------------------------
--- Damply#3489
--- .G.#1338 
--- Netpunk | Ben#7486 
+--[[
+
+Damply#3489
+
+.G.#1338 
+
+Netpunk | Ben#7486 
+--]]
+
 ----------------------------------------------------
 -- on Discord!
 ----------------------------------------------------
@@ -92,6 +98,9 @@ local function createOptions ()
 
             -- Pet Management
             br.ui:createCheckbox(section, "Pet Management", "|cffFFFFFF Select to enable/disable auto pet management")
+
+            -- Fel Domination
+            br.ui:createCheckbox(section, "Fel Domination", "|cffFFFFFF Toggle the auto casting of Fel Donmination")
 
             -- Pet - Auto Attack/Passive
             br.ui:createCheckbox(section, "Pet - Auto Attack/Passive")
@@ -626,8 +635,19 @@ end -- End Action List - Cooldowns
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not inCombat and not (IsFlying() or IsMounted()) then
+
+        -- Fel Domination
+        if ui.checked("Fel Domination") 
+        and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet")
+        and cd.felDomination.remain() <= gcdMax
+        then
+            if cast.felDomination() then br.addonDebug("Fel Domination") return true end
+        end
+
         --actions.precombat+=/summon_pet
-        if ui.checked("Pet Management") and not moving and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
+        if ui.checked("Pet Management") 
+        and (not moving or buff.felDomination.exists()) 
+        and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
         then
             if mode.petSummon == 5 and pet.active.id() ~= 0 then
                 PetDismiss()
