@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 092607092020")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 101814092020")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -802,6 +802,7 @@ local function runRotation()
     units.get(8)
 
     enemies.get(8, "target") -- enemies.yards8t
+    enemies.get(8)
     enemies.get(10, "target", true)
     enemies.get(11, "target") -- enemies.yards8t
     enemies.get(15)
