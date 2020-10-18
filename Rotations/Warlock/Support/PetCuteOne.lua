@@ -60,36 +60,13 @@ br.rotations.support["PetCuteOne"] = function()
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()
     local petCombat = UnitAffectingCombat("pet")
-    local petDistance = getDistance(petTarget,"pet") or 99
     local petExists = UnitExists("pet")
     local petHealth = getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = UnitExists(petTarget) and (isValidUnit(petTarget) or isDummy()) --or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
-
-    -- if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
-    --     waitForPetToAppear = GetTime()
-    -- elseif mode.petSummon ~= 6 then
-    --     local callPet = spell["callPet"..mode.petSummon]
-    --     if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-    --         if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
-    --             if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
-    --         elseif callPet ~= nil then
-    --             if deadPet or (petExists and petHealth == 0) then
-    --                 if cast.able.revivePet() then
-    --                     if cast.revivePet("player") then waitForPetToAppear = GetTime(); return true end
-    --                 end
-    --             elseif not deadPet and not petExists and not buff.playDead.exists("pet") then
-    --                 if castSpell("player",callPet,false,false,false,true,true,true,true,false) then waitForPetToAppear = GetTime(); return true end
-    --             end
-    --         end
-    --     end
-    --     if waitForPetToAppear == nil then
-    --         waitForPetToAppear = GetTime()
-    --     end
-    -- end
+    
     if isChecked("Pet - Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
+        if inCombat and #enemies.yards40 > 0 and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
             PetAssistMode()
         elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
             PetDefensiveMode()
@@ -97,9 +74,9 @@ br.rotations.support["PetCuteOne"] = function()
             PetPassiveMode()
         end
         -- Pet Attack / retreat
-        if (inCombat or petCombat) and not haltProfile then
-            PetAttack(petTarget)
-        elseif not inCombat or (inCombat and not isValidUnit(petTarget)) or haltProfile
+        if ((inCombat or petCombat) and isValidUnit("target")) and not haltProfile then
+            PetAttack("target")
+        elseif (not inCombat or (inCombat and not isValidUnit("target")) or haltProfile)
             and IsPetAttackActive() and not isUnitCasting("player")
         then
             PetStopAttack()

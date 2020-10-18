@@ -252,17 +252,17 @@ local function runRotation()
     local function iStrike(unit)
         --if getDistance("player",unit) < 40 then
         local wasMouseLooking = false
-        if IsMouselooking() then
-            wasMouseLooking = true
-            MouselookStop()
-        end
+        -- if IsMouselooking() then
+        --     wasMouseLooking = true
+        --     MouselookStop()
+        -- end
         if getDistance("player", unit) == 0 or br.vengeance.groundOverride[getUnitID(unit)] ~= nil then
             if cast.infernalStrike("playerGround") then
                 br.addonDebug("Casting Inferal Strike (Player)")
                 iStrikeDelay = GetTime()
-                if wasMouseLooking then
-                    MouselookStart()
-                end
+                -- if wasMouseLooking then
+                --     MouselookStart()
+                -- end
                 return
             end
         end
@@ -275,9 +275,9 @@ local function runRotation()
             br.addonDebug("Casting Inferal Strike")
             ClickPosition(x, y, z)
             iStrikeDelay = GetTime()
-            if wasMouseLooking then
-                MouselookStart()
-            end
+            -- if wasMouseLooking then
+            --     MouselookStart()
+            -- end
         end
         return true
         --  end

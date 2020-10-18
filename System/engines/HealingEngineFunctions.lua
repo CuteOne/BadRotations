@@ -548,13 +548,13 @@ end
 -- <returns>Returns if successfully tried to cast</returns>
 function castGroundAtLocation(loc, SpellID)
     CastSpellByName(GetSpellInfo(SpellID))
-    local mouselookup = IsMouseButtonDown(2)
-	MouselookStop()
+    --local mouselookup = IsMouseButtonDown(2)
+	--MouselookStop()
 	local px,py,pz = ObjectPosition("player")
 	loc.z = select(3,TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
 	if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
 		ClickPosition(loc.x,loc.y,loc.z)
-		if mouselookup then MouselookStart() end
+		--if mouselookup then MouselookStart() end
     	if IsAoEPending() then SpellStopTargeting() br.addonDebug("Canceling Spell", true) return false end
 		return true
 	end

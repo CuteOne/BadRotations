@@ -877,7 +877,7 @@ local function runRotation()
         profileStop = false
     elseif (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 or cast.active.eyeBeam() then
         return true
-    else --if br.timer:useTimer("playerUpdate", getUpdateRate()) then
+    elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
         if not inCombat and br.data.settings[br.selectedSpec]["Combat Time"] ~= 0 then br.data.settings[br.selectedSpec]["Combat Time"] = 0 end
         -----------------------
         --- Extras Rotation ---

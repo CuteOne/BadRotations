@@ -43,6 +43,8 @@ br.lists.noTouchUnits = {
     -- Temple of Sethraliss
     {unitID = 133379, buff = 263246}, -- Adderis with Lightning Shield
     {unitID = 133944, buff = 263246}, -- Aspix with Lightning Shield
+    -- Tol Dagor
+    {unitID = 133972}, -- Heavy Cannon
     -- Mechagon
     {unitID = 152703}, -- Walkie Shockie X1
     -- Eternal Palace
@@ -56,8 +58,11 @@ br.lists.noTouchUnits = {
     {unitID = 155126, buff = 300620}, -- Crystalline Shield
     -- Horrific Visions
     {unitID = 158315}, -- Eye of Chaos
+    --Prophey Skitra
+    {unitID = 160904, buff = 313208}, -- Image of Absolution with Intangible Illusion buff
     -- N'zoth
     {unitID = 158041, buff = 310126}, -- Psychic Shell
     -- Tol Dagor
     {unitID = 133972}, -- Cannon in Tol Dagor
+    {unitID = 160652}, -- Void Tentacle
 }

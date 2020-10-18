@@ -60,10 +60,10 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 		and distance < maxDistance and distance >= minDistance
 		and #getEnemies(Unit,radius) >= #getEnemies(Unit,radius,true)
 	then
-		if IsMouselooking() then
-			mouselookActive = true
-			MouselookStop()
-		end
+		-- if IsMouselooking() then
+		-- 	mouselookActive = true
+		-- 	MouselookStop()
+		-- end
 		CastSpellByName(GetSpellInfo(SpellID))
 		local X,Y,Z = 0,0,0
 		if castTime == nil or castTime == 0 then
@@ -74,9 +74,9 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 		--local distanceToGround = getGroundDistance(Unit) or 0
 		if groundDistance > maxDistance then X,Y,Z = GetPositionBetweenObjects(Unit,"player",groundDistance-maxDistance) end
 		ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
-		if mouselookActive then
-			MouselookStart()
-		end
+		-- if mouselookActive then
+		-- 	MouselookStart()
+		-- end
 		return true
 	end
 	return false

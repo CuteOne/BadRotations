@@ -24,7 +24,11 @@ trackerFrame:SetScript("OnUpdate", function(...)
 				if oFront then
 					if isChecked("Draw Lines to Tracked Objects") then
 						if not (p2dX > sWidth or p2dX < 0 or p2dY > sHeight or p2dY < 0) then
-							SetDrawColor(0, 1, 0, 1)
+							if TraceLine(xOb, yOb, zOb, pX,pY,pZ, 0x10) == nil then
+								SetDrawColor(0, 1, 0, 1)
+							else
+								SetDrawColor(1,0,0,1)
+							end
 							Draw2DLine(p2dX * sWidth, p2dY * sHeight, o2dX * sWidth, o2dY * sHeight, 4)
 						end
 					end
@@ -42,24 +46,30 @@ local function trackObject(object,name,objectid,interact)
 	if interact == nil then interact = true end
 	local playerDistance = GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb)
 	local cameraDistance = GetDistanceBetweenPositions(cX, cY, cZ, xOb, yOb, zOb)
-	if playerDistance <= cameraDistance then
-		if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
-			--LibDraw.Circle(xOb,yOb,zOb, 2)
-			if name == "" or name == "Unknown" then name = ObjectName(object) end
-			if getOptionValue("Enable Tracker") == 2 then
-				local text = name .. " " .. objectid
+	local zDifference = math.floor(zOb - pZ)
+	if xOb ~= nil and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) < 200 then
+		--LibDraw.Circle(xOb,yOb,zOb, 2)
+		if name == "" or name == "Unknown" then name = ObjectName(object) end
+		if getOptionValue("Enable Tracker") == 2 then
+			if playerDistance <= cameraDistance then
+				local text = name .. " " .. objectid.. " ZDiff: "..zDifference
 				DrawTargets[ObjectGUID(object)] = {obj=object, text=text}
-			else
-				LibDraw.Text(name.." "..objectid,"GameFontNormal",xOb,yOb,zOb+3)
-				if isChecked("Draw Lines to Tracked Objects") then
-					LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
-				end
 			end
-			if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
-				and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player") and not isMoving("player") and br.timer:useTimer("Interact Delay", 1.5)
-			then
-				ObjectInteract(object)
+		else
+			if math.abs(zDifference) > 50 then
+				LibDraw.SetColor(255,0,0,100)
+		   	else
+			   LibDraw.SetColor(0,255,0,100)
+		   	end
+			LibDraw.Text(name .. " " .. objectid.. " ZDiff: "..zDifference,"GameFontNormal",xOb,yOb,zOb+3)
+			if isChecked("Draw Lines to Tracked Objects") then	
+				LibDraw.Line(pX,pY,pZ,xOb,yOb,zOb)
 			end
+		end
+		if isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
+			and GetDistanceBetweenPositions(pX,pY,pZ,xOb,yOb,zOb) <= 7 and not isUnitCasting("player") and not isMoving("player") and br.timer:useTimer("Interact Delay", 1.5)
+		then
+			ObjectInteract(object)
 		end
 	end
 end
@@ -168,15 +178,17 @@ function br.objectTracker()
 							end
 						end
 					end
-					if isChecked("Quest Tracker") and not isInCombat("player") then
+					if isChecked("Quest Tracker") and not isInCombat("player") and not IsInInstance() then
 						local ignoreList = {
+							[36756] = true, -- Dead Soldier (Azshara)
+							[36922] = true, -- Wounded Soldier (Azshara) 
 							[159784] = true, -- Wastewander Laborer
 							[159804] = true, -- Wastewander Tracker
 							[159803] = true, -- Wastewander Warrior
 							[162605] = true, -- Aqir Larva
 							[156079] = true, -- Blood Font
 						}
-						if (getOptionValue("Quest Tracker") == 1 or getOptionValue("Quest Tracker") == 3) and ObjectIsUnit(object) and isQuestUnit(object) and (not UnitIsDeadOrGhost(object) or ignoreList[objectid] ~= nil or CanLootUnit(object)) and not UnitIsTapDenied(object) then
+						if (getOptionValue("Quest Tracker") == 1 or getOptionValue("Quest Tracker") == 3) and ObjectIsUnit(object) and isQuestUnit(object) and  not UnitIsTapDenied(object) then
 							if ignoreList[objectid] ~= nil then
 								trackObject(object,name,objectid)
 							else
