@@ -7,6 +7,7 @@ Please refer to list below for status of profiles.
 ## First Setup
 
 Little How-To for the first run: <https://gyazo.com/d11da29a9d7dba4c93e5b65c008c433c>
+Also be sure to check the Wiki: <https://github.com/CuteOne/BadRotations/wiki>
 
 ## About
 
@@ -54,29 +55,6 @@ https://discord.gg/VE7V7Mz
 
 Slack channel:
 https://join.slack.com/t/badrotations/shared_invite/enQtODQ2NjkzNDEzOTA0LWQzY2ZjZTBlYzkwNDc4ZGExMzkzZGVkMmNiZWViMGUzNGQxNmVhMTRhNjIzMDQzYjUzNzAyYTdlZTFlZjA2YTg
-
-## Regarding Crashing
-
-What to do if you have crash to desktop or 132 errors.(not necessarily in this order)
-
-- Download Windows Updates.
-- Update gpu drivers.
-
-  - Uninstall, reinstall with personalized settings.
-  - Avoid raptr.
-  - Avoid 3D vision.
-
-- Change WoW to DX9.
-
-- Make sure your lua unlocker is up to date.
-
-- Delete Cache, WTF, Data/indices folders(in WoW directory).
-
-- Make sure you start both WoW and your unlocker as an Admin.
-
-What to do if you have crash to desktop or 134 errors.
-
-- Disable Interrupt Handler
 
 ## Profile Status
 
