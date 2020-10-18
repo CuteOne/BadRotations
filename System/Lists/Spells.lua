@@ -2836,7 +2836,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 earthenSpike                = 188089,
-                flameShock                  = 188389
+                flameShock                  = 188389,
                 frostbrand                  = 147732,
                 lightningConduit            = 275391,
                 lashingFlame                = 334168,
@@ -2856,7 +2856,6 @@ br.lists.spells = {
                 forcefulWinds               = 262647,
                 hailstorm                   = 334195,
                 hotHand                     = 201900,
-                lightningShield             = 192106,
                 lashingFlames               = 334046,
                 sundering                   = 197214,
             },
