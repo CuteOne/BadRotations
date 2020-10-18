@@ -1,6 +1,6 @@
 De BadRotations
 
-## Patch 8.0+
+## Patch 9.0+
 
 Please refer to list below for status of profiles.
 
@@ -138,7 +138,7 @@ Kuukuu  |Sporadic  |  8.3  |   99%  | :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |   Full   |  8.3  |   100% | :white_check_mark:
+CuteOne  |   Full   |  9.0  |   100% | :white_check_mark:
 
 - Guardian
 
