@@ -530,7 +530,9 @@ local function runRotation()
                     end
                     if cd.kick.remain() ~= 0 then
                         if isChecked("Kidney Shot/Cheap Shot") then
-                            if cast.cheapShot(thisUnit) then return true end
+                            if stealthedAll then
+                                if cast.cheapShot(thisUnit) then return true end
+                            end
                             if cast.kidneyShot(thisUnit) then return true end
                         end
                     end
@@ -548,7 +550,9 @@ local function runRotation()
                         interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
                     end
                     if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
-                        if cast.cheapShot(thisUnit) then return true end
+                        if stealthedAll then
+                            if cast.cheapShot(thisUnit) then return true end
+                        end
                         if cast.kidneyShot(thisUnit) then return true end
                     end
                 end
@@ -575,7 +579,7 @@ local function runRotation()
             end
         end
         -- actions.precombat+=/marked_for_death,precombat_seconds=15
-        if isChecked("Precombat") and pullTimer < 15 and stealth and comboDeficit > 2 and talent.markedForDeath and targetDistance < 25 then --and validTarget
+        if isChecked("Precombat") and validTarget and pullTimer < 15 and stealth and comboDeficit > 2 and talent.markedForDeath and targetDistance < 25 then
             if cast.markedForDeath("target") then return true end
         end
         -- actions.precombat+=/Slice and Dice, if=precombat_seconds=1
@@ -583,7 +587,7 @@ local function runRotation()
             if cast.sliceAndDice() then return true end
         end
         -- actions.precombat+=/shadowBlades, if=runeforge.mark_of_the_master_assassin.equipped
-        if isChecked("Precombat") and cdUsage and targetDistance < 5 then -- and runeforge.markOfTheMasterAssassin.active() and validTarget
+        if isChecked("Precombat") and validTarget and cdUsage and targetDistance < 5 then -- and runeforge.markOfTheMasterAssassin.active()
             if cast.shadowBlades("player") then return true end
         end
     end
@@ -808,7 +812,6 @@ local function runRotation()
         local skipRupture = ((not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 6)  or false -- buff.masterAssassin.exists() or 
         -- # Keep up Rupture if it is about to run out.
         -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
-        --print("skipRupture: " .. skipRupture .. " TTD: " .. ttd("target") .. " rupRefresh: " .. (debuff.rupture.refresh("target") and 'true' or 'false') .. " shallWeDot: " .. (shallWeDot("target")and 'true' or 'false'))
         if not skipRupture and ttd("target") > 6 and debuff.rupture.refresh("target") and shallWeDot("target") then
             if cast.rupture("target") then return true end
         end
@@ -1014,14 +1017,14 @@ local function runRotation()
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
             --pre mfd
-            if stealth and comboDeficit > 2 and talent.markedForDeath and targetDistance < 10 then --  and validTarget
+            if stealth and validTarget and comboDeficit > 2 and talent.markedForDeath and targetDistance < 10 then
                 if cast.markedForDeath("target") then
                     combo = comboMax
                     comboDeficit = 0
                 end
             end
             --tricks
-            if tricksUnit ~= nil and targetDistance < 5 then --and validTarget 
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 then 
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
@@ -1030,17 +1033,17 @@ local function runRotation()
                 cast.stealth("player")
             end
             --start aa
-            if not stealthedRogue and targetDistance < 5 and not IsCurrentSpell(6603) then --validTarget and
+            if not stealthedRogue and validTarget and targetDistance < 5 and not IsCurrentSpell(6603) then
                 StartAttack("target")
             end
             --
-            if ttd("target") > getOptionValue("CDs TTD Limit") and targetDistance < 5 then --validTarget and 
+            if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
                 if actionList_CooldownsOGCD() then return true end
             end
-            if gcd < getLatency() then
+            if gcd < getLatency() and validTarget then
                 -- # Check CDs at first
                 -- actions+=/call_action_list,name=cds
-                if targetDistance < 5 then --validTarget and
+                if validTarget and targetDistance < 5 then
                     if actionList_Cooldowns() then return true end
                 end
                 -- # Run fully switches to the Stealthed Rotation (by doing so, it forces pooling if nothing is available).
@@ -1059,7 +1062,7 @@ local function runRotation()
                 end
                 -- # Priority Rotation? Let's give a crap about energy for the stealth CDs (builder still respect it). Yup, it can be that simple.
                 -- actions+=/call_action_list,name=stealth_cds,if=variable.use_priority_rotation
-                if priorityRotation and not stealthedAll and targetDistance < 5 then -- and validTarget
+                if priorityRotation and validTarget and not stealthedAll and targetDistance < 5 then
                     --print("Valid target: " .. (validTarget and 'true' or 'false'))
                     if actionList_StealthCD() then return true end
                 end
@@ -1068,8 +1071,7 @@ local function runRotation()
                 local stealthThd = 25 + vEnabled * 20 + mosEnabled * 20 + sfEnabled * 25 + aEnabled * 20 + 25 * ssThd
                 -- # Consider using a Stealth CD when reaching the energy threshold
                 -- actions+=/call_action_list,name=stealth_cds,if=energy.deficit<=variable.stealth_threshold
-                if energyDeficit <= stealthThd and not stealthedAll and targetDistance < 5 then --and validTarget
-                    --print("Valid target: " .. (validTarget and 'true' or 'false'))
+                if energyDeficit <= stealthThd and validTarget and not stealthedAll and targetDistance < 5 then
                     if actionList_StealthCD() then return true end
                 end
 ---------------------------- SHADOWLANDS               
