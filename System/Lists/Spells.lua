@@ -2991,6 +2991,7 @@ br.lists.spells = {
                 reapSouls                   = 216698,
                 seedOfCorruption            = 27243,
                 shadowBolt                  = 232670,
+                shadowBolt2                 = 686,
                 shadowLock                  = 171138,
                 siphonLife                  = 63106,
                 spellLock                   = 19647,
