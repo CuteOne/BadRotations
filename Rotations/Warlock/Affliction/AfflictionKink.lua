@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.0"
+local rotationName = "Kink v1.3.1"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -926,8 +926,8 @@ local function runRotation()
         if moving then return false end
 
         if (not debuff.unstableAffliction.exists(unit) or debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction())
-        and debuff.agony.remain(unit) > gcdMax + 0.3 and (debuff.corruption.remain(unit) > gcdMax + 0.30 
-        and (debuff.siphonLife.remain(unit) > gcdMax + 0.3 or not talent.siphonLife)) then
+        and debuff.agony.remain(unit) > gcdMax + 3 and (debuff.corruption.remain(unit) > gcdMax + 3.5
+        and (debuff.siphonLife.remain(unit) > gcdMax + 1 or not talent.siphonLife)) then
            if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
         end
     end
@@ -1111,7 +1111,7 @@ local function runRotation()
                 if agonyCount < ui.value("Spread Agony on ST") then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and  debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+                        if not noDotCheck(thisUnit) and debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
                             if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Refresh]") return true end
                         end
                     end
