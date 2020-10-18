@@ -132,7 +132,7 @@ function br.loader:new(spec,specName)
         end
 
         -- Spec Spells - Don't Load on Initial Levels
-        if spec < 1400 then getSpells(specSpells) end
+        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
         -- Shared Class Spells
         getSpells(sharedClassSpells)
         -- Shared Global Spells

@@ -3209,6 +3209,25 @@ br.lists.spells = {
                 crashingChaos               = 277644
             }
         },
+        -- Inital Warlock (1-10)
+        [1454] = {
+            abilities                       = {
+                controlDemon                = 93375,
+                corruption                  = 172,
+                createHearthstone           = 6201,
+                curseOfWeakness             = 702,
+                drainLife                   = 234153,
+                shadowBolt                  = 686,
+            },
+            buffs                           = {
+
+            },
+            debuffs                         = {
+                corruption                  = 146739,
+                curseOfWeakness             = 702,
+                drainLife                   = 234153,
+            },
+        },
         -- All
         Shared = {
             abilities                       = {
@@ -3243,12 +3262,14 @@ br.lists.spells = {
             },
             buffs                           = {
                 demonicSynergy              = 171982,
+                healthFunnel                = 755,
                 sindoreiSpite               = 208871,
                 soulHarvest                 = 196098,
                 soulstone                   = 20707,
+                unendingResolve             = 104773,
             },
             debuffs                         = {
-
+                fear                        = 5782,
             },
             glyphs                          = {
                 glyphOfTheFelImp            = 219424,
