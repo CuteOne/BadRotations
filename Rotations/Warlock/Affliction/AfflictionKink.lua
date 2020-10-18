@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.2.8"
+local rotationName = "Kink v1.2.9"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -199,7 +199,7 @@ local function createOptions ()
             1, "|cffFFFFFFTarget to cast on")
             
             --- Healthstone Creation
-            br.ui:createSpinner(section, "Create Healthstone",  1,  0,  100,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more", true)
+            br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more", true)
 
             -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
@@ -260,6 +260,7 @@ local buff
 local cast
 local cd
 local debuff
+local charges
 local enemies
 local essence
 local equiped
@@ -678,7 +679,7 @@ actionList.PreCombat = function()
         end
 
         -- Create Healthstone
-        if ui.checked("Create Healthstone") and GetItemCount(5512) <= ui.value("Create Healthstone") then
+        if ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < ui.value("Create Healthstone") then
             if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
         end
 
