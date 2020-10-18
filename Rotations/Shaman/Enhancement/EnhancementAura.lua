@@ -517,18 +517,10 @@ local function runRotation()
             if not buff.flametongue.exists() then
                 if cast.flametongue() then return true end
             end
-            -- Frostbrand
-            if talent.hailstorm and not buff.frostbrand.exists() and furyCheck25 then
-                if cast.frostbrand() then return true end
-            end
             --Flametongue
             if buff.flametongue.exists() and buff.flametongue.remain() < 4.8 + gcd then
                 if cast.flametongue() then return true end
             end
-            --Frostbrand
-            if talent.hailstorm and buff.frostbrand.exists() and buff.frostbrand.remain() < 4.8 + gcd and furyCheck25 then
-                if cast.frostbrand() then return true end
-            end 
         end
         local function actionList_CD()
             if isChecked("Racial") and race == "Troll" and ((talent.ascendance and buff.ascendance.exists())
@@ -575,6 +567,20 @@ local function runRotation()
             end
         end
         local function actionList_Core()
+            -- Lashing Flame
+            if debuff.lashingFlame.exists() and debuff.flameShock.remain(enemies.yards40[i]) < 5.4 then
+                if cast.flameShock(thisUnit) then return true end
+            end
+            -- Frostshock
+            if talent.hailstorm then
+                if buff.hailstorm.stack() >= 5 then
+                    if cast.frostShock(thisUnit) then return true end
+                end
+            end
+            -- Windfury Totem
+            if not buff.windFuryTotem.exists() and #enemies.yards10 >= 1 then
+		if cast.windFuryTotem() then return true end
+            end
             --Earthen Spike
             if talent.earthenSpike and furyCheck25 then
                 if cast.earthenSpike() then return true end
@@ -604,8 +610,12 @@ local function runRotation()
             if #enemies.yards10 >= getOptionValue("Crash Lightning Targets") and furyCheck25 then
                 if cast.crashLightning() then return true end
             end
+            -- Chain Lightning
+            if buff.maelstrom.stack() >= 5 and #enemies.yards10 >= 2 then
+                if cast.chainLightning() then return true end
+            end
             -- Lightning Bolt
-            if talent.overcharge and #enemies.yards10 >= 1 and furyCheck45 and power >= 40 then
+            if buff.maelstrom.stack() >= 5 and #enemies.yards10 == 1 then
                 if cast.lightningBolt() then return true end
             end
             -- Lava Lash
@@ -675,10 +685,6 @@ local function runRotation()
                 if (hasBloodLust() or (not talent.ascendance and feralSpiritRemain > 5) or ttd(units.dyn5) <= 60) then
                     useItem(142117)
                 end
-            end
-            -- Fury of Air
-            if not cast.last.furyOfAir(1) and talent.furyOfAir and #enemies.yards8 < 2 and buff.furyOfAir.exists() then
-                if cast.furyOfAir() then return true end
             end
             -- Rockbiter
             if charges.rockbiter.count() == 2 and power >= 30 then
