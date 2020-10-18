@@ -569,18 +569,18 @@ local function runRotation()
         local function actionList_Core()
             -- Lashing Flame
             if debuff.lashingFlame.exists() and debuff.flameShock.remain(enemies.yards40[i]) < 5.4 then
-				if cast.flameShock(thisUnit) then return true end
-			end
+		if cast.flameShock(thisUnit) then return true end
+	    end
             -- Frostshock
-			if talent.hailstorm then
-				if buff.hailstorm.stack() >= 5 then
-					if cast.frostShock(thisUnit) then return true end
-				end
-			end
+	    if talent.hailstorm then
+		if buff.hailstorm.stack() >= 5 then
+		    if cast.frostShock(thisUnit) then return true end
+		end
+	    end
             -- Windfury Totem
-			if not buff.windFuryTotem.exists() and #enemies.yards10 >= 1 then
-				if cast.windFuryTotem() then return true end
-			end
+	    if not buff.windFuryTotem.exists() and #enemies.yards10 >= 1 then
+		if cast.windFuryTotem() then return true end
+	    end
             --Earthen Spike
             if talent.earthenSpike and furyCheck25 then
                 if cast.earthenSpike() then return true end
