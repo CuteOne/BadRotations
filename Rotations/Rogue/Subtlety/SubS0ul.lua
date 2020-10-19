@@ -584,13 +584,13 @@ local function runRotation()
             if cast.markedForDeath("target") then return true end
         end
         -- actions.precombat+=/Slice and Dice, if=precombat_seconds=1
-        if isChecked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 then
+        if isChecked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 and buff.sliceAndDice.remain() < 6+(combo*3) then
             if cast.sliceAndDice() then return true end
         end
-        -- actions.precombat+=/shadowBlades, if=runeforge.mark_of_the_master_assassin.equipped
-        if isChecked("Precombat") and validTarget and cdUsage and targetDistance < 5 then -- and runeforge.markOfTheMasterAssassin.active()
-            if cast.shadowBlades("player") then return true end
-        end
+        -- -- actions.precombat+=/shadowBlades, if=runeforge.mark_of_the_master_assassin.equipped
+        -- if isChecked("Precombat") and validTarget and cdUsage and targetDistance < 5 then -- and runeforge.markOfTheMasterAssassin.active()
+        --     if cast.shadowBlades("player") then return true end
+        -- end
     end
 
     local function actionList_CooldownsOGCD()
@@ -753,9 +753,9 @@ local function runRotation()
         --     if cast.shadowDance("player") then return true end
         -- end
         -- -- actions.cds+=/shiv,if=level>=58&dot.rupture.ticking&(!equipped.azsharas_font_of_power|cooldown.vendetta.remains>10) --not buff.masterAssassin.exists() and
-        if (debuff.rupture.exists("target") or not shallWeDot("target")) and (buff.symbolsOfDeath.remain() > 8 or buff.shadowBlades.remain() > 9) and (ttd("target") > 3 or isBoss()) then
-            if cast.shiv("target") then return true end
-        end
+        -- if (debuff.rupture.exists("target") or not shallWeDot("target")) and (buff.symbolsOfDeath.remain() > 8 or buff.shadowBlades.remain() > 9) and (ttd("target") > 3 or isBoss()) then
+        --     if cast.shiv("target") then return true end
+        -- end
         -- actions.cds+=/potion,if=buff.bloodlust.react|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
 ---------------------------- SHADOWLANDS
         if cdUsage and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or (buff.symbolsOfDeath.exists("target") and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10))) then
@@ -876,7 +876,7 @@ local function runRotation()
         if comboDeficit >= 4 or (comboDeficit <= 1 and priorityRotation) then shdComboPoints = 1 else shdComboPoints = 0 end
         -- # Dance during Symbols or above threshold.
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and ttd("target") > 3 and (cdUsage or (isChecked("Save SD Charges for CDs") and charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or not isChecked("Save SD Charges for CDs")) 
+        if mode.sd == 1 and ttd("target") > 3 and cdUsage and (isChecked("Save SD Charges for CDs") and charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or not isChecked("Save SD Charges for CDs")
          and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) then
             if cast.shadowDance("player") then return true end
         end
@@ -1062,7 +1062,7 @@ local function runRotation()
                 if combatTime < 10 then 
                     cTime = 1
                 end
-                if enemies10 < 6 and ttd("target") > 6 and buff.sliceAndDice.remain() < gcdMax and combo >= 4-(cTime*2) then
+                if enemies10 < 6 and ttd("target") > 6 and buff.sliceAndDice.remain() < gcdMax and combo >= 4-(cTime*2) and buff.sliceAndDice.remain() < 6+(combo*3) then
                     if cast.sliceAndDice("player") then return true end
                 end
                 -- # Priority Rotation? Let's give a crap about energy for the stealth CDs (builder still respect it). Yup, it can be that simple.
