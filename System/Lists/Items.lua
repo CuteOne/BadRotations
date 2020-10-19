@@ -22,6 +22,7 @@ br.lists.items = {
     -- Death Knight: Shared
     coldHeart                       = 151796,
     -- Demonhunter: Shared
+    felCrystalFragments             = 129210,
     inquisitorsMenacingEye          = 129192,
     soulOfTheSlayer                 = 151639,
     -- Druid: Shared

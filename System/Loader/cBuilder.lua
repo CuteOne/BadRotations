@@ -121,7 +121,7 @@ function br.loader:new(spec,specName)
                     self.spell[spellType][spellRef] = spellID
                     -- Assign active spells to Abilities Subtable and base br.player.spell
                     if not IsPassiveSpell(spellID)
-                        and (spellType == 'abilities' or spellType == 'traits' or spellType == 'talents')
+                        and (spellType == 'abilities' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
                     then
                         if self.spell.abilities == nil then self.spell.abilities = {} end
                         self.spell.abilities[spellRef] = spellID
@@ -158,6 +158,7 @@ function br.loader:new(spec,specName)
         local talentFound
         br.activeSpecGroup = GetActiveSpecGroup()
         if self.talent == nil then self.talent = {} end
+        if spec > 1400 then return end
         for k,v in pairs(self.spell.talents) do
             talentFound = false
             for r = 1, 7 do --search each talent row

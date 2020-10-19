@@ -448,7 +448,7 @@ br.lists.spells = {
                 innerDemon                  = 337313,
             },
             debuffs                         = {
-                darkSlash                   = 258860,
+                essenceBreak                = 258860,
             },
             glyphs                          = {
 
@@ -540,6 +540,20 @@ br.lists.spells = {
                 voidReaver                  = 268175,
             },
         },
+        -- Initial Demon Hunter 8-10
+        [1456] = {
+            abilities                       = {
+                chaosStrike                 = 162794,
+                demonsBite                  = 162243,
+                felRush                     = 195072,
+            },
+            buffs                           = {
+
+            },
+            debuffs                         = {
+
+            },
+        },
         -- All
         Shared = {
             abilities                       = {
@@ -555,6 +569,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                felCrystalInfusion          = 193547,
                 gazeOfTheLegion             = 193456,
                 glide                       = 131347,
                 immolationAura              = 258920,
