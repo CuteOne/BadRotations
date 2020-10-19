@@ -6,6 +6,11 @@ end
 br.lists.ccUnits = {
     --Test unit outside Boralus
     [123231] = { name = "Sharptail Beaver" },
+    -- Visions of Ogrimmar
+    [155657] = { name = "Huffer" }, -- Rexxar's pets
+    [155952] = { name = "Suffer" }, -- Rexxar's pets
+    [155951] = { name = "Ruffer" }, -- Rexxar's pets
+    [155953] = { name = "C'Thuffer" }, -- Rexxar's pets
     -- Shadowmoon Burial Grounds
     [75966] = { name = "Defiled Spirit" }, -- need to be cc and snared and is not allowed to reach boss.
     [76446] = { name = "Shadowmoon Enslavers" },
