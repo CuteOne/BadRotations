@@ -34,6 +34,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
+        local section
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
@@ -52,9 +53,9 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
             --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -77,7 +78,6 @@ local comboPoints
 local debuff
 local enemies
 local energy
-local inCombat
 local ui
 local unit
 local units
@@ -137,7 +137,7 @@ actionList.Extra = function()
             if cast.bearForm() then ui.debug("Casting Bear Form") return true end
         end
         -- Caster Form
-        if unit.level() < 5 or (formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists())) then
+        if formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists()) then
             RunMacroText("/CancelForm")
             ui.debug("Casting Caster Form")
             return true
@@ -153,12 +153,12 @@ end -- End Action List - Extra
 actionList.Defensive = function()
     if ui.useDefensive() then
         if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") then
+            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and UnitIsPlayer("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
                     RunMacroText("/CancelForm")
                 else
-                    if cast.regrowth("player") then ui.debug("Casting Regrowth on "..unit.name("target")) return true end
+                    if cast.regrowth("target") then ui.debug("Casting Regrowth on "..unit.name("target")) return true end
                 end
             end
             if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
@@ -212,7 +212,6 @@ local function runRotation()
     debuff                                      = br.player.debuff
     enemies                                     = br.player.enemies
     energy                                      = br.player.power.energy.amount()
-    inCombat                                    = br.player.inCombat
     ui                                          = br.player.ui
     unit                                        = br.player.unit
     units                                       = br.player.units
@@ -220,7 +219,7 @@ local function runRotation()
     -- General Locals
     movingTimer                                 = timeMoving()
     profileStop                                 = profileStop or false
-    haltProfile                                 = (inCombat and profileStop) or pause() or ui.rotation==4
+    haltProfile                                 = (unit.inCombat() and profileStop) or pause() or ui.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -238,7 +237,7 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not unit.exists("target") and profileStop then
+    if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
         return true
@@ -261,7 +260,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if inCombat and unit.valid("target") and cd.global.remain() == 0 then
+        if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
 
             ------------------------
             --- In Combat - Main ---

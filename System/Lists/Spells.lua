@@ -2807,11 +2807,11 @@ br.lists.spells = {
                 earthenSpike                = 188089,
                 feralLunge                  = 196884,
                 feralSpirit                 = 51533,
-                flametongue                 = 193796,
+                flametongue                 = 318038,
                 flameShock                  = 188389,
                 frostShock                  = 196840,
                 furyOfAir                   = 197211,
-                healingSurge                = 188070,
+                healingSurge                = 8004,
                 lavaLash                    = 60103,
                 lightningBolt               = 188196,
                 lightningShield             = 192106,
@@ -2820,6 +2820,7 @@ br.lists.spells = {
                 stormstrike                 = 17364,
                 sundering                   = 197214,
                 totemMastery                = 262395,
+                windFuryWeapon              = 33757,
                 windstrike                  = 115356, --17364,
                 windFuryTotem               = 8512,
             },
@@ -2951,6 +2952,31 @@ br.lists.spells = {
                 windRushTotem               = 192077,
             },
         },
+        [1444] =  {
+            abilities                       = {
+                chainLightning              = 188443,
+                flameShock                  = 188389,
+                flametongue                 = 318038,
+                healingSurge                = 8004,
+                lightningBolt               = 188196,
+                lightningShield             = 192106,
+                primalStrike                = 73899,
+            },
+            buffs                           = {
+                lightningShield             = 192106,
+
+            },
+            debuffs                         = {
+                flameShock                  = 188389,
+
+            },
+            glyphs                          = {
+
+            },
+            talents                         = {
+                
+            },
+        },
         -- All
         Shared = {
             abilities                       = {
@@ -2997,7 +3023,6 @@ br.lists.spells = {
                 agony                       = 980,
                 commanddemon                = 119898,
                 corruption                  = 172,
-                createHealthstone           = 6201,
                 darkSoul                    = 113860,
                 deathbolt                   = 264106,
                 demonicGateway              = 311699,
@@ -3237,7 +3262,6 @@ br.lists.spells = {
             abilities                       = {
                 controlDemon                = 93375,
                 corruption                  = 172,
-                createHealthstone           = 6201,
                 curseOfWeakness             = 702,
                 drainLife                   = 234153,
                 shadowBolt                  = 686,
@@ -3254,6 +3278,7 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                createHealthstone           = 6201,
                 darkPact                    = 108416,
                 demonicCircle               = 48018,
                 devourMagic                 = 19505,
