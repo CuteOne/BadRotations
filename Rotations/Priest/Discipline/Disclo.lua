@@ -745,7 +745,7 @@ local function runRotation()
     local localHealingCount = discHealCount
     ------------------------------
     ------- Start the Stuff ------
-    if pause(true) or drinking then
+    if pause() or drinking then
         return true
     else
         if not inCombat then

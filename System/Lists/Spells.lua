@@ -2237,6 +2237,7 @@ br.lists.spells = {
                 zeksExterminatus            = 236546, -- Legendary Cloak proc
             },
             debuffs                         = {
+                devouringPlague             = 335467,
                 mindFlay                    = 15407,
                 vampiricTouch               = 34914,
                 weakenedSoul                = 6788,
