@@ -307,8 +307,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Holy Shock Damage")
         br.ui:createCheckbox(section, "Aggressive Glimmer", "tries to keep one glimmer on target")
         -- Shield of the Righteous
-		br.ui:createCheckbox(section,"Shield of the Righteous")
-		br.ui:checkSectionState(section)
+        br.ui:createSpinner(section, "Shield of the Righteous", 1, 0, 40, 1, "", "|cffFFFFFFMinimum Shield of the Righteous Targets")
         -- Crusader Strike
         br.ui:createCheckbox(section, "Crusader Strike")
         br.ui:checkSectionState(section)
@@ -1723,7 +1722,7 @@ local function runRotation()
                         end
                     end
                     -- Shield of the Righteous
-                    if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 and getFacing("player",thisUnit) then
+                    if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 and #enemies.yards5 >= getValue("Shield of the Righteous") then
                         if cast.shieldOfTheRighteous(thisUnit) then
                             return true
                         end
