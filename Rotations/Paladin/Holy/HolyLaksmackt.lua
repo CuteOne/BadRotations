@@ -1720,12 +1720,6 @@ local function runRotation()
                         if cast.judgment(thisUnit) then
                             return true
                         end
-                    end
-                    -- Shield of the Righteous
-                    if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 and #enemies.yards5 >= getValue("Shield of the Righteous") then
-                        if cast.shieldOfTheRighteous(thisUnit) then
-                            return true
-                        end
                     end    
                 end
             end
@@ -1909,6 +1903,11 @@ local function runRotation()
                 if cast.consecration() then
                     cX, cY, cZ = GetObjectPosition("player")
                     return
+                end
+            end
+            if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 and #enemies.yards5 >= getValue("Shield of the Righteous") then
+                if cast.shieldOfTheRighteous(thisUnit) then
+                    return true
                 end
             end
             if cast.judgment(units.dyn30) then
