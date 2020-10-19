@@ -784,18 +784,56 @@ end
 function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     if GetSpecialization() == 1 then
-        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
-            -- Line CD
-            if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-            if spell == 980 or spell == 172 or spell == 63106 then
-                br.lastCast.line_cd[spell] = GetTime()
-            end
+    if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
+	    -- Drain Soul counter
+		if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then dsTicks = 0 end
+	end
+
+    -- We stopped a channel, reset counters.
+    if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_STOP" then dsTicks = 0 end
+    
+    -- CLear dot table after each death/individual combat scenarios. 
+    if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then if #kinkydots > 0 then kinkydots = {} end end
+
+    if param == "UNIT_DIED" then if #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true end end end end
+
+    -- Corruption was refreshed. 
+	if param == "SPELL_AURA_REFRESH" then
+        -- Drain Soul
+		if source == br.guid and spellName == spell.drainSoul then dsTicks = 0 maxdsTicks = 5 end
+    end
+
+    -- Successfull Spell Casts
+	if param == "SPELL_CAST_SUCCESS" then
+		if source == br.guid then
+			
+		end
+	end
+
+    -- Periodic Damage Events
+	if param == "SPELL_PERIODIC_DAMAGE" then
+		-- Drain Soul Ticks
+        if source == br.guid and spellName == spell.drainSoul then dsTicks = dsTicks + 1 br.addonDebug("Drain Soul + 1 tick") end
+	end
+
+    -- Corruption was removed.
+	if param == "SPELL_AURA_REMOVED" then
+        if source == br.guid then
+            -- Drain Soul
+			if spellName == drainSoul then dsTicks = 0 maxdsTicks = 3 br.addonDebug("Drain Soul ticks reset") end
         end
     end
+
+    -- Corruption was applied. 
+    if param == "SPELL_AURA_APPLIED" then
+        if source == br.guid then
+        end
+    end
+end
     if GetSpecialization() == 2 then
         -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then
         --     -- Hand of Guldan
-        --     if spell == 105174 then
+        --     if  == 105174 then
         --         if not br.lastCast.hog then br.lastCast.hog = {} end
         --         if br.lastCast then
         --             tinsert(br.lastCast.hog, 1, GetTime())
@@ -806,11 +844,11 @@ function cl:Warlock(...) -- 9
         --     end
         --     -- Line CD
         --     if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-        --     br.lastCast.line_cd[spell] = GetTime()
+        --     br.lastCast.line_cd[] = GetTime()
         -- end
         -- -- Demonology Manager
         -- -- Imps are summoned
-        -- if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
+        -- if param == "SPELL_SUMMON" and source == br.guid and ( == 104317 or  == 279910) then
         --     print("Imp SUMMON")
         -- end
         -- -- Other Demons are summoned
