@@ -1797,18 +1797,19 @@ br.lists.spells = {
                 cleanse                     = 4987,
                 consecration                = 26573,
                 divineProtection            = 498,
-                hammerOfWrath               = 24275,
+				hammerOfWrath               = 24275,
                 holyLight                   = 82326,
                 holyShock                   = 20473,
                 judgment                    = 275773,
                 lightOfDawn                 = 85222,
                 lightOfTheMartyr            = 183998,
+				shieldOfTheRighteous        = 53600,
+                wordOfGlory					= 85673,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                auraOfMercy                 = 183415,
                 auraMastery                 = 31821,
                 avengingWrath               = 31884,
                 avengingWrathCrit           = 294027,
