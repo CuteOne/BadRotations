@@ -486,14 +486,7 @@ local function runRotation()
             end
         end
         local function actionList_Maintenance()
-            --Flametongue
-            if not buff.flametongue.exists() then
-                if cast.flametongue() then return true end
-            end
-            --Flametongue
-            if buff.flametongue.exists() and buff.flametongue.remain() < 4.8 + gcd then
-                if cast.flametongue() then return true end
-            end
+
         end
         local function actionList_CD()
             if isChecked("Racial") and race == "Troll" and ((talent.ascendance and buff.ascendance.exists())
