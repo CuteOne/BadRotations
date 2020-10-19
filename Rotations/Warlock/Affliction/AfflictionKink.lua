@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.1"
+local rotationName = "Kink v1.3.2"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -1102,7 +1102,7 @@ local function runRotation()
                 if agonyCount < ui.value("Spread Agony on ST") then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) < 5 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+                        if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 5 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
                             if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Pandemic Invocation]") return true end
                         end
                     end
@@ -1260,7 +1260,7 @@ local function runRotation()
             end
 
             -- Drain Soul
-            if not moving and talent.drainSoul and (debuff.unstableAffliction.remain("target") > gcdMax + 0.45 and debuff.agony.remain("target") > gcdMax + 0.45) then
+            if not moving and talent.drainSoul and (debuff.unstableAffliction.remain("target") > gcdMax + 0.5 and debuff.agony.remain("target") > gcdMax + 4.5) then
                 if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
             end
 
