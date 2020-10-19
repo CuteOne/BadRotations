@@ -2041,6 +2041,7 @@ br.lists.spells = {
                 mindbender                  = 123040,
                 mindBlast                   = 8092,
                 mindControl                 = 205364,
+                mindSear                    = 48045,
                 mindVision                  = 2096,
                 painSuppression             = 33206,
                 penance                     = 47540,
