@@ -533,15 +533,17 @@ local function runRotation()
             end
         end
         local function actionList_Core()
-            if flameShockCount < getValue("Maximum FlameShock Targets") then
-                if debuff.flameShock.remain("target") < 5.4 then
-                    if cast.flameShock("target") then return true end
-                end
-                for i=1, #enemies.yards40 do
-                    if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 then
-                        if cast.flameShock(enemies.yards40[i]) then br.addonDebug("Casting Flameshock") return true end
+            if buff.hailstorm.stack() <= 4 then 
+                if flameShockCount < getValue("Maximum FlameShock Targets") then
+                    if debuff.flameShock.remain("target") < 5.4 then
+                        if cast.flameShock("target") then return true end
                     end
-		end
+                    for i=1, #enemies.yards40 do
+                        if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 then
+                            if cast.flameShock(enemies.yards40[i]) then br.addonDebug("Casting Flameshock") return true end
+                        end
+                    end
+                end
             end
             -- Frostshock
             if talent.hailstorm then
