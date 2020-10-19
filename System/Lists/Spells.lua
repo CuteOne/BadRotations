@@ -2681,7 +2681,7 @@ br.lists.spells = {
             -- },
         },
     },
-    SHAMAN = {
+ SHAMAN = {
         -- Elemental
         [262] = {
             abilities                       = {
@@ -2871,7 +2871,7 @@ br.lists.spells = {
                 strengthOfTheEarth          = 273461,
             },
         },
-        -- Restoration
+       -- Restoration
         [264] = {
             abilities                       = {
              --   ancestralGuidance           = 108281,
@@ -2884,7 +2884,7 @@ br.lists.spells = {
                 downpour                    = 207778,
                 earthShield                 = 974,
                 earthenWallTotem            = 198838,
-                flameShock                  = 188838,
+                flameShock                  = 188389,
               --  giftOfTheQueen              = 207778,
                 healingRain                 = 73920,
                 healingSurge                = 8004,
@@ -2893,7 +2893,7 @@ br.lists.spells = {
                 healingWave                 = 77472,
                 heroism                     = 32182,
                 lavaBurst                   = 51505,
-                lightningBolt               = 403,
+                lightningBolt               = 188196,
                 purifySpirit                = 77130,
                 riptide                     = 61295,
                 spiritLinkTotem             = 98008,
@@ -2916,7 +2916,7 @@ br.lists.spells = {
                 spiritwalkersGrace          = 79206,
             },
             debuffs                         = {
-                flameShock                  = 188838,
+                flameShock                  = 188389,
             },
             glyphs                          = {
             },
@@ -2926,8 +2926,7 @@ br.lists.spells = {
                 ascendance                  = 114052,
                 cloudburstTotem             = 157153,
                 downpour                    = 207778,
-                earthenWallTotem          = 198838,
-                earthShield                 = 974,
+                earthenWallTotem            = 198838,
                 echoOfTheElements           = 108283,
                -- gustOfWind                  = 192063,
                 highTide                    = 157154,
