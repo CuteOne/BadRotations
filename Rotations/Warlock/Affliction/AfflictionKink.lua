@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.3"
+local rotationName = "Kink v1.3.4"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -473,10 +473,10 @@ actionList.Defensive = function()
 
         -- Demonic Gateway
         if isChecked("Demonic Gateway") 
-        and SpecificToggle("Shadowfury Key") 
+        and SpecificToggle("Demonic Gateway") 
         and not GetCurrentKeyBoardFocus() 
         then
-            if CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
+            if br.timer:useTimer("RoF Delay", 1) and cast.demonicGateway(nil,"aoe",1,8,true) then br.addonDebug("Casting Demonic Gateway") return end 
         end
         
         --[[ if getDistance("target") <= 40 then
@@ -699,7 +699,7 @@ actionList.PreCombat = function()
         end
 
         -- Create Healthstone
-        if ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < ui.value("Create Healthstone") then
+        if ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < ui.value("Create Healthstone") or itemCharges(5512) < 2 then
             if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
         end
 
@@ -993,7 +993,10 @@ local function runRotation()
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList.Interrupts() then return true end
-            if isChecked("Shadowfury Key") and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
+
+            -- Shadowfury
+            if isChecked("Shadowfury Key") 
+            and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
                 if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
             end
 
