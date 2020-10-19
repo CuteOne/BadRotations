@@ -360,7 +360,7 @@ br.lists.spells = {
                 deathPact                   = 48743,
                 deathsReach                 = 276079,
                 defile                      = 152280,
-                ebonFever                   = 207269,              
+                ebonFever                   = 207269,
                 gripOfTheDead               = 273952,
                 harbingerOfDoom             = 276023,
                 infectedClaws               = 207272,
@@ -371,7 +371,7 @@ br.lists.spells = {
                 summonGargoyle              = 49206,
                 unholyAssault               = 207289,
                 unholyBlight                = 115989,
-                
+
             },
             traits                          = {
                 magusOfTheDead              = 288417,
@@ -2792,6 +2792,7 @@ br.lists.spells = {
                 stormElemental              = 192249,
                 stormKeeper                 = 191634,
                 surgeOfPower                = 262303,
+                earthShield                 = 974,
             },
             traits                          = {
                 naturalHarmony              = 278697,
@@ -2882,6 +2883,7 @@ br.lists.spells = {
                 hotHand                     = 201900,
                 lashingFlames               = 334046,
                 sundering                   = 197214,
+                earthShield                 = 974,
             },
             traits                          = {
                 lightningConduit            = 275389,
@@ -2890,7 +2892,7 @@ br.lists.spells = {
                 strengthOfTheEarth          = 273461,
             },
         },
-       -- Restoration
+        -- Restoration
         [264] = {
             abilities                       = {
              --   ancestralGuidance           = 108281,
@@ -2903,16 +2905,17 @@ br.lists.spells = {
                 downpour                    = 207778,
                 earthShield                 = 974,
                 earthenWallTotem            = 198838,
-                flameShock                  = 188389,
+                flameShock                  = 188838,
               --  giftOfTheQueen              = 207778,
                 healingRain                 = 73920,
                 healingSurge                = 8004,
                 healingStreamTotem          = 5394,
+                waterShield                 = 52127,
                 healingTideTotem            = 108280,
                 healingWave                 = 77472,
                 heroism                     = 32182,
                 lavaBurst                   = 51505,
-                lightningBolt               = 188196,
+                lightningBolt               = 403,
                 purifySpirit                = 77130,
                 riptide                     = 61295,
                 spiritLinkTotem             = 98008,
@@ -2931,11 +2934,13 @@ br.lists.spells = {
                 lavaSurge                   = 77762,
                 riptide                     = 61295,
                 tidalWaves                  = 53390,
+                undulation                  = 216251,
                 unleashLife                 = 73685,
                 spiritwalkersGrace          = 79206,
+                waterShield                 = 52127,
             },
             debuffs                         = {
-                flameShock                  = 188389,
+                flameShock                  = 188838,
             },
             glyphs                          = {
             },
@@ -2946,37 +2951,16 @@ br.lists.spells = {
                 cloudburstTotem             = 157153,
                 downpour                    = 207778,
                 earthenWallTotem            = 198838,
+                --earthShield                 = 974,
                 echoOfTheElements           = 108283,
                -- gustOfWind                  = 192063,
                 highTide                    = 157154,
                 unleashLife                 = 73685,
                 wellspring                  = 197995,
                 windRushTotem               = 192077,
-            },
-        },
-        [1444] =  {
-            abilities                       = {
-                chainLightning              = 188443,
-                flameShock                  = 188389,
-                flametongue                 = 318038,
-                healingSurge                = 8004,
-                lightningBolt               = 188196,
-                lightningShield             = 192106,
-                primalStrike                = 73899,
-            },
-            buffs                           = {
-                lightningShield             = 192106,
+                surgeOfEarth                = 320746,
+                earthGrabTotem              = 51485,
 
-            },
-            debuffs                         = {
-                flameShock                  = 188389,
-
-            },
-            glyphs                          = {
-
-            },
-            talents                         = {
-                
             },
         },
         -- All
@@ -3010,7 +2994,7 @@ br.lists.spells = {
 
             },
             talents                         = {
-                earthShield                 = 974,
+              -- no longer shared --earthShield                 = 974,
                 naturesGuardian             = 30884,
                 spiritWolf                  = 260878,
                 staticCharge                = 265046,
