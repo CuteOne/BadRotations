@@ -544,7 +544,7 @@ actionList.Demonic = function()
     -- fel_rush,if=(talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
-        and talent.unboundChaos and buff.unboundChaos.exists() and charges.felRush.count() == 2
+        and talent.unboundChaos and buff.innerDemon.exists() and charges.felRush.count() == 2
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation()
@@ -658,7 +658,7 @@ actionList.Normal = function()
     -- fel_rush,if=(variable.waiting_for_momentum|talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
-        and (var.waitingForMomentum or (talent.unboundChaos and buff.unboundChaos.exists()))
+        and (var.waitingForMomentum or (talent.unboundChaos and buff.innerDemon.exists()))
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation()
@@ -932,7 +932,7 @@ local function runRotation()
 
     -- Blade Dance Variable
     -- variable,name=blade_dance,value=talent.first_blood.enabled|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
-    var.bladeDance = (talent.firstBlood or (ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2) and #enemies.yards8 > 0 and not unit.isExplosive("target")
+    var.bladeDance = (talent.cycleOfHatred or talent.firstBlood or (ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2) and #enemies.yards8 > 0 and not unit.isExplosive("target")
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
     var.poolForMeta = ui.checked("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
