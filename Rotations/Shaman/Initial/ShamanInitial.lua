@@ -1,4 +1,4 @@
-local rotationName = "Initial Druid" -- Change to name of profile listed in options drop down
+local rotationName = "Initial Shaman" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
@@ -98,14 +98,6 @@ local movingTimer
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
--- Time Moving
-local function timeMoving()
-    if movingTimer == nil then movingTimer = GetTime() end
-    if not unit.moving() then
-        movingTimer = GetTime()
-    end
-    return GetTime() - movingTimer
-end
 local function ghostWolf()
     -- Ghost Wolf
     if not (IsMounted() or IsFlying()) and isChecked("Auto Ghost Wolf") then
@@ -149,24 +141,6 @@ actionList.Extra = function()
             if cast.lightningShield() then return true end
         end
     end
-    -- -- Auto Shapeshift
-    -- if (not buff.travelForm.exists() and unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() then
-    --     local formValue = ui.mode.form
-    --     -- Bear Form
-    --     if formValue == 3 and unit.level() >= 8 and cast.able.bearForm() and not buff.bearForm.exists() then
-    --         if cast.bearForm() then ui.debug("Casting Bear Form") return true end
-    --     end
-    --     -- Caster Form
-    --     if unit.level() < 5 or (formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists())) then
-    --         RunMacroText("/CancelForm")
-    --         ui.debug("Casting Caster Form")
-    --         return true
-    --     end
-    --     --Cat Form
-    --     if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5 and cast.able.catForm() and not buff.catForm.exists() then
-    --         if cast.catForm() then ui.debug("Casting Cat Form") return true end
-    --     end
-    -- end
 end -- End Action List - Extra
 
 -- Action List - Defensive
@@ -184,26 +158,6 @@ end -- End Action List - Defensive
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    -- if not unit.inCombat() then
-    --     if unit.valid("target") then
-    --         local thisDistance = unit.distance("target") or 99
-    --         if not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
-    --             if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or not unit.inCombat()) then
-    --                 if cast.wrath("target") then ui.debug("Casting Wrath [Pre-Pull]") return true end
-    --             end
-    --         end
-    --         if thisDistance < 5 then
-    --             -- Shred
-    --             if cast.able.shred() and buff.catForm.exists() then
-    --                 if cast.shred() then ui.debug("Casting Shred [Pre-Pull]") return true end
-    --             end
-    --             -- Auto Attack
-    --             if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-    --                 StartAttack(units.dyn5)
-    --             end
-    --         end
-    --     end
-    -- end
     if unit.distance("target") > 5 then
         if cast.flameShock() then return end
     end
@@ -265,14 +219,6 @@ local function runRotation()
                 if isChecked("OOC Healing") then
                     actionList.PreCombat()
                 end
-                -- Purify Spirit
-                -- if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
-                --     for i = 1, #friends.yards40 do
-                --         if canDispel(br.friend[i].unit,spell.purifySpirit) then
-                --             if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
-                --         end
-                --     end
-                -- end
             end
         end -- End Out of Combat Rotation
         -----------------------
@@ -310,7 +256,6 @@ local function runRotation()
                     if cast.primalStrike() then return end
                 end
             end
-               
         end -- End In Combat Rotation
     end -- Pause
     return true
