@@ -2056,8 +2056,6 @@ br.lists.spells = {
                 schism                      = 214621,
                 shadowfiend                 = 34433,
                 shadowMend                  = 186263,
-                shadowWordDeath             = 32379,
-                shadowWordPain              = 589,
                 shiningForce                = 204263,
                 sinsOfTheMany               = 198076,
                 smite                       = 585,
@@ -2086,7 +2084,6 @@ br.lists.spells = {
                 weakenedSoul                = 6788,
                 purgeTheWicked              = 204213,
                 schism                      = 214621,
-                shadowWordPain              = 589,
                 smite                       = 585,
             },
             glyphs                          = {
@@ -2187,6 +2184,7 @@ br.lists.spells = {
             abilities                       = {
                 darkAscension               = 280711,
                 dispersion                  = 47585,
+                devouringPlague             = 335467,
                 mindBlast                   = 8092,
                 mindBomb                    = 205369,
                 mindbender                  = 200174,
@@ -2200,8 +2198,6 @@ br.lists.spells = {
                 purifyDisease               = 213634,
                 shadowCrash                 = 205385,
                 shadowMend                  = 186263,
-                shadowWordDeath             = 32379,
-                shadowWordPain              = 589,
                 shadowWordVoid              = 205351,
                 shadowfiend                 = 34433,
                 shadowform                  = 232698,
@@ -2242,7 +2238,6 @@ br.lists.spells = {
             },
             debuffs                         = {
                 mindFlay                    = 15407,
-                shadowWordPain              = 589,
                 vampiricTouch               = 34914,
                 weakenedSoul                = 6788,
 
@@ -2253,12 +2248,7 @@ br.lists.spells = {
             talents                         = {
                 auspiciousSpirits           = 155271,
                 bodyAndSoul                 = 64129,
-                darkVoid                    = 263346,
-                darkAscension               = 280711,
-                --dominantMind                = 205367,
                 fortressOfTheMind           = 193195,
-                legacyOfTheVoid             = 193225,
-                lingeringInsanity            = 199849,
                 --mania                       = 193173,
                 --masochism                   = 193063,
                 mindBomb                    = 205369,
@@ -2269,11 +2259,8 @@ br.lists.spells = {
                 --psychicVoice                = 196704,
                 --reaperOfSouls               = 199853,
                 sanlayn                     = 199855,
-                shadowCrash                 = 205385,
-                shadowWordDeath             = 32379,
-                shadowWordVoid              = 205351,
-                shadowyInsight              = 162452,
-                surrenderToMadness          = 193223,
+                shadowCrash                 = 342834,
+                surrenderToMadness          = 319952,
                 twistOfFate                 = 109142,
                 --voidRay                     = 205371,
                 voidTorrent                 = 263165,
@@ -2298,6 +2285,8 @@ br.lists.spells = {
                 mindControl                 = 605,
                 powerWordFortitude          = 21562,
                 resurrection                = 2006,
+                shadowWordDeath             = 32379,
+                shadowWordPain              = 589,
                 shackleUndead               = 9484,
             },
             artifacts                       = {
@@ -2310,6 +2299,7 @@ br.lists.spells = {
 
             },
             debuffs                         = {
+                shadowWordPain              = 589,
 
             },
             glyphs                          = {
