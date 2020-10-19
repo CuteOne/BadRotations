@@ -451,7 +451,7 @@ local function runRotation()
     -------------
     local enemies = br.player.enemies
     local lastSpell = lastSpellCast
-    local mode = br.player.ui..mode
+    local mode = br.player.ui.mode
     local pullTimer = br.DBM:getPulltimer()
     local units = br.player.units
     local LightCount = 0
@@ -1723,8 +1723,8 @@ local function runRotation()
                         end
                     end
                     -- Shield of the Righteous
-                    if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 then
-                        if cast.shieldOfTheRighteous then
+                    if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 and getFacing("player",thisUnit) then
+                        if cast.shieldOfTheRighteous(thisUnit) then
                             return true
                         end
                     end    
