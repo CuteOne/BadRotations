@@ -336,7 +336,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(15)
     enemies.get(20)
-	
+
 	local Storm_unitList = {
             [131009] = "Spirit of Gold",
             [134388] = "A Knot of Snakes",
@@ -554,27 +554,21 @@ local function runRotation()
     end
 
     local function singlelist()
-        -- furious slash
-        if talent.furiousSlash and not cast.last.furiousSlash() and (buff.furiousSlash.stack("player") < 3 or buff.furiousSlash.remains("player") <= 2) then
-            if cast.furiousSlash() then
-                return
-            end
-        end
 		-- Focussing Iris
 		-- actions+=/focused_azerite_beam,if=!buff.recklessness.up&!buff.siegebreaker.up
 		if isChecked("Meme-Beam") and getSpellCD(295258) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Meme-Beam") == 1 or (getOptionValue("Meme-Beam") == 2 and #enemies.yards8 >= 3)) then
 			if cast.focusedAzeriteBeam() then
 				return
 			end
-		end	
+		end
 		-- Purifying Blast
 		-- actions+=/purifying_blast,if=!buff.recklessness.up&!buff.siegebreaker.up
 		if isChecked("Purifying Blast") and getSpellCD(295337) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Purifying Blast") == 1 or (getOptionValue("Purifying Blast") == 2 and #enemies.yards8 >= 3)) then
 			if cast.purifyingBlast() then
 				return
 			end
-		end	
-		
+		end
+
 		-- GuardianOfAzeroth
 		-- actions+=/guardian_of_azeroth,if=!buff.recklessness.up
         if getSpellCD(295840) <=gcd and not buff.recklessness.exists("player") and isChecked("GuardianofAzeroth")then
@@ -589,7 +583,7 @@ local function runRotation()
                 end
             end
 		end
-			
+
         -- Rampage
         if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
             if cast.rampage() then
@@ -682,15 +676,8 @@ local function runRotation()
             end
         end
 
-        -- Furious Slash Filler
-        if filler then
-            if cast.furiousSlash() then
-                return
-            end
-        end
-
         -- whirlwind filler
-        if not talent.furiousSlash and filler then
+        if filler then
             if cast.whirlwind("player", nil, 1, 5) then
                 return
             end
@@ -746,16 +733,16 @@ local function runRotation()
 			if cast.purifyingBlast() then
 				return
 			end
-		end	
-		
+		end
+
 		-- Focussing Iris
 		-- actions+=/focused_azerite_beam,if=!buff.recklessness.up&!buff.siegebreaker.up
 		if isChecked("Meme-Beam") and getSpellCD(295258) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Meme-Beam") == 1 or (getOptionValue("Meme-Beam") == 2 and #enemies.yards8 >= 3)) then
 			if cast.focusedAzeriteBeam() then
 				return
 			end
-        end	
-        
+        end
+
         if buff.recklessness.exists("player") and isChecked("GuardianofAzeroth")then
             if getOptionValue("GuardianOfAzeroth - Usage")==1 then
                 if cast.guardianOfAzeroth() then
@@ -815,13 +802,6 @@ local function runRotation()
         --    if cast.execute() then return end
         --end
 
-        -- furious slash
-        if talent.furiousSlash and (buff.furiousSlash.stack("player") < 3 or buff.furiousSlash.remains("player") <= 2) then
-            if cast.furiousSlash() then
-                return
-            end
-        end
-
         -- High Prio Bloodthirst
         if buff.whirlwind.exists("player") and (traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player")) then
             if cast.bloodthirst() then
@@ -855,17 +835,10 @@ local function runRotation()
                 return
             end
         end
-
-        -- Furious Slash Filler
-        if buff.whirlwind.exists("player") then
-            if cast.furiousSlash() then
-                return
-            end
-        end
     end -- end multi target
-	
+
     local function cooldownlist()
-        --trinkets 
+        --trinkets
 		--actions+=/use_item,name=ashvanes_razor_coral,if=!debuff.razor_coral_debuff.up|(target.health.pct<30.1&debuff.conductive_ink_debuff.up)|(!debuff.conductive_ink_debuff.up&buff.memory_of_lucid_dreams.up|prev_gcd.2.recklessness&(buff.guardian_of_azeroth.up|!essence.memory_of_lucid_dreams.major&!essence.condensed_lifeforce.major))
 		--Mechagon Trinket WITH enrage but WITHOUT CDs
         if isChecked("Trinkets") then
@@ -913,7 +886,7 @@ local function runRotation()
         if getOptionValue("Blood of the Enemy") == 1 or (getOptionValue("Blood of the Enemy") == 2 and buff.recklessness.remain() > 4) or (getOptionValue("Blood of the Enemy") == 3 and useCDs()) then
             if cast.bloodOfTheEnemy("player") then return end
         end
-		-- Reaping Flames 
+		-- Reaping Flames
 		-- actions+=/reaping_flames,if=!buff.recklessness.up&!buff.siegebreaker.up
 		for i = 1, #enemies.yards20 do
             local thisUnit = enemies.yards20[i]
@@ -931,10 +904,10 @@ local function runRotation()
                 end
             elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 3 and (getHP(thisUnit) <= 20 or UnitHealth(thisUnit) <= reapingDamage or getHP(thisUnit) >= 80)then
                 if CastSpellByName("Reaping Flames",thisUnit) then
-                    return 
+                    return
                 end
             end
-        end     
+        end
     end
 	if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
             if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
@@ -979,7 +952,7 @@ local function runRotation()
 
 
 
-    if isCastingSpell(295258) then 
+    if isCastingSpell(295258) then
         return true
     end
     ---------------------
