@@ -52,7 +52,9 @@ function br.antiAfk()
 	if isChecked("Anti-Afk") and br.unlocked then
 		if not IsHackEnabled("antiafk") and getOptionValue("Anti-Afk") == 1 then
 			SetHackEnabled("antiafk",true)
-		elseif IsHackEnabled("antiafk") and getOptionValue("Anti-Afk") == 2 then
+		end
+	elseif isChecked("Anti-Afk") and br.unlocked and getOptionValue("Anti-Afk") == 2 then
+		if IsHackEnabled("antiafk") then
 			SetHackEnabled("antiafk",false)
 		end
 	end
@@ -103,20 +105,16 @@ function BadRotationsUpdate(self)
 						RunMacroText("/stopcasting")
 					end
 				end
-				if isCastingSpell(318763) then
-					return true
-				end
-				--Quaking helper
+				-- Automatic catch the pig
 				if getOptionCheck("Pig Catcher") then
-					-- Automatic catch the pig
-					if select(8, GetInstanceInfo()) == 1754  then
+					if select(8, GetInstanceInfo()) == 1754 then
 						for i = 1, GetObjectCountBR() do
 							local ID = ObjectID(GetObjectWithIndex(i))
 							local object = GetObjectWithIndex(i)
 							local x1, y1, z1 = ObjectPosition("player")
 							local x2, y2, z2 = ObjectPosition(object)
 							local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-							if ID == 130099 and distance < 10 and br.timer:useTimer("Pig Delay", 0.5) then
+							if ID == 130099 and distance < 10 then
 								InteractUnit(object)
 							end
 						end

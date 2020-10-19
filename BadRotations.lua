@@ -191,7 +191,6 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 		br.disablePulse = true
 	end
 	if event == "LOADING_SCREEN_DISABLED" then
-		br.pulseDelay = GetTime()
 		br.disablePulse = false
 	end
 	if event == "PLAYER_LOGOUT" then

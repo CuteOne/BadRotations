@@ -919,11 +919,6 @@ local function runRotation()
 					end
 				end
 			end
-			if hasEquiped(173944) and canUseItem(173944) then
-				if mana < 80 then
-					UseItemByName(173944, "target")
-				end
-			end
 			--Pillar of the Drowned Cabal
 			if hasEquiped(167863) and canUseItem(16) then
 				if not UnitBuffID(lowest.unit,295411) and lowest.hp < 75 then

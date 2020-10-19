@@ -205,12 +205,13 @@ end
 function hasThreat(unit,playerUnit)
 	-- Damaged Validation
 	if br.damaged[ObjectPointer(unit)] ~= nil then return true end
-	if unit == nil or GetUnit(unit) == nil or UnitIsDeadOrGhost(unit) or UnitIsTapDenied(unit) then return false end
 	local unitID = getUnitID(unit)
 	local instance = select(2,IsInInstance())
 	if playerUnit == nil then playerUnit = "player" end
 	local targetUnit, targetFriend
-	if UnitTarget(GetUnit(unit)) ~= nil then
+	if GetUnit(unit) == nil or UnitIsDeadOrGhost(unit) or UnitIsTapDenied(unit) then
+		targetUnit = "None"
+	elseif UnitTarget(GetUnit(unit)) ~= nil then
 		targetUnit = UnitTarget(GetUnit(unit))
 	else
 		targetUnit = "None"
@@ -232,6 +233,7 @@ function hasThreat(unit,playerUnit)
 
 	-- Valididation Checks
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
+	if unit == nil --[[or (not GetObjectExists(targetUnit) and br.lists.threatBypass[unitID] == nil)]] then return false end
 	local playerInCombat = UnitAffectingCombat("player")
 	local unitInCombat = UnitAffectingCombat(unit)
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
@@ -242,10 +244,10 @@ function hasThreat(unit,playerUnit)
 	elseif isBoss() and unitInCombat and (instance == "party" or instance == "raid") then
 		return true
 	-- Threat Bypass Validation
-	--elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil then
+	-- elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil and #getEnemies(unit,20,true) == 0 then
 	-- 		return true
 	-- Open World Mob Pack Validation
-	elseif instance == "none" and playerInCombat and unitInCombat and UnitIsPlayer(targetUnit) and #getEnemies(unit,8) > 0 then
+	elseif instance == "none" and playerInCombat and unitInCombat and #getEnemies(unit,8) > 0 then
 		return true
 	-- Player Threat Valdation
 	elseif threatSituation(playerUnit, unit) then

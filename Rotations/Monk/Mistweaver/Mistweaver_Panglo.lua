@@ -496,43 +496,28 @@ local function runRotation()
 			end
 			for i = 1, #br.friend do
 				if isChecked("Use Trinkets With Values below") then
-					if br.friend[i].hp < getValue("Use Trinket 1") and canUseItem(13) and getDistance(br.friend[i].unit) < 40 then
-						if hasEquiped(167865,13) and getDistance(br.friend[i].unit) < 40 then
-							UseItemByName(167865,br.friend[i].unit)
-						else
-							useItem(13) return
-						end
+					if br.friend[1].hp < getValue("Use Trinket 1") and canUseItem(13) then
+						useItem(13) return
 					end
-					if br.friend[i].hp < getValue("Use Trinket 2") and canUseItem(14) and getDistance(br.friend[i].unit) < 40 then
-						if hasEquiped(167865,14) then
-							UseItemByName(167865,br.friend[i].unit)
-						else
-							useItem(14) return
-						end
+					if br.friend[1].hp < getValue("Use Trinket 2") and canUseItem(14) then
+						useItem(14) return
 					end
 				end
 			end
-			if isChecked("Use Inoculating Extract") and hasEquiped(160649) then
-				if getOptionValue("Target for Inoculating Extract") == 1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Use Inoculating Extract") then
-							UseItemByName(160649,br.friend[i].unit)
+			for i = 1, #br.friend do
+				if isChecked("Use Inoculating Extract") and hasEquiped(160649) then
+					if getOptionValue("Target for Inoculating Extract") == 1 then
+						if br.friend[1].hp <= getValue("Use Inoculating Extract") then
+							UseItemByName(160649,br.friend[1].unit)
 						end
-					end
-				elseif getOptionValue("Target for Inoculating Extract") == 2 and #tanks > 0 then
-					for i = 1, #tanks do
-						if tanks[i].hp <= getValue("Use Inoculating Extract") then
-							UseItemByName(160649,tanks[i].unit)
+						if getOptionValue("Target for Inoculating Extract") == 2 and #tanks > 0 and tanks[1].hp <= getValue("Use Inoculating Extract") then
+							UseItemByName(160649,tanks[1].unit)
 						end
 					end
 				end
-			end
-			if isChecked("Revitalizing Voodoo Totem") and #tanks > 0 then
-				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Revitalizing Voodoo Totem") then 
-						if hasEquiped(158320) and canUseItem(158320) then
-							UseItemByName(158320,tanks[i].unit)
-						end
+				if isChecked("Revitalizing Voodoo Totem") and #tanks > 0 and tanks[1].hp <= getValue("Revitalizing Voodoo Totem") then 
+					if hasEquiped(158320) and canUseItem(158320) then
+						UseItemByName(158320,tanks[1].unit)
 					end
 				end
 			end
@@ -769,24 +754,21 @@ local function runRotation()
 		local function dps_actionlist() -- Very secret function for Mistweavers only
 			if br.player.ui.mode.dps == 1 then
 				if br.friend[1].hp >= getValue("DPS Mode") then
-					if #enemies.yards5 >= 1 then
-						if talent.risingThunder then
-							if cast.risingSunKick() then return end
-						end
-						if talent.spiritOfTheCrane or buff.teachingsOfTheMonastery.stack() == 3 then
-							if cast.blackoutKick() then return end
-						end
-						if isChecked("Spinning Crane Kick") and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
-							if cast.spinningCraneKick("player") then return end
-						end
-						if isChecked("Rising Sun Kick") then 
-							if cast.risingSunKick() then return end
-						end
-						if cast.tigerPalm() then return true end
-					else
-						if not isCastingSpell(spell.cracklingJadeLightning) and isChecked("Crackling Jade Lightning") and not isMoving("player") then
-							if cast.cracklingJadeLightning() then return true end
-						end
+					if talent.risingThunder then
+						if cast.risingSunKick() then return end
+					end
+					if talent.spiritOfTheCrane or buff.teachingsOfTheMonastery.stack() == 3 then
+						if cast.blackoutKick() then return end
+					end
+					if isChecked("Spinning Crane Kick") and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
+						if cast.spinningCraneKick("player") then return end
+					end
+					if isChecked("Rising Sun Kick") then 
+						if cast.risingSunKick() then return end
+					end
+					if cast.tigerPalm() then return true end
+					if #enemies.yards10 == 0 and not isCastingSpell(spell.cracklingJadeLightning) and isChecked("Crackling Jade Lightning") and not isMoving("player") then
+						if cast.cracklingJadeLightning() then return true end
 					end
 				end
 			end

@@ -153,7 +153,7 @@ local f = CreateFrame("Frame")
             -- function f:COMBAT_LOG_EVENT_UNFILTERED(_,eventType,hideCaster,sourceGUID,srcName,sourceFlags,sourceRaidFlags,destGUID,destName,destFlags, destRaidFlags,spellID,spellName,_,param1,_,_,param4)
             --     if subevent == "SPELL_CAST_START" then
             --         local unit = check[sourceGUID]
-            --         if unit and GetUnitIsUnit(unit.."target", "player") and bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0 then
+            --         if unit and UnitIsUnit(unit.."target", "player") and bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0 then
             --             cloak = true
             --         end
             --     end

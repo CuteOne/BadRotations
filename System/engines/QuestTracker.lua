@@ -62,11 +62,8 @@ local QuestCacheUpdate = function()
 
 	local ignoreQuest = {
 		[56064] = true, -- Assault Black Empire (Vale)
-		[57157] = true, -- Assault Black Empire (Uldum)
 		[55350] = true, -- Assault Amathet Advance
 		[56308] = true, -- Assault Aqir Unearthed
-		[57008] = true, -- Assault The Warring Clans
-		[57728] = true, --- Assault: The Endless Swarm
 	}
 	--clear the quest cache
 	wipe(br.QuestCache)

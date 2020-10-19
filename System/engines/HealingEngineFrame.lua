@@ -147,12 +147,10 @@ function pulseNovaDebug()
 	        _G[parent..value.."Nova"]:SetScript("OnEnter", function(self)
 	            GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
 	            local thisUnit = br.friend[value]
-				local color = "|cffFFFFFF"
-				for i = 1, #classColors do
-					if classColors[i].class == thisUnit.class then
-						color = "|cff"..classColors[i].hex
-					end
-				end
+	            local color = "|cffFFFFFF"
+	            if classColors[thisUnit.class] ~= nil then
+	                color = classColors[thisUnit.class].hex
+	            end
 	            GameTooltip:SetText(color.."Name: "..thisUnit.name..
 	                "\n|cffFF1100Health: "..math.floor(thisUnit.hp)..
 	                "\n|cff11A7DFRole: "..thisUnit.role, nil, nil, nil, nil, true)
@@ -185,80 +183,70 @@ function pulseNovaDebug()
 	        nNovaDebug[#nNovaDebug+1] = parent..value.."Nova"
 	    end
 	end
-	local novaUnits = #br.friend
-	if novaUnits > 5 then
-		novaUnits = 5
-	end
 	if getOptionCheck("Healing Debug") then
-		if not br.ui.window['healing']['parent'] then br.ui:createHealingWindow() end
-		--br.ui:showWindow("healing")
-		-- if not healingDebug then --Started then
-		-- 	healingDebug = true --Started = true
-			-- frameCreation("healingDebug",200,150,"|cffFF001Ebr.friend")
-			-- br.ui:createHealingWindow()
-			for i = 1, 5 do
-				local thisOption = { name = i, status = 100, statusMin = 0, statusMax = 100, unit = "thisUnit" }
-				-- br.ui.window.healing:AddMessage(thisOption)
-				createNovaStatusBar('healing',thisOption,10,-i*25,180,20,false)
-				-- br.ui:createBar("healing", thisOption, unit, tooltip, tooltipSpin)
-			end
-		-- end
-		-- i will gather frames informations via thisDebugRow = br.friendDebug[i]
-		for i = 1, novaUnits do
-			local thisUnit = br.friend[i]
-			local color = "|cffFFFFFF"
-			local class
-			for i = 1, #classColors do
-				if classColors[i].class == thisUnit.class then
-					class = i
-				end
-			end
-	        -- local tooltipMsg = color.."Name: "..thisUnit.name..
-	        --         "\n|cffFF1100Health: "..math.floor(thisUnit.hp)..
-	        --         "\n|cff11A7DFRole: "..thisUnit.role, nil, nil, nil, nil, true
-			-- br.ui:createBar("healing", UnitName(thisUnit), thisUnit, tooltipMsg)
-			_G[nNovaDebug[i]]:Show()
-			thisDebugRow = nNovaDebug[i]
-			_G[thisDebugRow]:SetValue(thisUnit.hp)
-			_G[thisDebugRow.."Text"]:SetText(math.floor(thisUnit.hp))
-			if classColors[class] ~= nil then
-				_G[thisDebugRow]:SetStatusBarTexture(classColors[class].R,classColors[class].G,classColors[class].B)
-			else
-				_G[thisDebugRow]:SetStatusBarTexture(1,1,1)
-			end
-			if thisUnit.dispel == true then
-				_G[thisDebugRow]:SetStatusBarTexture(0.70,0,0)
-			end
-			
-		end
-		-- show up to 5 frames or #br.friend
-		if novaUnits < 5 then
-			for i = 1, 5 do
-				if i > novaUnits then
-					_G[nNovaDebug[i]]:Hide()
-				end
-			end
-		end
-		br.data.settings[br.selectedSpec]["healing"].height = ((novaUnits+1)*23) --:SetHeight
-		-- textString = ""
-		-- for i = 1, #br.friend do
-		-- 	local thisUnit = br.friend[i]
-		-- 	local color = "|cffFFFFFF"
-  --           if classColors[thisUnit.class] ~= nil then
-  --               color = "|"..classColors[thisUnit.class].hex
-  --           end
-  --           -- if textString == nil then 
-		-- 	textString = textString.."\nName: "..color..UnitName(br.friend[i].unit).." |r HP:"..thisUnit.hp
-		-- end
-		-- br.ui.window.healing:AddMessage(textString)
-	elseif not getOptionCheck("Healing Debug") then
-		for i = 1, novaUnits do
-			if nNovaDebug ~= nil then
-				_G[nNovaDebug[i]]:Hide()
-			end
-		end
-	elseif br.ui.window['healing']['parent'] and br.data.settings[br.selectedSpec]["healing"].active == true then
-		br.ui:closeWindow("healing")
+	-- 	if not br.ui.window['healing']['parent'] then br.ui:createHealingWindow() end
+	-- 	br.ui:showWindow("healing")
+	-- 	-- if not healingDebug then --Started then
+	-- 	-- 	healingDebug = true --Started = true
+	-- 		-- frameCreation("healingDebug",200,150,"|cffFF001Ebr.friend")
+	-- 		-- br.ui:createHealingWindow()
+	-- 		for i = 1, 5 do
+	-- 			local thisOption = { name = i, status = 100, statusMin = 0, statusMax = 100, unit = "thisUnit" }
+	-- 			-- br.ui.window.healing:AddMessage(thisOption)
+	-- 			createNovaStatusBar("healing",thisOption,10,-i*25,180,20,false)
+	-- 			-- br.ui:createBar("healing", thisOption, unit, tooltip, tooltipSpin)
+	-- 		end
+	-- 	-- end
+	-- 	-- i will gather frames informations via thisDebugRow = br.friendDebug[i]
+	-- 	local novaUnits = #br.friend
+	-- 	if novaUnits > 5 then
+	-- 		novaUnits = 5
+	-- 	end
+	-- 	for i = 1, novaUnits do
+	-- 		local thisUnit = br.friend[i]
+ --            local color = "|cffFFFFFF"
+ --            if classColors[thisUnit.class] ~= nil then
+ --                color = classColors[thisUnit.class].hex
+ --            end
+	--         -- local tooltipMsg = color.."Name: "..thisUnit.name..
+	--         --         "\n|cffFF1100Health: "..math.floor(thisUnit.hp)..
+	--         --         "\n|cff11A7DFRole: "..thisUnit.role, nil, nil, nil, nil, true
+	-- 		-- br.ui:createBar("healing", UnitName(thisUnit), thisUnit, tooltipMsg)
+	-- 		_G[nNovaDebug[i]]:Show()
+	-- 		thisDebugRow = nNovaDebug[i]
+	-- 		_G[thisDebugRow]:SetValue(thisUnit.hp)
+	-- 		_G[thisDebugRow.."Text"]:SetText(math.floor(thisUnit.hp))
+	-- 		if classColors[thisUnit.class] ~= nil then
+	-- 			_G[thisDebugRow]:SetStatusBarTexture(br.classColors[thisUnit.class].R,br.classColors[thisUnit.class].G,br.classColors[thisUnit.class].B)
+	-- 		else
+	-- 			_G[thisDebugRow]:SetStatusBarTexture(1,1,1)
+	-- 		end
+	-- 		if thisUnit.dispel == true then
+	-- 			_G[thisDebugRow]:SetStatusBarTexture(0.70,0,0)
+	-- 		end
+	-- 	end
+	-- 	-- show up to 5 frames or #br.friend
+	-- 	if novaUnits < 5 then
+	-- 		for i = 1, 5 do
+	-- 			if i > novaUnits then
+	-- 				_G[nNovaDebug[i]]:Hide()
+	-- 			end
+	-- 		end
+	-- 	end
+	-- 	br.data.settings[br.selectedSpec]["healing"].height = ((novaUnits+1)*23) --:SetHeight
+	-- 	-- textString = ""
+	-- 	-- for i = 1, #br.friend do
+	-- 	-- 	local thisUnit = br.friend[i]
+	-- 	-- 	local color = "|cffFFFFFF"
+ --  --           if classColors[thisUnit.class] ~= nil then
+ --  --               color = "|"..classColors[thisUnit.class].hex
+ --  --           end
+ --  --           -- if textString == nil then 
+	-- 	-- 	textString = textString.."\nName: "..color..UnitName(br.friend[i].unit).." |r HP:"..thisUnit.hp
+	-- 	-- end
+	-- 	-- br.ui.window.healing:AddMessage(textString)
+	-- elseif br.ui.window['healing']['parent'] and br.data.settings[br.selectedSpec]["healing"].active == true then
+	-- 	br.ui:closeWindow("healing")
 	end
 end
 

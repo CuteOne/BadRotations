@@ -47,19 +47,19 @@ end
 function castAtPosition(X,Y,Z, SpellID)
     local i = -100
     local mouselookActive = false
-    -- if IsMouselooking() then
-    --     mouselookActive = true
-    --     MouselookStop()
-    -- end
+    if IsMouselooking() then
+        mouselookActive = true
+        MouselookStop()
+    end
     CastSpellByName(GetSpellInfo(SpellID))
     while IsAoEPending() and i <= 100 do
         ClickPosition(X,Y,Z)
         Z = i
         i = i + 1
     end
-    -- if mouselookActive then
-    --     MouselookStart()
-    -- end
+    if mouselookActive then
+        MouselookStart()
+    end
     if i >= 100 and IsAoEPending() then return false end
     return true
 end
