@@ -446,7 +446,7 @@ br.lists.spells = {
                 metamorphosis               = 162264,
                 momentum                    = 208628,
                 prepared                    = 203650,
-                unboundChaos                = 275147,
+                unboundChaos                = 234059,
             },
             debuffs                         = {
                 essenceBreak                = 258860,
