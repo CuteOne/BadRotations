@@ -111,6 +111,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Power Word: Solace")
         br.ui:createCheckbox(section, "Mind Blast")
         br.ui:createCheckbox(section, "Smite")
+        br.ui:createSpinner(section, "Mind Sear - AoE", 3, 1, 50, 1, "Number of Units to cast Mind Sear")
+        br.ui:createSpinnerWithout(section, "Mind Sear - HP Cutoff", 80, 0 ,100, 5, "Lowest friendly HP to channel Sear")
         br.ui:createCheckbox(section, "SHW: Death Snipe")
         br.ui:createSpinner(section, "Mindbender", 80, 0, 100, 5, "Mana Percent to Cast At")
         br.ui:createSpinner(section, "Shadowfiend", 80, 0, 100, 5, "Health Percent to Cast At")
@@ -227,6 +229,17 @@ local function runRotation()
     local schismBuff
     local ptwDebuff
     local deathnumber = tonumber((select(1, GetSpellDescription(32379):match("%d+"))), 10)
+
+    local biggestGroup = 0
+    local bestUnit
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        local thisGroup = #enemies.get(8,thisUnit)
+        if thisGroup > biggestGroup then
+            biggestGroup = thisGroup
+            bestUnit = thisUnit
+        end
+    end
 
     if isChecked("Enemy Target Lock") and inCombat then
         if UnitIsFriend("target", "player") or UnitIsDeadOrGhost("target") or not UnitExists("target") or UnitIsPlayer("target") then
@@ -701,6 +714,13 @@ local function runRotation()
             end
         end
 
+        if isChecked("Mind Sear - AoE") and not cast.current.mindSear() then
+            if biggestGroup >= getOptionValue("Mind Sear - AoE") and lowest.hp > getOptionValue("Mind Sear - HP Cutoff") then
+                if cast.mindSear(bestUnit) then return end
+            end
+        end
+
+
         if isChecked("Mind Blast") and not isMoving("player") then
             if schismBuff ~= nil and getFacing("player",schismBuff) then
                 if cast.mindBlast(schismBuff) then
@@ -722,10 +742,10 @@ local function runRotation()
         end
     end
  
-
+    local localHealingCount = discHealCount
     ------------------------------
     ------- Start the Stuff ------
-    if pause() or drinking then
+    if pause(true) or drinking then
         return true
     else
         if not inCombat then
@@ -741,7 +761,7 @@ local function runRotation()
             if DefensiveTime() then return end
             if CooldownTime() then return end
             if Keyshit() then return true end
-            if discHealCount < getOptionValue("Heal Counter") or not isChecked("Heal Counter") or #enemies.yards40 == 0 or buff.rapture.exists("player") or SpecificToggle("Oh shit need heals") then
+            if localHealingCount < getOptionValue("Heal Counter") or not isChecked("Heal Counter") or #enemies.yards40 == 0 or buff.rapture.exists("player") or SpecificToggle("Oh shit need heals") then
                 if HealingTime() then return true end
             end
             if Extrastuff() then return end

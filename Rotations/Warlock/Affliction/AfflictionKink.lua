@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.2"
+local rotationName = "Kink v1.3.4"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -181,7 +181,7 @@ local function createOptions ()
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
             -- Seed of Corruption
-            br.ui:createSpinner(section, "Seed of Corruption Unit", 4, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
+            --br.ui:createSpinner(section, "Seed of Corruption Unit", 4, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
 
             
 			-- UA Shards
@@ -473,10 +473,10 @@ actionList.Defensive = function()
 
         -- Demonic Gateway
         if isChecked("Demonic Gateway") 
-        and SpecificToggle("Shadowfury Key") 
+        and SpecificToggle("Demonic Gateway") 
         and not GetCurrentKeyBoardFocus() 
         then
-            if CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
+            if br.timer:useTimer("RoF Delay", 1) and cast.demonicGateway(nil,"aoe",1,8,true) then br.addonDebug("Casting Demonic Gateway") return end 
         end
         
         --[[ if getDistance("target") <= 40 then
@@ -659,14 +659,38 @@ end -- End Action List - Cooldowns
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     -- Fel Domination
-    if ui.checked("Fel Domination")and inCombat
+    if ui.checked("Fel Domination") and inCombat
     and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet")
     and cd.felDomination.remain() <= gcdMax
     then
         if cast.felDomination() then br.addonDebug("Fel Domination") return true end
     end
+ 
+    --actions.precombat+=/summon_pet
+    if ui.checked("Pet Management") 
+    and (not inCombat or buff.felDomination.exists())
+    and (not moving or buff.felDomination.exists())
+    and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
+    then
+        if mode.petSummon == 5 and pet.active.id() ~= 0 then
+            PetDismiss()
+        end
+        if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId
+            or pet.active.id() ~= summonId or pet.active.id() == 0)
+        then
+            if mode.petSummon == 1 then
+                if cast.summonImp("player") then castSummonId = spell.summonImp return true end
+            elseif mode.petSummon == 2 then
+                if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return true end
+            elseif mode.petSummon == 3 then
+                if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return true end
+            elseif mode.petSummon == 4  then
+                if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
+            end
+        end
+    end
 
-    if not inCombat and not (IsFlying() or IsMounted()) then
+    if not (inCombat and not (IsFlying() or IsMounted())) then
         
         if getOptionValue("Soulstone") == 7 then -- Player
             if not UnitIsDeadOrGhost("player") then
@@ -675,31 +699,8 @@ actionList.PreCombat = function()
         end
 
         -- Create Healthstone
-        if ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < ui.value("Create Healthstone") then
+        if ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < ui.value("Create Healthstone") or itemCharges(5512) < 2 then
             if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
-        end
-
-        --actions.precombat+=/summon_pet
-        if ui.checked("Pet Management") 
-        and (not moving or buff.felDomination.exists()) 
-        and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
-        then
-            if mode.petSummon == 5 and pet.active.id() ~= 0 then
-                PetDismiss()
-            end
-            if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId
-                or pet.active.id() ~= summonId or pet.active.id() == 0)
-            then
-                if mode.petSummon == 1 then
-                    if cast.summonImp("player") then castSummonId = spell.summonImp return true end
-                elseif mode.petSummon == 2 then
-                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return true end
-                elseif mode.petSummon == 3 then
-                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return true end
-                elseif mode.petSummon == 4  then
-                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
-                end
-            end
         end
 
         if ui.checked("Pre-Pull Timer") then
@@ -734,7 +735,7 @@ actionList.PreCombat = function()
                 end
 
                 -- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3&!equipped.169314
-            elseif not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and #enemies.yards10t >= ui.value("Seed of Corruption Unit") then
+            elseif not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and #enemies.yards10t >= 3 then
                 CastSpellByName(GetSpellInfo(spell.seedOfCorruption)) br.addonDebug("Casting Seed of Corruption [Pre-Pull]") return
             elseif pullTimer <= 2 and br.timer:useTimer("Haunt Delay", 2) and GetUnitExists("target") then
                 if talent.haunt then    
@@ -744,7 +745,7 @@ actionList.PreCombat = function()
                 end
             end
         end -- End Pre-Pull 
-        if ui.checked("Auto Engage") and not inCombat and isValidUnit("target") and getDistance("target") < 40 and getFacing("player","target") and br.timer:useTimer("Agony Delay", 2) then
+        if ui.checked("Auto Engage") and not inCombat and getDistance("target") <= 40 and getFacing("player","target") and br.timer:useTimer("Agony Delay", 2) then
             if cast.agony() then br.addonDebug("Casting Agony [Auto Engage]") return true end
         end
     end      
@@ -752,7 +753,7 @@ end -- End Action List - PreCombat
 
 actionList.multi = function()
     -- Seed of Corruption
-    if not moving and not cast.last.seedOfCorruption() and not debuff.seedOfCorruption.exists(seedTarget) and #enemies.yards10t >= ui.value("Seed of Corruption Unit") then
+    if not moving and not debuff.seedOfCorruption.exists(seedTarget) and #enemies.yards10t >= 3 then
         if cast.seedOfCorruption(seedTarget) then br.addonDebug("Casting Seed of Corruption") return true end
     end
 
@@ -934,7 +935,7 @@ local function runRotation()
 
     -- SimC specific variables
     --actions=variable,name=use_seed,value=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>=3+raid_event.invulnerable.up|talent.siphon_life.enabled&spell_targets.seed_of_corruption>=5+raid_event.invulnerable.up|spell_targets.seed_of_corruption>=8+raid_event.invulnerable.up
-    if talent.sowTheSeeds and ((not talent.siphonLife and #enemies.yards10t >= ui.value("Seed of Corruption Unit")) or (talent.siphonLife and #enemies.yards10t >= ui.value("Seed of Corruption Unit")) or (#enemies.yards10t >= 7)) then
+    if talent.sowTheSeeds and ((not talent.siphonLife and #enemies.yards10t >= 3) or (talent.siphonLife and #enemies.yards10t >= 8) or (#enemies.yards10t >= 7)) then
         useSeed = true
     else
         useSeed = false
@@ -949,7 +950,7 @@ local function runRotation()
 
     --actions+=/variable,name=maintain_se,value=spell_targets.seed_of_corruption_aoe<=1+talent.writhe_in_agony.enabled+talent.absolute_corruption.enabled*2+(talent.writhe_in_agony.enabled&talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>2)+(talent.siphon_life.enabled&!talent.creeping_death.enabled&!talent.drain_soul.enabled)+raid_event.invulnerable.up
     maintainSE = (talent.writheInAgony and 1 or 0) + (talent.absoluteCorruption and 1 or 0) * 2 + ((talent.writheInAgony and 1 or 0) and 
-    (talent.sowTheSeeds and 1 or 0) and (#enemies.yards10t >= ui.value("Seed of Corruption Unit") and 1 or 0))+((talent.siphonLife and 1 or 0) and (not talent.creepingDeath and 1 or 0) and (not talent.drainSoul and 1 or 0))
+    (talent.sowTheSeeds and 1 or 0) and (#enemies.yards10t > 2 and 1 or 0))+((talent.siphonLife and 1 or 0) and (not talent.creepingDeath and 1 or 0) and (not talent.drainSoul and 1 or 0))
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -992,7 +993,10 @@ local function runRotation()
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList.Interrupts() then return true end
-            if isChecked("Shadowfury Key") and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
+
+            -- Shadowfury
+            if isChecked("Shadowfury Key") 
+            and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
                 if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
             end
 

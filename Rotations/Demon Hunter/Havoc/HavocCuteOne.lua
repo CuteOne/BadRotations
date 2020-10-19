@@ -256,15 +256,18 @@ actionList.Defensive = function()
     if ui.useDefensive() then
         -- Pot/Stoned
         if ui.checked("Pot/Stoned") and unit.hp()<= ui.value("Pot/Stoned")
-            and unit.inCombat() and (var.hasHealPot() or has.healthstone() or has.legionHealthstone())
+            and unit.inCombat() and (var.hasHealPot or has.healthstone() or has.legionHealthstone())
         then
+            -- Lock Candy
             if has.healthstone() then
                 if use.healthstone() then ui.debug("Using Healthstone") return true end
-            elseif has.legionHealthstone() then --Legion Healthstone
+            -- Legion Healthstone (From Starter Zone)
+            elseif has.legionHealthstone() then
                 if use.legionHealthstone() then ui.debug("Using Legion Healthstone") return true end
-            elseif has.item(var.healPot) then
-                use.item(var.healPot)
-                ui.debug("Using "..GetItemInfo(var.healPot))
+            -- Health Potion (Grabs the Highest usable from bags)
+            elseif has.item(var.getHealPot) then
+                use.item(var.getHealPot)
+                ui.debug("Using "..GetItemInfo(var.getHealPot))
                 return true
             end
         end
