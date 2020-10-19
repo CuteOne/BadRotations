@@ -62,6 +62,7 @@ br.lists.items = {
     greaterFlaskOfEndlessFathoms    = 168652,
     -- Healthstones
     healthstone                     = 5512,
+    legionHealthstone               = 129196,
     -- Heirlooms
     eternalAmuletOfTheRedeemed      = 122663,
     eternalEmberfuryTalisman        = 122667,
