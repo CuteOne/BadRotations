@@ -256,7 +256,7 @@ actionList.Defensive = function()
     if ui.useDefensive() then
         -- Pot/Stoned
         if ui.checked("Pot/Stoned") and unit.hp()<= ui.value("Pot/Stoned")
-            and unit.inCombat() and (var.hasHealPot() or has.healthstone())
+            and unit.inCombat() and (var.hasHealPot() or has.healthstone() or has.legionHealthstone())
         then
             if has.healthstone() then
                 if use.healthstone() then ui.debug("Using Healthstone") return true end
@@ -618,7 +618,7 @@ actionList.Demonic = function()
     end
     -- Demon's Bite
     -- demons_bite
-    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit > 30 then
+    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit >= 30 then
         if cast.demonsBite(units.dyn5) then ui.debug("Casting Demon's Bite") return true end
     end
     -- Throw Glaive
@@ -731,7 +731,7 @@ actionList.Normal = function()
     -- Chaos Strike
     -- chaos_strike,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30)&!variable.pooling_for_meta&!variable.pooling_for_blade_dance&!variable.waiting_for_dark_slash
     if cast.able.chaosStrike() and not buff.metamorphosis.exists() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30)
-        and not var.poolForMeta and not var.poolForBladeDance and not cvar.essenceBreak
+        and not var.poolForMeta and not var.poolForBladeDance and not var.waitingForEssenceBreak
     then
         if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end
     end
@@ -745,7 +745,7 @@ actionList.Normal = function()
     end
     -- Demon's Bite
     -- demons_bite
-    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit > 30 then
+    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit >= 30 then
         if cast.demonsBite(units.dyn5) then ui.debug("Casting Demon's Bite") return true end
     end
     -- Fel Rush
@@ -782,6 +782,10 @@ end -- End Action List - Normal
 -- Action List - PreCombat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (IsFlying() or IsMounted()) then
+        -- Fel Crystal Fragments
+        if not buff.felCrystalInfusion.exists() and use.able.felCrystalFragments() and has.felCrystalFragments() then
+            if use.felCrystalFragments() then ui.debug("Using Fel Crystal Fragments") return true end
+        end
         -- Flask / Crystal
         -- flask
         if ui.value("Elixir") == 1 and var.inRaid and not buff.greaterFlaskOfTheCurrents.exists() and use.able.greaterFlaskOfTheCurrents() then
@@ -931,13 +935,13 @@ local function runRotation()
     var.bladeDance = (talent.firstBlood or (ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2) and #enemies.yards8 > 0 and not unit.isExplosive("target")
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
-    var.poolForMeta = ui.checked("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit > 30
+    var.poolForMeta = ui.checked("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
     -- Pool for Blade Dance Variable
     -- variable,name=pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
     var.poolForBladeDance = var.bladeDance and fury < 75 - var.flood * 20 and not unit.isExplosive("target")
     -- Pool for Eye Beam
     -- variable,name=pooling_for_eye_beam,value=talent.demonic.enabled&!talent.blind_fury.enabled&cooldown.eye_beam.remains<(gcd.max*2)&fury.deficit>20
-    var.poolForEyeBeam = talent.demonic and not talent.blindFury and cd.eyeBeam.remain() < (gcd * 2) and furyDeficit > 20 and not unit.isExplosive("target")
+    var.poolForEyeBeam = talent.demonic and not talent.blindFury and cd.eyeBeam.remain() < (gcd * 2) and furyDeficit >= 20 and not unit.isExplosive("target")
     -- Waiting for Essence Break
     -- variable,name=waiting_for_essence_break,value=talent.essence_break.enabled&!variable.pooling_for_blade_dance&!variable.pooling_for_meta&cooldown.essence_break.up
     var.waitingForEssenceBreak = talent.essenceBreak and not var.poolForBladeDance and not var.poolingForMeta and cd.essenceBreak.ready()
