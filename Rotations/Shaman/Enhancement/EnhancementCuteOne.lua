@@ -548,11 +548,11 @@ end -- End Action List - Priority
 actionList.Maintenance = function()
     -- Flametongue
     -- flametongue,if=!buff.flametongue.up
-    if cast.able.flametongue() and (select(4, GetWeaponEnchantInfo()) ~= 5400 and select(8, GetWeaponEnchantInfo()) ~= 5400) then
+    if cast.able.flametongue() and select(8, GetWeaponEnchantInfo()) ~= 5400 then
         if cast.flametongue() then return true end
     end
     --Windfury
-    if cast.able.windFuryWeapon() and (select(4, GetWeaponEnchantInfo()) ~= 5401 and select(8, GetWeaponEnchantInfo()) ~= 5401) then
+    if cast.able.windFuryWeapon() and select(4, GetWeaponEnchantInfo()) ~= 5401 then
         if cast.windFuryWeapon() then return true end
     end
 end -- End Action List - Maintenance
@@ -728,10 +728,8 @@ actionList.Filler = function()
     if cast.able.rockbiter() then
         if cast.rockbiter() then return true end
     end
-    -- Flametongue
-    -- flametongue
-    if cast.able.flametongue() then
-        if cast.flametongue() then return true end
+    if cast.able.primalStrike() then
+        if cast.primalStrike() then return true end
     end
 end -- End Action List - Filler
 -- Action List - Opener
