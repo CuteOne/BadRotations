@@ -141,7 +141,6 @@ local function createOptions ()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. DoTs")
             -- Unstable Affliction Mouseover
-            "Mousever UA"
             -- No Dot units
             br.ui:createCheckbox(section, "Mousever UA", "Toggles casting unstable Affliction to your mouseover target")
 
@@ -1387,12 +1386,12 @@ local function runRotation()
             end
 
             -- Drain Soul
-            if not moving and talent.drainSoul then
+            if not moving and talent.drainSoul and not debuff.vileTaint.exists("target") then
                 if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
             end
 
             -- Shadow Bolt
-            if not moving and (cd.summonDarkglare.remain() > gcdMax or not useCDs() or (ui.checked("Darkglare Dots") and totalDots() < ui.value("Darkglare Dots"))) then
+            if not moving and (cd.summonDarkglare.remain() > gcdMax or not useCDs() and not debuff.vileTaint.exists("target") or (ui.checked("Darkglare Dots") and totalDots() < ui.value("Darkglare Dots"))) then
                 if cast.shadowBolt2() then br.addonDebug("Casting Shadow Bolt") return true end
             end
             
