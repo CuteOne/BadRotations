@@ -813,7 +813,7 @@ function cl:Warlock(...) -- 9
     -- Periodic Damage Events
 	if param == "SPELL_PERIODIC_DAMAGE" then
 		-- Drain Soul Ticks
-        if source == br.guid and spellName == GetSpellInfo(198590) then dsTicks = dsTicks + 1 br.addonDebug("Drain Soul + 1 tick") end
+        if source == br.guid and spellName == GetSpellInfo(198590) then dsTicks = dsTicks + 1 br.addonDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. dsTicks) end
 	end
 
     -- Corruption was removed.
@@ -829,6 +829,8 @@ function cl:Warlock(...) -- 9
         if source == br.guid then
         end
     end
+    br.dsTicks = dsTicks
+    br.maxdsTicks = maxdsTicks
 end
     if GetSpecialization() == 2 then
         -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then
