@@ -784,24 +784,23 @@ end
 function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     if GetSpecialization() == 1 then
-
     if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
 	    -- Drain Soul counter
-		if UnitChannelInfo("player") == GetSpellInfo(198590) then dsTicks = 0 end
+		if UnitChannelInfo("player") == GetSpellInfo(198590) then br.dsTicks = 1 end
 	end
 
     -- We stopped a channel, reset counters.
-    if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_STOP" then dsTicks = 0 end
+    if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_STOP" then br.dsTicks = 1 end
     
     -- CLear dot table after each death/individual combat scenarios. 
-    if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then if #kinkydots > 0 then kinkydots = {} end end
+    if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then  end
 
     if param == "UNIT_DIED" then     end--if]] #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true --]]end end end 
 
     -- Corruption was refreshed. 
 	if param == "SPELL_AURA_REFRESH" then
         -- Drain Soul
-		if source == br.guid and spellName == GetSpellInfo(198590) then dsTicks = 0 maxdsTicks = 5 end
+		if source == br.guid and spellName == GetSpellInfo(198590) then br.dsTicks = 1 br.maxdsTicks = 5 end
     end
 
     -- Successfull Spell Casts
@@ -810,20 +809,18 @@ function cl:Warlock(...) -- 9
 			
 		end
 	end
-    local dsTicks = 0
-    local maxdsTicks = 0
+
     -- Periodic Damage Events
-	if param == "SPELL_PERIODIC_DAMAGE" then
-		-- Drain Soul Ticks
-        if source == br.guid and spellName == GetSpellInfo(198590) then dsTicks = dsTicks + 1 br.addonDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. dsTicks) end
-	end
-    br.dsTicks = dsTicks
-    br.maxdsTicks = maxdsTicks 
+    if param == "SPELL_PERIODIC_DAMAGE" then
+        if br.dsTicks == nil then br.dsTicks = 0 end
+        -- Drain Soul Ticks
+        if source == br.guid and spellName == GetSpellInfo(198590) then br.dsTicks = br.dsTicks + 1 br.addonDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. br.dsTicks) end
+    end
     -- Corruption was removed.
 	if param == "SPELL_AURA_REMOVED" then
         if source == br.guid then
             -- Drain Soul
-			if spellName == GetSpellInfo(198590) then dsTicks = 0 maxdsTicks = 5 br.addonDebug("Drain Soul ticks reset") end
+			if spellName == GetSpellInfo(198590) then br.dsTicks = 1 br.maxdsTicks = 5 br.addonDebug("Drain Soul ticks reset") end
         end
     end
 
