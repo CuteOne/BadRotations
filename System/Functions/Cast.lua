@@ -662,8 +662,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [aoe]")
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
-				elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player")
-				then
+				elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player") then
 					-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [dead]")
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                 elseif (debug == "norm" or debug == "pet") and hasEnemies then

@@ -358,7 +358,7 @@ function cl:common(...)
                 -- Blizz CastSpellByName bug bypass
                 if GetSpellInfo(spell) == GetSpellInfo(botSpell) and spell ~= botSpell then
                     -- Print("Spell Error Bypass: Correct ID = "..botSpell..", Incorrect ID = "..spell..", on "..botUnit)
-                    castID = true
+                    br.castID = true
                 end
             end
             -- set destination
@@ -535,7 +535,7 @@ function cl:Hunter(...)
         end
     end
     --[[ Dead Pet Reset ]]
-    if UnitHealth("pet") > 0 then deadPet = false end
+    if UnitHealth("pet") > 0 then br.deadPet = false end
 end
 function cl:Mage(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()

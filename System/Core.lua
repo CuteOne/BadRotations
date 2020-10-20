@@ -1,25 +1,31 @@
-deadPet = false
-
+local br = _G["br"]
+br.deadPet = false
+-- Main Engine
 function br:Engine()
-	-- Hidden Frame
-	if Pulse_Engine == nil then
-		Pulse_Engine = CreateFrame("Frame", nil, UIParent)
-		Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
-		Pulse_Engine:Show()
+	if br.Pulse_Engine == nil then
+		br.Pulse_Engine = CreateFrame("Frame", nil, UIParent)
+		br.Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
+		br.Pulse_Engine:Show()
 	end
 end
+-- Object Manager Engine
 function br:ObjectManager()
-	-- Object Manager
-	if OM_Engine == nil then
-		ObjectManagerUpdate()
-		OM_Engine = CreateFrame("Frame", nil, UIParent)
-		OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
-		OM_Engine:Show()
+	local function ObjectManagerUpdate(self)
+		if br.unlocked then
+			br:updateOM()
+			br.om:Update()
+		end
+	end
+	if br.OM_Engine == nil then
+		-- ObjectManagerUpdate()
+		br.OM_Engine = CreateFrame("Frame", nil, UIParent)
+		br.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
+		br.OM_Engine:Show()
 	end
 end
 
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
-function getUpdateRate()
+function br:getUpdateRate()
 	local updateRate = updateRate or 0.1
 
 	local FrameRate = GetFramerate() or 0
@@ -37,25 +43,21 @@ function getUpdateRate()
 	return updateRate
 end
 
-function ObjectManagerUpdate(self)
-	-- Check for Unlocker
-	if br.unlocked == false then
-		br.unlocked = loadUnlockerAPI()
-	end
-	if br.unlocked then
-		updateOM()
-		br.om:Update()
-	end
-end
+
 
 function br.antiAfk()
-	if isChecked("Anti-Afk") and br.unlocked then
-		if not IsHackEnabled("antiafk") and getOptionValue("Anti-Afk") == 1 then
-			SetHackEnabled("antiafk",true)
-		end
-	elseif isChecked("Anti-Afk") and br.unlocked and getOptionValue("Anti-Afk") == 2 then
-		if IsHackEnabled("antiafk") then
-			SetHackEnabled("antiafk",false)
+	if br.unlocked and br.player then
+		local ui = br.player.ui
+		local IsHackEnabled = _G["IsHackEnabled"]
+		local SetHackEnabled = _G["SetHackEnabled"]
+		if ui.checked("Anti-Afk") then
+			if not IsHackEnabled("antiafk") and ui.value("Anti-Afk") == 1 then
+				SetHackEnabled("antiafk",true)
+			end
+		elseif ui.checked("Anti-Afk") and ui.value("Anti-Afk") == 2 then
+			if IsHackEnabled("antiafk") then
+				SetHackEnabled("antiafk",false)
+			end
 		end
 	end
 end
@@ -63,9 +65,14 @@ end
 local collectGarbage = true
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
+	local ChatOverlay = _G["ChatOverlay"]
+	local getOptionValue = _G["getOptionValue"]
+	local isChecked = _G["isChecked"]
+	local LibDraw = _G["LibDraw"]
+	local Print = _G["Print"]
 	-- Check for Unlocker
 	if not br.unlocked then
-		br.unlocked = loadUnlockerAPI()
+		br.unlocked = br:loadUnlockerAPI()
 	end
 	if br.disablePulse == true then return end
 	-- BR Not Unlocked
@@ -79,8 +86,7 @@ function BadRotationsUpdate(self)
 		return false
 	-- Load and Cycle BR
 	elseif br.unlocked and GetObjectCountBR() ~= nil then
-		checkBrOutOfDate() -- Check BR Out of Date
-		-- br:loadSavedSettings() -- Loads Saved Settings
+		br:checkBrOutOfDate() -- Check BR Out of Date
 		-- Continue Load
 		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 			-- BR Main Toggle Off
@@ -96,7 +102,7 @@ function BadRotationsUpdate(self)
 				LibDraw.clearCanvas()
 				return false
 			-- BR Main Toggle On - Main Cycle
-			elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
+			elseif br.timer:useTimer("playerUpdate", br:getUpdateRate()) then
 				-- Set Fall Distance
 				br.fallDist = getFallDistance() or 0
 				-- Quaking helper
@@ -121,17 +127,17 @@ function BadRotationsUpdate(self)
 					end
 				end
 				-- Blizz CastSpellByName bug bypass
-				if castID then
+				if br.castID then
 					-- Print("Casting by ID")
 					CastSpellByID(botSpell, botUnit)
-					castID = false
+					br.castID = false
 				end
 				-- Load Spec Profiles
 				br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
 				local playerSpec = GetSpecializationInfo(GetSpecialization())
 				-- Initialize Player
 				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
-					brLoaded = false
+					br.loaded = false
 					br.player = br.loader:new(playerSpec, br.selectedSpec)
 					setmetatable(br.player, {__index = br.loader})
 					br.ui:closeWindow("profile")
@@ -195,9 +201,8 @@ function BadRotationsUpdate(self)
 					br:defaultSettings()
 					-- br:loadSavedSettings()
 					br.rotationChanged = true
-					commandHelp = nil
-					commandHelp = ""
-					slashHelpList()
+					wipe(br.commandHelp)
+					br:slashHelpList()
 				end
 				-- Show Main Button
 				if br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
@@ -207,8 +212,8 @@ function BadRotationsUpdate(self)
 					end
 				end
 				-- Display Distance on Main Icon
-				targetDistance = getDistance("target") or 0
-				displayDistance = math.ceil(targetDistance)
+				local targetDistance = getDistance("target") or 0
+				local displayDistance = math.ceil(targetDistance)
 				mainText:SetText(displayDistance)
 				-- LoS Line Draw
 				if isChecked("Healer Line of Sight Indicator") then

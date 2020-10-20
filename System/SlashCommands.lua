@@ -6,7 +6,7 @@ function Print(msg)
 	end
 	print(br.classColor .. "[BadRotations] |cffFFFFFF" .. msg)
 end
-commandHelp = "|cffFF0000Slash Commands"
+br.commandHelp = {"|cffFF0000Slash Commands"}
 function SlashCommandHelp(cmd, msg)
 	if cmd == nil then
 		cmd = ""
@@ -15,10 +15,18 @@ function SlashCommandHelp(cmd, msg)
 		msg = ""
 	end
 	if cmd == "Print Help" then
-		Print(tostring(commandHelp))
+		for i = 1, #br.commandHelp do
+			local command = br.commandHelp[i]
+			if i == 1 then
+				Print(tostring(command))
+			else
+				print(tostring(command))
+			end
+		end
 		return
 	end
-	commandHelp = commandHelp .. "|cffFFFFFF\n        /" .. cmd .. "|cffFFDD11 - " .. msg
+	table.insert(br.commandHelp,"|cffFFFFFF        /" .. cmd .. "|cffFFDD11 - " .. msg)
+	-- br.commandHelp = br.commandHelp .. "|cffFFFFFF\n        /" .. cmd .. "|cffFFDD11 - " .. msg
 end
 
 local function toggleUI()
@@ -77,7 +85,7 @@ local function getStringIndex(string, index)
 end
 
 local function updateRate()
-	print("Current Update Rate: " .. getUpdateRate())
+	print("Current Update Rate: " .. br:getUpdateRate())
 end
 
 local function forewardDisengage() -- from Stinky Twitch
@@ -89,7 +97,7 @@ local function forewardDisengage() -- from Stinky Twitch
 	end
 end
 
-function slashHelpList()
+function br:slashHelpList()
 	SLASH_BR1, SLASH_BR2 = "/br", "/badrotations"
 	SlashCommandHelp("br", "Toggles BadRotations On/Off")
 	SlashCommandHelp("br help", "Displays this list of help commands. ***Obviously***")
@@ -110,7 +118,7 @@ function slashHelpList()
 	SlashCommandHelp("br baddebuff spellId", "Adds/Removes Debuff from Do Not Heal List")
 end
 
-slashHelpList()
+br:slashHelpList()
 function handler(message, editbox)
 	local msg = string.lower(message)
 	local msg1 = getStringIndex(message, 1)
