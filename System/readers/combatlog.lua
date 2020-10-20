@@ -784,8 +784,10 @@ end
 function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     if GetSpecialization() == 1 then
-    local dsTicks = 0
-    local maxdsTicks = 0
+    dsTicks = nil
+    maxdsTicks = nil
+    br.dsTicks = dsTicks
+    br.maxdsTicks = maxdsTicks 
     if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
 	    -- Drain Soul counter
 		if UnitChannelInfo("player") == GetSpellInfo(198590) then dsTicks = 0 end
@@ -822,7 +824,7 @@ function cl:Warlock(...) -- 9
 	if param == "SPELL_AURA_REMOVED" then
         if source == br.guid then
             -- Drain Soul
-			if spellName == GetSpellInfo(198590) then dsTicks = 0 maxdsTicks = 3 br.addonDebug("Drain Soul ticks reset") end
+			if spellName == GetSpellInfo(198590) then dsTicks = 0 maxdsTicks = 5 br.addonDebug("Drain Soul ticks reset") end
         end
     end
 
@@ -831,8 +833,6 @@ function cl:Warlock(...) -- 9
         if source == br.guid then
         end
     end
-    br.dsTicks = dsTicks or 0
-    br.maxdsTicks = maxdsTicks 
 end
     if GetSpecialization() == 2 then
         -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then

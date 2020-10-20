@@ -1363,7 +1363,7 @@ local function runRotation()
             end
 
             -- Drain Soul
-            if smartCancel() and cast.current.drainSoul() then SpellStopCasting() return true end 
+            if smartCancel() and cast.current.drainSoul() then SpellStopCasting() br.addonDebug("CANCEL CAST") return true end 
 
             if not moving and talent.drainSoul and not debuff.vileTaint.exists("target") and (debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax + 3
                 and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
