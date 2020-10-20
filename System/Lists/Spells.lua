@@ -999,6 +999,7 @@ br.lists.spells = {
                 stampede                    = 201430,
                 titansThunder               = 207068,
                 volley                      = 194386
+                bloodshed                   = 321530,
             },
             artifacts                       = {
 
