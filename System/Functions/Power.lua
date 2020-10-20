@@ -23,8 +23,8 @@ end
 function getPower(Unit, index)
 	local value = value
 	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
-		if UnitBuffID("player", 106951) or UnitBuffID("player", 102543) then
-			value = UnitPower(Unit, index) * 2
+		if --[[UnitBuffID("player", 106951) or]] UnitBuffID("player", 102543) then
+			value = UnitPower(Unit, index) * 1.2
 		else
 			value = UnitPower(Unit, index)
 		end
@@ -36,8 +36,8 @@ end
 function getPowerMax(Unit, index)
 	local value = value
 	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
-		if UnitBuffID("player", 106951) or UnitBuffID("player", 102543) then
-			value = UnitPowerMax(Unit, index) * 2
+		if --[[UnitBuffID("player", 106951) or]] UnitBuffID("player", 102543) then
+			value = UnitPowerMax(Unit, index) * 1.2
 		else
 			value = UnitPowerMax(Unit, index)
 		end

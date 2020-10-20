@@ -1100,6 +1100,12 @@ local function runRotation()
 				return
 			end
 		end
+		-- Blessed Hammer
+		if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 3 then
+			if cast.blessedHammer() then
+				return
+			end
+		end
 		-- Judgment
 		if isChecked("Dev Testing Stuff") then
 			for i = 1, #enemies.yards30 do
