@@ -545,9 +545,9 @@ end
 actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=(talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)        
+        and talent.unboundChaos and buff.innerDemon.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
-        and talent.unboundChaos and buff.innerDemon.exists() and charges.felRush.count() == 2
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation()
@@ -610,8 +610,8 @@ actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=talent.demon_blades.enabled&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
+        and talent.demonBlades and cd.eyeBeam.remain() > gcd
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
-        and talent.demonBlades and cd.eyeBeam.remain() > gcd and charges.felRush.count() == 2
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation()
@@ -660,8 +660,8 @@ actionList.Normal = function()
     -- Fel Rush
     -- fel_rush,if=(variable.waiting_for_momentum|talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
-        and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
         and (var.waitingForMomentum or (talent.unboundChaos and buff.innerDemon.exists()))
+        and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation()
@@ -785,10 +785,10 @@ end -- End Action List - Normal
 -- Action List - PreCombat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (IsFlying() or IsMounted()) then
-        -- Fel Crystal Fragments
-        if not buff.felCrystalInfusion.exists() and use.able.felCrystalFragments() and has.felCrystalFragments() then
-            if use.felCrystalFragments() then ui.debug("Using Fel Crystal Fragments") return true end
-        end
+        -- Fel Crystal Fragments -- Only Usable in Madum/Vault of the Wardens
+        -- if not buff.felCrystalInfusion.exists() and use.able.felCrystalFragments() and has.felCrystalFragments() then
+        --     if use.felCrystalFragments() then ui.debug("Using Fel Crystal Fragments") return true end
+        -- end
         -- Flask / Crystal
         -- flask
         if ui.value("Elixir") == 1 and var.inRaid and not buff.greaterFlaskOfTheCurrents.exists() and use.able.greaterFlaskOfTheCurrents() then
