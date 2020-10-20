@@ -829,8 +829,8 @@ function cl:Warlock(...) -- 9
         if source == br.guid then
         end
     end
-    br.dsTicks = dsTicks
-    br.maxdsTicks = maxdsTicks
+    br.dsTicks = dsTicks or 0
+    br.maxdsTicks = maxdsTicks or 0
 end
     if GetSpecialization() == 2 then
         -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then
