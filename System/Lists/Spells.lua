@@ -2309,10 +2309,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 shadowWordPain              = 589,
-<<<<<<< Updated upstream
-=======
                 weakenedSoul                = 6788,
->>>>>>> Stashed changes
 
             },
             glyphs                          = {

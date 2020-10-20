@@ -39,7 +39,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Pyschic Scream", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Desperate Prayer", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Fade", 25, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
- 
+
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -215,4 +215,4 @@ tinsert(br.rotations[id],{
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-})
+}) 
