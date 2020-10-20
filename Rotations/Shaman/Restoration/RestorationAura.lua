@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Water Walking")
         -- Earth Shield
             br.ui:createCheckbox(section,"Earth Shield")
+        -- Water Shield
+            br.ui:createCheckbox(section,"Water Shield")
         -- Temple of Seth
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Seth NPC. Default: 80")
         -- Bursting Stack
@@ -371,7 +373,7 @@ local function runRotation()
     -- Action List - Defensive
         local function actionList_Defensive()
             -- Earth Shield
-            if talent.earthShield then
+            if cast.able.earthShield() then
                 -- check if shield already exists
                 local foundShield = false
                 if isChecked("Earth Shield") then
@@ -395,6 +397,11 @@ local function runRotation()
                         end
                     end
                 end
+            end
+            -- Water Shield
+            if isChecked("Water Shield") and not buff.waterShield.exists() then
+                if cast.waterShield() then
+                end    
             end
             -- Temple of Seth
             if inCombat and isChecked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
