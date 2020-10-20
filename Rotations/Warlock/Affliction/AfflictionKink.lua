@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.4"
+local rotationName = "Kink v1.3.5"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -171,6 +171,12 @@ local function createOptions ()
 			-- Trinkets
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 
+            -- Haunt TTD
+            br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
+
+            -- Drain Soul Canceling
+            br.ui:createSpinner(section, "Drain Soul Smart Cancel", 4, 1, 5, 1, nil, "The tick of Drain Soul to cancel the cast at (5 ticks total)", true)
+
             -- Unstable Affliction Priority Mark
             --br.ui:createDropdown(section, "Priority Unit", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize",true)
 
@@ -271,6 +277,8 @@ local mode
 local moving 
 local ui
 local pet
+-- Warlock Combat Log Reader
+local cl
 local php
 local pullTimer
 local shards
@@ -751,19 +759,127 @@ actionList.PreCombat = function()
     end      
 end -- End Action List - PreCombat
 
+function unstableAfflictionFUCK(unit)
+    if unit == nil then unit = "target" end
+    if moving then return false end
+    if cast.last.unstableAffliction() then return false end
+
+    if (not debuff.unstableAffliction.exists(unit) or debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 5.5)
+    and debuff.agony.remain(unit) > gcdMax + 5 and (debuff.corruption.remain(unit) > gcdMax + 5
+    and (debuff.siphonLife.remain(unit) > gcdMax + 5 or not talent.siphonLife)) 
+    then
+           if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
+    end
+end
+
+actionList.dots = function()
+   -- Agony
+if traits.pandemicInvocation.active then
+    if agonyCount < ui.value("Spread Agony on ST") then
+        for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) < 7 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+            if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Pandemic Invocation]") return true end
+        end
+    end
+end
+else
+    if agonyCount < ui.value("Spread Agony on ST") then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not noDotCheck(thisUnit) and debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+                if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Refresh]") return true end
+            end
+        end
+    end
+end
+
+-- Corruption
+if traits.pandemicInvocation.active and not talent.absoluteCorruption then
+    if corruptionCount < 2 then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not noDotCheck(thisUnit) and debuff.corruption.remain(thisUnit) <= 5.5 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
+                if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Pandemic Invocation]") return true end
+            end
+        end
+    end
+elseif not talent.absoluteCorruption then
+    if corruptionCount < 2 then
+         for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+                if not noDotCheck(thisUnit) and debuff.corruption.refresh(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
+                    if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Refresh]") return true end
+                end
+         end
+    end
+elseif talent.absoluteCorruption then
+     if corruptionCount < 2 then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not noDotCheck(thisUnit) and not debuff.corruption.exists(thisUnit) and not debuff.seedOfCorruption.exists(thisUnit) then
+                if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Absolute Corruption]") return true end
+            end
+        end
+    end
+end
+
+-- Siphon Life
+if talent.siphonLife then
+     if traits.pandemicInvocation.active then
+        if siphonLifeCount < 2 then
+            for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+                if not noDotCheck(thisUnit) and debuff.siphonLife.remain(thisUnit) < 6 and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/ 1 + spellHaste) then
+                    if cast.siphonLife(thisUnit) then br.addonDebug("Casting Siphon Life [Pandemic Invocation]") return true end
+                end
+        end
+end
+
+else
+
+    if siphonLifeCount < 2 then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not noDotCheck(thisUnit) and  debuff.siphonLife.refresh(thisUnit) and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste) then
+                if cast.siphonLife(thisUnit) then br.addonDebug("Casting Siphon Life [Refresh]") return true end
+            end
+        end
+    end
+end
+            end
+
+
+
+
+
+-- Unstable Affliction
+unstableAfflictionFUCK("target")
+
+-- Unstable Affliction Mouseover
+if ui.checked("Mousever UA") and UnitExists("mouseover") and getTTD("mouseover") > uni.value("Mouseover UA TTD") 
+then 
+    unstableAfflictionFUCK("mouseover")
+end
+
 actionList.multi = function()
     -- Seed of Corruption
-    if not moving and not debuff.seedOfCorruption.exists(seedTarget) and #enemies.yards10t >= 3 then
-        if cast.seedOfCorruption(seedTarget) then br.addonDebug("Casting Seed of Corruption") return true end
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        local thisHP = getHP(thisUnit)
+        if (not moving and not debuff.seedOfCorruption.exists("target") or not debuff.corruption.exists(thisUnit) and not debuff.seedofCorruption.exists(thisUnit) 
+        and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30 
+        then
+            if cast.seedOfCorruption(thisUnit) then br.addonDebug("Casting Seed of Corruption") return true end
+        end
     end
+end
 
     -- Phantom Singularity
     if talent.phantomSingularity then if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end end
 
     -- Vile Taint
-    if talent.vileTaint and shards > 1 then
-        if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
-    end
+    if talent.vileTaint then if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end end
 
     -- Focused Azerite Beam
     if ui.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
@@ -845,6 +961,8 @@ local function runRotation()
     php                                           = br.player.health
     pullTimer                                     = br.DBM:getPulltimer()
     shards                                        = br.player.power.soulShards.frac()
+    -- Warlock Combat Log Reader
+    cl                                            = br.read
     spell                                         = br.player.spell
     talent                                        = br.player.talent
     traits                                        = br.player.traits
@@ -879,6 +997,9 @@ local function runRotation()
         loadSupport("PetCuteOne")
         actionList.PetManagement = br.rotations.support["PetCuteOne"]
     end
+
+    dsTicks = 0
+	maxdsTicks = 5
 
     -- Pet Data
     if mode.petSummon == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
@@ -922,17 +1043,6 @@ local function runRotation()
         return dots
     end
 
-    function unstableAfflictionFUCK(unit)
-        if unit == nil then unit = "target" end
-        if moving then return false end
-
-        if (not debuff.unstableAffliction.exists(unit) or debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction())
-        and debuff.agony.remain(unit) > gcdMax + 3 and (debuff.corruption.remain(unit) > gcdMax + 3.5
-        and (debuff.siphonLife.remain(unit) > gcdMax + 1 or not talent.siphonLife)) then
-           if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
-        end
-    end
-
     -- SimC specific variables
     --actions=variable,name=use_seed,value=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>=3+raid_event.invulnerable.up|talent.siphon_life.enabled&spell_targets.seed_of_corruption>=5+raid_event.invulnerable.up|spell_targets.seed_of_corruption>=8+raid_event.invulnerable.up
     if talent.sowTheSeeds and ((not talent.siphonLife and #enemies.yards10t >= 3) or (talent.siphonLife and #enemies.yards10t >= 8) or (#enemies.yards10t >= 7)) then
@@ -965,24 +1075,24 @@ local function runRotation()
         --- Out Of Combat - Rotations ---
         ---------------------------------
         
-         -----------------
-        --- Pet Logic ---
-        -----------------
+        ------------------------------------------------
+        -- PET MANAGEMENT ------------------------------
+        ------------------------------------------------
         if actionList.PetManagement() then return true end
 
-        -----------------------
-        --- Extras Rotation ---
-        -----------------------
+        ------------------------------------------------
+        -- UTILITY -------------------------------------
+        ------------------------------------------------
         if actionList.Extra() then return true end
 
-        -----------------
-        --- Defensive ---
-        -----------------
+        ------------------------------------------------
+        -- DEFENSIVE -----------------------------------
+        ------------------------------------------------
         if actionList.Defensive() then return true end
 
-        ------------------
-        --- Pre-Combat ---
-        ------------------
+        ------------------------------------------------
+        -- PRE-COMBAT ----------------------------------
+        ------------------------------------------------
         if actionList.PreCombat() then return true end
 
         -----------------------------
@@ -995,11 +1105,10 @@ local function runRotation()
             if actionList.Interrupts() then return true end
 
             -- Shadowfury
-            if isChecked("Shadowfury Key") 
+            --[[if isChecked("Shadowfury Key") 
             and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
-                if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
-            end
-
+                if br.timer:useTimer("RoF Delay", 1) and cast.shadowFury(nil,"aoe",1,8,true) then br.addonDebug("Casting Shadow Fury") return end 
+            end--]]
             -----------------
             ---  AMR APL  ---
             -----------------
@@ -1042,6 +1151,9 @@ local function runRotation()
             if talent.darkSoul and useCDs() and not moving and pet.darkglare.active() then
                 if cast.darkSoul() then br.addonDebug("Casting Dark Soul") return true end
             end 
+
+            -- Dots
+            if not debuff.corruption.exists("target") and not debuff.agony.exists("target") and not debuff.unstableAffliction.exists("target") then if actionList.dots() then return true end end
 
             -- Guardian of Azeroth
             if ui.checked("Use Essence") and useCDs() and essence.guardianOfAzeroth.active and cd.guardianOfAzeroth.remain() <= gcdMax and pet.darkglare.active() then
@@ -1092,87 +1204,9 @@ local function runRotation()
                 --if cast.summonDarkglare() then return true end
                 return true
             end
-
-            -- Unstable Affliction
-            unstableAfflictionFUCK()
-
             -- Multi Target
             if #enemies.yards10t >= 3 and mode.single ~= 1 then 
                 if actionList.multi() then return true end 
-            end
-
-            -- Agony
-            if traits.pandemicInvocation.active then
-                if agonyCount < ui.value("Spread Agony on ST") then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 5 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
-                            if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Pandemic Invocation]") return true end
-                        end
-                    end
-                end
-            else
-                if agonyCount < ui.value("Spread Agony on ST") then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
-                            if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Refresh]") return true end
-                        end
-                    end
-                end
-            end
-
-            -- Corruption
-            if traits.pandemicInvocation.active and not talent.absoluteCorruption then
-                if corruptionCount < 2 then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.corruption.remain(thisUnit) < 5 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
-                            if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Pandemic Invocation]") return true end
-                        end
-                    end
-                end
-            elseif not talent.absoluteCorruption then
-                if corruptionCount < 2 then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and  debuff.corruption.refresh(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
-                            if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Refresh]") return true end
-                        end
-                    end
-                end
-            elseif talent.absoluteCorruption then
-                if corruptionCount < 2 then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and  not debuff.corruption.exists(thisUnit) and not debuff.seedOfCorruption.exists(thisUnit) then
-                            if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Absolute Corruption]") return true end
-                        end
-                    end
-                end
-            end
-
-            -- Siphon Life
-            if talent.siphonLife then
-                if traits.pandemicInvocation.active then
-                    if siphonLifeCount < 2 then
-                        for i = 1, #enemies.yards40 do
-                            local thisUnit = enemies.yards40[i]
-                            if not noDotCheck(thisUnit) and debuff.siphonLife.remain(thisUnit) < 5 and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/ 1 + spellHaste) then
-                                if cast.siphonLife(thisUnit) then br.addonDebug("Casting Siphon Life [Pandemic Invocation]") return true end
-                            end
-                        end
-                    end
-                else
-                    if siphonLifeCount < 2 then
-                        for i = 1, #enemies.yards40 do
-                            local thisUnit = enemies.yards40[i]
-                            if not noDotCheck(thisUnit) and  debuff.siphonLife.refresh(thisUnit) and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste) then
-                                if cast.siphonLife(thisUnit) then br.addonDebug("Casting Siphon Life [Refresh]") return true end
-                            end
-                        end
-                    end
-                end
             end
 
             -- Deathbolt
@@ -1191,7 +1225,7 @@ local function runRotation()
             end
 
             -- Vile Taint
-            if not moving and talent.vileTaint and shards > 1 then
+            if not moving and talent.vileTaint then
                 if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
             end
 
@@ -1228,13 +1262,13 @@ local function runRotation()
             end
 
             -- Malefic Rapture
-            if not moving then
+            if not moving and inInstance or inRaid and debuff.unstableAffliction.remain("target") > gcdMax + 2.5 and debuff.agony.remain("target" ) > gcdMax + 3 or not inRaid and not inInstance then
                 -- Vile Taint ticking
-                if (talent.vileTaint and debuff.vileTaint.exists("target")) or shards > 3 then
+                if not cast.last.maleficRapture(3) and (talent.vileTaint and debuff.vileTaint.exists("target")) or shards > 4 then
                     if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture (Vile Taint or Shards)") return true end
                 end
                 -- Vile Taint not talented
-                if not talent.vileTaint or shards > 3 then
+                if not talent.vileTaint then
                     if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end
                 end
             end
@@ -1264,7 +1298,7 @@ local function runRotation()
             end
 
             -- Drain Soul
-            if not moving and talent.drainSoul and (debuff.unstableAffliction.remain("target") > gcdMax + 0.5 and debuff.agony.remain("target") > gcdMax + 4.5) then
+            if not moving and talent.drainSoul then
                 if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
             end
 
@@ -1289,6 +1323,21 @@ local function runRotation()
     end -- Pause
     return true
 end -- End runRotation
+
+
+
+function smartCancel()
+	-- Drain Soul Failsafe
+	if ui.checked("Drain Soul Smart Cancel") then
+		if ui.value("Drain Soul Smart Cancel") > 2 then
+			if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and dsTicks < maxdsTicks - 1 then return false end
+		else
+			if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and dsTicks < ui.value("Drain Soul Smart Cancel") then return false end
+		end
+	end
+	return true
+end
+
 local id = 265 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
