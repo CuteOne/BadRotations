@@ -751,8 +751,8 @@ local function runRotation()
 
         local is_aoe = (#enemies.yards45 > 1 and (not talent.starlord or talent.stellarDrift) or #enemies.yards45 > 2) or false
         local is_cleave = #enemies.yards45 > 1 or false
-        local starfall_wont_fall_off = power > 80 - (buff.starfall.remains() * 3 % hasteAmount) and buff.starfall.exists() or false
-        local starfire_in_solar = #enemies.yards45 > 8 + floor(masteryAmount % 20)
+        local starfall_wont_fall_off = power > 80 - (buff.starfall.remains() * 3 / hasteAmount) and buff.starfall.exists() or false
+        local starfire_in_solar = #enemies.yards45 > 8 + floor(masteryAmount / 20)
 
         local starfire_fallback = cast.last.starfire(1) and cast.last.starfire(2) and cast.last.starfire(3) or false
         local wrath_fallback = cast.last.wrath(1) and cast.last.wrath(2) and cast.last.wrath(3) or false
@@ -876,7 +876,7 @@ local function runRotation()
                         then
                             --Print(tostring((14 + (#enemies.yards45 * 1.5)) % #enemies.yards45 + debuff.moonfire.remain(thisUnit)))
                             if debuff.moonfire.refresh(thisUnit)
-                                    and ttd(thisUnit) > (14 + (#enemies.yards45 * 1.5)) % #enemies.yards45 + debuff.moonfire.remain(thisUnit)
+                                    and ttd(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit)
                             then
                                 if cast.moonfire(thisUnit) then
                                     return true
@@ -911,7 +911,7 @@ local function runRotation()
                         and buff.onethsClearVision.exists()
                         or astral_def < 8
                         or ((buff.incarnationChoseOfElune.remains() < 5 or buff.celestialAlignment.remains() < 5) and pewbuff
-                        or (buff.ravenousFrenzy.remains() < gcd * ceil(power % 30) and buff.ravenousFrenzy.exists()))
+                        or (buff.ravenousFrenzy.remains() < gcd * ceil(power / 30) and buff.ravenousFrenzy.exists()))
                         and starfall_wont_fall_off and #enemies.yards45 < 3 then
                     if cast.starsurge(units.dyn45) then
                         return true
@@ -978,7 +978,6 @@ local function runRotation()
 
                 -- pew
                 if talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
-                    Print("really?")
                     if (power > 90 or hasBloodLustRemain() < 36) then
                         if cast.incarnationChoseOfElune() then
                             return true

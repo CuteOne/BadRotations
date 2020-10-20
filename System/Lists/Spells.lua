@@ -998,7 +998,8 @@ br.lists.spells = {
                 spittingCobra               = 194407,
                 stampede                    = 201430,
                 titansThunder               = 207068,
-                volley                      = 194386
+                volley                      = 194386,
+                bloodshed                   = 321530,
             },
             artifacts                       = {
 
@@ -1022,13 +1023,27 @@ br.lists.spells = {
 
             },
             talents                         = {
-                aMurderOfCrows              = 131894,
-                aspectOfTheBeast            = 191384,
-                barrage                     = 120360,
-                chimaeraShot                = 53209,
+                killerInstinct              = 273887,
+                animalCompanion             = 267116,
                 direBeast                   = 120679,
+                scentOfBlood                = 193532,
+                oneWithThePack              = 199528,
+                chimaeraShot                = 53209,
+                trailblazer                 = 199921,
+                naturalMending              = 270581,
+                camouflage                  = 199483,
+                spittingCobra               = 257891,
+                thrillOfTheHunt             = 257944,
+                aMurderOfCrows              = 131894,
+                bornToBeWild                = 266921,
+                posthaste                   = 109215,
+                bindingShot                 = 109248,
+                stomp                       = 199530,
+                barrage                     = 120360,
+                stampede                    = 201430,
+                aspectOfTheBeast            = 191384,
                 killerCobra                 = 199532,
-                spittingCobra               = 194407,
+                bloodshed                   = 321530,
             },
             traits                          = {
                 danceOfDeath                = 274441,
