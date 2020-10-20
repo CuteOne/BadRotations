@@ -170,9 +170,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
+        br.player.ui.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
         UpdateToggle("Picker",0.25)
-        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
+        br.player.ui.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
 
 --------------
 --- Locals ---
@@ -191,8 +191,8 @@ local function runRotation()
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local level                                         = br.player.level
-        local mode                                          = br.player.mode
-        local multidot                                      = br.player.mode.cleave == 1
+        local mode                                          = br.player.ui.mode
+        local multidot                                      = br.player.ui.mode.cleave == 1
         local php                                           = br.player.health
         local race                                          = br.player.race
         local solo                                          = #br.friend < 2
@@ -284,7 +284,7 @@ local function runRotation()
                     myTarget = UnitGUID(thisUnit)
                 end
             end
-            if (canPickpocket == false or br.player.mode.pickPocket == 3 or GetNumLootItems()>0) and not isDummy() then
+            if (canPickpocket == false or br.player.ui.mode.pickPocket == 3 or GetNumLootItems()>0) and not isDummy() then
                 return true
             else
                 return false

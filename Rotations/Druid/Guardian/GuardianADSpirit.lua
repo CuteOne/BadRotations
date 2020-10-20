@@ -253,7 +253,7 @@ local function createOptions()
         ----------------------
         --- General Options---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - 20200622 - 0631")
+        section = br.ui:createSection(br.ui.window.profile, "General - 20201016")
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -269,11 +269,11 @@ local function createOptions()
         -- Max Moonfire Targets
         br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 3, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
-        -- Corruption
-        section = br.ui:createSection(br.ui.window.profile, "Corruption")
-        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Everything", "never" }, 5, "", "")
-        br.ui:createSpinnerWithout(section, "Eye Stacks", 3, 1, 10, 1, "How many stacks before using cloak")
-        br.ui:checkSectionState(section)
+        -- -- Corruption
+        -- section = br.ui:createSection(br.ui.window.profile, "Corruption")
+        -- br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Everything", "never" }, 5, "", "")
+        -- br.ui:createSpinnerWithout(section, "Eye Stacks", 3, 1, 10, 1, "How many stacks before using cloak")
+        -- br.ui:checkSectionState(section)
         -- Essences
         section = br.ui:createSection(br.ui.window.profile, "Essences")
         br.ui:createDropdownWithout(section, "Use Concentrated Flame", { "DPS", "Heal", "Hybrid", "Never" }, 1)
@@ -286,6 +286,7 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial")
+        br.ui:createSpinner(section, "Heart of the Wild", 50, 0, 100, 5, "Use HOTW when below %hp")        
         -- Trinkets
         br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
@@ -312,6 +313,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Frenzied Regeneration", "Enable FR")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "Health Interval to use at with 2 charges.")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "Health Interval to use at with 1 charge.")
+        -- Renewal
+        br.ui:createSpinner(section, "Renewal", 70, 10, 90, 5, "Will use Renewal if HP is lower than set HP")
         -- Swiftmend
         br.ui:createSpinner(section, "OOC Swiftmend", 70, 10, 90, 5, "Will use Swiftmend Out of Combat.")
         -- Rejuvenation
@@ -362,13 +365,13 @@ local function runRotation()
     UpdateToggle("BristlingFur", 0.25)
     UpdateToggle("Forms", 0.25)
     UpdateToggle("Maul", 0.25)
-    br.player.mode.removeCorruption = br.data.settings[br.selectedSpec].toggles["RemoveCorruption"]
-    br.player.mode.bristlingFur = br.data.settings[br.selectedSpec].toggles["BristlingFur"]
-    br.player.mode.ironfur = br.data.settings[br.selectedSpec].toggles["Ironfur"]
-    br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
-    br.player.mode.forms = br.data.settings[br.selectedSpec].toggles["Forms"]
-    br.player.mode.maul = br.data.settings[br.selectedSpec].toggles["Maul"]
-    br.player.mode.wildCharge = br.data.settings[br.selectedSpec].toggles["WildCharge"]
+    br.player.ui.mode.removeCorruption = br.data.settings[br.selectedSpec].toggles["RemoveCorruption"]
+    br.player.ui.mode.bristlingFur = br.data.settings[br.selectedSpec].toggles["BristlingFur"]
+    br.player.ui.mode.ironfur = br.data.settings[br.selectedSpec].toggles["Ironfur"]
+    br.player.ui.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
+    br.player.ui.mode.forms = br.data.settings[br.selectedSpec].toggles["Forms"]
+    br.player.ui.mode.maul = br.data.settings[br.selectedSpec].toggles["Maul"]
+    br.player.ui.mode.wildCharge = br.data.settings[br.selectedSpec].toggles["WildCharge"]
 
     local buff = br.player.buff
     local cast = br.player.cast
@@ -394,7 +397,7 @@ local function runRotation()
     local level = br.player.level
     local lossPercent = getHPLossPercent("player", 5)
     local lowest = br.friend[1]
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local moving = isMoving("player")
     local swimming = IsSwimming()
     local php = br.player.health
@@ -527,7 +530,7 @@ local function runRotation()
                 end
             end -- End Shapeshift Form Management
 
-        if br.player.mode.taunt == 1 and inInstance then
+        if br.player.ui.mode.taunt == 1 and inInstance then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -537,7 +540,7 @@ local function runRotation()
                 end
             end
         end
-        if br.player.mode.taunt == 2 then
+        if br.player.ui.mode.taunt == 2 then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -548,7 +551,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Wild Charge") and br.player.mode.wildCharge == 1 then
+        if isChecked("Wild Charge") and br.player.ui.mode.wildCharge == 1 then
             if getDistance("target") > 9 and cast.able.wildCharge() and inCombat and bear then
                 if cast.wildCharge("target") then
                     return
@@ -630,8 +633,12 @@ local function runRotation()
                     useItem(166799)
                 end
             end
+            -- Renewal
+            if isChecked("Renewal") and php <= getOptionValue("Renewal") and cast.able.renewal() then
+                if cast.renewal("player") then return end
+            end
             -- Swiftmend
-            if isChecked("OOC Swiftmend") and php <= getOptionValue("OOC Swiftmend") and not inCombat and cast.able.swiftmend() then
+            if isChecked("OOC Swiftmend") and php <= getOptionValue("OOC Swiftmend") and not inCombat and cast.able.swiftmend() and (buff.rejuvenation.exists("player") or buff.wildGrowth.exists("player")) then
                 if cast.swiftmend("player") then return end
             end
             -- Rejuvenation
@@ -643,7 +650,7 @@ local function runRotation()
                 if cast.regrowth("player") then return end
             end
             -- Wild Growth
-            if isChecked("OOC Wild Growth") and not moving then
+            if isChecked("OOC Wild Growth") and not moving and not inCombat then
                 for i = 1, #br.friend do
                     if UnitInRange(br.friend[i].unit) then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getOptionValue("OOC Wild Growth"), #br.friend)
@@ -708,7 +715,7 @@ local function runRotation()
                 end
             end
             -- Corruption Stuff
-            if br.player.mode.removeCorruption == 1 and isChecked("Remove Corruption") then
+            if br.player.ui.mode.removeCorruption == 1 and isChecked("Remove Corruption") then
                 if getOptionValue("Remove Corruption - Target") == 1 and canDispel("player", spell.removeCorruption) then
                     if cast.removeCorruption("player") then
                         return
@@ -847,6 +854,12 @@ local function runRotation()
                         return
                     end
                 end
+        -- HOTW
+                if isChecked("Heart of the Wild") and php <= getOptionValue("Heart of the Wild") then
+                    if cast.heartOfTheWild() then
+                        return
+                    end
+                end
             end
     local function cat_dps()
             if mode.forms == 2 and cat and talent.feralAffinity and isValidTarget("target") and inCombat and profileStop == false then
@@ -971,7 +984,7 @@ local function runRotation()
             end -- end root
         end -- end radar
         -- Ironfur
-        if br.player.mode.ironfur == 1 and (hasAggro >= 2) and bear and inCombat then
+        if br.player.ui.mode.ironfur == 1 and (hasAggro >= 2) and bear and inCombat then
             if (traits.layeredMane.active and rage >= 45) or not buff.ironfur.exists() or buff.goryFur.exists() or rage >= 55 or buff.ironfur.remain() < 2 then
                 if cast.ironfur() then
                     return
@@ -995,15 +1008,15 @@ local function runRotation()
             end
         end
         -- Bristlingfur
-        if br.player.mode.bristlingFur == 1 and rage < 40 and (hasAggro >= 2) then
+        if br.player.ui.mode.bristlingFur == 1 and rage < 40 and (hasAggro >= 2) then
             if cast.bristlingFur() then
                 return
             end
         end
-        -- Lunarbeam
-        if cast.lunarBeam() then
-            return
-        end
+        -- -- Lunarbeam
+        -- if cast.lunarBeam() then
+        --     return
+        -- end
         -- Moonfire
         if #enemies.yards8 < 5 and inCombat then
             if buff.galacticGuardian.exists() then
@@ -1026,7 +1039,7 @@ local function runRotation()
             end
         end
         -- Maul
-        if br.player.mode.maul == 1 and isChecked("Auto Maul") and rageDeficit < 10 and #enemies.yards8 < 4 and (buff.incarnationGuardianOfUrsoc.exists() or not buff.incarnationGuardianOfUrsoc.exists()) then
+        if br.player.ui.mode.maul == 1 and isChecked("Auto Maul") and rageDeficit < 10 and #enemies.yards8 < 4 and (buff.incarnationGuardianOfUrsoc.exists() or not buff.incarnationGuardianOfUrsoc.exists()) then
             if cast.maul() then
                 return
             end

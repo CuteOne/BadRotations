@@ -179,7 +179,7 @@ local function runRotation()
         local inCombat          = br.player.inCombat
         local item              = br.player.item
         local level             = br.player.level
-        local mode              = br.player.mode
+        local mode              = br.player.ui.mode
         local moving            = GetUnitSpeed("player")>0
         local php               = br.player.health
         local power             = br.player.power

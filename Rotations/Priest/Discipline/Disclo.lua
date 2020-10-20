@@ -44,7 +44,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createCheckbox(section, "Enemy Target Lock")
-        br.ui:createCheckbox(section, "Heal OoC")
+        br.ui:createSpinner(section, "Heal OoC", 90, 1, 100, 1, "Set OoC HP value to heal.")
         br.ui:createCheckbox(section, "Power Word: Fortitude", "Maintain Fort Buff on Group")
         br.ui:createDropdown(section, "Dispel Magic", {"Only Target", "Auto"}, 1, "Dispel Target or Auto")
         br.ui:createDropdown(section, "Oh shit need heals", br.dropOptions.Toggle, 1, "Ignore dps limit")
@@ -109,7 +109,12 @@ local function createOptions()
         br.ui:createCheckbox(section, "Schism")
         br.ui:createCheckbox(section, "Penance")
         br.ui:createCheckbox(section, "Power Word: Solace")
+        br.ui:createCheckbox(section, "Mind Blast")
         br.ui:createCheckbox(section, "Smite")
+        br.ui:createSpinner(section, "Mind Sear - AoE", 3, 1, 50, 1, "Number of Units to cast Mind Sear")
+        br.ui:createSpinner(section, "Mind Sear - AoE - High Prio", 3, 1, 50, 1, "Number of Units to cast Mind Sear")
+        br.ui:createSpinnerWithout(section, "Mind Sear - HP Cutoff", 80, 0 ,100, 5, "Lowest friendly HP to channel Sear")
+        br.ui:createCheckbox(section, "SHW: Death Snipe")
         br.ui:createSpinner(section, "Mindbender", 80, 0, 100, 5, "Mana Percent to Cast At")
         br.ui:createSpinner(section, "Shadowfiend", 80, 0, 100, 5, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -192,7 +197,7 @@ local function runRotation()
     local lootDelay = getOptionValue("LootDelay")
     local lowest = br.friend[1]
     local mana = getMana("player")
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local perk = br.player.perk
     local php = br.player.health
     local power, powmax, powgen = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
@@ -209,6 +214,10 @@ local function runRotation()
     local units = br.player.units
     local schismCount = debuff.schism.count()
 
+    if timersTable then
+        wipe(timersTable)
+    end
+
     units.get(5)
     units.get(30)
     units.get(40)
@@ -220,7 +229,18 @@ local function runRotation()
     local atonementCount = br.player.buff.atonement.count()
     local schismBuff
     local ptwDebuff
+    local deathnumber = tonumber((select(1, GetSpellDescription(32379):match("%d+"))), 10)
 
+    local biggestGroup = 0
+    local bestUnit
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        local thisGroup = #enemies.get(10,thisUnit)
+        if thisGroup > biggestGroup then
+            biggestGroup = thisGroup
+            bestUnit = thisUnit
+        end
+    end
 
     if isChecked("Enemy Target Lock") and inCombat then
         if UnitIsFriend("target", "player") or UnitIsDeadOrGhost("target") or not UnitExists("target") or UnitIsPlayer("target") then
@@ -231,15 +251,15 @@ local function runRotation()
     -- set penance target
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.schism.exists("target") then
+        if debuff.schism.exists("target") and ttd("target") > 4 then
             schismBuff = "target"
-        elseif debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+        elseif debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 then
             schismBuff = thisUnit
         end
         if schismBuff == nil then 
-            if debuff.purgeTheWicked.exists("target") then
+            if debuff.purgeTheWicked.exists("target") and ttd("target") > 4 then
                 ptwDebuff = "target"
-            elseif debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) then
+            elseif debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 then
                 ptwDebuff = thisUnit
             end
         end
@@ -298,6 +318,16 @@ local function runRotation()
 
     local function DefensiveTime()
         if useDefensive() then
+            if isChecked("Fade") then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) > 1 and UnitAffectingCombat(thisUnit) then
+                        if cast.fade() then
+                            return
+                        end
+                    end
+                end
+            end
             if isChecked("Pot / Healthstone") and php <= getOptionValue("Pot / Healthstone") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                 if canUseItem(5512) then
                     useItem(5512)
@@ -440,7 +470,7 @@ local function runRotation()
         end
         if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", math.random(20, 50)) then
             for i = 1, #br.friend do
-                if not buff.powerWordFortitude.exists(br.friend[i].unit, "any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                if not buff.powerWordFortitude.exists(br.friend[i].unit, "any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) then
                     if cast.powerWordFortitude() then
                         return
                     end
@@ -454,11 +484,11 @@ local function runRotation()
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
                 if not buff.atonement.exists(thisUnit) then
-                    if atoneCount() >= getOptionValue("Minimum PWR Targets") and not isMoving("player") and charges.powerWordRadiance.frac() >= 1 then
+                    if atoneCount() >= getOptionValue("Minimum PWR Targets") and not isMoving("player") and charges.powerWordRadiance.frac() >= 1 and level >= 23 then
                         if cast.powerWordRadiance(thisUnit) then 
                             return true
                         end
-                    elseif atonementCount <= getOptionValue("Atonement for Evangelism") or charges.powerWordRadiance.frac() < 1 and not debuff.weakenedSoul.exists(thisUnit) then
+                    elseif atonementCount <= getOptionValue("Atonement for Evangelism") or (charges.powerWordRadiance.frac() < 1 or level < 23) and not debuff.weakenedSoul.exists(thisUnit) then
                         if cast.powerWordShield(thisUnit) then
                             return true
                         end
@@ -539,7 +569,7 @@ local function runRotation()
             end
         end
 
-        if (isChecked("Penance Heal") and talent.contrition and atonementCount >= 3) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) or (level < 28 and lowest.hp < getOptionValue("Penance Heal")) then
+        if (isChecked("Penance Heal") and talent.contrition and atonementCount >= 3) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= getOptionValue("Heal OoC")) or (level < 28 and lowest.hp < getOptionValue("Penance Heal")) then
             if cast.penance(lowest.unit) then
                 return true
             end
@@ -547,7 +577,8 @@ local function runRotation()
 
         if isChecked("Shadow Mend") and not isMoving("player") then
             for i = 1, #br.friend do
-                if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or (isChecked("Heal OoC") and not inCombat and lowest.hp <= 95) then
+                if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or 
+                (isChecked("Heal OoC") and not inCombat and lowest.hp <= getOptionValue("Heal OoC")) then
                     if cast.shadowMend(br.friend[i].unit) then
                         return true
                     end
@@ -585,6 +616,12 @@ local function runRotation()
     end
 
     local function DamageTime()
+        if isChecked("Mind Sear - AoE - High Prio") and not cast.current.mindSear() then
+            if biggestGroup >= getOptionValue("Mind Sear - AoE - High Prio") and lowest.hp > getOptionValue("Mind Sear - HP Cutoff") then
+                if cast.mindSear(bestUnit) then return true end
+            end
+        end
+
         if isChecked("Power Word: Solace") and talent.powerWordSolace then
             if schismBuff ~= nil then
                 if cast.powerWordSolace(schismBuff) then
@@ -596,16 +633,26 @@ local function runRotation()
                 end
             end
         end
+        if isChecked("SHW: Death Snipe") then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (UnitHealth(thisUnit) <= deathnumber) or (getHP(thisUnit) <= 20 and UnitHealth(thisUnit) <= deathnumber *1.5) then
+                    if cast.shadowWordDeath(thisUnit) then
+                        return 
+                    end
+                end
+            end
+        end
         if isChecked("Shadow Word: Pain/Purge The Wicked") and (getSpellCD(spell.penance) > gcdMax or (getSpellCD(spell.penance) <= gcdMax and debuff.purgeTheWicked.count() == 0)) then
             if talent.purgeTheWicked then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ptwTargets() < getValue("SW:P/PtW Targets")  then
-                        if not debuff.purgeTheWicked.exists("target") then
+                        if not debuff.purgeTheWicked.exists("target") and ttd("target") > 3 then
                             if cast.purgeTheWicked("target") then
                                 return 
                             end
-                        elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not UnitIsOtherPlayersPet(thisUnit) then
+                        elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 3 then
                             if cast.purgeTheWicked(thisUnit) then
                                 return
                             end
@@ -613,15 +660,15 @@ local function runRotation()
                     end
                 end
             end
-            if not talent.purgeTheWicked then
+            if not talent.purgeTheWicked and cd.penance.remains() > gcd then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ptwTargets() < getValue("SW:P/PtW Targets") then
-                        if not debuff.shadowWordPain.exists("target") then
+                        if not debuff.shadowWordPain.exists("target") and ttd("target") > 3 then
                             if cast.shadowWordPain("target") then
                                 return 
                             end
-                        elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not UnitIsOtherPlayersPet(thisUnit) then
+                        elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 3 then
                             if cast.shadowWordPain(thisUnit) then
                                 return
                             end
@@ -652,7 +699,7 @@ local function runRotation()
             end
         end
 
-        if talent.schism and isChecked("Schism") and cd.penance.remain() <= gcdMax and not isMoving("player") and ttd("target") > 9 and not isExplosive("target") then
+        if talent.schism and isChecked("Schism") and cd.penance.remain() <= gcdMax + 1 and not isMoving("player") and ttd("target") > 9 and not isExplosive("target") then
             if cast.schism("target") then
                 return
             end
@@ -667,15 +714,32 @@ local function runRotation()
                 if cast.penance(ptwDebuff) then
                     return
                 end
-            elseif (not schismBuff or ptwDebuff) then
+            elseif (not schismBuff or ptwDebuff) and ttd("target") > 2.5 then
                 if cast.penance("target") then
                    return
                 end
             end
         end
 
+        if isChecked("Mind Sear - AoE") and not cast.current.mindSear() then
+            if biggestGroup >= getOptionValue("Mind Sear - AoE") and lowest.hp > getOptionValue("Mind Sear - HP Cutoff") then
+                if cast.mindSear(bestUnit) then return end
+            end
+        end
+
+
+        if isChecked("Mind Blast") and not isMoving("player") then
+            if schismBuff ~= nil and getFacing("player",schismBuff) then
+                if cast.mindBlast(schismBuff) then
+                    return
+                end
+            elseif cast.mindBlast() then
+                return
+            end
+        end
+
         if isChecked("Smite") and not isMoving("player") then
-            if schismBuff ~= nil then
+            if schismBuff ~= nil and getFacing("player",schismBuff) then
                 if cast.smite(schismBuff) then
                     return
                 end
@@ -685,11 +749,11 @@ local function runRotation()
         end
     end
  
-
+    local localHealingCount = discHealCount
     ------------------------------
     ------- Start the Stuff ------
     if pause() or drinking then
-        return
+        return true
     else
         if not inCombat then
             if isChecked("Heal OoC") then
@@ -697,16 +761,17 @@ local function runRotation()
             end
             if Extrastuff() then return end
             if Dispelstuff() then return end
+            if Keyshit() then return true end
         elseif inCombat then
-            if Extrastuff() then return end
             if Dispelstuff() then return end
             if Interruptstuff() then return end
             if DefensiveTime() then return end
             if CooldownTime() then return end
             if Keyshit() then return true end
-            if discHealCount < getOptionValue("Heal Counter") or not isChecked("Heal Counter") or #enemies.yards40 == 0 or buff.rapture.exists("player") or SpecificToggle("Oh shit need heals") then
+            if localHealingCount < getOptionValue("Heal Counter") or not isChecked("Heal Counter") or #enemies.yards40 == 0 or buff.rapture.exists("player") or SpecificToggle("Oh shit need heals") then
                 if HealingTime() then return true end
             end
+            if Extrastuff() then return end
             if DamageTime() then return end
         end
     end

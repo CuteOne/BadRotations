@@ -170,9 +170,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("DragonsBreath",0.25)
-        br.player.mode.dragonsBreath = br.data.settings[br.selectedSpec].toggles["DragonsBreath"]
+        br.player.ui.mode.dragonsBreath = br.data.settings[br.selectedSpec].toggles["DragonsBreath"]
         UpdateToggle("SaveFB",0.25)
-        br.player.mode.fireBlast = br.data.settings[br.selectedSpec].toggles["SaveFB"]
+        br.player.ui.mode.fireBlast = br.data.settings[br.selectedSpec].toggles["SaveFB"]
 --------------
 --- Locals ---
 --------------
@@ -207,7 +207,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
         local castin                                        = UnitCastingInfo("player")

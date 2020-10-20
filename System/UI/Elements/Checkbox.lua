@@ -3,6 +3,10 @@ local DiesalTools = LibStub("DiesalTools-1.0")
 local DiesalStyle = LibStub("DiesalStyle-1.0")
 
 function br.ui:createCheckbox(parent, text, tooltip, checked)
+    -- Class Specific Color for UI Elements
+    local classColor = {
+        color = br.classColors[select(3,UnitClass("player"))].hex,
+    }
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------

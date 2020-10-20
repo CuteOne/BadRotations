@@ -204,10 +204,10 @@ local function runRotation()
         UpdateToggle("Mover", 0.25)
         UpdateToggle("Taunt", 0.25)
         UpdateToggle("Holdcd", 0.25)
-        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
-        br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
-        br.player.mode.shield = br.data.settings[br.selectedSpec].toggles["Shield"]
-        br.player.mode.reflect = br.data.settings[br.selectedSpec].toggles["Reflect"]
+        br.player.ui.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+        br.player.ui.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
+        br.player.ui.mode.shield = br.data.settings[br.selectedSpec].toggles["Shield"]
+        br.player.ui.mode.reflect = br.data.settings[br.selectedSpec].toggles["Reflect"]
         --------------
         --- Locals ---
         --------------
@@ -229,7 +229,7 @@ local function runRotation()
         local inInstance = br.player.instance == "party"
         local inRaid = br.player.instance == "raid"
         local lowestHP = br.friend[1].unit
-        local mode = br.player.mode
+        local mode = br.player.ui.mode
         local perk = br.player.perk
         local php = br.player.health
         local playerMouse = UnitIsPlayer("mouseover")
@@ -486,7 +486,7 @@ local function runRotation()
                     end
                 end
 
-                if br.player.mode.taunt == 1 and inInstance then
+                if br.player.ui.mode.taunt == 1 and inInstance then
                     for i = 1, #enemies.yards30 do
                         local thisUnit = enemies.yards30[i]
                         if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -496,7 +496,7 @@ local function runRotation()
                         end
                     end
                 end -- End Taunt
-                if br.player.mode.taunt == 2 then
+                if br.player.ui.mode.taunt == 2 then
                     for i = 1, #enemies.yards30 do
                         local thisUnit = enemies.yards30[i]
                         if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -585,7 +585,7 @@ local function runRotation()
         end
     
         local function actionList_Moving()
-            if br.player.mode.mover == 1 then
+            if br.player.ui.mode.mover == 1 then
                 if cast.able.intercept("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
                     CastSpellByName(GetSpellInfo(spell.intercept))
                 end
@@ -690,7 +690,7 @@ local function runRotation()
 
         local function actionList_Single()
             --Avatar units
-            if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) and br.player.mode.cooldown == 1 then
+            if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) and br.player.ui.mode.cooldown == 1 then
                 ---print("norm avatar")
                 if cast.avatar() then
                     return

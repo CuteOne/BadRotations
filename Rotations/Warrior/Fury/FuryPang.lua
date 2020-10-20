@@ -288,9 +288,9 @@ local function runRotation()
     UpdateToggle("Mover", 0.25)
     UpdateToggle("Holdcd", 0.25)
     UpdateToggle("Lazyass", 0.25)
-    br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
-    br.player.mode.holdcd = br.data.settings[br.selectedSpec].toggles["Holdcd"]
-    br.player.mode.lazyass = br.data.settings[br.selectedSpec].toggles["Lazyass"]
+    br.player.ui.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+    br.player.ui.mode.holdcd = br.data.settings[br.selectedSpec].toggles["Holdcd"]
+    br.player.ui.mode.lazyass = br.data.settings[br.selectedSpec].toggles["Lazyass"]
 
     local buff = br.player.buff
     local cast = br.player.cast
@@ -308,7 +308,7 @@ local function runRotation()
     local inCombat = br.player.inCombat
     local inRaid = br.player.instance == "raid"
     local level = br.player.level
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local moving = GetUnitSpeed("player") > 0
     local php = br.player.health
     local pullTimer = br.DBM:getPulltimer()
@@ -336,7 +336,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(15)
     enemies.get(20)
-	
+
 	local Storm_unitList = {
             [131009] = "Spirit of Gold",
             [134388] = "A Knot of Snakes",
@@ -532,7 +532,7 @@ local function runRotation()
     end
 
     local function moverlist()
-        if br.player.mode.mover == 1 then
+        if br.player.ui.mode.mover == 1 then
             if leapKey and not GetCurrentKeyBoardFocus() then
                 CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
             end
@@ -554,27 +554,21 @@ local function runRotation()
     end
 
     local function singlelist()
-        -- furious slash
-        if talent.furiousSlash and not cast.last.furiousSlash() and (buff.furiousSlash.stack("player") < 3 or buff.furiousSlash.remains("player") <= 2) then
-            if cast.furiousSlash() then
-                return
-            end
-        end
 		-- Focussing Iris
 		-- actions+=/focused_azerite_beam,if=!buff.recklessness.up&!buff.siegebreaker.up
 		if isChecked("Meme-Beam") and getSpellCD(295258) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Meme-Beam") == 1 or (getOptionValue("Meme-Beam") == 2 and #enemies.yards8 >= 3)) then
 			if cast.focusedAzeriteBeam() then
 				return
 			end
-		end	
+		end
 		-- Purifying Blast
 		-- actions+=/purifying_blast,if=!buff.recklessness.up&!buff.siegebreaker.up
 		if isChecked("Purifying Blast") and getSpellCD(295337) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Purifying Blast") == 1 or (getOptionValue("Purifying Blast") == 2 and #enemies.yards8 >= 3)) then
 			if cast.purifyingBlast() then
 				return
 			end
-		end	
-		
+		end
+
 		-- GuardianOfAzeroth
 		-- actions+=/guardian_of_azeroth,if=!buff.recklessness.up
         if getSpellCD(295840) <=gcd and not buff.recklessness.exists("player") and isChecked("GuardianofAzeroth")then
@@ -589,7 +583,7 @@ local function runRotation()
                 end
             end
 		end
-			
+
         -- Rampage
         if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
             if cast.rampage() then
@@ -599,7 +593,7 @@ local function runRotation()
 
         -- Recklessness
 		-- actions+=/recklessness,if=!essence.condensed_lifeforce.major&!essence.blood_of_the_enemy.major|cooldown.guardian_of_azeroth.remains>20|buff.guardian_of_azeroth.up|cooldown.blood_of_the_enemy.remains<gcd
-        if not buff.recklessness.exists("player") and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists("player") and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
@@ -607,14 +601,14 @@ local function runRotation()
 
 		-- Lucid Dreams
 		-- actions+=/memory_of_lucid_dreams,if=!buff.recklessness.up
-        if br.player.mode.cooldown ~= 3 and isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+        if br.player.ui.mode.cooldown ~= 3 and isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end
         end
 
         -- Siegebreaker
-        if br.player.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
+        if br.player.ui.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
             if cast.siegebreaker() then
                 return
             end
@@ -676,21 +670,14 @@ local function runRotation()
         end
 
         -- Bladestorm Single target
-        if buff.enrage.exists("player") and isChecked("Bladestorm Units") and br.player.mode.cooldown ~= 3 and isBoss("target") then
+        if buff.enrage.exists("player") and isChecked("Bladestorm Units") and br.player.ui.mode.cooldown ~= 3 and isBoss("target") then
             if cast.bladestorm() then
                 return
             end
         end
 
-        -- Furious Slash Filler
-        if filler then
-            if cast.furiousSlash() then
-                return
-            end
-        end
-
         -- whirlwind filler
-        if not talent.furiousSlash and filler then
+        if filler then
             if cast.whirlwind("player", nil, 1, 5) then
                 return
             end
@@ -734,7 +721,7 @@ local function runRotation()
             end
         end
 
-        if br.player.mode.cooldown ~= 3 and isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+        if br.player.ui.mode.cooldown ~= 3 and isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end
@@ -746,16 +733,16 @@ local function runRotation()
 			if cast.purifyingBlast() then
 				return
 			end
-		end	
-		
+		end
+
 		-- Focussing Iris
 		-- actions+=/focused_azerite_beam,if=!buff.recklessness.up&!buff.siegebreaker.up
 		if isChecked("Meme-Beam") and getSpellCD(295258) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Meme-Beam") == 1 or (getOptionValue("Meme-Beam") == 2 and #enemies.yards8 >= 3)) then
 			if cast.focusedAzeriteBeam() then
 				return
 			end
-        end	
-        
+        end
+
         if buff.recklessness.exists("player") and isChecked("GuardianofAzeroth")then
             if getOptionValue("GuardianOfAzeroth - Usage")==1 then
                 if cast.guardianOfAzeroth() then
@@ -769,14 +756,14 @@ local function runRotation()
             end
 		end
         -- Recklessness
-        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
         end
 
         -- Siegebreaker
-        if buff.whirlwind.exists("player") and (br.player.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs()))) then
+        if buff.whirlwind.exists("player") and (br.player.ui.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs()))) then
             if cast.siegebreaker() then
                 return
             end
@@ -796,7 +783,7 @@ local function runRotation()
             end
         end
         -- Bladestorm
-        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists("player") and br.player.mode.cooldown ~= 3 then
+        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
             if cast.bladestorm() then
                 return
             end
@@ -814,13 +801,6 @@ local function runRotation()
         --if buff.whirlwind.exists() and cast.able.execute() and (thp <= 20 or (talent.massacre and thp <= 35) or buff.suddenDeath.exists()) and (buff.enrage.exists() or rage <= 60) then
         --    if cast.execute() then return end
         --end
-
-        -- furious slash
-        if talent.furiousSlash and (buff.furiousSlash.stack("player") < 3 or buff.furiousSlash.remains("player") <= 2) then
-            if cast.furiousSlash() then
-                return
-            end
-        end
 
         -- High Prio Bloodthirst
         if buff.whirlwind.exists("player") and (traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player")) then
@@ -855,21 +835,14 @@ local function runRotation()
                 return
             end
         end
-
-        -- Furious Slash Filler
-        if buff.whirlwind.exists("player") then
-            if cast.furiousSlash() then
-                return
-            end
-        end
     end -- end multi target
-	
+
     local function cooldownlist()
-        --trinkets 
+        --trinkets
 		--actions+=/use_item,name=ashvanes_razor_coral,if=!debuff.razor_coral_debuff.up|(target.health.pct<30.1&debuff.conductive_ink_debuff.up)|(!debuff.conductive_ink_debuff.up&buff.memory_of_lucid_dreams.up|prev_gcd.2.recklessness&(buff.guardian_of_azeroth.up|!essence.memory_of_lucid_dreams.major&!essence.condensed_lifeforce.major))
 		--Mechagon Trinket WITH enrage but WITHOUT CDs
         if isChecked("Trinkets") then
-            if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs()) or (getOptionValue("Trinkets") == 3 and getSpellCD(1719) < 5 and br.player.mode.cooldown ~= 3) then
+            if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs()) or (getOptionValue("Trinkets") == 3 and getSpellCD(1719) < 5 and br.player.ui.mode.cooldown ~= 3) then
                 if canTrinket(13) and not hasEquiped(169311,13) and not hasEquiped(167555,13) then
                     useItem(13)
 				elseif hasEquiped(169311,13) then
@@ -901,7 +874,7 @@ local function runRotation()
         end
 
         --racials
-        if isChecked("Racials") and br.player.mode.cooldown ~= 3 then
+        if isChecked("Racials") and br.player.ui.mode.cooldown ~= 3 then
             if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
                 if cast.racial("player") then
                     return
@@ -913,7 +886,7 @@ local function runRotation()
         if getOptionValue("Blood of the Enemy") == 1 or (getOptionValue("Blood of the Enemy") == 2 and buff.recklessness.remain() > 4) or (getOptionValue("Blood of the Enemy") == 3 and useCDs()) then
             if cast.bloodOfTheEnemy("player") then return end
         end
-		-- Reaping Flames 
+		-- Reaping Flames
 		-- actions+=/reaping_flames,if=!buff.recklessness.up&!buff.siegebreaker.up
 		for i = 1, #enemies.yards20 do
             local thisUnit = enemies.yards20[i]
@@ -931,10 +904,10 @@ local function runRotation()
                 end
             elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and getOptionValue("Reaping Flames") == 3 and (getHP(thisUnit) <= 20 or UnitHealth(thisUnit) <= reapingDamage or getHP(thisUnit) >= 80)then
                 if CastSpellByName("Reaping Flames",thisUnit) then
-                    return 
+                    return
                 end
             end
-        end     
+        end
     end
 	if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
             if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
@@ -945,7 +918,7 @@ local function runRotation()
                 end
             end
         end
-    if br.player.mode.lazyass == 1 and hastar and getDistance("target") > 5 then
+    if br.player.ui.mode.lazyass == 1 and hastar and getDistance("target") > 5 then
         RunMacroText("/follow")
     end
 
@@ -979,7 +952,7 @@ local function runRotation()
 
 
 
-    if isCastingSpell(295258) then 
+    if isCastingSpell(295258) then
         return true
     end
     ---------------------

@@ -75,9 +75,10 @@ local QuestCacheUpdate = function()
 	end
 
 	--update the quest cache
-	local numEntries, numQuests = GetNumQuestLogEntries()
-	for questId = 1, numEntries do
-		local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
+	local numEntries, numQuests = C_QuestLog.GetNumQuestLogEntries()
+	for questIdx = 1, numEntries do
+		-- local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
+		local title, _, questId = C_QuestLog.GetInfo(questIdx)
 		if (type (questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
 			br.QuestCache[title] = true
 		end

@@ -291,11 +291,11 @@ local function runRotation()
     UpdateToggle("Ironfur", 0.25)
     UpdateToggle("BristlingFur", 0.25)
     UpdateToggle("Kitty", 0.25)
-    br.player.mode.bristlingFur = br.data.settings[br.selectedSpec].toggles["BristlingFur"]
-    br.player.mode.ironfur = br.data.settings[br.selectedSpec].toggles["Ironfur"]
-    br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
-    br.player.mode.kitty = br.data.settings[br.selectedSpec].toggles["Kitty"]
-    br.player.mode.wildCharge = br.data.settings[br.selectedSpec].toggles["WildCharge"]
+    br.player.ui.mode.bristlingFur = br.data.settings[br.selectedSpec].toggles["BristlingFur"]
+    br.player.ui.mode.ironfur = br.data.settings[br.selectedSpec].toggles["Ironfur"]
+    br.player.ui.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
+    br.player.ui.mode.kitty = br.data.settings[br.selectedSpec].toggles["Kitty"]
+    br.player.ui.mode.wildCharge = br.data.settings[br.selectedSpec].toggles["WildCharge"]
 
     local buff = br.player.buff
     local cast = br.player.cast
@@ -319,7 +319,7 @@ local function runRotation()
     local level = br.player.level
     local lossPercent = getHPLossPercent("player", 5)
     local lowestHP = br.friend[1].unit
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local php = br.player.health
     local playerMouse = UnitIsPlayer("mouseover")
     local rage, ragemax, ragegen, rageDeficit = br.player.power.rage.amount(), br.player.power.rage.max(), br.player.power.rage.regen(), br.player.power.rage.deficit()
@@ -471,7 +471,7 @@ local function runRotation()
             end
         end -- End Shapeshift Form Management
 
-        if br.player.mode.taunt == 1 and inInstance then
+        if br.player.ui.mode.taunt == 1 and inInstance then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -481,7 +481,7 @@ local function runRotation()
                 end
             end
         end
-        if br.player.mode.taunt == 2 then
+        if br.player.ui.mode.taunt == 2 then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -492,7 +492,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Wild Charge") and br.player.mode.wildCharge == 1 then
+        if isChecked("Wild Charge") and br.player.ui.mode.wildCharge == 1 then
             if getDistance("target") > 9 and cast.able.wildCharge() and inCombat and bear then
                 if cast.wildCharge("target") then
                     return
@@ -661,7 +661,7 @@ local function runRotation()
     end
 
     local function List_Bearmode()
-        if br.player.mode.ironfur == 1 and (hasAggro >= 2) and bear then
+        if br.player.ui.mode.ironfur == 1 and (hasAggro >= 2) and bear then
             if (traits.layeredMane.active and rage >= 45) or not buff.ironfur.exists() or buff.goryFur.exists() or rage >= 55 or buff.ironfur.remain() < 2 then
                 if cast.ironfur() then
                     return
@@ -686,7 +686,7 @@ local function runRotation()
             end
         end
 
-        if br.player.mode.bristlingFur == 1 and rage < 40 and (hasAggro >= 2) then
+        if br.player.ui.mode.bristlingFur == 1 and rage < 40 and (hasAggro >= 2) then
             if cast.bristlingFur() then
                 return
             end
@@ -764,7 +764,7 @@ local function runRotation()
     if pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
         return
     else
-        if talent.feralAffinity and br.player.mode.kitty == 1 and (hasAggro <= 1 or isChecked("Open World")) and cattime then
+        if talent.feralAffinity and br.player.ui.mode.kitty == 1 and (hasAggro <= 1 or isChecked("Open World")) and cattime then
             if KittyWeave() then
                 return
             end

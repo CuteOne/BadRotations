@@ -57,29 +57,20 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile, "General - Version 1.000")
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
-		-- Taunt
+		-- Taunt--
 		br.ui:createCheckbox(section, "Taunt", "|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
 		------------------------
 		--- COOLDOWN OPTIONS ---
 		------------------------
-		section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
-        br.ui:createCheckbox(section, "Corruption Radar On")
-        br.ui:createCheckbox(section, "Use Hammer of Justice on TFTB")
-        br.ui:createCheckbox(section, "Use Blinding Light on TFTB")
-        br.ui:createCheckbox(section, "Use Blessing of Freedom for Snare")
-        br.ui:createDropdownWithout(section, "Use Cloak", {"snare", "Eye", "THING", "Never"}, 4, "", "")
-        br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
-        br.ui:checkSectionState(section)
-		
 		section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
 		-- Racial
 		br.ui:createCheckbox(section, "Racial")
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinkets 1", 70, 0, 100, 5, "Health Percentage to use at")
-		br.ui:createDropdownWithout(section, "Trinkets 1 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFGround"}, 1, "", "|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createDropdownWithout(section, "Trinkets 1 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFGround","|cffFFFFFFWith Avenging Wrath"}, 1, "", "|cffFFFFFFSelect Trinkets mode.")
 		br.ui:createSpinner(section, "Trinkets 2", 70, 0, 100, 5, "Health Percentage to use at")
-		br.ui:createDropdownWithout(section, "Trinkets 2 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFGround"}, 1, "", "|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createDropdownWithout(section, "Trinkets 2 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFGround","|cffFFFFFFWith Avenging Wrath"}, 1, "", "|cffFFFFFFSelect Trinkets mode.")
 		-- Seraphim
 		br.ui:createSpinner(section, "Seraphim", 0, 0, 20, 2, "|cffFFFFFFEnemy TTD")
 		-- Avenging Wrath
@@ -124,9 +115,9 @@ local function createOptions()
 		-- Hammer of Justice
 		br.ui:createSpinner(section, "Hammer of Justice - HP", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at")
 		-- Light of the Protector
-		br.ui:createSpinner(section, "Light of the Protector", 70, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+		br.ui:createSpinner(section, "Word of Glory", 70, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
 		-- Hand of the Protector - on others
-		br.ui:createSpinner(section, "Hand of the Protector - Party", 40, 0, 100, 5, "|cffFFBB00Teammate Health Percentage to use at.")
+		br.ui:createSpinner(section, "Word of Glory - Party", 40, 0, 100, 5, "|cffFFBB00Teammate Health Percentage to use at.(Requires hand of the protector Talent)")
 		-- Lay On Hands
 		br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "", "Health Percentage to use at")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
@@ -200,8 +191,8 @@ local function runRotation()
 	UpdateToggle("Interrupt", 0.25)
 	UpdateToggle("BossCase", 0.25)
 	UpdateToggle("CancelBop", 0.25)
-	br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
-	br.player.mode.cancelBop = br.data.settings[br.selectedSpec].toggles["CancelBop"]
+	br.player.ui.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
+	br.player.ui.mode.cancelBop = br.data.settings[br.selectedSpec].toggles["CancelBop"]
 	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
 
 	--------------
@@ -220,12 +211,14 @@ local function runRotation()
 	local gcd = br.player.gcd
 	local hastar = GetObjectExists("target")
 	local healPot = getHealthPot()
+	local holyPower     = br.player.power.holyPower.amount()
+	local holyPowerMax  = br.player.power.holyPower.max()
 	local inCombat = br.player.inCombat
 	local level = br.player.level
 	local inInstance = br.player.instance == "party"
 	local inRaid = br.player.instance == "raid"
 	local lowest = br.friend[1]
-	local mode = br.player.mode
+	local mode = br.player.ui.mode
 	local php = br.player.health
 	local race = br.player.race
 	local racial = br.player.getRacial()
@@ -285,7 +278,29 @@ local function runRotation()
 			lowestUnit = thisUnit
 		end
 	end
-
+	local Debuff = {
+		--debuff_id
+		{255434},
+		{265881},
+		{264556},
+		{270487},
+		{274358},
+		{270447}
+	}
+	local Casting = {
+		--spell_id	, spell_name
+		{267899, "Hindering Cleave"}, -- Shrine of the Storm
+		{272457, "Shockwave"}, -- Underrot
+		{260508, "Crush"}, -- Waycrest Manor
+		{249919, "Skewer"}, -- Atal'Dazar
+		{265910, "Tail Thrash"}, -- King's Rest
+		{268586, "Blade Combo"}, -- King's Rest
+		{262277, "Terrible Thrash"}, -- Fetid Devourer
+		{265248, "Shatter"}, -- Zek'voz
+		{273316, "Bloody Cleave"}, -- Zul, Reborn
+		{273282, "Essence Shear"}, -- Mythrax the Unraveler
+		{167385, "Uber Strike",}
+	}
 	local StunsBlackList = {
 		-- Atal'Dazar
 		[87318] = "Dazar'ai Colossus",
@@ -392,13 +407,47 @@ local function runRotation()
 			end
 		end
 	end
-	if br.player.mode.BossCase == 1 then
+	if br.player.ui.mode.BossCase == 1 then
 		bossHelper()
 	end
 	--------------------
 	--- Action Lists ---
 	--------------------
 	-- Action List - Extras
+	local function offGCD()
+		--shield
+		local shieldDebuff = false
+		local castingShield = false
+		local hpShield = false
+		local regularShield = false
+		for i = 1, #Debuff do
+			local debuff_id = Debuff[i]
+			if getDebuffRemain("player", debuff_id) > 1 and not buff.shieldOfTheRighteous.exists("player") then
+				debuffShield = true
+			end
+		end
+		for i = 1, #Casting do
+			local spell_id = Casting[i][1]
+			local spell_name = Casting[i][2]
+			if botSpell ~= spell.shieldOfTheRighteous and UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists("player") then
+				castingShield = true
+			end
+		end
+		if isChecked("Shield of the Righteous - HP") and cast.able.shieldOfTheRighteous() then
+			if botSpell ~= spell.shieldOfTheRighteous and php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists("player") then
+				hpShield = true
+			end
+		end
+		if isChecked("Shield of the Righteous") and #enemies.yards10 >= 1 and (holyPower == 5 or (not buff.shieldOfTheRighteous.exists("player")) or buff.shieldOfTheRighteous.remains() <= 0.5) then
+			if botSpell ~= spell.shieldOfTheRighteous then
+				regularShield = true
+			end
+		end
+		if (debuffShield or castingShield or hpShield or regularShield) and (holyPower >= 3 or buff.divinePurpose.exists("player")) then
+			if cast.shieldOfTheRighteous() then return end
+		end
+	end
+
 	local function actionList_Extras()
 		-- Blessing of Freedom
 		if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and isMoving("player")
@@ -551,83 +600,8 @@ local function runRotation()
 				end
 			end
 		end
-		-- Shield of the Righteous
-		local Debuff = {
-			--debuff_id
-			{255434},
-			{265881},
-			{264556},
-			{270487},
-			{274358},
-			{270447}
-		}
-		for i = 1, #Debuff do
-			local debuff_id = Debuff[i]
-			if botSpell ~= spell.shieldOfTheRighteous and getDebuffRemain("player", debuff_id) > 1 and not buff.shieldOfTheRighteous.exists("player") then
-				if cast.shieldOfTheRighteous() --[[ Print("Debuff Shield") ]] then
-					return
-				end
-			end
-		end
-		local Casting = {
-			--spell_id	, spell_name
-			{267899, "Hindering Cleave"}, -- Shrine of the Storm
-			{272457, "Shockwave"}, -- Underrot
-			{260508, "Crush"}, -- Waycrest Manor
-			{249919, "Skewer"}, -- Atal'Dazar
-			{265910, "Tail Thrash"}, -- King's Rest
-			{268586, "Blade Combo"}, -- King's Rest
-			{262277, "Terrible Thrash"}, -- Fetid Devourer
-			{265248, "Shatter"}, -- Zek'voz
-			{273316, "Bloody Cleave"}, -- Zul, Reborn
-			{273282, "Essence Shear"} -- Mythrax the Unraveler
-		}
-		for i = 1, #Casting do
-			local spell_id = Casting[i][1]
-			local spell_name = Casting[i][2]
-			if botSpell ~= spell.shieldOfTheRighteous and UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists("player") then
-				if cast.shieldOfTheRighteous() then
-					--[[ Print("damage reduction in advance..." .. spell_name) ]]
-					return
-				end
-			end
-		end
 	end
 
-	local function corruptionstuff()
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak") or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    return
-                end
-            end
-        end
-        if isChecked("Corruption Radar On") then
-            local stun = "Hammer of Justice"
-
-            for i = 1, GetObjectCountBR() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if isChecked("Use Hammer of Justice on TFTB") then
-                    if ID == 161895 then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 9 and isChecked("Use Blinding Light on TFTB") and cd.blindingLight.remains() <= gcd and talent.blindingLight and not debuff.hammerOfJustice.exists(object) then
-                            if cast.blindingLight(object) then
-                                return true
-                            end
-                        end
-                        if distance <= 11 and not isLongTimeCCed(object) and cd.hammerOfJustice.remains() <= gcd and not debuff.blindingLight.exists(object) then
-                            if cast.hammerOfJustice(object) then
-                                return true
-                            end
-                        end
-                    end
-                end -- end the thing
-            end
-        end
-    end
 	-- Action List - Defensives
 	local function actionList_Defensive()
 		if useDefensive() then
@@ -656,19 +630,15 @@ local function runRotation()
 				end
 			end
 			-- Light of the Protector
-			if isChecked("Light of the Protector") and cast.able.lightOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and not talent.handOfTheProtector then
-				if cast.lightOfTheProtector() then
-					return
-				end
-			elseif isChecked("Light of the Protector") and cast.able.handOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and talent.handOfTheProtector then
-				if cast.handOfTheProtector("player") then
+			if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") and (buff.shiningLight.exists("player")) then
+				if cast.wordOfGlory() then
 					return
 				end
 			end
 			-- Hand of the Protector - Others
-			if isChecked("Hand of the Protector - Party") and cast.able.handOfTheProtector() and talent.handOfTheProtector then
-				if lowest.hp <= getOptionValue("Hand of the Protector - Party") then
-					if cast.handOfTheProtector(lowest.unit) then
+			if isChecked("Word of Glory - Party") and talent.handOfTheProtector and ( buff.shiningLight.exists("player")) then
+				if lowest.hp <= getOptionValue("Word of Glory - Party") then
+					if cast.wordOfGlory(lowest.unit) then
 						return
 					end
 				end
@@ -905,14 +875,6 @@ local function runRotation()
 					return
 				end
 			end
-			-- Shield of the Righteous
-			if isChecked("Shield of the Righteous - HP") and cast.able.shieldOfTheRighteous() then
-				if botSpell ~= spell.shieldOfTheRighteous and php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists("player") then
-					if cast.shieldOfTheRighteous() --[[  Print("HP Shield") ]] then
-						return
-					end
-				end
-			end
 			-- Guardian of Ancient Kings
 			if isChecked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
 				if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
@@ -992,7 +954,7 @@ local function runRotation()
 	end -- end Action List - Defensive
 	-- Action List - Cooldowns
 	local function actionList_Cooldowns()
-		if useCDs() or burst then
+		if useCDs() then
 			-- Trinkets
 			if isChecked("Trinkets 1") and canUseItem(13) then
 				if getOptionValue("Trinkets 1 Mode") == 1 then
@@ -1002,6 +964,11 @@ local function runRotation()
 					end
 				elseif getOptionValue("Trinkets 1 Mode") == 2 then
 					if useItemGround("target", 13, 40, 0, nil) then
+						return true
+					end
+				elseif getOptionValue("Trinkets 1 Mode") == 3 then
+					if buff.avengingWrath.remains() > 15 then
+						useItem(13)
 						return true
 					end
 				end
@@ -1014,6 +981,11 @@ local function runRotation()
 					end
 				elseif getOptionValue("Trinkets 2 Mode") == 2 then
 					if useItemGround("target", 14, 40, 0, nil) then
+						return true
+					end
+				elseif getOptionValue("Trinkets 2 Mode") == 3 then
+					if buff.avengingWrath.remains() > 15 then
+						useItem(13)
 						return true
 					end
 				end
@@ -1033,19 +1005,19 @@ local function runRotation()
 			end
 			if GetUnitExists(units.dyn5) then
 				-- Seraphim
-				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd) then
+				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and (getOptionValue("Seraphim") <= ttd) then
 					if cast.seraphim() then
 						return
 					end
 				end
 				-- Avenging Wrath
-				if not buff.avengingWrath.exists() and isChecked("Avenging Wrath") and cast.able.avengingWrath() and (not talent.seraphim or buff.seraphim.remain() > 13) and (getOptionValue("Avenging Wrath") <= ttd) then
+				if (not buff.avengingWrath.exists() or buff.seraphim.remains("player") >= 10) and isChecked("Avenging Wrath") and cast.able.avengingWrath() and (getOptionValue("Avenging Wrath") <= ttd) then
 					if cast.avengingWrath() then
 						return
 					end
 				end
 				-- Bastion of Light
-				if isChecked("Bastion of Light") and cast.able.bastionOfLight() and talent.bastionOfLight and (charges.shieldOfTheRighteous.frac() < 0.2) and (not talent.seraphim or buff.seraphim.exists()) then
+				if isChecked("Bastion of Light") and cast.able.bastionOfLight() and talent.bastionOfLight and (not talent.seraphim or buff.seraphim.exists()) then
 					if cast.bastionOfLight() then
 						return
 					end
@@ -1107,24 +1079,30 @@ local function runRotation()
 		end
 	end -- end Action List - Interrupts
 	local function actionList_Feng()
-		-- Shield of the Righteous
-		if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and GetUnitExists(units.dyn5) and not buff.shieldOfTheRighteous.exists("player") then
-			if botSpell ~= spell.shieldOfTheRighteous and ((not talent.seraphim and charges.shieldOfTheRighteous.frac() > 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists()) or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists())) then
-				if cast.shieldOfTheRighteous() then
-					return
+		-- Avenger's Shield Aoe
+		for i = 1, #enemies.yards30 do
+			local thisUnit = enemies.yards30[i]
+			if getHP(thisUnit) <= 20 then
+				if cast.hammerOfWrath(thisUnit) then
+					return 
 				end
-				sotrTime = GetTime()
 			end
 		end
-		-- Avenger's Shield Aoe
-		if isChecked("Avenger's Shield") and cast.able.avengersShield() and (((charges.shieldOfTheRighteous.frac() > 2.5 and not buff.avengersValor.exists()) or #enemies.yards8 >= 2 or traits.bulwarkOfLight.rank > 1)) then
+		if isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 > 2 then
 			if cast.avengersShield() then
 				return
 			end
 		end
 		-- Consecration
-		if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 and not buff.consecration.exists() then
-			if cast.consecration("player") then
+		if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 and getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 3) then
+			if cast.consecration() then
+				cX, cY, cZ = GetObjectPosition("player")
+				return
+			end
+		end
+		-- Blessed Hammer
+		if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 3 then
+			if cast.blessedHammer() then
 				return
 			end
 		end
@@ -1173,11 +1151,6 @@ local function runRotation()
 				end
 			end
 		end
-		if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
-			if cast.concentratedFlame("target") then
-				return
-			end
-		end
 		-- Avenger's Shield
 		if isChecked("Avenger's Shield") and cast.able.avengersShield() then
 			if cast.avengersShield() then
@@ -1193,12 +1166,6 @@ local function runRotation()
 		-- Hammer of the Righteous
 		if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and GetUnitExists(units.dyn5) then
 			if cast.hammerOfTheRighteous() then
-				return
-			end
-		end
-		-- Consecration
-		if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 and not buff.consecration.exists() then
-			if cast.consecration("player") then
 				return
 			end
 		end
@@ -1224,6 +1191,9 @@ local function runRotation()
 	local function actionList_PreCombat()
 		-- PreCombat abilities listed here
 	end -- end Action List - PreCombat
+
+
+	if offGCD() then return true end
 	---------------------
 	--- Begin Profile ---
 	---------------------
@@ -1239,13 +1209,10 @@ local function runRotation()
 		if actionList_Extras() then
 			return
 		end
-		if corruptionstuff() then
-			return
-		end
 		---------------------------
 		--- Boss Encounter Case ---
 		---------------------------
-		if br.player.mode.BossCase == 1 then
+		if br.player.ui.mode.BossCase == 1 then
 			if BossEncounterCase() then
 				return
 			end

@@ -488,9 +488,11 @@ function enemyListCheck(Unit)
 		playerBuff = 1
 	end
 	if targetBuff ~= playerBuff then return false end
+	local phaseReason = UnitPhaseReason(Unit)
 	local distance = getDistance(Unit, "player")
 	local mcCheck =	(isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or not GetUnitIsFriend(Unit, "player")
-	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player", Unit) and UnitHealth(Unit) > 0 and
+	local inPhase = not phaseReason or phaseReason == 2 or phaseReason == 3
+	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and inPhase and UnitCanAttack("player", Unit) and UnitHealth(Unit) > 0 and
 		distance < 50 and
 		not isCritter(Unit) and
 		mcCheck and
@@ -576,23 +578,6 @@ function BurstToggle(toggle, delay)
 			_G[toggle .. "Timer"] = GetTime()
 			burstKey = false
 		end
-	end
-end
-function SlashCommandHelp(cmd, msg)
-	if cmd == nil then
-		cmd = ""
-	end
-	if msg == nil then
-		msg = ""
-	end
-	if cmd == "Print Help" then
-		Print(tostring(commandHelp))
-		return
-	end
-	if commandHelp == nil then
-		commandHelp = "BadRotations Slash Commands\n        /" .. cmd .. " - " .. msg
-	else
-		commandHelp = commandHelp .. "\n        /" .. cmd .. " - " .. msg
 	end
 end
 -- if pause() then

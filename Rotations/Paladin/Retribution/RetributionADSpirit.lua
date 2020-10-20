@@ -222,7 +222,7 @@ local function runRotation()
 	UpdateToggle("Defensive",0.25)
 	UpdateToggle("Interrupt",0.25)
 	UpdateToggle("Wake",0.25)
-    br.player.mode.wake = br.data.settings[br.selectedSpec].toggles["Wake"]
+    br.player.ui.mode.wake = br.data.settings[br.selectedSpec].toggles["Wake"]
 
 	--------------
 	--- Locals ---
@@ -246,7 +246,7 @@ local function runRotation()
 	local item          = br.player.items
     local level         = br.player.level
     local leftCombat    = GetTime()
-    local mode          = br.player.mode
+    local mode          = br.player.ui.mode
     local opener        = br.player.opener
     local profileStop   = false
 	local php           = br.player.health

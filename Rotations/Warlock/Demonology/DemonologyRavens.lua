@@ -204,7 +204,7 @@ local function runRotation()
     UpdateToggle("Cooldown", 0.25)
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
-    br.player.mode.bsb = br.data.settings[br.selectedSpec].toggles["BilescourgeBombers"]
+    br.player.ui.mode.bsb = br.data.settings[br.selectedSpec].toggles["BilescourgeBombers"]
     --------------
     --- Locals ---
     --------------
@@ -233,7 +233,7 @@ local function runRotation()
     local level = br.player.level
     local lootDelay = getOptionValue("LootDelay")
     local manaPercent = br.player.power.mana.percent()
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local moving = isMoving("player") ~= false or br.player.moving
     local pet = br.player.pet.list
     local php = br.player.health

@@ -202,8 +202,8 @@ local function runRotation()
 		UpdateToggle("Interrupt",0.25)
 		UpdateToggle("Detox",0.25)
 		UpdateToggle("DPS",0.25)
-		br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
-		br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
+		br.player.ui.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
+		br.player.ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
 		--------------
 		--- Locals ---
 		--------------
@@ -224,7 +224,7 @@ local function runRotation()
 		local level                                         = br.player.level
 		local lowestHP                                      = br.friend[1].unit
 		local mana                                          = br.player.power.mana.percent()
-		local mode                                          = br.player.mode
+		local mode                                          = br.player.ui.mode
 		local perk                                          = br.player.perk
 		local php                                           = br.player.health
 		local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
@@ -248,7 +248,7 @@ local function runRotation()
 		local enemies                                       = br.player.enemies
 		local lastSpell                                     = lastSpellCast
 		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
-		local mode                                          = br.player.mode
+		local mode                                          = br.player.ui.mode
 		local pullTimer                                     = br.DBM:getPulltimer()
 		local units                                         = br.player.units
 		local tanks                                         = getTanksTable()
@@ -752,7 +752,7 @@ local function runRotation()
 		end--end mana tea rotation
 
 		local function dps_actionlist() -- Very secret function for Mistweavers only
-			if br.player.mode.dps == 1 then
+			if br.player.ui.mode.dps == 1 then
 				if br.friend[1].hp >= getValue("DPS Mode") then
 					if talent.risingThunder then
 						if cast.risingSunKick() then return end
@@ -777,7 +777,7 @@ local function runRotation()
 		local function Defensive()
 			if useDefensive() then
 				--detox
-				if br.player.mode.detox == 1 then
+				if br.player.ui.mode.detox == 1 then
 					for i = 1, #br.friend do
 						if inInstance and ((getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,6) < 2) or (getDebuffRemain(br.friend[i].unit,252781) > 2 and #getAllies(br.friend[i].unit,9) < 2)) then
 							if cast.detox(br.friend[i].unit) then return end
@@ -823,7 +823,7 @@ local function runRotation()
 					if OoC_Healing() then return end
 				end
 			elseif inCombat and profileStop==false and not isCastingSpell(spell.essenceFont) then 
-				if br.player.mode.dps == 1 and lowest.hp > getOptionValue("DPS Mode") then
+				if br.player.ui.mode.dps == 1 and lowest.hp > getOptionValue("DPS Mode") then
 					if dps_actionlist() then return end
 				else
 					if buff.wayOfTheCrane.exists() then

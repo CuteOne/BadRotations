@@ -89,8 +89,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "Check to ignore certain units when multidotting")
-            br.ui:createSpinnerWithout(section,  "Multidot Limit",  5,  0,  8,  1,  "Max units to dot with garrote.")
-            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "Use Poisoned Knife out of range.")
+            br.ui:createSpinnerWithout(section,  "Multidot Limit",  5,  0,  8,  1,  "Max units to dot with garrote")
+            br.ui:createSpinner(section, "Poisoned Knife out of range", 120,  1,  170,  5,  "Use Poisoned Knife out of range")
             br.ui:createDropdown(section, "Ignore Blacklist for FoK/CT", {"Both","FoK","CT",}, 1, "Ignore blacklist for Fan of Knives and/or Crimson Tempest usage")
             br.ui:createSpinner(section,  "Disable Garrote on # Units",  5,  1,  20,  1,  "Max units within 10 yards for garrote usage outside stealth (FoK spam)")
             br.ui:createCheckbox(section, "Dot Players", "Check to dot player targets (MC ect.)")
@@ -103,9 +103,9 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             br.ui:createCheckbox(section, "Racial", "Will use Racial")
             br.ui:createCheckbox(section, "Trinkets", "Will use Trinkets")
-            br.ui:createCheckbox(section, "Precombat", "Will use items on pulltimer (don't move on pull timer)")
+            br.ui:createCheckbox(section, "Precombat", "Will use items/pots on pulltimer")
             br.ui:createCheckbox(section, "Essences", "Will use Essences")
-            br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  20,  1,  "* 5k Put damage of your Reaping Flames")
+            br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  50,  1,  "* 5k Put damage of your Reaping Flames")
             br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "Potion with CDs")
             br.ui:createCheckbox(section, "Vendetta", "Will use Vendetta")
             br.ui:createCheckbox(section, "Hold Vendetta", "Will hold Vendetta for Vanish")
@@ -126,13 +126,13 @@ local function createOptions()
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            br.ui:createSpinner(section, "Health Pot / Healthstone",  25,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Health Pot / Healthstone",  25,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createCheckbox(section, "Cloak of Shadows")
-            br.ui:createSpinner(section, "Crimson Vial",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Concentrated Flame",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Crimson Vial",  40,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Concentrated Flame",  50,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "Health Percentage to use at.")
             br.ui:createCheckbox(section, "Auto Defensive Unavoidables", "Will use feint/evasion on certain unavoidable boss abilities")
             br.ui:createSpinnerWithout(section,  "Evasion Unavoidables HP Limit",  85,  0,  100,  5,  "Player HP to use evasion on unavoidables.")
             br.ui:createCheckbox(section, "Cloak Unavoidables", "Will cloak on unavoidables")
@@ -144,9 +144,9 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kick")
             br.ui:createCheckbox(section, "Kidney Shot")
             br.ui:createCheckbox(section, "Blind")
-            br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "|cffFFBB00Remaining Cast Percentage to interrupt at.")
+            br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
             br.ui:createCheckbox(section, "Stuns", "Auto stun mobs from whitelist")
-            br.ui:createSpinnerWithout(section,  "Max CP For Stun",  3,  1,  6,  1,  "|cffFFBB00 Maximum number of combo points to stun")
+            br.ui:createSpinnerWithout(section,  "Max CP For Stun",  3,  1,  6,  1,  " Maximum number of combo points to stun")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -197,12 +197,12 @@ local function runRotation()
     UpdateToggle("Garrote",0.25)
     UpdateToggle("Focus",0.25)
     UpdateToggle("Vanish",0.25)
-    br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
-    br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
-    br.player.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
-    br.player.mode.garrote = br.data.settings[br.selectedSpec].toggles["Garrote"]
-    br.player.mode.focus = br.data.settings[br.selectedSpec].toggles["Focus"]
-    br.player.mode.vanish = br.data.settings[br.selectedSpec].toggles["Vanish"]
+    br.player.ui.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
+    br.player.ui.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
+    br.player.ui.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
+    br.player.ui.mode.garrote = br.data.settings[br.selectedSpec].toggles["Garrote"]
+    br.player.ui.mode.focus = br.data.settings[br.selectedSpec].toggles["Focus"]
+    br.player.ui.mode.vanish = br.data.settings[br.selectedSpec].toggles["Vanish"]
 --------------
 --- Locals ---
 --------------
@@ -221,7 +221,7 @@ local function runRotation()
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance == "party"
     local level                                         = br.player.level
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local php                                           = br.player.health
     local pullTimer                                     = br.DBM:getPulltimer()
@@ -400,7 +400,7 @@ local function runRotation()
     clearTable(enemyTable10)
     clearTable(enemyTable30)
     local fightRemain = 0
-    local deadlyPoison10 = true
+    local instantPoison10 = true
     local spell5y = GetSpellInfo(spell.kick)
     local spell10y = GetSpellInfo(spell.pickPocket)
     if #enemies.yards30 > 0 then
@@ -459,7 +459,7 @@ local function runRotation()
             if IsSpellInRange(spell10y, thisUnit.unit) == 1 then
                 if fokIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     tinsert(enemyTable10, thisUnit)
-                    if deadlyPoison10 and not trait.echoingBlades.active and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
+                    if instantPoison10 and not trait.echoingBlades.active and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then instantPoison10 = false end
                 end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if thisUnit.yards5 then
@@ -1117,7 +1117,7 @@ local function runRotation()
         end
         -- # Fan of Knives to apply Deadly Poison if inactive on any target at 3 targets
         -- actions.direct+=/fan_of_knives,target_if=!dot.deadly_poison_dot.ticking,if=variable.use_filler&spell_targets.fan_of_knives>=3
-        if not deadlyPoison10 and useFiller and fokenemies10 >= 3 and not queenBuff then
+        if not instantPoison10 and useFiller and fokenemies10 >= 3 and not queenBuff then
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled&!azerite.double_dose.enabled)

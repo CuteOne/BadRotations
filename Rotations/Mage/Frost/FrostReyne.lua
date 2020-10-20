@@ -101,7 +101,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
         local perk                                          = br.player.perk

@@ -470,7 +470,7 @@ actionList.glimmer = function()
 
     --  Print(mode.dPS)
 
-    br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+    br.player.ui.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
 
     if cast.able.holyShock() then
         local glimmerCount = 0
@@ -482,8 +482,8 @@ actionList.glimmer = function()
 
 
         --Glimmer support
-        if isChecked("Aggressive Glimmer") and br.player.mode.DPS == 1 and br.player.inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
-            if br.player.mode.DPS == 1 and not debuff.glimmerOfLight.exists("target", "EXACT") and GetUnitExists("target") and getFacing("player", "target") then
+        if isChecked("Aggressive Glimmer") and br.player.ui.mode.DPS == 1 and br.player.inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
+            if br.player.ui.mode.DPS == 1 and not debuff.glimmerOfLight.exists("target", "EXACT") and GetUnitExists("target") and getFacing("player", "target") then
                 if cast.holyShock("target") then
                     br.addonDebug("[GLIM] Aggressive Glimmer on: " .. UnitName("target"))
                     return true
@@ -1653,7 +1653,7 @@ local function runRotation()
     inCombat = br.player.inCombat
     item = br.player.items
     level = br.player.level
-    mode = br.player.mode
+    mode = br.player.ui.mode
     php = br.player.health
     spell = br.player.spell
     talent = br.player.talent
@@ -1725,7 +1725,7 @@ local function runRotation()
         end
     end
 
-    br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+    br.player.ui.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
 
 
 
@@ -1762,7 +1762,7 @@ local function runRotation()
                 if actionList.Cooldown() then
                     return true
                 end
-                if br.player.mode.cleanse == 1 then
+                if br.player.ui.mode.cleanse == 1 then
                     if actionList.cleanse() then
                         return true
                     end
@@ -1793,7 +1793,7 @@ local function runRotation()
                     if actionList.Cooldown() then
                         return true
                     end
-                    if br.player.mode.cleanse == 1 then
+                    if br.player.ui.mode.cleanse == 1 then
                         if actionList.cleanse() then
                             return true
                         end

@@ -201,7 +201,7 @@ local function runRotation()
     local gcd                                           = br.player.gcdMax
     local inCombat                                      = br.player.inCombat
     local inRaid                                        = br.player.instance=="raid"
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local pet                                           = br.player.pet
     local runes                                         = br.player.power.runes.amount()
     local runeDeficit                                   = br.player.power.runes.deficit()
@@ -285,12 +285,12 @@ local function runRotation()
         local petExists = UnitExists("pet")
         local petMode = getCurrentPetMode()
         local validTarget = UnitExists("pettarget") or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
-        if petExists and petActive and deadPet then deadPet = false end
+        if petExists and petActive and br.deadPet then br.deadPet = false end
         if waitForPetToAppear == nil or IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
             waitForPetToAppear = GetTime()
         elseif isChecked("Raise Dead") then
             if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                if cast.able.raiseDead() and (deadPet or (not deadPet and not (petActive or petExists))
+                if cast.able.raiseDead() and (br.deadPet or (not br.deadPet and not (petActive or petExists))
                     or (talent.allWillServe and not pet.risenSkulker.exists()))
                 then
                     if cast.raiseDead() then waitForPetToAppear = GetTime(); return end

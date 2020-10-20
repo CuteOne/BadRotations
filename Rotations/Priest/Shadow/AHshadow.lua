@@ -176,10 +176,10 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local moveIn                                        = 999
         local moving                                        = (isMoving("player") and not br.player.buff.norgannonsForesight.exists())
-        -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
+        -- local multidot                                      = (useCleave() or br.player.ui.mode.rotation ~= 3)
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")

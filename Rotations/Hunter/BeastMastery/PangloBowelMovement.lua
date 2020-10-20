@@ -166,7 +166,7 @@ local function runRotation()
     local inRaid                             = br.player.instance=="raid"
     local item                               = br.player.items
     local level                              = br.player.level
-    local mode                               = br.player.mode
+    local mode                               = br.player.ui.mode
     local opener                             = br.player.opener
     local php                                = br.player.health
     local potion                             = br.player.potion
@@ -315,11 +315,11 @@ local function runRotation()
             if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                 if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
             elseif callPet ~= nil then
-                if deadPet or (petExists and petHealth == 0) then
+                if br.deadPet or (petExists and petHealth == 0) then
                     if cast.able.revivePet() and cast.timeSinceLast.revivePet() > gcdMax then
                         if cast.revivePet("player") then waitForPetToAppear = GetTime(); return true end
                     end
-                elseif not deadPet and not petExists and not buff.playDead.exists("pet") then
+                elseif not br.deadPet and not petExists and not buff.playDead.exists("pet") then
                     if castSpell("player",callPet,false,false,false,true,true,true,true,false) then waitForPetToAppear = GetTime(); return true end
                 end
             end
@@ -499,7 +499,7 @@ local function runRotation()
             end
         end
         -- Mend Pet
-        if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
+        if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not br.deadPet
             and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile and not pause()
         then
             if cast.mendPet() then return end

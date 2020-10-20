@@ -31,6 +31,7 @@ if not metaTable2 then
 	}
 
 	function br.unitSetup:new(unit)
+		local startTime = debugprofilestop()
 		-- Seeing if we have already cached this unit before
 		if br.unitSetup.cache[unit] then return false end
 		if UnitDebuffID("player",295249) and UnitIsPlayer(unit) then return false end
@@ -43,6 +44,7 @@ if not metaTable2 then
 		end
 		--Function time to die
 		function o:unitTtd(targetPercentage)
+			local startTime = debugprofilestop()
 			if targetPercentage == nil then targetPercentage = 0 end
 			local value
 			if o.hp == 0 then return -1 end
@@ -103,6 +105,8 @@ if not metaTable2 then
 					return -1 -- TTD under 0
 				end
 			end
+			-- Debugging
+			br.debug.cpu:updateDebug(startTime,"enemiesEngine.unitSetup.ttd")
 			return 999 -- not enough values
 		end
 		--Distance
@@ -138,6 +142,7 @@ if not metaTable2 then
 		end
 		--Debuffs
 		function o:UpdateDebuffs(debuffList,unit)
+			local startTime = debugprofilestop()
 			if not isChecked("Cache Debuffs") then
 				debuffList = {}
 				return debuffList
@@ -187,10 +192,13 @@ if not metaTable2 then
 					end
 				end
 			end
+			-- Debugging
+			br.debug.cpu:updateDebug(startTime,"enemiesEngine.unitSetup.updateDebuffs")
 			return debuffList
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
+			local startTime = debugprofilestop()
 			o.posX, o.posY, o.posZ = ObjectPosition(o.unit)
 			o.name = UnitName(o.unit)
 			o.guid = UnitGUID(o.unit)
@@ -276,14 +284,19 @@ if not metaTable2 then
 
 			-- add unit to setup cache
 			br.unitSetup.cache[o.unit] = o -- Add unit to SetupTable
+			-- Debugging
+			br.debug.cpu:updateDebug(startTime,"enemiesEngine.unitSetup.updateUnit")
 		end
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
 		br.unitSetup.cache[o.unit] = o
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"enemiesEngine.unitSetup")
 		return o
 	end
 	-- Setting up the tables on either Wipe or Initial Setup
 	function SetupEnemyTables() -- Creating the cache (we use this to check if some1 is already in the table)
+		local startTime = debugprofilestop()
 		setmetatable(br.om, metaTable2) -- Set the metaTable of Main to Meta
 		function br.om:Update()
 			br.omTableTimer = GetTime()
@@ -349,6 +362,8 @@ if not metaTable2 then
 				end
 			end
 		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"enemiesEngine.enemySetup")
 	end
 	-- We are setting up the Tables for the first time
 	SetupEnemyTables()

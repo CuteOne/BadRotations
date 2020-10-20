@@ -252,6 +252,8 @@ local function createOptions()
         --Holy Shock
         br.ui:createSpinner(section, "Holy Shock", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Self Shock", 35, 0, 100, 5, "")
+        --Word of Glory
+        br.ui:createSpinner(section, "Word of Glory", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         --Bestow Faith
         br.ui:createSpinner(section, "Bestow Faith", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createDropdownWithout(section, "Bestow Faith Target", {"|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFSelf+LotM"}, 4, "|cffFFFFFFTarget for BF")
@@ -299,9 +301,13 @@ local function createOptions()
         br.ui:createSpinner(section, "Light's Hammer Damage", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets")
         -- Judgment
         br.ui:createCheckbox(section, "Judgment - DPS")
+        -- Hammer of Wrath
+        br.ui:createCheckbox(section, "Hammer of Wrath")
         -- Holy Shock
         br.ui:createCheckbox(section, "Holy Shock Damage")
         br.ui:createCheckbox(section, "Aggressive Glimmer", "tries to keep one glimmer on target")
+        -- Shield of the Righteous
+        br.ui:createSpinner(section, "Shield of the Righteous", 1, 0, 40, 1, "", "|cffFFFFFFMinimum Shield of the Righteous Targets")
         -- Crusader Strike
         br.ui:createCheckbox(section, "Crusader Strike")
         br.ui:checkSectionState(section)
@@ -380,10 +386,10 @@ local function runRotation()
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
     UpdateToggle("Cleanse", 0.25)
-    br.player.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
-    br.player.mode.Glimmer = br.data.settings[br.selectedSpec].toggles["Glimmer"]
-    br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
-    br.player.mode.Beacon = br.data.settings[br.selectedSpec].toggles["Beacon"]
+    br.player.ui.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
+    br.player.ui.mode.Glimmer = br.data.settings[br.selectedSpec].toggles["Glimmer"]
+    br.player.ui.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+    br.player.ui.mode.Beacon = br.data.settings[br.selectedSpec].toggles["Beacon"]
     --------------
     --- Locals ---
     --------------
@@ -394,6 +400,8 @@ local function runRotation()
     -- local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
     -- local healPot                                       = getHealthPot()
     -- local level                                         = br.player.level
+    local holyPower     = br.player.power.holyPower.amount()
+	local holyPowerMax  = br.player.power.holyPower.max()
     -- local lowestHP                                      = br.friend[1].unit
     -- local lowest                                        = br.friend[1]
     local mana = getMana("player")
@@ -442,7 +450,7 @@ local function runRotation()
     -------------
     local enemies = br.player.enemies
     local lastSpell = lastSpellCast
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local pullTimer = br.DBM:getPulltimer()
     local units = br.player.units
     local LightCount = 0
@@ -1077,7 +1085,7 @@ local function runRotation()
     ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     local function Cleanse()
         -- Cleanse
-        if br.player.mode.cleanse == 1 and cast.able.cleanse() and not cast.last.cleanse() then
+        if br.player.ui.mode.cleanse == 1 and cast.able.cleanse() and not cast.last.cleanse() then
             for i = 1, #br.friend do
                 --[[ DEBUG
                 if getDebuffStacks(br.friend[i].unit, 288388) > 0 then
@@ -1685,6 +1693,22 @@ local function runRotation()
                             return true
                         end
                     end
+                    -- Hammer of Wrath Wings
+                    --if isChecked("Hammer of Wrath") and holyPower <=4 then
+                        --if buff.avengingWrath.exists() then
+                            --if cast.hammerOfWrath(thisUnit) then
+                              --  return true
+                            --end
+                        --end
+                    --end
+                    -- Hammer of Wrath
+                    if isChecked("Hammer of Wrath") and holyPower <=4 then
+                        if getHP(thisUnit) < 20 then
+                            if cast.hammerOfWrath(thisUnit) then
+                                return true
+                            end
+                        end
+                    end
                     -- Light's Hammer
                     if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
                         if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
@@ -1696,7 +1720,7 @@ local function runRotation()
                         if cast.judgment(thisUnit) then
                             return true
                         end
-                    end
+                    end    
                 end
             end
 
@@ -1772,7 +1796,7 @@ local function runRotation()
             end
         end
         -- Light of Dawn
-        if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
+        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and holyPower >=3 then
             if br.unlocked then --EasyWoWToolbox == nil then
                 if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                     if cast.lightOfDawn() then
@@ -1879,6 +1903,11 @@ local function runRotation()
                 if cast.consecration() then
                     cX, cY, cZ = GetObjectPosition("player")
                     return
+                end
+            end
+            if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 and #enemies.yards5 >= getValue("Shield of the Righteous") then
+                if cast.shieldOfTheRighteous(thisUnit) then
+                    return true
                 end
             end
             if cast.judgment(units.dyn30) then
@@ -1992,9 +2021,9 @@ local function runRotation()
                         return
                     end
                 end
-            elseif getSpellCD(20473) > gcd and getSpellCD(85222) == 0 then
+            elseif getSpellCD(20473) > gcd then
                 if br.unlocked then --EasyWoWToolbox == nil then
-                    if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
+                    if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) and holyPower >=3 then
                         if cast.lightOfDawn() then
                             return true
                         end
@@ -2040,6 +2069,7 @@ local function runRotation()
         local lightOfTheMartyrM20 = nil
         local lightOfTheMartyrM30
         local lightOfTheMartyrM40 = nil
+        local wordOfGlorytarget = nil
 
         --and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")
 
@@ -2270,6 +2300,38 @@ local function runRotation()
             end
         end -- end Bestow Faith
 
+        -- Word of Glory
+        if isChecked("Word of Glory") and holyPower >=3 then
+            --Critical first
+            if php <= getValue("Critical HP") then
+                if cast.wordOfGlory("player") then
+                    return true
+                end
+            end
+            if #tanks > 0 then
+                if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
+                    if cast.wordOfGlory(tanks[1].unit) then
+                        healing_obj = tanks[1].unit
+                        return true
+                    end
+                end
+            end
+            if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
+                if cast.wordOfGlory(lowest.unit) then
+                    healing_obj = lowest.unit
+                    return true
+                end
+            end
+            if isChecked("Mastery bonus") and inRaid and wordOfGlorytarget ~= nil then
+                if cast.wordOfGlory(wordOfGlorytarget) then
+                    return true
+                end
+            elseif lowest.hp <= getValue("Word of Glory") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
+                if cast.wordOfGlory(lowest.unit) then 
+                    return true
+                end
+            end
+        end
         -- Flash of Light
         if isChecked("Flash of Light") and not moving then
             --Critical first

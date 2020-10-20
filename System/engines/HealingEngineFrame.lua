@@ -31,8 +31,8 @@ function pulseNovaDebug()
 	-- 		thisDebugRow = br.friendDebug[i]
 	-- 		_G[thisDebugRow]:SetValue(thisUnit.hp)
 	-- 		_G[thisDebugRow.."Text"]:SetText(math.floor(thisUnit.hp))
-	-- 		if classColors[thisUnit.class] ~= nil then
-	-- 			_G[thisDebugRow]:SetStatusBarTexture(classColors[thisUnit.class].R,classColors[thisUnit.class].G,classColors[thisUnit.class].B)
+	-- 		if br.classColors[thisUnit.class] ~= nil then
+	-- 			_G[thisDebugRow]:SetStatusBarTexture(br.classColors[thisUnit.class].R,br.classColors[thisUnit.class].G,br.classColors[thisUnit.class].B)
 	-- 		else
 	-- 			_G[thisDebugRow]:SetStatusBarTexture(1,1,1)
 	-- 		end
@@ -91,8 +91,8 @@ function pulseNovaDebug()
 	    newHPBar:SetSize(180,22)
 
 	    local color = "|cffFFFFFF"
-        if classColors[unit.class] ~= nil then
-            color = classColors[unit.class].hex
+        if br.classColors[unit.class] ~= nil then
+            color = br.classColors[unit.class].hex
         end
 	    newHPBar:SetColor(color)
 
@@ -148,8 +148,8 @@ function pulseNovaDebug()
 	            GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
 	            local thisUnit = br.friend[value]
 	            local color = "|cffFFFFFF"
-	            if classColors[thisUnit.class] ~= nil then
-	                color = classColors[thisUnit.class].hex
+	            if br.classColors[thisUnit.class] ~= nil then
+	                color = br.classColors[thisUnit.class].hex
 	            end
 	            GameTooltip:SetText(color.."Name: "..thisUnit.name..
 	                "\n|cffFF1100Health: "..math.floor(thisUnit.hp)..
@@ -205,8 +205,8 @@ function pulseNovaDebug()
 	-- 	for i = 1, novaUnits do
 	-- 		local thisUnit = br.friend[i]
  --            local color = "|cffFFFFFF"
- --            if classColors[thisUnit.class] ~= nil then
- --                color = classColors[thisUnit.class].hex
+ --            if br.classColors[thisUnit.class] ~= nil then
+ --                color = br.classColors[thisUnit.class].hex
  --            end
 	--         -- local tooltipMsg = color.."Name: "..thisUnit.name..
 	--         --         "\n|cffFF1100Health: "..math.floor(thisUnit.hp)..
@@ -216,8 +216,8 @@ function pulseNovaDebug()
 	-- 		thisDebugRow = nNovaDebug[i]
 	-- 		_G[thisDebugRow]:SetValue(thisUnit.hp)
 	-- 		_G[thisDebugRow.."Text"]:SetText(math.floor(thisUnit.hp))
-	-- 		if classColors[thisUnit.class] ~= nil then
-	-- 			_G[thisDebugRow]:SetStatusBarTexture(br.classColors[thisUnit.class].R,br.classColors[thisUnit.class].G,br.classColors[thisUnit.class].B)
+	-- 		if br.classColors[thisUnit.class] ~= nil then
+	-- 			_G[thisDebugRow]:SetStatusBarTexture(br.br.classColors[thisUnit.class].R,br.br.classColors[thisUnit.class].G,br.br.classColors[thisUnit.class].B)
 	-- 		else
 	-- 			_G[thisDebugRow]:SetStatusBarTexture(1,1,1)
 	-- 		end
@@ -238,8 +238,8 @@ function pulseNovaDebug()
 	-- 	-- for i = 1, #br.friend do
 	-- 	-- 	local thisUnit = br.friend[i]
 	-- 	-- 	local color = "|cffFFFFFF"
- --  --           if classColors[thisUnit.class] ~= nil then
- --  --               color = "|"..classColors[thisUnit.class].hex
+ --  --           if br.classColors[thisUnit.class] ~= nil then
+ --  --               color = "|"..br.classColors[thisUnit.class].hex
  --  --           end
  --  --           -- if textString == nil then 
 	-- 	-- 	textString = textString.."\nName: "..color..UnitName(br.friend[i].unit).." |r HP:"..thisUnit.hp

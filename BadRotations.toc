@@ -1,9 +1,8 @@
-## Interface: 80300
+## Interface: 90001
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
 ## Version: 1.33.3
-## SavedVariablesPerCharacter: brdata, brprofile
 
 BadRotations.lua
 bindings.xml
@@ -124,7 +123,10 @@ System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
 
 ## API
+
 System\API\Buff.lua
+System\API\Cast.lua
+System\API\CD.lua
 System\API\Debuff.lua
 System\API\Essence.lua
 System\API\Item.lua
@@ -132,6 +134,7 @@ System\API\Pet.lua
 System\API\Power.lua
 System\API\Spell.lua
 System\API\UI.lua
+System\API\Unit.lua
 
 ## Loader
 

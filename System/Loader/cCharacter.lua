@@ -61,7 +61,7 @@ function cCharacter:new(class)
 	self.inCombat       = false     -- if is in combat
 	self.instance 	    = select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
 	self.level	    		= 0 	-- Player Level
-	self.mode           = {}        -- Toggles
+	-- self.mode           = {}        -- Toggles
 	self.moving         = false        -- Moving event
 	self.opener 				= {} 	-- Opener flag tracking, reduce global vars
 	self.pandemic 			= {}  -- Tracking Base Duration per Unit/Debuff
@@ -74,7 +74,7 @@ function cCharacter:new(class)
 	self.profile        = "None"    -- Spec
 	self.queue 	    		= {} 	-- Table for Queued Spells
 	self.race     	    = select(2,UnitRace("player"))  -- Race as non-localised name (undead = Scourge) !
-	self.racial   	    = getRacial()     -- Contains racial spell id
+	self.racial   	    = 0     -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
 	self.rechargeFull   = {}
 	self.selectedRotation = 1       -- Default: First avaiable rotation
@@ -84,6 +84,7 @@ function cCharacter:new(class)
 	self.timeToMax	    = 0		-- Time To Max Power
 	self.traits         = {}	-- Azerite Traits
 	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
+	self.ui 			= {}
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -94,7 +95,7 @@ function cCharacter:new(class)
 		-- Get Character Info
 		self.getCharacterInfo()
 		-- Get Consumables
-		if bagsUpdated then
+		if br.bagsUpdated then
 			self.potion.action 		= {}
 			self.potion.agility		= {}	-- Agility Potions
 			self.potion.armor 		= {}	-- Armor Potions
@@ -114,10 +115,10 @@ function cCharacter:new(class)
 			self.flask.stamina		= {}
 			self.flask.strength   = {}
 			self.getConsumables()		-- Find All The Tasty Things!
-			bagsUpdated = false
+			br.bagsUpdated = false
 		end
 		-- Get selected rotation
-    self.getRotation()
+		self.getRotation()
 		-- Get toggle modes
 		self.getToggleModes()
 		-- Combat state update
@@ -126,9 +127,8 @@ function cCharacter:new(class)
 		if canRun() ~= true then
 			return false
 		end
-		if isChecked("Debug Timers") then
-			br.debug.cpu.rotation.baseUpdate = debugprofilestop()-startTime or 0
-		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"rotation.baseUpdate")
 	end
 
 -- Update Character Stats
@@ -165,10 +165,10 @@ function cCharacter:new(class)
     -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
 
-		self.mode.rotation  = br.data.settings[br.selectedSpec].toggles["Rotation"]
-		self.mode.cooldown 	= br.data.settings[br.selectedSpec].toggles["Cooldown"]
-		self.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
-		self.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
+		self.ui.mode.rotation  = br.data.settings[br.selectedSpec].toggles["Rotation"]
+		self.ui.mode.cooldown 	= br.data.settings[br.selectedSpec].toggles["Cooldown"]
+		self.ui.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
+		self.ui.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
 	end
 
 -- Returns the Global Cooldown time
@@ -228,20 +228,24 @@ function cCharacter:new(class)
 			self.rotation.run()
         else
 			return
-        end
-		if isChecked("Debug Timers") then
-	        br.debug.cpu.rotation.currentTime = debugprofilestop()-startTime
-			br.debug.cpu.rotation.totalIterations = br.debug.cpu.rotation.totalIterations + 1
-			br.debug.cpu.rotation.elapsedTime = br.debug.cpu.rotation.elapsedTime + debugprofilestop()-startTime
-			br.debug.cpu.rotation.averageTime = br.debug.cpu.rotation.elapsedTime / br.debug.cpu.rotation.totalIterations
-			if not self.inCombat then
-				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeOoC then br.debug.cpu.rotation.maxTimeOoC = br.debug.cpu.rotation.currentTime end
-				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeOoC then br.debug.cpu.rotation.minTimeOoC = br.debug.cpu.rotation.currentTime end
-			else
-				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeInC then br.debug.cpu.rotation.maxTimeInC = br.debug.cpu.rotation.currentTime end
-				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeInC then br.debug.cpu.rotation.minTimeInC = br.debug.cpu.rotation.currentTime end
-			end
 		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"rotation")
+		-- if isChecked("Debug Timers") then
+		-- 	-- br.debug.cpu.rotation = {
+		-- 	-- 	maxTimeOoC = 0,
+		-- 	-- 	minTimeOoC = 999,
+		-- 	-- 	maxTimeInC = 0,
+		-- 	-- 	minTimeInC = 999,
+		-- 	-- }
+		-- 	if not self.inCombat then
+		-- 		if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeOoC then br.debug.cpu.rotation.maxTimeOoC = br.debug.cpu.rotation.currentTime end
+		-- 		if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeOoC then br.debug.cpu.rotation.minTimeOoC = br.debug.cpu.rotation.currentTime end
+		-- 	else
+		-- 		if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeInC then br.debug.cpu.rotation.maxTimeInC = br.debug.cpu.rotation.currentTime end
+		-- 		if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeInC then br.debug.cpu.rotation.minTimeInC = br.debug.cpu.rotation.currentTime end
+		-- 	end
+		-- end
     end
 
 -- Updates special Equipslots
@@ -272,9 +276,9 @@ function cCharacter:new(class)
         end
 	end
 
--- Sets the racial
+	-- Sets the racial
 	 function self.getRacial()
-		return getRacial()
+		return br.getRacial()
 	 end
 
     -- Casts the racial

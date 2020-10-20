@@ -117,9 +117,9 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
+        br.player.ui.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
         UpdateToggle("Misdirection", 0.25)
-        -- br.player.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
+        -- br.player.ui.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
         -- UpdateToggle("MurderofCrows",0.25)
 
 
@@ -157,8 +157,8 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].hp
-        local mode                                          = br.player.mode
-        local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
+        local mode                                          = br.player.ui.mode
+        local multidot                                      = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation == 2) and br.player.ui.mode.rotation ~= 3
         local perk                                          = br.player.perk
         local pethp                                         = getHP("pet")
         local php                                           = br.player.health

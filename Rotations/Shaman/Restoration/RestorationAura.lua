@@ -80,14 +80,14 @@ local function createOptions()
             br.ui:createCheckbox(section,"Water Walking")
         -- Earth Shield
             br.ui:createCheckbox(section,"Earth Shield")
+        -- Water Shield
+            br.ui:createCheckbox(section,"Water Shield")
         -- Temple of Seth
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Seth NPC. Default: 80")
         -- Bursting Stack
             br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs/AoE Healing will be triggered.")
         -- DPS Threshold
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
-        -- Critical HP
-            br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "|cffFFFFFFWill stop casting a DPS Spell if party member drops below value. Default: 30" )
         -- Mana Pot
             br.ui:createSpinner(section, "Mana Pot", 30, 0, 100, 5, "|cffFFFFFFWill use mana pot if mana below this value. Default: 30")
 
@@ -268,7 +268,7 @@ local function runRotation()
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local mana                                          = br.player.power.mana.percent()
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
@@ -373,7 +373,7 @@ local function runRotation()
     -- Action List - Defensive
         local function actionList_Defensive()
             -- Earth Shield
-            if talent.earthShield then
+            if cast.able.earthShield() then
                 -- check if shield already exists
                 local foundShield = false
                 if isChecked("Earth Shield") then
@@ -397,6 +397,11 @@ local function runRotation()
                         end
                     end
                 end
+            end
+            -- Water Shield
+            if isChecked("Water Shield") and not buff.waterShield.exists() then
+                if cast.waterShield() then
+                end    
             end
             -- Temple of Seth
             if inCombat and isChecked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
@@ -697,7 +702,7 @@ local function runRotation()
                 if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
             end
         -- Purify Spirit
-            if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+            if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                 for i = 1, #friends.yards40 do
                     if canDispel(br.friend[i].unit,spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
@@ -1125,13 +1130,6 @@ local function runRotation()
         if inCombat then
            if IsAoEPending()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
         end
-        -- Dps Spell Cancel
-        for i = 1, #dpsSpells do
-            if isCastingSpell(dpsSpells[i]) and isChecked("Critical HP") and lowest.hp <= getValue("Critical HP") then
-                SpellStopCasting()
-                break
-            end
-        end
         -- Pause
         if pause() then
             return true
@@ -1146,7 +1144,7 @@ local function runRotation()
                         actionList_PreCombat()
                     end
                     -- Purify Spirit
-                    if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+                    if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                         for i = 1, #friends.yards40 do
                             if canDispel(br.friend[i].unit,spell.purifySpirit) then
                                 if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
@@ -1182,14 +1180,14 @@ local function runRotation()
                         br.addonDebug("Using Sapphire of Brilliance")
                         useItem(166801)
                     end
-                    if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > (getOptionValue("Critical HP") + 10) and lowest.hp > getOptionValue("DPS Threshold") then
+                    if br.player.ui.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
                         if isExplosive("target") then
                             actionList_Explosive()
                         else
                             actionList_DPS()
                         end
                     end
-                    if movingCheck and br.player.mode.dPS == 1 then
+                    if movingCheck and br.player.ui.mode.dPS == 1 then
                         if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
                     end
                 end

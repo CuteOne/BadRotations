@@ -238,7 +238,7 @@ function canDispel(Unit, spellID)
 	end
 	local ValidDebuffType = false
 	local i = 1
-	if UnitInPhase(Unit) then
+	if not UnitPhaseReason(Unit) then
 		if GetUnitIsFriend("player", Unit) then
 			while UnitDebuff(Unit, i) do
 				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = UnitDebuff(Unit, i)

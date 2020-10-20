@@ -63,7 +63,7 @@ function isTotem(unit)
 end
 
 --Update OM
-function updateOMEWT()
+function br:updateOM()
 	local om = br.om
 	local startTime = debugprofilestop()
 	local _, updated, added, removed = GetObjectCountBR(true,"BR")
@@ -92,62 +92,8 @@ function updateOMEWT()
 		end
 	end
     refreshStored = true
-    -- Debugging
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
-		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
-    end
-end
-
---Legacy OM
-function updateOM()
-	local startTime = debugprofilestop()
-	local omCounter = 0
-	local fmod = math.fmod
-	local loopSet = floor(GetFramerate()) or 0
-	-- if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
-	-- 	if next(br.om) ~= nil then br.om = {} end
-	-- 	return
-	-- end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.objects.targets = 0
-	end
-	-- Cycle OM
-	local objectCount = GetObjectCountBR() --EWT ~= nil and GetObjectCountBR() or 0
-	if objectCount > 0 then
-		if objectIndex == nil or objectIndex >= objectCount then objectIndex = 1 end
-		for i = objectIndex, objectCount do
-			objectIndex = objectIndex + 1
-			omCounter = omCounter + 1
-			if omCounter == 1 then cycleTime = debugprofilestop() end
-				-- define our unit
-				local thisUnit = GetObjectWithIndex(i)
-				if ObjectIsUnit(thisUnit) and ObjectIsVisible(thisUnit) and (UnitReaction("player", thisUnit) <= 4
-					or UnitCreator(thisUnit) == "player") and not isCritter(thisUnit) and getDistance(thisUnit) <= 50 and getLineOfSight(thisUnit)
-				then
-					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
-					local enemyUnit = br.unitSetup:new(thisUnit)
-					if enemyUnit then
-						tinsert(br.om, enemyUnit)
-					end
-				end
-			if isChecked("Debug Timers") then
-				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
-			end
-			-- objectIndex = objectIndex + 1
-			if fmod(objectIndex,loopSet) == 0 then objectIndex = objectIndex + 1; break end
-		end
-	end
-	refreshStored = true
 	-- Debugging
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
-		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
-	end
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
 end
 
 -- /dump getEnemies("target",10)
@@ -168,26 +114,12 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 			if br.storedTables[checkNoCombat][thisUnit] ~= nil then
 				if br.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 					if br.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
-				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
+						--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 						return br.storedTables[checkNoCombat][thisUnit][radius][facing]
 					end
 				end
 			end
 		end
-		-- if br.storedTables[checkNoCombat][thisUnit] ~= nil then
-		-- 	local lowestTable
-		-- 	for k,v in pairs(br.storedTables[checkNoCombat][thisUnit]) do
-		-- 		if k > radius then
-		-- 			if (lowestTable ~= nil and k < lowestTable) or lowestTable == nil then
-		-- 				lowestTable = k
-		-- 			end
-		-- 		end
-		-- 	end
-		-- 	if lowestTable ~= nil then
-		-- 		--print("Table found at "..lowestTable.." radius.  Using as enemyTable for "..radius.." radius.")
-		-- 		enemyTable = br.storedTables[checkNoCombat][thisUnit][lowestTable]
-		-- 	end
-		-- end
 	end
 
 	for k, v in pairs(enemyTable) do
@@ -197,18 +129,8 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 			tinsert(enemiesTable,thisEnemy)
 		end
     end
-	-- for _, enemy in pairs(enemyTable) do
-    --     distance =  getDistance(thisUnit, enemy.unit)
-    --     if enemiesTable[enemy.unit] == nil and distance < radius then
-    --         rawset(enemiesTable, enemy.unit, enemy.unit)
-    --     end
-    -- end
 	if #enemiesTable == 0 and getDistance("target","player") < radius and isValidUnit("target") and (not facing or getFacing("player","target")) then
 		tinsert(enemiesTable,"target")
-	end
-    ---
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
 	end
     ---
 	if #enemiesTable > 0 and thisUnit ~= nil then
@@ -218,178 +140,207 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 		br.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.getEnemies")
     return enemiesTable
 end
 
 -- function to see if our unit is a blacklisted unit
-	function isBlackListed(Unit)
-		-- check if unit is valid
-		if GetObjectExists(Unit) then
-			for i = 1, #castersBlackList do
-				-- check if unit is valid
-				if GetObjectExists(castersBlackList[i].unit) then
-					if castersBlackList[i].unit == Unit then
-						return true
-					end
+function isBlackListed(Unit)
+	-- check if unit is valid
+	if GetObjectExists(Unit) then
+		for i = 1, #castersBlackList do
+			-- check if unit is valid
+			if GetObjectExists(castersBlackList[i].unit) then
+				if castersBlackList[i].unit == Unit then
+					return true
 				end
 			end
 		end
 	end
-	-- returns true if target should be burnt
-	function isBurnTarget(unit)
-		local coef = 0
-		-- check if unit is valid
-		if getOptionCheck("Forced Burn") then
-			local unitID = GetObjectID(unit)
-			local burnUnit = br.lists.burnUnits[unitID]
-			local unitTime = br.units[unit] ~= nil and br.units[unit].timestamp or GetTime() - 1
-			-- if unit have selected debuff
-			if burnUnit and (burnUnit.cast == nil or not isCasting(burnUnit.cast,unitID)) and (GetTime() - unitTime) > 0.25 then
-				if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
-					coef = burnUnit.coef
-				end
-				if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit or burnUnit.id == unitID) then
-					--if not UnitIsUnit("target",unit) then TargetUnit(unit) end
-					coef = burnUnit.coef
-				end
+end
+
+-- returns true if target should be burnt
+function isBurnTarget(unit)
+	local coef = 0
+	-- check if unit is valid
+	if getOptionCheck("Forced Burn") then
+		local unitID = GetObjectID(unit)
+		local burnUnit = br.lists.burnUnits[unitID]
+		local unitTime = br.units[unit] ~= nil and br.units[unit].timestamp or GetTime() - 1
+		-- if unit have selected debuff
+		if burnUnit and (burnUnit.cast == nil or not isCasting(burnUnit.cast,unitID)) and (GetTime() - unitTime) > 0.25 then
+			if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
+				coef = burnUnit.coef
+			end
+			if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit or burnUnit.id == unitID) then
+				--if not UnitIsUnit("target",unit) then TargetUnit(unit) end
+				coef = burnUnit.coef
 			end
 		end
-		return coef
 	end
-	-- check for a unit see if its a cc candidate
-	function isCrowdControlCandidates(Unit)
-		local unitID
-		-- check if unit is valid
-		if GetObjectExists(Unit) then
-			unitID = GetObjectID(Unit)
-		else
-			return false
-		end
-		-- cycle list of candidates
-		local crowdControlUnit = br.lists.ccUnits[unitID]
-		if crowdControlUnit then
-			-- is in the list of candidates
-			if crowdControlUnit.spell == nil or isCasting(crowdControlUnit.spell,Unit) or UnitBuffID(Unit,crowdControlUnit.spell)
-			then -- doesnt have more requirements or requirements are met
-				return true
-			end
-		end
+	return coef
+end
+
+-- check for a unit see if its a cc candidate
+function isCrowdControlCandidates(Unit)
+	local unitID
+	-- check if unit is valid
+	if GetObjectExists(Unit) then
+		unitID = GetObjectID(Unit)
+	else
 		return false
 	end
+	-- cycle list of candidates
+	local crowdControlUnit = br.lists.ccUnits[unitID]
+	if crowdControlUnit then
+		-- is in the list of candidates
+		if crowdControlUnit.spell == nil or isCasting(crowdControlUnit.spell,Unit) or UnitBuffID(Unit,crowdControlUnit.spell)
+		then -- doesnt have more requirements or requirements are met
+			return true
+		end
+	end
+	return false
+end
 
-	-- returns true if we can safely attack this target
-	function isSafeToAttack(unit)
-		if getOptionCheck("Safe Damage Check") == true then
-			-- check if unit is valid
-			local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
-			for i = 1, #br.lists.noTouchUnits do
-				local noTouch = br.lists.noTouchUnits[i]
-				if noTouch.unitID == 1 or noTouch.unitID == unitID then
-					if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
-					if noTouch.buff > 0 then
-						local unitTTD = getTTD(unit) or 0
-						-- Not Safe with Buff/Debuff
-						if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff)
-							-- Bursting M+ Affix
-							or (unitTTD <= getDebuffRemain("player",240443) + (getGlobalCD(true) * 2) 
-								and getDebuffStacks("player", 240443) >= getOptionValue("Bursting Stack Limit"))
-						then
-							return false
-						end
-					else
-						-- Not Safe without Buff/Debuff
-						local posBuff = -(noTouch.buff)
-						if not UnitBuffID(unit,posBuff) or not UnitDebuffID(unit,posBuff) then
-							return false
-						end
+-- returns true if we can safely attack this target
+function isSafeToAttack(unit)
+	if getOptionCheck("Safe Damage Check") == true then
+		local startTime = debugprofilestop()
+		-- check if unit is valid
+		local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
+		for i = 1, #br.lists.noTouchUnits do
+			local noTouch = br.lists.noTouchUnits[i]
+			if noTouch.unitID == 1 or noTouch.unitID == unitID then
+				if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
+				if noTouch.buff > 0 then
+					local unitTTD = getTTD(unit) or 0
+					-- Not Safe with Buff/Debuff
+					if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff)
+						-- Bursting M+ Affix
+						or (unitTTD <= getDebuffRemain("player",240443) + (getGlobalCD(true) * 2) 
+							and getDebuffStacks("player", 240443) >= getOptionValue("Bursting Stack Limit"))
+					then
+						return false
+					end
+				else
+					-- Not Safe without Buff/Debuff
+					local posBuff = -(noTouch.buff)
+					if not UnitBuffID(unit,posBuff) or not UnitDebuffID(unit,posBuff) then
+						return false
 					end
 				end
 			end
 		end
-		-- if all went fine return true
-		return true
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"enemiesEngine.isSafeToAttack")
 	end
+	-- if all went fine return true
+	return true
+end
 
-	-- returns true if target is shielded or should be avoided
-	local function isShieldedTarget(unit)
-		local coef = 0
-		if getOptionCheck("Avoid Shields") then
-			-- check if unit is valid
-			local unitID = GetObjectID(unit)
-			local shieldedUnit = br.lists.shieldUnits[unitID]
-			-- if unit have selected debuff
-			if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
-				-- if it's a frontal buff, see if we are in front of it
-				if shieldedUnit.frontal ~= true or getFacing(unit,"player") then
-					coef = shieldedUnit.coef
-				end
+-- returns true if target is shielded or should be avoided
+local function isShieldedTarget(unit)
+	local coef = 0
+	if getOptionCheck("Avoid Shields") then
+		-- check if unit is valid
+		local unitID = GetObjectID(unit)
+		local shieldedUnit = br.lists.shieldUnits[unitID]
+		-- if unit have selected debuff
+		if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
+			-- if it's a frontal buff, see if we are in front of it
+			if shieldedUnit.frontal ~= true or getFacing(unit,"player") then
+				coef = shieldedUnit.coef
 			end
 		end
-		return coef
 	end
+	return coef
+end
 
 -- This function will set the prioritisation of the units, ie which target should i attack
-	local function getUnitCoeficient(unit)
-		local coef = 0
-		-- if distance == nil then distance = getDistance("player",unit) end
-		local distance = getDistance("player",unit)
-		-- check if unit is valid
-		if GetObjectExists(unit) then
-			-- if unit is out of range, bad prio(0)
-			if distance < 50 then
-				local unitHP = getHP(unit)
-				-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
-				if getOptionCheck("Wise Target") == true then
-					if getOptionValue("Wise Target") == 1 then 	   -- Highest
-						-- if highest is selected
-						coef = unitHP
-					elseif getOptionValue("Wise Target") == 3 then -- abs Highest
-						coef = UnitHealth(unit)
-					elseif getOptionValue("Wise Target") == 5 then -- Nearest
-						coef = 100 - distance
-					elseif getOptionValue("Wise Target") == 6 then -- Furthest
-						coef = distance
-					else 										   -- Lowest
-						-- if lowest is selected
-						coef = 100 - unitHP
-					end
+local function getUnitCoeficient(unit)
+	local startTime = debugprofilestop()
+	local coef = 0
+	-- if distance == nil then distance = getDistance("player",unit) end
+	local distance = getDistance("player",unit)
+	-- check if unit is valid
+	if GetObjectExists(unit) then
+		-- if unit is out of range, bad prio(0)
+		if distance < 50 then
+			local unitHP = getHP(unit)
+			-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
+			if getOptionCheck("Wise Target") == true then
+				if getOptionValue("Wise Target") == 1 then 	   -- Highest
+					-- if highest is selected
+					coef = unitHP
+				elseif getOptionValue("Wise Target") == 3 then -- abs Highest
+					coef = UnitHealth(unit)
+				elseif getOptionValue("Wise Target") == 5 then -- Nearest
+					coef = 100 - distance
+				elseif getOptionValue("Wise Target") == 6 then -- Furthest
+					coef = distance
+				else 										   -- Lowest
+					-- if lowest is selected
+					coef = 100 - unitHP
 				end
-				-- Distance Coef add for multiple burn units (Will prioritize closest first)
-				coef = coef + ((50 - distance)/100)
-				-- if its our actual target we give it a bonus
-				if GetUnitIsUnit("target",unit) == true and not UnitIsDeadOrGhost(unit) then
-					coef = coef + 50
-				end
-				-- raid target management
-				-- if the unit have the skull and we have param for it add 50
-				if getOptionCheck("Skull First") and GetRaidTargetIndex(unit) == 8 then
-					coef = coef + 50
-				end
-				-- if threat is checked, add 100 points of prio if we lost aggro on that target
-				if getOptionCheck("Tank Threat") then
-					local threat = UnitThreatSituation("player",unit) or -1
-					if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
-						coef = coef + 100 - threat
-					end
-				end
-				if isChecked("Prioritize Totems") and isTotem(unit) then
-					coef = coef + 100
-				end
-				-- if user checked burn target then we add the value otherwise will be 0
-				if getOptionCheck("Forced Burn") then
-					coef = coef + isBurnTarget(unit) + ((50 - distance)/100)
-				end
-				-- if user checked avoid shielded, we add the % this shield remove to coef
-				if getOptionCheck("Avoid Shields") then
-					coef = coef + isShieldedTarget(unit)
-				end
-				local displayCoef = math.floor(coef*10)/10
-				local displayName = UnitName(unit) or "invalid"
-				-- Print("Unit "..displayName.." - "..displayCoef)
 			end
+			-- Distance Coef add for multiple burn units (Will prioritize closest first)
+			coef = coef + ((50 - distance)/100)
+			-- if its our actual target we give it a bonus
+			if GetUnitIsUnit("target",unit) == true and not UnitIsDeadOrGhost(unit) then
+				coef = coef + 50
+			end
+			-- raid target management
+			-- if the unit have the skull and we have param for it add 50
+			if getOptionCheck("Skull First") and GetRaidTargetIndex(unit) == 8 then
+				coef = coef + 50
+			end
+			-- if threat is checked, add 100 points of prio if we lost aggro on that target
+			if getOptionCheck("Tank Threat") then
+				local threat = UnitThreatSituation("player",unit) or -1
+				if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
+					coef = coef + 100 - threat
+				end
+			end
+			if isChecked("Prioritize Totems") and isTotem(unit) then
+				coef = coef + 100
+			end
+			-- if user checked burn target then we add the value otherwise will be 0
+			if getOptionCheck("Forced Burn") then
+				coef = coef + isBurnTarget(unit) + ((50 - distance)/100)
+			end
+			-- if user checked avoid shielded, we add the % this shield remove to coef
+			if getOptionCheck("Avoid Shields") then
+				coef = coef + isShieldedTarget(unit)
+			end
+			-- Outlaw - Blind Shot 10% dmg increase all sources
+			if select(2,UnitClass('player')) == "ROGUE" and GetSpecializationInfo(GetSpecialization()) == 260 then
+				-- Between the eyes
+				if getDebuffRemain(unit, 315341) > 0 then
+					coef = coef + 75
+				end
+				-- Blood of the enemy
+				if getDebuffRemain(unit, 297108) > 0 then
+					coef = coef + 50
+				end
+				-- Marked for death
+				if getDebuffRemain(unit, 137619) > 0 then
+					coef = coef + 75
+				end
+				-- Prey on the weak
+				if getDebuffRemain(unit, 131511) > 0 then
+					coef = coef + 50
+				end
+			end
+			local displayCoef = math.floor(coef*10)/10
+			local displayName = UnitName(unit) or "invalid"
+			-- Print("Unit "..displayName.." - "..displayCoef)
 		end
-		return coef
 	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.unitCoef")
+	return coef
+end
 
 local function compare(a,b)
 	if UnitHealth(a) == UnitHealth(b) then
@@ -399,6 +350,7 @@ local function compare(a,b)
 	end
 end
 
+-- Finds the "best" unit for a given range and optional facing
 local function findBestUnit(range,facing)
 	local tsort = table.sort
 	local startTime = debugprofilestop()
@@ -440,12 +392,12 @@ local function findBestUnit(range,facing)
 			end
 		end
 	end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
-	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.findBestUnit")
 	return bestUnit
 end
 
+-- Sets Target by attempting to find the best unit else defaults to target
 function dynamicTarget(range,facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = debugprofilestop()
@@ -472,9 +424,8 @@ function dynamicTarget(range,facing)
 	then
 		TargetUnit(bestUnit)
 	end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
-	end
+	-- Debugging
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.dynamicTarget")
 	return bestUnit
 end
 
@@ -519,65 +470,23 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     return units
 end
 
-local function getRect(width,length,showLines)
-	local px, py, pz = GetObjectPosition("player")
-	local facing = ObjectFacing("player") or 0
-	local halfWidth = width/2
-	-- Near Left
-	local nlX, nlY, nlZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
-	-- Near Right
-	local nrX, nrY, nrZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(270), 0)
-	-- Far Left
-	--local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing, 0)
-	-- Far Right
-	local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
-
-	-- if showLines then
-	-- 	-- Near Left
-	-- 	LibDraw.Line(nlX, nlY, nlZ, playerX, playerY, playerZ)
-	-- 	-- Near Right
-	-- 	LibDraw.Line(nrX, nrY, nrZ, playerX, playerY, playerZ)
-	-- 	-- Far Left
-	-- 	LibDraw.Line(flX, flY, flZ, nlX, nlY, nlZ)
-	-- 	-- Far Right
-	-- 	LibDraw.Line(frX, frY, frZ, nrX, nrY, nrZ)
-	-- 	-- Box Complete
-	-- 	LibDraw.Line(frX, frY, frZ, flX, flY, flZ)
-	-- end
-
-	return nlX, nlY, nrX, nrY, frX, frY
-end
-
+-- Rectangle Logic for Enemies
 function getEnemiesInRect(width,length,showLines,checkNoCombat)
-	-- local checkNoCombat = checkNoCombat or false
-	-- local enemyCounter = 0
-	-- local enemiesTable = getEnemies("player",length,checkNoCombat,true)
-	-- local enemiesInRect = enemiesInRect or {}
-	-- local px, py, pz = ObjectPosition("player")
-    -- local facing = ObjectFacing("player") or 0
-	-- local halfWidth = width/2
-	-- local dx, dy
-    -- -- Near Left
-    -- local nlX, nlY, nlZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
+	local function getRect(width,length,showLines)
+		local px, py, pz = GetObjectPosition("player")
+		local facing = ObjectFacing("player") or 0
+		local halfWidth = width/2
+		-- Near Left
+		local nlX, nlY, nlZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
+		-- Near Right
+		local nrX, nrY, nrZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(270), 0)
+		-- Far Left
+		-- local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing, 0)
+		-- Far Right
+		local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
 
-    -- if #enemiesTable > 0 then
-    --     table.wipe(enemiesInRect)
-    --     for i = 1, #enemiesTable do
-    --         local thisUnit = enemiesTable[i]
-    --         local tX, tY, tZ = ObjectPosition(thisUnit)
-    --         if tX and tY then
-    --             dx = tX - math.max(nlX, math.min(tX, nlX + width))
-    --             dy = tY - math.max(nlY, math.min(tY, nlY + length))
-	-- 			if dx^2 + dy^2 < UnitCombatReach(thisUnit)^2 then
-	-- 				print("Unit is in Rect")
-    --                 enemyCounter = enemyCounter + 1
-    --                 table.insert(enemiesInRect,thisUnit)
-    --             end
-    --         end
-    --     end
-	-- end
-	-- return enemyCounter, enemiesInRect
-
+		return nlX, nlY, nrX, nrY, frX, frY
+	end
 	local LibDraw = LibStub("LibDraw-1.0")
 	local checkNoCombat = checkNoCombat or false
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
@@ -667,6 +576,7 @@ function getNonExecuteEnemiesPercent(executeHP)
     return nonexecutePercent
 end
 
+-- Tracks AoE Damage
 function br.AoEDamageTracker()
 	for i = 1, #br.lists.AoEDamage do
 		if br.DBM:getTimer(br.lists.AoEDamage[i]) ~= 999 then

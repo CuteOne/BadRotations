@@ -167,10 +167,10 @@ local function runRotation()
         UpdateToggle("Brews",0.25)
         UpdateToggle("Taunt",0.25)
         UpdateToggle("Detox",0.25)
-        br.player.mode.brews = br.data.settings[br.selectedSpec].toggles["Brews"]
-        br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
-        br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
-        br.player.mode.superbrew = br.data.settings[br.selectedSpec].toggles["SuperBrew"]
+        br.player.ui.mode.brews = br.data.settings[br.selectedSpec].toggles["Brews"]
+        br.player.ui.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
+        br.player.ui.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
+        br.player.ui.mode.superbrew = br.data.settings[br.selectedSpec].toggles["SuperBrew"]
 
 --------------
 --- Locals ---
@@ -201,7 +201,7 @@ local function runRotation()
         local inInstance        = br.player.instance=="party"
         local lastSpell         = lastSpellCast
         local level             = br.player.level
-        local mode              = br.player.mode
+        local mode              = br.player.ui.mode
         local pet               = br.player.pet.list
         local php               = br.player.health
         local power             = br.player.power.energy.amount()
@@ -333,7 +333,7 @@ local function runRotation()
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Taunt
-        if (br.player.mode.taunt == 1 or (br.player.mode.taunt == 3 and not talent.blackOxStatue)) and inInstance then
+        if (br.player.ui.mode.taunt == 1 or (br.player.ui.mode.taunt == 3 and not talent.blackOxStatue)) and inInstance then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -341,7 +341,7 @@ local function runRotation()
 				end
 			end
         end -- End Taunt
-        if (br.player.mode.taunt == 2 or (br.player.mode.taunt == 3 and not talent.blackOxStatue)) then
+        if (br.player.ui.mode.taunt == 2 or (br.player.ui.mode.taunt == 3 and not talent.blackOxStatue)) then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -352,7 +352,7 @@ local function runRotation()
         if isChecked("Summon Dave - The Statue") then
             if pet ~= nil then
                 if cast.blackOxStatue("target") then return end
-                    if br.player.mode.taunt == 3 then
+                    if br.player.ui.mode.taunt == 3 then
                         for k, v in pairs(pet) do
                             local thisUnit = pet[k] or 0
                             if thisUnit.id == 61146 then
@@ -397,13 +397,13 @@ local function runRotation()
                     if cast.dampenHarm() then return end
                 end
         -- Detox
-                if isChecked("Detox Me") and br.player.mode.detox == 1 then
+                if isChecked("Detox Me") and br.player.ui.mode.detox == 1 then
                     if canDispel("player",spell.detox) then
                        if cast.detox("player") then return end
                     end
                 end
         -- Detox Mouseover
-                if isChecked("Detox Mouseover") and br.player.mode.detox == 1 then
+                if isChecked("Detox Mouseover") and br.player.ui.mode.detox == 1 then
                     if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
                          if canDispel("mouseover",spell.detox) then
                             if cast.detox("mouseover") then return end
@@ -709,7 +709,7 @@ local function runRotation()
         StartAttack()
     end
             -- Brews
-			if br.player.mode.brews == 1 then
+			if br.player.ui.mode.brews == 1 then
 				if actionList_Brews() then return end
 			end
 			-- Cooldowns

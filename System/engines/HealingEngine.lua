@@ -94,7 +94,7 @@ if not metaTable1 then
 			and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
-			and UnitInPhase(tar)
+			and not UnitPhaseReason(tar)
 		then return true
 		else return false end
 	end

@@ -87,6 +87,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
+        br.ui:createDropdown(section, "Poison", { "Instant", "Wound", }, 1, "Poison to apply")
         br.ui:createDropdown(section, "Auto Stealth", { "Always", "25 Yards" }, 1, "Auto stealth mode.")
         br.ui:createCheckbox(section, "Cheap Shot", "Will use cheap shot")
         br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
@@ -137,20 +138,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
         br.ui:createDropdownWithout(section, "Gouge", { "None", "Interrupt", "Stun", "Both" }, 4, "", "How do you want to use Gouge?")
         br.ui:createDropdownWithout(section, "Blind", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Blind?")
-        br.ui:createDropdownWithout(section, "Between the Eyes", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use BtE?")
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile, "Corruption")
-        br.ui:createDropdown(section, "Shroud of Resolve", { "Snare", "Eye", "THING", "Eye/THING ", "Never" }, 4, " ", "do the Mexi clap! ")
-        br.ui:createDropdown(section, "Cloak of Shadows", { "Snare", "Eye", "THING", "Eye/THING ", "Never" }, 4, " ", "Use Cloaks of shadows again the thing ")
-        br.ui:createSpinnerWithout(section, "Cloak - Eye Of Corruption Stacks", 1, 0, 20, 1)
-        br.ui:createSpinnerWithout(section, "Cloak - Min HP", 75, 0, 100, 5, "Health Percentage to use corruption immunities. ")
-        br.ui:createCheckbox(section, "Vanish THING", "Will use Vanish when Thing from beyond spawns ")
-        if br.player.race == "NightElf" then
-            br.ui:createCheckbox(section, "Shadowmeld THING", "Will use shadowmeld when Thing from beyond spawns ")
-        end
-        br.ui:createCheckbox(section, "Blind THING", "Will use blind on Thing from beyond ")
-        br.ui:createCheckbox(section, "Between the eyes THING", "Will use Between the eyes on Thing from beyond ")
-        br.ui:createCheckbox(section, "Gouge the eyes THING", "Will use Gouge on Thing from beyond ")
         br.ui:checkSectionState(section)
     end
 
@@ -182,6 +169,9 @@ end
 --- Locals ---
 --------------
 -- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
+
+-- BR API Locals
+local ui
 local buff
 local cast
 local cd
@@ -819,7 +809,7 @@ actionList.essences = function()
         -- blood_of_the_enemy,if=variable.blade_flurry_sync&cooldown.between_the_eyes.up&variable.bte_condition&(spell_targets.blade_flurry>=2|raid_event.adds.in>45)|fight_remains<=10
         if essence.bloodOfTheEnemy.active and cast.able.bloodOfTheEnemy() then
             if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists())
-                    and bte_condition and not rollthebones()
+                    and bte_condition
                     and (getOutLaksTTD(8) >= 2 or isBoss("target")) and cast.able.betweenTheEyes() then
                 if cast.bloodOfTheEnemy() then
                     return true
@@ -879,7 +869,13 @@ actionList.dps = function()
                     end
                 end
             end]]
-
+    -- new roll the rollTheBones
+    --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
+    if buff_rollTheBones_remain < 3 then
+        if cast.rollTheBones() then
+            return true
+        end
+    end
 
 
 
@@ -900,43 +896,32 @@ actionList.dps = function()
         end
     end
 
+    -- killing_spree,if=variable.blade_flurry_sync&energy.time_to_max>2
+
 
     -- Finishers
     -- test
     -- Print("Our current # buffs that reflects on combo points:" .. tostring(buff_count()))
     -- Print("Combo: " .. combo .. " Execute at: " .. (tostring(comboMax - buff_count())))
 
-    if combo >= real_def or cast.last.markedForDeath(1) then
-
-        buff_rollTheBones_count = 0
-        if br.timer:useTimer("recount_buffrolls", 1) then
-            for k, v in pairs(br.player.spell.buffs.rollTheBones) do
-                if UnitBuffID("player", v) ~= nil then
-                    buff_rollTheBones_count = buff_rollTheBones_count + 1
+    if combo >= real_def or cast.last.markedForDeath(1) and not stealth then
+        if cast.able.betweenTheEyes() then
+            if (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20)) then
+                if cast.betweenTheEyes(units.dyn20) then
+                    return true
                 end
             end
         end
 
-        if not stealth and not noDamageCheck(units.dyn20) and cast.able.betweenTheEyes() and bte_condition and buff_rollTheBones_count >= 1 and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
-            if cast.betweenTheEyes(units.dyn20) then
-                br.addonDebug("DPS BTE at count: " .. tostring(buff_rollTheBones_count))
-                return true
+        --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
+        if cast.able.sliceAndDice() then
+            if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+                if cast.sliceAndDice() then
+                    return true
+                end
             end
         end
-        if combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones())
-                or buff_rollTheBones_remain == 0 or buff_rollTheBones_remain == nil or
-                not buff.skullAndCrossbones.exists() and not buff.broadside.exists() and not buff.buriedTreasure.exists() and not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists() and not buff.trueBearing.exists()
-        then
-            if cast.rollTheBones() then
-                --Print("2: " .. tostring(buff_rollTheBones_remain))
-                return true
-            end
-        end
-        if cast.able.betweenTheEyes(units.dyn20) and not noDamageCheck(units.dyn20) and (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20) and getBuffRemain(units.dyn20, 226510) == 0) then
-            if cast.betweenTheEyes(units.dyn20) then
-                return true
-            end
-        end
+
         if cast.able.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
             if cast.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
                 return true
@@ -959,6 +944,13 @@ actionList.dps = function()
 
     stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists()
 
+    --variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
+
+    if talent.killingSpree and cast.able.killingSpree() and ((#enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
+        if cast.killingSpree() then
+            return true
+        end
+    end
 
 
     --[[
@@ -1109,20 +1101,22 @@ actionList.dps = function()
             end
         end
     end
-    -- builders
+    -- builders\
+    --serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
 
+
+    -- echoing_reprimand
     --Print("Combo: " .. combo .. "/ goal: " .. tostring((comboMax - buff_count())))
     if combo < real_def and not stealth and not should_pool then
-        if (br.player.talent.quickDraw and real_def > 1 or not br.player.talent.quickDraw and real_def > 0) then
-            if ((br.player.talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
-                    and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
-                    or (buff.opportunity.exists() and buff.deadShot.exists()) and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20))
-                    or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
-            then
-                --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
-                if cast.pistolShot(units.dyn20) then
-                    return true
-                end
+
+        if (talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
+                and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
+                or (buff.opportunity.exists() and buff.deadShot.exists())
+                or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
+                and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
+            --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
+            if cast.pistolShot(units.dyn20) then
+                return true
             end
         end
         if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) and not noDamageCheck(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
@@ -1185,78 +1179,6 @@ actionList.Extra = function()
 
 end -- End Action List - Extra
 
-actionList.Corruption = function()
-
-    php = br.player.health
-    -- Corruption stuff
-    -- 1 = snare,  2 = eye,  3 = thing, 4 = eye/thing  . 5 never
-
-    --shroudOfResolve / cloak
-    if debuff.grandDelusions.exists("player") or debuff.graspingTendrils.exists("player") or getDebuffStacks("player", 315161) > 0 then
-        if isChecked("Shroud of Resolve") and br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and not IsMounted()
-                and not cast.last.cloakOfShadows(1) then
-            if getValue("Shroud of Resolve") == 1 and debuff.graspingTendrils.exists("player")
-                    or (getValue("Shroud of Resolve") == 2 or getValue("Shroud of Resolve") == 4) and getDebuffStacks("player", 315161) >= getOptionValue("Cloak - Eye Of Corruption Stacks") and php <= getOptionValue("Cloak - Min HP")
-                    or (getValue("Shroud of Resolve") == 3 or getValue("Shroud of Resolve") == 4) and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    return true
-                end
-            end
-        end
-        --cloak of shadows
-        if isChecked("Cloak of Shadows") and cast.able.cloakOfShadows() and cd.global.remain() == 0 then
-            if getValue("Cloak of Shadows") == 1 and debuff.graspingTendrils.exists("player")
-                    or (getValue("Cloak of Shadows") == 2 or getValue("Cloak of Shadows") == 4) and getDebuffStacks("player", 315161) >= getOptionValue("Cloak - Eye Of Corruption Stacks") and php <= getOptionValue("Cloak - Min HP")
-                    or (getValue("Cloak of Shadows") == 3 or getValue("Cloak of Shadows") == 4) and debuff.grandDelusions.exists("player")
-            --  and not cast.last.shroudOfResolve(1) then
-            then
-                if cast.cloakOfShadows() then
-                    return true
-                end
-            end
-        end
-    end
-
-    if debuff.grandDelusions.exists("player") and cd.global.remain() == 0 then
-        if isChecked("Vanish THING") and cast.able.vanish() and #br.friend > 1 and not cast.last.shadowmeld(1) and mode.vanish == 1 then
-            if cast.vanish() then
-                return true
-            end
-        elseif isChecked("Shadowmeld THING") and cast.able.shadowmeld() and isChecked("Use Racial") and #br.friend > 1 and not cast.last.vanish(1) then
-            if cast.shadowmeld() then
-                return true
-            end
-        elseif isChecked("Blind THING") or isChecked("Between the eyes THING") or isChecked("Gouge the eyes THING") and not cast.last.vanish(1) and not cast.last.shadowmeld(1)
-                and not cast.last.vanish(1) and not cast.last.shadowmeld(1) then
-            local stun = 0
-            local stun_range = 10
-            if cast.able.blind() and isChecked("Blind THING") then
-                stun = 2094
-                stun_range = 15
-            elseif cast.able.betweenTheEyes() and isChecked("Between the eyes THING") then
-                stun = 199804
-                stun_range = 20
-            elseif cast.able.gouge() and isChecked("Gouge the eyes THING") then
-                stun = 174503
-                stun_range = talent.acrobaticStrikes and 8 or 5
-            end
-            for i = 1, GetObjectCount() do
-                local object = GetObjectWithIndex(i)
-                --    local ID = ObjectID(object)
-                if object ~= nil and ObjectID(object) == 161895 and not isLongTimeCCed(object) and not debuff.betweenTheEyes.exists(object) and not debuff.gouge.exists(object) and not debuff.blind.exists(object) then
-                    local x1, y1, z1 = ObjectPosition("player")
-                    local x2, y2, z2 = ObjectPosition(object)
-                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                    if distance < stun_range and object ~= nil and stun ~= nil then
-                        --CastSpellByName(GetSpellInfo(stun), object)
-                        CastSpellByID(stun, object)
-                        return true
-                    end
-                end
-            end
-        end
-    end
-end
 
 
 -- Action List - Defensive
@@ -1569,14 +1491,6 @@ actionList.Interrupt = function()
                                 return true
                             end
                         end
-                        if (getValue("Between the Eyes") == 2 or getValue("Between the Eyes") == 4) and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
-                            --       if isChecked("Between the Eyes") and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
-                            if cast.betweenTheEyes(interrupt_target) then
-                                --    br.addonDebug("[int]BetweenTheEyes " .. UnitName(interrupt_target))
-                                someone_casting = false
-                                return true
-                            end
-                        end
                         if mode.blind == 1 and (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cd.blind.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
                             if cast.blind(interrupt_target) then
                                 br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
@@ -1600,9 +1514,8 @@ actionList.Interrupt = function()
 
             --check for stun here
             if cd.global.remain() == 0 and mode.stun == 1 then
-                if cast.able.betweenTheEyes() or cast.able.blind() or cast.able.cheapShot() then
+                if cast.able.blind() or cast.able.cheapShot() then
                     distance = getDistance(interrupt_target)
-
                     if (isCrowdControlCandidates(interrupt_target) or isChecked("Motherload - Stun jockeys") and getUnitID(interrupt_target) == 130488)
                             and not already_stunned(interrupt_target)
                             and GetUnitExists(interrupt_target) and getBuffRemain(interrupt_target, 226510) == 0 and distance <= 20 then
@@ -1615,12 +1528,6 @@ actionList.Interrupt = function()
                         elseif (getValue("Blind") == 3 or getValue("Blind") == 4) and cast.able.blind() and (distance <= 15 or talent.blindingPowder and distance <= 30) and not cd.blind.exists() then
                             if cast.blind(interrupt_target) then
                                 br.addonDebug("Blind/stunning")
-                                someone_casting = false
-                                return true
-                            end
-                        elseif (getValue("Between the Eyes") == 3 or getValue("Between the Eyes") == 4) and cast.able.betweenTheEyes(interrupt_target) and distance < 20 and not cd.betweenTheEyes.exists() then
-                            if cast.betweenTheEyes(interrupt_target) then
-                                br.addonDebug("Bte/stunning " .. interrupt_target)
                                 someone_casting = false
                                 return true
                             end
@@ -1708,7 +1615,7 @@ local function runRotation()
     inCombat = br.player.inCombat
     item = br.player.items
     level = br.player.level
-    mode = br.player.mode
+    mode = br.player.ui.mode
     php = br.player.health
     spell = br.player.spell
     talent = br.player.talent
@@ -1797,21 +1704,6 @@ local function runRotation()
          end]]
     end
 
-    if br.player.buff.rollTheBones == nil then
-        br.player.buff.rollTheBones = { count = 0, duration = 0, remain = 0 }
-    end
-    -- Print("count: " .. buff_rollTheBones_count)
-    if dice_reroll == true then
-        buff_rollTheBones_count = 0
-        for k, v in pairs(br.player.spell.buffs.rollTheBones) do
-            if UnitBuffID("player", v) ~= nil then
-                buff_rollTheBones_count = buff_rollTheBones_count + 1
-            end
-        end
-        dice_reroll = false
-        -- Print("count: " .. buff_rollTheBones_count)
-    end
-
     if talent.acrobaticStrikes then
         dynamic_target_melee = units.dyn8
     else
@@ -1855,7 +1747,7 @@ local function runRotation()
                             br.addonDebug("[AM] - Shadowmeld")
                         end
                     end
-                    if isChecked("[AM] - Vanish") and mode.vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
+                    if isChecked("[AM] - Vanish") and mode .. vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
                         if cast.vanish() then
                             br.addonDebug("[AM] - Vanish")
                         end
@@ -1879,7 +1771,23 @@ local function runRotation()
     elseif haltProfile then
         return true
     else
-
+        if isChecked("Poison") then
+            if not moving and getOptionValue("Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison(1) then
+                if cast.instantPoison("player") then
+                    return true
+                end
+            end
+            if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+                if cast.woundPoison("player") then
+                    return true
+                end
+            end
+            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+                if cast.cripplingPoison("player") then
+                    return true
+                end
+            end
+        end
         --Print(tostring(auto_stealthed))
         ---------------------------------
         --- Out Of Combat - Rotations ---
@@ -1944,9 +1852,6 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         if inCombat then
-            if actionList.Corruption() then
-                return true
-            end
             if mode.essence == 1 then
                 if actionList.essences() then
                     return true

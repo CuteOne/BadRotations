@@ -48,6 +48,12 @@ br.api.items = function(item,k,v,subtable)
         has[k] = function()
             return hasItem(v)
         end
+        if has.item == nil then
+            has.item = function(itemID)
+                if itemID == nil then return end
+                return hasItem(itemID)
+            end
+        end
     end
     if subtable == "use" then 
         local use = item
@@ -70,8 +76,8 @@ br.api.items = function(item,k,v,subtable)
                 return canUseItem(slotID)
             end
         end
-        if use.id == nil then
-            use.id = function(itemID)
+        if use.item == nil then
+            use.item = function(itemID)
                 if itemID == nil then return end
                 if canUseItem(itemID) then
                     return useItem(itemID)

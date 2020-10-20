@@ -188,8 +188,8 @@ local function runRotation()
     UpdateToggle("Defensive",0.25)
     UpdateToggle("VoidForm",0.25)
     UpdateToggle("Interrupt",0.25)
-    br.player.mode.voidForm = br.data.settings[br.selectedSpec].toggles["VoidForm"]
-    --br.player.mode.interruptToggle = br.data.settings[br.selectedSpec].toggles["InterruptToggle"]
+    br.player.ui.mode.voidForm = br.data.settings[br.selectedSpec].toggles["VoidForm"]
+    --br.player.ui.mode.interruptToggle = br.data.settings[br.selectedSpec].toggles["InterruptToggle"]
 --------------
 --- Locals ---
 --------------
@@ -221,7 +221,7 @@ local function runRotation()
     local level                                         = br.player.level
     local lootDelay                                     = getOptionValue("LootDelay")
     local lowestHP                                      = br.friend[1].unit
-    local mode                                          = br.player.mode
+    local mode                                          = br.player.ui.mode
     local moveIn                                        = 999
     local moving                                        = (isMoving("player") and not br.player.buff.norgannonsForesight.exists() and not br.player.buff.surrenderToMadness.exists())
     local mrdm                                          = math.random

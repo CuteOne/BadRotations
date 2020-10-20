@@ -107,7 +107,7 @@ end
 -- if hasNoControl(12345) == true then
 function hasNoControl(spellID,unit)
 	if unit==nil then unit="player" end
-	local eventIndex = C_LossOfControl.GetNumEvents()
+	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
 	while (eventIndex > 0) do
 		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
 		local class = select(3,UnitClass("player"))

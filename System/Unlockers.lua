@@ -1,4 +1,4 @@
-function loadUnlockerAPI()
+function br:loadUnlockerAPI()
     local unlocked = false
     -- EWT Unlocker
     if EasyWoWToolbox ~= nil then -- Native Support - API found at https://ewtwow.com/EWT/ewt.lua
@@ -48,6 +48,7 @@ function loadUnlockerAPI()
         ReadFile = ReadFile
         WriteFile = WriteFile
         CreateDirectory = CreateDirectory
+        DirectoryExists = DirectoryExists
         GetWoWDirectory = GetWoWDirectory
         -- Callbacks
         AddEventCallback = AddEventCallback
@@ -126,6 +127,7 @@ function loadUnlockerAPI()
         WriteFile = wmbapi.WriteFile
         CreateDirectory = wmbapi.CreateDirectory
         GetWoWDirectory = wmbapi.GetWoWDirectory
+        DirectoryExists = wmbapi.DirectoryExists
         -- Callbacks
         AddEventCallback = function(Event, Callback)
             if not BRFrames then
@@ -242,16 +244,19 @@ function loadUnlockerAPI()
         -- GetKeyState = function() return false end
         unlocked = false
     end
-
+    -- Set Spell Queue Window to 0
+    if unlocked and br.prevQueueWindow ~= 0 then RunMacroText("/console SpellQueueWindow 0") end
     return unlocked
 end
 
 -- Checks for BR Out of Date with current version based on TOC file
-local brlocVersion = GetAddOnMetadata("BadRotations","Version")
+local brlocVersion
 local brcurrVersion
 local brUpdateTimer
-function checkBrOutOfDate()
+function br:checkBrOutOfDate()
+    brlocVersion = GetAddOnMetadata(br.addonName,"Version")
     if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
+        local startTime = debugprofilestop()
         -- Request Current Version from GitHub
         if EasyWoWToolbox ~= nil then -- EWT
             SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
@@ -271,6 +276,7 @@ function checkBrOutOfDate()
         end
         -- Check against current version installed
         if brlocVersion and brcurrVersion then
+            -- Print("Local: "..tostring(brlocVersion).." | Remote: "..tostring(brcurrVersion))
             brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
             brcleanLoc = gsub(tostring(brlocVersion),"%p","")
             if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
@@ -283,5 +289,6 @@ function checkBrOutOfDate()
             end
             brUpdateTimer = GetTime()
         end
+        br.debug.cpu:updateDebug(startTime, "outOfDate")
     end
 end

@@ -266,8 +266,8 @@ local function runRotation()
     local level = br.player.level
     local lootDelay = getOptionValue("LootDelay")
     local lowestHP = br.friend[1].unit
-    local mode = br.player.mode
-    local multidot = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
+    local mode = br.player.ui.mode
+    local multidot = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation == 2) and br.player.ui.mode.rotation ~= 3
     local perk = br.player.perk
     local php = br.player.health
     local playerMouse = UnitIsPlayer("mouseover")
@@ -547,7 +547,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Death and Decay Key") and br.player.mode.dND == 2 and SpecificToggle("Death and Decay Key") then
+        if isChecked("Death and Decay Key") and br.player.ui.mode.dND == 2 and SpecificToggle("Death and Decay Key") then
             if cast.deathAndDecay("player") then
                 return true
             end
