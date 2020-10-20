@@ -555,7 +555,7 @@ local function runRotation()
 
     local function singlelist()
         -- Onslaught
-        if (rage <= 75) and buff.enrage.exists("player") then
+        if (rage <= 85) and buff.enrage.exists("player") then
             if cast.onslaught() then
                 return
             end
@@ -729,7 +729,7 @@ local function runRotation()
         end
 
         -- Onslaught
-        if (rage <= 75) and buff.enrage.exists("player") then
+        if (rage <= 85) and buff.enrage.exists("player") then
             if cast.onslaught() then
                 return
             end
