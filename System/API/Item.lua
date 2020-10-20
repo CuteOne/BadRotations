@@ -77,7 +77,7 @@ br.api.items = function(item,k,v,subtable)
             end
         end
         if use.item == nil then
-            use.iitem = function(itemID)
+            use.item = function(itemID)
                 if itemID == nil then return end
                 if canUseItem(itemID) then
                     return useItem(itemID)
