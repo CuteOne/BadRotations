@@ -998,7 +998,7 @@ br.lists.spells = {
                 spittingCobra               = 194407,
                 stampede                    = 201430,
                 titansThunder               = 207068,
-                volley                      = 194386
+                volley                      = 194386,
                 bloodshed                   = 321530,
             },
             artifacts                       = {
@@ -1035,7 +1035,7 @@ br.lists.spells = {
                 spittingCobra               = 257891,
                 thrillOfTheHunt             = 257944,
                 aMurderOfCrows              = 131894,
-                born-to-be-wild             = 266921,
+                bornToBeWild                = 266921,
                 posthaste                   = 109215,
                 bindingShot                 = 109248,
                 stomp                       = 199530,
