@@ -2278,17 +2278,24 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                desperatePrayer             = 19236,
                 dispelMagic                 = 528,
                 fade                        = 586,
+                flashHeal                   = 2061,
                 levitate                    = 1706,
                 massDispel                  = 32375,
                 massResurrection            = 212036,
+                mindBlast                   = 8092,
                 mindControl                 = 605,
                 powerWordFortitude          = 21562,
+                powerWordShield             = 17,
+                psychicScream               = 8122,
                 resurrection                = 2006,
                 shadowWordDeath             = 32379,
                 shadowWordPain              = 589,
                 shackleUndead               = 9484,
+                shadowWordPain              = 589,
+                smite                       = 585,
             },
             artifacts                       = {
 
@@ -2297,10 +2304,15 @@ br.lists.spells = {
                 classHallSpeed              = 224098,
                 levitate                    = 111759,
                 powerWordFortitude          = 21562,
+                powerWordShield             = 17,
 
             },
             debuffs                         = {
                 shadowWordPain              = 589,
+<<<<<<< Updated upstream
+=======
+                weakenedSoul                = 6788,
+>>>>>>> Stashed changes
 
             },
             glyphs                          = {
