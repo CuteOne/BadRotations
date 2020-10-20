@@ -795,7 +795,7 @@ function cl:Warlock(...) -- 9
     -- CLear dot table after each death/individual combat scenarios. 
     if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then if #kinkydots > 0 then kinkydots = {} end end
 
-    if param == "UNIT_DIED" then if #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true end end end end
+    if param == "UNIT_DIED" then     end--if]] #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true --]]end end end 
 
     -- Corruption was refreshed. 
 	if param == "SPELL_AURA_REFRESH" then
