@@ -786,7 +786,7 @@ function cl:Warlock(...) -- 9
     if GetSpecialization() == 1 then
     if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
 	    -- Drain Soul counter
-		if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then dsTicks = 0 end
+		if UnitChannelInfo("player") == GetSpellInfo(198590) then dsTicks = 0 end
 	end
 
     -- We stopped a channel, reset counters.
@@ -800,7 +800,7 @@ function cl:Warlock(...) -- 9
     -- Corruption was refreshed. 
 	if param == "SPELL_AURA_REFRESH" then
         -- Drain Soul
-		if source == br.guid and spellName == spell.drainSoul then dsTicks = 0 maxdsTicks = 5 end
+		if source == br.guid and spellName == GetSpellInfo(198590) then dsTicks = 0 maxdsTicks = 5 end
     end
 
     -- Successfull Spell Casts
@@ -813,14 +813,14 @@ function cl:Warlock(...) -- 9
     -- Periodic Damage Events
 	if param == "SPELL_PERIODIC_DAMAGE" then
 		-- Drain Soul Ticks
-        if source == br.guid and spellName == spell.drainSoul then dsTicks = dsTicks + 1 br.addonDebug("Drain Soul + 1 tick") end
+        if source == br.guid and spellName == GetSpellInfo(198590) then dsTicks = dsTicks + 1 br.addonDebug("Drain Soul + 1 tick") end
 	end
 
     -- Corruption was removed.
 	if param == "SPELL_AURA_REMOVED" then
         if source == br.guid then
             -- Drain Soul
-			if spellName == drainSoul then dsTicks = 0 maxdsTicks = 3 br.addonDebug("Drain Soul ticks reset") end
+			if spellName == GetSpellInfo(198590) then dsTicks = 0 maxdsTicks = 3 br.addonDebug("Drain Soul ticks reset") end
         end
     end
 
