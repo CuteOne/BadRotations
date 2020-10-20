@@ -61,12 +61,11 @@ function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
     local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
     local player = "player" -- if someone forgets ""
-    local brLoaded = brLoaded
 
-    if not brLoaded then
+    if not br.loaded then
         br:loadSavedSettings()
         br.loader.loadProfiles()
-        brLoaded = true
+        br.loaded = true
     end
 
     self.profile = specName
@@ -377,20 +376,18 @@ function br.loader:new(spec,specName)
         end
 
         -- Cycle through Abilities List
-        for k,v in pairs(self.spell.abilities) do
-            if self.cast                == nil then self.cast               = {} end    -- Cast Spell Functions
+        for spell,id in pairs(self.spell.abilities) do
             if self.charges             == nil then self.charges            = {} end    -- Spell Charge Functions
             if self.cd                  == nil then self.cd                 = {} end    -- Spell Cooldown Functions
-            -- if self.spell.known         == nil then self.spell.known        = {} end    -- Spell Known Function
 
-            -- Build Spell Charges
-            br.api.spells(self.charges,k,v,"charges")
-            -- Build Spell Cooldown
-            br.api.spells(self.cd,k,v,"cd")
             -- Build Cast Funcitons
-            br.api.spells(self.cast,k,v,"cast")
+            br.api.cast(self,spell,id)
+            -- Build Spell Charges
+            br.api.spells(self.charges,spell,id,"charges")
+            -- Build Spell Cooldown
+            br.api.spells(self.cd,spell,id,"cd")
             -- build Spell Known
-            br.api.spells(self.spell,k,v,"known")
+            br.api.spells(self.spell,spell,id,"known")
         end
 
         -- Make Unit Functions from br.api.unit

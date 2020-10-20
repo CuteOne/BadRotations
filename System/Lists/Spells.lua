@@ -998,7 +998,8 @@ br.lists.spells = {
                 spittingCobra               = 194407,
                 stampede                    = 201430,
                 titansThunder               = 207068,
-                volley                      = 194386
+                volley                      = 194386,
+                bloodshed                   = 321530,
             },
             artifacts                       = {
 
@@ -1022,13 +1023,27 @@ br.lists.spells = {
 
             },
             talents                         = {
-                aMurderOfCrows              = 131894,
-                aspectOfTheBeast            = 191384,
-                barrage                     = 120360,
-                chimaeraShot                = 53209,
+                killerInstinct              = 273887,
+                animalCompanion             = 267116,
                 direBeast                   = 120679,
+                scentOfBlood                = 193532,
+                oneWithThePack              = 199528,
+                chimaeraShot                = 53209,
+                trailblazer                 = 199921,
+                naturalMending              = 270581,
+                camouflage                  = 199483,
+                spittingCobra               = 257891,
+                thrillOfTheHunt             = 257944,
+                aMurderOfCrows              = 131894,
+                bornToBeWild                = 266921,
+                posthaste                   = 109215,
+                bindingShot                 = 109248,
+                stomp                       = 199530,
+                barrage                     = 120360,
+                stampede                    = 201430,
+                aspectOfTheBeast            = 191384,
                 killerCobra                 = 199532,
-                spittingCobra               = 194407,
+                bloodshed                   = 321530,
             },
             traits                          = {
                 danceOfDeath                = 274441,
@@ -2237,6 +2252,7 @@ br.lists.spells = {
                 zeksExterminatus            = 236546, -- Legendary Cloak proc
             },
             debuffs                         = {
+                devouringPlague             = 335467,
                 mindFlay                    = 15407,
                 vampiricTouch               = 34914,
                 weakenedSoul                = 6788,
@@ -2277,17 +2293,24 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                desperatePrayer             = 19236,
                 dispelMagic                 = 528,
                 fade                        = 586,
+                flashHeal                   = 2061,
                 levitate                    = 1706,
                 massDispel                  = 32375,
                 massResurrection            = 212036,
+                mindBlast                   = 8092,
                 mindControl                 = 605,
                 powerWordFortitude          = 21562,
+                powerWordShield             = 17,
+                psychicScream               = 8122,
                 resurrection                = 2006,
                 shadowWordDeath             = 32379,
                 shadowWordPain              = 589,
                 shackleUndead               = 9484,
+                shadowWordPain              = 589,
+                smite                       = 585,
             },
             artifacts                       = {
 
@@ -2296,10 +2319,12 @@ br.lists.spells = {
                 classHallSpeed              = 224098,
                 levitate                    = 111759,
                 powerWordFortitude          = 21562,
+                powerWordShield             = 17,
 
             },
             debuffs                         = {
                 shadowWordPain              = 589,
+                weakenedSoul                = 6788,
 
             },
             glyphs                          = {

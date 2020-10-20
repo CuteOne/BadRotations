@@ -112,6 +112,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Mind Blast")
         br.ui:createCheckbox(section, "Smite")
         br.ui:createSpinner(section, "Mind Sear - AoE", 3, 1, 50, 1, "Number of Units to cast Mind Sear")
+        br.ui:createSpinner(section, "Mind Sear - AoE - High Prio", 3, 1, 50, 1, "Number of Units to cast Mind Sear")
         br.ui:createSpinnerWithout(section, "Mind Sear - HP Cutoff", 80, 0 ,100, 5, "Lowest friendly HP to channel Sear")
         br.ui:createCheckbox(section, "SHW: Death Snipe")
         br.ui:createSpinner(section, "Mindbender", 80, 0, 100, 5, "Mana Percent to Cast At")
@@ -234,7 +235,7 @@ local function runRotation()
     local bestUnit
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        local thisGroup = #enemies.get(8,thisUnit)
+        local thisGroup = #enemies.get(10,thisUnit)
         if thisGroup > biggestGroup then
             biggestGroup = thisGroup
             bestUnit = thisUnit
@@ -615,6 +616,12 @@ local function runRotation()
     end
 
     local function DamageTime()
+        if isChecked("Mind Sear - AoE - High Prio") and not cast.current.mindSear() then
+            if biggestGroup >= getOptionValue("Mind Sear - AoE - High Prio") and lowest.hp > getOptionValue("Mind Sear - HP Cutoff") then
+                if cast.mindSear(bestUnit) then return true end
+            end
+        end
+
         if isChecked("Power Word: Solace") and talent.powerWordSolace then
             if schismBuff ~= nil then
                 if cast.powerWordSolace(schismBuff) then
@@ -745,7 +752,7 @@ local function runRotation()
     local localHealingCount = discHealCount
     ------------------------------
     ------- Start the Stuff ------
-    if pause(true) or drinking then
+    if pause() or drinking then
         return true
     else
         if not inCombat then

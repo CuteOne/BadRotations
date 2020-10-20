@@ -8,7 +8,7 @@ function br.read.commonReaders()
 	Frame:RegisterEvent("BAG_UPDATE")
 	local function BagUpdate(self, event, ...)
 		if event == "BAG_UPDATE" then
-			bagsUpdated = true
+			br.bagsUpdated = true
 		end
 	end
 	Frame:SetScript("OnEvent", BagUpdate)
@@ -588,10 +588,10 @@ function br.read.commonReaders()
 			if errorMsg == 278 then
 				local revive = GetSpellInfo(50769) -- Used for string matching error messasge.
 				local match = string.find(messageErr,revive) ~= nil
-				if match then deadPet = true else deadPet = false end
+				if match then br.deadPet = true else br.deadPet = false end
 			end
 			if not UnitIsDeadOrGhost("player") and (UnitIsDeadOrGhost("pet") or not UnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
-				deadPet = true
+				br.deadPet = true
 				-- if deadPet == false then
 				-- elseif deadPet == true and UnitHealth("pet") > 0 then
 				-- 	deadPet = false
