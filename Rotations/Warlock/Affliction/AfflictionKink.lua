@@ -912,9 +912,6 @@ local function runRotation()
         actionList.PetManagement = br.rotations.support["PetCuteOne"]
     end
 
-    dsTicks = 0
-	maxdsTicks = 5
-
     -- Pet Data
     if mode.petSummon == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
     elseif mode.petSummon == 1 then summonId = 416
@@ -1367,7 +1364,7 @@ local function runRotation()
 
             -- Drain Soul
             if smartCancel() and cast.current.drainSoul() then SpellStopCasting() return true end 
-            
+
             if not moving and talent.drainSoul and not debuff.vileTaint.exists("target") and (debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax + 3
                 and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
                 and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
