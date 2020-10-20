@@ -12,7 +12,7 @@ local rotationName = "DumpyResto" -- Change to name of profile listed in options
 
 Kink for some of his targeting Logic
 
-Aura for some of the healing logic as well
+Aura for most of the healing logic as well
 
 --]]
 
@@ -20,33 +20,25 @@ Aura for some of the healing logic as well
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
--- Rotation Button
-    RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
-    };
-    CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.healingTideTotem },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.healingTideTotem },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.healingTideTotem }
     };
-    CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",1,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
     };
-    CreateButton("Defensive",3,0)
+    CreateButton("Defensive",2,0)
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
     };
-    CreateButton("Interrupt",4,0)
+    CreateButton("Interrupt",3,0)
 end
 
 ---------------
@@ -71,16 +63,23 @@ local function createOptions()
         --- HEALING OPTIONS --- --
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Healing")
-          br.ui:createSpinner(section,  "Riptide",  90,  0,  100,  5,  "|cffFFBB00% to cast")
-          br.ui:createDropdown(section, "Upkeep Riptide", {"|cffFFFFFFTarget",	"|cffFFFFFFTank", "|cffFFFFFFPlayer"}, 1, "|cffFFFFFFTarget to cast on")
-          br.ui:createSpinner(section, "Healing Wave",  70,  0,  100,  5,  "|cffFFFFFF% to Cast At")
+          br.ui:createSpinner(section,  "Riptide",  90,  0,  100,  5,  "|cff0070de% to cast")
+          br.ui:createDropdown(section, "Upkeep Riptide", {"|cff0070deTarget",	"|cff0070deTank", "|cff0070dePlayer"}, 1, "|cff0070deTarget to cast on")
+
+          br.ui:createSpinner(section, "Healing Wave",  70,  0,  100,  5,  "|cff0070de% to Cast At")
           br.ui:createCheckbox(section, "HW Buff", "|cff0070deOnly use Healing Wave with Tidal Waves or Undulation.")
-          br.ui:createSpinner(section, "Healing Surge",  55,  0,  100,  5,  "|cffFFFFFF% to Cast At")
 
-          br.ui:createSpinner(section, "Chain Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-          br.ui:createSpinnerWithout(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")
+          br.ui:createSpinner(section, "Healing Surge",  55,  0,  100,  5,  "|cff0070de% to Cast At")
 
-          br.ui:createDropdown(section, "Upkeep Earth Shield", {"|cffFFFFFFTarget",	"|cffFFFFFFTank"}, 1, "|cffFFFFFFTarget to cast on")
+          br.ui:createSpinner(section, "Chain Heal",  70,  0,  100,  5,  "|cff0070deHealth Percent to Cast At")
+          br.ui:createSpinnerWithout(section, "Chain Heal Targets",  3,  0,  40,  1,  "|cff0070deMinimum Chain Heal Targets")
+
+          br.ui:createDropdown(section, "Upkeep Earth Shield", {"|cff0070deTarget",	"|cff0070deTank"}, 1, "|cff0070deTarget to cast on")
+
+          br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "|cff0070deHealth Percent to Cast At")
+          br.ui:createSpinnerWithout(section, "Healing Rain Targets",  2,  0,  40,  1,  "|cff0070deMinimum Healing Rain Targets")
+
+          br.ui:createCheckbox(section, "Purify", "|cff0070deUse Purify Spirit.")
 
         br.ui:checkSectionState(section)
 
@@ -90,19 +89,25 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
 
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+        br.ui:createSpinner(section, "Healing Tide Totem",  50,  0,  100,  5,  "|cff0070deHealth Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Healing Tide Totem Targets",  3,  0,  40,  1,  "|cff0070deMinimum Healing Tide Totem Targets (excluding yourself)")
 
         br.ui:checkSectionState(section)
+
+        -----------
+        --- DPS ---
+        -----------
+        section = br.ui:createSection(br.ui.window.profile, "Damage")
+
+        br.ui:checkSectionState(section)
+
+
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cff0070deCast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -200,6 +205,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttm                                           = br.player.timeToMax
         local units                                         = br.player.units
+        local mana                                          = br.player.power.mana.percent()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -222,6 +228,21 @@ local function runRotation()
 
 
 
+
+--------------------
+--- Cooldowns ---
+--------------------
+
+        if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
+          if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then
+            if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") HTTimer = GetTime() return end
+          end
+        end
+
+
+
+
+
 --------------------
 --- Water Shield ---
 --------------------
@@ -233,7 +254,10 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-
+        if br.data.settings[br.selectedSpec][br.selectedProfile]['HE ActiveCheck'] == false and br.timer:useTimer("Error delay",0.5) then
+          Print("Detecting Healing Engine is not turned on.  Please activate Healing Engine to use this profile.")
+          return
+        end
 
         -- Pause
         if pause() then
@@ -290,7 +314,7 @@ local function runRotation()
                     if cast.earthShield("target") then br.addonDebug("Upkeep Earth Shield Target") return end
                 end
 
-                if getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
+                if isChecked("OOC Healing") and getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
                     for i = 1, #tanks do
                         if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
                             if cast.earthShield(tanks[i].unit) then
@@ -326,8 +350,53 @@ local function runRotation()
 
 
 
-              if isChecked("Chain Heal") and not isMoving("player") then
+              if isChecked("OOC Healing") and isChecked("Chain Heal") and not isMoving("player") then
                 if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
+              end
+
+
+              if isChecked("OOC Healing") and isChecked("Purify Spirit") and cast.able.purifySpirit() then
+                  for i = 1, #br.friend do
+                      if canDispel(br.friend[i].unit,spell.purifySpirit) then
+                          if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
+                      end
+                  end
+              end
+
+
+
+              if isChecked("OOC Healing") and not isMoving("player") and cd.healingRain.remain() <= gcd and br.timer:useTimer("HR Delay",5) then
+                  if isChecked("Healing Rain") and not buff.healingRain.exists() then
+                      if isChecked("Healing Rain") then
+                          -- get melee players
+                          for i=1, #tanks do
+                              -- get the tank's target
+                              local tankTarget = UnitTarget(tanks[i].unit)
+                              if tankTarget ~= nil and getDistance(tankTarget,"player") < 40 then
+                                  -- get players in melee range of tank's target
+                                  local meleeFriends = getAllies(tankTarget,5)
+                                  -- get the best ground circle to encompass the most of them
+                                  local loc = nil
+                                  if isChecked("Healing Rain") then
+                                      -- CastGroundHeal(spell.healingRain, meleeFriends)
+                                      -- return
+                                      if #meleeFriends >= getValue("Healing Rain Targets") then
+                                          if #meleeFriends < 12 then
+                                              loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                                          else
+                                              if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
+                                          end
+                                      end
+                                  end
+                                  if loc ~= nil then
+                                      if castGroundAtLocation(loc, spell.healingRain) then br.addonDebug("Casting Healing Rain (Cast Ground)") return true end
+                                  end
+                              end
+                          end
+                      else
+                          if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain (Wise AoE)") return end
+                      end
+                  end
               end
 
 
@@ -344,7 +413,7 @@ local function runRotation()
               end
 
 
-              if isChecked("OOC Healing") and isChecked("Riptide") and not IsMounted() and not IsFlying() then
+              if isChecked("Riptide") and not IsMounted() and not IsFlying() then
                 for i = 1, #br.friend do
                   if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
                     if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
@@ -354,7 +423,7 @@ local function runRotation()
 
 
               -- upkeep riptide start
-              if isChecked("OOC Healing") and isChecked("Upkeep Riptide") and not IsMounted() and not IsFlying() then
+              if isChecked("Upkeep Riptide") and not IsMounted() and not IsFlying() then
                 if getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
                     if cast.riptide("target") then br.addonDebug("Upkeep Riptide Target") return end
                 end
@@ -379,7 +448,7 @@ local function runRotation()
               end -- end of riptide upkeep
 
               -- start of ES upkeep
-              if isChecked("OOC Healing") and isChecked("Upkeep Earth Shield") and not IsMounted() and not IsFlying() then
+              if isChecked("Upkeep Earth Shield") and not IsMounted() and not IsFlying() then
                 if getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
                     if cast.earthShield("target") then br.addonDebug("Upkeep Earth Shield Target") return end
                 end
@@ -399,20 +468,20 @@ local function runRotation()
 
 
 
-              if isChecked("OOC Healing") and isChecked("Healing Wave") and not isMoving("player") and not isChecked("HW Buff") then
+              if isChecked("Healing Wave") and not isMoving("player") and not isChecked("HW Buff") then
                 if lowest.hp <= getValue("Healing Wave") then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end
                 end
               end
 
-              if isChecked("OOC Healing") and isChecked("Healing Wave") and not isMoving("player") and isChecked("HW Buff") then
+              if isChecked("Healing Wave") and not isMoving("player") and isChecked("HW Buff") then
                 if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave with buff") return end
                 end
               end
 
 
-              if isChecked("OOC Healing") and isChecked("Healing Surge") and not isMoving("player") then
+              if isChecked("Healing Surge") and not isMoving("player") then
                 if lowest.hp <= getValue("Healing Surge") then
                   if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end
                 end
@@ -422,6 +491,65 @@ local function runRotation()
 
               if isChecked("Chain Heal") and not isMoving("player") then
                 if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
+              end
+
+
+              if isChecked("Purify Spirit") and cast.able.purifySpirit() then
+                  for i = 1, #br.friend do
+                      if canDispel(br.friend[i].unit,spell.purifySpirit) then
+                          if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
+                      end
+                  end
+              end
+
+
+
+              if not isMoving("player") and cd.healingRain.remain() <= gcd and br.timer:useTimer("HR Delay",5) then
+                  if isChecked("Healing Rain") and not buff.healingRain.exists() then
+                      if isChecked("Healing Rain") then
+                          -- get melee players
+                          for i=1, #tanks do
+                              -- get the tank's target
+                              local tankTarget = UnitTarget(tanks[i].unit)
+                              if tankTarget ~= nil and getDistance(tankTarget,"player") < 40 then
+                                  -- get players in melee range of tank's target
+                                  local meleeFriends = getAllies(tankTarget,5)
+                                  -- get the best ground circle to encompass the most of them
+                                  local loc = nil
+                                  if isChecked("Healing Rain") then
+                                      -- CastGroundHeal(spell.healingRain, meleeFriends)
+                                      -- return
+                                      if #meleeFriends >= getValue("Healing Rain Targets") then
+                                          if #meleeFriends < 12 then
+                                              loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                                          else
+                                              if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
+                                          end
+                                      end
+                                  else
+                                      local meleeHurt = {}
+                                      for j=1, #meleeFriends do
+                                          if meleeFriends[j].hp < getValue("Healing Rain") then
+                                              tinsert(meleeHurt,meleeFriends[j])
+                                          end
+                                      end
+                                      if #meleeHurt >= getValue("Healing Rain Targets") then
+                                          if #meleeHurt < 12 then
+                                              loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                          else
+                                              if castWiseAoEHeal(meleeHurt,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
+                                          end
+                                      end
+                                  end
+                                  if loc ~= nil then
+                                      if castGroundAtLocation(loc, spell.healingRain) then br.addonDebug("Casting Healing Rain (Cast Ground)") return true end
+                                  end
+                              end
+                          end
+                      else
+                          if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain (Wise AoE)") return end
+                      end
+                  end
               end
 
 
