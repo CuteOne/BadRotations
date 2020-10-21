@@ -485,7 +485,7 @@ actionList.Cooldowns = function()
     -- Unholy Blight
     -- unholu_blight
     if (ui.value("Unholy Assault") == 1 or (ui.value("Unholy Assault") == 2 and ui.useCDs())) and cast.able.unholyBlight("player","aoe",1,10) and groupTTD >= ui.value("CDs TTD Limit") then
-        if cast.unholyBlight("player","aoe",1,10) then ui.debug("") return true end
+        if cast.unholyBlight("player","aoe",1,10) then ui.debug("Casting Unholy Blight") return true end
     end
 end -- End Action List - Cooldowns
 
