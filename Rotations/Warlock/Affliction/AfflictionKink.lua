@@ -772,7 +772,7 @@ end -- End Action List - PreCombat
 actionList.multi = function()
     -- Seed of Corruption
     for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards10[i]
+        local thisUnit = enemies.yards40[i]
         local thisHP = getHP(thisUnit)
         if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedofCorruption.exists(thisUnit) 
         and thisUnit >= 3
