@@ -2548,6 +2548,7 @@ br.lists.spells = {
                 shurikenStorm               = 197835,
                 shurikenToss                = 114014,
                 symbolsOfDeath              = 212283,
+                sinisterStrike              = 1752,
             },
             artifacts                       = {
 

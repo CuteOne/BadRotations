@@ -270,6 +270,7 @@ Laks    |  Full   | 9.0   |  100%  | :heavy_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Fiskee  |  Full   | 8.0   |   100% | :white_check_mark:
+S0ul    |  Full   | 9.0   |   100% | :white_check_mark:
 
 ### Shaman
 
