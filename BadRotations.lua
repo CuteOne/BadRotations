@@ -4,12 +4,14 @@ br.addonName = "BadRotations"
 br.commandHelp = {}
 br.data = {}
 br.data.ui = {}
+br.deadPet = false
 -- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
 br.debug = {}
 br.dropOptions = {}
 --br.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
 br.dropOptions.Toggle ={"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None","MMouse","Mouse4","Mouse5" }
 br.dropOptions.CD = {"Never","CDs","Always" }
+br.engines = {}
 br.loadedIn = false
 br.loadFile = false
 br.pauseCast = GetTime()
@@ -102,6 +104,7 @@ function br:Run()
 end
 -- Default Settings
 function br:defaultSettings()
+	if br.data == nil then br.data = {} end
 	if br.data.settings == nil then
 		br.data.settings = {
 			mainButton = {
@@ -127,6 +130,23 @@ function br:defaultSettings()
 	end
 	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
 end
+-- Check Directories
+function br:checkDirectories()
+	-- Set the Settings Directory
+	br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
+	-- Make Settings Directory
+	if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
+	-- Set the Spec Directory
+	local specDir = br.settingsDir .. br.selectedSpec .. "\\"
+	-- Make Spec Directory
+	if not DirectoryExists(specDir) then CreateDirectory(specDir) end
+	-- Set the Save/Load Directory
+	local saveLoadDir = specDir .. br.selectedProfile .. "\\"
+	-- Make Save/Load Directory
+	if not DirectoryExists(saveLoadDir) then CreateDirectory(saveLoadDir) end
+
+	return saveLoadDir
+end
 -- Load Settings
 function br:loadSettings()
 	-- Base Settings
@@ -141,26 +161,24 @@ end
 -- Load Saved Settings
 function br:loadSavedSettings()
 	if br.unlocked and not br.data.loadedSettings then
-		-- Set the Settings Directory
-		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
-		if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
+		local loadDir = br:checkDirectories()
 		local brdata
 		local brprofile
 		br.fileList = {}
 		Print("Loading Saved Settings")
-		br.fileList = GetDirectoryFiles(br.settingsDir..'*.lua')
+		br.fileList = GetDirectoryFiles(loadDir .. '*.lua')
 		for i = 1, #br.fileList do
 			-- Print("File: "..br.fileList[i])
 			-- loading br.data
 			if br.fileList[i] == "savedData.lua" then
-				brdata = br.tableLoad(br.settingsDir .. "savedData.lua")
+				brdata = br.tableLoad(loadDir .. "savedData.lua")
 				br.data = deepcopy(brdata)
 				brdata = nil
 				-- Print("Saved Settings Loaded")
 			end
 			if br.fileList[i] == "savedProfile.lua" then
 				-- loading br.profile
-				brprofile = br.tableLoad(br.settingsDir .. "savedProfile.lua")
+				brprofile = br.tableLoad(loadDir .. "savedProfile.lua")
 				br.profile = deepcopy(brprofile)
 				brprofile = nil
 				-- Print("Saved Profiles Loaded")
@@ -172,17 +190,17 @@ function br:loadSavedSettings()
 		TogglesFrame()
 		br.ui.window.config = {}
 		br.ui:createConfigWindow()
-		br.ui:toggleWindow("config")
-		br.ui:toggleWindow("config")
+		-- br.ui:toggleWindow("config")
 		br.data.loadedSettings = true
 	end
 end
 -- Save Settings
 function br:saveSettings()
+	local saveDir = br:checkDirectories()
 	local brdata = deepcopy(br.data)
 	local brprofile = deepcopy(br.profile)
-	br.tableSave(brdata,br.settingsDir .. "savedData.lua")
-	br.tableSave(brprofile,br.settingsDir .. "savedProfile.lua")
+	br.tableSave(brdata,saveDir .. "savedData.lua")
+	br.tableSave(brprofile,saveDir .. "\\" .. "savedProfile.lua")
 end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
