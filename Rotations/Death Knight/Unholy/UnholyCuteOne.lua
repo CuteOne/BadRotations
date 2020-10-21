@@ -38,7 +38,6 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "DnD Disabled", tip = "will NOT use DnD.", highlight = 0, icon = spell.deathAndDecay }
     };
     CreateButton("Dnd",5,0)
-
 end
 
 ---------------
@@ -213,11 +212,6 @@ local use
 local actionList = {}
 local var = {}
 
------------------
---- Functions ---
------------------
-
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -225,7 +219,6 @@ local var = {}
 actionList.PetManagement = function()
     local function getCurrentPetMode()
         local slots = _G["NUM_PET_ACTION_SLOTS"]
-        local petInfo = _G["GetPetActionInfo"]
         local petMode = "None"
         for i = 1, slots do
             local name, _, _,isActive = GetPetActionInfo(i)
@@ -750,7 +743,7 @@ actionList.PreCombat = function()
         end
         -- Azshara's Font of Power
         if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and equiped.azsharasFontOfPower() 
-            and use.able.azsharasFontOfPower() and not unit.moving("player") and not unit.inCombat() and ui.pullTimer <= ui.value("Pre-Pull Timer")
+            and use.able.azsharasFontOfPower() and not unit.moving("player") and not unit.inCombat() and ui.pullTimer()<= ui.value("Pre-Pull Timer")
         then
             if use.azsharasFontOfPower() then ui.debug("Using Azshara's Font of Power [Pre-Pull]") return true end
         end               
