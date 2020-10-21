@@ -1259,7 +1259,6 @@ br.lists.spells = {
             abilities                       = {
                 arcaneBarrage               = 44425,
                 arcaneBlast                 = 30451,
-                arcaneExplosion             = 1449,
                 arcaneFamiliar              = 205022,
                 arcaneMissiles              = 5143,
                 arcaneOrb                   = 153626,
@@ -1397,7 +1396,7 @@ br.lists.spells = {
                 kindling                    = 155148,
                 livingBomb                  = 44457,
                 meteor                      = 153561,
-                mirrorImage                 = 55342,
+                focusMagic                 = 321358,
                 phoenixsFlames              = 257541,
                 pyromaniac                  = 205020,
                 pyroclasm                   = 269650,
@@ -1479,13 +1478,16 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                fireBlast                   = 108853,
+                frostbolt                   = 116,
                 arcaneIntellect             = 1459,
+                arcaneExplosion             = 1449,
                 blink                       = 1953,
                 counterspell                = 2139,
                 frostNova                   = 122,
                 iceBlock                    = 45438,
                 invisibility                = 66,
-                mirrorImage                 = 55342,
+                focusMagic                 = 321358,
                 polymorph                   = 118,
                 removeCurse                 = 475,
                 ringOfFrost                 = 113724,
@@ -1507,7 +1509,7 @@ br.lists.spells = {
                 runeOfPower                 = 116014,
             },
             debuffs                         = {
-
+                frostNova                   = 122,
             },
             glyphs                          = {
 
@@ -1515,7 +1517,7 @@ br.lists.spells = {
             talents                         = {
                 incantersFlow               = 1463,
                 iceWard                     = 205036,
-                mirrorImage                 = 55342,
+                focusMagic                  = 321358,
                 ringOfFrost                 = 113724,
                 runeOfPower                 = 116011,
                 shimmer                     = 212653,
