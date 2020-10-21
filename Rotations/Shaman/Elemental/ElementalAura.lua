@@ -690,6 +690,13 @@ local function runRotation()
                     if cast.liquidMagmaTotem() then br.addonDebug("Casting Liquid Magma Totem") return true end
                 end
             end
+            -- Echoing Shock
+            if cast.able.echoingShock and cast.able.lavaBurst then
+                if cast.echoingShock() then return true end
+            end
+            if buff.echoingShock.exists() then
+                if cast.lavaBurst() then return true end
+            end
             -- Lightning Bolt
             --actions.single_target+=/lightning_bolt,if=buff.stormkeeper.up&spell_targets.chain_lightning<2&(buff.master_of_the_elements.up&!talent.surge_of_power.enabled|buff.surge_of_power.up)
             if buff.stormKeeper.exists() and (isMoving("player") or (#enemies.yards10t <= 2 and ((buff.masterOfTheElements.exists() and not talent.surgeOfPower) or buff.surgeOfPower.exists()))) and holdBreak then
