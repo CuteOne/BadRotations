@@ -1,4 +1,5 @@
 local br = _G["br"]
+br.engines = {}
 -- Main Engine
 function br:Engine()
 	if br.engines.Pulse_Engine == nil then
