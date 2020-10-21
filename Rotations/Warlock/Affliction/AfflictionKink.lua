@@ -179,7 +179,7 @@ local function createOptions ()
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
             -- Drain Soul Canceling
-            br.ui:createSpinner(section, "Drain Soul Smart Cancel", 4, 1, 5, 1, nil, "The tick of Drain Soul to cancel the cast at (5 ticks total)", true)
+            br.ui:createSpinner(section, "Drain Soul Clipping", 4, 1, 5, 1, nil, "The tick of Drain Soul to cancel the cast at (5-6 ticks total)", true)
 
             -- Unstable Affliction Priority Mark
             --br.ui:createDropdown(section, "Priority Unit", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize",true)
@@ -763,7 +763,7 @@ end -- End Action List - PreCombat
         if moving then return false end
 
         if (not debuff.unstableAffliction.exists(unit) or debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 1 )
-        and debuff.agony.remain(unit) > gcdMax + 1 and (debuff.corruption.remain(unit) > gcdMax + 1
+        and debuff.agony.remain(unit) > gcdMax + 5 and (debuff.corruption.remain(unit) > gcdMax + 1
         and (debuff.siphonLife.remain(unit) > gcdMax + 3 or not talent.siphonLife)) then
            if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
         end
@@ -772,11 +772,11 @@ end -- End Action List - PreCombat
 actionList.multi = function()
     -- Seed of Corruption
     for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards30[i]
+        local thisUnit = enemies.yards10[i]
         local thisHP = getHP(thisUnit)
-        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.corruption.exists(thisUnit) and not debuff.seedofCorruption.exists(thisUnit) 
-        and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= 15 
+        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedofCorruption.exists(thisUnit) 
         and thisUnit >= 3
+        and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= 10
         then
             if cast.seedOfCorruption(thisUnit) then br.addonDebug("Casting Seed of Corruption") return true end
         end
@@ -875,8 +875,6 @@ local function runRotation()
     shards                                        = br.player.power.soulShards.frac()
     -- Warlock Combat Log Reader
     cl                                            = br.read
-    dsTicks                                       = br.dsTicks
-    maxdsTicks                                    = br.maxdsTicks
     spell                                         = br.player.spell
     talent                                        = br.player.talent
     traits                                        = br.player.traits
@@ -897,7 +895,6 @@ local function runRotation()
     spellHaste                                    = (1 + (GetHaste()/100))
     ttd                                           = getTTD
     haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==2
-
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -1006,6 +1003,11 @@ local function runRotation()
         ------------------------------------------------
         if actionList.PreCombat() then return true end
 
+
+        if (debuff.unstableAffliction.remain("target") > gcdMax + 11
+            and debuff.agony.remain("target") > gcdMax + 8 and debuff.corruption.remain("target") > gcdMax + 4) then
+        if not smartCancel() and br.dsTicks <= ui.value("Drain Soul Smart Cancel") then if cast.drainSoul() then br.addonDebug("Clipped Drain Soul 2") return true end end
+        end
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
@@ -1199,7 +1201,7 @@ local function runRotation()
                 if agonyCount < ui.value("Spread Agony on ST") then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 5 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+                        if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 5.4 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
                             if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Pandemic Invocation]") return true end
                         end
                     end
@@ -1220,7 +1222,7 @@ local function runRotation()
                 if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.corruption.remain(thisUnit) <= 5 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
+                        if not noDotCheck(thisUnit) and debuff.corruption.remain(thisUnit) <= 5.4 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
                             if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Pandemic Invocation]") return true end
                         end
                     end
@@ -1284,12 +1286,30 @@ local function runRotation()
             end
 
             -- Vile Taint
-            if not moving and talent.vileTaint and shards > 1 and (debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax + 4
+            if not moving and talent.vileTaint and shards > 1
+            and (debuff.unstableAffliction.remain("target") > gcdMax + 3
+            and debuff.agony.remain("target") > gcdMax + 3 and debuff.corruption.remain("target") > gcdMax + 3
             and getTTD("target") > gcdMax + cast.time.vileTaint() + 3
-                and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
-                and (debuff.corruption.remain("target") > gcdMax + 3  or talent.absoluteCorruption and debuff.corruption.exists("target"))) then
+            and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
+            and (debuff.corruption.remain("target") > gcdMax + 3  or talent.absoluteCorruption and debuff.corruption.exists("target")))
+            then
                 if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
             end
+
+            -- Malefic Rapture
+            if not moving 
+            and (debuff.agony.remain("target") > gcdMax
+            and getTTD("target") > gcdMax + cast.time.maleficRapture()
+            and ((debuff.unstableAffliction.remains("target") > gcdMax + 8 and debuff.siphonLife.remain("target") > gcdMax + 2 or not talent.siphonLife)) 
+            and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
+            then
+                -- Vile Taint not talented
+                if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end end
+
+                -- Malefic Rapture at full shards
+                if shards > 4 or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture (Full Shards)") return true end end
+            end
+            
 
             -- Focused Azerite Beam
             if cd.summonDarkglare.remains() > 10 and ui.checked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remain() <= gcdMax
@@ -1322,22 +1342,7 @@ local function runRotation()
             if isChecked("Use Essence") and essence.concentratedFlame.active and php >= getOptionValue("Concentrated Flame") and cd.concentratedFlame.remain() <= gcdMax then
                 if cast.concentratedFlame("target") then br.addonDebug("Casting Concentrated Flame Damage") return true end
             end
-
-            -- Malefic Rapture
-            if not moving and (debuff.agony.remain("target") > gcdMax  
-                and getTTD("target") > gcdMax + cast.time.maleficRapture() + 3
-                and ((debuff.unstableAffliction.exists("target") and debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
-                and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) then
-                -- Vile Taint ticking
-                if (talent.vileTaint and debuff.vileTaint.exists("target")) then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture (Vile Taint)") return true end end
-
-                -- Vile Taint not talented
-                if not talent.vileTaint then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end end
-
-                -- Malefic Rapture at full shards
-                if shards > 4 then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture (Full Shards)") return true end end
-            end
-
+            
             -- Drain Life
             if not moving and buff.inevitableDemise.stack() >= 45 and br.timer:useTimer("ID Delay", 5) then
                 if cast.drainLife() then br.addonDebug("Casting Drain Life") return true end
@@ -1361,26 +1366,33 @@ local function runRotation()
             if ui.checked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remain() <= gcdMax and shards < 4 then
                 if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return true end
             end
-
-            -- Drain Soul
-            if smartCancel() and cast.current.drainSoul() then SpellStopCasting() br.addonDebug("CANCEL CAST") return true end 
-
-            if not moving and talent.drainSoul and not debuff.vileTaint.exists("target") and (debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax + 3
-                and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
-                and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
-                then
-                    if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
+                        -- Malefic Rapture
+            if not moving then
+                           -- Vile Taint not talented
+                if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end end
             end
+            -- Drain SoulellStopCasting()br.dsTicks <  br.maxdsTicks - 1
+
+            if shards < 1 and cd.vileTaint.remain() > gcdMax + 13.95  then 
+           
+            if not moving and talent.drainSoul and cast.timeSinceLast.drainSoul() > gcdMax + 3
+            and (debuff.unstableAffliction.remain("target") > gcdMax + 11 and debuff.agony.remain("target") > gcdMax + 10
+            and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
+            and (debuff.corruption.remain("target") < gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target")))
+            then
+                if cast.drainSoul() then br.addonDebug("Casting Drain Soul") return true end
+            end
+        end
 
             -- Shadow Bolt
-            if not moving and not debuff.vileTaint.exists("target") and (debuff.unstableAffliction.exists("target") and debuff.agony.remain("target") > gcdMax + 3
-                and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
-                and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.remain("target") > gcdMax + 3))
-                and (cd.summonDarkglare.remain() > gcdMax or not useCDs() or (ui.checked("Darkglare Dots") and totalDots() < ui.value("Darkglare Dots"))) 
-                then
-                    if cast.shadowBolt2() then br.addonDebug("Casting Shadow Bolt") return true end
+            if not moving 
+            and not debuff.vileTaint.exists("target") and (debuff.unstableAffliction.remain("target") > gcdMax + 3 and debuff.agony.remain("target") > gcdMax + 3
+            and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
+            and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
+            then
+                if cast.shadowBolt2() then br.addonDebug("Casting Shadow Bolt") return true end
             end
-            
+
             -- Agony
             if moving then
                 if agonyCount < ui.value("Agony Count") then
@@ -1400,10 +1412,10 @@ end -- End runRotation
 
 function smartCancel()
 	-- Drain Soul Failsafe
-	if ui.checked("Drain Soul Smart Cancel") then
-			if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and dsTicks < maxdsTicks - 1 then return false end
+    if ui.checked("Drain Soul Smart Cancel") then
+			if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and  br.dsTicks <  br.maxdsTicks - 1 then return false end
 		else
-			if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and dsTicks < ui.value("Drain Soul Smart Cancel") then return false end
+			if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and  br.dsTicks <= ui.value("Drain Soul Smart Cancel") then return false end
 		end
 	return true
 end

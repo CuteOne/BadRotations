@@ -448,7 +448,7 @@ br.tableLoad = function( sfile )
     local ftables = loadstring(file,sfile)
     -- local ftables,err = loadfile( sfile )
     -- if err then return _,err end
-    local tables = ftables()
+    local tables = ftables() or {}
     -- return deepcopy(tables)
     for idx = 1,#tables do
         local tolinki = {}

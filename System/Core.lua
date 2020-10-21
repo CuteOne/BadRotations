@@ -1,11 +1,11 @@
 local br = _G["br"]
-br.deadPet = false
+br.engines = {}
 -- Main Engine
 function br:Engine()
-	if br.Pulse_Engine == nil then
-		br.Pulse_Engine = CreateFrame("Frame", nil, UIParent)
-		br.Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
-		br.Pulse_Engine:Show()
+	if br.engines.Pulse_Engine == nil then
+		br.engines.Pulse_Engine = CreateFrame("Frame", nil, UIParent)
+		br.engines.Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
+		br.engines.Pulse_Engine:Show()
 	end
 end
 -- Object Manager Engine
@@ -16,11 +16,11 @@ function br:ObjectManager()
 			br.om:Update()
 		end
 	end
-	if br.OM_Engine == nil then
+	if br.engines.OM_Engine == nil then
 		-- ObjectManagerUpdate()
-		br.OM_Engine = CreateFrame("Frame", nil, UIParent)
-		br.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
-		br.OM_Engine:Show()
+		br.engines.OM_Engine = CreateFrame("Frame", nil, UIParent)
+		br.engines.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
+		br.engines.OM_Engine:Show()
 	end
 end
 
