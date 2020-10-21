@@ -108,7 +108,7 @@ Kuukuu  |Sporadic |  8.3  |   99%  | :white_check_mark:
 
 author  | support  | patch | status |     raidable?
 :------ | :------: | :---: | -----: | :----------------:
-CuteOne |   Full   |  8.0  |   99%  | :white_check_mark:
+CuteOne |   Full   |  9.0  |   99%  | :white_check_mark:
 Kuukuu  |Sporadic  |  8.3  |   99%  | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
