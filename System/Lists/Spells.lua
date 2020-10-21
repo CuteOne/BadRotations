@@ -164,23 +164,13 @@ br.lists.spells = {
             abilities                       = {
                 asphyxiate                  = 221562,
                 bloodBoil                   = 50842,
-                bloodMirror                 = 206977,
-                blooddrinker                = 206931,
-                bonestorm                   = 194844,
-                consumption                 = 205223,
                 dancingRuneWeapon           = 49028,
-                deathAndDecay               = 43265,
                 deathsCaress                = 195292,
                 gorefiendsGrasp             = 108199,
                 heartStrike                 = 206930,
-                markOfBlood                 = 206940,
                 marrowrend                  = 195182,
                 runeTap                     = 194679,
-                soulgorge                   = 212744,
-                tighteningGrasp             = 206970,
-                tombstone                   = 219809,
                 vampiricBlood               = 55233,
-                iceboundFortitude           = 48792,
             },
             artifacts                       = {
                 allConsumingRot             = 192464,
@@ -243,7 +233,6 @@ br.lists.spells = {
         -- Frost
         [251] = {
             abilities                       = {
-                chainsOfIce                 = 45524,
                 empowerRuneWeapon           = 47568,
                 frostStrike                 = 49143,
                 frostwyrmsFury              = 279302,
@@ -270,7 +259,6 @@ br.lists.spells = {
             },
             debuffs                         = {
                 breathOfSindragosa          = 155166,
-                chainsOfIce                 = 45524,
                 remorselessWinter           = 196771,
             },
             glyphs                          = {
@@ -307,14 +295,10 @@ br.lists.spells = {
             abilities                       = {
                 apocalypse                  = 275699,
                 armyOfTheDead               = 42650,
-                chainsOfIce                 = 45524,
                 darkTransformation          = 63560,
-                deathAndDecay               = 43265,
-                deathCoil                   = 47541,
                 epidemic                    = 207317,
                 festeringStrike             = 85948,
                 outbreak                    = 77575,
-                raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 -- Pet Abilities
                 claw                        = 47468,
@@ -335,14 +319,10 @@ br.lists.spells = {
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
                 suddenDoom                  = 49530,
-                unholyFrenzy                = 207289,
+                unholyAssault               = 207289,
             },
             debuffs                         = {
-                chainsOfIce                 = 45524,
                 festeringWound              = 194310,
-                -- necroticStrike              = 223829,
-                -- outbreak                    = 77575,
-                -- scourgeOfWorlds             = 191748,
                 soulReaper                  = 343294,
                 virulentPlague              = 191587,
             },
@@ -351,14 +331,14 @@ br.lists.spells = {
             },
             talents                         = {
                 allWillServe                = 194916,
-                armyOfTheDead               = 276837,
+                armyOfTheDamned             = 276837,
                 asphyxiate                  = 108194,
                 burstingSores               = 207264,
                 clawingShadows              = 207311,
                 deathPact                   = 48743,
                 deathsReach                 = 276079,
                 defile                      = 152280,
-                ebonFever                   = 207269,              
+                ebonFever                   = 207269,        
                 gripOfTheDead               = 273952,
                 harbingerOfDoom             = 276023,
                 infectedClaws               = 207272,
@@ -369,7 +349,8 @@ br.lists.spells = {
                 summonGargoyle              = 49206,
                 unholyAssault               = 207289,
                 unholyBlight                = 115989,
-                
+                unholyPact                  = 319230,
+                wraithWalk                  = 212552              
             },
             traits                          = {
                 magusOfTheDead              = 288417,
@@ -378,18 +359,26 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
-                antiMagicShell              = 48707,
-                controlUndead               = 111673,
+                antiMagicShell              = 48707,--
+                antiMagicZone               = 51052,--
+                chainsOfIce                 = 45524,--
+                consumption                 = 205224,
+                controlUndead               = 111673,--
                 corpseExploder              = 127344,
-                darkCommand                 = 56222,
-                deathGate                   = 50977,
-                deathGrip                   = 49576,
-                deathStrike                 = 49998,
-                deathsAdvance               = 48265,
-                iceboundFortitude           = 48792,
-                mindFreeze                  = 47528,
-                pathOfFrost                 = 3714,
-                raiseAlly                   = 61999,
+                darkCommand                 = 56222,--
+                deathAndDecay               = 43265,--
+                deathCoil                   = 47541,--
+                deathGate                   = 50977,--
+                deathGrip                   = 49576,--
+                deathStrike                 = 49998,--
+                deathsAdvance               = 48265,--
+                iceboundFortitude           = 48792,--
+                lichborne                   = 49039,--
+                mindFreeze                  = 47528,--
+                pathOfFrost                 = 3714, --
+                raiseAlly                   = 61999,--
+                runeStrike                  = 316239,
+                sacraficialPact             = 327574,--
             },
             artifacts                       = {
 
@@ -403,6 +392,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 bloodPlague                 = 55078,
+                chainsOfIce                 = 45524,
                 controlUndead               = 111673,
                 darkCommand                 = 56222,
                 frostBreath                 = 190780,

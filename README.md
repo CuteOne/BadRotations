@@ -93,7 +93,7 @@ CuteOne |  Full   |  8.3  |   100% | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :------- | :-----: | :---: | -----: | :-------:
-CuteOne  |  Full   |  8.3  |   100% | :white_check_mark:
+CuteOne  |  Full   |  9.0  |   100% | :white_check_mark:
 
 ### Demon Hunter
 
@@ -101,7 +101,7 @@ CuteOne  |  Full   |  8.3  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   |  8.3  |   100% | :white_check_mark:
+CuteOne |  Full   |  9.0  |   100% | :white_check_mark:
 Kuukuu  |Sporadic |  8.3  |   99%  | :white_check_mark:
 
 - Vengeance
@@ -110,6 +110,8 @@ author  | support  | patch | status |     raidable?
 :------ | :------: | :---: | -----: | :----------------:
 CuteOne |   Full   |  8.0  |   99%  | :white_check_mark:
 Kuukuu  |Sporadic  |  8.3  |   99%  | :white_check_mark:
+
+- Inital 1-10 Supported - Patch 9.0
 
 ### Druid
 
@@ -137,6 +139,8 @@ author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
 Aura             |  Full   | 8.2   |   99%  | :white_check_mark:
 Laksmackt        |  M+     | 9.0   |   100%  | :x:
+
+- Inital 1-10 Supported - Patch 9.0
 
 ### Hunter
 - Beastmaster
@@ -242,6 +246,8 @@ author           |    support    | patch | status | raidable?
 winston       | Full          | 8.0  |   95% | :white_check_mark:
 Panglo           | Full          | 8.2   | ???    | :white_check_mark:
 
+- Inital 1-10 Supported - Patch 9.0
+
 ### Rogue
 
 - Assassination
@@ -286,6 +292,8 @@ author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
 Aura   |  Full   | 8.2   |   90%  |  :white_check_mark:
 
+- Inital 1-10 Supported - Patch 9.0
+
 ### Warlock
 
 - Affliction
@@ -306,6 +314,8 @@ author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Fiskee  |  Full   | 8.0 |   100% | :white_check_mark:
 Aura    |  Full   | 8.3   |   90%  |  :white_check_mark:
+
+- Inital 1-10 Supported - Patch 9.0
 
 ### Warrior
 

@@ -5,6 +5,7 @@ br.lists.pets = {
     -- Death Knight
     apocalypseGhoul             = 111101,
     gargoyle                    = 27829,
+    ghoul                       = 26125,
     risenSkulker                = 99541,
     -- Warlock
     darkglare                   = 103673,

@@ -22,9 +22,9 @@ br.api.unit = function(self,unit)
     end
     -- Distance
     if unit.distance == nil then
-        unit.distance = function(thisUnit)
+        unit.distance = function(thisUnit,otherUnit)
             local getDistance = _G["getDistance"]
-            return getDistance(thisUnit)
+            return getDistance(thisUnit,otherUnit)
         end
     end
     -- Enemy
