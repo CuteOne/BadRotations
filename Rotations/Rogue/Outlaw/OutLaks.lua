@@ -807,10 +807,9 @@ actionList.essences = function()
 
         --  bloodOfTheEnemy
         -- blood_of_the_enemy,if=variable.blade_flurry_sync&cooldown.between_the_eyes.up&variable.bte_condition&(spell_targets.blade_flurry>=2|raid_event.adds.in>45)|fight_remains<=10
+
         if essence.bloodOfTheEnemy.active and cast.able.bloodOfTheEnemy() then
-            if (cd.bladeFlurry.remain() == 0 or buff.bladeFlurry.exists())
-                    and bte_condition
-                    and (getOutLaksTTD(8) >= 2 or isBoss("target")) and cast.able.betweenTheEyes() then
+            if getTTD("target") > 10 and cd.betweenTheEyes.ready() and (cd.bladeFlurry.ready() or buff.bladeFlurry.exists()) then
                 if cast.bloodOfTheEnemy() then
                     return true
                 end

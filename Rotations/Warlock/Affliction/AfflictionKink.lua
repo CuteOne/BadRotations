@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.6"
+local rotationName = "Kink v1.3.9"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -175,6 +175,15 @@ local function createOptions ()
 			-- Trinkets
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 
+            -- Blood oF The Enemy
+            br.ui:createCheckbox(section, "Blood oF The Enemy", "Use Blood of the enemy, line it up with darkglare")
+
+            -- Malefic Rapture
+            br.ui:createSpinner(section, "Malefic Rapture TTD", 20, 1, 100, 1, nil, "The TTD to be <= to inside a raid/instance to start casting MR to burn", true)
+
+            -- Malefic Rapture
+            br.ui:createSpinner(section, "Malefic Rapture BloodLust", "Cast Malefic Rapture during bloodlust if you have at least 1 shard", false)
+
             -- Haunt TTD
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
@@ -186,9 +195,7 @@ local function createOptions ()
 
             -- Darkglare
             br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare",true)
- 
-            -- Haunt TTD
-            br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
+
 
             -- Seed of Corruption
             --br.ui:createSpinner(section, "Seed of Corruption Unit", 4, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
@@ -568,7 +575,6 @@ end
 
 -- Action List - Cooldowns
 actionList.Cooldown = function()
-    if useCDs() then
         --actions.cooldowns=worldvein_resonance
         if ui.checked("Use Essence") and essence.worldveinResonance.active and cd.worldveinResonance.remain() <= gcdMax and buff.lifeblood.stack() < 3 then
             if cast.worldveinResonance() then br.addonDebug("Casting Worldvein Resonance") return end
@@ -635,9 +641,10 @@ actionList.Cooldown = function()
         end
 
         -- actions.cooldowns+=/blood_of_the_enemy,if=pet.darkglare.remains|(!cooldown.deathbolt.remains|!talent.deathbolt.enabled)&cooldown.summon_darkglare.remains>=80&essence.blood_of_the_enemy.rank>1
-        if ui.checked("Use Essence") and (buff.darkSoul.exists() or pet.darkglare.active() or (cd.deathbolt.remain() < gcdMax or not talent.deathbolt) and cd.summonDarkglare.remain() >= 80 and essence.bloodOfTheEnemy.rank > 1) then
+        if ui.checked("Use Essence") or ui.checked("Blood oF The Enemy") and (buff.darkSoul.exists() or pet.darkglare.active() or (cd.deathbolt.remain() < gcdMax or not talent.deathbolt) and cd.summonDarkglare.remain() >= 80 and essence.bloodOfTheEnemy.rank > 1) then
             if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
         end
+
 
         --# Use damaging on-use trinkets more or less on cooldown, so long as the ICD they incur won't effect any other trinkets usage during cooldowns.
         --actions.cooldowns+=/use_item,name=pocketsized_computation_device,if=(cooldown.summon_darkglare.remains>=25|target.time_to_die<=30)&(cooldown.deathbolt.remains|!talent.deathbolt.enabled)
@@ -661,7 +668,6 @@ actionList.Cooldown = function()
         if ui.checked("Use Essence") and essence.rippleInSpace.active and cd.rippleInSpace.remain() <= gcdMax then
             if cast.rippleInSpace() then br.addonDebug("Casting Ripple In Space") return true end
         end
-    end
 end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
@@ -762,7 +768,7 @@ end -- End Action List - PreCombat
         if unit == nil then unit = "target" end
         if moving then return false end
 
-        if (not debuff.unstableAffliction.exists(unit) or debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 1 )
+        if (not debuff.unstableAffliction.exists(unit) or debuff.unstableAffliction.remains(unit) < gcdMax + cast.time.unstableAffliction() + 2.5 )
         and debuff.agony.remain(unit) > gcdMax + 5 and (debuff.corruption.remain(unit) > gcdMax + 1
         and (debuff.siphonLife.remain(unit) > gcdMax + 3 or not talent.siphonLife)) then
            if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
@@ -772,10 +778,9 @@ end -- End Action List - PreCombat
 actionList.multi = function()
     -- Seed of Corruption
     for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards10[i]
+        local thisUnit = enemies.yards40[i]
         local thisHP = getHP(thisUnit)
-        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedofCorruption.exists(thisUnit) 
-        and thisUnit >= 3
+        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedOfCorruption.exists(thisUnit) 
         and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= 10
         then
             if cast.seedOfCorruption(thisUnit) then br.addonDebug("Casting Seed of Corruption") return true end
@@ -790,6 +795,10 @@ actionList.multi = function()
     and(debuff.unstableAffliction.remain("target") > gcdMax + 3 and debuff.agony.remain("target") > gcdMax + 3 
     and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) and (debuff.corruption.remain("target") > gcdMax + 2)) then
         if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
+    end
+
+    if talent.sowTheSeeds and units.dyn40 >= 3 and shards > 0 then
+        if cast.maleficRapture(units.dyn40) then br.addonDebug("Casting Malefic Rapture (Sow the Seeds)") return true end 
     end
 
     -- Focused Azerite Beam
@@ -898,6 +907,7 @@ local function runRotation()
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
+    units.get(15) -- Makes a variable called, units.dyn15
     -- Enemies
     enemies.get(5) -- Makes a varaible called, enemies.yards5
     enemies.get(10,"target")
@@ -1003,11 +1013,6 @@ local function runRotation()
         ------------------------------------------------
         if actionList.PreCombat() then return true end
 
-
-        if (debuff.unstableAffliction.remain("target") > gcdMax + 11
-            and debuff.agony.remain("target") > gcdMax + 8 and debuff.corruption.remain("target") > gcdMax + 4) then
-        if not smartCancel() and br.dsTicks <= ui.value("Drain Soul Smart Cancel") then if cast.drainSoul() then br.addonDebug("Clipped Drain Soul 2") return true end end
-        end
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
@@ -1080,6 +1085,11 @@ local function runRotation()
                 if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
             end
 
+            -- Blood of the Enemy
+            if ui.checked("Blood oF The Enemy") and useCDs() and (buff.darkSoul.exists() or pet.darkglare.active() or cd.summonDarkglare.remain() >= 80 ) then
+                if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
+            end
+
             -- The Unbound Force
             if ui.checked("Use Essence") and essence.theUnboundForce.active and cd.theUnboundForce.remain() <= gcdMax and (cd.summonDarkglare.remain > gcdMax or not useCDs())
                 and buff.recklessForce.exists() 
@@ -1088,7 +1098,7 @@ local function runRotation()
             end
 
             -- Summon Darkglare
-            if GetSpellCooldown(205180) == 0 and isKnown(205180) and getTTD("target") >= 20 and useCDs() 
+            if GetSpellCooldown(205180) == 0 and isKnown(205180) and useCDs()
             and cd.summonDarkglare.remain() <= gcdMax 
             and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots"))) 
             then    
@@ -1287,7 +1297,7 @@ local function runRotation()
 
             -- Vile Taint
             if not moving and talent.vileTaint and shards > 1
-            and (debuff.unstableAffliction.remain("target") > gcdMax + 3
+            and (debuff.unstableAffliction.remain("target") > gcdMax + 8
             and debuff.agony.remain("target") > gcdMax + 3 and debuff.corruption.remain("target") > gcdMax + 3
             and getTTD("target") > gcdMax + cast.time.vileTaint() + 3
             and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
@@ -1299,15 +1309,36 @@ local function runRotation()
             -- Malefic Rapture
             if not moving 
             and (debuff.agony.remain("target") > gcdMax
-            and getTTD("target") > gcdMax + cast.time.maleficRapture()
+            and getTTD("target") >= gcdMax + cast.time.maleficRapture()
             and ((debuff.unstableAffliction.remains("target") > gcdMax + 8 and debuff.siphonLife.remain("target") > gcdMax + 2 or not talent.siphonLife)) 
             and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
             then
                 -- Vile Taint not talented
-                if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end end
+                --if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
 
-                -- Malefic Rapture at full shards
-                if shards > 4 or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture (Full Shards)") return true end end
+                -- Malefic Rapture Vile Taint
+                if debuff.vileTaint.remains("target") >= gcdMax + cast.time.maleficRapture() then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
+
+                -- Phantom Singularity
+                -- actions+=/malefic_rapture,if=talent.phantom_singularity.enabled&(dot.phantom_singularity.ticking||cooldown.phantom_singularity.remains>12||soul_shard>3)
+                if talent.phantomSingularity and debuff.phantomSingularity.exists("target") 
+                or (cd.phantomSingularity.remain() > 12 or shards > 3) 
+                then
+                    if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Phantom Singularity)") return true end 
+                end
+
+                if ui.checked("Malefic Rapture BloodLust") 
+                and hasBloodLust() 
+                and shards > 0
+                then
+                    if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (BloodLust)") return true end 
+                end
+
+
+                -- Capped on shards.
+                if shards > 4 then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Full Shards)") return true end end 
+
+                if ui.checked("Malefic Rapture TTD") and useCDs() and inInstance or inRaid and ttd("target") <= ui.checked("Malefic Rapture TTD") and shards > 1 then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Burn Phase)") return true end end
             end
             
 
@@ -1366,17 +1397,19 @@ local function runRotation()
             if ui.checked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remain() <= gcdMax and shards < 4 then
                 if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return true end
             end
-                        -- Malefic Rapture
-            if not moving then
-                           -- Vile Taint not talented
-                if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end end
-            end
-            -- Drain SoulellStopCasting()br.dsTicks <  br.maxdsTicks - 1
 
-            if shards < 1 and cd.vileTaint.remain() > gcdMax + 13.95  then 
-           
-            if not moving and talent.drainSoul and cast.timeSinceLast.drainSoul() > gcdMax + 3
-            and (debuff.unstableAffliction.remain("target") > gcdMax + 11 and debuff.agony.remain("target") > gcdMax + 10
+            -- Malefic Rapture
+            if not moving then
+                -- Vile Taint not talented
+                if not talent.vileTaint or debuff.vileTaint.remains("target") >= gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 2") return true end end
+            end
+
+            --if not smartCancel() and br.dsTicks <= ui.value("Drain Soul Smart Cancel") or br.dsTicks >= 5 then if cast.drainSoul() then br.addonDebug("Clipped Drain Soul 2") return true end end
+
+            -- Drain Soul
+            if shards < 5 and getTTD("target") <= gcdMax and cd.vileTaint.remain() > gcdMax + 13 or shards < 1 then  
+            if not moving and talent.drainSoul and cast.timeSinceLast.drainSoul() > gcdMax + 4
+            and (debuff.unstableAffliction.remain("target") > gcdMax + 12 and debuff.agony.remain("target") > gcdMax + 10
             and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
             and (debuff.corruption.remain("target") < gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target")))
             then

@@ -262,9 +262,7 @@ end -- End Action List - Extras
 actionList.Defensive = function()
     if ui.useDefensive() then
         -- Pot/Stoned
-        if ui.checked("Pot/Stoned") and unit.hp()<= ui.value("Pot/Stoned")
-            and unit.inCombat() and (var.hasHealPot or has.healthstone() or has.legionHealthstone())
-        then
+        if ui.checked("Pot/Stoned") and unit.hp()<= ui.value("Pot/Stoned") then
             -- Lock Candy
             if has.healthstone() then
                 if use.healthstone() then ui.debug("Using Healthstone") return true end
@@ -847,9 +845,9 @@ actionList.PreCombat = function()
         then
             if use.battleScarredAugmentRune() then ui.debug("Using Battle Scarred Augment Rune") var.lastRune = GetTime() return true end
         end
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer <= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and ui.pullTimer()<= ui.value("Pre-Pull Timer") then
             -- Potion
-            if ui.value("Potion") ~= 5 and ui.pullTimer <= 1 and (var.inRaid or var.inInstance) then
+            if ui.value("Potion") ~= 5 and ui.pullTimer()<= 1 and (var.inRaid or var.inInstance) then
                 if ui.value("Potion") == 1 and use.able.potionOfUnbridledFury() then
                     use.potionOfUnbridledFury()
                     ui.debug("Using Potion of Unbridled Fury")
@@ -858,7 +856,7 @@ actionList.PreCombat = function()
             -- Metamorphosis
             -- metamorphosis,if=!azerite.chaotic_transformation.enabled
             if ui.useCDs() and ui.checked("Metamorphosis") and cast.able.metamorphosis()
-                and ui.pullTimer <= 1 and not traits.chaoticTransformation.active
+                and ui.pullTimer()<= 1 and not traits.chaoticTransformation.active
             then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [No Chaotic Transformation]") return true end
             end
@@ -867,7 +865,7 @@ actionList.PreCombat = function()
                 local opValue = ui.value("Trinkets")
                 local iValue = i - 12
                 if (opValue == iValue or opValue == 3) and use.able.slot(i) then
-                    if use.able.azsharasFontOfPower(i) and equiped.azsharasFontOfPower(i) and ui.pullTimer <= 5 then
+                    if use.able.azsharasFontOfPower(i) and equiped.azsharasFontOfPower(i) and ui.pullTimer()<= 5 then
                         use.slot(i)
                         ui.debug("Using Azshara's Font of Power [Pre-Pull]")
                         return
@@ -875,7 +873,7 @@ actionList.PreCombat = function()
                 end
             end
         end -- End Pre-Pull
-        if ui.checked("M+ Pre-Pull") and var.inMythic and ui.pullTimer <= ui.value("M+ Meta Pre-Pull") then
+        if ui.checked("M+ Pre-Pull") and var.inMythic and ui.pullTimer()<= ui.value("M+ Meta Pre-Pull") then
             -- Eye Beam
             if cast.able.eyeBeam() then
                 cast.eyeBeam()
@@ -892,7 +890,7 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             if unit.reaction("target","player") < 4 then
                 -- Throw Glaive
-                if ui.checked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 and var.solo and ui.checked("Auto Engage") then
+                if ui.checked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.yards10tnc == 1 and var.solo and ui.checked("Auto Engage") then
                     if cast.throwGlaive("target","aoe") then ui.debug("Casting Throw Glaive [Pre-Pull]") return true end
                 end
                 -- Torment
@@ -959,6 +957,7 @@ local function runRotation()
     enemies.get(8,"player",false,true) -- makes enemies.yards8f
     enemies.get(8,"target") -- makes enemies.yards8t
     enemies.get(10)
+    enemies.get(10,"target",true)
     enemies.get(20)
     enemies.get(40)
     enemies.get(40,"player",false,true)

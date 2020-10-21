@@ -1,6 +1,7 @@
 local br = _G["br"]
 if br.api == nil then br.api = {} end
-br.api.ui = function(self,ui)
+br.api.ui = function(self)
+    local ui = self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
     if ui.chatOverlay == nil then
         ui.chatOverlay = function(text)
