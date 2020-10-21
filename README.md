@@ -301,6 +301,7 @@ Aura   |  Full   | 8.2   |   90%  |  :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
+Kink       Full     9.0+     100%   :white_check_mark:
 Fiskee  |  Full   | 8.0 |   100% | :white_check_mark:
 
 - Demonology
