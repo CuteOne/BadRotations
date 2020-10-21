@@ -312,7 +312,7 @@ function br.loader:new(spec,specName)
         end
 
         -- Make Unit Functions from br.api.unit
-        if self.unit == nil then self.unit = {} br.api.unit(self,self.unit) end
+        if self.unit == nil then self.unit = {} br.api.unit(self) end
 
         -- Make Pet Functions from br.api.pets
         if self.pets ~= nil then
@@ -391,7 +391,7 @@ function br.loader:new(spec,specName)
         end
 
         -- Make Unit Functions from br.api.unit
-        if self.ui == nil then self.ui = {} br.api.ui(self,self.ui) end
+        if self.ui == nil then self.ui = {} br.api.unit(self) end
     end
 
     if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then 
