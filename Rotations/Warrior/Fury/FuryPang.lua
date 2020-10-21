@@ -537,14 +537,14 @@ local function runRotation()
                 CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
             end
             if isChecked("Charge In Combat") then
-                if inCombat and cast.able.charge("target") and getDistance("player", "target") <= 25 then
+                if inCombat and cast.able.charge("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
                     if cast.charge("target") then
                         return
                     end
                 end
             end
             if isChecked("Charge OoC") then
-                if not inCombat and cast.able.charge("target") and getDistance("player", "target") <= 25 then
+                if not inCombat and cast.able.charge("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
                     if cast.charge("target") then
                         return
                     end
@@ -554,6 +554,13 @@ local function runRotation()
     end
 
     local function singlelist()
+        -- Onslaught
+        if (rage <= 85) and buff.enrage.exists("player") then
+            if cast.onslaught() then
+                return
+            end
+        end
+
 		-- Focussing Iris
 		-- actions+=/focused_azerite_beam,if=!buff.recklessness.up&!buff.siegebreaker.up
 		if isChecked("Meme-Beam") and getSpellCD(295258) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Meme-Beam") == 1 or (getOptionValue("Meme-Beam") == 2 and #enemies.yards8 >= 3)) then
@@ -717,6 +724,13 @@ local function runRotation()
         -- Maintain Whirlwind buff
         if not buff.whirlwind.exists("player") then
             if cast.whirlwind("player", nil, 1, 5) then
+                return
+            end
+        end
+
+        -- Onslaught
+        if (rage <= 85) and buff.enrage.exists("player") then
+            if cast.onslaught() then
                 return
             end
         end
