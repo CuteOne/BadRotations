@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.6"
+local rotationName = "Kink v1.3.7"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -175,6 +175,12 @@ local function createOptions ()
 			-- Trinkets
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
 
+            -- Blood oF The Enemy
+            br.ui:createCheckbox(section, "Blood oF The Enemy", "Use Blood of the enemy, line it up with darkglare")
+
+            -- Malefic Rapture
+            br.ui:createSpinner(section, "Malefic Rapture TTD", 20, 1, 15, 1, nil, "The TTD to be <= to inside a raid/instance to start casting MR to burn", true)
+
             -- Haunt TTD
             br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
 
@@ -186,9 +192,7 @@ local function createOptions ()
 
             -- Darkglare
             br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare",true)
- 
-            -- Haunt TTD
-            br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
+
 
             -- Seed of Corruption
             --br.ui:createSpinner(section, "Seed of Corruption Unit", 4, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
@@ -774,8 +778,7 @@ actionList.multi = function()
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         local thisHP = getHP(thisUnit)
-        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedofCorruption.exists(thisUnit) 
-        and thisUnit >= 3
+        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedOfCorruption.exists(thisUnit) 
         and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= 10
         then
             if cast.seedOfCorruption(thisUnit) then br.addonDebug("Casting Seed of Corruption") return true end
@@ -1080,6 +1083,11 @@ local function runRotation()
                 if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
             end
 
+            -- Blood of the Enemy
+            if ui.checked("Blood oF The Enemy") and useCDs() and (buff.darkSoul.exists() or pet.darkglare.active() or cd.summonDarkglare.remain() >= 80 ) then
+                if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
+            end
+
             -- The Unbound Force
             if ui.checked("Use Essence") and essence.theUnboundForce.active and cd.theUnboundForce.remain() <= gcdMax and (cd.summonDarkglare.remain > gcdMax or not useCDs())
                 and buff.recklessForce.exists() 
@@ -1304,10 +1312,15 @@ local function runRotation()
             and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
             then
                 -- Vile Taint not talented
-                if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end end
+                if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
 
                 -- Malefic Rapture at full shards
-                if shards > 4 or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture (Full Shards)") return true end end
+                if debuff.vileTaint.remains("target") >= gcdMax + cast.time.maleficRapture() then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Full Shards)") return true end end
+
+                -- Capped on shards.
+                if shards > 4 then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Full Shards)") return true end end 
+
+                if ui.checked("Malefic Rapture TTD") and useCDs() and inInstance or inRaid and ttd("target") <= ui.checked("Malefic Rapture TTD") and shards > 1 then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Burn Phase)") return true end end
             end
             
 
@@ -1366,17 +1379,17 @@ local function runRotation()
             if ui.checked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remain() <= gcdMax and shards < 4 then
                 if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return true end
             end
-                        -- Malefic Rapture
-            if not moving then
-                           -- Vile Taint not talented
-                if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rupture") return true end end
-            end
-            -- Drain SoulellStopCasting()br.dsTicks <  br.maxdsTicks - 1
 
-            if shards < 1 and cd.vileTaint.remain() > gcdMax + 13.95  then 
-           
+            -- Malefic Rapture
+            if not moving then
+                -- Vile Taint not talented
+                if not talent.vileTaint or debuff.vileTaint.remains("target") >= gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 2") return true end end
+            end
+
+            -- Drain Soul
+            if shards < 5 and getTTD("target") <= gcdMax and cd.vileTaint.remain() > gcdMax + 14 then  
             if not moving and talent.drainSoul and cast.timeSinceLast.drainSoul() > gcdMax + 3
-            and (debuff.unstableAffliction.remain("target") > gcdMax + 11 and debuff.agony.remain("target") > gcdMax + 10
+            and (debuff.unstableAffliction.remain("target") > gcdMax + 12 and debuff.agony.remain("target") > gcdMax + 10
             and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
             and (debuff.corruption.remain("target") < gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target")))
             then
