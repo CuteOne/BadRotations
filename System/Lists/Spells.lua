@@ -928,6 +928,7 @@ br.lists.spells = {
                 moonkinForm                 = 197625,
                 prowl                       = 5215,
                 rejuvenation                = 774,
+                regrowth                    = 8936,
                 shadowmeld                  = 58984,
                 stagForm                    = 210053,
                 stampedingRoar              = 77764,
