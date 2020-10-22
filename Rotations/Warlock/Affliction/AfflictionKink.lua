@@ -1,4 +1,5 @@
-local rotationName = "Kink v1.4.2"
+local rotationName = "Kink"
+local rotationVer  = "v1.4.3"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -86,7 +87,7 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General")
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General ".. ".:|:. ".. rotationVer)
             -- Demonic Gateway
             br.ui:createDropdown(section, "Cooldowns Hotkey", br.dropOptions.Toggle, 6, true)
 
@@ -801,7 +802,7 @@ actionList.multi = function()
         if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
     end
 
-    if inCombat and talent.sowTheSeeds and units.dyn40 >= 3 and shards > 0 then
+    if inCombat and talent.sowTheSeeds and #enemies.yards10t >= 3 and shards > 0 then
         if cast.maleficRapture(units.dyn40) then br.addonDebug("Casting Malefic Rapture (Sow the Seeds)") return true end 
     end
 
@@ -921,6 +922,18 @@ local function runRotation()
     if actionList.PetManagement == nil then
         loadSupport("PetCuteOne")
         actionList.PetManagement = br.rotations.support["PetCuteOne"]
+    end
+
+    -- spellqueue ready
+    local function spellQueueReady()
+        --Check if we can queue cast
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[5] then
+            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                return false
+            end
+        end
+        return true
     end
 
     -- Pet Data
@@ -1326,12 +1339,15 @@ local function runRotation()
                 --if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
 
                 -- Malefic Rapture Vile Taint
-                if debuff.vileTaint.remains("target") >= gcdMax + cast.time.maleficRapture() then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
-
+                if talent.vileTaint and debuff.vileTaint.remains("target") >= gcdMax + cast.time.maleficRapture() or cd.vileTaint.remain() > 12 
+                then
+                    if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end 
+                end
+               
                 -- Phantom Singularity
                 -- actions+=/malefic_rapture,if=talent.phantom_singularity.enabled&(dot.phantom_singularity.ticking||cooldown.phantom_singularity.remains>12||soul_shard>3)
-                if talent.phantomSingularity and debuff.phantomSingularity.exists("target") 
-                or (cd.phantomSingularity.remain() > 12 or shards > 3) 
+                if talent.phantomSingularity and debuff.phantomSingularity.remains("target") >= gcdMax + cast.time.phantomSingularity()
+                or (cd.phantomSingularity.remain() > 12) 
                 then
                     if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Phantom Singularity)") return true end 
                 end

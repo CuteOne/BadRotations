@@ -83,6 +83,7 @@ local function runRotation()
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
+        local cl                                            = br.read
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
         local inCombat                                      = isInCombat("player")
@@ -137,16 +138,136 @@ local function runRotation()
         local pet                                           = br.player.pet.list
         local hasPet                                        = IsPetActive()
         local equiped                                       = br.player.equiped
+        local covenant                                      = C_Covenants.GetActiveCovenantID()
         
         units.get(40)
         enemies.get(15, "target")
         enemies.get(8, "target")
         enemies.get(10)
         enemies.get(40)
-        local var_ap_minimum_mana_pct = 30
+        -- Units-
+        units.get(5) -- Makes a variable called, units.dyn5
+        units.get(40) -- Makes a variable called, units.dyn40
+        units.get(15) -- Makes a variable called, units.dyn15
+        -- Enemies
+        enemies.get(5) -- Makes a varaible called, enemies.yards5
+        enemies.get(10, "target") -- Makes a variable called, enemies.yards10t
+        enemies.get(15, "target") -- Makes a variable called, enemies.yards15t
+        enemies.get(40) -- Makes a varaible called, enemies.yards40
+
         local ccMaxStack = 3
        --variable,name=aoe_totm_charges,op=set,value=2
-        var_aoe_totm_charges = 2
+        local var_prepull_evo
+        local var_rs_max_delay
+        local var_ap_max_delay
+        local var_rop_max_delay
+        local var_totm_max_delay
+        local var_barrage_mana_pct
+        local var_ap_minimum_mana_pct
+        local var_aoe_totm_charges
+        local var_init = false
+        local RadiantSparlVulnerabilityMaxStack = 4
+        local ClearCastingMaxStack = 3
+        local ArcaneOpener
+
+        ArcaneOpener = {}
+        function ArcaneOpener:Reset()
+            self.state = false
+            self.final_burn = false
+            self.has_opened = fals
+            var_init = false
+        end
+        ArcaneOpener:Reset()
+
+        if #enemies.yards10t > 2 or var_prepull_evo then
+            ArcaneOpener:StopOpener()
+        end
+  --varia
+  --variable,name=prepull_evo,op=set,value=0
+  --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&active_enemies>2
+  --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&covenant.necrolord.enabled&active_enemies>1
+  --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&covenant.night_fae.enabled
+  -- NYI legendaries
+  var_prepull_evo = false
+  --variable,name=have_opened,op=set,value=0
+  --variable,name=have_opened,op=set,value=1,if=active_enemies>2
+  --variable,name=have_opened,op=set,value=1,if=variable.prepull_evo=1
+  if #enemies.yards15t >2 or var_prepull_evo then
+    ArcaneOpener:StopOpener()
+  end
+  --variable,name=rs_max_delay,op=set,value=5
+  var_rs_max_delay = 5
+  --variable,name=ap_max_delay,op=set,value=10
+  var_ap_max_delay = 10
+  --variable,name=rop_max_delay,op=set,value=20
+  var_rop_max_delay = 20
+  
+  --variable,name=totm_max_delay,op=set,value=3,if=runeforge.disciplinary_command.equipped
+  --variable,name=totm_max_delay,op=set,value=15,if=conduit.arcane_prodigy.enabled&active_enemies<3
+  --variable,name=totm_max_delay,op=set,value=30,if=essence.vision_of_perfection.minor
+  -- NYI legendaries, conduit, essence
+  if covenant~= "Night Fae" then
+    --variable,name=totm_max_delay,op=set,value=15,if=covenant.night_fae.enabled
+    var_totm_max_delay = 15
+  else
+    --variable,name=totm_max_delay,op=set,value=5
+    var_totm_max_delay = 5
+  end
+  --variable,name=barrage_mana_pct,op=set,value=90
+  --variable,name=barrage_mana_pct,op=set,value=80,if=covenant.night_fae.enabled
+
+    var_barrage_mana_pct = 90
+  --variable,name=ap_minimum_mana_pct,op=set,value=30
+  --variable,name=ap_minimum_mana_pct,op=set,value=50,if=runeforge.disciplinary_command.equipped
+  --variable,name=ap_minimum_mana_pct,op=set,value=50,if=runeforge.grisly_icicle.equipped
+  -- NYI legendaries
+  var_ap_minimum_mana_pct = 30
+  --variable,name=aoe_totm_charges,op=set,value=2
+  var_aoe_totm_charges = 2
+
+function ArcaneOpener:StartOpener()
+  if inCombat then
+    self.state = true
+    self.final_burn = false
+    self.has_opened = false
+    VarInit()
+  end
+end
+
+function ArcaneOpener:StopOpener()
+  self.state = false
+  self.has_opened = true
+end
+
+function ArcaneOpener:On()
+  return self.state or (not inCombat and (UnitCastingInfo("player") == GetSpellInfo(spell.frostbolt)) or UnitChannelInfo("player") == GetSpellInfo(spell.evocation))
+end
+
+function ArcaneOpener:HasOpened()
+  return self.has_opened
+end
+
+function ArcaneOpener:StartFinalBurn()
+  self.final_burn = true
+end
+
+function ArcaneOpener:IsFinalBurn()
+  return self.final_burn
+end
+
+function cl:Mage(...)
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    if source == br.guid then
+        -- CLear dot table after each death/individual combat scenarios. 
+        if source == br.guid and param == "PLAYER_REGEN_ENABLED" then 
+            VarConserveMana = 0
+            VarTotalBurns = 0
+            VarAverageBurnLength = 0
+            VarFontPrecombatChannel = 0
+        end       
+        if param == "PLAYER_REGEN_DISABLED" then ArcaneOpener:Reset() end
+    end 
+end
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -183,10 +304,10 @@ local function runRotation()
         end
 
         --rop notice
-        if not ropNotice and talent.runeOfPower then
+        if not ropNotice and talent.runeofPower then
             print("Rune Of Power talent not supported in rotation yet, use manually")
             ropNotice = true
-        elseif ropNotice and not talent.runeOfPower then
+        elseif ropNotice and not talent.runeofPower then
             ropNotice = false
         end
 
@@ -451,9 +572,6 @@ local function runRotation()
         fbInc = false
     end
 
-    var_barrage_mana_pct = 90
-
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -501,7 +619,59 @@ local function actionList_AoE()
 
 
 end
-
+local function actionList_Extras()
+        if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
+            StopAttack()
+            ClearTarget()
+            if isChecked("Pet Management") and not talent.lonelyWinter then
+                PetStopAttack()
+                PetFollow()
+            end
+            print(tonumber(getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+            profileStop = true
+        end
+        --Ice Barrier
+        if not IsResting() and not inCombat and not playerCasting and isChecked("Ice Barrier OOC") then
+            if cast.iceBarrier("player") then
+                return true
+            end
+        end
+        -- Spell Steal
+        if isChecked("Spellsteal") and inCombat then
+            for i = 1, #enemyTable40 do
+                if spellstealCheck(enemyTable40[i].unit) then
+                    if cast.spellsteal(enemyTable40[i].unit) then return true end
+                end
+            end
+        end
+        -- Arcane Intellect
+        if isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
+            for i = 1, #br.friend do
+                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                    if cast.arcaneIntellect() then return true end
+                end
+            end
+        end
+        -- Trinkets
+            -- Trinket 1
+            if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
+                if use.able.slot(13) then
+                    use.slot(13)
+                end
+            end
+        -- Trinket 2
+            if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
+                if use.able.slot(14) then
+                    use.slot(14)
+                end
+            end      
+        -- Slow Fall
+        if isChecked("Slow Fall Distance") and cast.able.slowFall() and not buff.slowFall.exists() then
+            if IsFalling() and getFallDistance() >= getOptionValue("Slow Fall Distance") then
+                if cast.slowFall() then return end
+            end
+        end         
+    end
 
     local function actionList_Interrupts()
         if useInterrupts() and cd.counterspell.remain() == 0 then
@@ -651,6 +821,7 @@ actions.opener+=/bag_of_tricks,if=buff.arcane_power.down&buff.rune_of_power.down
 actions.opener+=/call_action_list,name=items,if=buff.arcane_power.up
 actions.opener+=/potion,if=buff.arcane_power.up
 actions.opener+=/berserking,if=buff.arcane_power.up
+
 actions.opener+=/blood_fury,if=buff.arcane_power.up
 actions.opener+=/fireblood,if=buff.arcane_power.up
 actions.opener+=/ancestral_call,if=buff.arcane_power.up
@@ -677,77 +848,110 @@ actions.opener+=/arcane_orb,if=buff.arcane_charge.stack<=2&(cooldown.arcane_powe
 actions.opener+=/arcane_blast,if=buff.rune_of_power.up|mana.pct>15
 actions.opener+=/evocation,if=buff.rune_of_power.down,interrupt_if=mana.pct>=85,interrupt_immediate=1
 actions.opener+=/arcane_barrage
-
 ]]--
-local function actionList_Opener()
-    
+local function Opener ()
+  if not ArcaneOpener:On() then
+    ArcaneOpener:StartOpener()
+    return "Start opener"
+  end
+  -- --actions.opener=variable,name=have_opened,op=set,value=1,if=prev_gcd.1.evocat
+  if last.cast.evocation(2) and ArcaneOpener:On() then
+    ArcaneOpener:StopOpener()
+    return "Stop opener 1"
+  end
+
+  --actions.opener+=/bag_of_tricks,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
+  if br.player.race == "Vulpera"
+
+  --actions.opener+=/call_action_list,name=items,if=buff.arcane_power.up
+
+  --actions.opener+=/potion,if=buff.arcane_power.up
+
+  --actions.opener+=/berserking,if=buff.arcane_power.up
 end
---[[
-actions.rotation=variable,name=final_burn,op=set,value=1,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&!buff.rule_of_threes.up&target.time_to_die<=((mana%action.arcane_blast.cost)*action.arcane_blast.execute_time)
-actions.rotation+=/strict_sequence,if=debuff.radiant_spark_vulnerability.stack=debuff.radiant_spark_vulnerability.max_stack&buff.arcane_power.down&buff.rune_of_power.down,name=last_spark_stack:arcane_blast:arcane_barrage
-actions.rotation+=/arcane_barrage,if=debuff.radiant_spark_vulnerability.stack=debuff.radiant_spark_vulnerability.max_stack&(buff.arcane_power.down|buff.arcane_power.remains<=gcd)&(buff.rune_of_power.down|buff.rune_of_power.remains<=gcd)
-actions.rotation+=/arcane_blast,if=dot.radiant_spark.remains>5|debuff.radiant_spark_vulnerability.stack>0
-actions.rotation+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_time
-actions.rotation+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&(debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time|cooldown.presence_of_mind.remains>0|covenant.kyrian.enabled),chain=1
-
-actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.expanded_potential.up
-actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&(buff.arcane_power.up|buff.rune_of_power.up|debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time),chain=1
-actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.stack=buff.clearcasting.max_stack,chain=1
-actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.remains<=((buff.clearcasting.stack*action.arcane_missiles.execute_time)+gcd),chain=1
-actions.rotation+=/nether_tempest,if=(refreshable|!ticking)&buff.arcane_charge.stack=buff.arcane_charge.max_stack&buff.arcane_power.down&debuff.touch_of_the_magi.down
-actions.rotation+=/arcane_orb,if=buff.arcane_charge.stack<=2
-actions.rotation+=/supernova,if=mana.pct<=95&buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-actions.rotation+=/shifting_power,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&cooldown.evocation.remains>0&cooldown.arcane_power.remains>0&cooldown.touch_of_the_magi.remains>0&(!talent.rune_of_power.enabled|(talent.rune_of_power.enabled&cooldown.rune_of_power.remains>0))
-actions.rotation+=/arcane_blast,if=buff.rule_of_threes.up&buff.arcane_charge.stack>3
-actions.rotation+=/arcane_barrage,if=mana.pct<variable.barrage_mana_pct&cooldown.evocation.remains>0&buff.arcane_power.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&essence.vision_of_perfection.minor
-actions.rotation+=/arcane_barrage,if=cooldown.touch_of_the_magi.remains=0&(cooldown.rune_of_power.remains=0|cooldown.arcane_power.remains=0)&buff.arcane_charge.stack=buff.arcane_charge.max_stack
-actions.rotation+=/arcane_barrage,if=mana.pct<=variable.barrage_mana_pct&buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&cooldown.evocation.remains>0
-actions.rotation+=/arcane_barrage,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&talent.arcane_orb.enabled&cooldown.arcane_orb.remains<=gcd&mana.pct<=90&cooldown.evocation.remains>0
-actions.rotation+=/arcane_barrage,if=buff.arcane_power.up&buff.arcane_power.remains<=gcd&buff.arcane_charge.stack=buff.arcane_charge.max_stack
-actions.rotation+=/arcane_barrage,if=buff.rune_of_power.up&buff.rune_of_power.remains<=gcd&buff.arcane_charge.stack=buff.arcane_charge.max_stack
-actions.rotation+=/arcane_blast
-actions.rotation+=/evocation,interrupt_if=mana.pct>=85,interrupt_immediate=1
-actions.rotation+=/arcane_barrage
-
-]]--
+    --
 local function actionList_Rotation()
-    if cast.able.arcaneMissiles() then
-        br.addonDebug("Casting Arcane Missiles ()") 
+    --actions.rotation=variable,name=final_burn,op=set,value=1,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&!buff.rule_of_threes.up&target.time_to_die<=((mana%action.arcane_blast.cost)*action.arcane_blast.execute_time)
+    if cast.able.arcaneMissiles()
+    and arcaneCharges > 3 
+    and not buff.ruleofThrees.exists() 
+    and getTTD("target") <= ( manaPercent / spell.arcaneBlast.cost() * cast.time.arcaneBlast() )
+    then
+        if cast.arcaneBlast() then br.addonDebug("Casting Arcane Missiles ()") return truee end
     end
-    if cast.able.arcaneMissiles() then
-        br.addonDebug("Casting Arcane Missiles ()") 
+
+    --aactions.rotation+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_tim
+    if cast.able.arcaneBlast() 
+    and buff.presenceOfMind.exists() 
+    and debuff.touchoftheMagi.exists("target") 
+    and debuff.touchoftheMagi.remain("target") <= cast.time.arcaneBlast() 
+    then
+        if cast.arcaneBlast() then br.addonDebug("Casting Arcane Blast (PoM, Magi)") return truee end
+    end
+
+    --actions.rotation+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&(debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time|cooldown.presence_of_mind.remains>0|covenant.kyrian.enabled),chain=1
+    if cast.able.arcaneMissiles() 
+    and debuff.touchoftheMagi.exists("target") 
+    and talent.arcaneEcho 
+    and not buff.deathBorne.exists() 
+    and debuff.touchoftheMagi.remain("target") > cast.time.arcaneMissiles() or cd.presenceOfMind.remain() > 0 
+    then
+       if cast.arcaneMissiles() then br.addonDebug("Casting Arcane Missiles (clear casting + expanded potential)") return true end
     end
 
     --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.expanded_potential.up
-    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and buff.expandedPotential.exists() then
-        br.addonDebug("Casting Arcane Missiles ()") 
+    if cast.able.arcaneMissiles() 
+    and buff.clearcasting.exists() 
+    and buff.expandedPotential.exists() 
+    then
+        if cast.arcaneMissiles() then br.addonDebug("Casting Arcane Missiles (clear casting + expanded potential)") return true end
     end
 
     --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&(buff.arcane_power.up|buff.rune_of_power.up|debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time),chain=1
-    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and buff.arcanePower.exists() and buff.runeofPower.exists() and debuff.touchoftheMagi.remain("target") > cast.time.arcaneMissiles() then
-        br.addonDebug("Casting Arcane Missiles ()") 
+    if cast.able.arcaneMissiles() 
+    and buff.clearcasting.exists() 
+    and buff.arcanePower.exists() 
+    and buff.runeofPower.exists() 
+    and debuff.touchoftheMagi.remain("target") > cast.time.arcaneMissiles() 
+    then
+        if cast.arcaneMissiles() then br.addonDebug("Casting Arcane Missiles (Clearcasting + RoP, AP, + Magi Debuff)") return true end
     end
 
     --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.stack=buff.clearcasting.max_stack,chain=1
-    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and buff.clearcasting.stack == ccMaxStack then
-        br.addonDebug("Casting Arcane Missiles (clearcasting max stack)") 
+    if cast.able.arcaneMissiles() 
+    and buff.clearcasting.exists() 
+    and buff.clearcasting.stack() == ccMaxStack 
+    then
+        if cast.arcaneMissiles() then br.addonDebug("Casting Arcane Missiles (clearcasting max stack)") return true end
     end
 
     --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.remains<=((buff.clearcasting.stack*action.arcane_missiles.execute_time)+gcd),chain=1
-    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and buff.clearcasting.remains <= ((buff.clearstacking.stack * cast.time.arcaneMissiles) + gcdMax) then
+    if cast.able.arcaneMissiles() 
+    and buff.clearcasting.exists() 
+    and buff.clearcasting.remain() <= ((buff.clearcasting.stack() * cast.time.arcaneMissiles()) + gcdMax)
+    then
         if cast.arcaneMissiles() then br.addonDebug("Casting Arcane Missiles (clearcasting)")  return true end 
     end
 
     -- actions.rotation+=/nether_tempest,if=(refreshable|!ticking)&buff.arcane_charge.stack=buff.arcane_charge.max_stack&buff.arcane_power.down&debuff.touch_of_the_magi.down
-    if cast.able.netherTempest() and debuff.netherTempest.refresh("target") or not debuff.netherTempest.exists("target") and arcaneCharges > 3 and not buff.arcanePower.exists() and not debuff.touchoftheMagi.exists("target") then
-        if cast.netherTempest() then return true end
+    if cast.able.netherTempest() 
+    and debuff.netherTempest.refresh("target") or not debuff.netherTempest.exists("target") 
+    and arcaneCharges > 3 and not buff.arcanePower.exists() 
+    and not debuff.touchoftheMagi.exists("target") 
+    then
+        if cast.netherTempest() then br.addonDebug("Casting Nether Tempest") return true end
     end
 
     -- actions.rotation+=/arcane_orb,if=buff.arcane_charge.stack<=2
     if cast.able.arcaneOrb() and arcaneCharges <= 2 then if cast.arcaneOrb() then br.addonDebug("Arcane Orb <=2 AC") return true end end
 
     -- actions.rotation+=/supernova,if=mana.pct<=95&buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-    if cast.able.supernova() and manaPercent <= 95 and not buff.arcanePower.exists() and not buff.runeofPower.exists() and not debuff.touchoftheMagi.exists("target") then
+    if cast.able.supernova()
+    and manaPercent <= 95 
+    and not buff.arcanePower.exists() 
+    and not buff.runeofPower.exists() 
+    and not debuff.touchoftheMagi.exists("target") 
+    then
        if cast.supernova() then br.addonDebug("Casting Supernova (no AP, No RoP, no Magi)") return true end 
     end
     
@@ -758,9 +962,12 @@ local function actionList_Rotation()
     --end
 
     -- actions.rotation+=/arcane_blast,if=buff.rule_of_threes.up&buff.arcane_charge.stack>3
-    if cast.able.arcaneBlast() and buff.ruleOfThrees.exists() and arcaneCharges > 3 then
+    if cast.able.arcaneBlast() 
+    and buff.ruleOfThrees.exists() 
+    and arcaneCharges > 3 then
         if cast.arcaneBlast() then return true end 
     end
+
     -- actions.rotation+=/arcane_barrage,if=mana.pct<variable.barrage_mana_pct&cooldown.evocation.remains>0&buff.arcane_power.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&essence.vision_of_perfection.minor
     if cast.able.arcaneBarrage() and manaPercent < var_barrage_mana_pct and cd.evocation.remain() <= gcdMax and not buff.arcanePower.exists() and arcaneCharges > 3 and essence.worldveinResonance.active then
        if cast.arcaneBarrage() then return true end 
@@ -797,7 +1004,7 @@ local function actionList_Rotation()
     if cast.able.arcaneBlast() then if cast.arcaneBlast() then return true end
 
     -- Cancel Evocation 
-    if buff.evocation.exists() and manaPercent >= 85 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
+    if UnitCastingInfo("player") == GetSpellInfo(spell.evocation) and manaPercent >= 83 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
     if cast.able.evocation() then
         if cast.evocation() then br.addonDebug("Casting Evocation (>= 85 mana)") return true end end -- Somehow cancel at 85% max mana
     end
@@ -808,133 +1015,11 @@ end
 
 local function actionList_main()
 
-    -- Mirror image when Arcane Power is not active, on CD
-    if not buff.arcanePower.exists() and useCDs() and isChecked("Mirror Image") then
-        if cast.mirrorImage() then return end
-    end
-
-    -- Use Evocation to get a full stack of Brain Storm before using Arcane Power.
-    if cast.able.evocation() and cd.arcanePower.remain() < getCastTime(spell.evocation) and arcaneCharges == 4 and trait.brainStorm.active then
-        if cast.evocation() then return end
-    end
-
-    -- Cast Rune of power just before Arcane Power, or if you are at 2 charges.
-    if cast.able.runeOfPower() and isChecked("Rune of Power") and (cd.arcanePower.remain() < getCastTime(spell.runeOfPower) and arcaneCharges == 4) or (charges.runeOfPower.count() == 2 and cd.arcanePower.remain() > 12) then
-        if cast.runeOfPower() then return end
-    end
-
-    -- Use Arcane Power at 4 Arcane Charges
-    if cast.able.arcanePower() and isChecked("Arcane Power") and arcaneCharges == 4 then
-        if cast.arcanePower() then return end
-    end
-
-    -- If you are at max Arcane Charges with RoT proc, use Arcane Blast instead of Missiles.
-    if cast.able.arcaneBlast() and buff.ruleOfThrees.exists() and arcaneCharges == 4 then
-        if cast.arcaneBlast() then return end
-    end
-
-    -- Use Arcane Missiles when you have RoT up and Arcane Power is down. Not with Galvanizing Spark
-    if cast.able.arcaneMissiles() and buff.ruleOfThrees.exists() and not buff.arcanePower.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and not trait.galvanizingSpark.active then
-        if cast.arcaneMissiles() then return end
-    end
-
-    -- Use Arcane Missiles with clearcasting if Arcane Power is down. (Req. NOT Amplification)
-    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and not buff.arcanePower.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and not talent.amplification then
-        if cast.arcaneMissiles() then return end
-    end
-
-    -- Use Arcane Missiles with Clearcasting & Amplification talented
-    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and talent.amplification then
-        if cast.arcaneMissiles() then return end
-    end    
-
-    -- Use Charged Up when you can get 3 charges from it
-    if cast.able.chargedUp() and isChecked("Charged Up") and arcaneCharges <= 1 then
-        if cast.chargedUp() then return end
-    end
-
-    -- Nether Tempest when it is in 30% refresh
-    if cast.able.netherTempest() and (not debuff.netherTempest.exists(units.get(40)) and arcaneCharges == 4) or (debuff.netherTempest.refresh(units.get(40)) and not buff.runeOfPower.exists() and not buff.arcanePower.exists()) then
-        if cast.netherTempest() then return end
-    end
-
-    -- Use Arcane Orb when you need 2 Arcane Charges
-    if cast.able.arcaneOrb() and arcaneCharges < 3 then
-        if cast.arcaneOrb() then return end
-    end
-
-    -- Use Arcane Explosion on 3+ targets. Also other stuff
-    if cast.able.arcaneExplosion("player","aoe", 3, 10) and (buff.arcanePower.exists() or cast.able.evocation() or (powerPercent > 85)) and not trait.brainStorm.active then
-        if cast.arcaneExplosion("player","aoe", 3, 10) then return end
-    end
-    
-    -- Use Arcane Explosion of 3+ targets. Burn mana with Rune of Power up
-    if cast.able.arcaneExplosion("player","aoe", 3, 10) and buff.runeOfPower.exists() and not trait.brainStorm.active then
-        if cast.arcaneExplosion("player","aoe", 3, 10) then return end
-    end
-
-    -- Use Arcane Explosion if 3+ targets with Brain Storm
-    if cast.able.arcaneExplosion("player","aoe", 3, 10) and trait.brainStorm.active then
-        if cast.arcaneExplosion("player","aoe", 3, 10) then return end
-    end
-
-    -- Use PoM near end of Arcane Power or Rune of Power
-    if cast.able.presenceOfMind() and useCDs() and isChecked("Presence of Mind") and (buff.arcanePower.exists() and buff.arcanePower.remain() < getCastTime(spell.arcaneBlast) * 2) or (buff.runeOfPower.exists() and buff.runeOfPower.remain() < getCastTime(spell.arcaneBlast) * 2) then
-        if cast.presenceOfMind() then return end
-    end
-
-    -- If you have Rules of Threes up, use Arcane Blast
-    if cast.able.arcaneBlast() and not trait.brainStorm.active and trait.galvanizingSpark.active and not cast.able.arcaneExplosion("player","aoe", 3, 10) then
-        if cast.arcaneBlast() then return end
-    end
-
-    -- Spend mana at will with Arcane Power, or when Evocation is ready to use. Dump mana above 85%
-    if cast.able.arcaneBlast() and not trait.brainStorm.active and #enemies.yards10 < 3 and (buff.arcanePower.exists() or cast.able.evocation() or (powerPercent > 85)) then
-        if cast.arcaneBlast() then return end
-    end
-
-    -- Burn mana with Rune of Power up
-    if cast.able.arcaneBlast() and buff.runeOfPower.exists() and #enemies.yards10 < 3 then
-        if cast.arcaneBlast() then return end
-    end
-
-    -- Arcane Blast with Brain Storm
-    if cast.able.arcaneBlast() and #enemies.yards10 < 3 and trait.brainStorm.active then
-        if cast.arcaneBlast() then return end
-    end
-
-    -- Evocate when you don't have enough mana to cast Arcane Blast. Cancel at 85%
-    if cast.able.evocation() and not trait.brainStorm.active then
-        if cast.evocation() then return end -- Somehow cancel at 85% max mana
-    end
-
-    -- If you used Arcane Power at low mana and run out of mana for arcane blast before arcane power fades use Arcane Missiles if possible.
-    if cast.able.arcaneMissiles() and buff.clearcasting.exists() or buff.ruleOfThrees.exists() and buff.arcanePower.exists() then
-        if cast.arcaneMissiles() then return end
-    end
-
-    -- If you don't have Arcane Power, Rune of Power, or Evocation ready to use, dump your Arcane Charges with Arcane Barrage when you get to 4 charges.
-    if cast.able.arcaneBarrage() and arcaneCharges == 4 then
-        if cast.arcaneBarrage() then return end
-    end
-
-    -- Explosion without brain storm
-    if cast.able.arcaneExplosion("player","aoe", 3, 10) then
-        if cast.arcaneExplosion() then return end
-    end
-
-    -- Arcane Blast without Brain Storm
-    if cast.able.arcaneBlast() and #enemies.yards10 < 3 then 
-        if cast.arcaneBlast() then return end
-    end
-
-    -- Supernova with talent (please god never take this)
-    if cast.able.supernova() then
-        if cast.supernova() then return end
-    end
-
 end
-
+    -----------------------
+    --- Extras Rotation ---
+    -----------------------
+    if actionList_Extras() then return true end
 -----------------
 --- Rotations ---
 -----------------

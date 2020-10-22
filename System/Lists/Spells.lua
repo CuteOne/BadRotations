@@ -1315,6 +1315,7 @@ br.lists.spells = {
               arcaneMissles                 = 79683,
               presenceOfMind                = 205025,
               rhoninsAssaultingArmwraps     = 208081,
+              runeofPower                   = 116011,
               ruleOfThrees                  = 264774,
               brainStorm                    = 273330,
               clearcasting                  = 263725,
