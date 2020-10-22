@@ -298,6 +298,7 @@ local shards
 local spell
 local talent
 local tanks
+local cd
 local traits
 local units
 local use
@@ -791,7 +792,7 @@ actionList.multi = function()
     if talent.phantomSingularity then if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end end
 
     -- Vile Taint
-    if talent.vileTaint and shards > 1 and getTTD("target") > gcdMax + 2
+    if talent.vileTaint and shards > 1 and getTTD("target") >= gcdMax + 6
     and(debuff.unstableAffliction.remain("target") > gcdMax + 3 and debuff.agony.remain("target") > gcdMax + 3 
     and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) and (debuff.corruption.remain("target") > gcdMax + 2)) then
         if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
@@ -1333,7 +1334,6 @@ local function runRotation()
                 then
                     if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (BloodLust)") return true end 
                 end
-
 
                 -- Capped on shards.
                 if shards > 4 then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Full Shards)") return true end end 
