@@ -3014,6 +3014,7 @@ br.lists.spells = {
                 earthElemental              = 198103,
                 earthbindTotem              = 2484,
                 ghostWolf                   = 2645,
+                healingStreamTotem          = 5394,
                 hex                         = 51514,
                 purge                       = 370,
                 tremorTotem                 = 8143,
