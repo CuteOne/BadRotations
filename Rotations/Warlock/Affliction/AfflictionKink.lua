@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.4.1"
+local rotationName = "Kink v1.4.2"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -686,7 +686,7 @@ actionList.PreCombat = function()
  
     --actions.precombat+=/summon_pet
     if ui.checked("Pet Management") 
-    and (not inCombat or buff.felDomination.exists() or cd.felDomination.remain() <= gcdMax)
+    and (not inCombat or buff.felDomination.exists())
     and (not moving or buff.felDomination.exists())
     and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
     then
@@ -797,9 +797,7 @@ actionList.multi = function()
     if talent.phantomSingularity then if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end end
 
     -- Vile Taint
-    if talent.vileTaint and shards > 1 and getTTD("target") >= gcdMax + 6
-    and(debuff.unstableAffliction.remain("target") > gcdMax + 3 and debuff.agony.remain("target") > gcdMax + 3 
-    and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) and (debuff.corruption.remain("target") > gcdMax + 2)) then
+    if talent.vileTaint and shards > 1 and getTTD("target") >= gcdMax + 6 then
         if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
     end
 
@@ -1072,7 +1070,7 @@ local function runRotation()
             end
 
             -- Dark Soul
-            if talent.darkSoul and useCDs() and not moving and pet.darkglare.active() then
+            if talent.darkSoul and useCDs() or isChecked("Cooldowns Hotkey") and SpecificToggle("Cooldowns Hotkey") and not moving and pet.darkglare.active() then
                 if cast.darkSoul() then br.addonDebug("Casting Dark Soul") return true end
             end 
 
@@ -1092,7 +1090,7 @@ local function runRotation()
             end
 
             -- Blood of the Enemy
-            if ui.checked("Blood oF The Enemy") and useCDs() and (buff.darkSoul.exists() or pet.darkglare.active() or cd.summonDarkglare.remain() >= 80 ) then
+            if ui.checked("Blood oF The Enemy") and useCDs() or isChecked("Cooldowns Hotkey") and SpecificToggle("Cooldowns Hotkey") and (buff.darkSoul.exists() or pet.darkglare.active() or cd.summonDarkglare.remain() >= 80 ) then
                 if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
             end
 
@@ -1138,13 +1136,12 @@ local function runRotation()
             and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
                 if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
             end
-
             -----------------
             ---  AMR APL  ---
             -----------------
             --Potion
              -- actions.cooldowns+=/potion,if=(talent.dark_soul_misery.enabled&cooldown.summon_darkglare.up&cooldown.dark_soul.up)|cooldown.summon_darkglare.up|target.time_to_die<30
-             if ui.checked("Potion") and useCDs() and pet.darkglare.active() then
+            if ui.checked("Potion") and useCDs() or isChecked("Cooldowns Hotkey") and SpecificToggle("Cooldowns Hotkey") and pet.darkglare.active() then
                 if not buff.potionOfUnbridledFury.exists() and canUseItem(item.potionOfUnbridledFury) then
                     if use.potionOfUnbridledFury() then br.addonDebug("Using Potion of Unbridled Fury [Pre-Pull]") return end
                 end
