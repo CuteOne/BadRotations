@@ -1310,6 +1310,7 @@ br.lists.spells = {
               arcanePower                   = 12042,
               -- arcaneCharge                  = 36032,
               evocation                     = 12051,
+              expandedPotential             = 327495,
               arcaneMissles                 = 79683,
               presenceOfMind                = 205025,
               rhoninsAssaultingArmwraps     = 208081,
