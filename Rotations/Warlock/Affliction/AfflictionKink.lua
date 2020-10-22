@@ -1,4 +1,5 @@
-local rotationName = "Kink v1.3.9"
+local rotationName = "Kink"
+local rotationVer  = "v1.4.3"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -86,7 +87,10 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General")
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General ".. ".:|:. ".. rotationVer)
+            -- Demonic Gateway
+            br.ui:createDropdown(section, "Cooldowns Hotkey", br.dropOptions.Toggle, 6, true)
+
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
@@ -298,6 +302,7 @@ local shards
 local spell
 local talent
 local tanks
+local cd
 local traits
 local units
 local use
@@ -780,7 +785,9 @@ actionList.multi = function()
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         local thisHP = getHP(thisUnit)
-        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedOfCorruption.exists(thisUnit) 
+        if (not moving 
+        and not debuff.seedOfCorruption.exists(thisUnit)
+        or not debuff.seedOfCorruption.exists(thisUnit) 
         and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= 10
         then
             if cast.seedOfCorruption(thisUnit) then br.addonDebug("Casting Seed of Corruption") return true end
@@ -791,13 +798,11 @@ actionList.multi = function()
     if talent.phantomSingularity then if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end end
 
     -- Vile Taint
-    if talent.vileTaint and shards > 1 and getTTD("target") > gcdMax + 2
-    and(debuff.unstableAffliction.remain("target") > gcdMax + 3 and debuff.agony.remain("target") > gcdMax + 3 
-    and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) and (debuff.corruption.remain("target") > gcdMax + 2)) then
+    if talent.vileTaint and shards > 1 and getTTD("target") >= gcdMax + 6 then
         if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
     end
 
-    if talent.sowTheSeeds and units.dyn40 >= 3 and shards > 0 then
+    if inCombat and talent.sowTheSeeds and #enemies.yards10t >= 3 and shards > 0 then
         if cast.maleficRapture(units.dyn40) then br.addonDebug("Casting Malefic Rapture (Sow the Seeds)") return true end 
     end
 
@@ -917,6 +922,18 @@ local function runRotation()
     if actionList.PetManagement == nil then
         loadSupport("PetCuteOne")
         actionList.PetManagement = br.rotations.support["PetCuteOne"]
+    end
+
+    -- spellqueue ready
+    local function spellQueueReady()
+        --Check if we can queue cast
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[5] then
+            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                return false
+            end
+        end
+        return true
     end
 
     -- Pet Data
@@ -1066,7 +1083,7 @@ local function runRotation()
             end
 
             -- Dark Soul
-            if talent.darkSoul and useCDs() and not moving and pet.darkglare.active() then
+            if talent.darkSoul and useCDs() or isChecked("Cooldowns Hotkey") and SpecificToggle("Cooldowns Hotkey") and not moving and pet.darkglare.active() then
                 if cast.darkSoul() then br.addonDebug("Casting Dark Soul") return true end
             end 
 
@@ -1086,7 +1103,7 @@ local function runRotation()
             end
 
             -- Blood of the Enemy
-            if ui.checked("Blood oF The Enemy") and useCDs() and (buff.darkSoul.exists() or pet.darkglare.active() or cd.summonDarkglare.remain() >= 80 ) then
+            if ui.checked("Blood oF The Enemy") and useCDs() or isChecked("Cooldowns Hotkey") and SpecificToggle("Cooldowns Hotkey") and (buff.darkSoul.exists() or pet.darkglare.active() or cd.summonDarkglare.remain() >= 80 ) then
                 if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
             end
 
@@ -1132,13 +1149,12 @@ local function runRotation()
             and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
                 if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
             end
-
             -----------------
             ---  AMR APL  ---
             -----------------
             --Potion
              -- actions.cooldowns+=/potion,if=(talent.dark_soul_misery.enabled&cooldown.summon_darkglare.up&cooldown.dark_soul.up)|cooldown.summon_darkglare.up|target.time_to_die<30
-             if ui.checked("Potion") and useCDs() and pet.darkglare.active() then
+            if ui.checked("Potion") and useCDs() or isChecked("Cooldowns Hotkey") and SpecificToggle("Cooldowns Hotkey") and pet.darkglare.active() then
                 if not buff.potionOfUnbridledFury.exists() and canUseItem(item.potionOfUnbridledFury) then
                     if use.potionOfUnbridledFury() then br.addonDebug("Using Potion of Unbridled Fury [Pre-Pull]") return end
                 end
@@ -1200,6 +1216,12 @@ local function runRotation()
 
             -- Unstable Affliction
             unstableAfflictionFUCK()
+            if ui.checked("Mousever UA") 
+            and UnitExists("mouseover")
+            and not UnitIsDeadOrGhost("mouseover")
+            then 
+                unstableAfflictionFUCK("mouseover")
+            end
 
             -- Multi Target
             if #enemies.yards10t >= 3 and mode.single ~= 1 then 
@@ -1308,7 +1330,7 @@ local function runRotation()
 
             -- Malefic Rapture
             if not moving 
-            and (debuff.agony.remain("target") > gcdMax
+            and (debuff.agony.remain("target") > gcdMax 
             and getTTD("target") >= gcdMax + cast.time.maleficRapture()
             and ((debuff.unstableAffliction.remains("target") > gcdMax + 8 and debuff.siphonLife.remain("target") > gcdMax + 2 or not talent.siphonLife)) 
             and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
@@ -1317,12 +1339,15 @@ local function runRotation()
                 --if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
 
                 -- Malefic Rapture Vile Taint
-                if debuff.vileTaint.remains("target") >= gcdMax + cast.time.maleficRapture() then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
-
+                if talent.vileTaint and debuff.vileTaint.remains("target") >= gcdMax + cast.time.maleficRapture() or cd.vileTaint.remain() > 12 
+                then
+                    if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end 
+                end
+               
                 -- Phantom Singularity
                 -- actions+=/malefic_rapture,if=talent.phantom_singularity.enabled&(dot.phantom_singularity.ticking||cooldown.phantom_singularity.remains>12||soul_shard>3)
-                if talent.phantomSingularity and debuff.phantomSingularity.exists("target") 
-                or (cd.phantomSingularity.remain() > 12 or shards > 3) 
+                if talent.phantomSingularity and debuff.phantomSingularity.remains("target") >= gcdMax + cast.time.phantomSingularity()
+                or (cd.phantomSingularity.remain() > 12) 
                 then
                     if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Phantom Singularity)") return true end 
                 end
@@ -1333,7 +1358,6 @@ local function runRotation()
                 then
                     if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (BloodLust)") return true end 
                 end
-
 
                 -- Capped on shards.
                 if shards > 4 then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Full Shards)") return true end end 

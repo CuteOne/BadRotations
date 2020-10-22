@@ -333,6 +333,20 @@ local function runRotation()
 
     --Print(tostring(mode.DPS))
 
+    local function count_hots(unit)
+        local count = 0
+        if buff.rejuvenation.exists(unit) then
+            count = count + 1
+        end
+        if buff.regrowth.exists(unit) then
+            count = count + 1
+        end
+        if buff.wildGrowth.exists(unit) then
+            count = count + 1
+        end
+        return count
+    end
+
     function getDebuffCount(spellID)
         local counter = 0
         for k, _ in pairs(br.enemy) do
@@ -1469,7 +1483,9 @@ local function runRotation()
             end
         end
         -- Swiftmend
-        if talent.restorationAffinity and isChecked("Swiftmend") and php <= getValue("Swiftmend") and charges.swiftmend.count() >= 1 then
+        if talent.restorationAffinity and isChecked("Swiftmend")
+                and php <= getValue("Swiftmend") and charges.swiftmend.count() >= 1
+                and count_hots > 0 then
             if cast.swiftmend("player") then
                 return true
             end

@@ -6,16 +6,22 @@ local rotationName = "Overlord"
 local function createToggles()
     -- Rotation Button
     RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.frostBolt },
-        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.frostBolt }
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.victoryRush },
+        [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.victoryRush}
     };
     CreateButton("Rotation",1,0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.frostNova},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.frostNova}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.shieldBlock},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.shieldBlock}
     };
     CreateButton("Defensive",2,0)
+    -- Movement Button
+    MoverModes = {
+        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", tip = "Will use Charge.", highlight = 1, icon = br.player.spell.charge},
+        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spell.charge}
+    };
+    CreateButton("Mover", 3, 0)
 end
 
 ---------------
@@ -31,6 +37,7 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
 
+        br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -42,7 +49,6 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
 
-        br.ui:checkSectionState(section)
     end
     optionTable = {{
         [1] = "Rotation Options",
@@ -77,10 +83,10 @@ local actionList = {}
 --------------------
 -- Action List - Defensive
 actionList.Defensive = function()
-    --Frost Nova
-    if unit.hp() < 95 then
-        if spell.known.frostNova() and cast.able.frostNova and unit.distance(units.dyn5) < 5 then
-            if cast.frostNova() then ui.debug("Casting Frost Nova") return true end
+    --Shield Block
+    if unit.hp() < 70 then
+        if spell.known.shieldBlock() and cast.able.shieldBlock and unit.distance(units.dyn5) < 5 then
+            if cast.shieldBlock() then ui.debug("Casting Shield Block") return true end
         end
     end
 end -- End Action List - Defensive
@@ -98,7 +104,6 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
     debuff                                        = br.player.debuff
@@ -143,10 +148,6 @@ local function runRotation()
         --- Pre-Combat ---
         ------------------
         if actionList.PreCombat() then return true end
-            --Arcane Intellect
-            if spell.known.arcaneIntellect() and cast.able.arcaneIntellect() and not buff.arcaneIntellect.exists("player") then
-                if cast.arcaneIntellect() then ui.debug("Casting Arcane Intellect") return true end
-            end
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
@@ -157,37 +158,50 @@ local function runRotation()
                 --- In Combat - Interrupts ---
                 ------------------------------
                 -- Start Attack
+                if mode.mover == 1 and spell.known.charge() then
+                    if cast.able.charge("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
+                        if cast.charge("target") then ui.debug("Casting Charge") return true end
+                    end
+                end
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
                 end
-                --Arcane Explosion
-                if spell.known.arcaneExplosion() and cast.able.arcaneExplosion() then
-                    if cast.arcaneExplosion("player","aoe",1,10) then ui.debug("Casting Arcane Explosion") return true end
+                -- Execute
+                if unit.hp("target") < 20 and spell.known.execute() and cast.able.execute and unit.distance(units.dyn5) < 5 then
+                    if cast.execute() then ui.debug("Casting Execute") return true end
                 end
-                --Fire Blast
-                if spell.known.fireBlast() and cast.able.fireBlast() and unit.distance(units.dyn40) then
-                    if cast.fireBlast() then ui.debug("Casting Fire Blast") return true end
+                -- Victory Rush
+                if spell.known.victoryRush() and cast.able.victoryRush and unit.distance(units.dyn5) < 5 then
+                    if cast.victoryRush() then ui.debug("Casting Victory Rush") return true end
                 end
-                --Frost Bolt
-                if spell.known.frostBolt() and cast.able.frostBolt(units.dyn40) and not unit.moving() then
-                    if cast.frostBolt() then ui.debug("Casting Frost Bolt") return true end
+                -- Shield Slam
+                if spell.known.shieldSlam() and cast.able.shieldSlam and unit.distance(units.dyn5) < 5 then
+                    if cast.shieldSlam() then ui.debug("Casting Shield Slam") return true end
                 end
-                --Counterspell Interrupt
+                -- WhirlWind            
+                if spell.known.whirlwind() and cast.able.whirlwind() and unit.distance(units.dyn5) < 5 then
+                    if cast.whirlwind() then ui.debug("Casting Whirlwind") return true end
+                end
+                -- Slam
+                if spell.known.slam() and cast.able.slam() and unit.distance(units.dyn5) < 5 then
+                    if cast.slam() then ui.debug("Casting Slam") return true end
+                end
+                --Pummel Interrupt
                 if canInterrupt() then
-                    if spell.known.counterspell() and cast.able.counterspell() and unit.distance(units.dyn40) then
-                        if cast.counterspell() then ui.debug("Casting Counterspell") return true end
+                    if spell.known.pummel() and cast.able.pummel() and unit.distance(units.dyn5) < 5 then
+                        if cast.pummel() then ui.debug("Casting Pummel") return true end
                     end
                 end
             end -- End In Combat Rotation
         end
     end -- Pause
 end -- End runRotation
-local id = 1449 -- Change to the spec id profile is for.
+local id = 1446 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-}) 
+})

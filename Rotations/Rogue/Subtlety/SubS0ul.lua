@@ -633,11 +633,11 @@ local function runRotation()
         -- actions.cds+=/call_action_list,name=essences,if=!stealthed.all&variable.snd_condition|essence.breath_of_the_dying.major&time>=2
         if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition or cast.able.reapingFlames() and (combatTime >= 2 or cd.vanish.exists())  then
             -- actions.essences=concentrated_flame,if=energy.time_to_max>1&!buff.symbols_of_death.up&(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
-            if (energyDeficit/energyRegen) > 1 and not buff.symbolsOfDeath.exists() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame() or charges.concentratedFlame.timeTillFull() < gcd) then
+            if cast.able.concentratedFlame() and (energyDeficit/energyRegen) > 1 and not buff.symbolsOfDeath.exists() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame() or charges.concentratedFlame.timeTillFull() < gcd) then
                 if cast.concentratedFlame() then return true end
             end
             -- actions.essences+=/blood_of_the_enemy,if=!cooldown.shadow_blades.up&cooldown.symbols_of_death.up|fight_remains<=10
-            if cast.able.bloodOfTheEnemy() and cd.shadowBlades.exists() and not cd.symbolsOfDeath.exists() and ttd("target") <= 10 then
+            if cast.able.bloodOfTheEnemy() and cd.shadowBlades.exists() and not cd.symbolsOfDeath.exists() or ttd("target") <= 10 then
                 if cast.bloodOfTheEnemy("player") then return true end
             end
             -- actions.essences+=/guardian_of_azeroth

@@ -597,8 +597,8 @@ actionList.AOE = function()
     end
     -- Festering Strike
     -- festering_strike,target_if=debuff.festering_wound.stack<=2&cooldown.death_and_decay.remains&cooldown.apocalypse.remains>5&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
-    if cast.able.festeringStrike() and cd.deathAndDecay.remain() > 0 and cd.apocalypse.remain() 
-        and (cd.armyOfTheDead.reamins() > 5 or var.aotdBypass) 
+    if cast.able.festeringStrike() and cd.deathAndDecay.remain() > 0 and cd.apocalypse.remain() > 5
+        and (cd.armyOfTheDead.reamins() > 5 or var.aotdBypass)
     then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
