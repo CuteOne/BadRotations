@@ -95,6 +95,8 @@ author   | support | patch | status | raidable?
 :------- | :-----: | :---: | -----: | :-------:
 CuteOne  |  Full   |  9.0  |   100% | :white_check_mark:
 
+- Inital 8-10 Supported - Patch 9.0
+
 ### Demon Hunter
 
 - Havoc
@@ -181,6 +183,8 @@ Psy             |  Full   | 8.3   | 90% | :white_check_mark:
 author | support      | patch | status |   raidable?
 :----- | :---------:  | :---: | -----: | :-----------:
 Reyne  |   Inactive   | 8.0   |   100% | :interrobang:
+
+- Inital 1-10 Supported - Patch 9.0
 
 ### Monk
 
@@ -339,3 +343,5 @@ Panglo  |  Full   | 8.0 |   100% | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Panglo  |  Full   | 8.0   |   100% | :white_check_mark:
+
+- Inital 1-10 Supported - Patch 9.0
