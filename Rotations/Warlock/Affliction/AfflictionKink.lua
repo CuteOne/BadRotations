@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.4.0"
+local rotationName = "Kink v1.4.1"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -86,7 +86,10 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General")
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General")
+            -- Demonic Gateway
+            br.ui:createDropdown(section, "Cooldowns Hotkey", br.dropOptions.Toggle, 6, true)
+
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
@@ -1203,6 +1206,12 @@ local function runRotation()
 
             -- Unstable Affliction
             unstableAfflictionFUCK()
+            if ui.checked("Mousever UA") 
+            and UnitExists("mouseover")
+            and not UnitIsDeadOrGhost("mouseover")
+            then 
+                unstableAfflictionFUCK("mouseover")
+            end
 
             -- Multi Target
             if #enemies.yards10t >= 3 and mode.single ~= 1 then 

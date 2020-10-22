@@ -143,7 +143,8 @@ local function runRotation()
         enemies.get(8, "target")
         enemies.get(10)
         enemies.get(40)
-        var_ap_minimum_mana_pct = 30
+        local var_ap_minimum_mana_pct = 30
+        local ccMaxStack = 3
        --variable,name=aoe_totm_charges,op=set,value=2
         var_aoe_totm_charges = 2
 
@@ -450,7 +451,7 @@ local function runRotation()
         fbInc = false
     end
 
-    if Player:Covenant() ~= "Night Fae" then var_barrage_mana_pct = 80 else var_barrage_mana_pct = 90 end
+    var_barrage_mana_pct = 90
 
 
 --------------------
@@ -690,15 +691,12 @@ actions.rotation+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_
 actions.rotation+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&(debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time|cooldown.presence_of_mind.remains>0|covenant.kyrian.enabled),chain=1
 actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.expanded_potential.up
 actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&(buff.arcane_power.up|buff.rune_of_power.up|debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time),chain=1
+
 actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.stack=buff.clearcasting.max_stack,chain=1
 actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.remains<=((buff.clearcasting.stack*action.arcane_missiles.execute_time)+gcd),chain=1
 actions.rotation+=/nether_tempest,if=(refreshable|!ticking)&buff.arcane_charge.stack=buff.arcane_charge.max_stack&buff.arcane_power.down&debuff.touch_of_the_magi.down
 actions.rotation+=/arcane_orb,if=buff.arcane_charge.stack<=2
 actions.rotation+=/supernova,if=mana.pct<=95&buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-
-
-
-
 actions.rotation+=/shifting_power,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&cooldown.evocation.remains>0&cooldown.arcane_power.remains>0&cooldown.touch_of_the_magi.remains>0&(!talent.rune_of_power.enabled|(talent.rune_of_power.enabled&cooldown.rune_of_power.remains>0))
 actions.rotation+=/arcane_blast,if=buff.rule_of_threes.up&buff.arcane_charge.stack>3
 actions.rotation+=/arcane_barrage,if=mana.pct<variable.barrage_mana_pct&cooldown.evocation.remains>0&buff.arcane_power.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&essence.vision_of_perfection.minor
@@ -713,20 +711,51 @@ actions.rotation+=/arcane_barrage
 
 ]]--
 local function actionList_Rotation()
+    if cast.able.arcaneMissiles() then
+        br.addonDebug("Casting Arcane Missiles ()") 
+    end
+    if cast.able.arcaneMissiles() then
+        br.addonDebug("Casting Arcane Missiles ()") 
+    end
+
+    --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&(buff.arcane_power.up|buff.rune_of_power.up|debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time),chain=1
+    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and buff.arcanePower.exists() and buff.runeofPower.exists() and debuff.touchoftheMagi.remain("target") > cast.time.arcaneMissiles() then
+        br.addonDebug("Casting Arcane Missiles ()") 
+    end
+
+    --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.stack=buff.clearcasting.max_stack,chain=1
+    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and buff.clearcasting.stack == ccMaxStack then
+        br.addonDebug("Casting Arcane Missiles (clearcasting max stack)") 
+    end
+
+    --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.remains<=((buff.clearcasting.stack*action.arcane_missiles.execute_time)+gcd),chain=1
+    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and buff.clearcasting.remains <= ((buff.clearstacking.stack * cast.time.arcaneMissiles) + gcdMax) then
+        if cast.netherTempest() then br.addonDebug("Casting Arcane Missiles (clearcasting)")  return true end 
+    end
+
+    -- actions.rotation+=/nether_tempest,if=(refreshable|!ticking)&buff.arcane_charge.stack=buff.arcane_charge.max_stack&buff.arcane_power.down&debuff.touch_of_the_magi.down
+    if cast.able.netherTempest() and debuff.netherTempest.refresh("target") or not debuff.netherTempest.exists("target") and buff.arcaneCharge.stack() > 3 and not buff.arcanePower.exists() and not debuff.touchoftheMagi.exists("target") then
+        if cast.netherTempest() then return true end
+    end
+
+    -- actions.rotation+=/arcane_orb,if=buff.arcane_charge.stack<=2
+    if cast.able.arcaneOrb() and buff.arcaneCharge.stack() <= 2 then if cast.arcaneOrb() then br.addonDebug("Arcane Orb <=2 AC") return true end end
+
     -- actions.rotation+=/supernova,if=mana.pct<=95&buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-   -- if cast.able.supernova
+    if cast.able.supernova() and manaPercent <= 95 and not buff.arcanePower.exists() and not buff.runeofPower.exists() and not debuff.touchoftheMagi.exists("target") then
+       if cast.supernova() then br.addonDebug("Casting Supernova (no AP, No RoP, no Magi)") return true end 
+    end
     
     -- actions.rotation+=/shifting_power,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&cooldown.evocation.remains>0&cooldown.arcane_power.remains>0&cooldown.touch_of_the_magi.remains>0&(!talent.rune_of_power.enabled|(talent.rune_of_power.enabled&cooldown.rune_of_power.remains>0))
-    if cast.able.shiftingPower() and not buff.arcanePower.exists() and not buff.runeofPower.exists() 
-    and not debuff.touchoftheMagi.exists("target") and cd.evocation.remain()  > 0 and cd.arcanePower.remain() > 0 and cd.touchoftheMagi.remain() > 0 and not talent.runeofPower or talent.runeofPower and cd.runeofPower.remain() > 0 then
-        if cast.shiftingPower() then return true end
-    end
+    --if cast.able.shiftingPower() and not buff.arcanePower.exists() and not buff.runeofPower.exists() 
+    --and not debuff.touchoftheMagi.exists("target") and cd.evocation.remain()  > 0 and cd.arcanePower.remain() > 0 and cd.touchoftheMagi.remain() > 0 and not talent.runeofPower or talent.runeofPower and cd.runeofPower.remain() > 0 then
+    --    if cast.shiftingPower() then return true end
+    --end
 
     -- actions.rotation+=/arcane_blast,if=buff.rule_of_threes.up&buff.arcane_charge.stack>3
-    if cast.able.arcaneBlast() and buff.ruleofThrees.exists() and buff.arcaneCharge.stack() > 3 then
+    if cast.able.arcaneBlast() and buff.ruleOfThrees.exists() and buff.arcaneCharge.stack() > 3 then
         if cast.arcaneBlast() then return true end 
     end
-
     -- actions.rotation+=/arcane_barrage,if=mana.pct<variable.barrage_mana_pct&cooldown.evocation.remains>0&buff.arcane_power.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&essence.vision_of_perfection.minor
     if cast.able.arcaneBarrage() and manaPercent < var_barrage_mana_pct and cd.evocation.remain() <= gcdMax and not buff.arcanePower.exists() and buff.arcaneCharge.stack() > 3 and essence.worldveinResonance.active then
        if cast.arcaneBarrage() then return true end 
@@ -762,9 +791,10 @@ local function actionList_Rotation()
     -- actions.rotation+=/arcane_blast
     if cast.able.arcaneBlast() then if cast.arcaneBlast() then return true end
 
-    if buff.evocation.exists() and manaPercent >= 83 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
+    -- Cancel Evocation 
+    if buff.evocation.exists() and manaPercent >= 85 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
     if cast.able.evocation() then
-        if cast.evocation() then return true end end -- Somehow cancel at 85% max mana
+        if cast.evocation() then br.addonDebug("Casting Evocation (>= 85 mana)") return true end end -- Somehow cancel at 85% max mana
     end
 
     --actions.rotation+=/arcane_barrage

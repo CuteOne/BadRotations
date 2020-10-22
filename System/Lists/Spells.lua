@@ -1275,6 +1275,7 @@ br.lists.spells = {
                 netherTempest               = 114923,
                 presenceOfMind              = 205025,
                 prismaticBarrier            = 235450,
+                runeofPower                 = 116011,
                 slow                        = 31589,
                 supernova                   = 157980,
                 touchOfTheMagi              = 321507,
