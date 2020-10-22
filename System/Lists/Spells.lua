@@ -1277,6 +1277,7 @@ br.lists.spells = {
                 prismaticBarrier            = 235450,
                 slow                        = 31589,
                 supernova                   = 157980,
+                touchOfTheMagi              = 321507,
             },
             artifacts                       = {
                 aegwynnsAscendance          = 187680,
@@ -1303,9 +1304,11 @@ br.lists.spells = {
                 touchOfTheMagi              = 210725,
             },
             buffs                           = {
+              arcaneCharge                  = 36032,
               arcaneFamiliar                = 210126,
               arcanePower                   = 12042,
               -- arcaneCharge                  = 36032,
+              evocation                     = 12051,
               arcaneMissles                 = 79683,
               presenceOfMind                = 205025,
               rhoninsAssaultingArmwraps     = 208081,
@@ -1316,6 +1319,8 @@ br.lists.spells = {
             debuffs                         = {
               arcaneCharge                  = 36032,
               netherTempest                 = 114923,
+              touchoftheMagi                = 210824,
+
 
             },
             glyphs                          = {

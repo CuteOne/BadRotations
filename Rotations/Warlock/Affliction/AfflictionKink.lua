@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.3.9"
+local rotationName = "Kink v1.4.0"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -683,7 +683,7 @@ actionList.PreCombat = function()
  
     --actions.precombat+=/summon_pet
     if ui.checked("Pet Management") 
-    and (not inCombat or buff.felDomination.exists())
+    and (not inCombat or buff.felDomination.exists() or cd.felDomination.remain() <= gcdMax)
     and (not moving or buff.felDomination.exists())
     and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", 1) 
     then
@@ -781,7 +781,9 @@ actionList.multi = function()
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         local thisHP = getHP(thisUnit)
-        if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.seedOfCorruption.exists(thisUnit) 
+        if (not moving 
+        and not debuff.seedOfCorruption.exists(thisUnit)
+        or not debuff.seedOfCorruption.exists(thisUnit) 
         and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= 10
         then
             if cast.seedOfCorruption(thisUnit) then br.addonDebug("Casting Seed of Corruption") return true end
@@ -798,7 +800,7 @@ actionList.multi = function()
         if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
     end
 
-    if talent.sowTheSeeds and units.dyn40 >= 3 and shards > 0 then
+    if inCombat and talent.sowTheSeeds and units.dyn40 >= 3 and shards > 0 then
         if cast.maleficRapture(units.dyn40) then br.addonDebug("Casting Malefic Rapture (Sow the Seeds)") return true end 
     end
 
@@ -1309,7 +1311,7 @@ local function runRotation()
 
             -- Malefic Rapture
             if not moving 
-            and (debuff.agony.remain("target") > gcdMax
+            and (debuff.agony.remain("target") > gcdMax 
             and getTTD("target") >= gcdMax + cast.time.maleficRapture()
             and ((debuff.unstableAffliction.remains("target") > gcdMax + 8 and debuff.siphonLife.remain("target") > gcdMax + 2 or not talent.siphonLife)) 
             and (debuff.corruption.remain("target") > gcdMax + 3 or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
