@@ -333,6 +333,14 @@ local function runRotation()
 
     --Print(tostring(mode.DPS))
 
+    local function hasHot(unit)
+        if buff.rejuvenation.exists(unit) or buff.regrowth.exists(unit) or buff.wildGrowth.exists(unit) then
+            return true
+        else
+            return false
+        end
+    end
+
     local function count_hots(unit)
         local count = 0
         if buff.rejuvenation.exists(unit) then
@@ -770,21 +778,23 @@ local function runRotation()
 
         local starfire_fallback = cast.last.starfire(1) and cast.last.starfire(2) and cast.last.starfire(3) or false
         local wrath_fallback = cast.last.wrath(1) and cast.last.wrath(2) and cast.last.wrath(3) or false
+
+        --  Print(GetSpellCount(190984)) --wrath
+        -- Print(GetSpellCount(1941530))   --starfire
+
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
-        if eclipse_in then
-            if buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
+
+        if not eclipse_in then
+            if GetSpellCount(190984) > 0 and GetSpellCount(1941530) == 0 then
                 eclipse_next = "lunar"
-            elseif buff.eclipse_lunar.exists() and not buff.eclipse_solar.exists() then
+            elseif GetSpellCount(190984) == 0 and GetSpellCount(1941530) > 0 then
                 eclipse_next = "solar"
-            end
-        elseif not eclipse_in then
-            if starfire_fallback then
-                eclipse_next = "lunar"
-            end
-            if wrath_fallback then
-                eclipse_next = "solar"
+            elseif GetSpellCount(190984) > 0 and GetSpellCount(1941530) > 0 then
+                eclipse_next = "any"
             end
         end
+
+        Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
 
         if mode.rotation < 4 then
 
@@ -848,13 +858,22 @@ local function runRotation()
                     end
                 end
             end
-
+            --	fury_of_elune
+            if talent.furyOfElune and isChecked("Fury Of Elune") and
+                    (furyUnits >= getValue("Fury of Elune Targets") or isBoss("target"))
+                    and astral_def > 8
+                    and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group Fury with CD")) then
+                if cast.furyOfElune(getBiggestUnitCluster(45, 1.25)) then
+                    return true
+                end
+            end
 
             --debug section
             -- Print(getCastTime(spell.wrath))
 
             if mode.rotation == 1 and is_aoe or mode.rotation == 2 then
                 -- AOE rotation
+
                 --starfall
                 if cast.able.starfall()
                         and not buff.starfall.exists() or buff.starfall.refresh() then
@@ -870,9 +889,9 @@ local function runRotation()
                 for i = 1, #enemies.yards45 do
                     thisUnit = enemies.yards45[i]
                     -- Print((14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)))
-                    if cast.able.sunfire()
+                    if cast.able.sunfire() and not cast.last.sunfire(1)
                             and debuff.sunfire.refresh(thisUnit)
-                            and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit))
+                            and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
                     then
                         if cast.sunfire(thisUnit) then
                             return true
@@ -901,7 +920,6 @@ local function runRotation()
                 end
 
                 -- celestialAlignment
-
 
 
                 if mode.cooldown == 2 or (isBoss("target") and mode.cooldown == 1) and isChecked("Incarnation/Celestial Alignment") then
@@ -973,7 +991,7 @@ local function runRotation()
                 Print(tostring((not buff.kindredEmpowerment.exists() or power < 30) and astral_def > 2))
                 Print(tostring(debuff.sunfire.remain(enemies.yards45[1]) < 2.4))
                 Print(tostring(ttd(enemies.yards45[1])))
-    ]]
+        ]]
 
                 --   if=(buff.ca_inc.remains>5&(buff.ravenous_frenzy.remains>5|!buff.ravenous_frenzy.up)|!buff.ca_inc.up|astral_power<30)&(!buff.kindred_empowerment_energize.up|astral_power<30)&ap_check
 
@@ -1004,7 +1022,6 @@ local function runRotation()
                         end
                     end
                 end
-
 
 
                 --starfall
@@ -1090,7 +1107,6 @@ local function runRotation()
             end
 
 
-
             -- Innverate
             --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
 
@@ -1151,17 +1167,6 @@ local function runRotation()
                 elseif mode.rotation < 3 then
                     for i = 1, #enemies.yards45 do
                         thisUnit = enemies.yards45[i]
-                    end
-                end
-
-
-                --	fury_of_elune
-                if talent.furyOfElune and isChecked("Fury Of Elune") and
-                        (furyUnits >= getValue("Fury of Elune Targets") or isBoss("target"))
-                        and astral_def > 8
-                        and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group Fury with CD")) then
-                    if cast.furyOfElune(getBiggestUnitCluster(45, 1.25)) then
-                        return true
                     end
                 end
 
@@ -1483,9 +1488,9 @@ local function runRotation()
             end
         end
         -- Swiftmend
-        if talent.restorationAffinity and isChecked("Swiftmend")
+        if talent.restorationAffinity and isChecked("Swiftmend") and cast.able.swiftmend()
                 and php <= getValue("Swiftmend") and charges.swiftmend.count() >= 1
-                and count_hots > 0 then
+                and hasHot("player") then
             if cast.swiftmend("player") then
                 return true
             end
