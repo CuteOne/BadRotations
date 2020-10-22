@@ -164,13 +164,10 @@ br.lists.spells = {
             abilities                       = {
                 asphyxiate                  = 221562,
                 bloodBoil                   = 50842,
-<<<<<<< Updated upstream
                 bloodMirror                 = 206977,
                 blooddrinker                = 206931,
                 bonestorm                   = 194844,
                 consumption                 = 205223,
-=======
->>>>>>> Stashed changes
                 dancingRuneWeapon           = 49028,
                 deathsCaress                = 195292,
                 gorefiendsGrasp             = 108199,
@@ -330,12 +327,6 @@ br.lists.spells = {
             },
             debuffs                         = {
                 festeringWound              = 194310,
-<<<<<<< Updated upstream
-                -- necroticStrike              = 223829,
-                -- outbreak                    = 77575,
-                -- scourgeOfWorlds             = 191748,
-=======
->>>>>>> Stashed changes
                 soulReaper                  = 343294,
                 virulentPlague              = 191587,
             },
