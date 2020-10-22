@@ -1487,10 +1487,17 @@ br.lists.spells = {
                 arcaneExplosion             = 1449,
                 blink                       = 1953,
                 counterspell                = 2139,
+                fireBlast                   = 319836,
+                frostBolt                   = 116,
                 frostNova                   = 122,
                 iceBlock                    = 45438,
                 invisibility                = 66,
+<<<<<<< HEAD
                 focusMagic                 = 321358,
+=======
+                mirrorImage                 = 55342,
+                focusMagic                  = 321358,
+>>>>>>> parent of 075af4d79... Revert "Mage Initial"
                 polymorph                   = 118,
                 removeCurse                 = 475,
                 ringOfFrost                 = 113724,
