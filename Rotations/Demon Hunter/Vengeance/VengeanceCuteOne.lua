@@ -51,6 +51,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Auto Engage
+            br.ui:createCheckbox(section, "Auto Engage")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Immolation Aura
@@ -464,14 +466,14 @@ actionList.PreCombat = function()
                     if cast.throwGlaive("target","aoe") then ui.debug("Casting Throw Glaive [Pre-Pull]") return true end
                 end
                 -- Torment
-                if cast.able.torment("target") and var.solo and ui.checked("Auto Engage") then
+                if cast.able.torment("target") and ui.checked("Auto Engage") then
                     if cast.torment("target") then ui.debug("Casting Torment [Pre-Pull]") return true end
                 end
             end
             -- Start Attack
             -- auto_attack
-            if unit.distance("target") < 5 then
-                unit.startAttack("target")
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                StartAttack(units.dyn5)
             end
         end -- End Pull
     end -- End No Combat
@@ -542,8 +544,8 @@ local function runRotation()
             ---------------------------
             -- Start Attack
             -- auto_attack
-            if unit.distance(units.dyn5) < 5 then
-                unit.startAttack(units.dyn5)
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                StartAttack(units.dyn5)
             end
             -- Consume Magic
             if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.isBoss("target") and unit.exists("target") then
