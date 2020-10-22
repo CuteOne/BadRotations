@@ -198,7 +198,7 @@ br.lists.spells = {
                 dancingRuneWeapon           = 81256,
                 runeTap                     = 194679,
                 hemostasis                  = 273947,
-                ossuary						= 219786,
+                ossuary			    = 219786,
                 tombstone                   = 219809,
                 vampiricBlood               = 55233,
             },
@@ -321,6 +321,7 @@ br.lists.spells = {
                 soulReaper                  = 215711,
                 suddenDoom                  = 49530,
                 unholyAssault               = 207289,
+		unholyBlight 		    = 115989,
             },
             debuffs                         = {
                 festeringWound              = 194310,
