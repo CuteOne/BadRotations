@@ -1268,6 +1268,7 @@ br.lists.spells = {
                 arcaneOrb                   = 153626,
                 arcanePower                 = 12042,
                 chargedUp                   = 205032,
+                conjuremanaGem              = 759,
                 displacement                = 212801,
                 erosion                     = 205039,
                 evocation                   = 12051,

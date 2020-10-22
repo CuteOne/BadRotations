@@ -1,4 +1,4 @@
-local rotationName = "Kink v0.0.1"
+local rotationName = "Kink v0.1.0"
 
 ---------------
 --- Toggles ---
@@ -860,14 +860,89 @@ local function Opener ()
     return "Stop opener 1"
   end
 
-  --actions.opener+=/bag_of_tricks,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-  if br.player.race == "Vulpera"
-
-  --actions.opener+=/call_action_list,name=items,if=buff.arcane_power.up
-
+  --actions.opener+=/lights_judgment,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
+if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera" 
+  and not buff.arcanePower.exists() 
+  and not buff.runeofPower.exists() 
+  and cast.able.Racial()
+  and not debuff.touchoftheMagi.exists("target") 
+  then 
+      if cast.Racial() then return true end
+  end
   --actions.opener+=/potion,if=buff.arcane_power.up
+   
 
-  --actions.opener+=/berserking,if=buff.arcane_power.up
+  --actions.opener+=/berserking,if=buff.arcane_power
+    if ui.checked("Racial") 
+    and buff.arcanePower.exists() 
+    and (race == "Troll" or race == "Orc" or race == "DarkIronDwarf" or race == "MagharOrc")
+    then
+        if cast.racial() then br.addonDebug("Casting Berserking") return true end
+    end
+
+    --actions.opener+=/fire_blast,if=runeforge.disciplinary_command.equipped&buff.disciplinary_command_frost.up
+
+    --actions.opener+=/frost_nova,if=runeforge.grisly_icicle.equipped&mana.pct>95
+
+    --actions.opener+=/mirrors_of_torment
+
+    --actions.opener+=/deathborne
+
+    --actions.opener+=/radiant_spark,if=mana.pct>40
+
+    --actions.opener+=/cancel_action,if=action.shifting_power.channeling&gcd.remains=0
+
+    --actions.opener+=/shifting_power,if=soulbind.field_of_blossoms.enabled
+
+    --actions.opener+=/touch_of_the_magi
+
+    if cast.able.touchoftheMagi() then if cast.touchoftheMagi() then return true end end 
+
+    --actions.opener+=/arcane_power
+    if cast.able.arcanePower() then if cast.arcanePower() then return true end end 
+
+    --actions.opener+=/rune_of_power,if=buff.rune_of_power.down
+    if cast.able.runeofPower() then if cast.runeofPower() then return true end end
+
+    --actions.opener+=/use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
+    if has.manaGem() and use.able.manaGem()
+    and (talent.enlightened and manaPercent <= 80 and manaPercent >= 65)
+    or (not talent.enlightened and manaPercent <= 85)
+    then
+        if use.manaGem() then return true end
+    end
+          
+
+
+    --actions.opener+=/berserking,if=buff.arcane_power.up
+
+    --actions.opener+=/time_warp,if=runeforge.temporal_warp.equipped
+
+    --actions.opener+=/presence_of_mind,if=debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
+    if cast.able.presenceofMind 
+    and debuff.touchoftheMagi.exists("target")
+    and debuff.touchoftheMagi.remain("target") <= 2 * cast.time.arcaneBlast() 
+    then
+        if cast.presenceofMind() then return true end
+    end
+    --actions.opener+=/arcane_blast,if=dot.radiant_spark.remains>5|debuff.radiant_spark_vulnerability.stack>0
+
+    
+
+    --actions.opener+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_time
+
+    --actions.opener+=/arcane_barrage,if=buff.arcane_power.up&buff.arcane_power.remains<=gcd&buff.arcane_charge.stack=buff.arcane_charge.max_stack
+
+    --actions.opener+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time,chain=1
+
+    --actions.opener+=/arcane_missiles,if=buff.clearcasting.react,chain=1
+
+    --actions.opener+=/arcane_orb,if=buff.arcane_charge.stack<=2&(cooldown.arcane_power.remains>10|active_enemies<=2)
+
+    --actions.opener+=/arcane_blast,if=buff.rune_of_power.up|mana.pct>15
+
+    --actions.opener+=/evocation,if=buff.rune_of_power.down,interrupt_if=mana.pct>=85,interrupt_immediate=1
+    --actions.opener+=/arcane_barrage
 end
     --
 local function actionList_Rotation()
@@ -1031,7 +1106,10 @@ end
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-
+                -- Create Healthstone
+                if GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
+                   if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
+                end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
