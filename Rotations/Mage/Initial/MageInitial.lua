@@ -193,6 +193,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
+<<<<<<< Updated upstream
         if mode.rotation ~=2 and inCombat or isDummy() and isValidUnit("target") and cd.global.remain() == 0 then
             -- Start Attack
             -- actions=auto_attack
@@ -222,6 +223,39 @@ local function runRotation()
             ------------------------------
             if actionList.Interrupt() then return true end
         end -- End In Combat Rotation
+=======
+        -- Check for combat
+        if unit.valid("target") and cd.global.remain() == 0 then
+            if unit.distance(units.dyn40) < 40 then
+                ------------------------------
+                --- In Combat - Interrupts ---
+                ------------------------------
+                -- Start Attack
+                -- actions=auto_attack
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                    StartAttack(units.dyn5)
+                end
+                --Fire Blast
+                if spell.known.fireBlast() and cast.able.fireBlast() and unit.distance(units.dyn40) then
+                    if cast.fireBlast() then ui.debug("Casting Fire Blast") return true end
+                end
+                --Arcane Explosion
+                if spell.known.arcaneExplosion() and cast.able.arcaneExplosion() then
+                    if cast.arcaneExplosion("player","aoe",1,10) then ui.debug("Casting Arcane Explosion") return true end
+                end
+                --Frost Bolt
+                if spell.known.frostBolt() and cast.able.frostBolt(units.dyn40) and not unit.moving() then
+                    if cast.frostBolt() then ui.debug("Casting Frost Bolt") return true end
+                end
+                --Counterspell Interrupt
+                if canInterrupt() then
+                    if spell.known.counterspell() and cast.able.counterspell() and unit.distance(units.dyn40) then
+                        if cast.counterspell() then ui.debug("Casting Counterspell") return true end
+                    end
+                end
+            end -- End In Combat Rotation
+        end
+>>>>>>> Stashed changes
     end -- Pause
     return true
 end -- End runRotation
