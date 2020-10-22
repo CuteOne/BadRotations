@@ -63,7 +63,7 @@ function isTotem(unit)
 end
 
 --Update OM
-function updateOM()
+function br:updateOM()
 	local om = br.om
 	local startTime = debugprofilestop()
 	local _, updated, added, removed = GetObjectCountBR(true,"BR")

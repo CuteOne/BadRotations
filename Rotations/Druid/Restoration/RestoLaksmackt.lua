@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 101814092020")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 102009202020")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -953,7 +953,7 @@ local function runRotation()
         if cast.able.cenarionWard() and php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2 then
             if cast.able.cenarionWard() then
                 if cast.cenarionWard("player") then
-                    br.addonDebug("[BURST]: CW on self")
+                    br.addonDebug("[CRIT]: CW on self")
                     return true
                 end
             end
@@ -968,7 +968,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if cast.able.swiftmend() then
+                if cast.able.swiftmend() and count_hots(lowest.unit) > 0 then
                     if cast.swiftmend(lowest.unit) then
                         br.addonDebug("[CRIT]Swiftmend on: " .. UnitName(lowest.unit))
                         return true
@@ -1255,7 +1255,7 @@ local function runRotation()
                     return true
                 end
             end
-            if cast.able.swiftmend() and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 95)) then
+            if cast.able.swiftmend() and count_hots(heal_target) > 0 and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 95)) then
                 if cast.swiftmend(heal_target) then
                     br.addonDebug("[BOSS]Swiftmend on: " .. UnitName(heal_target))
                     return true
@@ -2548,8 +2548,10 @@ local function runRotation()
                         return true
                     end
                 end
-                if cast.swiftmend(BleedFriend.unit) then
-                    return true
+                if count_hots(BleedFriend.unit) > 0 then
+                    if cast.swiftmend(BleedFriend.unit) then
+                        return true
+                    end
                 end
                 if cast.able.regrowth() then
                     if not buff.regrowth.exists(BleedFriend.unit) or BleedFriend.hp < getValue("Grievous") then

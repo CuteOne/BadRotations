@@ -112,6 +112,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Mind Blast")
         br.ui:createCheckbox(section, "Smite")
         br.ui:createSpinner(section, "Mind Sear - AoE", 3, 1, 50, 1, "Number of Units to cast Mind Sear")
+        br.ui:createSpinner(section, "Mind Sear - AoE - High Prio", 3, 1, 50, 1, "Number of Units to cast Mind Sear")
         br.ui:createSpinnerWithout(section, "Mind Sear - HP Cutoff", 80, 0 ,100, 5, "Lowest friendly HP to channel Sear")
         br.ui:createCheckbox(section, "SHW: Death Snipe")
         br.ui:createSpinner(section, "Mindbender", 80, 0, 100, 5, "Mana Percent to Cast At")
@@ -234,10 +235,16 @@ local function runRotation()
     local bestUnit
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        local thisGroup = #enemies.get(8,thisUnit)
+        local thisGroup = #enemies.get(10,thisUnit)
+        local targetGroup = #enemies.get(10,"target")
+
         if thisGroup > biggestGroup then
             biggestGroup = thisGroup
             bestUnit = thisUnit
+        end
+        if targetGroup == biggestGroup then
+            biggestGroup = targetGroup
+            bestUnit = "target"
         end
     end
 
@@ -250,15 +257,15 @@ local function runRotation()
     -- set penance target
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.schism.exists("target") and ttd("target") > 4 then
+        if debuff.schism.exists("target") and ttd("target") > 4 and getFacing("player","target")then
             schismBuff = "target"
-        elseif debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 then
+        elseif debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and getFacing("player",thisUnit) then
             schismBuff = thisUnit
         end
         if schismBuff == nil then 
-            if debuff.purgeTheWicked.exists("target") and ttd("target") > 4 then
+            if debuff.purgeTheWicked.exists("target") and ttd("target") > 4 and getFacing("player","target") then
                 ptwDebuff = "target"
-            elseif debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 then
+            elseif debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and getFacing("player",thisUnit)then
                 ptwDebuff = thisUnit
             end
         end
@@ -615,13 +622,19 @@ local function runRotation()
     end
 
     local function DamageTime()
+        if isChecked("Mind Sear - AoE - High Prio") and not cast.current.mindSear() then
+            if biggestGroup >= getOptionValue("Mind Sear - AoE - High Prio") and lowest.hp > getOptionValue("Mind Sear - HP Cutoff") then
+                if cast.mindSear(bestUnit) then return true end
+            end
+        end
+
         if isChecked("Power Word: Solace") and talent.powerWordSolace then
-            if schismBuff ~= nil then
+            if schismBuff ~= nil and getFacing("player",schismBuff) then
                 if cast.powerWordSolace(schismBuff) then
                     return
                 end
             elseif schismBuff == nil then
-                if cast.powerWordSolace("target") then
+                if cast.powerWordSolace(units.dyn40) then
                     return
                 end
             end
@@ -629,7 +642,7 @@ local function runRotation()
         if isChecked("SHW: Death Snipe") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (UnitHealth(thisUnit) <= deathnumber) or (getHP(thisUnit) <= 20 and UnitHealth(thisUnit) <= deathnumber *1.5) then
+                if (getHP(thisUnit) <= 20) then
                     if cast.shadowWordDeath(thisUnit) then
                         return 
                     end
@@ -692,24 +705,32 @@ local function runRotation()
             end
         end
 
-        if talent.schism and isChecked("Schism") and cd.penance.remain() <= gcdMax + 1 and not isMoving("player") and ttd("target") > 9 and not isExplosive("target") then
-            if cast.schism("target") then
+        if talent.schism and isChecked("Schism") and cd.penance.remain() <= gcdMax + 1 and not isMoving("player") and ttd(units.dyn40) > 9 and not isExplosive(units.dyn40) then
+            if cast.schism(units.dyn40) then
                 return
             end
         end
 
         if isChecked("Penance") then
-            if schismBuff ~= nil then
+            if schismBuff ~= nil and getFacing("player",schismBuff) then
                 if cast.penance(schismBuff) then
                     return
                 end
-            elseif ptwDebuff ~= nil and schismBuff == nil then
+            elseif ptwDebuff ~= nil and schismBuff == nil and getFacing("player",ptwDebuff)then
                 if cast.penance(ptwDebuff) then
                     return
                 end
-            elseif (not schismBuff or ptwDebuff) and ttd("target") > 2.5 then
-                if cast.penance("target") then
+            elseif (not schismBuff or ptwDebuff) and ttd(units.dyn40) > 2.5 then
+                if cast.penance(units.dyn40) then
                    return
+                end
+            end
+        end
+
+        if essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+            if getLineOfSight(units.dyn40) and getDistance(units.dyn40) <= 40 then
+                if cast.concentratedFlame(units.dyn40) then
+                    return true
                 end
             end
         end
@@ -726,7 +747,7 @@ local function runRotation()
                 if cast.mindBlast(schismBuff) then
                     return
                 end
-            elseif cast.mindBlast() then
+            elseif cast.mindBlast(units.dyn40) then
                 return
             end
         end
@@ -736,7 +757,7 @@ local function runRotation()
                 if cast.smite(schismBuff) then
                     return
                 end
-            elseif cast.smite() then
+            elseif cast.smite(units.dyn40) then
                 return
             end
         end

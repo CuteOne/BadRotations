@@ -125,11 +125,11 @@ br.rotations.support["PetCuteOne"] = function()
             end
             if callPet ~= nil then
                 -- Call Pet
-                if ((not deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
+                if ((not br.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
                     if castSpell("player",callPet,false,false,false,true,true,true,true,false) then petui.debug("[Pet] Cast Call Pet") waitForPetToAppear = GetTime(); petCalled = true; petRevived = false; return true end
                 end
                 -- Revive Pet
-                if deadPet or (petExists and petHealth == 0) or petCalled == true then
+                if br.deadPet or (petExists and petHealth == 0) or petCalled == true then
                     if cast.able.revivePet() and cast.timeSinceLast.revivePet() > gcdMax then
                         if cast.revivePet("player") then petui.debug("[Pet] Revive Pet") waitForPetToAppear = GetTime(); petRevived = true; petCalled = false; return true end
                     end
@@ -243,7 +243,7 @@ br.rotations.support["PetCuteOne"] = function()
             end
         end
         -- Play Dead / Wake Up
-        if isChecked("Play Dead / Wake Up") and not deadPet then
+        if isChecked("Play Dead / Wake Up") and not br.deadPet then
             if cast.able.playDead() and petCombat and not buff.playDead.exists("pet")
                 and petHealth < getOptionValue("Play Dead / Wake Up")
             then
@@ -268,7 +268,7 @@ br.rotations.support["PetCuteOne"] = function()
             end
         end
         -- Mend Pet
-        if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
+        if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not br.deadPet
             and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet")
         then
             if cast.mendPet() then petui.debug("[Pet] Cast Mend Pet") return end
@@ -284,7 +284,7 @@ br.rotations.support["PetCuteOne"] = function()
             return count
         end
 
-        if isChecked("Fetch") and not inCombat and cast.able.fetch() and petExists and not deadPet then
+        if isChecked("Fetch") and not inCombat and cast.able.fetch() and petExists and not br.deadPet then
             if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
             for k, v in pairs(br.lootable) do
                 if br.lootable[k] ~= nil then

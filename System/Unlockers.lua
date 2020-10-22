@@ -1,4 +1,4 @@
-function loadUnlockerAPI()
+function br:loadUnlockerAPI()
     local unlocked = false
     -- EWT Unlocker
     if EasyWoWToolbox ~= nil then -- Native Support - API found at https://ewtwow.com/EWT/ewt.lua
@@ -253,7 +253,7 @@ end
 local brlocVersion
 local brcurrVersion
 local brUpdateTimer
-function checkBrOutOfDate()
+function br:checkBrOutOfDate()
     brlocVersion = GetAddOnMetadata(br.addonName,"Version")
     if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
         local startTime = debugprofilestop()

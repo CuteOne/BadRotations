@@ -4,7 +4,9 @@ br.lists.pets = {
     activePet                   = activePet,
     -- Death Knight
     apocalypseGhoul             = 111101,
+    armyOfTheDead               = 24207,
     gargoyle                    = 27829,
+    ghoul                       = 26125,
     risenSkulker                = 99541,
     -- Warlock
     darkglare                   = 103673,

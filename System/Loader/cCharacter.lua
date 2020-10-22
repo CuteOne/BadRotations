@@ -95,7 +95,7 @@ function cCharacter:new(class)
 		-- Get Character Info
 		self.getCharacterInfo()
 		-- Get Consumables
-		if bagsUpdated then
+		if br.bagsUpdated then
 			self.potion.action 		= {}
 			self.potion.agility		= {}	-- Agility Potions
 			self.potion.armor 		= {}	-- Armor Potions
@@ -115,7 +115,7 @@ function cCharacter:new(class)
 			self.flask.stamina		= {}
 			self.flask.strength   = {}
 			self.getConsumables()		-- Find All The Tasty Things!
-			bagsUpdated = false
+			br.bagsUpdated = false
 		end
 		-- Get selected rotation
 		self.getRotation()

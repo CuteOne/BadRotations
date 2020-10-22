@@ -1008,7 +1008,7 @@ local function runRotation()
             end
         end
         -- Bristlingfur
-        if br.player.ui.mode.bristlingFur == 1 and rage < 40 and (hasAggro >= 2) then
+        if br.player.ui.mode.bristlingFur == 1 and rage < 40 and (hasAggro >= 2) and inCombat then
             if cast.bristlingFur() then
                 return
             end
@@ -1024,7 +1024,7 @@ local function runRotation()
                     return
                 end
             end
-            if buff.ironfur.exists() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or buff.galacticGuardian.exists() then
+            if buff.ironfur.exists() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or buff.galacticGuardian.exists() and inCombat  then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
                     if UnitAffectingCombat(thisUnit) then
@@ -1039,31 +1039,31 @@ local function runRotation()
             end
         end
         -- Maul
-        if br.player.ui.mode.maul == 1 and isChecked("Auto Maul") and rageDeficit < 10 and #enemies.yards8 < 4 and (buff.incarnationGuardianOfUrsoc.exists() or not buff.incarnationGuardianOfUrsoc.exists()) then
+        if br.player.ui.mode.maul == 1 and isChecked("Auto Maul") and rageDeficit < 10 and #enemies.yards8 < 4 and (buff.incarnationGuardianOfUrsoc.exists() or not buff.incarnationGuardianOfUrsoc.exists()) and inCombat then
             if cast.maul() then
                 return
             end
         end
         -- Mangle
-        if cast.able.mangle() and #enemies.yards5 < 7 and (not buff.incarnationGuardianOfUrsoc.exists() or buff.gore.exists()) then
+        if cast.able.mangle() and #enemies.yards5 < 7 and (not buff.incarnationGuardianOfUrsoc.exists() or buff.gore.exists()) and inCombat then
             if cast.mangle() then
                 return
             end
         end
         -- Thrash
-        if cast.able.thrashBear("player") and #enemies.yards8 >=1 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and not debuff.thrashBear.exists(thisUnit) or debuff.thrashBear.refresh(thisUnit)) then
+        if cast.able.thrashBear("player") and #enemies.yards8 >=1 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and not debuff.thrashBear.exists(thisUnit) or debuff.thrashBear.refresh(thisUnit)) and inCombat then
             if cast.thrashBear("player") then
                 return
             end
         end
         -- Mangle Spam
-        if isChecked("Spam Mangle during Incarnation") and cast.able.mangle() and #enemies.yards5 < 7 and buff.incarnationGuardianOfUrsoc.exists() then
+        if isChecked("Spam Mangle during Incarnation") and cast.able.mangle() and #enemies.yards5 < 7 and buff.incarnationGuardianOfUrsoc.exists() and inCombat then
             if cast.mangle() then
                 return
             end    
         end
         -- Thrash Spam
-        if isChecked("Spam Thrash during Incarnation") and cast.able.thrashBear("player") and #enemies.yards8 >=1 and buff.incarnationGuardianOfUrsoc.exists() then
+        if isChecked("Spam Thrash during Incarnation") and cast.able.thrashBear("player") and #enemies.yards8 >=1 and buff.incarnationGuardianOfUrsoc.exists() and inCombat then
             if cast.thrashBear("player") then
                 return
             end
@@ -1075,7 +1075,7 @@ local function runRotation()
             end
         end
         -- Pulverize
-        if talent.pulverize then
+        if talent.pulverize  and inCombat then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if debuff.thrashBear.stack(thisUnit) >= 3 then
@@ -1088,13 +1088,13 @@ local function runRotation()
             end
         end
         -- Swipe
-        if getDistance("target") < 8 and (#enemies.yards5 >= 4 and not cast.able.thrashBear()) or (not buff.galacticGuardian.exists() and not (cast.able.thrashBear() or cast.able.mangle())) then
+        if getDistance("target") < 8 and (#enemies.yards5 >= 4 and not cast.able.thrashBear()) or (not buff.galacticGuardian.exists() and not (cast.able.thrashBear() or cast.able.mangle())) and inCombat then
             if cast.swipeBear() then
                 return
             end
         end
         -- Start Attack
-        if getDistance("target") < 5 then StartAttack() end
+        if inCombat and getDistance("target") < 5 then StartAttack() end
 
     end
 
