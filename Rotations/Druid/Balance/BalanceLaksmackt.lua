@@ -71,7 +71,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 202010150806")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 202010230709")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -794,7 +794,7 @@ local function runRotation()
             end
         end
 
-      --  Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
+        --  Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
 
         if mode.rotation < 4 then
 
@@ -1009,16 +1009,18 @@ local function runRotation()
                 end
 
                 -- pew
-                if talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
-                    if (power > 90 or hasBloodLustRemain() < 36) then
-                        if cast.incarnationChoseOfElune() then
-                            return true
+                if mode.cooldown == 2 or (isBoss("target") and mode.cooldown == 1) and isChecked("Incarnation/Celestial Alignment") then
+                    if talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
+                        if (power > 90 or hasBloodLustRemain() < 36) then
+                            if cast.incarnationChoseOfElune() then
+                                return true
+                            end
                         end
-                    end
-                elseif not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
-                    if (power > 90 or hasBloodLustRemain() < 26) then
-                        if cast.celestialAlignment() then
-                            return true
+                    elseif not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
+                        if (power > 90 or hasBloodLustRemain() < 26) then
+                            if cast.celestialAlignment() then
+                                return true
+                            end
                         end
                     end
                 end
@@ -1037,7 +1039,6 @@ local function runRotation()
                 --starsurge
                 --starsurge,if=(!azerite.streaking_stars.rank|buff.ca_inc.remains<execute_time|!variable.prev_starsurge)&(buff.ca_inc.up|astral_power>90&eclipse.in_any)
                 if cast.able.starsurge() then
-
                     if (pewbuff and br.player.traits.streakingStars.rank > 0
                             and not cast.last.starsurge(1)) and (pewbuff or power > 90 and eclipse_in) then
                         if cast.starsurge(units.dyn45) then
