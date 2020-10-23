@@ -32,6 +32,8 @@ br.lists.items = {
     fandralsSeedPouch               = 122304,
     luffaWrappings                  = 137056,
     theWildshapersClutch            = 137094,
+	-- Mage: Shares
+	manaGem                         = 36799,
     -- Monk: Shared
     drinkingHornCover               = 137097,
     hiddenMastersForbiddenTouch     = 137057,

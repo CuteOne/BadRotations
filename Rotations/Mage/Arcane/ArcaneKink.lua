@@ -559,6 +559,48 @@ end
         end
     end
 
+        local function castarcaneOrb(minUnits, safe, minttd)
+        if not isKnown(spell.arcaneOrb) or getSpellCD(spell.arcaneOrb) ~= 0then
+            return false
+        end  
+        local x, y, z = ObjectPosition("player")
+        local length = 35
+        local width = 17
+        ttd = ttd or 0
+        safe = safe or true
+        local function getRectUnit(facing)
+            local halfWidth = width/2
+            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+            return nlX, nlY, nrX, nrY, frX, frY
+        end
+        local enemiesTable = getEnemies("player", length, true)
+        local facing = ObjectFacing("player")        
+        local unitsInRect = 0
+        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
+        local thisUnit
+        for i = 1, #enemiesTable do
+            thisUnit = enemiesTable[i]
+            local uX, uY, uZ = ObjectPosition(thisUnit)
+            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
+                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+                    unitsInRect = 0
+                    break
+                end            
+                if ttd(thisUnit) >= minttd then                
+                    unitsInRect = unitsInRect + 1
+                end
+            end
+        end
+        if unitsInRect >= minUnits then
+            CastSpellByName(GetSpellInfo(arcaneOrb))
+            return true
+        else
+            return false
+        end
+    end
+
         
     function mageDamage()
         local X,Y,Z = ObjectPosition("player")
@@ -911,15 +953,14 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     then
         if use.manaGem() then return true end
     end
-          
-
+        
 
     --actions.opener+=/berserking,if=buff.arcane_power.up
 
     --actions.opener+=/time_warp,if=runeforge.temporal_warp.equipped
 
     --actions.opener+=/presence_of_mind,if=debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
-    if cast.able.presenceofMind 
+    if cast.able.presenceofMind()
     and debuff.touchoftheMagi.exists("target")
     and debuff.touchoftheMagi.remain("target") <= 2 * cast.time.arcaneBlast() 
     then
@@ -930,18 +971,62 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     
 
     --actions.opener+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_time
+    if cast.able.arcaneBlast()
+    and debuff.prresenceofMind.exists()
+    and debuff.touchoftheMagi.remain("target") < cast.time.arcaneBlast() 
+    then
+        if cast.presenceofMind() then return true end
+    end
 
     --actions.opener+=/arcane_barrage,if=buff.arcane_power.up&buff.arcane_power.remains<=gcd&buff.arcane_charge.stack=buff.arcane_charge.max_stack
 
+    if cast.able.arcaneBarrage()
+    and buff.arcanePower.exists()
+    and buff.arcanePower.remain() <= gcdMax 
+    and arcaneCharges > 3
+    then
+        if cast.arcaneBarrage() then return true end 
+    end
+    
+
     --actions.opener+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time,chain=1
+
+    if cast.able.arcaneMissiles()
+    and debuff.touchoftheMagi.exists("target")
+    and talent.arcaneEcho 
+    and not buff.deathBorne.exists()
+    and debuff.touchoftheMagi.remain("target") > cast.time.arcaneMissiles()
+    then
+        if cast.arcaneMissiles() then return true end 
+    end
 
     --actions.opener+=/arcane_missiles,if=buff.clearcasting.react,chain=1
 
+    if cast.able.arcaneMissiles()
+    and buff.clearcasting.exists()
+    then
+        if cast.arcaneMissiles() then return true end 
+    end
+
     --actions.opener+=/arcane_orb,if=buff.arcane_charge.stack<=2&(cooldown.arcane_power.remains>10|active_enemies<=2)
 
+    if cast.able.arcaneOrb()
+    and arcaneCharges <= 2 or cd.arcanePower.remain() > 10 or #enemies.yards10t <= 2
+    then
+       if castarcanOrb(1, true, 4) then return true end
+    end
+
     --actions.opener+=/arcane_blast,if=buff.rune_of_power.up|mana.pct>15
+    if cast.able.arcaneBlast()
+    and buff.runeofPower.exists()
+    or manaPercent > 15
+    then
+        if cast.arcaneBlast() then return true end
+    end
+
 
     --actions.opener+=/evocation,if=buff.rune_of_power.down,interrupt_if=mana.pct>=85,interrupt_immediate=1
+    
     --actions.opener+=/arcane_barrage
 end
     --
@@ -1018,7 +1103,7 @@ local function actionList_Rotation()
     end
 
     -- actions.rotation+=/arcane_orb,if=buff.arcane_charge.stack<=2
-    if cast.able.arcaneOrb() and arcaneCharges <= 2 then if cast.arcaneOrb() then br.addonDebug("Arcane Orb <=2 AC") return true end end
+    if cast.able.arcaneOrb() and arcaneCharges <= 2 then if castarcaneOrb(1, true, 4) then br.addonDebug("Arcane Orb <=2 AC") return true end end
 
     -- actions.rotation+=/supernova,if=mana.pct<=95&buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
     if cast.able.supernova()
