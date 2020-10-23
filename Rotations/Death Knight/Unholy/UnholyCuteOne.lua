@@ -748,19 +748,19 @@ actionList.PreCombat = function()
             if use.azsharasFontOfPower() then ui.debug("Using Azshara's Font of Power [Pre-Pull]") return true end
         end               
     end 
--- Pre-Pull
+    -- Pull
     if unit.valid("target") and not unit.inCombat() then
--- Death Grip
+        -- Death Grip
         if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not unit.isDummy("target")
             and unit.distance("target") > 8 and ((talent.deathsReach and unit.distance("target") < 40) or unit.distance("target") < 30)
         then
             if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
         end
--- Dark Command
+        -- Dark Command
         if ui.checked("Dark Command") and cast.able.darkCommand("target") and not (ui.checked("Death Grip") or cast.able.deathGrip("target")) then
             if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
         end
--- Start Attack
+        -- Start Attack
         StartAttack()
     end
 end -- End Action List - PreCombat
