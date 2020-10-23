@@ -86,7 +86,10 @@ function BadRotationsUpdate(self)
 		return false
 	-- Load and Cycle BR
 	elseif br.unlocked and GetObjectCountBR() ~= nil then
-		br:checkBrOutOfDate() -- Check BR Out of Date
+		-- Check BR Out of Date
+		br:checkBrOutOfDate()		
+		-- Get Current Addon Name
+		br:setAddonName()
 		-- Continue Load
 		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 			-- BR Main Toggle Off
@@ -132,8 +135,10 @@ function BadRotationsUpdate(self)
 					CastSpellByID(botSpell, botUnit)
 					br.castID = false
 				end
-				-- Load Spec Profiles
-				br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
+				-- Load Spec Profiles - Load Last Profile Tracker
+				if br.data.tracker == nil then br.data.tracker = {} end 
+				br:loadLastProfileTracker()
+				br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
 				local playerSpec = GetSpecializationInfo(GetSpecialization())
 				-- Initialize Player
 				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
@@ -146,7 +151,7 @@ function BadRotationsUpdate(self)
 					br.player:update()
 					collectGarbage = true
 					Print("Loaded Profile: " .. br.player.rotation.name)
-					br.settingsFile = br.settingsDir .. br.selectedSpec .. br.selectedProfileName .. ".lua"
+					br.settingsFile = br.selectedProfileName .. ".lua"
 					br.rotationChanged = false
 				end
 				-- Queue Casting
@@ -164,11 +169,11 @@ function BadRotationsUpdate(self)
 					end
 				end 
 				--Smart Queue
-				if br.unlocked and --[[EasyWoWToolbox ~= nil and ]]isChecked("Smart Queue") then
+				if br.unlocked and isChecked("Smart Queue") then
 					br.smartQueue()
 				end
 				-- Update Player
-				if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
+				if br.player ~= nil and not CanExitVehicle() then
 					br.player:update()
 				end
 				-- Healing Engine
@@ -198,7 +203,7 @@ function BadRotationsUpdate(self)
 					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
 					br.activeSpecGroup = GetActiveSpecGroup()
 					br.data.loadedSettings = false
-					br:defaultSettings()
+					-- br:defaultSettings()
 					-- br:loadSavedSettings()
 					br.rotationChanged = true
 					wipe(br.commandHelp)

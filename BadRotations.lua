@@ -23,7 +23,44 @@ br.selectedProfile = 1
 br.selectedProfileName = "None"
 br.settingsDir = "\\"
 br.settingsFile = "None.lua"
-br.unlocked = false
+
+local nameSet = false
+function br:setAddonName()
+	if not nameSet then
+		for i = 1, GetNumAddOns() do
+			local name, title = GetAddOnInfo(i)
+			if title == "|cffa330c9BadRotations" then
+				br.addonName = name
+				if br.addonName ~= "BadRotations" then
+					Print("Currently known as "..tostring(br.addonName))
+				end
+				nameSet = true
+				break
+			end
+		end
+	end
+end
+
+function br:findFileInFolder(file,folder)
+	br.fileList = {}
+	br.fileList = GetDirectoryFiles(folder .. '*.lua')
+	for i = 1, #br.fileList do
+		if br.fileList[i] == file then
+			return true
+		end
+	end
+	return false
+end
+
+function br:loadLastProfileTracker()
+	local loadDir
+	loadDir = br:checkDirectories("Tracker")
+	if br.data.tracker == nil then br.data.tracker = {} end
+	if br:findFileInFolder("lastProfileTracker.lua",loadDir) then
+		br.data.tracker = br.tableLoad(loadDir .. "lastProfileTracker.lua")
+	end
+	if br.data.tracker ~= nil and br.data.tracker.lastProfile == nil then br.data.tracker.lastProfile = 1 end
+end
 
 -- Cache all non-nil return values from GetSpellInfo in a table to improve performance
 local spellcache = setmetatable({}, {__index=function(t,v) local a = {GetSpellInfo(v)} if GetSpellInfo(v) then t[v] = a end return a end})
@@ -37,8 +74,7 @@ function br.debug:Print(message)
 	end
 end
 -- Run
-local nameSet = false
-function br:Run()
+function br:Run()		
 	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
 	-- rc = LibStub("LibRangeCheck-2.0")
 	-- minRange, maxRange = rc:GetRange('target')
@@ -71,7 +107,8 @@ function br:Run()
 	}
 	-- load common used stuff on first load
 	br:defaultSettings()
-	br:loadSettings()
+
+	-- br:loadSettings()
 	-- Build up pulse frame (hearth)
 	if not br.loadedIn then
 		-- Start Logs
@@ -82,21 +119,7 @@ function br:Run()
 		-- Start Engines
 		br:Engine()
 		br:ObjectManager()
-
-		-- Get Current Addon Name
-		if not nameSet then
-			for i = 1, GetNumAddOns() do
-				local name, title = GetAddOnInfo(i)
-				if title == "|cffa330c9BadRotations" then
-					br.addonName = name
-					if br.addonName ~= "BadRotations" then
-						Print("Currently known as "..tostring(br.addonName))
-					end
-					nameSet = true
-					break
-				end
-			end
-		end
+		-- Complete Loadin
 		ChatOverlay("-= BadRotations Loaded =-")
 		Print("Loaded")
 		br.loadedIn = true
@@ -104,7 +127,8 @@ function br:Run()
 end
 -- Default Settings
 function br:defaultSettings()
-	if br.data == nil then br.data = {} end
+	if br.data == nil then br.data = {} end	
+	if br.data.tracker == nil then br.data.tracker = {} end
 	if br.data.settings == nil then
 		br.data.settings = {
 			mainButton = {
@@ -124,69 +148,67 @@ function br:defaultSettings()
 	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
 	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
 	if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-		br.selectedProfile = 1
+		if br.data.tracker.lastProfile ~= nil then br.selectedProfile = br.data.tracker.lastProfile else br.selectedProfile = 1 end
 	else
 		br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
 	end
 	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+	-- Initialize Minimap Button
+	br:MinimapButton()
 end
 -- Check Directories
-function br:checkDirectories()
+function br:checkDirectories(folder)
+	if folder == nil then folder = "" end
 	-- Set the Settings Directory
-	br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
+	if folder == "Exported Settings" then
+		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\Exported Settings\\'
+	else
+		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
+	end
 	-- Make Settings Directory
 	if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
+
+	-- Set the Class Directory
+	local classDir = br.settingsDir .. select(2,UnitClass("player")) .. "\\"
+	-- Make Class Directory
+	if not DirectoryExists(classDir) then CreateDirectory(classDir) end
+
 	-- Set the Spec Directory
-	local specDir = br.settingsDir .. br.selectedSpec .. "\\"
+	local specDir = classDir .. br.selectedSpec .. "\\"
 	-- Make Spec Directory
 	if not DirectoryExists(specDir) then CreateDirectory(specDir) end
+	if folder == "Tracker" then return specDir end
+
 	-- Set the Save/Load Directory
-	local saveLoadDir = specDir .. br.selectedProfile .. "\\"
+	local saveLoadDir = specDir .. br.selectedProfileName .. "\\"
 	-- Make Save/Load Directory
 	if not DirectoryExists(saveLoadDir) then CreateDirectory(saveLoadDir) end
-
 	return saveLoadDir
 end
--- Load Settings
-function br:loadSettings()
-	-- Base Settings
-	if br.data == nil then br.data = {} br.data.loadedSettings = false end
-	if not br.data.loadedSettings then
-		-- Load Default Settings
-		br:defaultSettings()
-		-- Initialize UI
-		br:MinimapButton()
-	end
-end
 -- Load Saved Settings
-function br:loadSavedSettings()
+function br:loadSavedSettings(export)
 	if br.unlocked and not br.data.loadedSettings then
-		local loadDir = br:checkDirectories()
+		local loadDir = br:checkDirectories(export)
 		local brdata
 		local brprofile
-		br.fileList = {}
-		Print("Loading Saved Settings")
-		br.fileList = GetDirectoryFiles(loadDir .. '*.lua')
-		for i = 1, #br.fileList do
-			-- Print("File: "..br.fileList[i])
-			-- loading br.data
-			if br.fileList[i] == "savedData.lua" then
-				brdata = br.tableLoad(loadDir .. "savedData.lua")
-				br.data = deepcopy(brdata)
-				brdata = nil
-				-- Print("Saved Settings Loaded")
-			end
-			if br.fileList[i] == "savedProfile.lua" then
-				-- loading br.profile
-				brprofile = br.tableLoad(loadDir .. "savedProfile.lua")
-				br.profile = deepcopy(brprofile)
-				brprofile = nil
-				-- Print("Saved Profiles Loaded")
-			end
+		local fileFound = false
+		-- Load Settings
+		if br:findFileInFolder(br.settingsFile,loadDir) then
+			Print("Loading Settings File: " .. br.settingsFile)
+			-- Print("From Directory: "..loadDir)
+			brdata = br.tableLoad(loadDir .. br.settingsFile)
+			br.data = deepcopy(brdata)
+			brdata = nil
+			fileFound = true
 		end
-		-- Load Default Settings
-		br:defaultSettings()
-		-- br:loadSettings()
+		-- Load Profile
+		if br:findFileInFolder("savedProfile.lua",loadDir) then
+			-- Print("Loading Saved Profiles")
+			-- Print("From Directory: "..loadDir)
+			brprofile = br.tableLoad(loadDir .. br.settingsFile)
+			br.profile = deepcopy(brprofile)
+			brprofile = nil
+		end
 		TogglesFrame()
 		br.ui.window.config = {}
 		br.ui:createConfigWindow()
@@ -195,12 +217,20 @@ function br:loadSavedSettings()
 	end
 end
 -- Save Settings
-function br:saveSettings()
-	local saveDir = br:checkDirectories()
-	local brdata = deepcopy(br.data)
-	local brprofile = deepcopy(br.profile)
-	br.tableSave(brdata,saveDir .. "savedData.lua")
-	br.tableSave(brprofile,saveDir .. "\\" .. "savedProfile.lua")
+function br:saveSettings(wipe,export)
+	local saveDir
+	local brdata = wipe and {} or deepcopy(br.data)
+	local brprofile = wipe and {} or deepcopy(br.profile)
+	Print("Saving Profiles and Settings To: "..br.settingsFile)
+	saveDir = br:checkDirectories("Tracker")
+	br.tableSave(br.data.tracker, saveDir .. "lastProfileTracker.lua")
+	saveDir = br:checkDirectories(export)
+	-- Reset Files
+	br.tableSave({},saveDir .. br.settingsFile)
+	br.tableSave({},saveDir .. "savedProfile.lua")
+	-- Save Files
+	br.tableSave(brdata,saveDir .. br.settingsFile)
+	br.tableSave(brprofile,saveDir .. "savedProfile.lua")
 end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
@@ -222,19 +252,12 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 				RunMacroText("/console SpellQueueWindow "..br.prevQueueWindow)
 			end 
 			br.ui:saveWindowPosition()
-			-- Make Settings Directory if not exist
-			CreateDirectory(br.settingsDir)
 			if getOptionCheck("Reset Options") then
 				-- Reset Settings
-				local brdata = {}
-				br.tableSave(brdata,br.settingsDir .. "savedData.lua")
+				br:saveSettings(true)
 			else
 				-- Save Settings
 				br:saveSettings()
-				-- dungeondata = deepcopy(br.dungeon)
-				-- mdungeondata = deepcopy(br.mdungeon)
-				-- raiddata = deepcopy(br.raid)
-				-- mraiddata = deepcopy(br.mraid)
 			end
 		end
 	end

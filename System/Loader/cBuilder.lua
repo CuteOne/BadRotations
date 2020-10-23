@@ -63,7 +63,6 @@ function br.loader:new(spec,specName)
     local player = "player" -- if someone forgets ""
 
     if not br.loaded then
-        br:loadSavedSettings()
         br.loader.loadProfiles()
         br.loaded = true
     end
@@ -553,13 +552,6 @@ function br.loader:new(spec,specName)
 
         -- br:checkProfileWindowStatus()
         br.ui:checkWindowStatus("profile")
-
-        -- if self.option == nil then self.option = {} end
-        -- br.api.ui(nil,self.option)
-        -- for k,v in pairs(br.data.ui) do
-        --     if self.option[k] == nil then self.option[k] = {} end
-        --     local option = self.option[k]
-        -- end
     end
 
     ------------------------

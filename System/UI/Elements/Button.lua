@@ -192,78 +192,9 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
                     end
                 end
             end
-        -- if getOptionValue("Load Prior Saved Settings") == 1 then
-        --     if br.dungeon ~= nil then
-        --         if br.dungeon.settings ~= nil then
-        --             if br.dungeon.settings[br.selectedSpec] ~= nil then
-        --                 br.data.settings[br.selectedSpec] = {}
-        --                 br.data.settings[br.selectedSpec] = deepcopy(br.dungeon.settings[br.selectedSpec])
-        --                 print("Dungeon Data Loaded")
-        --                 br.rotationChanged = true  
-        --             else
-        --                 print("Dungeon Settings do not exist.")
-        --             end
-        --         else
-        --             print("Dungeon Settings do not exist.")
-        --         end
-        --     else
-        --         print("Dungeon Settings do not exist.")
-        --     end
-        -- elseif getOptionValue("Load Prior Saved Settings") == 2 then
-        --     if br.mdungeon ~= nil then
-        --         if br.mdungeon.settings ~= nil then
-        --             if br.mdungeon.settings[br.selectedSpec] ~= nil then
-        --                 br.data.settings[br.selectedSpec] = {}
-        --                 br.data.settings[br.selectedSpec] = deepcopy(br.mdungeon.settings[br.selectedSpec])
-        --                 print("Mythic Dungeon Data Loaded")
-        --                 br.rotationChanged = true
-        --             else
-        --                 print("Mythic Dungeon settings do not exist.")
-        --             end
-        --         else
-        --             print("Mythic Dungeon settings do not exist.")
-        --         end
-        --     else
-        --         print("Mythic Dungeon settings do not exist.")
-        --     end
-        -- elseif getOptionValue("Load Prior Saved Settings") == 3 then
-        --     if br.raid ~= nil then
-        --         if br.raid.settings ~= nil then
-        --             if br.raid.settings[br.selectedSpec] ~= nil then
-        --                 br.data.settings[br.selectedSpec] = {}
-        --                 br.data.settings[br.selectedSpec] = deepcopy(br.raid.settings[br.selectedSpec])
-        --                 print("Raid Data Loaded")
-        --                 br.rotationChanged = true
-        --             else
-        --                 print("Raid settings do not exist.")
-        --             end
-        --         else
-        --             print("Raid settings do not exist.")
-        --         end
-        --     else
-        --         print("Raid settings do not exist.")
-        --     end
-        -- elseif getOptionValue("Load Prior Saved Settings") == 4 then
-        --     if br.mraid ~= nil then
-        --         if br.mraid.settings ~= nil then
-        --             if br.mraid.settings[br.selectedSpec] ~= nil then
-        --                 br.data.settings[br.selectedSpec] = {}
-        --                 br.data.settings[br.selectedSpec] = deepcopy(br.mraid.settings[br.selectedSpec])
-        --                 print("Mythic Raid Data Loaded")
-        --                 br.rotationChanged = true
-        --             else
-        --                 print("Mythic Raid settings do not exist.")
-        --             end
-        --         else
-        --             print("Mythic Raid settings do not exist.")
-        --         end
-        --     else
-        --         print("Mythic Raid settings do not exist.")
-        --     end
         else
             print("Load Error")
         end
-     --   parent:Release()
     end)
 
     parent:AddChild(loadButton)
@@ -282,17 +213,18 @@ function br.ui:createExportButton(parent, buttonName, x, y)
     exportButton:SetWidth(100)
     exportButton:SetHeight(20)
     exportButton:SetEventListener("OnClick", function()
-        -- Save br.data for current profile to Settings folder
-        br.data.settings[br.selectedSpec]["toggleBar"] = {}
-        br.data.settings[br.selectedSpec]["toggleBar"] = br.data.settings.mainButton
-        br.data.settings[br.selectedSpec].toggleBar.size = br.data.settings.buttonSize
-        local savedSettings = deepcopy(br.data.settings[br.selectedSpec][br.selectedProfile])
-        if savedSettings ~= nil then
-            br.tableSave(br.data.settings[br.selectedSpec],br.settingsFile)
-            Print("Saved Settings for Profile "..br.selectedProfile..": "..br.selectedSpec..br.selectedProfileName..", to Settings Folder")
-        else
-            Print("Error Saving Settings File")
-        end
+        br:saveSettings(nil,"Exported Settings")
+        
+        -- -- Save br.data for current profile to Settings folder
+        -- local exportDir = br:checkDirectories("Exported Settings")
+        -- local savedSettings = deepcopy(br.data)
+        -- local settingsFile = br.selectedSpec..br.selectedProfileName
+        -- if savedSettings ~= nil then
+        --     br.tableSave(savedSettings,exportDir .. settingsFile .. ".lua")
+        --     Print("Exported Settings for Profile "..settingsFile.." to Exported Settings Folder")
+        -- else
+        --     Print("Error Saving Settings File")
+        -- end
     end)
 
     parent:AddChild(exportButton)
@@ -312,29 +244,33 @@ function br.ui:createImportButton(parent, buttonName, x, y)
     importButton:SetHeight(20)
     importButton:SetEventListener("OnClick", function()
         -- Load settings file matching profile to br.data
-        if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
-        local loadSettings = br.tableLoad(br.settingsFile)
+        local loadDir = br:checkDirectories("Exported Settings")
+		local brdata
+		local brprofile
         local fileFound = false
-        local settingsFile = br.selectedSpec..br.selectedProfileName..".lua"
-        br.fileList = GetDirectoryFiles(br.settingsDir..'*.lua')
-        for i = 1, #br.fileList do
-            if br.fileList[i] == settingsFile then
-                fileFound = true
-                break
-            end
+        local profileFound = false
+		-- Load Settings
+		if br:findFileInFolder(br.settingsFile,loadDir) then
+			Print("Loading Settings File: " .. br.settingsFile)
+			brdata = br.tableLoad(loadDir .. br.settingsFile)
+			fileFound = true
+		end
+		-- Load Profile
+		if br:findFileInFolder("savedProfile.lua",loadDir) then
+            brprofile = br.tableLoad(loadDir .. br.settingsFile)
+            profileFound = true
         end
-        if fileFound and assert(loadSettings ~= nil) then
+        if fileFound then
             br.ui:closeWindow("all")
             mainButton:Hide()
-            br.data.settings[br.selectedSpec] = loadSettings
-            br.data.settings.mainButton = br.data.settings[br.selectedSpec].toggleBar
-            br.data.settings.buttonSize = br.data.settings[br.selectedSpec].toggleBar.size
+            br.data = deepcopy(brdata)
+            if profileFound then br.profile = deepcopy(brprofile) end
             br.ui:recreateWindows()
-            Print("Loaded Settings for Profile "..br.selectedProfile..": "..br.selectedProfileName..br.selectedSpec..", from Settings Folder")
+            Print("Loaded Settings for Profile "..br.selectedProfileName..", from Exported Settings Folder")
             ReloadUI()
         else
             Print("Error Loading Settings File")
-            if not fileFound then Print("No File Called "..settingsFile.." Found In "..br.settingsDir) end
+            if not fileFound then Print("No File Called "..br.settingsFile.." Found In "..loadDir) end
         end
     end)
 
