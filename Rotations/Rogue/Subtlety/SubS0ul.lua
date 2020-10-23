@@ -1,4 +1,4 @@
-local rotationName = "|cffFF6EB4 SubS0ul - 9.x"
+local rotationName = "SubS0ul - 9.0"
 local opener = true
 local resetButton
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
