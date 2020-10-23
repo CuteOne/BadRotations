@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.4.3"
+local rotationVer  = "v1.4.4"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -14,6 +14,8 @@ Damply#3489
 .G.#1338 
 
 Netpunk | Ben#7486 
+
+
 --]]
 
 ----------------------------------------------------
@@ -220,7 +222,7 @@ local function createOptions ()
             br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more", true)
 
             -- Healthstone
-            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Pot/Stoned",  45,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Demonic Gateway
             br.ui:createDropdown(section, "Demonic Gateway", br.dropOptions.Toggle, 6, true)
@@ -1120,7 +1122,7 @@ local function runRotation()
             and ((ui.checked("Darkglare Dots") and totalDots() >= ui.value("Darkglare Dots")) or (not ui.checked("Darkglare Dots"))) 
             then    
                 -- If we have auto selected, check if we're in an instance or raid. Or we have Max-Dots selected. 
-                if (ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and inInstance or imRaid) 
+                if (ui.checked("Darkglare") and getOptionValue("Darkglare") == 1 and inInstance or inRaid) 
                 or (ui.checked("Darkglare") and getOptionValue("Darkglare") == 2)
                 and (debuff.unstableAffliction.exists("target")
                 and (debuff.agony.remain("target") >= 15 
@@ -1329,7 +1331,7 @@ local function runRotation()
             end
 
             -- Malefic Rapture
-            if not moving 
+            if not moving and getDistance("target") <= 40
             and (debuff.agony.remain("target") > gcdMax 
             and getTTD("target") >= gcdMax + cast.time.maleficRapture()
             and ((debuff.unstableAffliction.remains("target") > gcdMax + 8 and debuff.siphonLife.remain("target") > gcdMax + 2 or not talent.siphonLife)) 
@@ -1431,7 +1433,7 @@ local function runRotation()
             --if not smartCancel() and br.dsTicks <= ui.value("Drain Soul Smart Cancel") or br.dsTicks >= 5 then if cast.drainSoul() then br.addonDebug("Clipped Drain Soul 2") return true end end
 
             -- Drain Soul
-            if shards < 5 and getTTD("target") <= gcdMax and cd.vileTaint.remain() > gcdMax + 13 or shards < 1 then  
+            if shards < 5 and getTTD("target") <= gcdMax and cd.vileTaint.remain() > gcdMax + 13 then  
             if not moving and talent.drainSoul and cast.timeSinceLast.drainSoul() > gcdMax + 4
             and (debuff.unstableAffliction.remain("target") > gcdMax + 12 and debuff.agony.remain("target") > gcdMax + 10
             and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
