@@ -2640,6 +2640,8 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                eviscerate                  = 196819,
+                sinisterStrike              = 1752,
                 sliceAndDice                = 5171,
                 cripplingPoison             = 3408,
                 numbingPoison               = 5761,
