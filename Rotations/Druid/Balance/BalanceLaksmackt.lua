@@ -794,7 +794,7 @@ local function runRotation()
             end
         end
 
-        Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
+      --  Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
 
         if mode.rotation < 4 then
 
