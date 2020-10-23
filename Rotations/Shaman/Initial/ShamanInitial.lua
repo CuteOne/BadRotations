@@ -98,6 +98,16 @@ local movingTimer
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+
+-- Time Moving
+local function timeMoving()
+    if movingTimer == nil then movingTimer = GetTime() end
+    if not unit.moving() then
+        movingTimer = GetTime()
+    end
+    return GetTime() - movingTimer
+end
+
 local function ghostWolf()
     -- Ghost Wolf
     if not (IsMounted() or IsFlying()) and isChecked("Auto Ghost Wolf") then
