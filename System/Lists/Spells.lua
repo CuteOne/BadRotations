@@ -131,7 +131,7 @@ function br.getRacial()
         Draenei  = DraeneiRacial,   -- Gift of the Naaru
         Human    = 59752,           -- Every Man for Himself
         NightElf = 58984,           -- Shadowmeld
-        Worgen   = 68992,               -- Darkflight
+        Worgen   = 68992,           -- Darkflight
         -- Horde
         BloodElf = BloodElfRacial,  -- Arcane Torrent
         Goblin   = 69041,           -- Rocket Barrage
@@ -1272,6 +1272,7 @@ br.lists.spells = {
                 displacement                = 212801,
                 erosion                     = 205039,
                 evocation                   = 12051,
+                fireBlast                   = 519836,
                 greaterInvisibility         = 110959,
                 markOfAluneth               = 224968,
                 netherTempest               = 114923,

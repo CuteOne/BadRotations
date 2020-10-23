@@ -1,4 +1,4 @@
-local rotationName = "Kink v0.1.0"
+local rotationName = "Kink v0.1.1"
 
 ---------------
 --- Toggles ---
@@ -50,6 +50,9 @@ local function createOptions()
         -- Charged Up
             br.ui:createCheckbox(section,"Charged Up")
 
+        -- Racial
+            br.ui:createCheckbox(section,"Racial")
+
         -- Charged Up
             br.ui:createCheckbox(section,"Rune of Power")
 
@@ -92,7 +95,6 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local friendly                                      = GetUnitIsFriend("target", "player")
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local moving                                        = isMoving("player") ~= false or br.player.moving
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
@@ -108,7 +110,6 @@ local function runRotation()
         local hasPet                                        = IsPetActive()     
         local playerCasting                                 = UnitCastingInfo("player")
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local hasMouse                                      = GetObjectExists("mouseover")
         local php                                           = br.player.health
@@ -138,22 +139,15 @@ local function runRotation()
         local pet                                           = br.player.pet.list
         local hasPet                                        = IsPetActive()
         local equiped                                       = br.player.equiped
-        local covenant                                      = C_Covenants.GetActiveCovenantID()
         
         units.get(40)
         enemies.get(15, "target")
         enemies.get(8, "target")
         enemies.get(10)
         enemies.get(40)
-        -- Units-
-        units.get(5) -- Makes a variable called, units.dyn5
-        units.get(40) -- Makes a variable called, units.dyn40
-        units.get(15) -- Makes a variable called, units.dyn15
-        -- Enemies
-        enemies.get(5) -- Makes a varaible called, enemies.yards5
-        enemies.get(10, "target") -- Makes a variable called, enemies.yards10t
-        enemies.get(15, "target") -- Makes a variable called, enemies.yards15t
-        enemies.get(40) -- Makes a varaible called, enemies.yards40
+
+        if leftCombat == nil then leftCombat = GetTime() end
+        if profileStop == nil then profileStop = false end
 
         local ccMaxStack = 3
        --variable,name=aoe_totm_charges,op=set,value=2
@@ -182,6 +176,7 @@ local function runRotation()
         if #enemies.yards10t > 2 or var_prepull_evo then
             ArcaneOpener:StopOpener()
         end
+
   --varia
   --variable,name=prepull_evo,op=set,value=0
   --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&active_enemies>2
@@ -206,13 +201,13 @@ local function runRotation()
   --variable,name=totm_max_delay,op=set,value=15,if=conduit.arcane_prodigy.enabled&active_enemies<3
   --variable,name=totm_max_delay,op=set,value=30,if=essence.vision_of_perfection.minor
   -- NYI legendaries, conduit, essence
-  if covenant~= "Night Fae" then
+  --if covenant~= "Night Fae" then
     --variable,name=totm_max_delay,op=set,value=15,if=covenant.night_fae.enabled
-    var_totm_max_delay = 15
-  else
+ --   var_totm_max_delay = 15
+ -- else
     --variable,name=totm_max_delay,op=set,value=5
     var_totm_max_delay = 5
-  end
+ -- end
   --variable,name=barrage_mana_pct,op=set,value=90
   --variable,name=barrage_mana_pct,op=set,value=80,if=covenant.night_fae.enabled
 
@@ -224,6 +219,9 @@ local function runRotation()
   var_ap_minimum_mana_pct = 30
   --variable,name=aoe_totm_charges,op=set,value=2
   var_aoe_totm_charges = 2
+
+  var_init = true
+
 
 function ArcaneOpener:StartOpener()
   if inCombat then
@@ -560,7 +558,7 @@ end
     end
 
         local function castarcaneOrb(minUnits, safe, minttd)
-        if not isKnown(spell.arcaneOrb) or getSpellCD(spell.arcaneOrb) ~= 0then
+        if not isKnown(spell.arcaneOrb) or getSpellCD(spell.arcaneOrb) ~= 0 then
             return false
         end  
         local x, y, z = ObjectPosition("player")
@@ -617,51 +615,8 @@ end
 --------------------
 --- Action Lists ---
 --------------------
-    --[[
-actions.aoe=use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
-actions.aoe+=/lights_judgment,if=buff.arcane_power.down
-actions.aoe+=/bag_of_tricks,if=buff.arcane_power.down
-actions.aoe+=/call_action_list,name=items,if=buff.arcane_power.up
-actions.aoe+=/potion,if=buff.arcane_power.up
-actions.aoe+=/berserking,if=buff.arcane_power.up
-actions.aoe+=/blood_fury,if=buff.arcane_power.up
-actions.aoe+=/fireblood,if=buff.arcane_power.up
-actions.aoe+=/ancestral_call,if=buff.arcane_power.up
-actions.aoe+=/time_warp,if=runeforge.temporal_warp.equipped
-actions.aoe+=/frostbolt,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_frost.down&(buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down)&cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd))
-actions.aoe+=/fire_blast,if=(runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down&prev_gcd.1.frostbolt)|(runeforge.disciplinary_command.equipped&time=0)
-actions.aoe+=/frost_nova,if=runeforge.grisly_icicle.equipped&cooldown.arcane_power.remains>30&cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd))
-actions.aoe+=/frost_nova,if=runeforge.grisly_icicle.equipped&cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down)
-actions.aoe+=/touch_of_the_magi,if=runeforge.siphon_storm.equipped&prev_gcd.1.evocation
-actions.aoe+=/arcane_power,if=runeforge.siphon_storm.equipped&(prev_gcd.1.evocation|prev_gcd.1.touch_of_the_magi)
-actions.aoe+=/evocation,if=time>30&runeforge.siphon_storm.equipped&buff.arcane_charge.stack<=variable.aoe_totm_charges&cooldown.touch_of_the_magi.remains=0&cooldown.arcane_power.remains<=gcd
-actions.aoe+=/evocation,if=time>30&runeforge.siphon_storm.equipped&cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down),interrupt_if=buff.siphon_storm.stack=buff.siphon_storm.max_stack,interrupt_immediate=1
-actions.aoe+=/mirrors_of_torment,if=(cooldown.arcane_power.remains>45|cooldown.arcane_power.remains<=3)&cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>5)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>5)|cooldown.arcane_power.remains<=gcd))
-actions.aoe+=/radiant_spark,if=cooldown.touch_of_the_magi.remains>variable.rs_max_delay&cooldown.arcane_power.remains>variable.rs_max_delay&(talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd|talent.rune_of_power.enabled&cooldown.rune_of_power.remains>variable.rs_max_delay|!talent.rune_of_power.enabled)&buff.arcane_charge.stack<=variable.aoe_totm_charges&debuff.touch_of_the_magi.down
-actions.aoe+=/radiant_spark,if=cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd))
-actions.aoe+=/radiant_spark,if=cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down)
-actions.aoe+=/deathborne,if=cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down)
-actions.aoe+=/touch_of_the_magi,if=buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd)
-actions.aoe+=/arcane_power,if=((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down
-actions.aoe+=/rune_of_power,if=buff.rune_of_power.down&((cooldown.touch_of_the_magi.remains>20&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
-actions.aoe+=/presence_of_mind,if=buff.deathborne.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
-actions.aoe+=/arcane_blast,if=buff.deathborne.up&((talent.resonance.enabled&active_enemies<4)|active_enemies<5)
-actions.aoe+=/supernova
-actions.aoe+=/arcane_orb,if=buff.arcane_charge.stack=0
-actions.aoe+=/nether_tempest,if=(refreshable|!ticking)&buff.arcane_charge.stack=buff.arcane_charge.max_stack
-actions.aoe+=/shifting_power,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&cooldown.arcane_power.remains>0&cooldown.touch_of_the_magi.remains>0&(!talent.rune_of_power.enabled|(talent.rune_of_power.enabled&cooldown.rune_of_power.remains>0))
-actions.aoe+=/arcane_missiles,if=buff.clearcasting.react&runeforge.arcane_infinity.equipped&talent.amplification.enabled&active_enemies<6
-actions.aoe+=/arcane_missiles,if=buff.clearcasting.react&runeforge.arcane_infinity.equipped&active_enemies<4
-actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack<buff.arcane_charge.max_stack
-actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&prev_gcd.1.arcane_barrage
-actions.aoe+=/arcane_barrage,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack
-actions.aoe+=/evocation,interrupt_if=mana.pct>=85,interrupt_immediate=1
-    --]]
-local function actionList_AoE()
 
-
-end
-local function actionList_Extras()
+--[[local function actionList_Extras()
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
             StopAttack()
             ClearTarget()
@@ -803,7 +758,7 @@ local function actionList_Defensive()
                 end
             end
         end
-    end
+end
 
 local function actionList_Cooldowns()
     if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") then
@@ -827,71 +782,248 @@ local function actionList_Cooldowns()
             end
         end
     end
-end
+end--]]
 
-local function actionList_Movement()
---actions.movement=blink_any,if=movement.distance>=10
---ctions.movement+=/presence_of_mind
---actions.movement+=/arcane_missiles,if=movement.distance<10
---actions.movement+=/arcane_orb
---actions.movement+=/fire_blast
-end
+--[[local function actionList_Movement()
+    --actions.movement=blink_any,if=movement.distance>=10
+    if cast.able.Blink()
+    and getDistance("target") > 40
+    then
+       if cast.blink() then br.addonDebug("Blinking (Movement, target > 40yds)") return true end 
+    end
+
+    --ctions.movement+=/presence_of_mind
+    if cast.able.presenceofMind() then if cast.presenceofMind() then br.addonDebug("Presence of Mind (Movement)") return true end end
+
+    --actions.movement+=/arcane_missiles,if=movement.distance<10
+    if cast.able.arcaneMissiles() 
+    and getDistance("target") < 40
+    then 
+        if cast.arcaneMissiles() then br.addonDebug("Arcane Missiles (Movement)") return true end 
+    end
+
+    --actions.movement+=/arcane_orb
+    if cast.able.arcaneOrb() then if castarcanOrb(1, true, 4) then return true end end
+
+    --actions.movement+=/fire_blast
+    if cast.able.fireBlast() then if cast.fireBlast() then return true end end
+end--]]
 
 
 local function actionList_Final_Burn()
     --arcane_missiles,if=buff.clearcasting.react,chain=1
     if cast.able.arcaneMissiles() 
+    and getDistance("target") <= 40
     and buff.clearcasting.exists() then 
         if cast.arcaneMissiles() then br.addonDebug("Cast Arcane Missiles (Final Burn, Clearcasting)") return true end 
     end
 
     --arcane_blast
-    if cast.able.arcaneBlast() then
+    if cast.able.arcaneBlast() 
+    and getDistance("target") <= 40
+    then
         if cast.arcaneBlast() then br.addonDebug("Cast Arcane Blast (Final Burn)") return true end 
     end
 
     --arcane_barrage
-    if cast.able.arcaneBarrage() then
+    if cast.able.arcaneBarrage() 
+    and getDistance("target") <= 40
+    then
         if cast.arcaneBarrage() then br.addonDebug("Cast Arcane Barrage (Final Burn)") return true end 
     end
 
 end
---[[
-actions.opener=variable,name=have_opened,op=set,value=1,if=prev_gcd.1.evocation
-actions.opener+=/lights_judgment,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-actions.opener+=/bag_of_tricks,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-actions.opener+=/call_action_list,name=items,if=buff.arcane_power.up
-actions.opener+=/potion,if=buff.arcane_power.up
-actions.opener+=/berserking,if=buff.arcane_power.up
 
-actions.opener+=/blood_fury,if=buff.arcane_power.up
-actions.opener+=/fireblood,if=buff.arcane_power.up
-actions.opener+=/ancestral_call,if=buff.arcane_power.up
-actions.opener+=/fire_blast,if=runeforge.disciplinary_command.equipped&buff.disciplinary_command_frost.up
-actions.opener+=/frost_nova,if=runeforge.grisly_icicle.equipped&mana.pct>95
-actions.opener+=/mirrors_of_torment
-actions.opener+=/deathborne
-actions.opener+=/radiant_spark,if=mana.pct>40
-actions.opener+=/cancel_action,if=action.shifting_power.channeling&gcd.remains=0
-actions.opener+=/shifting_power,if=soulbind.field_of_blossoms.enabled
-actions.opener+=/touch_of_the_magi
-actions.opener+=/arcane_power
-actions.opener+=/rune_of_power,if=buff.rune_of_power.down
-actions.opener+=/use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
-actions.opener+=/berserking,if=buff.arcane_power.up
-actions.opener+=/time_warp,if=runeforge.temporal_warp.equipped
-actions.opener+=/presence_of_mind,if=debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
-actions.opener+=/arcane_blast,if=dot.radiant_spark.remains>5|debuff.radiant_spark_vulnerability.stack>0
-actions.opener+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_time
-actions.opener+=/arcane_barrage,if=buff.arcane_power.up&buff.arcane_power.remains<=gcd&buff.arcane_charge.stack=buff.arcane_charge.max_stack
-actions.opener+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time,chain=1
-actions.opener+=/arcane_missiles,if=buff.clearcasting.react,chain=1
-actions.opener+=/arcane_orb,if=buff.arcane_charge.stack<=2&(cooldown.arcane_power.remains>10|active_enemies<=2)
-actions.opener+=/arcane_blast,if=buff.rune_of_power.up|mana.pct>15
-actions.opener+=/evocation,if=buff.rune_of_power.down,interrupt_if=mana.pct>=85,interrupt_immediate=1
-actions.opener+=/arcane_barrage
-]]--
-local function Opener ()
+local function actionList_AoE()
+    --actions.aoe=use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
+    if talent.enlightened
+    and manaPercent <= 80 and manaPercent >= 65
+    or not talent.enlightened 
+    and manaPercent <= 85
+    then
+        if has.manaGem() and use.able.manaGem() then if use.manaGem() then br.addonDebug("[Action:AoE] Mana Gem (1)") return true end end 
+    end
+
+    --actions.aoe+=/lights_judgment,if=buff.arcane_power.down
+    if ui.checked("Racial") and br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera" 
+    and not buff.arcanePower.exists()  
+    and cast.able.Racial()
+    then 
+      if cast.Racial() then br.addonDebug("[Action:AoE] Racial (Arcane Power:Down) (2)")return true end
+    end
+    
+    if ui.checked("Racial") 
+    and buff.arcanePower.exists() 
+    and cast.able.Racial()
+    and (race == "Troll" or race == "Orc" or race == "DarkIronDwarf" or race == "MagharOrc")
+    then
+        if cast.racial() then br.addonDebug("[Action:AoE] Racial (Arcane Power:up) (3)") return true end
+    end
+
+    --actions.aoe+=/bag_of_tricks,if=buff.arcane_power.down
+
+    --actions.aoe+=/call_action_list,name=items,if=buff.arcane_power.up
+
+    --actions.aoe+=/potion,if=buff.arcane_power.up
+    if isChecked("Potion") 
+    and use.able.battlePotionOfIntellect() 
+    and not buff.battlePotionOfIntellect.exists() 
+    and buff.arcanePower.exists() 
+    then
+        if use.battlePotionOfIntellect() then br.addonDebug("[Action:AoE] Battle Potion of Intellect (4)") return true end
+    end
+
+    --actions.aoe+=/berserking,if=buff.arcane_power.up
+    --actions.aoe+=/blood_fury,if=buff.arcane_power.up
+    --actions.aoe+=/fireblood,if=buff.arcane_power.up
+    --actions.aoe+=/ancestral_call,if=buff.arcane_power.up
+    --actions.aoe+=/time_warp,if=runeforge.temporal_warp.equipped
+    --actions.aoe+=/fire_blast,if=(runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down&prev_gcd.1.frostbolt)|(runeforge.disciplinary_command.equipped&time=0)
+    --actions.aoe+=/frost_nova,if=runeforge.grisly_icicle.equipped&cooldown.arcane_power.remains>30&cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd))
+    --actions.aoe+=/frost_nova,if=runeforge.grisly_icicle.equipped&cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down)
+    --actions.aoe+=/touch_of_the_magi,if=runeforge.siphon_storm.equipped&prev_gcd.1.evocation
+    --actions.aoe+=/arcane_power,if=runeforge.siphon_storm.equipped&(prev_gcd.1.evocation|prev_gcd.1.touch_of_the_magi)
+    --actions.aoe+=/evocation,if=time>30&runeforge.siphon_storm.equipped&buff.arcane_charge.stack<=variable.aoe_totm_charges&cooldown.touch_of_the_magi.remains=0&cooldown.arcane_power.remains<=gcd
+    --actions.aoe+=/evocation,if=time>30&runeforge.siphon_storm.equipped&cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down),interrupt_if=buff.siphon_storm.stack=buff.siphon_storm.max_stack,interrupt_immediate=1
+    --actions.aoe+=/mirrors_of_torment,if=(cooldown.arcane_power.remains>45|cooldown.arcane_power.remains<=3)&cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>5)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>5)|cooldown.arcane_power.remains<=gcd))
+    --actions.aoe+=/radiant_spark,if=cooldown.touch_of_the_magi.remains>variable.rs_max_delay&cooldown.arcane_power.remains>variable.rs_max_delay&(talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd|talent.rune_of_power.enabled&cooldown.rune_of_power.remains>variable.rs_max_delay|!talent.rune_of_power.enabled)&buff.arcane_charge.stack<=variable.aoe_totm_charges&debuff.touch_of_the_magi.down
+    --actions.aoe+=/radiant_spark,if=cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd))
+    --actions.aoe+=/radiant_spark,if=cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down)
+    --actions.aoe+=/deathborne,if=cooldown.arcane_power.remains=0&(((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down)
+    -- SHADOWLANDS ^^
+
+
+
+    --actions.aoe+=/touch_of_the_magi,if=buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)
+    --|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd)
+    if cast.able.touchoftheMagi()
+    and (arcaneCharges <= var_aoe_totm_charges
+    and talent.runeofPower
+    and cd.runeofPower.remain() <= gcdMax 
+    and cd.arcanePower.remain() > var_totm_max_delay)
+    or (talent.runeofPower and cd.arcanePower.remain() > var_totm_max_delay)
+    or cd.arcanePower.remain() <= gcdMax
+    then
+        if cast.touchoftheMagi() then br.addonDebug("[Action:AoE] Touch of the Magi (5)") return true end 
+    end
+
+    --actions.aoe+=/arcane_power,if=((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down
+    if cast.able.arcanePower()
+    and ((cd.touchoftheMagi.remain() > ap_max_delay
+    and arcaneCharges > 3))
+    or ((cd.touchoftheMagi.remains() == 0 
+    and arcaneCharges <= var_aoe_totm_charges))
+    and not buff.arcanePower.exsists()
+    then
+        if cast.arcanePower() then br.addonDebug("[Action:AoE] Arcane Power (6)") return true end 
+    end
+
+    --actions.aoe+=/rune_of_power,if=buff.rune_of_power.down&((cooldown.touch_of_the_magi.remains>20&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
+    if cast.able.runeofPower()
+    and not buff.runeofPower.exists()
+    and ((cd.touchoftheMagi.remain() > 20 
+    and arcaneCharges > 3))
+    or ((cd.touchoftheMagi.remain() == 0
+    and arcaneCharges <= var_aoe_totm_charges
+    and cd.arcanePower.remain() > 15
+    or buff.touchoftheMagi.exists()))
+    then
+        if cast.runeofPower() then br.addonDebug("[Action:AoE] Rune of Power (7)") return true end
+    end                                                                                                                     
+
+    --actions.aoe+=/presence_of_mind,if=buff.deathborne.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
+    if cast.able.presenceofMind()
+    and isKnown(spell.deathBorne)
+    and buff.deathBorne.exists()
+    and (debuff.touchoftheMagi.exists()
+    and debuff.touchoftheMagi.remain() <= arcaneCharges * cast.time.arcaneBlast())
+    then
+        if cast.presenceofMind() then br.addonDebug("[Action:AoE] Presence of Mind (8)") return true end
+    end
+
+    --actions.aoe+=/arcane_blast,if=buff.deathborne.up&((talent.resonance.enabled&active_enemies<4)|active_enemies<5)
+    if cast.able.arcaneBlast()
+    and isKnown(spell.deathBorne)
+    and buff.deathBorne.exists()
+    and ((talent.resonance and  #enemies.yards10t < 5 ))
+    then
+         if cast.arcaneBlast() then br.addonDebug("[Action:AoE] Arcane Blast (Deathborne) (9)") return true end
+    end
+
+    --actions.aoe+=/supernova
+    if cast.able.supernova()
+    and getDistance("target") < 40
+    then
+        if cast.supernova() then br.addonDebug("[Action:AoE] Supernova (10)") return true end 
+    end
+
+    --actions.aoe+=/arcane_orb,if=buff.arcane_charge.stack=0
+    if cast.able.arcaneOrb()
+    and arcaneCharges == 0
+    then
+       if castarcanOrb(1, true, 4) then br.addonDebug("[Action:AoE] Arcane Orb (11)") return true end
+    end
+
+    --actions.aoe+=/nether_tempest,if=(refreshable|!ticking)&buff.arcane_charge.stack=buff.arcane_charge.max_stack
+    if cast.able.netherTempest()
+    and (debuff.netherTempest.refresh("target")
+    or not debuff.netherTempest.exists("target"))
+    and arcaneCharges > 3
+    then
+        if cast.netherTempest() then br.addonDebug("[Action:AoE] Nether Tempest (12)") return true end 
+    end
+
+    --actions.aoe+=/shifting_power,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&cooldown.arcane_power.remains>0&cooldown.touch_of_the_magi.remains>0&(!talent.rune_of_power.enabled|(talent.rune_of_power.enabled&cooldown.rune_of_power.remains>0))
+    if cast.able.shiftingPower()
+    and not buff.arcanePower.exists()
+    and not buff.runeofPower.exists()
+    and not debuff.touchoftheMagi.exists("target")
+    and cd.arcanePower.remain() > 0
+    and cd.touchoftheMagi.remain() > 0
+    and not talent.runeofPower
+    or talent.runeofPower and cd.runeofPower.remain() == 0
+    then
+         if cast.shiftingPower() then br.addonDebug("[Action:AoE] Shifting Power (13)") return true end 
+    end
+
+    --actions.aoe+=/arcane_missiles,if=buff.clearcasting.react&runeforge.arcane_infinity.equipped&talent.amplification.enabled&active_enemies<6
+    -- Shadowlands
+    --actions.aoe+=/arcane_missiles,if=buff.clearcasting.react&runeforge.arcane_infinity.equipped&active_enemies<4
+    -- Shadowlands
+    --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack<buff.arcane_charge.max_stack
+    if cast.able.arcaneExplosion()
+    and arcaneCharges > 3
+    then
+        if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
+    end
+
+    --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&prev_gcd.1.arcane_barrage
+    if cast.able.arcaneExplosion()
+    and arcaneCharges > 3
+    and last.cast.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
+    then
+        if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
+    end
+
+    --actions.aoe+=/arcane_barrage,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack
+    if cast.able.arcaneBarrage()
+    and arcaneCharges() > 3
+    then
+        if cast.arcaneBarrage() then br.addonDebug("[Action:AoE] Arcane Barrage (16)") return true end 
+    end
+
+
+    --actions.aoe+=/evocation,interrupt_if=mana.pct>=85,interrupt_immediate=1
+    if manaPercent >= 85 and buff.evocation.exists() then br.addonDebug("[Action:AoE] Cancel Evocation") SpellStopCasting() return true end 
+    if cast.able.evocation()
+    and not buff.runeofPower.exists()
+    and manaPercent < 85
+    then
+        if cast.evocation() then br.addonDebug("[Action:AoE] Evocation (17)") return true end
+    end
+end
+
+local function ActionList_Opener()
   if not ArcaneOpener:On() then
     ArcaneOpener:StartOpener()
     return "Start opener"
@@ -903,7 +1035,7 @@ local function Opener ()
   end
 
   --actions.opener+=/lights_judgment,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
-if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera" 
+if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera" 
   and not buff.arcanePower.exists() 
   and not buff.runeofPower.exists() 
   and cast.able.Racial()
@@ -923,21 +1055,24 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     end
 
     --actions.opener+=/fire_blast,if=runeforge.disciplinary_command.equipped&buff.disciplinary_command_frost.up
-
+    -- SHADOWLANDS
     --actions.opener+=/frost_nova,if=runeforge.grisly_icicle.equipped&mana.pct>95
-
+    -- SHADOWLANDS
     --actions.opener+=/mirrors_of_torment
+    -- SHADOWLANDS
 
     --actions.opener+=/deathborne
+    -- SHADOWLANDS
+    --if csst.able.deathBorne() then if cast.deathBorne() then return true end end 
 
     --actions.opener+=/radiant_spark,if=mana.pct>40
+    -- SHADOWLANDS
 
     --actions.opener+=/cancel_action,if=action.shifting_power.channeling&gcd.remains=0
 
     --actions.opener+=/shifting_power,if=soulbind.field_of_blossoms.enabled
 
     --actions.opener+=/touch_of_the_magi
-
     if cast.able.touchoftheMagi() then if cast.touchoftheMagi() then return true end end 
 
     --actions.opener+=/arcane_power
@@ -966,10 +1101,15 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     then
         if cast.presenceofMind() then return true end
     end
+
     --actions.opener+=/arcane_blast,if=dot.radiant_spark.remains>5|debuff.radiant_spark_vulnerability.stack>0
-
+    if cast.able.arcaneBlast()
+    and debuff.radiantSpark.remain("target") > 5
+    or debuff.radiantSpark.stack("target") > 0
+    then
+        if cast.able.arcaneBlast() then return true end 
+    end
     
-
     --actions.opener+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_time
     if cast.able.arcaneBlast()
     and debuff.prresenceofMind.exists()
@@ -979,7 +1119,6 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     end
 
     --actions.opener+=/arcane_barrage,if=buff.arcane_power.up&buff.arcane_power.remains<=gcd&buff.arcane_charge.stack=buff.arcane_charge.max_stack
-
     if cast.able.arcaneBarrage()
     and buff.arcanePower.exists()
     and buff.arcanePower.remain() <= gcdMax 
@@ -987,10 +1126,8 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     then
         if cast.arcaneBarrage() then return true end 
     end
-    
 
     --actions.opener+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time,chain=1
-
     if cast.able.arcaneMissiles()
     and debuff.touchoftheMagi.exists("target")
     and talent.arcaneEcho 
@@ -1001,7 +1138,6 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     end
 
     --actions.opener+=/arcane_missiles,if=buff.clearcasting.react,chain=1
-
     if cast.able.arcaneMissiles()
     and buff.clearcasting.exists()
     then
@@ -1009,7 +1145,6 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
     end
 
     --actions.opener+=/arcane_orb,if=buff.arcane_charge.stack<=2&(cooldown.arcane_power.remains>10|active_enemies<=2)
-
     if cast.able.arcaneOrb()
     and arcaneCharges <= 2 or cd.arcanePower.remain() > 10 or #enemies.yards10t <= 2
     then
@@ -1024,10 +1159,17 @@ if br.player.race == "Lightforged Draenei" or br.player.race == "Vulpera"
         if cast.arcaneBlast() then return true end
     end
 
-
     --actions.opener+=/evocation,if=buff.rune_of_power.down,interrupt_if=mana.pct>=85,interrupt_immediate=1
-    
+    if manaPercent >= 85 and buff.evocation.exists() then SpellStopCasting() return end 
+
+    if cast.able.evocation()
+    and not buff.runeofPower.exists()
+    then
+        if cast.evocation() then return true end
+    end
+
     --actions.opener+=/arcane_barrage
+    if cast.able.arcaneBarrage() then if cast.arcaneBarrage() then return true end end 
 end
     --
 local function actionList_Rotation()
@@ -1164,7 +1306,7 @@ local function actionList_Rotation()
     if cast.able.arcaneBlast() then if cast.arcaneBlast() then return true end
 
     -- Cancel Evocation 
-    if UnitCastingInfo("player") == GetSpellInfo(spell.evocation) and manaPercent >= 83 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
+  --  if UnitCastingInfo("player") == GetSpellInfo(spell.evocation) and manaPercent >= 83 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
     if cast.able.evocation() then
         if cast.evocation() then br.addonDebug("Casting Evocation (>= 85 mana)") return true end end -- Somehow cancel at 85% max mana
     end
@@ -1172,14 +1314,10 @@ local function actionList_Rotation()
     --actions.rotation+=/arcane_barrage
     if cast.able.arcaneBarrage() then if cast.arcaneBarrage() then return true end end 
 end
-
-local function actionList_main()
-
-end
     -----------------------
     --- Extras Rotation ---
     -----------------------
-    if actionList_Extras() then return true end
+    --if actionList_Extras() then return true end
 -----------------
 --- Rotations ---
 -----------------
@@ -1201,6 +1339,9 @@ end
 -----------------------------
         if inCombat then
             if actionList_Rotation() then return end
+
+            -- Movement Rotation
+            --if isMoving() then if actionList_Movement() then return end end
         end -- End In Combat Rotation
 
         end -- Pause
