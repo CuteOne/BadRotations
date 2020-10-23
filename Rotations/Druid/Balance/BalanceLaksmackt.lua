@@ -836,13 +836,6 @@ local function runRotation()
             end
 
 
-            -- Warrior of Elune
-            if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
-                if cast.warriorOfElune() then
-                    return true
-                end
-            end
-
 
             -- Force Of Nature / treants
             if talent.forceOfNature and cast.able.forceOfNature() and astral_def > 20 then
@@ -917,21 +910,29 @@ local function runRotation()
                             end
                         end
                     end
+
+                    --stellarFlare
+                    if talent.stellarFlare and debuff.stellarFlare.refresh() and ttd(thisUnit) > 15 then
+                        if #enemies.yards45 < 4
+                                and astral_def > 8 and (buff.celestialAlignment.remain() > 10 or buff.incarnationChoseOfElune.remain() > 10 or not pewbuff)
+                        then
+                            if cast.stellarFlare(thisUnit) then
+                                return true
+                            end
+                        end
+                    end
                 end
 
+
                 -- celestialAlignment
-
-
                 if mode.cooldown == 2 or (isBoss("target") and mode.cooldown == 1) and isChecked("Incarnation/Celestial Alignment") then
                     if (buff.starfall.exists() or power > 50) and not buff.solstice.exists() and not pewbuff then
                         -- and (interpolated_fight_remains < cooldown.convoke_the_spirits.remains + 7 | interpolated_fight_remains % % 180 < 22 | cooldown.convoke_the_spirits.up |!covenant.night_fae)
                         if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                             if cast.celestialAlignment() then
-                                return true
                             end
                         elseif talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
                             if cast.incarnationChoseOfElune() then
-                                return true
                             end
                         end
                     end
@@ -949,6 +950,16 @@ local function runRotation()
                         return true
                     end
                 end
+
+
+                -- Warrior of Elune
+                if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
+                    if cast.warriorOfElune() then
+                        return true
+                    end
+                end
+
+
                 -- wrath
                 if cast.able.wrath() --eclipse.in_solar&!variable.starfire_in_solar|buff.ca_inc.remains<action.starfire.execute_time&!variable.is_cleave&buff.ca_inc.remains<execute_time&buff.ca_inc.up|buff.ravenous_frenzy.up&spell_haste>0.6|!variable.is_cleave&buff.ca_inc.remains>execute_time
                         and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_cleave)
@@ -1013,13 +1024,11 @@ local function runRotation()
                     if talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
                         if (power > 90 or hasBloodLustRemain() < 36) then
                             if cast.incarnationChoseOfElune() then
-                                return true
                             end
                         end
                     elseif not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                         if (power > 90 or hasBloodLustRemain() < 26) then
                             if cast.celestialAlignment() then
-                                return true
                             end
                         end
                     end
@@ -1029,8 +1038,8 @@ local function runRotation()
                 --starfall
                 if cast.able.starfall()
                         and talent.stellarDrift and not talent.starlord and buff.starfall.refresh()
-                        and (buff.eclipse_lunar.remains() > 6 and buff.PrimordialArcanicPulsar.stack() < 250
-                        or buff.PrimordialArcanicPulsar.stack() >= 250 and power > 90 and (cd.incarnationChoseOfElune.remain() > 0 or cd.celestialAlignment.remain() > 0))
+                        and buff.eclipse_lunar.remains() > 6 --and buff.PrimordialArcanicPulsar.stacks() < 250
+                      --  or buff.PrimordialArcanicPulsar.stacks() >= 250 and power > 90 and (cd.incarnationChoseOfElune.remain() > 0 or cd.celestialAlignment.remain() > 0))
                 then
                     if cast.starfall() then
                         return true
@@ -1047,7 +1056,7 @@ local function runRotation()
                     end
                     if (br.player.traits.streakingStars.rank == 0 or pewbuff or not cast.last.starsurge(1))
                             and talent.starlord and (buff.starlord.exists() or power > 90)
-                            and buff.starlord.stacks() < 3 and eclipse_in then
+                            and buff.starlord.stack() < 3 and eclipse_in then
                         if cast.starsurge(units.dyn45) then
                             return true
                         end
@@ -1057,6 +1066,13 @@ local function runRotation()
                         if cast.starsurge(units.dyn45) then
                             return true
                         end
+                    end
+                end
+
+                -- Warrior of Elune
+                if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
+                    if cast.warriorOfElune() then
+                        return true
                     end
                 end
 
