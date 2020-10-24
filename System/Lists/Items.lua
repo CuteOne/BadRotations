@@ -75,6 +75,7 @@ br.lists.items = {
     eternalWovenIvyNecklace         = 122666,
     heirloomNeck                    = getHeirloomNeck(),
     manariTrainingAmulet            = 153130,
+    touchOfTheVoid                  = 128318,
     -- Potions
     battlePotionOfAgility           = 163223,
     battlePotionOfIntellect         = 163222,

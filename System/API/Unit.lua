@@ -42,10 +42,10 @@ br.api.unit = function(self)
         return UnitExists(thisUnit)
     end
     -- Facing
-    unit.facing = function(thisUnit,otherUnit)
+    unit.facing = function(thisUnit,otherUnit,degrees)
         local getFacing = _G["getFacing"]
         if otherUnit == nil then otherUnit = "player" end
-        return getFacing(thisUnit,otherUnit)
+        return getFacing(thisUnit,otherUnit,degrees)
     end
     -- Flying
     unit.flying = function()
