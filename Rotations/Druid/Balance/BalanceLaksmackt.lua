@@ -783,13 +783,22 @@ local function runRotation()
         -- Print(GetSpellCount(1941530))   --starfire
 
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
+        local current_eclipse = "none"
 
-        if not eclipse_in then
-            if GetSpellCount(190984) > 0 and GetSpellCount(1941530) == 0 then
+        if eclipse_in and buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
+            current_eclipse = "solar"
+        elseif eclipse_in and not buff.eclipse_solar.exists() and buff.eclipse_lunar.exists() then
+            current_eclipse = "lunar"
+        elseif eclipse_in and buff.eclipse_solar.exists() and buff.eclipse_lunar.exists() then
+            current_eclipse = "any "
+        end
+
+        if not eclipse_in and eclipse_next == "any" then
+            if GetSpellCount(190984) > GetSpellCount(1941530) then
                 eclipse_next = "lunar"
-            elseif GetSpellCount(190984) == 0 and GetSpellCount(1941530) > 0 then
+            elseif GetSpellCount(190984) < GetSpellCount(1941530) then
                 eclipse_next = "solar"
-            elseif GetSpellCount(190984) > 0 and GetSpellCount(1941530) > 0 then
+            elseif GetSpellCount(190984) == 2 and GetSpellCount(1941530) == 2 then
                 eclipse_next = "any"
             end
         end
@@ -977,21 +986,22 @@ local function runRotation()
                         return true
                     end
                 end
-            else
+            elseif not is_aoe or mode.rotation == 3 then
+
                 --ST   (single target rotation)
                 --moonfire
 
                 --   Print(tostring(ttd(enemies.yards45[1])))
 
                 if cast.able.moonfire()
-                        and debuff.moonfire.remain(enemies.yards45[1]) < 6.6
-                        and ttd(enemies.yards45[1]) > 12 then
+                        and debuff.moonfire.remain("target") < 6.6
+                        and ttd("target") > 12 then
                     if ((buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
                             and (buff.ravenousFrenzy.remains() > 5 or not buff.ravenousFrenzy.exists())
                             or not pewbuff or power < 30)
                             and (not buff.kindredEmpowerment.exists() or power < 30) and astral_def > 8
                     then
-                        if cast.moonfire(enemies.yards45[1]) then
+                        if cast.moonfire("target") then
                             return true
                         end
                     end
@@ -1007,13 +1017,13 @@ local function runRotation()
                 --   if=(buff.ca_inc.remains>5&(buff.ravenous_frenzy.remains>5|!buff.ravenous_frenzy.up)|!buff.ca_inc.up|astral_power<30)&(!buff.kindred_empowerment_energize.up|astral_power<30)&ap_check
 
                 if cast.able.sunfire()
-                        and debuff.sunfire.remain(enemies.yards45[1]) < 5.4
-                        and ttd(enemies.yards45[1]) > 12 then
+                        and debuff.sunfire.remain("target") < 5.4
+                        and ttd("target") > 12 then
                     if ((buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
                             and (buff.ravenousFrenzy.remains() > 5 or not buff.ravenousFrenzy.exists())
                             or not pewbuff or power < 30)
                             and (not buff.kindredEmpowerment.exists() or power < 30) and astral_def > 2 then
-                        if cast.sunfire(enemies.yards45[1]) then
+                        if cast.sunfire("target") then
                             return true
                         end
                     end
@@ -1022,10 +1032,10 @@ local function runRotation()
 
                 -- stellarFlare
                 if talent.stellarFlare and not cast.last.stellarFlare(1) and cast.able.stellarFlare()
-                        and debuff.stellarFlare.refresh() and ttd(enemies.yards45[1]) > 16
+                        and debuff.stellarFlare.refresh("target") and ttd("target") > 16
                         and ((buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
                         or not pewbuff or power < 30) and astral_def > 8 then
-                    if cast.stellarFlare(enemies.yards45[1]) then
+                    if cast.stellarFlare("target") then
                         return true
                     end
                 end
@@ -1048,6 +1058,7 @@ local function runRotation()
 
 
                 --starfall
+                --[[
                 if cast.able.starfall()
                         and talent.stellarDrift and not talent.starlord and buff.starfall.refresh()
                         and buff.eclipse_lunar.remains() > 6 --and buff.PrimordialArcanicPulsar.stacks() < 250
@@ -1056,12 +1067,12 @@ local function runRotation()
                     if cast.starfall() then
                         return true
                     end
-                end
+                end]]
                 --starsurge
-                if cast.able.starsurge() then
+                if cast.able.starsurge("target") then
                     if (br.player.traits.streakingStars.rank == 0 or (buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
                             or not cast.last.starsurge(1)) and (pewbuff or power > 90 and eclipse_in) then
-                        if cast.starsurge(units.dyn45) then
+                        if cast.starsurge("target") then
                             return true
                         end
                     end
@@ -1069,7 +1080,7 @@ local function runRotation()
                             or not cast.last.starsurge(1))
                             and talent.starlord and (buff.starlord.exists() or power > 90) and buff.starlord.stack() < 3
                             and (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) and (cd.celestialAlignment.remain() > 7 or cd.incarnationChoseOfElune.remain() > 7) then
-                        if cast.starsurge(units.dyn45) then
+                        if cast.starsurge("target") then
                             return true
                         end
                     end
@@ -1077,7 +1088,7 @@ local function runRotation()
                     if (br.player.traits.streakingStars.rank == 0 or (buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
                             or not cast.last.starsurge(1)) and buff.eclipse_solar.remain() > 7 and not talent.starlord
                             and (cd.celestialAlignment.remain() > 7 or cd.incarnationChoseOfElune.remain() > 7) then
-                        if cast.starsurge(units.dyn45) then
+                        if cast.starsurge("target") then
                             return true
                         end
                     end
@@ -1089,25 +1100,41 @@ local function runRotation()
                         return true
                     end
                 end
-
-                --starfire
+                --[[
+                                    if (br.player.traits.streakingStars.rank ~= 0 and pewbuff and cast.last.wrath(1))
+                                            or (pewbuff and br.player.traits.streakingStars.rank == 0 or not cast.last.starfire(1))
+                                            and (buff.eclipse_lunar.exists() or eclipse_next == "solar" or eclipse_next == "any"
+                                            or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists())
+                                            or (br.player.traits.dawningSun.rank > 2 and buff.eclipse_solar.remains() > 5
+                                            and buff.dawningSun.remain() < getCastTime(spell.wrath))
+                                    then
+                                    ]]
+        --        Print("Current: " .. current_eclipse .. " | Next: " .. eclipse_next)
                 if cast.able.starfire() then
-                    if (br.player.traits.streakingStars.rank ~= 0 and pewbuff and cast.last.wrath(1))
-                            or (br.player.traits.streakingStars.rank == 0 or not cast.last.starfire(1))
-                            and (buff.eclipse_lunar.exists() or eclipse_next == "solar" or eclipse_next == "any"
-                            or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists())
-                            or (br.player.traits.dawningSun.rank > 2 and buff.eclipse_solar.remains() > 5
-                            and buff.dawningSun.remain() < getCastTime(spell.wrath))
-                    then
-                        if cast.starfire(getBiggestUnitCluster(45, 8)) then
-                            return true
+                    if pewbuff and br.player.traits.streakingStars ~= 0 then
+                        if (buff.incarnationChoseOfElune.remains() > getCastTime(spell.starfire) or buff.celestialAlignment.remains() > getCastTime(spell.starfire)) and cast.last.wrath(1)
+                        then
+                            if cast.starfire("target") then
+                                return true
+                            end
+                        end
+                    else
+                        if (eclipse_in and current_eclipse == "lunar")
+                                or (not eclipse_in and eclipse_next == "solar")
+                                or (not eclipse_in and eclipse_next == "any")
+                                or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists()
+                                or (br.player.traits.dawningSun.rank > 2 and buff.eclipse_solar.remains() > 5 and not buff.dawningSun.remains() > getCastTime(spell.wrath))
+                        then
+                            if cast.starfire("target") then
+                                return true
+                            end
                         end
                     end
                 end
 
                 --wrath fall back
-                if cast.able.wrath() then
-                    if cast.wrath(units.dyn45) then
+                if cast.able.wrath("target") then
+                    if cast.wrath("target") then
                         return true
                     end
                 end
