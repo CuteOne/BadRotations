@@ -139,7 +139,9 @@ function BadRotationsUpdate(self)
 				if br.data.tracker == nil then br.data.tracker = {} end 
 				br:loadLastProfileTracker()
 				br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
+
 				local playerSpec = GetSpecializationInfo(GetSpecialization())
+				if playerSpec == "" then playerSpec = "Initial" end
 				-- Initialize Player
 				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
 					br.loaded = false
@@ -194,23 +196,33 @@ function BadRotationsUpdate(self)
 				-- Auto Loot
 				autoLoot()
 				-- Close windows and swap br.selectedSpec on Spec Change
-				if select(2, GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
+				local thisSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+				if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
 					-- Save settings
 					br:saveSettings()
 					-- Closing the windows will save the position
 					br.ui:closeWindow("all")
 					-- Update Selected Spec/Profile
-					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+					br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+    				if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 					br.activeSpecGroup = GetActiveSpecGroup()
 					br.data.loadedSettings = false
-					-- br:defaultSettings()
-					-- br:loadSavedSettings()
+					-- Load Default Settings
+					br:defaultSettings()
+					-- Load Last Profile Tracker
+					br:loadLastProfileTracker()
+					br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
+					-- Load Settings
+					br:loadSavedSettings()
+					-- Restore Window Positions
+					br.ui:loadWindowPositions("config")
+    				br.ui:loadWindowPositions("profile")
 					br.rotationChanged = true
 					wipe(br.commandHelp)
 					br:slashHelpList()
 				end
 				-- Show Main Button
-				if br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
+				if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
 					if not UnitAffectingCombat("player") then
 						br.data.settings[br.selectedSpec].toggles["Main"] = 1
 						mainButton:Show()

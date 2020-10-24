@@ -34,6 +34,8 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
     newDropdown:SetValue(value)
     -- Load Settings for Profile
     br:loadSavedSettings()
+    br.ui:loadWindowPositions("config")
+    br.ui:loadWindowPositions("profile")
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
         if UnitAffectingCombat("player") then

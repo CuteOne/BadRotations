@@ -75,7 +75,10 @@ function br.debug:Print(message)
 end
 -- Run
 function br:Run()		
-	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+	if br.selectedSpec == nil then 
+		br.selectedSpec =  select(2,GetSpecializationInfo(GetSpecialization()))
+    	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
+	end
 	-- rc = LibStub("LibRangeCheck-2.0")
 	-- minRange, maxRange = rc:GetRange('target')
 	--[[Init the readers codes (System/Reader.lua)]]
@@ -264,6 +267,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "PLAYER_ENTERING_WORLD" then
 		-- Update Selected Spec
 		br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+    	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 		br.activeSpecGroup = GetActiveSpecGroup()
 		br.equipHasChanged = true
 		if not br.loadedIn then

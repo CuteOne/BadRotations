@@ -61,6 +61,7 @@ function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
     local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
     local player = "player" -- if someone forgets ""
+    if specName == nil then specName = "Initial" end
 
     if not br.loaded then
         br.loader.loadProfiles()
@@ -129,12 +130,12 @@ function br.loader:new(spec,specName)
             end
         end
 
-        -- Spec Spells - Don't Load on Initial Levels
-        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
-        -- Shared Class Spells
-        getSpells(sharedClassSpells)
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
+        -- Shared Class Spells
+        getSpells(sharedClassSpells)
+        -- Spec Spells - Don't Load on Initial Levels
+        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
         -- -- Spell Test
         -- getSpellsTest()
 
