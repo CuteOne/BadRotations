@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v0.1.4"
+local rotationVer  = "v0.1.5"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -35,8 +35,8 @@ local function createToggles()
     CreateButton("Interrupt", 4, 0)
     -- Frozen Orb Button
     ArcaneOrbModes = {
-        [1] = {mode = "On", value = 1, overlay = "Auto FO Enabled", tip = "Will Automatically use Frozen Orb", highlight = 1, icon = br.player.spell.frozenOrb},
-        [2] = {mode = "Off", value = 2, overlay = "Auto FO Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.frozenOrb}
+        [1] = {mode = "On", value = 1, overlay = "Auto FO Enabled", tip = "Will Automatically use Frozen Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
+        [2] = {mode = "Off", value = 2, overlay = "Auto FO Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.arcaneOrb}
     }
     CreateButton("ArcaneOrb", 5, 0)
     -- Ebonbolt Button
@@ -72,7 +72,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Arcane .:|:. General ".. ".:|:. ".. rotationVer)
         -- APL
 
-        br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
+        br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling"}, 1, "|cffFFBB00Set APL Mode to use.")
         -- Dummy DPS Test
 
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -91,16 +91,22 @@ local function createOptions()
         ------------------------
        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. DPS Config")
         -- Arcane Explosion
-        br.ui:createSpinnerWithout(section, "Arcane Explosion Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Arcane Explosion will be cast on.")
+        br.ui:createSpinnerWithout(section, "Arcane Explosion Units", 3, 1, 15, 1, "|cffFFBB00Min. number of units Arcane Explosion will be cast on.")
 
         -- Frozen Orb Units
-        br.ui:createSpinnerWithout(section, "Arcane Orb Units", 3, 1, 10, 1, "|cffFFBB00Min. number of units Arcane Orb will be cast on.")
-
-        -- Arcane Explosion Units
-        br.ui:createSpinner(section, "Arcane Explosion Units", 2, 1, 10, 1, "|cffFFB000 Number of adds to cast Arcane Explosion")
+        br.ui:createSpinnerWithout(section, "Arcane Orb Units", 2, 1, 15, 1, "|cffFFBB00Min. number of units Arcane Orb will be cast on.")
 
         -- Frozen Orb Key
         br.ui:createDropdown(section, "Arcane Orb Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to manually use Arcane Orb")
+
+        -- Spellsteal
+        br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
+        -- Remove Curse
+        br.ui:createDropdown(section, "Remove Curse", {"|cff00FF00Player","|cffFFFF00Target","|cffFFBB00Player/Target","|cffFF0000Mouseover","|cffFFBB00Any"}, 1, "","|ccfFFFFFFTarget to cast on, set delay in healing engine settings")
+        -- Arcane Intellect
+        br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFBB00 Will use Arcane Intellect", true)
+        -- Slow Fall
+        br.ui:createSpinner(section, "Slow Fall Distance", 30, 0, 100, 1, "|cffFFBB00 Will cast slow fall based on the fall distance", true)   
 
         -- Comet Storm Units
         br.ui:createSpinnerWithout(section, "Comet Storm Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Comet Storm will be cast on.")
@@ -113,6 +119,48 @@ local function createOptions()
         --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
         -- Auto target
         -- br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        --- COOLDOWN OPTIONS ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Cooldowns")
+        -- Cooldowns Time to Die limit
+        br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
+        -- Racial
+        br.ui:createCheckbox(section, "Racial")
+        -- Trinkets        
+        br.ui:createDropdownWithout(section, "Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+
+        br.ui:createDropdownWithout(section, "Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+        -- Potion
+        br.ui:createCheckbox(section, "Potion")
+        -- Pre Pot
+        br.ui:createCheckbox(section, "Pre Pot", "|cffFFBB00 Requires Pre-Pull logic to be active")
+        -- AoE when using CD
+        br.ui:createCheckbox(section, "Obey AoE units when using CDs", "|cffFFBB00 Use user AoE settings when using CDs")
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        --- Defensive OPTIONS ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Defensive")
+        -- Healthstone
+        br.ui:createSpinner(section, "Pot/Stoned", 45, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        -- Heirloom Neck
+        br.ui:createSpinner(section, "Heirloom Neck", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        -- Gift of The Naaru
+        if br.player.race == "Draenei" then
+            br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        end
+        -- Ice Barrier
+        br.ui:createSpinner(section, "Prismatic Barrier", 80, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        -- Ice Barrier OOC
+        br.ui:createCheckbox(section, "Prismatic Barrier Barrier OOC", "|cffFFBB00Keep Ice Barrier up out of combat")
+        -- Ice Block
+        br.ui:createSpinner(section, "Ice Block", 20, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        --Dispel
+        --br.ui:createCheckbox(section, "Auto Dispel/Purge", "|cffFFBB00 Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
         br.ui:checkSectionState(section)
 
         -- ------------------------
@@ -142,62 +190,6 @@ local function createOptions()
         br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only"}, 1)
         br.ui:createSpinnerWithout(section, "Reaping Flames Damage", 30, 10, 100, 1)
         br.ui:checkSectionState(section)
-
-        ------------------------
-        ---     UTILITY      ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. DPS Config")
-        -- Spellsteal
-        br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
-        -- Remove Curse
-        br.ui:createDropdown(section, "Remove Curse", {"|cff00FF00Player","|cffFFFF00Target","|cffFFBB00Player/Target","|cffFF0000Mouseover","|cffFFBB00Any"}, 1, "","|ccfFFFFFFTarget to cast on, set delay in healing engine settings")
-        -- Arcane Intellect
-        br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFBB00 Will use Arcane Intellect")
-        -- Slow Fall
-        br.ui:createSpinner(section, "Slow Fall Distance", 30, 0, 100, 1, "|cffFFBB00 Will cast slow fall based on the fall distance")                
-        br.ui:checkSectionState(section)
-
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Cooldowns")
-        -- Cooldowns Time to Die limit
-        br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
-        -- Racial
-        br.ui:createCheckbox(section, "Racial")
-        -- Trinkets        
-        br.ui:createDropdownWithout(section, "Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
-        br.ui:createDropdownWithout(section, "Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
-        -- Potion
-        br.ui:createCheckbox(section, "Potion")
-        -- Pre Pot
-        br.ui:createCheckbox(section, "Pre Pot", "|cffFFBB00 Requires Pre-Pull logic to be active")
-        -- AoE when using CD
-        br.ui:createCheckbox(section, "Obey AoE units when using CDs", "|cffFFBB00 Use user AoE settings when using CDs")
-        br.ui:checkSectionState(section)
-
-        ------------------------
-        --- Defensive OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Defensive")
-        -- Healthstone
-        br.ui:createSpinner(section, "Pot/Stoned", 45, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
-        -- Heirloom Neck
-        br.ui:createSpinner(section, "Heirloom Neck", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Gift of The Naaru
-        if br.player.race == "Draenei" then
-            br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
-        end
-        -- Ice Barrier
-        br.ui:createSpinner(section, "Ice Barrier", 80, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
-        -- Ice Barrier OOC
-        br.ui:createCheckbox(section, "Ice Barrier OOC", "|cffFFBB00Keep Ice Barrier up out of combat")
-        -- Ice Block
-        br.ui:createSpinner(section, "Ice Block", 20, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
-        --Dispel
-        --br.ui:createCheckbox(section, "Auto Dispel/Purge", "|cffFFBB00 Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
-        br.ui:checkSectionState(section)
-
         ------------------------
         ---Interrupt  OPTIONS---
         ------------------------
@@ -762,6 +754,19 @@ end
 --- Action Lists ---
 --------------------
 
+
+local function ActionList_Leveling()
+    if level >= 17
+    and GetItemCount(36799) < 1 
+    or itemCharges(36799) < 3 
+    then
+        if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
+    end
+
+
+end
+
+
 local function actionList_Extras()
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
             StopAttack()
@@ -932,7 +937,7 @@ local function ActionList_PreCombat()
 
     --actions.precombat+=/conjure_mana_gem
     -- Conjure Mana Gem
-    if GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
+    if level >= 17 and spell.conjuremanaGem.known() and GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
         if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
     end
 
@@ -1293,6 +1298,8 @@ local function actionList_AoE()
     --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack<buff.arcane_charge.max_stack
     if cast.able.arcaneExplosion()
     and arcaneCharges > 3
+    and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
+    or not ui.checked("Arcane Explosion Units")
     then
         if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
     end
@@ -1301,6 +1308,8 @@ local function actionList_AoE()
     if cast.able.arcaneExplosion()
     and arcaneCharges > 3
     and cast.last.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
+    and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
+    or not ui.checked("Arcane Explosion Units")
     then
         if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
     end
@@ -1324,7 +1333,7 @@ local function actionList_AoE()
     end
 end
 
-local function ActionList_Opener()
+local function actionList_Opener()
   -- --actions.opener=variable,name=have_opened,op=set,value=1,if=prev_gcd.1.evocat
   opener = true
 
@@ -1376,7 +1385,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     if cast.able.runeofPower() then if cast.runeofPower() then return true end end
 
     --actions.opener+=/use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
-    if has.manaGem() and use.able.manaGem()
+    if use.able.manaGem()
     and (talent.enlightened and manaPercent <= 80 and manaPercent >= 65)
     or (not talent.enlightened and manaPercent <= 85)
     then
@@ -1389,27 +1398,27 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     --actions.opener+=/time_warp,if=runeforge.temporal_warp.equipped
 
     --actions.opener+=/presence_of_mind,if=debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
-    if cast.able.presenceofMind()
+    if cast.able.presenceOfMind()
     and debuff.touchoftheMagi.exists("target")
     and debuff.touchoftheMagi.remain("target") <= 2 * cast.time.arcaneBlast() 
     then
-        if cast.presenceofMind() then return true end
+        if cast.presenceOfMind() then return true end
     end
 
     --actions.opener+=/arcane_blast,if=dot.radiant_spark.remains>5|debuff.radiant_spark_vulnerability.stack>0
-    if cast.able.arcaneBlast()
+    --[[if cast.able.arcaneBlast()
     and debuff.radiantSpark.remain("target") > 5
     or debuff.radiantSpark.stack("target") > 0
     then
         if cast.able.arcaneBlast() then return true end 
-    end
+    end--]]
     
     --actions.opener+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_time
     if cast.able.arcaneBlast()
-    and debuff.prresenceofMind.exists()
+    and buff.presenceOfMind.exists()
     and debuff.touchoftheMagi.remain("target") < cast.time.arcaneBlast() 
     then
-        if cast.presenceofMind() then return true end
+        if cast.arcaneBlast() then return true end
     end
 
     --actions.opener+=/arcane_barrage,if=buff.arcane_power.up&buff.arcane_power.remains<=gcd&buff.arcane_charge.stack=buff.arcane_charge.max_stack
@@ -1440,7 +1449,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
 
     --actions.opener+=/arcane_orb,if=buff.arcane_charge.stack<=2&(cooldown.arcane_power.remains>10|active_enemies<=2)
     if cast.able.arcaneOrb()
-    and arcaneCharges <= 2 or cd.arcanePower.remain() > 10 or #enemies.yards10t <= 2
+    and arcaneCharges <= 2 or cd.arcanePower.remain() > 10 or aoeUnits <= 2
     then
        if castarcaneOrb(1, true, 4) then return true end
     end
@@ -1449,6 +1458,8 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     if cast.able.arcaneBlast()
     and buff.runeofPower.exists()
     or manaPercent > 15
+    and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
+    or not ui.checked("Arcane Explosion Units")
     then
         if cast.arcaneBlast() then return true end
     end
@@ -1624,7 +1635,7 @@ end
         end
         return true
     else
-         if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target")) then
+         if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target") or isDummy()) then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
@@ -1637,11 +1648,11 @@ end
             -----------------------
             ---     Opener      ---
             -----------------------
-            if opener == false and isChecked("Opener") and isBoss("target") then
+            if opener == false and ui.checked("Opener") and isBoss("target") or isDummy() then
                 if actionList_Opener() then return true end
             end
 
-            if useCDs() or isBoss("target") then
+            if useCDs() or isBoss("target") or isDummy()  then
                 if actionList_Cooldowns() then return end
             end
 
@@ -1653,6 +1664,9 @@ end
                 if actionList_Final_Burn() then return end 
             end
             
+            if moving then
+                if actionList_Movement() then return end 
+            end
 
             -- Movement Rotation
             --if isMoving() then if actionList_Movement() then return end end
