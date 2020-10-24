@@ -879,7 +879,7 @@ local function runRotation()
 --------------------------
         if unit.inCombat() and not var.profileStop and unit.exists("target") then
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 StartAttack(units.dyn5)
             end
     ------------------------------
@@ -890,7 +890,7 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
             if ui.value("APL Mode") == 1 then
-                if unit.distance(units.dyn5) < 5 then
+                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     -- Racial                    
                     if ui.checked("Racial") and cast.able.racial()
                         -- arcane_torrent,if=runic_power.deficit>65&(pet.gargoyle.active|!talent.summon_gargoyle.enabled)&rune.deficit>=5
@@ -919,7 +919,7 @@ local function runRotation()
                         ui.debug("Using Augment Rune")
                     end
                     -- Trinkets
-                    if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and unit.distance(units.dyn5) < 5 then
+                    if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         for i = 13, 14 do
                             if use.able.slot(i) then
                                 -- All Others

@@ -290,9 +290,9 @@ end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if ui.useCDs() and unit.distance(units.dyn5) < 5 then
+    if ui.useCDs() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
         -- Trinkets
-        if ui.checked("Trinkets") and not ui.checked("Power Reactor") and unit.distance("target") < 5 then
+        if ui.checked("Trinkets") and not ui.checked("Power Reactor") and unit.exists("target") and unit.distance("target") < 5 then
             for i = 13, 14 do
                 if use.able.slot(i) then
                     use.slot(i)
@@ -302,7 +302,7 @@ actionList.Cooldowns = function()
         end
     end
     -- Variable Intensity Gigavolt Oscillating Reactor
-    if ui.useCDs() and unit.distance(units.dyn5) < 5 or #enemies.yards5 >= 4 then
+    if ui.useCDs() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 or #enemies.yards5 >= 4 then
         if ui.checked("Power Reactor") and equiped.vigorTrinket() then
             if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
                 if use.vigorTrinket() then ui.debug("Using Vigor Tricket") return true end
@@ -316,7 +316,7 @@ actionList.FieryBrand = function()
     -- Sigil of Flame
     -- sigil_of_flame,if=cooldown.fiery_brand.remains<2
     if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5)
-        and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 and cd.fieryBrand.remain() < 2
+        and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 and cd.fieryBrand.remain() < 2
     then
         if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand Soon") return true end
     end
@@ -344,7 +344,7 @@ actionList.FieryBrand = function()
         end
         -- Sigil of Flame
         -- sigil_of_flame,if=dot.fiery_brand.ticking
-        if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 then
+        if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 then
             if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand]") return true end
         end
     end
@@ -472,7 +472,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 StartAttack(units.dyn5)
             end
         end -- End Pull
@@ -544,7 +544,7 @@ local function runRotation()
             ---------------------------
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 StartAttack(units.dyn5)
             end
             -- Consume Magic

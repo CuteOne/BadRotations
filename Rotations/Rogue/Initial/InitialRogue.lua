@@ -177,23 +177,23 @@ local function runRotation()
         -----------------------------
         -- Check for combat
         if unit.valid("target") and cd.global.remain() == 0 then
-            if unit.distance(units.dyn40) < 40 then
+            if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 ------------------------------
                 --- In Combat - Interrupts ---
                 ------------------------------
                 -- Start Attack
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
                 end
                 --Ambush
-                if buff.stealth.exists() and unit.distance("target") < 5 then
+                if buff.stealth.exists() and unit.exists("target") and unit.distance("target") < 5 then
                     if CastSpellByID(8676) then ui.debug("Casting Ambush") return true end
                 end
                 --Eviscerate
                 if unit.level() >= 2 and ui.checked("Use Eviscerate") then
                     if combo > 4 or unit.hp("target") < 20 then
-                        if spell.known.eviscerate() and cast.able.eviscerate and unit.distance(units.dyn5) < 5 then
+                        if spell.known.eviscerate() and cast.able.eviscerate and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                             if cast.eviscerate("target") then ui.debug("Casting Eviscerate") return true end
                         end
                     end
@@ -201,18 +201,18 @@ local function runRotation()
                 --Slice and Dice
                 if unit.level() >= 9 and ui.checked("Use Slice and Dice") then
                     if combo > 4 or unit.hp("target") < 20 then
-                        if spell.known.sliceAndDice() and cast.able.eviscerate and unit.distance(units.dyn5) < 5 then
+                        if spell.known.sliceAndDice() and cast.able.eviscerate and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                             if cast.sliceAndDice("target") then ui.debug("Casting Slice and Dice") return true end
                         end
                     end
                 end
                 -- Sinister Strike
-                if spell.known.sinisterStrike() and cast.able.sinisterStrike and unit.distance(units.dyn5) < 5 then
+                if spell.known.sinisterStrike() and cast.able.sinisterStrike and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.sinisterStrike() then ui.debug("Casting Sinister Strike") return true end
                 end
                 --Kick Interrupt
                 if canInterrupt() then
-                    if spell.known.kick() and cast.able.kick() and unit.distance(units.dyn5) < 5 then
+                    if spell.known.kick() and cast.able.kick() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         if cast.kick() then ui.debug("Casting Kick") return true end
                     end
                 end

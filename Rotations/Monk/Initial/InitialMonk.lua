@@ -22,6 +22,7 @@ local function createToggles()
         [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.legSweep},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Interrupt Defensive", highlight = 0, icon = br.player.spell.legSweep}
     };
+    CreateButton("Interrupt",3,0)
 end
 
 ---------------
@@ -168,11 +169,6 @@ actionList.Defensive = function()
         -- Vivify
         if ui.checked("Vivify") and cast.able.vivify() then
             local thisUnit = unit.friend("target") and "target" or "player"
-            -- if var.specificToggle("Target Heal Key") and unit.friend("target")
-            --     and unit.hp("target") <= ui.value("Vivify") and unit.player("target")
-            -- then
-            --     if cast.vivify("target") then ui.debug("Casting Vivify on "..unit.name("target")) return true end
-            -- end
             if unit.hp(thisUnit) <= ui.value("Vivify") then
                 if cast.vivify(thisUnit) then ui.debug("Casting Vivify on "..unit.name(thisUnit)) return true end
             end
@@ -210,7 +206,7 @@ actionList.PreCombat = function()
                 if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [Pull]") return true end
             end
             -- Start Attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 StartAttack(units.dyn5)
             end
         end
@@ -280,7 +276,7 @@ local function runRotation()
         -----------------------------
         -- Check for combat
         if unit.valid("target") and cd.global.remain() == 0 then
-            if unit.distance(units.dyn40) < 40 then
+            if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 -----------------
                 --- Interrupt ---
                 -----------------
@@ -295,11 +291,11 @@ local function runRotation()
                     if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [Pre-Pull]") return true end
                 end                
                 -- Start Attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
                 end
                 -- Trinket - Non-Specific
-                if unit.distance() < 5  then
+                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5  then
                     local thisTrinket
                     for i = 13, 14 do
                         thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"

@@ -36,13 +36,13 @@ local function createOptions()
     local function rotationOptions()
         local section
         -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
+        --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
             br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1, "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
         br.ui:checkSectionState(section)
         -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+        --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Regrowth
@@ -266,7 +266,7 @@ local function runRotation()
             --- In Combat - Main ---
             ------------------------
             -- Melee in melee range
-            if unit.distance(units.dyn5) < 5 then
+            if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 -- Start Attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
                     StartAttack(units.dyn5)

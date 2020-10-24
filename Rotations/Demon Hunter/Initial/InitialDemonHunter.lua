@@ -125,7 +125,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- actions=auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 StartAttack(units.dyn5)
             end
         end
@@ -183,10 +183,10 @@ local function runRotation()
         -----------------------------
         -- Check for combat
         if unit.valid("target") and cd.global.remain() == 0 then
-            if unit.distance(units.dyn40) < 40 then
+            if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 -- Start Attack
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
                 end
                 -- Trinkets

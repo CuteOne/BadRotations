@@ -330,7 +330,7 @@ local function runRotation()
                 --- Main ---
                 ------------               
                 -- Start Attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn40) < 40 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                     StartAttack(units.dyn40)
                 end
                 -- Trinket - Non-Specific

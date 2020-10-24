@@ -258,7 +258,7 @@ local function runRotation()
                 --- In Combat - Main ---
                 ------------------------
                 -- Melee in melee range
-                if unit.distance(units.dyn5) < 5 then
+                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     -- Start Attack
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
                         StartAttack(units.dyn5)
