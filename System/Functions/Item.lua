@@ -19,9 +19,9 @@ function canUseItem(itemID)
 			end
 		end
 	elseif (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID)) and
-	((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and hasItem(itemID)))
+		((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and hasItem(itemID)))
 	then 
-		if itemID > 19 and GetItemCooldown(itemID) == 0 and IsUsableItem(itemID) then
+		if itemID > 19 and GetItemCooldown(itemID) == 0 and (IsUsableItem(itemID) or IsUsableSpell(select(2,GetItemSpell(itemID)))) then
 			return true
 			end
 		end
