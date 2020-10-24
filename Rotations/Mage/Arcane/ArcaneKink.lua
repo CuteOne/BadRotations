@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v0.1.5"
+local rotationVer  = "v0.1.6"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -9,22 +9,22 @@ local lastTargetX, lastTargetY, lastTargetZ
 local function createToggles()
     -- Rotation Button
     RotationModes = {
-        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.frozenOrb},
-        [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.frostbolt},
+        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.arcaneOrb},
+        [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneMissiles},
     }
     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
     CooldownModes = {
-        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.icyVeins},
-        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.icyVeins},
-        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.frostbolt},
-        [4] = {mode = "Lust", value = 4, overlay = "Cooldowns With Lust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.icyVeins}
+        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.runeofPower},
+        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.runeofPower},
+        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.arcaneBlast},
+        [4] = {mode = "Lust", value = 4, overlay = "Cooldowns With Lust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.runeofPower}
     }
     CreateButton("Cooldown", 2, 0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.iceBarrier},
-        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.iceBarrier}
+        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.prismaticBarrier},
+        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.prismaticBarrier}
     }
     CreateButton("Defensive", 3, 0)
     -- Interrupt Button
@@ -35,28 +35,10 @@ local function createToggles()
     CreateButton("Interrupt", 4, 0)
     -- Frozen Orb Button
     ArcaneOrbModes = {
-        [1] = {mode = "On", value = 1, overlay = "Auto FO Enabled", tip = "Will Automatically use Frozen Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
-        [2] = {mode = "Off", value = 2, overlay = "Auto FO Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.arcaneOrb}
+        [1] = {mode = "On", value = 1, overlay = "Auto AO Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
+        [2] = {mode = "Off", value = 2, overlay = "Auto AO Disabled", tip = "Will not use Arcane Orb", highlight = 0, icon = br.player.spell.arcaneOrb}
     }
     CreateButton("ArcaneOrb", 5, 0)
-    -- Ebonbolt Button
-    EbonboltModes = {
-        [1] = {mode = "On", value = 1, overlay = "Ebonbolt Enabled", tip = "Will use Ebonbolt", highlight = 1, icon = br.player.spell.ebonbolt},
-        [2] = {mode = "Off", value = 2, overlay = "Ebonbolt Disabled", tip = "Will not use Ebonbolt", highlight = 0, icon = br.player.spell.ebonbolt}
-    }
-    CreateButton("Ebonbolt", 6, 0)
-    -- Comet Storm Button
-    CometStormModes = {
-        [1] = {mode = "On", value = 1, overlay = "Comet Storm Enabled", tip = "Will use Comet Storm", highlight = 1, icon = br.player.spell.cometStorm},
-        [2] = {mode = "Off", value = 2, overlay = "Comet Storm Disabled", tip = "Will not use Comet Storm", highlight = 0, icon = br.player.spell.cometStorm}
-    }
-    CreateButton("CometStorm", 7, 0)
-    -- Comet Storm Button
-    ConeOfColdModes = {
-        [1] = {mode = "On", value = 1, overlay = "Cone Of Cold Enabled", tip = "Will use Cone Of Cold", highlight = 1, icon = br.player.spell.coneOfCold},
-        [2] = {mode = "Off", value = 2, overlay = "Cone Of Cold Disabled", tip = "Will not use Cone Of Cold", highlight = 0, icon = br.player.spell.coneOfCold}
-    }
-    CreateButton("ConeOfCold", 1, 1)
 end
 --------------- 
 --- OPTIONS ---
@@ -101,10 +83,13 @@ local function createOptions()
 
         -- Spellsteal
         br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
+
         -- Remove Curse
         br.ui:createDropdown(section, "Remove Curse", {"|cff00FF00Player","|cffFFFF00Target","|cffFFBB00Player/Target","|cffFF0000Mouseover","|cffFFBB00Any"}, 1, "","|ccfFFFFFFTarget to cast on, set delay in healing engine settings")
+
         -- Arcane Intellect
         br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFBB00 Will use Arcane Intellect", true)
+
         -- Slow Fall
         br.ui:createSpinner(section, "Slow Fall Distance", 30, 0, 100, 1, "|cffFFBB00 Will cast slow fall based on the fall distance", true)   
 
@@ -127,16 +112,21 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Cooldowns")
         -- Cooldowns Time to Die limit
         br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
+
         -- Racial
         br.ui:createCheckbox(section, "Racial")
+
         -- Trinkets        
         br.ui:createDropdownWithout(section, "Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+
 
         br.ui:createDropdownWithout(section, "Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
         -- Potion
         br.ui:createCheckbox(section, "Potion")
+
         -- Pre Pot
         br.ui:createCheckbox(section, "Pre Pot", "|cffFFBB00 Requires Pre-Pull logic to be active")
+
         -- AoE when using CD
         br.ui:createCheckbox(section, "Obey AoE units when using CDs", "|cffFFBB00 Use user AoE settings when using CDs")
         br.ui:checkSectionState(section)
@@ -147,18 +137,27 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Defensive")
         -- Healthstone
         br.ui:createSpinner(section, "Pot/Stoned", 45, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+
+        -- Use Mana Gem
+        br.ui:createSpinner(section, "Use Mana Gem", 25, 0, 100, 5, "|cffFFBB0Mana Percent to Cast At")
+
         -- Heirloom Neck
         br.ui:createSpinner(section, "Heirloom Neck", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+
         -- Gift of The Naaru
         if br.player.race == "Draenei" then
             br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
         end
+
         -- Ice Barrier
         br.ui:createSpinner(section, "Prismatic Barrier", 80, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+
         -- Ice Barrier OOC
-        br.ui:createCheckbox(section, "Prismatic Barrier Barrier OOC", "|cffFFBB00Keep Ice Barrier up out of combat")
+        br.ui:createCheckbox(section, "Prismatic Barrier OOC", "|cffFFBB00Keep Prismatic Barrier up out of combat")
+
         -- Ice Block
         br.ui:createSpinner(section, "Ice Block", 20, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+
         --Dispel
         --br.ui:createCheckbox(section, "Auto Dispel/Purge", "|cffFFBB00 Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
         br.ui:checkSectionState(section)
@@ -756,14 +755,106 @@ end
 
 
 local function ActionList_Leveling()
-    if level >= 17
-    and GetItemCount(36799) < 1 
-    or itemCharges(36799) < 3 
-    then
-        if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
-    end
+    if level >= 10 then
+        -- Conjure Mana Gem
+        if level >= 17
+        and GetItemCount(36799) < 1 
+        or itemCharges(36799) < 3 
+        then
+            if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
+        end
+
+        -- Presence of Mind
+        if level >= 42 
+        and cast.able.presenceOfMind()
+        and moving
+        then
+            if cast.presenceOfMind() then return true end 
+        end
+
+        -- Touch of the Magi
+        if level >= 34
+        and cast.able.touchoftheMagi()
+        and arcaneCharges < 0
+        then
+            if cast.touchoftheMagi() then return true end 
+        end
+
+        -- Arcane Power 
+        if level >= 29
+        and cast.able.arcanePower() 
+        and arcaneCharges > 3
+        then
+            if cast.arcanePower() then return true end 
+        end
+
+        -- Evocation
+        if level >= 27
+        and cast.able.evocation()
+        and manaPercent < 10 
+        then
+            if cast.evocation() then return true end 
+        end
+
+        -- Use Mana Gem
+        if level >= 17
+        and ui.checked("Use Mana Gem")
+        and manaPercent <= ui.value("Use Mana Gem")
+        then
+            if use.able.manaGem() then if use.manaGem() then br.addonDebug("Use Mana Gem") return true end end 
+        end
+
+        -- Arcane Missiles
+        if level >= 24 then
+            if cast.able.arcaneMissiles()
+            and buff.clearcasting.exists()
+            then
+                if cast.arcaneMissiles() then return true end 
+            end
+        end
+
+        -- Arcane Barrage
+        if cast.able.arcaneBarrage() then
+            -- If touch of the magi is ready. 
+            if level >= 46 and cd.touchoftheMagi.remain() <= gcdMax then if cast.arcaneBarrage() then return true end end 
+
+            -- If unit is about to die. 
+            if thisHP <= 35 and ttd >= gcdMax + cast.time.arcaneBarrage() then if cast.arcaneBarrage() then return true end end
+
+            -- If we're low on mana.
+            if manaPercent < 30 then if cast.arcaneBarrage() then return true end end
+
+            -- If we're capped on arcane charges. 
+            if arcaneCharges > 3 then if cast.arcaneBarrage() then return true end end
+        end
+
+        -- Arcane Orb Key
+        if mode.arcaneOrb == 2 and isChecked("Arcane Orb Key") and SpecificToggle("Arcane Orb Key") and not GetCurrentKeyBoardFocus() and cast.able.arcaneOrb() then
+            if castarcaneOrb(1, true, 4) then return true end 
+        end
+
+        -- Level 45 Arcane Orb
+        if level >= 45 and talent.arcaneOrb
+        and mode.arcaneOrb == 1
+        and aoeUnits >= ui.value("Arcane Orb Units")
+        or isBoss("target") or ttd >= 20 then
+            if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
+        end
 
 
+    
+        -- Arcane Explosion
+        if cast.able.arcaneExplosion() 
+        and getDistance("target") <= 10 
+        and manaPercent > 30 
+        and aoeUnits >= getOptionValue("Arcane Explosion Units") 
+        then
+            CastSpellByName(GetSpellInfo(spell.arcaneExplosion)) return true
+        end
+
+        -- Arcane Blast
+        if cast.able.arcaneBlast() then if cast.arcaneBlast() then return true end end
+    end 
 end
 
 
@@ -778,12 +869,14 @@ local function actionList_Extras()
             print(tonumber(getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
             profileStop = true
         end
-        --Ice Barrier
-        if not IsResting() and not inCombat and not playerCasting and isChecked("Ice Barrier OOC") then
-            if cast.iceBarrier("player") then
+
+        --Prismatic Barrier
+        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") then
+            if cast.prismaticBarrier("player") then
                 return true
             end
         end
+
         -- Spell Steal
         if isChecked("Spellsteal") and inCombat then
             for i = 1, #enemyTable40 do
@@ -792,6 +885,12 @@ local function actionList_Extras()
                 end
             end
         end
+
+        -- Arcane Orb Key
+        if mode.arcaneOrb == 2 or isChecked("Arcane Orb Key") and SpecificToggle("Arcane Orb Key") and not GetCurrentKeyBoardFocus() and cast.able.arcaneOrb() then
+            if castarcaneOrb(1, true, 4) then return true end 
+        end
+
         -- Arcane Intellect
         if isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
             for i = 1, #br.friend do
@@ -800,6 +899,7 @@ local function actionList_Extras()
                 end
             end
         end
+
         -- Trinkets
             -- Trinket 1
             if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
@@ -807,12 +907,14 @@ local function actionList_Extras()
                     use.slot(13)
                 end
             end
+
         -- Trinket 2
             if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
                 if use.able.slot(14) then
                     use.slot(14)
                 end
             end      
+
         -- Slow Fall
         if isChecked("Slow Fall Distance") and cast.able.slowFall() and not buff.slowFall.exists() then
             if IsFalling() and getFallDistance() >= getOptionValue("Slow Fall Distance") then
@@ -867,8 +969,8 @@ local function actionList_Defensive()
             end
 
             --Ice Barrier
-            if isChecked("Ice Barrier") and not playerCasting and php <= getOptionValue("Ice Barrier") then
-                if cast.iceBarrier("player") then
+            if isChecked("Prismatic Barrier") and not playerCasting and php <= getOptionValue("Prismatic Barrier") then
+                if cast.prismaticBarrier("player") then
                     return true
                 end
             end
@@ -1297,6 +1399,7 @@ local function actionList_AoE()
     -- Shadowlands
     --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack<buff.arcane_charge.max_stack
     if cast.able.arcaneExplosion()
+    and getDistance("target") <= 10
     and arcaneCharges > 3
     and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
     or not ui.checked("Arcane Explosion Units")
@@ -1306,6 +1409,7 @@ local function actionList_AoE()
 
     --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&prev_gcd.1.arcane_barrage
     if cast.able.arcaneExplosion()
+    and getDistance("target") <= 10
     and arcaneCharges > 3
     and cast.last.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
     and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
@@ -1643,7 +1747,8 @@ end
                 return true
             end
 
-            if aoeUnits >= 2 then if actionList_AoE() then return end end 
+            if getOptionValue("APL Mode") == 1 then
+                if aoeUnits >= 2 then if actionList_AoE() then return end end 
 
             -----------------------
             ---     Opener      ---
@@ -1666,6 +1771,11 @@ end
             
             if moving then
                 if actionList_Movement() then return end 
+            end
+            else
+                if actionList_Leveling() then
+                    return true
+                end
             end
 
             -- Movement Rotation
