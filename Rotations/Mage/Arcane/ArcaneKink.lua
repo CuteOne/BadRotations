@@ -1,67 +1,235 @@
-local rotationName = "Kink v0.1.1"
+local rotationName = "Kink"
+local rotationVer  = "v0.1.3"
+local targetMoveCheck, opener, finalBurn = false, false, false, false
+local lastTargetX, lastTargetY, lastTargetZ
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles() -- Define custom toggles
--- Rotation Button
+local function createToggles()
+    -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "This is the only mode for this rotation.", highlight = 0, icon = br.player.spell.whirlwind }
-    };
-    CreateButton("Rotation",1,0)
--- Cooldown Button
+        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.frozenOrb},
+        [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.frostbolt},
+    }
+    CreateButton("Rotation", 1, 0)
+    -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.berserk },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.berserk },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.berserk }
-    };
-    CreateButton("Cooldown",2,0)
--- Defensive Button
+        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.icyVeins},
+        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.icyVeins},
+        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.frostbolt},
+        [4] = {mode = "Lust", value = 4, overlay = "Cooldowns With Lust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.icyVeins}
+    }
+    CreateButton("Cooldown", 2, 0)
+    -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "No Defensives", tip = "This rotation does not use defensives.", highlight = 1, icon = br.player.spell.enragedRegeneration }
-    };
-    CreateButton("Defensive",3,0)
--- Interrupt Button
+        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.iceBarrier},
+        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.iceBarrier}
+    }
+    CreateButton("Defensive", 3, 0)
+    -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "No Interrupts", tip = "This rotation does not use interrupts.", highlight = 1, icon = br.player.spell.pummel }
-    };
-    CreateButton("Interrupt",4,0)
+        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterspell},
+        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterspell}
+    }
+    CreateButton("Interrupt", 4, 0)
+    -- Frozen Orb Button
+    FrozenOrbModes = {
+        [1] = {mode = "On", value = 1, overlay = "Auto FO Enabled", tip = "Will Automatically use Frozen Orb", highlight = 1, icon = br.player.spell.frozenOrb},
+        [2] = {mode = "Off", value = 2, overlay = "Auto FO Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.frozenOrb}
+    }
+    CreateButton("ArcaneOrb", 5, 0)
+    -- Ebonbolt Button
+    EbonboltModes = {
+        [1] = {mode = "On", value = 1, overlay = "Ebonbolt Enabled", tip = "Will use Ebonbolt", highlight = 1, icon = br.player.spell.ebonbolt},
+        [2] = {mode = "Off", value = 2, overlay = "Ebonbolt Disabled", tip = "Will not use Ebonbolt", highlight = 0, icon = br.player.spell.ebonbolt}
+    }
+    CreateButton("Ebonbolt", 6, 0)
+    -- Comet Storm Button
+    CometStormModes = {
+        [1] = {mode = "On", value = 1, overlay = "Comet Storm Enabled", tip = "Will use Comet Storm", highlight = 1, icon = br.player.spell.cometStorm},
+        [2] = {mode = "Off", value = 2, overlay = "Comet Storm Disabled", tip = "Will not use Comet Storm", highlight = 0, icon = br.player.spell.cometStorm}
+    }
+    CreateButton("CometStorm", 7, 0)
+    -- Comet Storm Button
+    ConeOfColdModes = {
+        [1] = {mode = "On", value = 1, overlay = "Cone Of Cold Enabled", tip = "Will use Cone Of Cold", highlight = 1, icon = br.player.spell.coneOfCold},
+        [2] = {mode = "Off", value = 2, overlay = "Cone Of Cold Disabled", tip = "Will not use Cone Of Cold", highlight = 0, icon = br.player.spell.coneOfCold}
+    }
+    CreateButton("ConeOfCold", 1, 1)
 end
-
----------------
+--------------- 
 --- OPTIONS ---
 ---------------
 local function createOptions()
+    local rotationKeys = {"None", GetBindingKey("Rotation Function 1"), GetBindingKey("Rotation Function 2"), GetBindingKey("Rotation Function 3"), GetBindingKey("Rotation Function 4"), GetBindingKey("Rotation Function 5")}
     local optionTable
-
     local function rotationOptions()
         local section
-    -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Trinkets
-            br.ui:createCheckbox(section,"Presence of Mind")
+        ------------------------
+        --- GENERAL  OPTIONS ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Arcane .:|:. General ".. ".:|:. ".. rotationVer)
+        -- APL
 
-        -- Mirror Image
-            br.ui:createCheckbox(section,"Mirror Image")
+        br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
+        -- Dummy DPS Test
 
-        -- Arcane Power
-            br.ui:createCheckbox(section,"Arcane Power")
+        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Pre-Pull Timer
 
-        -- Charged Up
-            br.ui:createCheckbox(section,"Charged Up")
+        br.ui:createCheckbox(section, "Pre-Pull Logic", "|cffFFBB00Will precast Frostbolt on pull if pulltimer is active")
+        -- Opener
+        br.ui:createCheckbox(section,"Opener")
 
+        -- Pet Management
+        br.ui:createCheckbox(section, "Pet Management", "|cffFFBB00 Select to enable/disable auto pet management")
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        ---   DPS SETTINGS   ---
+        ------------------------
+       section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. DPS Config")
+        -- Arcane Explosion
+        br.ui:createSpinnerWithout(section, "Arcane Explosion Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Arcane Explosion will be cast on.")
+
+        -- Frozen Orb Units
+        br.ui:createSpinnerWithout(section, "Arcane Orb Units", 3, 1, 10, 1, "|cffFFBB00Min. number of units Arcane Orb will be cast on.")
+
+        -- Arcane Explosion Units
+        br.ui:createSpinner(section, "Arcane Explosion Units", 2, 1, 10, 1, "|cffFFB000 Number of adds to cast Arcane Explosion")
+
+        -- Frozen Orb Key
+        br.ui:createDropdown(section, "Arcane Orb Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to manually use Arcane Orb")
+
+        -- Comet Storm Units
+        br.ui:createSpinnerWithout(section, "Comet Storm Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Comet Storm will be cast on.")
+
+        -- Casting Interrupt Delay
+        br.ui:createSpinner(section, "Casting Interrupt Delay", 0.3, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
+        -- Casting Interrupt Delay
+      --  br.ui:createCheckbox(section, "No Ice Lance", "|cffFFBB00Use No Ice Lance Rotation.")        
+        -- Predict movement
+        --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
+        -- Auto target
+        -- br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
+        br.ui:checkSectionState(section)
+
+        -- ------------------------
+        -- ---     ESSENCES     ---
+        -- ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Essences")
+        -- Essences Usage
+        br.ui:createDropdownWithout(section, "Use Essences", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use Essences.")
+        -- Focused Azerite Beam
+        br.ui:createSpinner(section, "Focused Azerite Beam",  3,  1,  10,  1,  "|cffFFBB00 Min. units hit to use Focused Azerite Beam")
+        -- Guardian of Azeroth
+        br.ui:createCheckbox(section, "Guardian of Azeroth", "|cffFFBB00 Use Guardian of Azeroth (During CDs)")
+        -- Memory of Lucid Dreams
+        br.ui:createCheckbox(section, "Memory of Lucid Dreams", "|cffFFBB00 Use Memory of Lucid Dreams as per SimC Logic")
+        -- Purifying Blast
+        br.ui:createCheckbox(section, "Purifying Blast", "|cffFFBB00 Use Purifying Blast as per SimC Logic")
+        -- Ripple in Space
+        br.ui:createCheckbox(section, "Ripple in Space", "|cffFFBB00 Use Ripple in Space as per SimC Logic")
+        -- Concentrated Flame
+        br.ui:createCheckbox(section, "Concentrated Flame DPS", "|cffFFBB00 Use Concentrated Flame for DPS")
+        br.ui:createSpinner(section, "Concentrated Flame HP", 30, 0, 100, 5, "|cffFFBB00 Use Concentrated Flame for healing")
+        -- The Unbound Force
+        br.ui:createCheckbox(section, "The Unbound Force", "|cffFFBB00 Use The Unbound Force as per SimC Logic")        
+        -- Worldvein Resonance    
+        br.ui:createCheckbox(section, "Worldvein Resonance", "|cffFFBB00 Use Worldvein Resonance as per SimC Logic")   
+        -- Reaping Flames
+        br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only"}, 1)
+        br.ui:createSpinnerWithout(section, "Reaping Flames Damage", 30, 10, 100, 1)
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        ---     UTILITY      ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. DPS Config")
+        -- Spellsteal
+        br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
+        -- Remove Curse
+        br.ui:createDropdown(section, "Remove Curse", {"|cff00FF00Player","|cffFFFF00Target","|cffFFBB00Player/Target","|cffFF0000Mouseover","|cffFFBB00Any"}, 1, "","|ccfFFFFFFTarget to cast on, set delay in healing engine settings")
+        -- Arcane Intellect
+        br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFBB00 Will use Arcane Intellect")
+        -- Slow Fall
+        br.ui:createSpinner(section, "Slow Fall Distance", 30, 0, 100, 1, "|cffFFBB00 Will cast slow fall based on the fall distance")                
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        --- COOLDOWN OPTIONS ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Cooldowns")
+        -- Cooldowns Time to Die limit
+        br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
         -- Racial
-            br.ui:createCheckbox(section,"Racial")
+        br.ui:createCheckbox(section, "Racial")
+        -- Trinkets        
+        br.ui:createDropdownWithout(section, "Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+        br.ui:createDropdownWithout(section, "Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+        -- Potion
+        br.ui:createCheckbox(section, "Potion")
+        -- Pre Pot
+        br.ui:createCheckbox(section, "Pre Pot", "|cffFFBB00 Requires Pre-Pull logic to be active")
+        -- AoE when using CD
+        br.ui:createCheckbox(section, "Obey AoE units when using CDs", "|cffFFBB00 Use user AoE settings when using CDs")
+        br.ui:checkSectionState(section)
 
-        -- Charged Up
-            br.ui:createCheckbox(section,"Rune of Power")
+        ------------------------
+        --- Defensive OPTIONS ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Defensive")
+        -- Healthstone
+        br.ui:createSpinner(section, "Pot/Stoned", 45, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        -- Heirloom Neck
+        br.ui:createSpinner(section, "Heirloom Neck", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        -- Gift of The Naaru
+        if br.player.race == "Draenei" then
+            br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        end
+        -- Ice Barrier
+        br.ui:createSpinner(section, "Ice Barrier", 80, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        -- Ice Barrier OOC
+        br.ui:createCheckbox(section, "Ice Barrier OOC", "|cffFFBB00Keep Ice Barrier up out of combat")
+        -- Ice Block
+        br.ui:createSpinner(section, "Ice Block", 20, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        --Dispel
+        --br.ui:createCheckbox(section, "Auto Dispel/Purge", "|cffFFBB00 Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
+        br.ui:checkSectionState(section)
 
+        ------------------------
+        ---Interrupt  OPTIONS---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+        -- Interrupt Percentage
+        br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percent to Cast At")
+        -- Don't interrupt
+        br.ui:createCheckbox(section, "Do Not Cancel Cast", "|cffFFBB00Will not interrupt own spellcasting to cast Counterspell")
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        ---TOGGLE KEY OPTIONS---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        -- Single/Multi Toggle
+        br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        -- Cooldown Key Toggle
+        br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        -- Defensive Key Toggle
+        br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        -- Interrupts Key Toggle
+        br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        -- Pause Toggle
+        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
+    optionTable = {
+        {
+            [1] = "Rotation Options",
+            [2] = rotationOptions
+        }
+    }
     return optionTable
 end
 ----------------
@@ -139,15 +307,23 @@ local function runRotation()
         local pet                                           = br.player.pet.list
         local hasPet                                        = IsPetActive()
         local equiped                                       = br.player.equiped
+        local ttd                                           = getTTD
         
         units.get(40)
-        enemies.get(15, "target")
-        enemies.get(8, "target")
         enemies.get(10)
-        enemies.get(40)
+        enemies.get(10, "target", true)
+        enemies.get(40, nil, nil, nil, spell.arcaneBlast)
 
+
+        local dispelDelay = 1.5
+        if isChecked("Dispel delay") then
+            dispelDelay = getValue("Dispel delay")
+        end
+
+        if profileStop == nil or not inCombat then
+            profileStop = false
+        end
         if leftCombat == nil then leftCombat = GetTime() end
-        if profileStop == nil then profileStop = false end
 
         local ccMaxStack = 3
        --variable,name=aoe_totm_charges,op=set,value=2
@@ -162,21 +338,31 @@ local function runRotation()
         local var_init = false
         local RadiantSparlVulnerabilityMaxStack = 4
         local ClearCastingMaxStack = 3
-        local ArcaneOpener
 
         ArcaneOpener = {}
-        function ArcaneOpener:Reset()
-            self.state = false
-            self.final_burn = false
-            self.has_opened = fals
-            var_init = false
-        end
-        ArcaneOpener:Reset()
+        local ArcaneOpener = ArcaneOpener
 
-        if #enemies.yards10t > 2 or var_prepull_evo then
-            ArcaneOpener:StopOpener()
+                
+    --blizzard check
+    local aoeUnits = 0
+    for i = 1, #enemies.yards10tnc do
+        local thisUnit = enemies.yards10tnc[i]
+        if ttd(thisUnit) > 4 then
+            aoeUnits = aoeUnits + 1
         end
+    end
 
+
+function ArcaneOpener:Reset()
+  self.state = false
+  self.final_burn = false
+  self.has_opened = false
+
+  var_init = false
+end
+ArcaneOpener:Reset()
+
+   local function VarInit()
   --varia
   --variable,name=prepull_evo,op=set,value=0
   --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&active_enemies>2
@@ -187,7 +373,7 @@ local function runRotation()
   --variable,name=have_opened,op=set,value=0
   --variable,name=have_opened,op=set,value=1,if=active_enemies>2
   --variable,name=have_opened,op=set,value=1,if=variable.prepull_evo=1
-  if #enemies.yards15t >2 or var_prepull_evo then
+  if aoeUnits >= 2 or var_prepull_evo then
     ArcaneOpener:StopOpener()
   end
   --variable,name=rs_max_delay,op=set,value=5
@@ -221,7 +407,7 @@ local function runRotation()
   var_aoe_totm_charges = 2
 
   var_init = true
-
+end
 
 function ArcaneOpener:StartOpener()
   if inCombat then
@@ -238,7 +424,7 @@ function ArcaneOpener:StopOpener()
 end
 
 function ArcaneOpener:On()
-  return self.state or (not inCombat and (UnitCastingInfo("player") == GetSpellInfo(spell.frostbolt)) or UnitChannelInfo("player") == GetSpellInfo(spell.evocation))
+return self.state or (not inCombat and (UnitCastingInfo("player") == (Spell.frostbolt) or UnitCastingInfo("player") == (spell.evocation)))
 end
 
 function ArcaneOpener:HasOpened()
@@ -253,88 +439,117 @@ function ArcaneOpener:IsFinalBurn()
   return self.final_burn
 end
 
-function cl:Mage(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    if source == br.guid then
-        -- CLear dot table after each death/individual combat scenarios. 
-        if source == br.guid and param == "PLAYER_REGEN_ENABLED" then 
-            VarConserveMana = 0
-            VarTotalBurns = 0
-            VarAverageBurnLength = 0
-            VarFontPrecombatChannel = 0
-        end       
-        if param == "PLAYER_REGEN_DISABLED" then ArcaneOpener:Reset() end
-    end 
-end
-
-        if leftCombat == nil then leftCombat = GetTime() end
-        if profileStop == nil then profileStop = false end
-
-        --Player cast remain
-        local playerCastRemain = 0
-        if UnitCastingInfo("player") then playerCastRemain = (select(5, UnitCastingInfo("player")) / 1000) - GetTime() end
-
-        -- spellqueue ready
-        local function spellQueueReady()
-            --Check if we can queue cast
-            local castingInfo = {UnitCastingInfo("player")}
-            if castingInfo[5] then
-                if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
-                    return false
-                end
+   -- spellqueue ready
+    local function spellQueueReady()
+        --Check if we can queue cast
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[5] then
+            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                return false
             end
-            return true
         end
-            -- Pet Stance
-        local function petFollowActive()
-            for i = 1, NUM_PET_ACTION_SLOTS do
-                local name, _, _,isActive = GetPetActionInfo(i)
-                if isActive and name == "PET_ACTION_FOLLOW" then
+        return true
+    end
+
+    --cast time
+    local function interruptCast(spellID)
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[9] and castingInfo[9] == spellID then
+            if isChecked("Casting Interrupt Delay") then
+                if (GetTime()-(castingInfo[4]/1000)) >= getOptionValue("Casting Interrupt Delay") then
                     return true
                 end
+            else
+                return true
             end
-            return false
-        end   
-        
-         -- Ice Floes
-        if moving and talent.iceFloes and buff.iceFloes.exists() then
-            moving = false
         end
+        return false
+    end
 
-        --rop notice
-        if not ropNotice and talent.runeofPower then
-            print("Rune Of Power talent not supported in rotation yet, use manually")
-            ropNotice = true
-        elseif ropNotice and not talent.runeofPower then
-            ropNotice = false
-        end
+    --Player cast remain
+    local playerCastRemain = 0
+    if UnitCastingInfo("player") then
+        playerCastRemain = (select(5, UnitCastingInfo("player")) / 1000) - GetTime()
+    end
 
-        units.get(40)
-        enemies.get(10, "target", true)
-        enemies.get(40, nil, nil, nil, spell.frostbolt)
-
-        local dispelDelay = 1.5
-        if isChecked("Dispel delay") then
-            dispelDelay = getValue("Dispel delay")
-        end
-
-        if profileStop == nil or not inCombat then
-            profileStop = false
-        end
-
-        --ttd
-        local function ttd(unit)
-            local ttdSec = getTTD(unit)
-            if getOptionCheck("Enhanced Time to Die") then
-                return ttdSec
+    -- Pet Stance
+    local function petFollowActive()
+        for i = 1, NUM_PET_ACTION_SLOTS do
+            local name, _, _,isActive = GetPetActionInfo(i)
+            if isActive and name == "PET_ACTION_FOLLOW" then
+                return true
             end
-            if ttdSec == -1 then
-                return 999
-            end
+        end
+        return false
+    end       
+
+    units.get(40)
+    enemies.get(10)
+    enemies.get(10, "target", true)
+    enemies.get(40, nil, nil, nil, spell.frostbolt)
+
+    local dispelDelay = 1.5
+    if isChecked("Dispel delay") then
+        dispelDelay = getValue("Dispel delay")
+    end
+
+    if profileStop == nil or not inCombat then
+        profileStop = false
+    end
+    --ttd
+    local function ttd(unit)
+        local ttdSec = getTTD(unit)
+        if getOptionCheck("Enhanced Time to Die") then
             return ttdSec
         end
+        if ttdSec == -1 then
+            return 999
+        end
+        return ttdSec
+    end
+    --is frozen
+    local function isFrozen(unit)
+        local function getRawDistance(unit)
+            local x1, y1, z1 = ObjectPosition("player")
+            local x2, y2, z2 = ObjectPosition(unit)
+            return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+        end
+        local distance = getRawDistance(unit)
+        local travelTime = distance / 50 + 0.15 --Ice lance
+        if buff.fingersOfFrost.remain() > (gcd + travelTime) or debuff.frostNova.remain(unit, "any") > (gcd + travelTime) or debuff.iceNova.remain(unit, "any") > (gcd + travelTime) or debuff.wintersChill.remain(unit) > (gcd + travelTime) then
+            return true
+        end
+        return false
+    end
 
-        local function calcHP(unit)
+    --calc damge
+    local function calcDamage(spellID, unit)
+        local spellPower = GetSpellBonusDamage(5)
+        local spMod
+        local dmg = 0
+        local frostMageDmg = 0.81
+        if spellID == spell.frostbolt then
+            dmg = spellPower * 0.511
+        elseif spellID == spell.iceLance then
+            dmg = spellPower * 0.35
+            if unit.frozen then
+                dmg = dmg * 3
+            end
+        elseif spellID == spell.waterbolt then
+            dmg = spellPower * 0.75 * 0.2925
+        elseif spellID == spell.iceNova then
+            dmg = spellPower * 0.45 * 400 / 100
+        elseif spellID == spell.flurry then
+            dmg = spellPower * 0.316 * 3
+        elseif spellID == spell.ebonbolt then
+            dmg = spellPower * 3.2175
+        else
+            return 0
+        end
+        return dmg * frostMageDmg * (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+    end
+
+    local function calcHP(unit)
         local thisUnit = unit.unit
         local hp = UnitHealth(thisUnit)
         if br.unlocked then --EasyWoWToolbox ~= nil then
@@ -360,7 +575,12 @@ end
         return hp
     end
 
-        local function spellstealCheck(unit)
+    --Spell steal
+    local doNotSteal = {
+        [273432] = "Bound By Shadow(Uldir)",
+        [269935] = "Bound By Shadow(KR)"
+    }
+    local function spellstealCheck(unit)
         local i = 1
         local buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)
         while buffName do
@@ -374,8 +594,9 @@ end
         end
         return false
     end
-        -- Blacklist enemies
-        local function isTotem(unit)
+
+    -- Blacklist enemies
+    local function isTotem(unit)
         local eliteTotems = {
             -- totems we can dot
             [125977] = "Reanimate Totem",
@@ -392,7 +613,7 @@ end
         return false
     end
 
-        local noDotUnits = {
+    local noDotUnits = {
         [135824] = true, -- Nerubian Voidweaver
         [139057] = true, -- Nazmani Bloodhexer
         [129359] = true, -- Sawtooth Shark
@@ -403,7 +624,7 @@ end
         [120651] = true -- Explosive
     }
 
-            local function noDotCheck(unit)
+    local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then
             return true
         end
@@ -515,47 +736,19 @@ end
         return false
     end
 
-        
-    --blizzard check
-    local blizzardUnits = 0
-    for i = 1, #enemies.yards10tnc do
-        local thisUnit = enemies.yards10tnc[i]
-        if ttd(thisUnit) > 4 then
-            blizzardUnits = blizzardUnits + 1
-        end
-    end
-
-    --Clear last cast table ooc to avoid strange casts
-    if not inCombat and #br.lastCast.tracker > 0 then
-        wipe(br.lastCast.tracker)
-    end
-
-    ---Target move timer
-    if lastTargetX == nil then
-        lastTargetX, lastTargetY, lastTargetZ = 0, 0, 0
-    end
-    if br.timer:useTimer("targetMove", 0.8) or combatTime < 0.2 then
-        if UnitIsVisible("target") then
-            local currentX, currentY, currentZ = ObjectPosition("target")
-            local targetMoveDistance = math.sqrt(((currentX - lastTargetX) ^ 2) + ((currentY - lastTargetY) ^ 2) + ((currentZ - lastTargetZ) ^ 2))
-            lastTargetX, lastTargetY, lastTargetZ = ObjectPosition("target")
-            if targetMoveDistance < 3 then
-                targetMoveCheck = true
-            else
-                targetMoveCheck = false
-            end
-        end
-    end
-
-    --Tank move check for aoe
-    local tankMoving = false
-    if inInstance then
-        for i = 1, #br.friend do
-            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and isMoving(br.friend[i].unit) then
-                tankMoving = true
-            end
-        end
-    end
+function cl:Mage(...)
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    if source == br.guid then
+        -- CLear dot table after each death/individual combat scenarios. 
+        if source == br.guid and param == "PLAYER_REGEN_ENABLED" then 
+            VarConserveMana = 0
+            VarTotalBurns = 0
+            VarAverageBurnLength = 0
+            VarFontPrecombatChannel = 0
+        end       
+        if param == "PLAYER_REGEN_DISABLED" then finalBurn = false opener = false var_init = false end
+    end 
+end
 
         local function castarcaneOrb(minUnits, safe, minttd)
         if not isKnown(spell.arcaneOrb) or getSpellCD(spell.arcaneOrb) ~= 0 then
@@ -592,14 +785,13 @@ end
             end
         end
         if unitsInRect >= minUnits then
-            CastSpellByName(GetSpellInfo(arcaneOrb))
+            CastSpellByName(GetSpellInfo(spell.arcaneOrb))
             return true
         else
             return false
         end
     end
-
-        
+  
     function mageDamage()
         local X,Y,Z = ObjectPosition("player")
         print(Z)
@@ -616,7 +808,7 @@ end
 --- Action Lists ---
 --------------------
 
---[[local function actionList_Extras()
+local function actionList_Extras()
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
             StopAttack()
             ClearTarget()
@@ -760,16 +952,109 @@ local function actionList_Defensive()
         end
 end
 
+local function ActionList_PreCombat()
+    finalBurn = false
+    --actions.precombat=variable,name=prepull_evo,op=set,value=0
+
+    --actions.precombat+=/flask
+
+    --actions.precombat+=/food
+
+    --actions.precombat+=/augmentation
+
+    --actions.precombat+=/arcane_familiar
+    if cast.able.arcaneFamiliar() 
+    and not buff.arcaneFamiliar.exists() 
+    then 
+        if cast.arcaneFamiliar() then return true end
+    end
+
+    --actions.precombat+=/arcane_intellect
+    if cast.able.arcaneIntellect() 
+    and not buff.arcaneIntellect.exists() 
+    then 
+        if cast.arcaneIntellect() then return true end
+    end
+
+    --actions.precombat+=/conjure_mana_gem
+    -- Conjure Mana Gem
+    if GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
+        if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
+    end
+
+    --actions.precombat+=/snapshot_stats
+
+    --actions.precombat+=/mirror_image
+    if cast.mirrorImage("player") then return true end
+    
+    --actions.precombat+=/frostbolt,if=variable.prepull_evo=0
+    if not var_prepull_evo and cast.able.frostbolt() then
+        if cast.frostbolt() then return true end
+    end
+
+    --actions.precombat+=/evocation,if=variable.prepull_evo=1
+    if var_prepull_evo and cast.able.evocation() then
+        if cast.evocation() then return true end
+    end
+end
+
+
+--[[
+actions.cooldowns=lights_judgment,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
+actions.cooldowns+=/bag_of_tricks,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
+actions.cooldowns+=/call_action_list,name=items,if=buff.arcane_power.up
+actions.cooldowns+=/potion,if=buff.arcane_power.up
+actions.cooldowns+=/berserking,if=buff.arcane_power.up
+actions.cooldowns+=/blood_fury,if=buff.arcane_power.up
+actions.cooldowns+=/fireblood,if=buff.arcane_power.up
+actions.cooldowns+=/ancestral_call,if=buff.arcane_power.up
+# Prioritize using grisly icicle with ap. Use it with totm otherwise. 
+actions.cooldowns+=/frost_nova,if=runeforge.grisly_icicle.equipped&cooldown.arcane_power.remains>30&cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=2&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd))
+actions.cooldowns+=/frost_nova,if=runeforge.grisly_icicle.equipped&cooldown.arcane_power.remains=0&(!talent.enlightened.enabled|(talent.enlightened.enabled&mana.pct>=70))&((cooldown.touch_of_the_magi.remains>10&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack=0))&buff.rune_of_power.down&mana.pct>=variable.ap_minimum_mana_pct
+actions.cooldowns+=/frostbolt,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_frost.down&(buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down)&cooldown.touch_of_the_magi.remains=0&(buff.arcane_charge.stack<=2&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd))
+actions.cooldowns+=/fire_blast,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down&prev_gcd.1.frostbolt
+# Always use mirrors with ap. If totm is ready as well, make sure to cast it before totm.
+actions.cooldowns+=/mirrors_of_torment,if=cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=2&cooldown.arcane_power.remains<=gcd
+actions.cooldowns+=/mirrors_of_torment,if=cooldown.arcane_power.remains=0&(!talent.enlightened.enabled|(talent.enlightened.enabled&mana.pct>=70))&((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack=0))&buff.rune_of_power.down&mana.pct>=variable.ap_minimum_mana_pct
+# Always use deathborne with ap. If totm is ready as well, make sure to cast it before totm.
+actions.cooldowns+=/deathborne,if=cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=2&cooldown.arcane_power.remains<=gcd
+actions.cooldowns+=/deathborne,if=cooldown.arcane_power.remains=0&(!talent.enlightened.enabled|(talent.enlightened.enabled&mana.pct>=70))&((cooldown.touch_of_the_magi.remains>10&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack=0))&buff.rune_of_power.down&mana.pct>=variable.ap_minimum_mana_pct
+# Use spark if totm and ap are on cd and won't be up for longer than the max delay, making sure we have at least two arcane charges and that totm wasn't just used.
+actions.cooldowns+=/radiant_spark,if=cooldown.touch_of_the_magi.remains>variable.rs_max_delay&cooldown.arcane_power.remains>variable.rs_max_delay&(talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd|talent.rune_of_power.enabled&cooldown.rune_of_power.remains>variable.rs_max_delay|!talent.rune_of_power.enabled)&buff.arcane_charge.stack>2&debuff.touch_of_the_magi.down
+# Use spark with ap when possible. If totm is ready as well, make sure to cast it before totm.
+actions.cooldowns+=/radiant_spark,if=cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=2&cooldown.arcane_power.remains<=gcd
+actions.cooldowns+=/radiant_spark,if=cooldown.arcane_power.remains=0&((!talent.enlightened.enabled|(talent.enlightened.enabled&mana.pct>=70))&((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack=0))&buff.rune_of_power.down&mana.pct>=variable.ap_minimum_mana_pct)
+# Kyrian: Use totm if ap is on cd and won't be up for longer than the max delay. Align with rop if the talent is taken. Hold a bit to make sure we can RS immediately after totm ends
+actions.cooldowns+=/touch_of_the_magi,if=buff.arcane_charge.stack<=2&talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay&covenant.kyrian.enabled&cooldown.radiant_spark.remains<=8
+# Non-Kyrian: Use totm if ap is on cd and won't be up for longer than the max delay. Align with rop if the talent is taken.
+actions.cooldowns+=/touch_of_the_magi,if=buff.arcane_charge.stack<=2&talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay&!covenant.kyrian.enabled
+actions.cooldowns+=/touch_of_the_magi,if=buff.arcane_charge.stack<=2&!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay
+actions.cooldowns+=/touch_of_the_magi,if=buff.arcane_charge.stack<=2&cooldown.arcane_power.remains<=gcd
+# Use ap if totm is on cd and won't be up for longer than the max delay, making sure that we have enough mana and that there is not already a rune of power down.
+actions.cooldowns+=/arcane_power,if=(!talent.enlightened.enabled|(talent.enlightened.enabled&mana.pct>=70))&cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack&buff.rune_of_power.down&mana.pct>=variable.ap_minimum_mana_pct
+# Use rop if totm is on cd and won't be up for longer than the max delay, making sure there isn't already a rune down and that ap won't become available during rune.
+actions.cooldowns+=/rune_of_power,if=buff.rune_of_power.down&cooldown.touch_of_the_magi.remains>variable.rop_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
+# Kyrian: RS is mana hungry and AB4s are too expensive to use pom to squeeze an extra ab in the totm window. Let's use it to make low charge ABs instant.
+actions.cooldowns+=/presence_of_mind,if=buff.arcane_charge.stack=0&covenant.kyrian.enabled
+# Non-Kyrian: Use pom to squeeze an extra ab in the totm window.
+actions.cooldowns+=/presence_of_mind,if=debuff.touch_of_the_magi.up&!covenant.kyrian.enabled
+actions.cooldowns+=/use_mana_gem,if=cooldown.evocation.remains>0&((talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85))
+]]--
 local function actionList_Cooldowns()
     if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") then
 
     -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
-    if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (cast.last.icyVeins() or ttd("target") < 30) then
+    if isChecked("Potion") 
+    and use.able.battlePotionOfIntellect() 
+    and not buff.battlePotionOfIntellect.exists() 
+    and buff.arcanePower.exists()
+    and (cast.last.icyVeins() or ttd("target") < 30) 
+    then
         use.battlePotionOfIntellect()
-         return true
+        return true
     end
     -- actions.cooldowns+=/mirror_image
-            if cast.mirrorImage("player") then return true end
+    if cast.mirrorImage("player") then return true end
 
     --racials
     if isChecked("Racial") then
@@ -782,9 +1067,65 @@ local function actionList_Cooldowns()
             end
         end
     end
-end--]]
 
---[[local function actionList_Movement()
+    --actions.cooldowns+=/touch_of_the_magi,if=buff.arcane_charge.stack<=2&!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay
+    if cast.able.touchOfTheMagi()
+    and arcaneCharges <= 2
+    and not talent.runeofPower
+    and cd.arcanePower.remain() > var_ap_max_delay
+    then
+        if cast.touchOfTheMagi() then return true end 
+    end
+
+    --actions.cooldowns+=/touch_of_the_magi,if=buff.arcane_charge.stack<=2&cooldown.arcane_power.remains<=gcd
+    --Use ap if totm is on cd and won't be up for longer than the max delay, making sure that we have enough mana and that there is not already a rune of power down.
+    if cast.able.touchOfTheMagi()
+    and arcaneCharges <= 2
+    and cd.arcanePower.remain() <= gcdMax
+    then
+        if cast.touchOfTheMagi() then return true end
+    end
+
+    --actions.cooldowns+=/arcane_power,if=(!talent.enlightened.enabled|(talent.enlightened.enabled&mana.pct>=70))&cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack&buff.rune_of_power.down&mana.pct>=variable.ap_minimum_mana_pct
+    -- Use rop if totm is on cd and won't be up for longer than the max delay, making sure there isn't already a rune down and that ap won't become available during rune.
+    if cast.able.arcanePower() and not talent.enlightened
+    or talent.enlightened
+    and manaPercent >= 70
+    and cd.touchOfTheMagi.remain() > var_rop_max_delay
+    and arcaneCharges > 3
+    and not buff.runeofPower.exists()
+    and manaPercent >= var_ap_minimum_mana_pct
+    then
+        if cast.arcanePower() then return true end
+    end
+
+    --actions.cooldowns+=/rune_of_power,if=buff.rune_of_power.down&cooldown.touch_of_the_magi.remains>variable.rop_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
+    if cast.able.runeofPower()
+    and not buff.runeofPower.exists()
+    and cd.touchOfTheMagi.remain() > var_rop_max_delay
+    and arcaneCharges > 3
+    and cd.arcanePower.remain() > 15
+    or debuff.touchoftheMagi.exists("target")
+    then
+        if cast.runeofPower() then return true end
+    end
+
+    --actions.cooldowns+=/presence_of_mind,if=debuff.touch_of_the_magi.up&!covenant.kyrian.enabled
+    -- Shadowlands
+
+    --actions.cooldowns+=/use_mana_gem,if=cooldown.evocation.remains>0&((talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85))
+    if cd.evocation.remain() > 0
+    and talent.enlightened
+    and manaPercent <= 80 and manaPercent >= 65
+    or not talent.enlightened 
+    and manaPercent <= 85
+    then
+        if use.able.manaGem() then if use.manaGem() then br.addonDebug("[Action:AoE] Mana Gem (1)") return true end end 
+    end
+
+end
+
+local function actionList_Movement()
     --actions.movement=blink_any,if=movement.distance>=10
     if cast.able.Blink()
     and getDistance("target") > 40
@@ -807,7 +1148,7 @@ end--]]
 
     --actions.movement+=/fire_blast
     if cast.able.fireBlast() then if cast.fireBlast() then return true end end
-end--]]
+end
 
 
 local function actionList_Final_Burn()
@@ -833,6 +1174,8 @@ local function actionList_Final_Burn()
     end
 
 end
+
+
 
 local function actionList_AoE()
     --actions.aoe=use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
@@ -896,7 +1239,7 @@ local function actionList_AoE()
 
     --actions.aoe+=/touch_of_the_magi,if=buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)
     --|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd)
-    if cast.able.touchoftheMagi()
+    if cast.able.touchOfTheMagi()
     and (arcaneCharges <= var_aoe_totm_charges
     and talent.runeofPower
     and cd.runeofPower.remain() <= gcdMax 
@@ -904,14 +1247,14 @@ local function actionList_AoE()
     or (talent.runeofPower and cd.arcanePower.remain() > var_totm_max_delay)
     or cd.arcanePower.remain() <= gcdMax
     then
-        if cast.touchoftheMagi() then br.addonDebug("[Action:AoE] Touch of the Magi (5)") return true end 
+        if cast.touchOfTheMagi() then br.addonDebug("[Action:AoE] Touch of the Magi (5)") return true end 
     end
 
     --actions.aoe+=/arcane_power,if=((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down
     if cast.able.arcanePower()
-    and ((cd.touchoftheMagi.remain() > ap_max_delay
+    and ((cd.touchOfTheMagi.remain() > ap_max_delay
     and arcaneCharges > 3))
-    or ((cd.touchoftheMagi.remains() == 0 
+    or ((cd.touchOfTheMagi.remains() == 0 
     and arcaneCharges <= var_aoe_totm_charges))
     and not buff.arcanePower.exsists()
     then
@@ -921,12 +1264,12 @@ local function actionList_AoE()
     --actions.aoe+=/rune_of_power,if=buff.rune_of_power.down&((cooldown.touch_of_the_magi.remains>20&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
     if cast.able.runeofPower()
     and not buff.runeofPower.exists()
-    and ((cd.touchoftheMagi.remain() > 20 
+    and ((cd.touchOfTheMagi.remain() > 20 
     and arcaneCharges > 3))
-    or ((cd.touchoftheMagi.remain() == 0
+    or ((cd.touchOfTheMagi.remain() == 0
     and arcaneCharges <= var_aoe_totm_charges
     and cd.arcanePower.remain() > 15
-    or buff.touchoftheMagi.exists()))
+    or buff.touchOfTheMagi.exists()))
     then
         if cast.runeofPower() then br.addonDebug("[Action:AoE] Rune of Power (7)") return true end
     end                                                                                                                     
@@ -979,7 +1322,7 @@ local function actionList_AoE()
     and not buff.runeofPower.exists()
     and not debuff.touchoftheMagi.exists("target")
     and cd.arcanePower.remain() > 0
-    and cd.touchoftheMagi.remain() > 0
+    and cd.touchOfTheMagi.remain() > 0
     and not talent.runeofPower
     or talent.runeofPower and cd.runeofPower.remain() == 0
     then
@@ -1014,7 +1357,8 @@ local function actionList_AoE()
 
 
     --actions.aoe+=/evocation,interrupt_if=mana.pct>=85,interrupt_immediate=1
-    if manaPercent >= 85 and buff.evocation.exists() then br.addonDebug("[Action:AoE] Cancel Evocation") SpellStopCasting() return true end 
+    if manaPercent >= 85 and UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:AoE] Cancel Evocation") SpellStopCasting() return true end
+
     if cast.able.evocation()
     and not buff.runeofPower.exists()
     and manaPercent < 85
@@ -1024,15 +1368,8 @@ local function actionList_AoE()
 end
 
 local function ActionList_Opener()
-  if not ArcaneOpener:On() then
-    ArcaneOpener:StartOpener()
-    return "Start opener"
-  end
   -- --actions.opener=variable,name=have_opened,op=set,value=1,if=prev_gcd.1.evocat
-  if last.cast.evocation(2) and ArcaneOpener:On() then
-    ArcaneOpener:StopOpener()
-    return "Stop opener 1"
-  end
+  opener = true
 
   --actions.opener+=/lights_judgment,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
 if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera" 
@@ -1073,7 +1410,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     --actions.opener+=/shifting_power,if=soulbind.field_of_blossoms.enabled
 
     --actions.opener+=/touch_of_the_magi
-    if cast.able.touchoftheMagi() then if cast.touchoftheMagi() then return true end end 
+    if cast.able.touchOfTheMagi() then if cast.touchOfTheMagi() then return true end end 
 
     --actions.opener+=/arcane_power
     if cast.able.arcanePower() then if cast.arcanePower() then return true end end 
@@ -1176,10 +1513,10 @@ local function actionList_Rotation()
     --actions.rotation=variable,name=final_burn,op=set,value=1,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&!buff.rule_of_threes.up&target.time_to_die<=((mana%action.arcane_blast.cost)*action.arcane_blast.execute_time)
     if cast.able.arcaneMissiles()
     and arcaneCharges > 3 
-    and not buff.ruleofThrees.exists() 
-    and getTTD("target") <= ( manaPercent / spell.arcaneBlast.cost() * cast.time.arcaneBlast() )
+    and not buff.ruleOfThrees.exists() 
+    and getTTD("target") <= (( power / 275))*cast.time.arcaneBlast()
     then
-        if cast.arcaneBlast() then br.addonDebug("Casting Arcane Missiles ()") return truee end
+        if cast.arcaneBlast() then br.addonDebug("Casting Arcane Missiles (Starting FInal Burn)") finalBurn = true return true end
     end
 
     --aactions.rotation+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_tim
@@ -1188,7 +1525,7 @@ local function actionList_Rotation()
     and debuff.touchoftheMagi.exists("target") 
     and debuff.touchoftheMagi.remain("target") <= cast.time.arcaneBlast() 
     then
-        if cast.arcaneBlast() then br.addonDebug("Casting Arcane Blast (PoM, Magi)") return truee end
+        if cast.arcaneBlast() then br.addonDebug("Casting Arcane Blast (PoM, Magi)") return true end
     end
 
     --actions.rotation+=/arcane_missiles,if=debuff.touch_of_the_magi.up&talent.arcane_echo.enabled&buff.deathborne.down&(debuff.touch_of_the_magi.remains>action.arcane_missiles.execute_time|cooldown.presence_of_mind.remains>0|covenant.kyrian.enabled),chain=1
@@ -1259,7 +1596,7 @@ local function actionList_Rotation()
     
     -- actions.rotation+=/shifting_power,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&cooldown.evocation.remains>0&cooldown.arcane_power.remains>0&cooldown.touch_of_the_magi.remains>0&(!talent.rune_of_power.enabled|(talent.rune_of_power.enabled&cooldown.rune_of_power.remains>0))
     --if cast.able.shiftingPower() and not buff.arcanePower.exists() and not buff.runeofPower.exists() 
-    --and not debuff.touchoftheMagi.exists("target") and cd.evocation.remain()  > 0 and cd.arcanePower.remain() > 0 and cd.touchoftheMagi.remain() > 0 and not talent.runeofPower or talent.runeofPower and cd.runeofPower.remain() > 0 then
+    --and not debuff.touchoftheMagi.exists("target") and cd.evocation.remain()  > 0 and cd.arcanePower.remain() > 0 and cd.touchOfTheMagi.remain() > 0 and not talent.runeofPower or talent.runeofPower and cd.runeofPower.remain() > 0 then
     --    if cast.shiftingPower() then return true end
     --end
 
@@ -1271,7 +1608,7 @@ local function actionList_Rotation()
     end
 
     -- actions.rotation+=/arcane_barrage,if=mana.pct<variable.barrage_mana_pct&cooldown.evocation.remains>0&buff.arcane_power.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&essence.vision_of_perfection.minor
-    if cast.able.arcaneBarrage() and manaPercent < var_barrage_mana_pct and cd.evocation.remain() <= gcdMax and not buff.arcanePower.exists() and arcaneCharges > 3 and essence.worldveinResonance.active then
+    if cast.able.arcaneBarrage() and manaPercent < var_barrage_mana_pct and cd.evocation.remain() <= gcdMax and not buff.arcanePower.exists() and arcaneCharges > 3 then
        if cast.arcaneBarrage() then return true end 
     end
 
@@ -1321,24 +1658,46 @@ end
 -----------------
 --- Rotations ---
 -----------------
-        -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
-            return true
-        else
----------------------------------
---- Out Of Combat - Rotations ---
----------------------------------
-            if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                -- Create Healthstone
-                if GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
-                   if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
-                end
-            end -- End Out of Combat Rotation
------------------------------
---- In Combat - Rotations --- 
------------------------------
-        if inCombat then
-            if actionList_Rotation() then return end
+    if not inCombat and not hastar and profileStop == true then
+        profileStop = false
+    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or pause(true) or isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
+        if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
+            PetStopAttack()
+            PetFollow()
+        end
+        return true
+    else
+         if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target")) then
+          
+            if not var_init then VarInit() end
+            ------------------------------
+            --- In Combat - Interrupts ---
+            ------------------------------
+            if actionList_Interrupts() then
+                return true
+            end
+
+            if aoeUnits >= 2 then if actionList_AoE() then return end end 
+
+            -----------------------
+            ---     Opener      ---
+            -----------------------
+            if opener == false and isChecked("Opener") and isBoss("target") then
+                if actionList_Opener() then return true end
+            end
+
+            if useCDs() or isBoss("target") then
+                if actionList_Cooldowns() then return end
+            end
+
+            if finalBurn == false then
+                if actionList_Rotation() then return end
+            end
+
+            if finalBurn == true then
+                if actionList_Final_Burn() then return end 
+            end
+            
 
             -- Movement Rotation
             --if isMoving() then if actionList_Movement() then return end end
