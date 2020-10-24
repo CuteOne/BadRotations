@@ -171,7 +171,7 @@ function br.ui:closeWindow(windowName)
                         if br.data.settings[tostring(l)] ~= nil and type(w) ~= "string" and type(w) ~= "number" and type(w) ~= "boolean" then
                             for m, x in pairs(br.data.settings[tostring(l)]) do
                                 if m == k then
-                                    if br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+                                    if br.data.settings[br.selectedSpec].toggles ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
                                         if br.data.settings[l][m].active == nil or br.data.settings[l][m].active then
                                             br.ui.window[k].parent.closeButton:Click()
                                             br.data.settings[l][m].active = false
