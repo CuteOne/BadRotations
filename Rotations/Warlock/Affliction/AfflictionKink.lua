@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.4.4"
+local rotationVer  = "v1.4.5"
 ----------------------------------------------------
 -- Credit to Aura for this rotation's base.
 ----------------------------------------------------
@@ -90,9 +90,6 @@ local function createOptions ()
 		--- GENERAL OPTIONS ---
 		-----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General ".. ".:|:. ".. rotationVer)
-            -- Demonic Gateway
-            br.ui:createDropdown(section, "Cooldowns Hotkey", br.dropOptions.Toggle, 6, true)
-
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
@@ -151,24 +148,27 @@ local function createOptions ()
             br.ui:createCheckbox(section, "Mousever UA", "Toggles casting unstable Affliction to your mouseover target")
 
             -- Max Dots
-            br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)   
-            br.ui:createSpinner(section, "Corruption Count", 8, 1, 15, 1, nil, "The maximum amount of running Corruption. Standard is 8", true)
-            br.ui:createSpinner(section, "Siphon Life Count", 8, 1, 15, 1, nil, "The maximum amount of running Siphon Life. Standard is 8", true)
+            br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, "The maximum amount of running Agony. Standard is 8")   
+            br.ui:createSpinner(section, "Corruption Count", 8, 1, 15, 1, "The maximum amount of running Corruption. Standard is 8")
+            br.ui:createSpinner(section, "Siphon Life Count", 8, 1, 15, 1, "The maximum amount of running Siphon Life. Standard is 8")
             
 			-- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
 
             -- Darkglare dots
-            br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.",true)
+            br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.")
 
 			-- Spread agony on single target
-            br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3", true)
+            br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3")
         br.ui:checkSectionState(section)
 
 		-------------------------
         --- OFFENSIVE OPTIONS ---
         -------------------------
-		section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. Offensive")
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. Offensive")
+            -- Darkglare
+            br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare")
+
 			-- Agi Pot
             br.ui:createCheckbox(section, "Potion", "Use Potion")
 
@@ -185,22 +185,20 @@ local function createOptions ()
             br.ui:createCheckbox(section, "Blood oF The Enemy", "Use Blood of the enemy, line it up with darkglare")
 
             -- Malefic Rapture
-            br.ui:createSpinner(section, "Malefic Rapture TTD", 20, 1, 100, 1, nil, "The TTD to be <= to inside a raid/instance to start casting MR to burn", true)
+            br.ui:createSpinner(section, "Malefic Rapture TTD", 20, 1, 100, 1, "The TTD to be <= to inside a raid/instance to start casting MR to burn")
 
             -- Malefic Rapture
-            br.ui:createSpinner(section, "Malefic Rapture BloodLust", "Cast Malefic Rapture during bloodlust if you have at least 1 shard", false)
+            br.ui:createSpinner(section, "Malefic Rapture BloodLust", "Cast Malefic Rapture during bloodlust if you have at least 1 shard")
 
             -- Haunt TTD
-            br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, nil, "The TTD before casting Haunt", true)
+            br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, "The TTD before casting Haunt")
 
             -- Drain Soul Canceling
-            br.ui:createSpinner(section, "Drain Soul Clipping", 4, 1, 5, 1, nil, "The tick of Drain Soul to cancel the cast at (5-6 ticks total)", true)
+            --br.ui:createSpinner(section, "Drain Soul Clipping", 4, 1, 5, 1, "The tick of Drain Soul to cancel the cast at (5-6 ticks total)", true)
 
             -- Unstable Affliction Priority Mark
             --br.ui:createDropdown(section, "Priority Unit", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize",true)
 
-            -- Darkglare
-            br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare",true)
 
 
             -- Seed of Corruption
@@ -215,20 +213,20 @@ local function createOptions ()
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Affliction .:|:. Defensive")
             -- Soulstone
-		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover",	"|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
+		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover","|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
             
             --- Healthstone Creation
-            br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more", true)
+            br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more")
 
             -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  45,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Demonic Gateway
-            br.ui:createDropdown(section, "Demonic Gateway", br.dropOptions.Toggle, 6, true)
+            br.ui:createDropdown(section, "Demonic Gateway", br.dropOptions.Toggle, 6)
 
             -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Gift of The Naaru
             if br.player.race == "Draenei" then
@@ -239,10 +237,10 @@ local function createOptions ()
             br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
 
             -- Mortal Coil 
-            br.ui:createSpinner(section, "Mortal Coil",  23,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At", true)
+            br.ui:createSpinner(section, "Mortal Coil",  23,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Drain Life
-            br.ui:createSpinner(section, "Drain Life", 48, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At", true)
+            br.ui:createSpinner(section, "Drain Life", 48, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
 
             -- Health Funnel
             br.ui:createSpinner(section, "Health Funnel (Demon)", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Demon to Cast At")
@@ -1090,7 +1088,7 @@ local function runRotation()
             end 
 
             -- Guardian of Azeroth
-            if ui.checked("Use Essence") and useCDs() and essence.guardianOfAzeroth.active and cd.guardianOfAzeroth.remain() <= gcdMax and pet.darkglare.active() then
+            if ui.checked("Use Essence") and useCDs() or isBoss("target") and essence.guardianOfAzeroth.active and cd.guardianOfAzeroth.remain() <= gcdMax and pet.darkglare.active() then
                 if cast.guardianOfAzeroth() then br.addonDebug("Casting Guardian of Azeroth") return true end
             end
 
