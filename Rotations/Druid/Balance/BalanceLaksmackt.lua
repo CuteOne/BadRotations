@@ -978,7 +978,7 @@ local function runRotation()
                     end
                 end
             else
-                --ST
+                --ST   (single target rotation)
                 --moonfire
 
                 --   Print(tostring(ttd(enemies.yards45[1])))
@@ -1019,6 +1019,18 @@ local function runRotation()
                     end
                 end
 
+
+                -- stellarFlare
+                if talent.stellarFlare and not cast.last.stellarFlare(1) and cast.able.stellarFlare()
+                        and debuff.stellarFlare.refresh() and ttd(enemies.yards45[1]) > 16
+                        and ((buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
+                        or not pewbuff or power < 30) and astral_def > 8 then
+                    if cast.stellarFlare(enemies.yards45[1]) then
+                        return true
+                    end
+                end
+
+
                 -- pew
                 if mode.cooldown == 2 or (isBoss("target") and mode.cooldown == 1) and isChecked("Incarnation/Celestial Alignment") then
                     if talent.incarnationChoseOfElune and cast.able.incarnationChoseOfElune() then
@@ -1039,30 +1051,32 @@ local function runRotation()
                 if cast.able.starfall()
                         and talent.stellarDrift and not talent.starlord and buff.starfall.refresh()
                         and buff.eclipse_lunar.remains() > 6 --and buff.PrimordialArcanicPulsar.stacks() < 250
-                      --  or buff.PrimordialArcanicPulsar.stacks() >= 250 and power > 90 and (cd.incarnationChoseOfElune.remain() > 0 or cd.celestialAlignment.remain() > 0))
+                --  or buff.PrimordialArcanicPulsar.stacks() >= 250 and power > 90 and (cd.incarnationChoseOfElune.remain() > 0 or cd.celestialAlignment.remain() > 0))
                 then
                     if cast.starfall() then
                         return true
                     end
                 end
                 --starsurge
-                --starsurge,if=(!azerite.streaking_stars.rank|buff.ca_inc.remains<execute_time|!variable.prev_starsurge)&(buff.ca_inc.up|astral_power>90&eclipse.in_any)
                 if cast.able.starsurge() then
-                    if (pewbuff and br.player.traits.streakingStars.rank > 0
-                            and not cast.last.starsurge(1)) and (pewbuff or power > 90 and eclipse_in) then
+                    if (br.player.traits.streakingStars.rank == 0 or (buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
+                            or not cast.last.starsurge(1)) and (pewbuff or power > 90 and eclipse_in) then
                         if cast.starsurge(units.dyn45) then
                             return true
                         end
                     end
-                    if (br.player.traits.streakingStars.rank == 0 or pewbuff or not cast.last.starsurge(1))
-                            and talent.starlord and (buff.starlord.exists() or power > 90)
-                            and buff.starlord.stack() < 3 and eclipse_in then
+                    if (br.player.traits.streakingStars.rank == 0 or (buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
+                            or not cast.last.starsurge(1))
+                            and talent.starlord and (buff.starlord.exists() or power > 90) and buff.starlord.stack() < 3
+                            and (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) and (cd.celestialAlignment.remain() > 7 or cd.incarnationChoseOfElune.remain() > 7) then
                         if cast.starsurge(units.dyn45) then
                             return true
                         end
                     end
-                    if (br.player.traits.streakingStars.rank == 0 or pewbuff or not cast.last.starsurge(1))
-                            and buff.eclipse_solar.remains() > 7 or talent.starlord then
+
+                    if (br.player.traits.streakingStars.rank == 0 or (buff.celestialAlignment.remain() > 5 or buff.incarnationChoseOfElune.remain() > 5)
+                            or not cast.last.starsurge(1)) and buff.eclipse_solar.remain() > 7 and not talent.starlord
+                            and (cd.celestialAlignment.remain() > 7 or cd.incarnationChoseOfElune.remain() > 7) then
                         if cast.starsurge(units.dyn45) then
                             return true
                         end
@@ -1077,15 +1091,20 @@ local function runRotation()
                 end
 
                 --starfire
-                if cast.able.starfire() and
-                        eclipse_in and buff.eclipse_lunar.exists() or not eclipse_in and (eclipse_next == "solar" or eclipse_next == "any")
-                        or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists()
-                        or ((buff.incarnationChoseOfElune.remain() < getCastTime(spell.wrath) or buff.celestialAlignment.remain() < getCastTime(spell.wrath)) and pewbuff)
-                then
-                    if cast.starfire(getBiggestUnitCluster(45, 8)) then
-                        return true
+                if cast.able.starfire() then
+                    if (br.player.traits.streakingStars.rank ~= 0 and pewbuff and cast.last.wrath(1))
+                            or (br.player.traits.streakingStars.rank == 0 or not cast.last.starfire(1))
+                            and (buff.eclipse_lunar.exists() or eclipse_next == "solar" or eclipse_next == "any"
+                            or buff.warriorOfElune.exists() and buff.eclipse_lunar.exists())
+                            or (br.player.traits.dawningSun.rank > 2 and buff.eclipse_solar.remains() > 5
+                            and buff.dawningSun.remain() < getCastTime(spell.wrath))
+                    then
+                        if cast.starfire(getBiggestUnitCluster(45, 8)) then
+                            return true
+                        end
                     end
                 end
+
                 --wrath fall back
                 if cast.able.wrath() then
                     if cast.wrath(units.dyn45) then
