@@ -1,6 +1,6 @@
 local rotationName = "Kink"
-local rotationVer  = "v0.1.3"
-local targetMoveCheck, opener, finalBurn = false, false, false, false
+local rotationVer  = "v0.1.4"
+local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
 ---------------
@@ -34,7 +34,7 @@ local function createToggles()
     }
     CreateButton("Interrupt", 4, 0)
     -- Frozen Orb Button
-    FrozenOrbModes = {
+    ArcaneOrbModes = {
         [1] = {mode = "On", value = 1, overlay = "Auto FO Enabled", tip = "Will Automatically use Frozen Orb", highlight = 1, icon = br.player.spell.frozenOrb},
         [2] = {mode = "Off", value = 2, overlay = "Auto FO Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.frozenOrb}
     }
@@ -328,13 +328,13 @@ local function runRotation()
         local ccMaxStack = 3
        --variable,name=aoe_totm_charges,op=set,value=2
         local var_prepull_evo
-        local var_rs_max_delay
-        local var_ap_max_delay
-        local var_rop_max_delay
-        local var_totm_max_delay
-        local var_barrage_mana_pct
-        local var_ap_minimum_mana_pct
-        local var_aoe_totm_charges
+        local var_rs_max_delay = 5
+        local var_ap_max_delay = 10
+        local var_rop_max_delay = 20
+        local var_totm_max_delay = 5
+        local var_barrage_mana_pct = 90
+        local var_ap_minimum_mana_pct = 30
+        local var_aoe_totm_charges 
         local var_init = false
         local RadiantSparlVulnerabilityMaxStack = 4
         local ClearCastingMaxStack = 3
@@ -351,18 +351,6 @@ local function runRotation()
             aoeUnits = aoeUnits + 1
         end
     end
-
-
-function ArcaneOpener:Reset()
-  self.state = false
-  self.final_burn = false
-  self.has_opened = false
-
-  var_init = false
-end
-ArcaneOpener:Reset()
-
-   local function VarInit()
   --varia
   --variable,name=prepull_evo,op=set,value=0
   --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&active_enemies>2
@@ -373,9 +361,6 @@ ArcaneOpener:Reset()
   --variable,name=have_opened,op=set,value=0
   --variable,name=have_opened,op=set,value=1,if=active_enemies>2
   --variable,name=have_opened,op=set,value=1,if=variable.prepull_evo=1
-  if aoeUnits >= 2 or var_prepull_evo then
-    ArcaneOpener:StopOpener()
-  end
   --variable,name=rs_max_delay,op=set,value=5
   var_rs_max_delay = 5
   --variable,name=ap_max_delay,op=set,value=10
@@ -407,37 +392,6 @@ ArcaneOpener:Reset()
   var_aoe_totm_charges = 2
 
   var_init = true
-end
-
-function ArcaneOpener:StartOpener()
-  if inCombat then
-    self.state = true
-    self.final_burn = false
-    self.has_opened = false
-    VarInit()
-  end
-end
-
-function ArcaneOpener:StopOpener()
-  self.state = false
-  self.has_opened = true
-end
-
-function ArcaneOpener:On()
-return self.state or (not inCombat and (UnitCastingInfo("player") == (Spell.frostbolt) or UnitCastingInfo("player") == (spell.evocation)))
-end
-
-function ArcaneOpener:HasOpened()
-  return self.has_opened
-end
-
-function ArcaneOpener:StartFinalBurn()
-  self.final_burn = true
-end
-
-function ArcaneOpener:IsFinalBurn()
-  return self.final_burn
-end
 
    -- spellqueue ready
     local function spellQueueReady()
@@ -746,7 +700,7 @@ function cl:Mage(...)
             VarAverageBurnLength = 0
             VarFontPrecombatChannel = 0
         end       
-        if param == "PLAYER_REGEN_DISABLED" then finalBurn = false opener = false var_init = false end
+        if param == "PLAYER_REGEN_DISABLED" then finalBurn = false opener = false var_init = false if not var_init then VarInit() end end
     end 
 end
 
@@ -1144,7 +1098,7 @@ local function actionList_Movement()
     end
 
     --actions.movement+=/arcane_orb
-    if cast.able.arcaneOrb() then if castarcanOrb(1, true, 4) then return true end end
+    if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
 
     --actions.movement+=/fire_blast
     if cast.able.fireBlast() then if cast.fireBlast() then return true end end
@@ -1184,20 +1138,20 @@ local function actionList_AoE()
     or not talent.enlightened 
     and manaPercent <= 85
     then
-        if has.manaGem() and use.able.manaGem() then if use.manaGem() then br.addonDebug("[Action:AoE] Mana Gem (1)") return true end end 
+        if use.able.manaGem() then if use.manaGem() then br.addonDebug("[Action:AoE] Mana Gem (1)") return true end end 
     end
 
     --actions.aoe+=/lights_judgment,if=buff.arcane_power.down
     if ui.checked("Racial") and br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera" 
     and not buff.arcanePower.exists()  
-    and cast.able.Racial()
+    and cast.able.racial()
     then 
-      if cast.Racial() then br.addonDebug("[Action:AoE] Racial (Arcane Power:Down) (2)")return true end
+      if cast.racial() then br.addonDebug("[Action:AoE] Racial (Arcane Power:Down) (2)")return true end
     end
     
     if ui.checked("Racial") 
     and buff.arcanePower.exists() 
-    and cast.able.Racial()
+    and cast.able.racial()
     and (race == "Troll" or race == "Orc" or race == "DarkIronDwarf" or race == "MagharOrc")
     then
         if cast.racial() then br.addonDebug("[Action:AoE] Racial (Arcane Power:up) (3)") return true end
@@ -1252,11 +1206,11 @@ local function actionList_AoE()
 
     --actions.aoe+=/arcane_power,if=((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down
     if cast.able.arcanePower()
-    and ((cd.touchOfTheMagi.remain() > ap_max_delay
+    and ((cd.touchOfTheMagi.remain() > var_ap_max_delay
     and arcaneCharges > 3))
-    or ((cd.touchOfTheMagi.remains() == 0 
+    or ((cd.touchOfTheMagi.remain() == 0 
     and arcaneCharges <= var_aoe_totm_charges))
-    and not buff.arcanePower.exsists()
+    and not buff.arcanePower.exists()
     then
         if cast.arcanePower() then br.addonDebug("[Action:AoE] Arcane Power (6)") return true end 
     end
@@ -1269,29 +1223,31 @@ local function actionList_AoE()
     or ((cd.touchOfTheMagi.remain() == 0
     and arcaneCharges <= var_aoe_totm_charges
     and cd.arcanePower.remain() > 15
-    or buff.touchOfTheMagi.exists()))
+    or debuff.touchoftheMagi.exists("target")))
     then
         if cast.runeofPower() then br.addonDebug("[Action:AoE] Rune of Power (7)") return true end
     end                                                                                                                     
 
     --actions.aoe+=/presence_of_mind,if=buff.deathborne.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
-    if cast.able.presenceofMind()
+   --[[ if cast.able.presenceofMind()
     and isKnown(spell.deathBorne)
     and buff.deathBorne.exists()
-    and (debuff.touchoftheMagi.exists()
-    and debuff.touchoftheMagi.remain() <= arcaneCharges * cast.time.arcaneBlast())
+    and (debuff.touchoftheMagi.exists("target")
+    and debuff.touchoftheMagi.remain("target") <= arcaneCharges * cast.time.arcaneBlast())
     then
         if cast.presenceofMind() then br.addonDebug("[Action:AoE] Presence of Mind (8)") return true end
-    end
+    end--]]
+    --Shadowlands
 
     --actions.aoe+=/arcane_blast,if=buff.deathborne.up&((talent.resonance.enabled&active_enemies<4)|active_enemies<5)
-    if cast.able.arcaneBlast()
+    --[[if cast.able.arcaneBlast()
     and isKnown(spell.deathBorne)
     and buff.deathBorne.exists()
     and ((talent.resonance and  #enemies.yards10t < 5 ))
     then
          if cast.arcaneBlast() then br.addonDebug("[Action:AoE] Arcane Blast (Deathborne) (9)") return true end
-    end
+    end--]]
+     --Shadowlands
 
     --actions.aoe+=/supernova
     if cast.able.supernova()
@@ -1302,9 +1258,9 @@ local function actionList_AoE()
 
     --actions.aoe+=/arcane_orb,if=buff.arcane_charge.stack=0
     if cast.able.arcaneOrb()
-    and arcaneCharges == 0
-    then
-       if castarcanOrb(1, true, 4) then br.addonDebug("[Action:AoE] Arcane Orb (11)") return true end
+    and arcaneCharges < 1
+    then   
+       if castarcaneOrb(1, true, 4) then br.addonDebug("[Action:AoE] Arcane Orb (11)") return true end
     end
 
     --actions.aoe+=/nether_tempest,if=(refreshable|!ticking)&buff.arcane_charge.stack=buff.arcane_charge.max_stack
@@ -1317,7 +1273,7 @@ local function actionList_AoE()
     end
 
     --actions.aoe+=/shifting_power,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&cooldown.arcane_power.remains>0&cooldown.touch_of_the_magi.remains>0&(!talent.rune_of_power.enabled|(talent.rune_of_power.enabled&cooldown.rune_of_power.remains>0))
-    if cast.able.shiftingPower()
+    --[[if cast.able.shiftingPower()
     and not buff.arcanePower.exists()
     and not buff.runeofPower.exists()
     and not debuff.touchoftheMagi.exists("target")
@@ -1327,7 +1283,8 @@ local function actionList_AoE()
     or talent.runeofPower and cd.runeofPower.remain() == 0
     then
          if cast.shiftingPower() then br.addonDebug("[Action:AoE] Shifting Power (13)") return true end 
-    end
+    end--]]
+    -- Shadowlands
 
     --actions.aoe+=/arcane_missiles,if=buff.clearcasting.react&runeforge.arcane_infinity.equipped&talent.amplification.enabled&active_enemies<6
     -- Shadowlands
@@ -1343,14 +1300,14 @@ local function actionList_AoE()
     --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&prev_gcd.1.arcane_barrage
     if cast.able.arcaneExplosion()
     and arcaneCharges > 3
-    and last.cast.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
+    and cast.last.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
     then
         if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
     end
 
     --actions.aoe+=/arcane_barrage,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack
     if cast.able.arcaneBarrage()
-    and arcaneCharges() > 3
+    and arcaneCharges > 3
     then
         if cast.arcaneBarrage() then br.addonDebug("[Action:AoE] Arcane Barrage (16)") return true end 
     end
@@ -1485,7 +1442,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     if cast.able.arcaneOrb()
     and arcaneCharges <= 2 or cd.arcanePower.remain() > 10 or #enemies.yards10t <= 2
     then
-       if castarcanOrb(1, true, 4) then return true end
+       if castarcaneOrb(1, true, 4) then return true end
     end
 
     --actions.opener+=/arcane_blast,if=buff.rune_of_power.up|mana.pct>15
@@ -1668,8 +1625,6 @@ end
         return true
     else
          if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target")) then
-          
-            if not var_init then VarInit() end
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
