@@ -815,7 +815,7 @@ actionList.essences = function()
 
             if reapTarget ~= nil and not isExplosive(reapTarget) and not noDamageCheck(reapTarget) then
                 if cast.reapingFlames(reapTarget) then
-                    Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+          --          Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                     return true
                 end
             end
@@ -1350,7 +1350,7 @@ actionList.Defensive = function()
             for k, v in pairs(debuff_list) do
                 --   Print("K: " .. tostring(k) .. " V: " .. tostring(v.spellID))
                 if getDebuffRemain("player", v.spellID) > 0 then
-                    Print("foo33")
+                    --      Print("foo33")
                     should_feint = true
                 end
             end
@@ -1424,7 +1424,7 @@ actionList.Defensive = function()
 
 
     -- Arcane Torrent
-    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(69179) == 0 then
+    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(25046) == 0 then
         local torrentUnit = 0
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
@@ -1434,7 +1434,6 @@ actionList.Defensive = function()
                     if castSpell("player", racial, false, false, false) then
                         return true
                     end
-                    break
                 end
             end
         end
