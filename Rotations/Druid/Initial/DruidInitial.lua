@@ -45,11 +45,13 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
             -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
+        --- TOGGLE OPTIONS ---
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
@@ -78,6 +80,7 @@ local comboPoints
 local debuff
 local enemies
 local energy
+local module
 local ui
 local unit
 local units
@@ -125,7 +128,7 @@ local function timeMoving()
 end
 
 --------------------
---- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
+--- Action Lists ---
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
@@ -152,6 +155,9 @@ end -- End Action List - Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
+        -- Basic Healing Module
+        module.BasicHealing()
+        -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
             if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and UnitIsPlayer("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
@@ -212,6 +218,7 @@ local function runRotation()
     debuff                                      = br.player.debuff
     enemies                                     = br.player.enemies
     energy                                      = br.player.power.energy.amount()
+    module                                      = br.player.module
     ui                                          = br.player.ui
     unit                                        = br.player.unit
     units                                       = br.player.units

@@ -46,12 +46,12 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
             -- Anti-Magic Shell
             br.ui:createSpinner(section, "Anti-Magic Shell", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
             -- Death Strike
             br.ui:createSpinner(section, "Death Strike", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -92,7 +92,7 @@ end
 local cast
 local cd
 local enemies
-local item
+local module
 local runes
 local runicPower
 local ui
@@ -110,20 +110,16 @@ var.profileStop = false
 --------------------
 -- Action List - Defensive
 actionList.Defensive = function()
-    -- Anti-Magic Shell
-    if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() and unit.hp() < ui.value("Anti-Magic Shell") then
-        if cast.antiMagicShell() then ui.debug("Casting Anti-Magic Shell") return true end
-    end
-    -- Death Strike
-    if ui.checked("Death Strike") and cast.able.deathStrike() and unit.hp() < ui.value("Death Strike") then
-        if cast.deathStrike() then ui.debug("Casting Death Strike") return true end
-    end
-    -- Heirloom Neck
-    if ui.checked("Heirloom Neck") and unit.hp()<= ui.value("Heirloom Neck") then
-        if use.able.heirloomNeck() and item.heirloomNeck ~= 0
-            and item.heirloomNeck ~= item.manariTrainingAmulet
-        then
-            if use.heirloomNeck() then ui.debug("Using Heirloom Neck") return true end
+    if ui.useDefensive() then
+        -- Basic Healing Module
+        module.BasicHealing()
+        -- Anti-Magic Shell
+        if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() and unit.hp() < ui.value("Anti-Magic Shell") then
+            if cast.antiMagicShell() then ui.debug("Casting Anti-Magic Shell") return true end
+        end
+        -- Death Strike
+        if ui.checked("Death Strike") and cast.able.deathStrike() and unit.hp() < ui.value("Death Strike") then
+            if cast.deathStrike() then ui.debug("Casting Death Strike") return true end
         end
     end
 end -- End Action List - Defensive
@@ -179,12 +175,10 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
     enemies                                       = br.player.enemies
-    has                                           = br.player.has
-    item                                          = br.player.items
+    module                                        = br.player.module
     runes                                         = br.player.power.runes.amount()
     runicPower                                    = br.player.power.runicPower.amount()
     ui                                            = br.player.ui

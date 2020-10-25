@@ -103,8 +103,7 @@ local cast
 local cd
 local enemies
 local equiped
-local item
-local has
+local module
 local ui
 local unit
 local units
@@ -134,30 +133,11 @@ end -- End Action List- Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Pot/Stoned
-        if ui.checked("Healthstone/Potion") and unit.hp()<= ui.value("Healthstone/Potion") then
-            -- Lock Candy
-            if has.healthstone() then
-                if use.healthstone() then ui.debug("Using Healthstone") return true end
-            end
-            -- Health Potion (Grabs the Highest usable from bags)
-            if has.item(var.getHealPot) then
-                use.item(var.getHealPot)
-                ui.debug("Using "..var.getItemInfo(var.getHealPot))
-                return true
-            end
-        end
+        -- Basic Healing Module
+        module.BasicHealing()
         -- Expel Harm
         if ui.checked("Expel Harm") and unit.hp() <= ui.value("Expel Harm") then
             if cast.expelHarm() then ui.debug("Casting Expel Harm") return true end
-        end
-        -- Heirloom Neck
-        if ui.checked("Heirloom Neck") and unit.hp() <= ui.value("Heirloom Neck") then
-            if use.able.heirloomNeck() and item.heirloomNeck ~= 0
-                and item.heirloomNeck ~= item.manariTrainingAmulet
-            then
-                if use.heirloomNeck() then ui.debug("Using Heirloom Neck") return true end
-            end
         end
         -- Leg Sweep
         if ui.checked("Leg Sweep - HP") and unit.hp() <= ui.value("Leg Sweep - HP") and unit.inCombat() and #enemies.yards5 > 0 then
@@ -217,7 +197,7 @@ end -- End Action List - PreCombat
 --- ROTATION ---
 ----------------
 local function runRotation()
-        ---------------------
+    ---------------------
     --- Define Locals ---
     ---------------------
     -- BR API Locals
@@ -225,8 +205,7 @@ local function runRotation()
     cd                                              = br.player.cd
     enemies                                         = br.player.enemies
     equiped                                         = br.player.equiped
-    has                                             = br.player.has
-    item                                            = br.player.items
+    module                                          = br.player.module
     ui                                              = br.player.ui
     unit                                            = br.player.unit
     units                                           = br.player.units

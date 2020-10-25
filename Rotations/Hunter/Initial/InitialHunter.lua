@@ -86,6 +86,8 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
             -- Aspect of the Turtle
             br.ui:createSpinner(section, "Aspect of the Turtle", 25, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Disengage
@@ -94,10 +96,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Exhilaration", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Feign Death
             br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Healthstone / Potion
-            br.ui:createSpinner(section, "Healthstone/Potion", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Wing Clip
             br.ui:createCheckbox(section, "Wing Clip")
         br.ui:checkSectionState(section)
@@ -141,8 +139,7 @@ local cd
 local debuff
 local enemies
 local equiped
-local item
-local has
+local module
 local ui
 local unit
 local units
@@ -171,27 +168,8 @@ end -- End Action List- Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Pot/Stoned
-        if ui.checked("Healthstone/Potion") and unit.hp()<= ui.value("Healthstone/Potion") then
-            -- Lock Candy
-            if has.healthstone() then
-                if use.healthstone() then ui.debug("Using Healthstone") return true end
-            end
-            -- Health Potion (Grabs the Highest usable from bags)
-            if has.item(var.getHealPot) then
-                use.item(var.getHealPot)
-                ui.debug("Using "..var.getItemInfo(var.getHealPot))
-                return true
-            end
-        end
-        -- Heirloom Neck
-        if ui.checked("Heirloom Neck") and unit.hp() <= ui.value("Heirloom Neck") then
-            if use.able.heirloomNeck() and item.heirloomNeck ~= 0
-            and item.heirloomNeck ~= item.manariTrainingAmulet
-            then
-                if use.heirloomNeck() then ui.debug("Using Heirloom Neck") return true end
-            end
-        end
+        -- Basic Healing Module
+        module.BasicHealing()
         -- Aspect of the Turtle
         if ui.checked("Aspect of the Turtle") and cast.able.aspectOfTheTurtle()
             and unit.inCombat() and unit.hp() < ui.value("Apect of the Turtle")
@@ -273,8 +251,7 @@ local function runRotation()
     debuff                                          = br.player.debuff
     enemies                                         = br.player.enemies
     equiped                                         = br.player.equiped
-    has                                             = br.player.has
-    item                                            = br.player.items
+    module                                          = br.player.module
     ui                                              = br.player.ui
     unit                                            = br.player.unit
     units                                           = br.player.units

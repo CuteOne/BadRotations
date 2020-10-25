@@ -43,10 +43,8 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Legion Healthstone
-            br.ui:createSpinner(section, "Legion Healthstone",  60,  0,  95,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -77,7 +75,7 @@ local cd
 local enemies
 local furyDeficit
 local has
-local item
+local module
 local ui
 local unit
 local units
@@ -93,17 +91,9 @@ var.profileStop = false
 --------------------
 -- Action List - Defensive
 actionList.Defensive = function()
-    -- Heirloom Neck
-    if ui.checked("Heirloom Neck") and unit.hp()<= ui.value("Heirloom Neck") then
-        if use.able.heirloomNeck() and item.heirloomNeck ~= 0
-            and item.heirloomNeck ~= item.manariTrainingAmulet
-        then
-            if use.heirloomNeck() then ui.debug("Using Heirloom Neck") return true end
-        end
-    end
-    --Legion Healthstone
-    if use.able.legionHealthstone() and ui.checked("Legion Healthstone") and unit.inCombat() and has.legionHealthstone() and unit.hp() <= ui.value("Legion Healthstone") then
-        if use.legionHealthstone() then ui.debug("Using Legion Healthstone") return true end
+    if ui.useDefensive() then
+        -- Basic Healing Module
+        module.BasicHealing()
     end
 end -- End Action List - Defensive
 
@@ -147,6 +137,7 @@ local function runRotation()
     furyDeficit                                   = br.player.power.fury.deficit()
     has                                           = br.player.has
     item                                          = br.player.items
+    module                                        = br.player.module
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
