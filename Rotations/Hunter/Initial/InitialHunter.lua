@@ -324,13 +324,13 @@ local function runRotation()
         -- Check for combat
         if unit.valid("target") and cd.global.remain() == 0 then
             if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                -- -----------------
-                -- --- Interrupt ---
-                -- -----------------
-                -- if actionList.Interrupt() then return true end
+                -----------------
+                --- Interrupt ---
+                -----------------
+                if actionList.Interrupt() then return true end
                 ------------
                 --- Main ---
-                ------------               
+                ------------              
                 -- Start Attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                     StartAttack(units.dyn40)
