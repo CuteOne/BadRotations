@@ -1984,6 +1984,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                consecration                = 26573,
                 divineShield                = 642,
                 divineSteed                 = 190784,
                 blessingOfProtection        = 1022,
