@@ -1773,7 +1773,7 @@ local function runRotation()
                             br.addonDebug("[AM] - Shadowmeld")
                         end
                     end
-                    if isChecked("[AM] - Vanish") and mode .. vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
+                    if isChecked("[AM] - Vanish") and mode.vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
                         if cast.vanish() then
                             br.addonDebug("[AM] - Vanish")
                         end
