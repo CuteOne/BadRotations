@@ -2946,6 +2946,7 @@ br.lists.spells = {
                 windRushTotem               = 192077,
             },
         },
+        -- Initial Shaman
         [1444] =  {
             abilities                       = {
                 chainLightning              = 188443,
@@ -2954,7 +2955,7 @@ br.lists.spells = {
                 healingSurge                = 8004,
                 lightningBolt               = 188196,
                 lightningShield             = 192106,
-                primalStrike                = 73899,
+                
             },
             buffs                           = {
                 lightningShield             = 192106,
@@ -2982,6 +2983,7 @@ br.lists.spells = {
                 ghostWolf                   = 2645,
                 healingStreamTotem          = 5394,
                 hex                         = 51514,
+                primalStrike                = 73899,
                 purge                       = 370,
                 tremorTotem                 = 8143,
                 waterWalking                = 546,
