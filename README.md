@@ -163,6 +163,8 @@ author   | support  | patch | status |   raidable?
 :------- | :------: | :---: | -----: | :-----------:
 CuteOne  |  Full    |  8.3  |   100% | :white_check_mark:
 
+- Inital 1-10 Supported - Patch 9.0
+
 ### Mage
 
 - Arcane
@@ -207,6 +209,8 @@ author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   |  8.3  |   99%  | :white_check_mark:
 
+- Inital 1-10 Supported - Patch 9.0
+
 ### Paladin
 
 - Holy
@@ -228,6 +232,8 @@ author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 8.2   |   100% | :white_check_mark:
 Fiskee  |  Full   | 8.0   |   99%  | :white_check_mark:
+
+- Inital 1-10 Supported - Patch 9.0
 
 ### Priest
 
@@ -275,6 +281,8 @@ author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Fiskee  |  Full   | 8.0   |   100% | :white_check_mark:
 S0ul    |  Full   | 9.0   |   100% | :white_check_mark:
+
+- Inital 1-10 Supported - Patch 9.0
 
 ### Shaman
 
