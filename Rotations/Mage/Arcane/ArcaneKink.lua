@@ -1039,7 +1039,7 @@ local function ActionList_PreCombat()
 
     --actions.precombat+=/conjure_mana_gem
     -- Conjure Mana Gem
-    if level >= 17 and spell.conjuremanaGem.known() and GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
+    if level >= 17 and GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
         if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
     end
 
@@ -1727,6 +1727,7 @@ end
     --- Extras Rotation ---
     -----------------------
     --if actionList_Extras() then return true end
+    if ActionList_PreCombat() then return true end 
 -----------------
 --- Rotations ---
 -----------------
@@ -1753,11 +1754,11 @@ end
             -----------------------
             ---     Opener      ---
             -----------------------
-            if opener == false and ui.checked("Opener") and isBoss("target") or isDummy() then
+            if opener == false and ui.checked("Opener") and isBoss("target") or getTTD("target") >= 20 or isDummy() then
                 if actionList_Opener() then return true end
             end
 
-            if useCDs() or isBoss("target") or isDummy()  then
+            if useCDs() and isBoss("target") or getTTD("target") >= 20 or isDummy() then
                 if actionList_Cooldowns() then return end
             end
 
