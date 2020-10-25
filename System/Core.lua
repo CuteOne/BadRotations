@@ -135,15 +135,19 @@ function BadRotationsUpdate(self)
 					CastSpellByID(botSpell, botUnit)
 					br.castID = false
 				end
-				-- Load Spec Profiles - Load Last Profile Tracker
-				if br.data.tracker == nil then br.data.tracker = {} end 
-				br:loadLastProfileTracker()
-				br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
+				-- -- Load Spec Profiles - Load Last Profile Tracker
+				-- if br.data.tracker == nil then br.data.tracker = {} end 
+				-- br:loadLastProfileTracker()
+				-- br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
 
 				local playerSpec = GetSpecializationInfo(GetSpecialization())
 				if playerSpec == "" then playerSpec = "Initial" end
 				-- Initialize Player
 				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
+					-- Load Last Profile Tracker
+					br:loadLastProfileTracker()
+					br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"] or 1
+					-- Load Profile
 					br.loaded = false
 					br.player = br.loader:new(playerSpec, br.selectedSpec)
 					setmetatable(br.player, {__index = br.loader})
@@ -151,9 +155,8 @@ function BadRotationsUpdate(self)
 					br.player:createOptions()
 					br.player:createToggles()
 					br.player:update()
+					br:saveLastProfileTracker()
 					collectGarbage = true
-					Print("Loaded Profile: " .. br.player.rotation.name)
-					br.settingsFile = br.selectedProfileName .. ".lua"
 					br.rotationChanged = false
 				end
 				-- Queue Casting
@@ -199,7 +202,7 @@ function BadRotationsUpdate(self)
 				local thisSpec = select(2, GetSpecializationInfo(GetSpecialization()))
 				if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
 					-- Save settings
-					br:saveSettings()
+					br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 					-- Closing the windows will save the position
 					br.ui:closeWindow("all")
 					-- Update Selected Spec/Profile
@@ -209,14 +212,6 @@ function BadRotationsUpdate(self)
 					br.data.loadedSettings = false
 					-- Load Default Settings
 					br:defaultSettings()
-					-- Load Last Profile Tracker
-					br:loadLastProfileTracker()
-					br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
-					-- Load Settings
-					br:loadSavedSettings()
-					-- Restore Window Positions
-					br.ui:loadWindowPositions("config")
-    				br.ui:loadWindowPositions("profile")
 					br.rotationChanged = true
 					wipe(br.commandHelp)
 					br:slashHelpList()

@@ -213,7 +213,8 @@ function br.ui:createExportButton(parent, buttonName, x, y)
     exportButton:SetWidth(100)
     exportButton:SetHeight(20)
     exportButton:SetEventListener("OnClick", function()
-        br:saveSettings(nil,"Exported Settings")
+        br:saveSettings("Exported Settings",nil,br.selectedSpec,br.selectedProfileName)
+        -- br:saveSettings(nil,"Exported Settings")
         
         -- -- Save br.data for current profile to Settings folder
         -- local exportDir = br:checkDirectories("Exported Settings")
@@ -243,35 +244,38 @@ function br.ui:createImportButton(parent, buttonName, x, y)
     importButton:SetWidth(100)
     importButton:SetHeight(20)
     importButton:SetEventListener("OnClick", function()
-        -- Load settings file matching profile to br.data
-        local loadDir = br:checkDirectories("Exported Settings")
-		local brdata
-		local brprofile
-        local fileFound = false
-        local profileFound = false
-		-- Load Settings
-		if br:findFileInFolder(br.settingsFile,loadDir) then
-			Print("Loading Settings File: " .. br.settingsFile)
-			brdata = br.tableLoad(loadDir .. br.settingsFile)
-			fileFound = true
-		end
-		-- Load Profile
-		if br:findFileInFolder("savedProfile.lua",loadDir) then
-            brprofile = br.tableLoad(loadDir .. br.settingsFile)
-            profileFound = true
-        end
-        if fileFound then
-            br.ui:closeWindow("all")
-            mainButton:Hide()
-            br.data = deepcopy(brdata)
-            if profileFound then br.profile = deepcopy(brprofile) end
-            br.ui:recreateWindows()
-            Print("Loaded Settings for Profile "..br.selectedProfileName..", from Exported Settings Folder")
-            ReloadUI()
-        else
-            Print("Error Loading Settings File")
-            if not fileFound then Print("No File Called "..br.settingsFile.." Found In "..loadDir) end
-        end
+        br.data.loadedSettings = false
+        br:loadSettings("Exported Settings",nil,br.selectedSpec,br.selectedProfileName)
+        ReloadUI()
+        -- -- Load settings file matching profile to br.data
+        -- local loadDir = br:checkDirectories("Exported Settings")
+		-- local brdata
+		-- local brprofile
+        -- local fileFound = false
+        -- local profileFound = false
+		-- -- Load Settings
+		-- if br:findFileInFolder(br.settingsFile,loadDir) then
+		-- 	Print("Loading Settings File: " .. br.settingsFile)
+		-- 	brdata = br.tableLoad(loadDir .. br.settingsFile)
+		-- 	fileFound = true
+		-- end
+		-- -- Load Profile
+		-- if br:findFileInFolder("savedProfile.lua",loadDir) then
+        --     brprofile = br.tableLoad(loadDir .. br.settingsFile)
+        --     profileFound = true
+        -- end
+        -- if fileFound then
+        --     br.ui:closeWindow("all")
+        --     mainButton:Hide()
+        --     br.data = deepcopy(brdata)
+        --     if profileFound then br.profile = deepcopy(brprofile) end
+        --     br.ui:recreateWindows()
+        --     Print("Loaded Settings for Profile "..br.selectedProfileName..", from Exported Settings Folder")
+        --     ReloadUI()
+        -- else
+        --     Print("Error Loading Settings File")
+        --     if not fileFound then Print("No File Called "..br.settingsFile.." Found In "..loadDir) end
+        -- end
     end)
 
     parent:AddChild(importButton)

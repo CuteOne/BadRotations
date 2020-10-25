@@ -2,6 +2,7 @@
 br = {}
 br.addonName = "BadRotations"
 br.commandHelp = {}
+br.currentSpec = ""
 br.data = {}
 br.data.ui = {}
 br.deadPet = false
@@ -39,27 +40,6 @@ function br:setAddonName()
 			end
 		end
 	end
-end
-
-function br:findFileInFolder(file,folder)
-	br.fileList = {}
-	br.fileList = GetDirectoryFiles(folder .. '*.lua')
-	for i = 1, #br.fileList do
-		if br.fileList[i] == file then
-			return true
-		end
-	end
-	return false
-end
-
-function br:loadLastProfileTracker()
-	local loadDir
-	loadDir = br:checkDirectories("Tracker")
-	if br.data.tracker == nil then br.data.tracker = {} end
-	if br:findFileInFolder("lastProfileTracker.lua",loadDir) then
-		br.data.tracker = br.tableLoad(loadDir .. "lastProfileTracker.lua")
-	end
-	if br.data.tracker ~= nil and br.data.tracker.lastProfile == nil then br.data.tracker.lastProfile = 1 end
 end
 
 -- Cache all non-nil return values from GetSpellInfo in a table to improve performance
@@ -151,7 +131,7 @@ function br:defaultSettings()
 	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
 	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
 	if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-		if br.data.tracker.lastProfile ~= nil then br.selectedProfile = br.data.tracker.lastProfile else br.selectedProfile = 1 end
+		-- if br.data.tracker.lastProfile ~= nil then br.selectedProfile = br.data.tracker.lastProfile else br.selectedProfile = 1 end
 	else
 		br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
 	end
@@ -159,86 +139,11 @@ function br:defaultSettings()
 	-- Initialize Minimap Button
 	br:MinimapButton()
 end
--- Check Directories
-function br:checkDirectories(folder)
-	if folder == nil then folder = "" end
-	-- Set the Settings Directory
-	if folder == "Exported Settings" then
-		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\Exported Settings\\'
-	else
-		br.settingsDir = GetWoWDirectory() .. '\\Interface\\AddOns\\'..br.addonName..'\\Settings\\'
-	end
-	-- Make Settings Directory
-	if not DirectoryExists(br.settingsDir) then CreateDirectory(br.settingsDir) end
-
-	-- Set the Class Directory
-	local classDir = br.settingsDir .. select(2,UnitClass("player")) .. "\\"
-	-- Make Class Directory
-	if not DirectoryExists(classDir) then CreateDirectory(classDir) end
-
-	-- Set the Spec Directory
-	local specDir = classDir .. br.selectedSpec .. "\\"
-	-- Make Spec Directory
-	if not DirectoryExists(specDir) then CreateDirectory(specDir) end
-	if folder == "Tracker" then return specDir end
-
-	-- Set the Save/Load Directory
-	local saveLoadDir = specDir .. br.selectedProfileName .. "\\"
-	-- Make Save/Load Directory
-	if not DirectoryExists(saveLoadDir) then CreateDirectory(saveLoadDir) end
-	return saveLoadDir
-end
--- Load Saved Settings
-function br:loadSavedSettings(export)
-	if br.unlocked and not br.data.loadedSettings then
-		local loadDir = br:checkDirectories(export)
-		local brdata
-		local brprofile
-		local fileFound = false
-		-- Load Settings
-		if br:findFileInFolder(br.settingsFile,loadDir) then
-			Print("Loading Settings File: " .. br.settingsFile)
-			-- Print("From Directory: "..loadDir)
-			brdata = br.tableLoad(loadDir .. br.settingsFile)
-			br.data = deepcopy(brdata)
-			brdata = nil
-			fileFound = true
-		end
-		-- Load Profile
-		if br:findFileInFolder("savedProfile.lua",loadDir) then
-			-- Print("Loading Saved Profiles")
-			-- Print("From Directory: "..loadDir)
-			brprofile = br.tableLoad(loadDir .. br.settingsFile)
-			br.profile = deepcopy(brprofile)
-			brprofile = nil
-		end
-		TogglesFrame()
-		br.ui.window.config = {}
-		br.ui:createConfigWindow()
-		-- br.ui:toggleWindow("config")
-		br.data.loadedSettings = true
-	end
-end
--- Save Settings
-function br:saveSettings(wipe,export)
-	local saveDir
-	local brdata = wipe and {} or deepcopy(br.data)
-	local brprofile = wipe and {} or deepcopy(br.profile)
-	Print("Saving Profiles and Settings To: "..br.settingsFile)
-	saveDir = br:checkDirectories("Tracker")
-	br.tableSave(br.data.tracker, saveDir .. "lastProfileTracker.lua")
-	saveDir = br:checkDirectories(export)
-	-- Reset Files
-	br.tableSave({},saveDir .. br.settingsFile)
-	br.tableSave({},saveDir .. "savedProfile.lua")
-	-- Save Files
-	br.tableSave(brdata,saveDir .. br.settingsFile)
-	br.tableSave(brprofile,saveDir .. "savedProfile.lua")
-end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterUnitEvent("PLAYER_LEAVING_WORLD")
 frame:RegisterEvent("LOADING_SCREEN_ENABLED")
 frame:RegisterEvent("LOADING_SCREEN_DISABLED")
 function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
@@ -248,7 +153,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "LOADING_SCREEN_DISABLED" then
 		br.disablePulse = false
 	end
-	if event == "PLAYER_LOGOUT" then
+	if event == "PLAYER_LOGOUT" then --or event == "PLAYER_LEAVING_WORLD" then
 		if br.unlocked then
 			-- Return queue window to previous setting
 			if GetCVar("SpellQueueWindow") =="0" then 
@@ -257,10 +162,11 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			br.ui:saveWindowPosition()
 			if getOptionCheck("Reset Options") then
 				-- Reset Settings
-				br:saveSettings(true)
+				br:saveSettings(nil,nil,br.currentSpec,br.selectedProfileName,true)
 			else
 				-- Save Settings
-				br:saveSettings()
+				br:saveLastProfileTracker()
+				br:saveSettings(nil,nil,br.currentSpec,br.selectedProfileName)
 			end
 		end
 	end

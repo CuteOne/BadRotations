@@ -209,11 +209,11 @@ function cCharacter:new(class)
 
 -- Rotation selection update
     function self.getRotation()
-        self.selectedRotation = br.selectedProfile
-
+		self.selectedRotation = br.selectedProfile
+		
         if br.rotationChanged then
             self.createOptions()
-            self.createToggles()
+			self.createToggles()
             br.ui.window.profile.parent:Show()
         end
     end
