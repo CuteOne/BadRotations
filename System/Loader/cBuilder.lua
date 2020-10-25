@@ -94,8 +94,6 @@ function br.loader:new(spec,specName)
     -- Print("Loader - Loading Settings for Rotation: "..self.rotation.name)
     br.data.loadedSettings = false
     br:loadSettings(nil,nil,nil,self.rotation.name)
-    -- br.data.settings[br.selectedSpec]["RotationDrop"]
-    -- br.data.settings[br.selectedSpec]["RotationDropValue"]
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
@@ -416,6 +414,9 @@ function br.loader:new(spec,specName)
 
         -- Make Unit Functions from br.api.unit
         if self.ui == nil then self.ui = {} br.api.unit(self) end
+
+        -- Make Action List Functions from br.api.module
+        if self.module == nil then self.module = {} br.api.module(self) end
     end
 
     if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then 

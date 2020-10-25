@@ -138,6 +138,13 @@ br.api.unit = function(self)
         local UnitIsPlayer = _G["UnitIsPlayer"]
         return UnitIsPlayer(thisUnit)
     end
+    -- Race
+    unit.race = function(thisUnit)
+        local select = _G["select"]
+        local UnitRace = _G["UnitRace"]
+        if thisUnit == nil then thisUnit = "player" end
+        return select(2,UnitRace("player"))
+    end
     -- Reaction
     unit.reaction = function(thisUnit,playerUnit)
         local GetUnitReaction = _G["GetUnitReaction"]

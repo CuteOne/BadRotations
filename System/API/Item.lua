@@ -41,6 +41,13 @@ br.api.items = function(item,k,v,subtable)
             local checkSpell = GetItemInfo(gemID) 
             return socketSpell == checkSpell
         end
+        if equiped.type == nil then
+            equiped.type = function(itemType)
+                local IsEquippedItemType = _G["IsEquippedItemType"]
+                if itemType == nil then return false end
+                return IsEquippedItemType(itemType)
+            end
+        end
     end 
     if subtable == "has" then 
         local has = item
@@ -70,6 +77,12 @@ br.api.items = function(item,k,v,subtable)
         use.able[k] = function(slotID)
             if slotID == nil then return canUseItem(v) else return canUseItem(slotID) end
         end
+        if use.able.item == nil then
+            use.able.item = function(itemID)
+                if itemID == nil then return false end
+                return canUseItem(itemID)
+            end
+        end
         -- br.player.use.able.slot()
         if use.able.slot == nil then
             use.able.slot = function(slotID)
@@ -78,7 +91,7 @@ br.api.items = function(item,k,v,subtable)
         end
         if use.item == nil then
             use.item = function(itemID)
-                if itemID == nil then return end
+                if itemID == nil then return false end
                 if canUseItem(itemID) then
                     return useItem(itemID)
                 else

@@ -131,6 +131,7 @@ System\API\CD.lua
 System\API\Debuff.lua
 System\API\Essence.lua
 System\API\Item.lua
+System\API\Module.lua
 System\API\Pet.lua
 System\API\Power.lua
 System\API\Spell.lua
