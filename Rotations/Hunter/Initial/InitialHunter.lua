@@ -138,6 +138,7 @@ end
 local buff
 local cast
 local cd
+local debuff
 local enemies
 local equiped
 local item
@@ -269,6 +270,7 @@ local function runRotation()
     buff                                            = br.player.buff
     cast                                            = br.player.cast
     cd                                              = br.player.cd
+    debuff                                          = br.player.debuff
     enemies                                         = br.player.enemies
     equiped                                         = br.player.equiped
     has                                             = br.player.has
