@@ -418,7 +418,7 @@ function dynamicTarget(range,facing)
 	end
 	if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
-		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and UnitExist(bestUnit) and getDistance(bestUnit) < range
+		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and UnitExists(bestUnit) and getDistance(bestUnit) < range
 			and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
 		or (getOptionCheck("Safe Damage Check") and not GetUnitIsUnit(bestUnit,"target") and not isSafeToAttack("target"))
 	then
