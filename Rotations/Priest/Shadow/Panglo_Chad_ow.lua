@@ -86,6 +86,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Lucid - insanity", 55, 1, 100, 5)
         br.ui:createDropdownWithout(section, "Guardian Of Azeroth", {"Always", "CDs", "Never"}, 1, "Ensure Essence Toggle is ON to use")
         br.ui:createSpinnerWithout(section, "Shadowfiend stacks", 10, 1, 40, 1)
+        br.ui:createCheckbox(section, "SHW: Death Snipe")
         --br.ui:createDropdownWithout(section, "Debug Key", rotationKeys, 1, "Useful only for mr panglo")
 
         br.ui:checkSectionState(section)
@@ -190,7 +191,6 @@ local function runRotation()
     end
     local lowestPain = debuff.shadowWordPain.lowest(40, "remain") or units.dyn40
     local dotsUP = debuff.vampiricTouch.exists("target") and debuff.shadowWordPain.exists("target")
-    local useVoidForm = true
 
 
     local buffedSear = isCastingSpell(spell.mindSear) and buff.harvestedThoughts.exists()
@@ -227,6 +227,10 @@ local function runRotation()
     enemies.get(8, "target")
     enemies.get(10, "target")
     enemies.get(40)
+
+    if timersTable then
+        wipe(timersTable)
+    end
 
     if isChecked("Enemy Target Lock") and inCombat and UnitIsFriend("target", "player") then
         TargetLastEnemy()
@@ -282,7 +286,7 @@ local function runRotation()
         end
 
         --devouring_plague,target_if=(refreshable|insanity>75)&(!talent.searing_nightmare.enabled|(talent.searing_nightmare.enabled&!variable.searing_nightmare_cutoff))
-        if (debuff.devouringPlague.remains("target") <= 2 or power > 75) then
+        if power > 75 then
             if cast.devouringPlague("target") then
                 return 
             end
@@ -364,15 +368,20 @@ local function runRotation()
 
     local function actionlist_Single()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1 and getDistance("player", "target") <= 40 then
+        if isChecked("SHW: Death Snipe") then
+            if ttd("target") <= 5 then
+                if cast.shadowWordDeath("target") then
+                    return 
+                end
+            end
+        end
+        if mode.void == 1 and getDistance("player", "target") <= 40 then
             if cast.voidEruption("target") then
                 return
             end
-        elseif cd.voidEruption.remains() >= gcd*2 or mode.void == 2 then
-            useVoidForm = false
         end
 
-        if (debuff.devouringPlague.remains("target") <= 2 or power >= 75) and useVoidForm == false then
+        if power >= 60 then
             if cast.devouringPlague("target") then
                 return 
             end
@@ -424,9 +433,28 @@ local function runRotation()
 
     local function actionlist_Multi()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1 and getDistance("player", units.dyn40) <= 40 then
-            if cast.voidEruption(units.dyn40) then
+        if isChecked("SHW: Death Snipe") then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if ttd(thisUnit) <= 5 then
+                    if cast.shadowWordDeath(thisUnit) then
+                        return 
+                    end
+                end
+            end
+        end
+        if mode.void == 1 and getDistance("player", "target") <= 40 then
+            if cast.voidEruption("target") then
                 return
+            end
+        end
+
+        for i= 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if power >= 65 and ttd(thisUnit) >=6 then
+                if cast.devouringPlague(thisUnit) then
+                    return 
+                end
             end
         end
 
