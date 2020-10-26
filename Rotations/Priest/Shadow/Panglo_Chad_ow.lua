@@ -281,37 +281,18 @@ local function runRotation()
     end -- end Extra
 
     local function actionlist_Void()
-        if cast.voidBolt(units.dyn40) then
+        if cast.voidBolt("target") then
             return
         end
 
         --devouring_plague,target_if=(refreshable|insanity>75)&(!talent.searing_nightmare.enabled|(talent.searing_nightmare.enabled&!variable.searing_nightmare_cutoff))
         if power > 75 then
-            if cast.devouringPlague(units.dyn40) then
+            if cast.devouringPlague("target") then
                 return 
             end
         end
 
-        if buff.unfurlingDarkness.exists() then
-            for i = 1, #enemies.yards40 do
-                local thisUnit
-                if mode.rotation == 1 and debuff.vampiricTouch.exists("target") then
-                    thisUnit = enemies.yards40[i]
-                elseif mode.rotation == 2 or not debuff.vampiricTouch.exists("target") then
-                    thisUnit = "target"
-                end
-                if UnitGUID(thisUnit) ~= vampUnit and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
-                    if cast.vampiricTouch(thisUnit) then
-                        vampUnit = UnitGUID(thisUnit)
-                        vampTime = GetTime()
-                        return
-                    end
-                end
-            end
-        end
-
-        
-        if dotsUP and #enemies.yards10t >= getOptionValue("Mind Sear Units") and not cast.current.mindSear() and mode.dotcleave == 1 then
+        if ((buff.harvestedThoughts.exists() and (cd.voidBolt.remain() > (gcd * 0.2)) and traits.searingDialogue.rank >= 1) or #enemies.yards10t >= getOptionValue("Mind Sear Units")) and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
@@ -366,7 +347,7 @@ local function runRotation()
             end
         end
 
-        if not (cast.current.mindFlay() or cast.current.mindSear()) or buff.darkThoughts.exists() then
+        if not (cast.current.mindFlay() or cast.current.mindSear()) then
             if cast.mindBlast("target") then
                 return
             end
@@ -449,19 +430,7 @@ local function runRotation()
             end
         end
     end
-    local function CwC()
-        if select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) then
-            if power > 35 then
-                for i = 1, #enemies.yards40 do
-                    if debuff.shadowWordPain.exists(enemies.yards40[i]) then
-                        if cast.searingNightmare(enemies.yards40[i]) then
-                            return
-                        end
-                    end
-                end
-            end
-        end
-    end
+
     local function actionlist_Multi()
         -- print(vampUnit)
         if isChecked("SHW: Death Snipe") then
@@ -477,6 +446,15 @@ local function runRotation()
         if mode.void == 1 and getDistance("player", "target") <= 40 then
             if cast.voidEruption("target") then
                 return
+            end
+        end
+
+        for i= 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if power >= 65 and ttd(thisUnit) >=6 then
+                if cast.devouringPlague(thisUnit) then
+                    return 
+                end
             end
         end
 
@@ -533,18 +511,9 @@ local function runRotation()
             end
         end
 
-        if dotsUP and not cast.current.mindSear() and #enemies.yards10t >= 2 and mode.dotcleave == 1 then
+        if dotsUP and not cast.current.mindSear() and #enemies.yards10t >= 6 and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
-            end
-        end
-
-        for i= 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if power >= 65 and ttd(thisUnit) >=6 and not talent.searingNightmare then
-                if cast.devouringPlague(thisUnit) then
-                    return 
-                end
             end
         end
 
@@ -633,8 +602,6 @@ local function runRotation()
     if isCastingSpell(295258) then
         return true
     end
-
-    if CwC() then return end
 
     if (pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 3) and not cast.current.mindFlay() and not (cast.current.mindSear and not traits.searingDialogue.active) then
         return true

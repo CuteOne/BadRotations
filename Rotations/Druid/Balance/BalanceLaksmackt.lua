@@ -780,38 +780,30 @@ local function runRotation()
         local wrath_fallback = cast.last.wrath(1) and cast.last.wrath(2) and cast.last.wrath(3) or false
 
         --  Print(GetSpellCount(190984)) --wrath
-        -- Print(GetSpellCount(194153))   --starfire
+        -- Print(GetSpellCount(1941530))   --starfire
 
-
+        local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
         local current_eclipse = "none"
-        local eclipse_in = false
 
-        if GetSpellCount(190984) == 0 and GetSpellCount(194153) == 0 then
-            eclipse_in = true
-        else
-            eclipse_in = false
+        if eclipse_in and buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
+            current_eclipse = "solar"
+        elseif eclipse_in and not buff.eclipse_solar.exists() and buff.eclipse_lunar.exists() then
+            current_eclipse = "lunar"
+        elseif eclipse_in and buff.eclipse_solar.exists() and buff.eclipse_lunar.exists() then
+            current_eclipse = "any "
         end
 
-        if not eclipse_in then
-            if GetSpellCount(190984) == 0 and GetSpellCount(194153) > 0 then
-                eclipse_next = "solar"
-            elseif GetSpellCount(190984) > 0 and GetSpellCount(194153) == 0 then
+        if not eclipse_in and eclipse_next == "any" then
+            if GetSpellCount(190984) > GetSpellCount(1941530) then
                 eclipse_next = "lunar"
-            else
+            elseif GetSpellCount(190984) < GetSpellCount(1941530) then
+                eclipse_next = "solar"
+            elseif GetSpellCount(190984) == 2 and GetSpellCount(1941530) == 2 then
                 eclipse_next = "any"
             end
-        else
-            if buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
-                current_eclipse = "solar"
-            elseif not buff.eclipse_solar.exists() and buff.eclipse_lunar.exists() then
-                current_eclipse = "lunar"
-            elseif buff.eclipse_solar.exists() and buff.eclipse_lunar.exists() then
-                current_eclipse = "any "
-            end
-            eclipse_next = "none"
         end
 
-       -- Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
+        --  Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
 
         if mode.rotation < 4 then
 
@@ -1117,7 +1109,7 @@ local function runRotation()
                                             and buff.dawningSun.remain() < getCastTime(spell.wrath))
                                     then
                                     ]]
-                --        Print("Current: " .. current_eclipse .. " | Next: " .. eclipse_next)
+        --        Print("Current: " .. current_eclipse .. " | Next: " .. eclipse_next)
                 if cast.able.starfire() then
                     if pewbuff and br.player.traits.streakingStars ~= 0 then
                         if (buff.incarnationChoseOfElune.remains() > getCastTime(spell.starfire) or buff.celestialAlignment.remains() > getCastTime(spell.starfire)) and cast.last.wrath(1)
