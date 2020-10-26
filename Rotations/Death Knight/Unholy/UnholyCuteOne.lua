@@ -598,7 +598,7 @@ actionList.AOE = function()
     -- Festering Strike
     -- festering_strike,target_if=debuff.festering_wound.stack<=2&cooldown.death_and_decay.remains&cooldown.apocalypse.remains>5&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
     if cast.able.festeringStrike() and cd.deathAndDecay.remain() > 0 and cd.apocalypse.remain() > 5
-        and (cd.armyOfTheDead.reamins() > 5 or var.aotdBypass)
+        and (cd.armyOfTheDead.remains() > 5 or var.aotdBypass)
     then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
@@ -748,19 +748,19 @@ actionList.PreCombat = function()
             if use.azsharasFontOfPower() then ui.debug("Using Azshara's Font of Power [Pre-Pull]") return true end
         end               
     end 
--- Pre-Pull
+    -- Pull
     if unit.valid("target") and not unit.inCombat() then
--- Death Grip
+        -- Death Grip
         if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not unit.isDummy("target")
             and unit.distance("target") > 8 and ((talent.deathsReach and unit.distance("target") < 40) or unit.distance("target") < 30)
         then
             if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
         end
--- Dark Command
+        -- Dark Command
         if ui.checked("Dark Command") and cast.able.darkCommand("target") and not (ui.checked("Death Grip") or cast.able.deathGrip("target")) then
             if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
         end
--- Start Attack
+        -- Start Attack
         StartAttack()
     end
 end -- End Action List - PreCombat
@@ -879,7 +879,7 @@ local function runRotation()
 --------------------------
         if unit.inCombat() and not var.profileStop and unit.exists("target") then
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 StartAttack(units.dyn5)
             end
     ------------------------------
@@ -890,7 +890,7 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
             if ui.value("APL Mode") == 1 then
-                if unit.distance(units.dyn5) < 5 then
+                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     -- Racial                    
                     if ui.checked("Racial") and cast.able.racial()
                         -- arcane_torrent,if=runic_power.deficit>65&(pet.gargoyle.active|!talent.summon_gargoyle.enabled)&rune.deficit>=5
@@ -919,7 +919,7 @@ local function runRotation()
                         ui.debug("Using Augment Rune")
                     end
                     -- Trinkets
-                    if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and unit.distance(units.dyn5) < 5 then
+                    if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         for i = 13, 14 do
                             if use.able.slot(i) then
                                 -- All Others

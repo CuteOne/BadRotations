@@ -79,7 +79,7 @@ local actionList = {}
 actionList.Defensive = function()
     --Frost Nova
     if unit.hp() < 95 then
-        if spell.known.frostNova() and cast.able.frostNova and unit.distance(units.dyn5) < 5 then
+        if spell.known.frostNova() and cast.able.frostNova and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
             if cast.frostNova() then ui.debug("Casting Frost Nova") return true end
         end
     end
@@ -152,13 +152,13 @@ local function runRotation()
         -----------------------------
         -- Check for combat
         if unit.valid("target") and cd.global.remain() == 0 then
-            if unit.distance(units.dyn40) < 40 then
+            if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 ------------------------------
                 --- In Combat - Interrupts ---
                 ------------------------------
                 -- Start Attack
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
                 end
                 --Arcane Explosion

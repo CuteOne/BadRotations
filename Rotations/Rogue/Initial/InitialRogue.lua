@@ -6,14 +6,14 @@ local rotationName = "Overlord"
 local function createToggles()
     -- Rotation Button
     RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.smite },
-        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.smite }
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.sinisterStrike},
+        [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.sinisterStrike}
     };
     CreateButton("Rotation",1,0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.powerWordShield},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.powerWordShield}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.crimsonVial},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.crimsonVial}
     };
     CreateButton("Defensive",2,0)
 end
@@ -30,28 +30,24 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
+        br.ui:createCheckbox(section, "Auto Sprint", "Will use sprint automatically.")
+        br.ui:createCheckbox(section, "Always Stealth", "Will use stealth at all times.")
+        br.ui:createCheckbox(section, "Use Eviscerate", "Will use Eviscerate.")
+        br.ui:createCheckbox(section, "Use Slice and Dice", "Will use Slice and Dice.")
 
+        br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            br.ui:createSpinner(section, "Flash Heal", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Pyschic Scream", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Desperate Prayer", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Fade", 25, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Crimson Vial", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
 
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            --Defensive Key Toggle
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
+
     end
     optionTable = {{
         [1] = "Rotation Options",
@@ -64,8 +60,10 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local buff
 local cast
 local cd
+local comboPoints
 local debuff
 local has
 local mode
@@ -86,28 +84,10 @@ local actionList = {}
 --------------------
 -- Action List - Defensive
 actionList.Defensive = function()
---Flash Heal
-    if unit.level() >= 2 and ui.checked("Flash Heal") then
-        if cast.able.flashHeal() and unit.inCombat() and unit.hp() <= ui.value("Flash Heal") then
-            if cast.flashHeal() then ui.debug("Casting Flash Heal") return true end
-        end
-    end
-    --Pyschic Scream
-    if unit.level() >= 7 and ui.checked("Pyschic Scream") then
-        if cast.able.pyschicScream() and unit.inCombat() and unit.hp() <= ui.value("Pyschic Scream") then
-            if cast.pyschicScream() then ui.debug("Casting Pyschic Scream") return true end
-        end
-    end
-    --Desperate Prayer
-    if unit.level() >= 8 and ui.checked("Flash Heal") then
-        if cast.able.desperatePrayer() and unit.inCombat() and unit.hp() <= ui.value("Desperate Prayer") then
-            if cast.desperatePrayer() then ui.debug("Casting Desperate Prayer") return true end
-        end
-    end
-    --Fade
-    if unit.level() >= 9 and ui.checked("Fade") then
-        if cast.able.fade() and unit.inCombat() and unit.hp() <= ui.value("Fade") then
-            if cast.fade() then ui.debug("Casting Flash Heal") return true end
+    --Crimson Vial
+    if unit.level() >= 8 and ui.checked("Crimson Vial") then
+        if cast.able.crimsonVial() and unit.inCombat() and unit.hp() <= ui.value("Crimson Vial") then
+            if cast.crimsonVial() then ui.debug("Casting Crimson Vial") return true end
         end
     end
 end -- End Action List - Defensive
@@ -128,7 +108,9 @@ local function runRotation()
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
+    combo                                         = br.player.power.comboPoints.amount()
     debuff                                        = br.player.debuff
+    energy                                        = br.player.power.energy.amount()
     has                                           = br.player.has
     mode                                          = br.player.ui.mode
     ui                                            = br.player.ui
@@ -162,6 +144,22 @@ local function runRotation()
         ---------------------------------
         --- Out Of Combat - Rotations ---
         ---------------------------------
+        --Instant Poison
+        if spell.known.instantPoison() and not buff.instantPoison.exists() then
+            if cast.instantPoison() then ui.debug("Casting Instant Poison") return true end
+        end
+        --Auto Sprint
+        if unit.level() >= 6 and ui.checked("Auto Sprint") then
+            if br.player.moving and not unit.inCombat() then
+                if cast.sprint() then ui.debug("Casting Sprint") return true end
+            end
+        end
+        --Always Stealth
+        if unit.level() >= 3 and ui.checked("Always Stealth") then
+            if not unit.inCombat() and not buff.stealth.exists("player") then
+                if cast.stealth () then ui.debug("Casting Stealth") return true end
+            end
+        end
         -----------------
         --- Defensive ---
         -----------------
@@ -170,9 +168,9 @@ local function runRotation()
         --- Pre-Combat ---
         ------------------
         if actionList.PreCombat() then return true end
-            --Power Word Fortitude
-            if unit.level() >= 6 and cast.able.powerWordFortitude() and not buff.powerWordFortitude.exists("player") then
-                if cast.powerWordFortitude() then ui.debug("Casting Power Word Fortitude") return true end
+            --Stealth
+            if unit.level() >= 3 and not unit.inCombat() and unit.valid("target") and cast.able.stealth() and getDistance("player", "target") <= 20 and not buff.stealth.exists("player") then
+                if cast.stealth() then ui.debug("Casting Stealth") return true end
             end
         -----------------------------
         --- In Combat - Rotations ---
@@ -188,31 +186,45 @@ local function runRotation()
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
                 end
-                --Power Word:Shield
-                if cast.able.powerWordShield("player") and unit.inCombat() then
-                    if cast.powerWordShield("player") then ui.debug("Casting Power Word:Shield") return true end
+                --Ambush
+                if buff.stealth.exists() and unit.exists("target") and unit.distance("target") < 5 then
+                    if CastSpellByID(8676) then ui.debug("Casting Ambush") return true end
                 end
-                --Shadow Word:Pain
-                if unit.level() >= 2 and cast.able.shadowWordPain() and debuff.shadowWordPain.refresh(units.dyn40) then
-                    if cast.shadowWordPain() then br.addonDebug("Casting Shadow Word:Pain") return true end
+                --Eviscerate
+                if unit.level() >= 2 and ui.checked("Use Eviscerate") then
+                    if combo > 4 or unit.hp("target") < 20 then
+                        if spell.known.eviscerate() and cast.able.eviscerate and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                            if cast.eviscerate("target") then ui.debug("Casting Eviscerate") return true end
+                        end
+                    end
                 end
-                --Mind Blast
-                if unit.level() >= 5 and cast.able.mindBlast() and not unit.moving() then
-                    if cast.mindBlast() then ui.debug ("Casting Mind Blast") return true end
+                --Slice and Dice
+                if unit.level() >= 9 and ui.checked("Use Slice and Dice") then
+                    if combo > 4 or unit.hp("target") < 20 then
+                        if spell.known.sliceAndDice() and cast.able.eviscerate and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                            if cast.sliceAndDice("target") then ui.debug("Casting Slice and Dice") return true end
+                        end
+                    end
                 end
-                --Smite
-                if cast.able.smite() and not unit.moving() then
-                    if cast.smite() then br.addonDebug("Casting Smite") return true end
+                -- Sinister Strike
+                if spell.known.sinisterStrike() and cast.able.sinisterStrike and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                    if cast.sinisterStrike() then ui.debug("Casting Sinister Strike") return true end
+                end
+                --Kick Interrupt
+                if canInterrupt() then
+                    if spell.known.kick() and cast.able.kick() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                        if cast.kick() then ui.debug("Casting Kick") return true end
+                    end
                 end
             end -- End In Combat Rotation
         end
     end -- Pause
 end -- End runRotation
-local id = 1452 -- Change to the spec id profile is for.
+local id = 1453 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-}) 
+})

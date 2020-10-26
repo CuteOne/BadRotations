@@ -403,7 +403,7 @@ function dynamicTarget(range,facing)
 	local startTime = debugprofilestop()
 	local facing = facing or false
 	local bestUnit = bestUnit or nil
-	local tarDist = getDistance("target") or 99
+	local tarDist = GetObjectExists("target") and getDistance("target") or 99
 	if isChecked("Dynamic Targetting") then
 		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1)
 			and (bestUnit == nil or (UnitIsUnit(bestUnit,"target") and tarDist >= range))
@@ -418,7 +418,7 @@ function dynamicTarget(range,facing)
 	end
 	if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
-		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and getDistance(bestUnit) < range
+		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and UnitExists(bestUnit) and getDistance(bestUnit) < range
 			and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
 		or (getOptionCheck("Safe Damage Check") and not GetUnitIsUnit(bestUnit,"target") and not isSafeToAttack("target"))
 	then

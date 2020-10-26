@@ -85,7 +85,7 @@ local actionList = {}
 actionList.Defensive = function()
     --Shield Block
     if unit.hp() < 70 then
-        if spell.known.shieldBlock() and cast.able.shieldBlock and unit.distance(units.dyn5) < 5 then
+        if spell.known.shieldBlock() and cast.able.shieldBlock and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
             if cast.shieldBlock() then ui.debug("Casting Shield Block") return true end
         end
     end
@@ -153,7 +153,7 @@ local function runRotation()
         -----------------------------
         -- Check for combat
         if unit.valid("target") and cd.global.remain() == 0 then
-            if unit.distance(units.dyn40) < 40 then
+            if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 ------------------------------
                 --- In Combat - Interrupts ---
                 ------------------------------
@@ -164,32 +164,32 @@ local function runRotation()
                     end
                 end
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
                 end
                 -- Execute
-                if unit.hp("target") < 20 and spell.known.execute() and cast.able.execute and unit.distance(units.dyn5) < 5 then
+                if unit.hp("target") < 20 and spell.known.execute() and cast.able.execute and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.execute() then ui.debug("Casting Execute") return true end
                 end
                 -- Victory Rush
-                if spell.known.victoryRush() and cast.able.victoryRush and unit.distance(units.dyn5) < 5 then
+                if spell.known.victoryRush() and cast.able.victoryRush and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.victoryRush() then ui.debug("Casting Victory Rush") return true end
                 end
                 -- Shield Slam
-                if spell.known.shieldSlam() and cast.able.shieldSlam and unit.distance(units.dyn5) < 5 then
+                if spell.known.shieldSlam() and cast.able.shieldSlam and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.shieldSlam() then ui.debug("Casting Shield Slam") return true end
                 end
                 -- WhirlWind            
-                if spell.known.whirlwind() and cast.able.whirlwind() and unit.distance(units.dyn5) < 5 then
+                if spell.known.whirlwind() and cast.able.whirlwind() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.whirlwind() then ui.debug("Casting Whirlwind") return true end
                 end
                 -- Slam
-                if spell.known.slam() and cast.able.slam() and unit.distance(units.dyn5) < 5 then
+                if spell.known.slam() and cast.able.slam() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.slam() then ui.debug("Casting Slam") return true end
                 end
                 --Pummel Interrupt
                 if canInterrupt() then
-                    if spell.known.pummel() and cast.able.pummel() and unit.distance(units.dyn5) < 5 then
+                    if spell.known.pummel() and cast.able.pummel() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         if cast.pummel() then ui.debug("Casting Pummel") return true end
                     end
                 end

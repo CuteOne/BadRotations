@@ -380,7 +380,7 @@ end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if ui.useCDs() and unit.distance(units.dyn5) < 5 then
+    if ui.useCDs() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
         if ui.checked("Racial") and cast.able.racial() and (race == "Orc" or race == "Troll" or race == "BloodElf") then
             if cast.racial() then ui.debug("Casting Racial Ability") return true end
@@ -683,7 +683,7 @@ actionList.Normal = function()
     -- Vengeful Retreat
     -- vengeful_retreat,if=talent.momentum.enabled&buff.prepared.down&time>1
     if ui.checked("Vengeful Retreat") and cast.able.vengefulRetreat() and talent.momentum
-        and not buff.prepared.exists() and var.combatTime > 1 and unit.distance(units.dyn5) < 5
+        and not buff.prepared.exists() and var.combatTime > 1 and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
     then
         if ui.mode.mover == 1 then
             cancelRetreatAnimation()
@@ -900,7 +900,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- auto_attack
-            if unit.distance("target") < 5 then
+            if unit.exists("target") and unit.distance("target") < 5 then
                 StartAttack()
             end
         end
@@ -1059,7 +1059,7 @@ local function runRotation()
             ---------------------------
             if ui.value("APL Mode") == 1 then
                 -- Start Attack
-                if unit.distance(units.dyn5) < 5 then
+                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack()
                 end
                 -- Cooldowns

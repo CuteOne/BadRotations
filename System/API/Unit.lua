@@ -42,10 +42,10 @@ br.api.unit = function(self)
         return UnitExists(thisUnit)
     end
     -- Facing
-    unit.facing = function(thisUnit,otherUnit)
+    unit.facing = function(thisUnit,otherUnit,degrees)
         local getFacing = _G["getFacing"]
         if otherUnit == nil then otherUnit = "player" end
-        return getFacing(thisUnit,otherUnit)
+        return getFacing(thisUnit,otherUnit,degrees)
     end
     -- Flying
     unit.flying = function()
@@ -91,10 +91,11 @@ br.api.unit = function(self)
             or (GetNumGroupMembers()>1 and (UnitAffectingCombat(thisUnit) or UnitAffectingCombat("target")))
     end
     -- Instance Type (IE: "party" / "raid")
-    unit.instance = function()
+    unit.instance = function(thisInstance)
         local select = _G["select"]
         local IsInInstance = _G["IsInInstance"]
-        return select(2,IsInInstance())
+        local instanceType = select(2,IsInInstance())
+        return thisInstance == nil and instanceType or instanceType == thisInstance
     end
     -- Is Boss
     unit.isBoss = function(thisUnit)
@@ -110,6 +111,11 @@ br.api.unit = function(self)
     unit.isExplosive = function(thisUnit)
         local isExplosive = _G["isExplosive"]
         return isExplosive(thisUnit)
+    end
+    -- Is Unit
+    unit.isUnit = function(thisUnit,otherUnit)
+        local UnitIsUnit = _G["UnitIsUnit"]
+        return UnitIsUnit(thisUnit,otherUnit)
     end
     -- Level
     unit.level = function(thisUnit)
@@ -133,10 +139,22 @@ br.api.unit = function(self)
         local UnitName = _G["UnitName"]
         return UnitName(thisUnit)
     end
+    -- No Control
+    unit.noControl = function()
+        local noControl = _G["hasNoControl"]
+        return hasNoControl()
+    end
     -- Player
     unit.player = function(thisUnit)
         local UnitIsPlayer = _G["UnitIsPlayer"]
         return UnitIsPlayer(thisUnit)
+    end
+    -- Race
+    unit.race = function(thisUnit)
+        local select = _G["select"]
+        local UnitRace = _G["UnitRace"]
+        if thisUnit == nil then thisUnit = "player" end
+        return select(2,UnitRace("player"))
     end
     -- Reaction
     unit.reaction = function(thisUnit,playerUnit)
@@ -148,6 +166,12 @@ br.api.unit = function(self)
     unit.swimming = function()
         local IsSwimming = _G["IsSwimming"]
         return IsSwimming()
+    end
+    -- Threat
+    unit.threat = function(thisUnit)
+        local hasThreat = _G["hasThreat"]
+        if thisUnit == nil then thisUnit = "target" end
+        return hasThreat(thisUnit)
     end
     -- Time Till Death
     unit.ttd = function(thisUnit,percent)

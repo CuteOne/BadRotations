@@ -41,6 +41,7 @@ br.rotations.support["PetCuteOne"] = function()
     local inCombat                                      = br.player.inCombat
     local mode                                          = br.player.ui.mode
     local spell                                         = br.player.spell
+    local unit                                          = br.player.unit
     local units                                         = br.player.units
     -- General Locals
     local haltPetProfile                                = IsMounted() or IsFlying() or paused or buff.feignDeath.exists() or buff.playDead.exists("pet") or mode.rotation==4
@@ -153,7 +154,10 @@ br.rotations.support["PetCuteOne"] = function()
             PetPassiveMode()
         end
         -- Pet Attack / Retreat
-        if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltPetProfile and br.petTarget ~= nil and (currentTarget == nil or not UnitIsUnit(br.petTarget,currentTarget)) then
+        if br.petTarget == nil and unit.valid("target") then br.petTarget = "target" end
+        if br.petTarget ~= nil and not buff.playDead.exists("pet") and not haltPetProfile 
+            and ((not inCombat and not petCombat) or ((inCombat or petCombat) and (currentTarget == nil or not UnitIsUnit(br.petTarget,currentTarget))))            
+        then
             petui.debug("[Pet] Pet is now attacking "..tostring(UnitName(br.petTarget)))
             PetAttack(br.petTarget)
             currentTarget = br.petTarget

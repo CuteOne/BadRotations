@@ -452,15 +452,15 @@ actionList.Extras = function()
             end
             -- Shred - Single
             if cast.able.shred() and #enemies.yards5f == 1 then
-                if cast.shred() then ui.debug("Casting Shred [Death Cat Mode]"); swipeSoon = nil; return true end
+                if cast.shred() then ui.debug("Casting Shred [Death Cat Mode]"); var.swipeSoon = nil; return true end
             end
             -- Swipe - AoE
             if cast.able.swipeCat() and #enemies.yards8 > 1 then
-                if swipeSoon == nil then
-                    swipeSoon = GetTime();
+                if var.swipeSoon == nil then
+                    var.swipeSoon = GetTime();
                 end
-                if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
-                    if cast.swipeCat(nil,"aoe") then ui.debug("Casting Swipe [Death Cat Mode]") ; swipeSoon = nil; return true end
+                if var.swipeSoon ~= nil and var.swipeSoon < GetTime() - 1 then
+                    if cast.swipeCat(nil,"aoe") then ui.debug("Casting Swipe [Death Cat Mode]") ; var.swipeSoon = nil; return true end
                 end
             end
         end -- End 20yrd Enemy Scan
@@ -711,7 +711,7 @@ end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if unit.distance(units.dyn5) < 5 then
+    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
         -- Berserk/Incarnation
         -- berserk,if=buff.prowl.down
         -- incarnation,if=buff.prowl.down
@@ -736,7 +736,7 @@ actionList.Cooldowns = function()
         -- Shadowmeld
         -- shadowmeld,if=buff.tigers_fury.up&buff.berserk_cat.down&buff.incarnation_king_of_the_jungle.down&buff.prowl.down&combo_points<4&dot.rake.pmultiplier<1.6&energy>40
         if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and useCDs()
-            and unit.distance(units.dyn5) < 5 and not solo and var.friendsInRange --findFriends() > 0
+            and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not solo and var.friendsInRange --findFriends() > 0
         then
             if buff.tigersFury.exists() and not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()
             and not buff.prowl.exists() and comboPoints < 4 and debuff.rake.applied(units.dyn5) < 1.6 and energy > 40
@@ -766,7 +766,7 @@ actionList.Cooldowns = function()
         -- Trinkets
         if (use.able.slot(13) or use.able.slot(14)) then
             local opValue = ui.value("Trinkets")
-            if (opValue == 1 or (opValue == 2 and useCDs())) and unit.distance(units.dyn5) < 5 then
+            if (opValue == 1 or (opValue == 2 and useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 for i = 13, 14 do
                     if use.able.slot(i) then
                         -- Ashvanes Razor Coral
@@ -821,7 +821,7 @@ actionList.Cooldowns = function()
         -- Wrists - Wraps of Electrostatic Potential
         if equiped.wrapsOfElectrostaticPotential() and use.able.wrapsOfElectrostaticPotential() then
             local opValue = ui.value("Trinkets")
-            if (opValue == 1 or (opValue == 2 and useCDs())) and unit.distance(units.dyn5) < 5 then
+            if (opValue == 1 or (opValue == 2 and useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 if use.wrapsOfElectrostaticPotential() then ui.debug("Using Wraps of Electrostatic Potential") return true end
             end
         end
@@ -912,7 +912,7 @@ actionList.Opener = function()
     -- Start Attack
     -- auto_attack
     if ui.checked("Opener") and unit.isBoss("target") and not opener.complete then
-        if unit.valid("target") and unit.distance("target") < 5
+        if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5
             and unit.facing("player","target") and unit.gcd() == 0
         then
             -- Begin
@@ -1262,7 +1262,7 @@ actionList.PreCombat = function()
             -- use_item,name=azsharas_font_of_power
             if (use.able.slot(13) or use.able.slot(14)) then
                 local opValue = ui.value("Trinkets")
-                if (opValue == 1 or (opValue == 2 and useCDs())) and unit.distance(units.dyn5) < 5 then
+                if (opValue == 1 or (opValue == 2 and useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     for i = 13, 14 do
                         if use.able.slot(i) then
                             if equiped.azsharasFontOfPower(i) then
@@ -1303,7 +1303,7 @@ actionList.PreCombat = function()
             end
         end -- End Pre-Pull
         -- Pull
-        if unit.valid("target") and opener.complete and unit.distance("target") < 5 then
+        if unit.valid("target") and opener.complete and unit.exists("target") and unit.distance("target") < 5 then
             -- Run Action List - Stealth
             -- run_action_list,name=stealth,if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
@@ -1374,9 +1374,9 @@ local function runRotation()
     units.get(8,true)
     units.get(5)
     if range == nil then range = {} end
-    range.dyn40 = unit.distance(units.dyn40) < 40
+    range.dyn40 = unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40
     range.dyn8AOE = unit.distance(units.dyn8AOE) < 8
-    range.dyn5 = unit.distance(units.dyn5) < 5
+    range.dyn5 = unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
 
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
@@ -1401,7 +1401,7 @@ local function runRotation()
     var.enemyBlood = essence.bloodOfTheEnemy.active and 1 or 0
 
     -- Jagged Wounds Rip Duration Adj
-    ripDuration = talent.jaggedWounds and 1.6 * (24 / 2) or 24
+    var.ripDuration = talent.jaggedWounds and 1.6 * (24 / 2) or 24
 
     -- Sabertooth
     var.sabertooth = talent.sabertooth and 1 or 0

@@ -674,6 +674,7 @@ end
 function getOutLaksTTD(ttd_time)
     local lowTTD = 100
     local lowTTDcount = 0
+    local LowTTDtarget
     local mob_count = #enemies.yards8
     if mob_count > 6 then
         mob_count = 6
@@ -690,6 +691,23 @@ function getOutLaksTTD(ttd_time)
     end
     return tonumber(lowTTDcount)
 end
+
+function getOutLaksTTDMAX()
+    local highTTD = 0
+    local mob_count = #enemies.yards8
+    if mob_count > 6 then
+        mob_count = 6
+    end
+    for i = 1, mob_count do
+        if getTTD(enemies.yards8[i]) > highTTD and getTTD(enemies.yards8[i]) < 999 and not isExplosive(enemies.yards8[i]) and
+                isSafeToAttack(enemies.yards8[i]) then
+            highTTD = getTTD(enemies.yards8[i])
+        end
+    end
+    return tonumber(lowTTDcount)
+end
+
+
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
@@ -797,7 +815,7 @@ actionList.essences = function()
 
             if reapTarget ~= nil and not isExplosive(reapTarget) and not noDamageCheck(reapTarget) then
                 if cast.reapingFlames(reapTarget) then
-                    Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+          --          Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                     return true
                 end
             end
@@ -1108,9 +1126,7 @@ actionList.dps = function()
     --Print("Combo: " .. combo .. "/ goal: " .. tostring((comboMax - buff_count())))
     if combo < real_def and not stealth and not should_pool then
 
-        if (talent.quickDraw or br.player.traits.keepYourWitsAboutYou.rank < 2)
-                and buff.opportunity.exists() and (buff.wits.stack() < 14 or br.player.power.energy.amount() < 45)
-                or (buff.opportunity.exists() and buff.deadShot.exists())
+        if cast.able.pistolShot() and buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
                 or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
                 and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
             --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
@@ -1118,9 +1134,11 @@ actionList.dps = function()
                 return true
             end
         end
-        if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) and not noDamageCheck(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
-            --  Print("Casting Sinister at: " .. combo)
-            return true
+        if cast.able.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) and not noDamageCheck(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
+            --Print("Casting Sinister at: " .. combo)
+            if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
+                return true
+            end
         end
     end
 end
@@ -1162,6 +1180,15 @@ actionList.Extra = function()
     if not inCombat and #enemies.yards40 > 0 and not stealth and combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones()) then
         if cast.rollTheBones() then
             return true
+        end
+
+    end
+
+    if cast.able.sliceAndDice() then
+        if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+            if cast.sliceAndDice() then
+                return true
+            end
         end
     end
 
@@ -1323,7 +1350,7 @@ actionList.Defensive = function()
             for k, v in pairs(debuff_list) do
                 --   Print("K: " .. tostring(k) .. " V: " .. tostring(v.spellID))
                 if getDebuffRemain("player", v.spellID) > 0 then
-                    Print("foo33")
+                    --      Print("foo33")
                     should_feint = true
                 end
             end
@@ -1397,7 +1424,7 @@ actionList.Defensive = function()
 
 
     -- Arcane Torrent
-    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(69179) == 0 then
+    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(25046) == 0 then
         local torrentUnit = 0
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
@@ -1407,7 +1434,6 @@ actionList.Defensive = function()
                     if castSpell("player", racial, false, false, false) then
                         return true
                     end
-                    break
                 end
             end
         end
@@ -1746,7 +1772,7 @@ local function runRotation()
                             br.addonDebug("[AM] - Shadowmeld")
                         end
                     end
-                    if isChecked("[AM] - Vanish") and mode .. vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
+                    if isChecked("[AM] - Vanish") and mode.vanish == 1 and cast.able.vanish() and not cast.last.shadowmeld(1) and not cast.last.tricksOfTheTrade(1) then
                         if cast.vanish() then
                             br.addonDebug("[AM] - Vanish")
                         end

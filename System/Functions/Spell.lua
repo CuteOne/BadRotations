@@ -211,6 +211,7 @@ function getSpellCD(SpellID)
 end
 function getGlobalCD(max)
 	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
+	if currentSpecName == "" then currentSpecName = "Initial" end
 	if max == true then
 		if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
 			return 1

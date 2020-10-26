@@ -15,6 +15,9 @@ end
 local function rotationsDirectory()
     return GetWoWDirectory() .. '\\Interface\\AddOns\\' .. br.addonName .. '\\Rotations\\'
 end
+local function settingsDirectory()
+    return GetWoWDirectory() .. '\\Interface\\AddOns\\' .. br.addonName .. '\\Settings\\'
+end
 local function loadFile(profile,file,support)
     local loadProfile = loadstring(profile,file)
     if loadProfile == nil then
@@ -31,8 +34,9 @@ function br.loader.loadProfiles()
     wipe(br.rotations)
     local specID = GetSpecializationInfo(GetSpecialization())
     local folderSpec = getFolderSpecName(class,specID)
-    local path = rotationsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. "\\"
+    local path = rotationsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\'
     local profiles = GetDirectoryFiles(path .. '*.lua')
+    local profileName = ""
     for _, file in pairs(profiles) do
         local profile = ReadFile(path..file)
         local start = string.find(profile,"local id = ",1,true) or 0
@@ -42,8 +46,22 @@ function br.loader.loadProfiles()
         else
             profileID = tonumber(string.sub(profile,start+10,start+13))
         end
-        if profileID == specID then loadFile(profile,file,false) end
+        if profileID == specID then 
+            loadFile(profile,file,false)
+            -- -- Get Rotation Name from File
+            -- start = string.find(profile,"local rotationName = ",1,true) or 0
+            -- local endString = string.find(profile,"\n",1,true) or 0
+            -- profileName = tostring(string.sub(profile,start+20,endString))
+            -- endString = string.find(profile,"\" -",1,true) or 0
+            -- if endString > 0 then profileName = tostring(string.sub(profile,start+20,endString)) end
+            -- Print("Profile: "..profileName)
+        end
     end
+    -- path = settingsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\' .. profileName .. '\\' 
+    -- local settings = GetDirectoryFiles(path .. '*.lua')
+    -- for _, file in pairs(settings) do
+    --     Print("File: "..tostring(file).." | Profile: "..profileName)
+    -- end
 end
 
 -- Load Support Files - Specified in Rotation File
@@ -61,9 +79,10 @@ function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
     local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
     local player = "player" -- if someone forgets ""
-
+    if specName == nil then specName = "Initial" end
+    -- Print("Spec: "..spec.." | Spec Name: "..specName)
     if not br.loaded then
-        br:loadSavedSettings()
+        -- Print("Loader - Loading Profiles")
         br.loader.loadProfiles()
         br.loaded = true
     end
@@ -72,6 +91,9 @@ function br.loader:new(spec,specName)
 
     -- Mandatory !
     self.rotation = br.rotations[spec][br.selectedProfile]
+    -- Print("Loader - Loading Settings for Rotation: "..self.rotation.name)
+    br.data.loadedSettings = false
+    br:loadSettings(nil,nil,nil,self.rotation.name)
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
@@ -130,12 +152,12 @@ function br.loader:new(spec,specName)
             end
         end
 
-        -- Spec Spells - Don't Load on Initial Levels
-        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
-        -- Shared Class Spells
-        getSpells(sharedClassSpells)
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
+        -- Shared Class Spells
+        getSpells(sharedClassSpells)
+        -- Spec Spells - Don't Load on Initial Levels
+        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
         -- -- Spell Test
         -- getSpellsTest()
 
@@ -392,6 +414,9 @@ function br.loader:new(spec,specName)
 
         -- Make Unit Functions from br.api.unit
         if self.ui == nil then self.ui = {} br.api.unit(self) end
+
+        -- Make Action List Functions from br.api.module
+        if self.module == nil then self.module = {} br.api.module(self) end
     end
 
     if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then 
@@ -553,13 +578,6 @@ function br.loader:new(spec,specName)
 
         -- br:checkProfileWindowStatus()
         br.ui:checkWindowStatus("profile")
-
-        -- if self.option == nil then self.option = {} end
-        -- br.api.ui(nil,self.option)
-        -- for k,v in pairs(br.data.ui) do
-        --     if self.option[k] == nil then self.option[k] = {} end
-        --     local option = self.option[k]
-        -- end
     end
 
     ------------------------

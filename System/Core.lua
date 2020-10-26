@@ -86,7 +86,10 @@ function BadRotationsUpdate(self)
 		return false
 	-- Load and Cycle BR
 	elseif br.unlocked and GetObjectCountBR() ~= nil then
-		br:checkBrOutOfDate() -- Check BR Out of Date
+		-- Check BR Out of Date
+		br:checkBrOutOfDate()		
+		-- Get Current Addon Name
+		br:setAddonName()
 		-- Continue Load
 		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 			-- BR Main Toggle Off
@@ -132,11 +135,19 @@ function BadRotationsUpdate(self)
 					CastSpellByID(botSpell, botUnit)
 					br.castID = false
 				end
-				-- Load Spec Profiles
-				br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
+				-- -- Load Spec Profiles - Load Last Profile Tracker
+				-- if br.data.tracker == nil then br.data.tracker = {} end 
+				-- br:loadLastProfileTracker()
+				-- br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
+
 				local playerSpec = GetSpecializationInfo(GetSpecialization())
+				if playerSpec == "" then playerSpec = "Initial" end
 				-- Initialize Player
 				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
+					-- Load Last Profile Tracker
+					br:loadLastProfileTracker()
+					br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"] or 1
+					-- Load Profile
 					br.loaded = false
 					br.player = br.loader:new(playerSpec, br.selectedSpec)
 					setmetatable(br.player, {__index = br.loader})
@@ -144,9 +155,8 @@ function BadRotationsUpdate(self)
 					br.player:createOptions()
 					br.player:createToggles()
 					br.player:update()
+					br:saveLastProfileTracker()
 					collectGarbage = true
-					Print("Loaded Profile: " .. br.player.rotation.name)
-					br.settingsFile = br.settingsDir .. br.selectedSpec .. br.selectedProfileName .. ".lua"
 					br.rotationChanged = false
 				end
 				-- Queue Casting
@@ -164,11 +174,11 @@ function BadRotationsUpdate(self)
 					end
 				end 
 				--Smart Queue
-				if br.unlocked and --[[EasyWoWToolbox ~= nil and ]]isChecked("Smart Queue") then
+				if br.unlocked and isChecked("Smart Queue") then
 					br.smartQueue()
 				end
 				-- Update Player
-				if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
+				if br.player ~= nil and not CanExitVehicle() then
 					br.player:update()
 				end
 				-- Healing Engine
@@ -189,23 +199,25 @@ function BadRotationsUpdate(self)
 				-- Auto Loot
 				autoLoot()
 				-- Close windows and swap br.selectedSpec on Spec Change
-				if select(2, GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
+				local thisSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+				if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
 					-- Save settings
-					br:saveSettings()
+					br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 					-- Closing the windows will save the position
 					br.ui:closeWindow("all")
 					-- Update Selected Spec/Profile
-					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+					br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+    				if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 					br.activeSpecGroup = GetActiveSpecGroup()
 					br.data.loadedSettings = false
+					-- Load Default Settings
 					br:defaultSettings()
-					-- br:loadSavedSettings()
 					br.rotationChanged = true
 					wipe(br.commandHelp)
 					br:slashHelpList()
 				end
 				-- Show Main Button
-				if br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
+				if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
 					if not UnitAffectingCombat("player") then
 						br.data.settings[br.selectedSpec].toggles["Main"] = 1
 						mainButton:Show()

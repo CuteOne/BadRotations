@@ -211,7 +211,7 @@ br.api.cast = function(self,spell,id)
         return getCastTime(id)
     end
 
-    -- br.player.cast.timeRemain.spell() -- Return cast time remain on player's cast or supplied target, spell is the name of the spell from spell list.
+    -- br.player.cast.timeRemain() -- Return cast time remain on player's cast or supplied target, spell is the name of the spell from spell list.
     --[[Args:
         thisUnit - Acceptable parameters listed below
                 nil - BR will default to "player".
@@ -219,7 +219,7 @@ br.api.cast = function(self,spell,id)
                 dynamic units - see: System/API/Dynamic.lua
     ]]
     if cast.timeRemain == nil then cast.timeRemain = {} end
-    cast.timeRemain[spell] = function(thisUnit)
+    cast.timeRemain = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return getCastTimeRemain(thisUnit)
     end

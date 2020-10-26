@@ -38,7 +38,8 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
     scrollFrame:SetAllPoints(window.content)
     scrollFrame.parent = window
 
-    if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+    br.selectedSpec =  select(2,GetSpecializationInfo(GetSpecialization()))
+    if br.selectedSpec == "" then br.selectedSpec = "Initial" end
     if br.data.settings and br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
     if br.data.settings and br.data.settings[br.selectedSpec] and br.data.settings[br.selectedSpec][name] == nil then br.data.settings[br.selectedSpec][name] = {} end
     if br.data.settings[br.selectedSpec][name] then
@@ -65,16 +66,19 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
         br.ui:createLeftArrow(scrollFrame)
         br.ui:createRightArrow(scrollFrame)
     end
+
     return scrollFrame
 end
 
 -- Load saved position
-function br.ui:loadWindowPositions(window,scrollFrame)
-    local scrollFrame = scrollFrame
-    if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+function br.ui:loadWindowPositions(thisWindow)
+    local scrollFrame = br.ui.window[thisWindow]
+    if scrollFrame == nil then return end
+    br.selectedSpec =  select(2,GetSpecializationInfo(GetSpecialization()))
+    if br.selectedSpec == "" then br.selectedSpec = "Initial" end
     if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
-    if br.data.settings[br.selectedSpec][window] == nil then br.data.settings[br.selectedSpec][window] = {} end
-    local windows = br.data.settings[br.selectedSpec][window]
+    if br.data.settings[br.selectedSpec][thisWindow] == nil then br.data.settings[br.selectedSpec][thisWindow] = {} end
+    local windows = br.data.settings[br.selectedSpec][thisWindow]
     if windows["point"] ~= nil then
         local point, relativeTo = windows["point"], windows["relativeTo"]
         local relativePoint     = windows["relativePoint"]
@@ -110,7 +114,8 @@ function br.ui:checkWindowStatus(windowName)
 end
 
 function br.ui:savePosition(windowName)
-    if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+    br.selectedSpec =  select(2,GetSpecializationInfo(GetSpecialization()))
+    if br.selectedSpec == nil or br.selectedSpec == "" then br.selectedSpec = "Initial" end
     if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
     if br.data.settings[br.selectedSpec][windowName] == nil then br.data.settings[br.selectedSpec][windowName] = {} end
     if br.ui.window[windowName] ~= nil then
@@ -166,7 +171,7 @@ function br.ui:closeWindow(windowName)
                         if br.data.settings[tostring(l)] ~= nil and type(w) ~= "string" and type(w) ~= "number" and type(w) ~= "boolean" then
                             for m, x in pairs(br.data.settings[tostring(l)]) do
                                 if m == k then
-                                    if br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+                                    if br.data.settings[br.selectedSpec].toggles ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
                                         if br.data.settings[l][m].active == nil or br.data.settings[l][m].active then
                                             br.ui.window[k].parent.closeButton:Click()
                                             br.data.settings[l][m].active = false

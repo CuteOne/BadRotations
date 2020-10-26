@@ -98,6 +98,16 @@ local movingTimer
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+
+-- Time Moving
+local function timeMoving()
+    if movingTimer == nil then movingTimer = GetTime() end
+    if not unit.moving() then
+        movingTimer = GetTime()
+    end
+    return GetTime() - movingTimer
+end
+
 local function ghostWolf()
     -- Ghost Wolf
     if not (IsMounted() or IsFlying()) and isChecked("Auto Ghost Wolf") then
@@ -248,7 +258,7 @@ local function runRotation()
                 --- In Combat - Main ---
                 ------------------------
                 -- Melee in melee range
-                if unit.distance(units.dyn5) < 5 then
+                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     -- Start Attack
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
                         StartAttack(units.dyn5)

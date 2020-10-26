@@ -32,6 +32,8 @@ br.lists.items = {
     fandralsSeedPouch               = 122304,
     luffaWrappings                  = 137056,
     theWildshapersClutch            = 137094,
+	-- Mage: Shares
+	manaGem                         = 36799,
     -- Monk: Shared
     drinkingHornCover               = 137097,
     hiddenMastersForbiddenTouch     = 137057,
@@ -58,9 +60,10 @@ br.lists.items = {
     oraliusWhisperingCrystal        = 118922,
     repurposedFelFocuser            = 147707,
     -- Greater Flasks
+    greaterFlaskOfEndlessFathoms    = 168652,
     greaterFlaskOfTheCurrents       = 168651,
     greaterFlaskOfTheUndertow       = 168654,
-    greaterFlaskOfEndlessFathoms    = 168652,
+    greaterFlaskOfTheVastHorizon    = 168653,
     -- Healthstones
     healthstone                     = 5512,
     legionHealthstone               = 129196,
@@ -73,6 +76,7 @@ br.lists.items = {
     eternalWovenIvyNecklace         = 122666,
     heirloomNeck                    = getHeirloomNeck(),
     manariTrainingAmulet            = 153130,
+    touchOfTheVoid                  = 128318,
     -- Potions
     battlePotionOfAgility           = 163223,
     battlePotionOfIntellect         = 163222,
