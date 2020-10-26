@@ -2928,6 +2928,9 @@ local function runRotation()
                     if hasItem(65499) and canUseItem(65499) then
                         useItem(65499)
                     end
+                    if hasItem(80610) and canUseItem(80610) then
+                        useItem(80610)
+                    end
                     if hasItem(113509) and canUseItem(113509) then
                         useItem(113509)
                     end
