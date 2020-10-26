@@ -8,6 +8,8 @@ br.lists.pets = {
     gargoyle                    = 27829,
     ghoul                       = 26125,
     risenSkulker                = 99541,
+    -- Monk
+    xuenTheWhiteTiger           = 63508,
     -- Warlock
     darkglare                   = 103673,
     demonicTyrant               = 135002,
