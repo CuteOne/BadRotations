@@ -400,8 +400,8 @@ local function runRotation()
     if buff.sliceAndDice.exists() or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
     -- # Only change rotation if we have priority_rotation set and multiple targets up.
     -- actions+=/variable,name=use_priority_rotation,value=priority_rotation&spell_targets.shuriken_storm>=2
-    local priorityRotation = 0
-    if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = 1 else priorityRotation = 0 end
+    local priorityRotation = false
+    if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = true end
 
     if isChecked("Ignore Blacklist for SS") then
         enemies10 = #enemies.get(10)
@@ -596,7 +596,7 @@ local function runRotation()
 
     local function actionList_CooldownsOGCD()
         -- Slice and dice for opener
-        if enemies10 < 6 and ttd("target") > 6 and combo >= 2 and not buff.sliceAndDice.exists() and (combatTime < 6 and cd.vanish.remain() < 118) then
+        if enemies10 < 6 and ttd("target") > 6 and combo >= 2 and not buff.sliceAndDice.exists() and (combatTime < 6 and not cd.vanish.exists()) then
             if cast.sliceAndDice("player") then return true end
         end
         -- # Use Dance off-gcd before the first Shuriken Storm from Tornado comes in.
@@ -606,21 +606,12 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.exists() and buff.sliceAndDice.exists()) then
+        if mode.sod == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.exists()) then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points.deficit>=2
         if cdUsage and sndCondition and not stealthedAll and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.exists()) then
             if cast.shadowBlades("player") then return true end
-        end
-        -- actions.cds+=/blood_fury,if=buff.symbols_of_death.up
-        -- actions.cds+=/berserking,if=buff.symbols_of_death.up
-        -- actions.cds+=/fireblood,if=buff.symbols_of_death.up
-        -- actions.cds+=/ancestral_call,if=buff.symbols_of_death.up
-        if cdUsage and isChecked("Racial") and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
-                if cast.racial("player") then return true end
-            end
         end
     end
 
@@ -640,7 +631,7 @@ local function runRotation()
         -- end
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/call_action_list,name=essences,if=!stealthed.all&variable.snd_condition|essence.breath_of_the_dying.major&time>=2
-        if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition or cast.able.reapingFlames() and combatTime >= 2 then
+        if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition or cast.able.reapingFlames() and (combatTime >= 2 or cd.vanish.exists())  then
             -- actions.essences=concentrated_flame,if=energy.time_to_max>1&!buff.symbols_of_death.up&(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
             if cast.able.concentratedFlame() and (energyDeficit/energyRegen) > 1 and not buff.symbolsOfDeath.exists() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame() or charges.concentratedFlame.timeTillFull() < gcd) then
                 if cast.concentratedFlame() then return true end
@@ -782,6 +773,15 @@ local function runRotation()
             elseif getOptionValue("Potion") == 3 and use.able.potionOfFocusedResolve() and not buff.potionOfFocusedResolve.exists() then
                 use.potionOfFocusedResolve() 
                 return true
+            end
+        end
+        -- actions.cds+=/blood_fury,if=buff.symbols_of_death.up
+        -- actions.cds+=/berserking,if=buff.symbols_of_death.up
+        -- actions.cds+=/fireblood,if=buff.symbols_of_death.up
+        -- actions.cds+=/ancestral_call,if=buff.symbols_of_death.up
+        if cdUsage and isChecked("Racial") and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
+            if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
+                if cast.racial("player") then return true end
             end
         end
         -- # Specific trinktes 
@@ -941,7 +941,7 @@ local function runRotation()
         end
         -- # For priority rotation, use Shadowstrike over Storm 1) with WM against up to 4 targets, 2) if FW is running off (on any amount of targets), or 3) to maximize SoD extension with Inevitability on 3 targets (4 with BitS).
         -- actions.stealthed+=/shadowstrike,if=variable.use_priority_rotation&(debuff.find_weakness.remains<1|talent.weaponmaster.enabled&spell_targets.shuriken_storm<=4|azerite.inevitability.enabled&buff.symbols_of_death.up&spell_targets.shuriken_storm<=3+azerite.blade_in_the_shadows.enabled)
-        if priorityRotation and (debuff.findWeakness.remain("target")<1 or talent.weaponmaster and enemies10 <= 4 or trait.inevitability.active and buff.symbolsOfDeath.exists() and enemies10 <= 3+bitsActive) and targetDistance < 5 then
+        if priorityRotation and (debuff.findWeakness.remain("target")<1 or talent.weaponmaster and enemies10 <= 4 or triat.inevitability.active and buff.symbolsOfDeath.exists() and enemies10 <= 3+bitsActive) and targetDistance < 5 then
             if cast.shadowstrike("target") then return true end
         end
         -- actions.stealthed+=/shuriken_storm,if=spell_targets>=3+(buff.premeditation.up|buff.the_rotten.up|runeforge.akaaris_soul_fragment.equipped&conduit.deeper_daggers.rank>=7)
