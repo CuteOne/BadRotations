@@ -581,53 +581,37 @@ function cl:Mage(...)
 end
 function cl:Monk(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    -- Cast Fail Types
-    local failType = {
-        ["ABSORB"] = true,
-        ["BLOCK"] = true,
-        ["DEFLECT"] = true,
-        ["DODGE"] = true,
-        ["EVADE"] = true,
-        ["IMMUNE"] = true,
-        ["MISS"] = true,
-        ["PARRY"] = true,
-        ["REFLECT"] = true,
-        ["RESIST"] = true
-    }
-    local castTime = select(4, GetSpellInfo(spell))
-    if castTime == nil then castTime = 0 end
-    if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
-    if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
+    -- if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
     if br.player ~= nil and GetSpecialization() == 3 and br.player.spell.fistsOfFury ~= nil then
+        local myspell = br.player.spell
+        local var 	= br.player.variables
         local comboSpells = {
-            [br.player.spell.blackoutKick]              = true,
-            [br.player.spell.chiBurst]                  = true,
-            [br.player.spell.chiWave]                   = true,
-            [br.player.spell.cracklingJadeLightning]    = true,
-            [br.player.spell.fistsOfFury]               = true,
-            [br.player.spell.fistOfTheWhiteTiger]       = true,
-            [br.player.spell.flyingSerpentKick]         = true,
-            [br.player.spell.risingSunKick]             = true,
-            [br.player.spell.rushingJadeWind]           = true,
-            [br.player.spell.spinningCraneKick]         = true,
-            [br.player.spell.tigerPalm]                 = true,
-            [br.player.spell.touchOfDeath]              = true,
-            [br.player.spell.whirlingDragonPunch]       = true,
+            [myspell.blackoutKick]              = true,
+            [myspell.chiBurst]                  = true,
+            [myspell.chiWave]                   = true,
+            [myspell.cracklingJadeLightning]    = true,
+            [myspell.expelHarm]                 = true,
+            [myspell.fistsOfFury]               = true,
+            [myspell.fistOfTheWhiteTiger]       = true,
+            [myspell.flyingSerpentKick]         = true,
+            [myspell.risingSunKick]             = true,
+            [myspell.rushingJadeWind]           = true,
+            [myspell.spinningCraneKick]         = true,
+            [myspell.tigerPalm]                 = true,
+            [myspell.touchOfDeath]              = true,
+            [myspell.whirlingDragonPunch]       = true,
         }
+        if var.lastCombo == nil or not UnitAffectingCombat("player") then var.lastCombo = 6603 end
         if sourceName ~= nil then
             if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
-            -- Last Combo
-                if param == "SPELL_CAST_SUCCESS" and comboSpells[spell] and spell ~= lastCombo then
-                    prevCombo = lastCombo
-                    lastCombo = spell
-                    -- Print(GetSpellInfo(lastCombo).." Success! - Prev Last Combo was: "..GetSpellInfo(prevCombo))
-                end
-                if comboSpells[spell] and (castTime == 0 or (castTime > 0 and getCastTimeRemain("player") < castTime)) and not (getSpellCD(spell) > br.player.gcdMax)
-                    and (param == "SPELL_CAST_FAILED" or (param == "SPELL_MISSED" and failType[spellType]))
-                then
-                    -- Print(GetSpellInfo(lastCombo).." "..spellType.."! - Setting Last Combo to: "..GetSpellInfo(prevCombo))
-                    lastCombo = prevCombo
-                    prevCombo = 6603
+                -- Last Combo
+                if param == "SPELL_CAST_SUCCESS" then
+                    -- Print("Last Successful Spell was "..GetSpellInfo(spell).." with ID: "..spell)
+                    if comboSpells[spell] and spell ~= var.lastCombo then
+                        -- prevCombo = lastCombo
+                        var.lastCombo = spell
+                        -- Print(GetSpellInfo(var.lastCombo).." Success! ")--- Prev Last Combo was: "..GetSpellInfo(prevCombo))
+                    end
                 end
             end
         end

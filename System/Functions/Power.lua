@@ -185,15 +185,17 @@ function runeTimeTill(runeIndex)
 	return timeTill
 end
 -- if getTimeToMax("player") < 3 then
-function getTimeToMax(Unit)
-	local max = UnitPowerMax(Unit)
+function getTimeToMax(Unit,Limit)
+	local timeTill = 999
+	local max = Limit or UnitPowerMax(Unit)
 	local curr = UnitPower(Unit)
 	local curr2 = curr
 	local _, regen = GetPowerRegen(Unit)
 	if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 and isKnown(114107) then
 		curr2 = curr + 4 * getCombo()
 	end
-	return (max - curr2) * (1.0 / regen)
+	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
+	return timeTill
 end
 -- /dump getCastRegen(185358)
 function getCastRegen(spellId)

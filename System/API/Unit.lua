@@ -91,10 +91,11 @@ br.api.unit = function(self)
             or (GetNumGroupMembers()>1 and (UnitAffectingCombat(thisUnit) or UnitAffectingCombat("target")))
     end
     -- Instance Type (IE: "party" / "raid")
-    unit.instance = function()
+    unit.instance = function(thisInstance)
         local select = _G["select"]
         local IsInInstance = _G["IsInInstance"]
-        return select(2,IsInInstance())
+        local instanceType = select(2,IsInInstance())
+        return thisInstance == nil and instanceType or instanceType == thisInstance
     end
     -- Is Boss
     unit.isBoss = function(thisUnit)
@@ -110,6 +111,11 @@ br.api.unit = function(self)
     unit.isExplosive = function(thisUnit)
         local isExplosive = _G["isExplosive"]
         return isExplosive(thisUnit)
+    end
+    -- Is Unit
+    unit.isUnit = function(thisUnit,otherUnit)
+        local UnitIsUnit = _G["UnitIsUnit"]
+        return UnitIsUnit(thisUnit,otherUnit)
     end
     -- Level
     unit.level = function(thisUnit)
@@ -133,6 +139,11 @@ br.api.unit = function(self)
         local UnitName = _G["UnitName"]
         return UnitName(thisUnit)
     end
+    -- No Control
+    unit.noControl = function()
+        local noControl = _G["hasNoControl"]
+        return hasNoControl()
+    end
     -- Player
     unit.player = function(thisUnit)
         local UnitIsPlayer = _G["UnitIsPlayer"]
@@ -155,6 +166,12 @@ br.api.unit = function(self)
     unit.swimming = function()
         local IsSwimming = _G["IsSwimming"]
         return IsSwimming()
+    end
+    -- Threat
+    unit.threat = function(thisUnit)
+        local hasThreat = _G["hasThreat"]
+        if thisUnit == nil then thisUnit = "target" end
+        return hasThreat(thisUnit)
     end
     -- Time Till Death
     unit.ttd = function(thisUnit,percent)

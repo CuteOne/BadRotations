@@ -1673,6 +1673,7 @@ br.lists.spells = {
         [269] = {
             abilities                       = {
                 disable                     = 116095,
+                disableRoot                 = 116706,
                 fistsOfFury                 = 113656,
                 flyingSerpentKick           = 101545,
                 flyingSerpentKickEnd        = 115057,
@@ -1687,6 +1688,9 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                blackoutKick                = 116868,
+                chiEnergy                   = 337571,
+                danceOfChiJi                = 325202,
                 hitCombo                    = 196741,
                 pressurePoint               = 247255,
                 rushingJadeWind             = 116847,
