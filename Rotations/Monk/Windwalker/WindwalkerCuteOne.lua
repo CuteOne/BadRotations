@@ -46,12 +46,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = br.player.spell.flyingSerpentKickEnd}
     };
     CreateButton("Fsk",6,0)
-    -- Fists of Fury Button
-    FofModes = {
-        [1] = { mode = "On", value = 2 , overlay = "FoF Enabled", tip = "Will cast Fists Of Fury.", highlight = 1, icon = br.player.spell.fistsOfFury},
-        [2] = { mode = "Off", value = 1 , overlay = "FoF Disabled", tip = "Will NOT cast Fists Of Fury.", highlight = 0, icon = br.player.spell.fistsOfFury}
-    };
-    CreateButton("Fof",7,0)
 end
 
 ---------------
@@ -62,6 +56,9 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
+        local race = select(2,UnitRace("player"))
+        local racial = GetSpellInfo(br.getRacial())
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
@@ -75,6 +72,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5, "|cffFFFFFFCancels Crackling Jade Lightning below this range in yards.")
             -- Chi Burst
             br.ui:createSpinnerWithout(section,"Chi Burst Min Units",1,1,10,1,"|cffFFFFFFSet to the minumum number of units to cast Chi Burst on.")
+            -- Disable
+            br.ui:createCheckbox(section, "Disable")
             -- FoF Targets
             br.ui:createSpinnerWithout(section, "Fists of Fury Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Fists of Fury on.")
             -- Provoke
@@ -93,15 +92,51 @@ local function createOptions()
             -- Potion
             br.ui:createCheckbox(section,"Potion")
             -- Racial
-            br.ui:createCheckbox(section,"Racial")
+            -- br.ui:createCheckbox(section,"Racial")
+            if race == "Orc" or race == "BloodElf" or race == "LightforgedDraenei" or race == "DarkIronDwarf" or race == "MagharOrc" then
+                br.ui:createDropdownWithout(section, racial, alwaysCdNever, 1, "|cffFFFFFFWhen to use "..racial)
+            end
             -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
-            -- Heart Essence
-            br.ui:createCheckbox(section,"Use Essence")
+            -- Invoke Xuen - The White Tiger
+            br.ui:createDropdownWithout(section, "Invoke Xuen", alwaysCdNever, 2, "|cffFFFFFFWhen to use Invoke Xuen.")
+            -- Serenity
+            br.ui:createDropdownWithout(section, "Serenity", alwaysCdNever, 2, "|cffFFFFFFWhen to use Serenity.")
+            -- Storm, Earth, and Fire
+            br.ui:createDropdownWithout(section, "Storm, Earth, and Fire", alwaysCdNever, 1, "|cffFFFFFFWhen to use Storm, Earth, and Fire.")
             -- SEF Fixate
             br.ui:createCheckbox(section, "SEF Fixate", "|cffFFFFFFStorm, Earth, and Fire Fixate on Target.")
-            -- Disable
-            br.ui:createCheckbox(section, "Disable")
+            -- Touch of Death
+            br.ui:createDropdownWithout(section, "Touch of Death", alwaysCdNever, 2, "|cffFFFFFFWhen to use Touch of Death.")
+            -- Touch of Karma
+            br.ui:createDropdownWithout(section, "Touch of Karma - CD", alwaysCdNever, 1, "|cffFFFFFFWhen to use Touch of Karma.")
+        br.ui:checkSectionState(section)
+        -----------------------
+        --- ESSENCE OPTIONS ---
+        -----------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Essences")
+            -- Heart Essence
+            br.ui:createCheckbox(section,"Use Essence")
+            -- Essence - Blood of the Enemy
+            br.ui:createDropdownWithout(section, "Blood of the Enemy", alwaysCdNever, 1, "|cffFFFFFFWhen to use Blood of the Enemy.")
+            -- Essence - Concentrated Flame
+            br.ui:createDropdownWithout(section, "Concentrated Flame", alwaysCdNever, 1, "|cffFFFFFFWhen to use Concentrated Flame.")
+            -- Essence - Focused Azerite Beam
+            br.ui:createDropdownWithout(section, "Focused Azerite Beam", alwaysCdNever, 1, "|cffFFFFFFWhen to use Focused Azerite Beam.")
+            -- Essence - Guardian of Azeroth
+            br.ui:createDropdownWithout(section, "Guardian of Azeroth", alwaysCdNever, 2, "|cffFFFFFFWhen to use Guardian of Azeroth.")
+            -- Essence - Memory of Lucid Dreams
+            br.ui:createDropdownWithout(section, "Memory of Lucid Dreams", alwaysCdNever, 2, "|cffFFFFFFWhen to use Memory of Lucid Dreams.")
+            -- Essence - Purifying Blast
+            br.ui:createDropdownWithout(section, "Purifying Blast", alwaysCdNever, 1, "|cffFFFFFFWhen to use Purifying Blast.")
+            -- Essence - Reaping Flames
+            br.ui:createDropdownWithout(section, "Reaping Flames", alwaysCdNever, 1, "|cffFFFFFFWhen to use Reaping Flames.")
+            -- Essence - Ripple In Space
+            br.ui:createDropdownWithout(section, "Ripple In Space", alwaysCdNever, 1, "|cffFFFFFFWhen to useRipple In Space.")
+            -- Essence - The Unbound Force
+            br.ui:createDropdownWithout(section, "The Unbound Force", alwaysCdNever, 1, "|cffFFFFFFWhen to use The Unbound Force.")
+            -- Essence - Worldvein Resonance
+            br.ui:createDropdownWithout(section, "Worldvein Resonance", alwaysCdNever, 1, "|cffFFFFFFWhen to use Worldvein Resonance.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -194,6 +229,12 @@ local var
 -----------------------
 --- Local Functions ---
 -----------------------
+local function alwaysCdNever(option)
+    if option == "Racial" then GetSpellInfo(br.player.spell.racial) end
+    local thisOption = ui.value(option)
+    return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+end
+
 local function wasLastCombo(spellID)
     return var.lastCombo == spellID
 end
@@ -372,17 +413,17 @@ end -- End Action List - Interrupts
 actionList.CdSef = function()
     -- Invoke Xuen - The White Tiger
     -- invoke_xuen_the_white_tiger,if=!variable.hold_xuen|fight_remains<25
-    if cast.able.invokeXuenTheWhiteTiger() and (not var.holdXuen or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 25)) then
+    if cast.able.invokeXuenTheWhiteTiger() and alwaysCdNever("Invoke Xuen") and (not var.holdXuen or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 25)) then
         if cast.invokeXuenTheWhiteTiger() then ui.debug("Casting Invoke Xuen - The White Tiger") return true end
     end
     -- Racial - Arcane Torrent [Blood Elf]
     -- arcane_torrent,if=chi.max-chi>=1
-    if ui.checked("Racial") and cast.able.racial() and (chiMax - chi >= 1 and unit.race() == "BloodElf") then
+    if cast.able.racial() and alwaysCdNever("Racial") and (chiMax - chi >= 1 and unit.race() == "BloodElf") then
         if cast.racial() then ui.debug("Casting Arcane Torrent") return true end
     end
     -- Touch of Death
     -- touch_of_death,if=buff.storm_earth_and_fire.down
-    if cast.able.touchOfDeath() and not buff.stormEarthAndFire.exists() and (unit.health("target") < unit.health("player") 
+    if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and not buff.stormEarthAndFire.exists() and (unit.health("target") < unit.health("player") 
         or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
         if cast.touchOfDeath() then ui.debug("Casting Touch of Death") return true end
@@ -391,22 +432,24 @@ actionList.CdSef = function()
     if ui.checked("Use Essence") then
         -- Essence - Blood of the Enemy
         -- blood_of_the_enemy,if=cooldown.fists_of_fury.remains<2|fight_remains<12
-        if cast.able.bloodOfTheEnemy() and (cd.fistsOfFury.remain() < 2 or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 12)) then
+        if cast.able.bloodOfTheEnemy() and alwaysCdNever("Blood of the Enemy")
+            and (cd.fistsOfFury.remain() < 2 or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 12))
+        then
             if cast.bloodOfTheEnemy() then ui.debug("Casting Blood of the Enemy") return true end
         end
         -- Essence - Guardian of Azeroth
         -- guardian_of_azeroth
-        if cast.able.guardianOfAzeroth() then
+        if cast.able.guardianOfAzeroth() and alwaysCdNever("Guardian of Azeroth") then
             if cast.guardianOfAzeroth() then ui.debug("Casting Guardian of Azeroth") return true end
         end
         -- Essence - Worldvein Resonance
         -- worldvein_resonance
-        if cast.able.worldveinResonance() then
+        if cast.able.worldveinResonance() and alwaysCdNever("Worldvein Resonance") then
             if cast.worldveinResonance() then ui.debug("Casting Worldvein Resonance") return true end
         end
         -- Essence - Concentrated Flame
         -- concentrated_flame,if=!dot.concentrated_flame_burn.remains&((!talent.whirling_dragon_punch.enabled|cooldown.whirling_dragon_punch.remains)&cooldown.rising_sun_kick.remains&cooldown.fists_of_fury.remains&buff.storm_earth_and_fire.down)|fight_remains<8
-        if cast.able.concentratedFlame() and (not debuff.concentratedFlameBurn.remain(units.dyn5)
+        if cast.able.concentratedFlame() and alwaysCdNever("Concentrated Flame") and (not debuff.concentratedFlameBurn.remain(units.dyn5)
             and ((not talent.whirlingDragonPunch or cd.whirlingDragonPunch.exists())
                 and cd.risingSunKick.exists() and cd.fistsOfFury.exists() and not buff.stormEarthAndFire.exists())
                     or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 8))
@@ -415,38 +458,38 @@ actionList.CdSef = function()
         end
         -- Essence - The Unbound Force
         -- the_unbound_force
-        if cast.able.theUnboundForce() then
+        if cast.able.theUnboundForce() and alwaysCdNever("The Unbound Force") then
             if cast.theUnboundForce() then ui.debug("Casting The Unbound Force") return true end
         end
         -- Essence - Purifying Blast
         -- purifying_blast
-        if cast.able.purifyingBlast() then
+        if cast.able.purifyingBlast() and alwaysCdNever("Purifying Blast") then
             if cast.purifyingBlast("best", nil, var.minCount, 8) then ui.debug("Casting Purifying Blast") return true end
         end
         -- Essence - Reaping Flames
         -- reaping_flames,if=target.time_to_pct_20>30|target.health.pct<=20
-        if cast.able.reapingFlames() and (unit.ttd(units.dyn5,20) > 30 or unit.hp(units.dyn5) <= 20) then
+        if cast.able.reapingFlames() and alwaysCdNever("Reaping Flames") and (unit.ttd(units.dyn5,20) > 30 or unit.hp(units.dyn5) <= 20) then
             if cast.reapingFlames() then ui.debug("Casting Reaping Flames") return true end
         end
         -- Essence - Focused Azerite Beam
         -- focused_azerite_beam
-        if cast.able.focusedAzeriteBeam() then
+        if cast.able.focusedAzeriteBeam() and alwaysCdNever("Focused Azerite Beam") then
             if cast.focusedAzeriteBeam(nil,"rect",var.minCount,30) then ui.debug("Casting Focused Azerite Beam") return true end
         end
         -- Essence - Memory of Lucid Dreams
         -- memory_of_lucid_dreams,if=energy<40
-        if cast.able.memoryOfLucidDreams() and energy < 40 then
+        if cast.able.memoryOfLucidDreams() and alwaysCdNever("Memory of Lucid Dreams") and energy < 40 then
             if cast.memoryOfLucidDreams() then ui.debug("Casting Memory of Lucid Dreams") return true end
         end
         -- Essence - Ripple In Space
         -- ripple_in_space
-        if cast.able.rippleInSpace() then
+        if cast.able.rippleInSpace() and alwaysCdNever("Ripple In Space") then
             if cast.rippleInSpace() then ui.debug("Casting Ripple In Space") return true end
         end
     end
     -- Storm, Earth, and Fire
     -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|fight_remains<20|buff.seething_rage.up|(cooldown.blood_of_the_enemy.remains+1>cooldown.storm_earth_and_fire.full_recharge_time|!essence.blood_of_the_enemy.major)&cooldown.fists_of_fury.remains<10&chi>=2&cooldown.whirling_dragon_punch.remains<12
-    if cast.able.stormEarthAndFire() and (charges.stormEarthAndFire.count() == 2 or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 20)
+    if cast.able.stormEarthAndFire() and alwaysCdNever("Storm, Earth, and Fire") and (charges.stormEarthAndFire.count() == 2 or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 20)
         or buff.seethingRage.exists() or (cd.bloodOfTheEnemy.remain() + 1 > charges.stormEarthAndFire.timeTillFull() or not essence.bloodOfTheEnemy.major)
         and cd.fistsOfFury.remain() < 10 and chi >= 2 and cd.whirlingDragonPunch.remain() < 12)
     then
@@ -457,11 +500,11 @@ actionList.CdSef = function()
     --TODO: parsing use_item
     -- Touch of Karma
     -- touch_of_karma,interval=90,pct_health=0.5
-    if cast.able.touchOfKarma() then
-        if cast.touchOfKarma() then ui.debug("Casting Touch of Karma") return true end
+    if cast.able.touchOfKarma() and alwaysCdNever("Touch of Karma - CD") then
+        if cast.touchOfKarma() then ui.debug("Casting Touch of Karma [CD]") return true end
     end
     -- Racials
-    if ui.checked("Racial") then
+    if alwaysCdNever("Racial") then
         -- Racial - Blood Fury
         -- blood_fury,if=fight_remains>125|buff.storm_earth_and_fire.up|fight_remains<20
         if cast.able.racial() and ((unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) > 125)
@@ -510,68 +553,73 @@ end -- End Action List - CdSef
 actionList.CdSerenity = function()
     -- Invoke Xuen - The White Tiger
     -- invoke_xuen_the_white_tiger,if=!variable.hold_xuen|fight_remains<25
-    if cast.able.invokeXuenTheWhiteTiger() and (not var.holdXuen or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 25)) then
+    if cast.able.invokeXuenTheWhiteTiger() and alwaysCdNever("Invoke Xuen")
+        and (not var.holdXuen or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 25))
+    then
         if cast.invokeXuenTheWhiteTiger() then ui.debug("Casting Invoke Xuen - The White Tiger") return true end
     end
     -- Heart Essence
     if ui.checked("Use Essence") then
         -- Essence - Guardian of Azeroth
         -- guardian_of_azeroth,if=fight_remains>185|variable.serenity_burst|fight_remains<35
-        if cast.able.guardianOfAzeroth() and ((unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) > 185)
+        if cast.able.guardianOfAzeroth() and alwaysCdNever("Guardian of Azeroth") and ((unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) > 185)
             or var.serenityBurst or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 35))
         then
             if cast.guardianOfAzeroth() then ui.debug("Casting Guardian of Azeroth") return true end
         end
         -- Essence - Worldvein Resonance
         -- worldvein_resonance,if=variable.serenity_burst
-        if cast.able.worldveinResonance() and (var.serenityBurst) then
+        if cast.able.worldveinResonance() and alwaysCdNever("Worldvein Resonance") and (var.serenityBurst) then
             if cast.worldveinResonance() then ui.debug("Casting Worldvein Resonance") return true end
         end
         -- Essence - Blood of the Enemy
         -- blood_of_the_enemy,if=variable.serenity_burst
-        if cast.able.bloodOfTheEnemy() and (var.serenityBurst) then
+        if cast.able.bloodOfTheEnemy() and alwaysCdNever("Blood of the Enemy") and (var.serenityBurst) then
             if cast.bloodOfTheEnemy() then ui.debug("Casting Blood of the Enemy") return true end
         end
         -- Essence - Concentrated Flame
         -- concentrated_flame,if=(cooldown.serenity.remains|cooldown.concentrated_flame.charges=2)&!dot.concentrated_flame_burn.remains&(cooldown.rising_sun_kick.remains&cooldown.fists_of_fury.remains|fight_remains<8)
-        if cast.able.concentratedFlame() and ((cd.serenity.exists() or charges.concentratedFlame.count() == 2) and not debuff.concentratedFlameBurn.exists()
+        if cast.able.concentratedFlame() and alwaysCdNever("Concentrated Flame")
+            and ((cd.serenity.exists() or charges.concentratedFlame.count() == 2) and not debuff.concentratedFlameBurn.exists()
             and (cd.risingSunKick.exists() and cd.fistsOfFury.exists() or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 8)))
         then
             if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame") return true end
         end
         -- Essence - The Unbound Force
         -- the_unbound_force
-        if cast.able.theUnboundForce() then
+        if cast.able.theUnboundForce() and alwaysCdNever("The Unbound Force") then
             if cast.theUnboundForce() then ui.debug("Casting The Unbound Force") return true end
         end
         -- Essence - Purifying Blast
         -- purifying_blast
-        if cast.able.purifyingBlast() then
+        if cast.able.purifyingBlast() and alwaysCdNever("Purifying Blast") then
             if cast.purifyingBlast("best", nil, var.minCount, 8) then ui.debug("Casting Purifying Blast") return true end
         end
         -- Essence - Reaping Flames
         -- reaping_flames,if=target.time_to_pct_20>30|target.health.pct<=20|target.time_to_die<2
-        if cast.able.reapingFlames() and (unit.ttd(units.dyn5,30) > 30 or unit.hp(units.dyn5) <= 20 or unit.ttd(units.dyn5) < 2) then
+        if cast.able.reapingFlames() and alwaysCdNever("Reaping Flames")
+            and (unit.ttd(units.dyn5,30) > 30 or unit.hp(units.dyn5) <= 20 or unit.ttd(units.dyn5) < 2)
+        then
             if cast.reapingFlames() then ui.debug("Casting Reaping Flames") return true end
         end
         -- Essence - Focused Azerite Beam
         -- focused_azerite_beam
-        if cast.able.focusedAzeriteBeam() then
+        if cast.able.focusedAzeriteBeam() and alwaysCdNever("Focused Azerite Beam") then
             if cast.focusedAzeriteBeam(nil,"rect",var.minCount,30) then ui.debug("Casting Focused Azerite Beam") return true end
         end
         -- Essence - Memory of Lucid Dreams
         -- memory_of_lucid_dreams,if=energy<40
-        if cast.able.memoryOfLucidDreams() and (energy < 40) then
+        if cast.able.memoryOfLucidDreams() and alwaysCdNever("Memory of Lucid Dreams") and (energy < 40) then
             if cast.memoryOfLucidDreams() then ui.debug("Casting Memory of Lucid Dreams") return true end
         end
         -- Essence - Ripple In Space
         -- ripple_in_space
-        if cast.able.rippleInSpace() then
+        if cast.able.rippleInSpace() and alwaysCdNever("Ripple In Space") then
             if cast.rippleInSpace() then ui.debug("Casting Ripple In Space") return true end
         end
     end
     -- Racials
-    if ui.checked("Racial") then
+    if alwaysCdNever("Racial") then
         -- Racial - Blood Fury
         -- blood_fury,if=fight_remains>125|variable.serenity_burst
         if cast.able.racial() and ((unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) > 125) or var.serenityBurst and unit.race() == "Orc") then
@@ -611,19 +659,19 @@ actionList.CdSerenity = function()
     --TODO: parsing use_item
     -- Touch of Death
     -- touch_of_death
-    if cast.able.touchOfDeath() and (unit.health("target") < unit.health("player") 
+    if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player") 
         or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
         if cast.touchOfDeath() then ui.debug("Casting Touch of Death") return true end
     end
     -- Touch of Karma
     -- touch_of_karma,interval=90,pct_health=0.5
-    if cast.able.touchOfKarma() then
+    if cast.able.touchOfKarma() and alwaysCdNever("Touch of Karma - CD") then
         if cast.touchOfKarma() then ui.debug("Casting Touch of Karma") return true end
     end
     -- Serenity
     -- serenity,if=cooldown.rising_sun_kick.remains<2|fight_remains<15
-    if cast.able.serenity() and (cd.risingSunKick.remain() < 2 or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 15)) then
+    if cast.able.serenity() and alwaysCdNever("Serenity") and (cd.risingSunKick.remain() < 2 or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 15)) then
         if cast.serenity() then ui.debug("Casting Serenity") return true end
     end
     -- -- bag_of_tricks
@@ -897,7 +945,7 @@ actionList.Serenity = function()
     -- Fists of Fury
     -- fists_of_fury,if=(buff.bloodlust.up&prev_gcd.1.rising_sun_kick)|buff.serenity.remains<1|(active_enemies>1&active_enemies<5)
     if chi >= 3 and cast.able.fistsOfFury() and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
-        or (#enemies.yards8f > 1 and #enemies.yards8f < 5)) and ui.mode.fof == 1
+        or (#enemies.yards8f > 1 and #enemies.yards8f < 5))
     then
         if cast.fistsOfFury(nil,"cone",1,8) then ui.debug("Casting Fists of Fury [Serenity]") return true end
     end
@@ -933,6 +981,42 @@ actionList.Serenity = function()
     -- Debugging
 	br.debug.cpu:updateDebug(startTime,"rotation.profile.serenity")
 end -- End Action List - Serenity
+
+-- Action List - Opener
+actionList.Opener = function()
+    local startTime = debugprofilestop()
+    -- Fist of the White Tiger
+    -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains
+    if cast.able.fistOfTheWhiteTiger(var.lowestMark) then
+        if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [Opener]") return true end
+    end
+    -- expel_harm,if=talent.chi_burst.enabled
+    if cast.able.expelHarm() and (talent.chiBurst) then
+        if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener Chi Burst") return true end
+    end
+    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.max-chi>=2
+    if cast.able.tigerPalm(var.lowestMark) and (not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2)
+        and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
+    then
+        if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Opener Not Last Combo]") return true end
+    end
+    -- expel_harm,if=chi.max-chi=3|chi.max-chi=1
+    if cast.able.expelHarm() and (chiMax - chi == 3 or chiMax - chi == 1) then
+        if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener]") return true end
+    end
+    -- flying_serpent_kick,if=talent.hit_combo.enabled
+    if ui.mode.fsk == 1 and cast.able.flyingSerpentKick() and (talent.hitCombo) then
+        if cast.flyingSerpentKick() then var.castFSK = true ui.debug("Casting Flying Serpent Kick [Opener]") return true end
+    end
+    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2
+    if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and (chiMax - chi >= 2)
+        and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
+    then
+        if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Opener]") return true end
+    end
+    -- Debugging
+	br.debug.cpu:updateDebug(startTime,"rotation.profile.opener")
+end -- End Action List - Opener
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
@@ -984,42 +1068,6 @@ actionList.PreCombat = function()
 	br.debug.cpu:updateDebug(startTime,"rotation.profile.precombat")
 end --End Action List - Pre-Combat
 
--- Action List - Opener
-actionList.Opener = function()
-    local startTime = debugprofilestop()
-    -- Fist of the White Tiger
-    -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains
-    if cast.able.fistOfTheWhiteTiger(var.lowestMark) then
-        if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [Opener]") return true end
-    end
-    -- expel_harm,if=talent.chi_burst.enabled
-    if cast.able.expelHarm() and (talent.chiBurst) then
-        if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener Chi Burst") return true end
-    end
-    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.max-chi>=2
-    if cast.able.tigerPalm(var.lowestMark) and (not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2)
-        and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
-    then
-        if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Opener Not Last Combo]") return true end
-    end
-    -- expel_harm,if=chi.max-chi=3|chi.max-chi=1
-    if cast.able.expelHarm() and (chiMax - chi == 3 or chiMax - chi == 1) then
-        if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener]") return true end
-    end
-    -- flying_serpent_kick,if=talent.hit_combo.enabled
-    if ui.mode.fsk == 1 and cast.able.flyingSerpentKick() and (talent.hitCombo) then
-        if cast.flyingSerpentKick() then var.castFSK = true ui.debug("Casting Flying Serpent Kick [Opener]") return true end
-    end
-    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2
-    if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and (chiMax - chi >= 2)
-        and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
-    then
-        if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Opener]") return true end
-    end
-    -- Debugging
-	br.debug.cpu:updateDebug(startTime,"rotation.profile.opener")
-end -- End Action List - Opener
-
 ----------------
 --- ROTATION ---
 ----------------
@@ -1057,6 +1105,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8,"target")
     enemies.get(8,"player",false,true)
+    enemies.get(10)
     enemies.get(20)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
@@ -1074,7 +1123,6 @@ local function runRotation()
     var.lowestMark = debuff.markOfTheCrane.lowest(5,"remain") or units.dyn5
     var.rskDuration = 10 - (10 * (GetHaste() / 100))
     var.solo = unit.instance("none") or #br.friend == 1
-    var.useFists = #enemies.yards8f >= ui.value("Fists of Fury Targets") and ui.mode.fof == 1 and not unit.isExplosive("target")
     
     -- Simc Variables
     -- variable,name=hold_xuen,op=set,value=cooldown.invoke_xuen_the_white_tiger.remains>fight_remains|fight_remains<120&fight_remains>cooldown.serenity.remains&cooldown.serenity.remains>10
@@ -1100,10 +1148,10 @@ local function runRotation()
     end
 
     -- Flying Serpent Kick - Cancel
-    if ui.mode.fsk == 1 then
-        if cast.able.flyingSerpentKickEnd() and var.castFSK and select(3,GetSpellInfo(spell.flyingSerpentKick)) == 463281 then
-            if cast.flyingSerpentKickEnd() then var.castFSK = false; ui.debug("Casting Flying Serpent Kick [End]") return true end
-        end
+    if ui.mode.fsk == 1 and cast.able.flyingSerpentKickEnd() and var.castFSK
+        and select(3,GetSpellInfo(spell.flyingSerpentKick)) == 463281
+    then
+        if cast.flyingSerpentKickEnd() then ui.debug("Casting Flying Serpent Kick [End]") return true end
     end
     
     -- Rushing Jade Wind - Cancel
@@ -1150,7 +1198,7 @@ local function runRotation()
             --- Start Rotation ---
             ----------------------
             -- Touch of Death
-            if cast.able.touchOfDeath("target") and (unit.health("target") < unit.health("player") 
+            if cast.able.touchOfDeath("target") and alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player") 
                 or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
             then
                 if cast.touchOfDeath("target") then ui.debug("Casting Touch of Death - DIE!") return true end
@@ -1202,17 +1250,15 @@ local function runRotation()
             then
                 if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Max Energy / Pre-Serenity]") return true end
             end
-            if ui.useCDs() then
-                -- Call Action List - CdSef
-                -- call_action_list,name=cd_sef,if=!talent.serenity.enabled
-                if not talent.serenity then
-                    if actionList.CdSef() then return true end
-                end
-                -- Call Action List - CdSerenity
-                -- call_action_list,name=cd_serenity,if=talent.serenity.enabled
-                if talent.serenity then
-                    if actionList.CdSerenity() then return true end
-                end
+            -- Call Action List - CdSef
+            -- call_action_list,name=cd_sef,if=!talent.serenity.enabled
+            if not talent.serenity then
+                if actionList.CdSef() then return true end
+            end
+            -- Call Action List - CdSerenity
+            -- call_action_list,name=cd_serenity,if=talent.serenity.enabled
+            if talent.serenity then
+                if actionList.CdSerenity() then return true end
             end
             -- Call Action List - Single Target
             -- call_action_list,name=st,if=active_enemies<3
