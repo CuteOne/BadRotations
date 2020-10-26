@@ -60,9 +60,10 @@ br.lists.items = {
     oraliusWhisperingCrystal        = 118922,
     repurposedFelFocuser            = 147707,
     -- Greater Flasks
+    greaterFlaskOfEndlessFathoms    = 168652,
     greaterFlaskOfTheCurrents       = 168651,
     greaterFlaskOfTheUndertow       = 168654,
-    greaterFlaskOfEndlessFathoms    = 168652,
+    greaterFlaskOfTheVastHorizon    = 168653,
     -- Healthstones
     healthstone                     = 5512,
     legionHealthstone               = 129196,
