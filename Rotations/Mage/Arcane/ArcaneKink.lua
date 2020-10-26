@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v0.1.6"
+local rotationVer  = "v0.1.7"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -150,7 +150,7 @@ local function createOptions()
         end
 
         -- Ice Barrier
-        br.ui:createSpinner(section, "Prismatic Barrier", 80, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+        br.ui:createSpinner(section, "Prismatic Barrier", 85, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
         -- Ice Barrier OOC
         br.ui:createCheckbox(section, "Prismatic Barrier OOC", "|cffFFBB00Keep Prismatic Barrier up out of combat")
@@ -259,6 +259,7 @@ local function runRotation()
         local gcdMax                                        = br.player.gcdMax
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
+        local has                                           = br.player.has
         local ui                                            = br.player.ui
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
@@ -758,8 +759,9 @@ local function ActionList_Leveling()
     if level >= 10 then
         -- Conjure Mana Gem
         if level >= 17
-        and GetItemCount(36799) < 1 
-        or itemCharges(36799) < 3 
+        and not inCOmbat 
+        and cast.able.conjueManaGem()
+        and GetItemCount(36799) < 1
         then
             if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
         end
@@ -800,6 +802,7 @@ local function ActionList_Leveling()
         if level >= 17
         and ui.checked("Use Mana Gem")
         and manaPercent <= ui.value("Use Mana Gem")
+        and GetItemCount(36799) > 0 
         then
             if use.able.manaGem() then if use.manaGem() then br.addonDebug("Use Mana Gem") return true end end 
         end
@@ -871,9 +874,18 @@ local function actionList_Extras()
         end
 
         --Prismatic Barrier
-        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") then
+        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") and not buff.prismaticBarrier.exists("player") then
             if cast.prismaticBarrier("player") then
                 return true
+            end
+        end
+
+                -- Arcane Intellect
+        if isChecked("Prismatic Barrier") and br.timer:useTimer("PB Delay", math.random(15, 30)) then
+            for i = 1, #br.friend do
+                if not buff.prismaticBarrier.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                    if cast.prismaticBarrier() then return true end
+                end
             end
         end
 
@@ -886,6 +898,9 @@ local function actionList_Extras()
             end
         end
 
+    if not inCombat and GetItemCount(36799) < 1 then
+        if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
+    end
         -- Arcane Orb Key
         if mode.arcaneOrb == 2 or isChecked("Arcane Orb Key") and SpecificToggle("Arcane Orb Key") and not GetCurrentKeyBoardFocus() and cast.able.arcaneOrb() then
             if castarcaneOrb(1, true, 4) then return true end 
@@ -1013,53 +1028,6 @@ local function actionList_Defensive()
         end
 end
 
-local function ActionList_PreCombat()
-    finalBurn = false
-    --actions.precombat=variable,name=prepull_evo,op=set,value=0
-
-    --actions.precombat+=/flask
-
-    --actions.precombat+=/food
-
-    --actions.precombat+=/augmentation
-
-    --actions.precombat+=/arcane_familiar
-    if cast.able.arcaneFamiliar() 
-    and not buff.arcaneFamiliar.exists() 
-    then 
-        if cast.arcaneFamiliar() then return true end
-    end
-
-    --actions.precombat+=/arcane_intellect
-    if cast.able.arcaneIntellect() 
-    and not buff.arcaneIntellect.exists() 
-    then 
-        if cast.arcaneIntellect() then return true end
-    end
-
-    --actions.precombat+=/conjure_mana_gem
-    -- Conjure Mana Gem
-    if level >= 17 and GetItemCount(36799) < 1 or itemCharges(36799) < 3 then
-        if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
-    end
-
-    --actions.precombat+=/snapshot_stats
-
-    --actions.precombat+=/mirror_image
-    if cast.mirrorImage("player") then return true end
-    
-    --actions.precombat+=/frostbolt,if=variable.prepull_evo=0
-    if not var_prepull_evo and cast.able.frostbolt() then
-        if cast.frostbolt() then return true end
-    end
-
-    --actions.precombat+=/evocation,if=variable.prepull_evo=1
-    if var_prepull_evo and cast.able.evocation() then
-        if cast.evocation() then return true end
-    end
-end
-
-
 --[[
 actions.cooldowns=lights_judgment,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
 actions.cooldowns+=/bag_of_tricks,if=buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down
@@ -1102,7 +1070,7 @@ actions.cooldowns+=/presence_of_mind,if=debuff.touch_of_the_magi.up&!covenant.ky
 actions.cooldowns+=/use_mana_gem,if=cooldown.evocation.remains>0&((talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85))
 ]]--
 local function actionList_Cooldowns()
-    if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") then
+    if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") or isboss("target") or isDummy() then
 
     -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
     if isChecked("Potion") 
@@ -1115,7 +1083,7 @@ local function actionList_Cooldowns()
         return true
     end
     -- actions.cooldowns+=/mirror_image
-    if cast.mirrorImage("player") then return true end
+    if cast.mirrorImage() then return true end
 
     --racials
     if isChecked("Racial") then
@@ -1177,7 +1145,7 @@ local function actionList_Cooldowns()
     --actions.cooldowns+=/use_mana_gem,if=cooldown.evocation.remains>0&((talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85))
     if cd.evocation.remain() > 0
     and talent.enlightened
-    and manaPercent <= 80 and manaPercent >= 65
+    and manaPercent <= 80 and manaPercent >= 60
     or not talent.enlightened 
     and manaPercent <= 85
     then
@@ -1188,11 +1156,13 @@ end
 
 local function actionList_Movement()
     --actions.movement=blink_any,if=movement.distance>=10
-    if cast.able.Blink()
-    and getDistance("target") > 40
+    --[[if cast.able.blink()
+    and isChecked("Blink Hotkey") 
+    and SpecificToggle("Blink Hotkey") 
+    and not GetCurrentKeyBoardFocus() 
     then
        if cast.blink() then br.addonDebug("Blinking (Movement, target > 40yds)") return true end 
-    end
+    end--]]
 
     --ctions.movement+=/presence_of_mind
     if cast.able.presenceofMind() then if cast.presenceofMind() then br.addonDebug("Presence of Mind (Movement)") return true end end
@@ -1241,7 +1211,7 @@ end
 local function actionList_AoE()
     --actions.aoe=use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
     if talent.enlightened
-    and manaPercent <= 80 and manaPercent >= 65
+    and manaPercent <= 80 and manaPercent >= 60
     or not talent.enlightened 
     and manaPercent <= 85
     then
@@ -1490,7 +1460,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
 
     --actions.opener+=/use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
     if use.able.manaGem()
-    and (talent.enlightened and manaPercent <= 80 and manaPercent >= 65)
+    and (talent.enlightened and manaPercent <= 80 and manaPercent >= 60)
     or (not talent.enlightened and manaPercent <= 85)
     then
         if use.manaGem() then return true end
@@ -1582,6 +1552,11 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
 end
     --
 local function actionList_Rotation()
+    -- Mirror image when Arcane Power is not active, on CD
+    if not buff.arcanePower.exists() and useCDs() and isChecked("Mirror Image") then
+        if cast.mirrorImage() then return end
+    end
+
     --actions.rotation=variable,name=final_burn,op=set,value=1,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&!buff.rule_of_threes.up&target.time_to_die<=((mana%action.arcane_blast.cost)*action.arcane_blast.execute_time)
     if cast.able.arcaneMissiles()
     and arcaneCharges > 3 
@@ -1726,15 +1701,15 @@ end
     -----------------------
     --- Extras Rotation ---
     -----------------------
-    --if actionList_Extras() then return true end
-    if ActionList_PreCombat() then return true end 
+    if actionList_Extras() then return true end
+    --if ActionList_PreCombat() then return true end 
 -----------------
 --- Rotations ---
 -----------------
     if not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or pause(true) or isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
-        if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
+    elseif (inCombat and profileStop == true) or UnitChannelInfo("player") or IsMounted() or IsFlying() or pause(true) or isCastingSpell(293491) then
+        if not pause(true) and IsPetAttackActive() and isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
         end

@@ -1328,6 +1328,7 @@ br.lists.spells = {
               expandedPotential             = 327495,
               arcaneMissles                 = 79683,
               presenceOfMind                = 205025,
+              prismaticBarrier              = 235450,
               rhoninsAssaultingArmwraps     = 208081,
               runeofPower                   = 116011,
               ruleOfThrees                  = 264774,
