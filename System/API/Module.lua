@@ -91,7 +91,7 @@ br.api.module = function(self)
             if ui.value("Flask") == 3 then
                 if isDH then -- Greater FLask or Gaze of the Legion
                     return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
-                        or buff.greaterFlaskOfTheUndertow.exists() or buff.buff.gazeOfTheLegion.exists()
+                        or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists()
                 else -- Greater Flask or Fel Focus
                     return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.felFocus.exists()
@@ -99,7 +99,7 @@ br.api.module = function(self)
             end
             if ui.value("Flask") == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
                 return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
-                        or buff.greaterFlaskOfTheUndertow.exists() or buff.buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
+                        or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
             end
         end
 
@@ -108,7 +108,7 @@ br.api.module = function(self)
             if buff.greaterFlaskOfEndlessFathoms.exists() then buff.greaterFlaskOfEndlessFathoms.cancel() end
             if buff.greaterFlaskOfTheVastHorizon.exists() then buff.greaterFlaskOfTheVastHorizon.cancel() end
             if buff.greaterFlaskOfTheUndertow.exists() then buff.greaterFlaskOfTheUndertow.cancel() end
-            if buff.buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
+            if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
         end
