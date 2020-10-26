@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v0.1.7"
+local rotationVer  = "v0.1.8"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -844,8 +844,6 @@ local function ActionList_Leveling()
             if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
         end
 
-
-    
         -- Arcane Explosion
         if cast.able.arcaneExplosion() 
         and getDistance("target") <= 10 
@@ -898,7 +896,7 @@ local function actionList_Extras()
             end
         end
 
-    if not inCombat and GetItemCount(36799) < 1 then
+    if not inCombat and not IsFlying() and not IsMounted() and GetItemCount(36799) < 1 then
         if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
     end
         -- Arcane Orb Key
@@ -1070,7 +1068,7 @@ actions.cooldowns+=/presence_of_mind,if=debuff.touch_of_the_magi.up&!covenant.ky
 actions.cooldowns+=/use_mana_gem,if=cooldown.evocation.remains>0&((talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85))
 ]]--
 local function actionList_Cooldowns()
-    if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") or isboss("target") or isDummy() then
+    if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") or isBoss("target") or isDummy() then
 
     -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
     if isChecked("Potion") 
@@ -1083,7 +1081,7 @@ local function actionList_Cooldowns()
         return true
     end
     -- actions.cooldowns+=/mirror_image
-    if cast.mirrorImage() then return true end
+    --if cast.mirrorImage() then return true end
 
     --racials
     if isChecked("Racial") then
@@ -1141,6 +1139,10 @@ local function actionList_Cooldowns()
 
     --actions.cooldowns+=/presence_of_mind,if=debuff.touch_of_the_magi.up&!covenant.kyrian.enabled
     -- Shadowlands
+
+    
+   -- Mirror image when Arcane Power is not active, on CD
+    if cast.able.mirrorImage() then if cast.mirrorImage() then return true end end
 
     --actions.cooldowns+=/use_mana_gem,if=cooldown.evocation.remains>0&((talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85))
     if cd.evocation.remain() > 0
@@ -1552,11 +1554,6 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
 end
     --
 local function actionList_Rotation()
-    -- Mirror image when Arcane Power is not active, on CD
-    if not buff.arcanePower.exists() and useCDs() and isChecked("Mirror Image") then
-        if cast.mirrorImage() then return end
-    end
-
     --actions.rotation=variable,name=final_burn,op=set,value=1,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&!buff.rule_of_threes.up&target.time_to_die<=((mana%action.arcane_blast.cost)*action.arcane_blast.execute_time)
     if cast.able.arcaneMissiles()
     and arcaneCharges > 3 
