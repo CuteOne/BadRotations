@@ -339,6 +339,18 @@ actionList.Defensive = function()
         if isChecked("Feign Death") and php <= getOptionValue("Feign Death") then
             if cast.feignDeath("player") then return end
         end
+        if isChecked("Purge") then
+            if #enemies.yards40f > 0 then
+                for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
+                        if isValidUnit(thisUnit) and canDispel(thisUnit,spell.tranquilizingShot) then
+                            if cast.tranquilizingShot(thisUnit) then return end
+                        end
+                    end
+                end
+            end
+        end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
 
