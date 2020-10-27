@@ -972,28 +972,16 @@ br.lists.spells = {
         -- BeastMastery
         [253] = {
             abilities                       = {
-                aMurderOfCrows              = 131894,
                 aspectOfTheWild             = 193530,
                 barbedShot                  = 217200,
-                barrage                     = 120360,
                 bestialWrath                = 19574,
-                berserking                  = 26297,
-                bindingShot                 = 109248,
-                chimaeraShot                = 53209,
                 cobraShot                   = 193455,
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
-                direBeast                   = 120679,
-                disengage                   = 781,
                 intimidation                = 19577,
                 killCommand                 = 34026,
-                misdirection                = 34477,
+                killShot                    = 53351,
                 multishot                   = 2643,
-                spittingCobra               = 194407,
-                stampede                    = 201430,
-                titansThunder               = 207068,
-                volley                      = 194386,
-                bloodshed                   = 321530,
             },
             artifacts                       = {
 
@@ -1017,27 +1005,20 @@ br.lists.spells = {
 
             },
             talents                         = {
-                killerInstinct              = 273887,
                 animalCompanion             = 267116,
-                direBeast                   = 120679,
-                scentOfBlood                = 193532,
-                oneWithThePack              = 199528,
-                chimaeraShot                = 53209,
-                trailblazer                 = 199921,
-                naturalMending              = 270581,
-                camouflage                  = 199483,
-                spittingCobra               = 257891,
-                thrillOfTheHunt             = 257944,
-                aMurderOfCrows              = 131894,
-                bornToBeWild                = 266921,
-                posthaste                   = 109215,
-                bindingShot                 = 109248,
-                stomp                       = 199530,
-                barrage                     = 120360,
-                stampede                    = 201430,
                 aspectOfTheBeast            = 191384,
-                killerCobra                 = 199532,
+                barrage                     = 120360,
                 bloodshed                   = 321530,
+                chimaeraShot                = 53209,
+                direBeast                   = 120679,
+                killerCobra                 = 199532,
+                killerInstinct              = 273887,
+                oneWithThePack              = 199528,
+                scentOfBlood                = 193532,
+                spittingCobra               = 257891,
+                stampede                    = 201430,
+                stomp                       = 199530,
+                thrillOfTheHunt             = 257944,
             },
             traits                          = {
                 danceOfDeath                = 274441,
@@ -1049,15 +1030,13 @@ br.lists.spells = {
         [254] = {
             abilities                       = {
                 aimedShot                   = 19434,
-                arcaneShot                  = 185358,
                 burstingShot                = 186387,
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
+                killShot                    = 53351,
                 multishot                   = 257620,
                 rapidFire                   = 257044,
-                serpentSting                = 271788,
-                steadyShot                  = 56641,
-                trueshot                    = 193526,
+                trueshot                    = 288613,
             },
             artifacts                       = {
             },
@@ -1083,20 +1062,21 @@ br.lists.spells = {
 
             },
             talents                         = {
-                barrage                     = 120360,
-                callingTheShots             = 260404,
-                carefulAim                  = 260228,
-                doubleTap                   = 260402,
-                explosiveShot               = 212431,
-                -- huntersMark                 = 257284,
-                lethalShots                 = 260393,
-                lockAndLoad                 = 194595,
-                masterMarksman              = 260309,
-                -- piercingShot                = 198670,
-                serpentSting                = 271788,
-                steadyFocus                 = 193533,
-                streamline                  = 260367,
-                volley                      = 260243,
+                barrage                     = 120360,--
+                bindingShackles             = 321468,--
+                callingTheShots             = 260404,--
+                carefulAim                  = 260228,--
+                chimeraShot                 = 342049,--
+                deadEye                     = 321460,--
+                doubleTap                   = 260402,--
+                explosiveShot               = 212431,--
+                lethalShots                 = 260393,--
+                lockAndLoad                 = 194595,--
+                masterMarksman              = 260309,--
+                serpentSting                = 271788,--
+                steadyFocus                 = 193533,--
+                streamline                  = 260367,--
+                volley                      = 260243,--
             },
             traits                          = {
                 focusedFire                 = 278531,
@@ -1111,23 +1091,19 @@ br.lists.spells = {
         [255] = {
             abilities                       = {
                 aspectOfTheEagle            = 186289,
-                butchery                    = 212436,
                 carve                       = 187708,
-                chakrams                    = 259391,
                 coordinatedAssault          = 266779,
-                flankingStrike              = 269751,
                 harpoon                     = 190925,
+                intimidation                = 19577,
                 killCommand                 = 259489,
-                mongooseBite                = 259387,
+                killShot                    = 320976,
                 muzzle                      = 187707,
-                pheromoneBomb               = 270323,
+                pheromoneBomb               = 270323, -- Wildfire Infusion
                 raptorStrike                = 186270,
                 serpentSting                = 259491,
-                shrapnelBomb                = 270335,
-                steelTrap                   = 162488,
-                volatileBomb                = 271045,
+                shrapnelBomb                = 270335, -- Wildfire Infusion
+                volatileBomb                = 271045, -- Wildfire Infusion
                 wildfireBomb                = 259495,
-                wingClip                    = 195645,
             },
             artifacts                       = {
 
@@ -1182,21 +1158,33 @@ br.lists.spells = {
             abilities                       = {
                 -- Hunter Abilities
                 arcaneShot                  = 185358,
+                aspectOfTheChameleon        = 61648,
                 aspectOfTheCheetah          = 186257,
                 aspectOfTheTurtle           = 186265,
+                chakrams                    = 259398,
                 disengage                   = 781,
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
                 eyeOfTheBeast               = 321297,
                 feignDeath                  = 5384,
+                fireworks                   = 127933,
                 flare                       = 1543,
                 freezingTrap                = 187650,
                 huntersMark                 = 257284,
-                killShot                    = 53351,
                 misdirection                = 34477,
                 scareBeast                  = 1513,
                 steadyShot                  = 56641,
+                steelTrap                   = 162487,
                 tarTrap                     = 187698,
+                trackBeasts                 = 1494,
+                trackDemons                 = 19878,
+                trackDragonkin              = 19879,
+                trackElementals             = 19880,
+                trackGiants                 = 19882,
+                trackHidden                 = 19885,
+                trackHumanoids              = 19883,
+                trackMechanicals            = 229533,
+                trackUndead                 = 19884,
                 tranquilizingShot           = 19801,
                 wingClip                    = 195645,
                 -- Pet Management
@@ -1210,32 +1198,104 @@ br.lists.spells = {
                 commandPet                  = 272651,
                 dismissPet                  = 2641,
                 feedPet                     = 6991,
+                fetch                       = 125050,
                 mendPet                     = 136,
+                playDead                    = 209997,
                 revivePet                   = 982,
                 tameBeast                   = 1515,
-                -- Pet Abilities
-                bite                        = 17253,
-                catlikeReflexes             = 263892,
-                claw                        = 16827,
-                dash                        = 61684,
-                fetch                       = 125050,
-                growl                       = 2649,
-                heartOfThePhoenix           = 55709,
-                playDead                    = 209997,
-                prowl                       = 24450,
-                smack                       = 49966,
-                spiritmend                  = 90361,
-                spiritWalk                  = 90328,
                 wakeUp                      = 210000,
-                -- Pet Purges
-                spiritShock                 = 264265,
-                chiJiTranq                  = 264028,
-                naturesGrace                = 264266,
-                netherShock                 = 264264,
-                sonicBlast                  = 264263,
-                soothingWater               = 264262,
-                sporeCloud                  = 264056,
-                survivalOfTheFittest        = 264735,
+                ----------------------------
+                -- Pet - Basic Abilities ---
+                ----------------------------
+                bite                        = 17253, -- Basalisk, Bat, Beetle, Blood Beast, Boar, Carapid, Carrion Bird, Chimera, Core Hound, Crocolisk, Devilsaur, Direhorn, Dragonhawk, Feathermane, Fox, Hound, Hydra, Hyena, Lizard, Mechanical, Pterrordax, Ravager, Ray, Riverbeast, Serpent, Shale Beast, Spider, Stone Hound, Turtle, Warp Stalker, Water Strider, Wind Serpent, Wolf, Worm
+                claw                        = 16827, -- Aqiri, Bear, Bird of Prey, Cat, Crab, Raptor, Rodent, Scorpid, Spirit Beast, Tallstrider
+                dash                        = 61684, -- Speed Increase (ALL PETS)
+                smack                       = 49966, -- Camel, Clefthoof, Courser, Crane, Gorilla, Gruffhorn, Mammoth, Monkey, Moth, Oxen, Scalehide, Sporebat, Stag, Toad, Wasp
+                growl                       = 2649, -- Taunt (ALL PETS)
+                ---------------------------
+                -- Pet - Spec Abilities ---
+                ---------------------------
+                primalRage                  = 264667, -- Ferocity Dmg Cd
+                survivalOfTheFittest        = 264735, -- Tenacity Def Cd
+                mastersCall                 = 53271, -- Cunning Freedom
+                ------------------------------
+                -- Pet - Special Abilities ---
+                ------------------------------
+                -- AOE
+                burrowAttack                = 93433, -- Worm
+                froststormBreath            = 92380, -- Chimera - Channeled Cone AOE
+                -- Defense/Dodge
+                agileReflexes               = 160011, -- Fox - Dodge
+                bristle                     = 263869, -- Boar - Defensive
+                bulwark                     = 279410, -- Carapid - Defensive
+                catlikeReflexes             = 263892, -- Cat - Dodge
+                defenseMatrix               = 263868, -- Mechanical - Defensive
+                dragonsGuile                = 263887, -- Dragonhawk - Dodge
+                featherFlurry               = 263916, -- Feathermane - Dodge
+                fleethoof                   = 341117, -- Courser - Dodge
+                hardenCarapace              = 90339, -- Beetle - Defensive
+                obsidianSkin                = 263867, -- Core Hound - Defensive
+                primalAgility               = 160044, -- Monkey - Dodge
+                scaleShield                 = 263865, -- Scalehide - Defensive
+                serpentSwiftness            = 263904, -- Serpent - Dodge
+                shellShield                 = 26064, -- Turtle - Defensive
+                solidShell                  = 160063, -- Shale Beast - Defensive
+                swarmOfFlies                = 279336, -- Toad - Dodge
+                wingedAgility               = 264360, -- Wind Serpent - Dodge
+                -- Dispel
+                chiJiTranq                  = 344350, -- Crane
+                naturesGrace                = 344352, -- Stag
+                netherEnergy                = 344349, -- Ray -- netherEnergy
+                serenityDust                = 344353, -- Moth
+                sonicScreech                = 344348, -- Bat -- sonicScreech
+                soothingWater               = 344346, -- Water Strider
+                spiritPulse                 = 344351, -- Spirit Beast -- spiritPulse
+                sporeCloud                  = 344347, -- Sporebat
+                -- Heal
+                eternalGuardian             = 267922, -- Stone Hound - Ressurect
+                feast                       = 159953, -- Devilsaur - Heal (req dead humanoid/beast nearby)
+                spiritmend                  = 90361, -- Spirit Beast - Heal
+                -- Mortal Wounds Debuff
+                acidBite                    = 263863, -- Hydra - Mortal Wounds Debuff
+                bloodyScreech               = 24423, -- Carrion Bird - Mortal Wounds Debuff
+                deadlySting                 = 160060, -- Scorpid - Mortal Wounds Debuff
+                gnaw                        = 263856, -- Rodent - Mortal Wounds Debuff
+                gore                        = 263861, -- Direhorn - Mortal Wounds Debuff
+                grievousBite                = 279362, -- Lizard - Mortal Wounds Debuff
+                gruesomeBite                = 160018, -- Riverbeast - Mortal Wounds Debuff
+                infectedBite                = 263853, -- Hyena - Mortal Wounds Debuff
+                monsterousBite              = 54680, -- Devilsaur - Mortal Wounds Debuff
+                ravage                      = 263857, -- Ravager - Mortal Wounds Debuff
+                savageRend                  = 263854, -- Savage Rend - Mortal Wounds Debuff
+                toxicSting                  = 263858, -- Wasp - Mortal Wounds Debuff                
+                -- Slow
+                acidSpit                    = 263446, -- Worm - Slow
+                ankleCrack                  = 50433, -- Crocolisk - Slow
+                bloodBolt                   = 288962, -- Blood Beast - Slow
+                dustCloud                   = 50285, -- Tallstrider - Slow
+                frostBreath                 = 54644, -- Chimera - Slow
+                furiousBite                 = 263840, -- Wolf - Slow
+                lockJaw                     = 263423, -- Hound - Slow
+                petrifyingGaze              = 263841, -- Basilisk - Slow
+                pin                         = 50245, -- Crab - Slow
+                talonRend                   = 263852, -- Bird of Prey - Slow
+                tendonRip                   = 160065, -- Aqiri - Slow
+                trample                     = 341118, -- Mammoth - Slow
+                warpTime                    = 35346, -- Warp Stalker - Slow
+                webSpray                    = 160067, -- Spider - Slow
+                -- Slow Fall
+                updraft                     = 160007, -- Feathermane/Pterrordax - Slow Fall
+                -- Stealth
+                prowl                       = 24450, -- Stealth
+                spiritWalk                  = 90328, -- Spirit Beast - Stealth
+                -- Tricks / Play / Rest
+                play                        = 90347, -- Fox
+                restBear                    = 94019, -- Bear
+                restRodent                  = 126364, -- Rodent
+                trickCrane                  = 126259, -- Crane
+                trickBirdOfPrey             = 94022, -- Bird of Prey
+                -- Water Walking
+                surfaceTrot                 = 126311, -- Water Strider - Water Walking
             },
             artifacts                       = {
 
@@ -1260,7 +1320,7 @@ br.lists.spells = {
             },
             talents                         = {
                 aMurderOfCrows              = 131894,
-                -- bindingShot                 = 109248,
+                bindingShot                 = 109248,
                 bornToBeWild                = 266921,
                 camouflage                  = 199483,
                 naturalMending              = 270581,
