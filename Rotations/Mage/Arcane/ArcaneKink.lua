@@ -860,6 +860,7 @@ end
 
 
 local function actionList_Extras()
+    if not IsFlying() and not IsMounted() and not IsResting() then
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
             StopAttack()
             ClearTarget()
@@ -896,7 +897,7 @@ local function actionList_Extras()
             end
         end
 
-    if not inCombat and not IsFlying() and not IsMounted() and GetItemCount(36799) < 1 then
+    if not inCombat and GetItemCount(36799) < 1 then
         if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
     end
         -- Arcane Orb Key
@@ -933,7 +934,8 @@ local function actionList_Extras()
             if IsFalling() and getFallDistance() >= getOptionValue("Slow Fall Distance") then
                 if cast.slowFall() then return end
             end
-        end         
+        end     
+    end    
     end
 
     local function actionList_Interrupts()
