@@ -199,35 +199,35 @@ br.rotations.support["PetCuteOne"] = function()
             if cast.dash("pet") then petui.debug("[Pet] Cast Dash") return end
         end
         -- Purge
-        -- if isChecked("Purge") and inCombat then
-        --     if #enemies.yards5p > 0 then
-        --         local dispelled = false
-        --         local dispelledUnit = "player"
-        --         for i = 1, #enemies.yards5p do
-        --             local thisUnit = enemies.yards5p[i]
-        --             if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
-        --                 if isValidUnit(thisUnit) and canDispel(thisUnit,spell.spiritShock) then
-        --                     if cast.able.spiritShock(thisUnit,"pet") then
-        --                         if cast.spiritShock(thisUnit,"pet") then petui.debug("[Pet] Cast Spirit Shock") dispelled = true; dispelledUnit = thisUnit; break end
-        --                     elseif cast.able.chiJiTranq(thisUnit,"pet") then
-        --                         if cast.chiJiTranq(thisUnit,"pet") then petui.debug("[Pet] Cast Chi-Ji Tranquility") dispelled = true; dispelledUnit = thisUnit; break end
-        --                     elseif cast.able.naturesGrace(thisUnit,"pet") then
-        --                         if cast.naturesGrace(thisUnit,"pet") then petui.debug("[Pet] Cast Nature's Grace") dispelled = true; dispelledUnit = thisUnit; break end
-        --                     elseif cast.able.netherShock(thisUnit,"pet") then
-        --                         if cast.netherShock(thisUnit,"pet") then petui.debug("[Pet] Cast Nether Shock") dispelled = true; dispelledUnit = thisUnit; break end
-        --                     elseif cast.able.sonicBlast(thisUnit,"pet") then
-        --                         if cast.sonicBlast(thisUnit,"pet") then petui.debug("[Pet] Cast Sonic Blast") dispelled = true; dispelledUnit = thisUnit; break end
-        --                     elseif cast.able.soothingWater(thisUnit,"pet") then
-        --                         if cast.soothingWater(thisUnit,"pet") then petui.debug("[Pet] Cast Soothing Water") dispelled = true; dispelledUnit = thisUnit; break end
-        --                     elseif cast.able.sporeCloud(thisUnit,"pet") then
-        --                         if cast.sporeCloud(thisUnit,"pet") then petui.debug("[Pet] Cast Spore Cloud") dispelled = true; dispelledUnit = thisUnit; break end
-        --                     end
-        --                 end
-        --             end
-        --         end
-        --         if dispelled then return end
-        --     end
-        -- end
+        if isChecked("Purge") and inCombat then
+            if #enemies.yards5p > 0 then
+                local dispelled = false
+                local dispelledUnit = "player"
+                for i = 1, #enemies.yards5p do
+                    local thisUnit = enemies.yards5p[i]
+                    if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
+                        if isValidUnit(thisUnit) and canDispel(thisUnit,spell.spiritPulse) then
+                            if cast.able.spiritPulse(thisUnit,"pet") then
+                                if cast.spiritPulse(thisUnit,"pet") then petui.debug("[Pet] Cast Spirit Shock") dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.chiJiTranq(thisUnit,"pet") then
+                                if cast.chiJiTranq(thisUnit,"pet") then petui.debug("[Pet] Cast Chi-Ji Tranquility") dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.naturesGrace(thisUnit,"pet") then
+                                if cast.naturesGrace(thisUnit,"pet") then petui.debug("[Pet] Cast Nature's Grace") dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.netherEnergy(thisUnit,"pet") then
+                                if cast.netherEnergy(thisUnit,"pet") then petui.debug("[Pet] Cast Nether Shock") dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.sonicScreech(thisUnit,"pet") then
+                                if cast.sonicScreech(thisUnit,"pet") then petui.debug("[Pet] Cast Sonic Blast") dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.soothingWater(thisUnit,"pet") then
+                                if cast.soothingWater(thisUnit,"pet") then petui.debug("[Pet] Cast Soothing Water") dispelled = true; dispelledUnit = thisUnit; break end
+                            elseif cast.able.sporeCloud(thisUnit,"pet") then
+                                if cast.sporeCloud(thisUnit,"pet") then petui.debug("[Pet] Cast Spore Cloud") dispelled = true; dispelledUnit = thisUnit; break end
+                            end
+                        end
+                    end
+                end
+                if dispelled then return end
+            end
+        end
         -- Growl
         if isChecked("Auto Growl") and inCombat then
             local _, autoCastEnabled = GetSpellAutocast(spell.growl)
