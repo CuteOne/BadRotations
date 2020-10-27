@@ -397,11 +397,11 @@ local function runRotation()
 
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
-    if buff.sliceAndDice.exists() or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
+    if buff.sliceAndDice.exists("player") or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
     -- # Only change rotation if we have priority_rotation set and multiple targets up.
     -- actions+=/variable,name=use_priority_rotation,value=priority_rotation&spell_targets.shuriken_storm>=2
-    local priorityRotation = 0
-    if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = 1 else priorityRotation = 0 end
+    local priorityRotation = false
+    if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = true else priorityRotation = false end
 
     if isChecked("Ignore Blacklist for SS") then
         enemies10 = #enemies.get(10)
@@ -596,7 +596,7 @@ local function runRotation()
 
     local function actionList_CooldownsOGCD()
         -- Slice and dice for opener
-        if enemies10 < 6 and ttd("target") > 6 and combo >= 2 and not buff.sliceAndDice.exists() and (combatTime < 6 and cd.vanish.remain() < 118) then
+        if enemies10 < 6 and ttd("target") > 6 and combo >= 2 and not buff.sliceAndDice.exists("player") and (combatTime < 6 and cd.vanish.remain() < 118) then
             if cast.sliceAndDice("player") then return true end
         end
         -- # Use Dance off-gcd before the first Shuriken Storm from Tornado comes in.
@@ -606,11 +606,11 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.exists() and buff.sliceAndDice.exists()) then
+        if mode.sod == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points.deficit>=2
-        if cdUsage and sndCondition and not stealthedAll and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.exists()) then
+        if cdUsage and sndCondition and not stealthedAll and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
             if cast.shadowBlades("player") then return true end
         end
         -- actions.cds+=/blood_fury,if=buff.symbols_of_death.up
@@ -1075,7 +1075,7 @@ local function runRotation()
             if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
                 if actionList_CooldownsOGCD() then return true end
             end
-            if validTarget and (combatTime > 1.5 or cd.vanish.exists()) then
+            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
                 if gcd < getLatency() then
                     -- # Check CDs at first
                     -- actions+=/call_action_list,name=cds
