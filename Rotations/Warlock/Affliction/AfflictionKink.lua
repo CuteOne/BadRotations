@@ -1696,7 +1696,7 @@ local function runRotation()
             end
 
             -- Malefic Rapture
-            if not moving then
+            if not moving and level >= 45 then
                 -- Vile Taint not talented
                 if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax + cast.time.maleficRapture() then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 2") return true end end
             end
