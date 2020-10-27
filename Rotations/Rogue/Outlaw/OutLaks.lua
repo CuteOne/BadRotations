@@ -815,7 +815,7 @@ actionList.essences = function()
 
             if reapTarget ~= nil and not isExplosive(reapTarget) and not noDamageCheck(reapTarget) then
                 if cast.reapingFlames(reapTarget) then
-          --          Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
+                    --          Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
                     return true
                 end
             end
@@ -1424,21 +1424,22 @@ actionList.Defensive = function()
 
 
     -- Arcane Torrent
-    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(25046) == 0 then
+
+    if isChecked("Arcane Torrent Dispel") and br.player.race == "BloodElf" and getSpellCD(25046) == 0 then
         local torrentUnit = 0
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
             if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
                 torrentUnit = torrentUnit + 1
                 if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
-                    if castSpell("player", racial, false, false, false) then
+                    if CastSpellByID(25046, "player") then
                         return true
                     end
                 end
             end
         end
     end
-    if isChecked("Arcane Torrent regen") and inCombat and race == "BloodElf" and getSpellCD(69179) == 0 and (br.player.power.energy.deficit() >= 15 + br.player.power.energy.regen()) then
+    if isChecked("Arcane Torrent regen") and inCombat and race == "BloodElf" and getSpellCD(25046) == 0 and (br.player.power.energy.deficit() >= 15 + br.player.power.energy.regen()) then
         if castSpell("player", racial, false, false, false) then
             return true
         end
