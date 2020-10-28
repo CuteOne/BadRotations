@@ -78,7 +78,7 @@ function useItem(itemID,thisUnit)
 		if GetItemCooldown(itemID) == 0 then
 			if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
 				-- RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
-				UseItemByName(select(1,GetItemInfo(slotItemID)),thisUnit);
+				UseItemByName(select(1,GetItemInfo(itemID)),thisUnit);
 				br.itemSpamDelay = GetTime() + 1
 				return true
 			end
