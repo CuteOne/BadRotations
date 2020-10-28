@@ -1939,6 +1939,7 @@ br.lists.spells = {
             debuffs                         = {
                 blessedHammer               = 204301,
                 judgmentOfLight             = 196941,
+                judgment                    = 197277,
             },
             glyphs                          = {
 
