@@ -146,6 +146,14 @@ br.api.cast = function(self,spell,id)
         return br.lastCast.castTime[id]
     end
 
+    -- br.player.cast.noControl.spell() - Returns true if the spell can free you of a "no control" effect.
+    if cast.noControl == nil then cast.noControl = {} end
+    cast.noControl[spell] = function(thisUnit)
+        local hasNoControl = _G["hasNoControl"]
+        if thisUnit == nil then thisUnit = "player" end
+        return hasNoControl(id,thisUnit)
+    end
+
     -- br.player.cast.timeSinceLast.spell() - Returns the time since the last cast of this spell occured.
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
     cast.timeSinceLast[spell] = function()
