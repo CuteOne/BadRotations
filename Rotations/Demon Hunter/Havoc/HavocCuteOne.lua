@@ -90,16 +90,16 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            -- Flask Module
+            br.player.module.FlaskUp("Agility",section)
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
             br.ui:createCheckbox(section,"Potion")
-            -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Greater Currents","Repurposed Fel Focuser","Inquisitor's Menacing Eye","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
-            -- Trinkets
-            br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
+            -- Basic Trinket Module
+            br.player.module.BasicTrinkets(nil,section)
             -- Metamorphosis
             br.ui:createCheckbox(section,"Metamorphosis")
             -- Heart Essences
@@ -109,10 +109,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Healthstone
-            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
             -- Blur
             br.ui:createSpinner(section, "Blur", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Darkness
@@ -132,7 +130,7 @@ local function createOptions()
             -- Fel Eruption
             br.ui:createCheckbox(section, "Fel Eruption")
             -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -173,6 +171,7 @@ local furyDeficit
 local gcd
 local has
 local item
+local module
 local race
 local talent
 local traits
@@ -186,6 +185,7 @@ var.felBarrageSync = false
 var.leftCombat = GetTime()
 var.lastRune = GetTime()
 var.profileStop = false
+var.useBasicTrinkets = false
 
 -- Custom Functions
 local function cancelRushAnimation()
@@ -254,29 +254,8 @@ end -- End Action List - Extras
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Pot/Stoned
-        if ui.checked("Pot/Stoned") and unit.hp()<= ui.value("Pot/Stoned") then
-            -- Lock Candy
-            if has.healthstone() then
-                if use.healthstone() then ui.debug("Using Healthstone") return true end
-            -- Legion Healthstone (From Starter Zone)
-            elseif has.legionHealthstone() then
-                if use.legionHealthstone() then ui.debug("Using Legion Healthstone") return true end
-            -- Health Potion (Grabs the Highest usable from bags)
-            elseif has.item(var.getHealPot) then
-                use.item(var.getHealPot)
-                ui.debug("Using "..GetItemInfo(var.getHealPot))
-                return true
-            end
-        end
-        -- Heirloom Neck
-        if ui.checked("Heirloom Neck") and unit.hp()<= ui.value("Heirloom Neck") then
-            if use.able.heirloomNeck() and item.heirloomNeck ~= 0
-                and item.heirloomNeck ~= item.manariTrainingAmulet
-            then
-                if use.heirloomNeck() then ui.debug("Using Heirloom Neck") return true end
-            end
-        end
+        -- Basic Heal Module
+        module.BasicHealing()
         -- Blur
         if ui.checked("Blur") and cast.able.blur() and unit.hp()<= ui.value("Blur") and unit.inCombat() then
             if cast.blur() then ui.debug("Casting Blur") return true end
@@ -377,17 +356,17 @@ actionList.Cooldowns = function()
         end
         -- Trinkets
         for i = 13, 14 do
-            local opValue = ui.value("Trinkets")
-            local iValue = i - 12
-            if (opValue == iValue or opValue == 3) and use.able.slot(i) then
+            local opValue = ui.value("Trinket "..i - 12)
+            local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
+            if useTrinket and use.able.slot(i) then
                 -- use_item,name=galecallers_boon,if=!talent.fel_barrage.enabled|cooldown.fel_barrage.ready
-                if use.able.galecallersBoon(i) and equiped.galecallersBoon(i) and (not talent.felBarrage or cd.felBarrage.ready()) then
+                if equiped.galecallersBoon(i) and (not talent.felBarrage or cd.felBarrage.ready()) then
                     use.slot(i)
                     ui.debug("Using Galecaller's Boon")
                     return
                 end
                 -- use_item,effect_name=cyclotronic_blast,if=buff.metamorphosis.up&buff.memory_of_lucid_dreams.down&(!variable.blade_dance|!cooldown.blade_dance.ready)
-                if use.able.pocketSizedComputationDevice(i) and equiped.pocketSizedComputationDevice(i) and buff.metamorphosis.exists()
+                if equiped.pocketSizedComputationDevice(i) and buff.metamorphosis.exists()
                     and not buff.memoryOfLucidDreams.exists() and (var.bladeDance or not cd.bladeDance.ready())
                 then
                     use.slot(i)
@@ -395,7 +374,7 @@ actionList.Cooldowns = function()
                     return
                 end
                 -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(debuff.conductive_ink_debuff.up|buff.metamorphosis.remains>20)&target.health.pct<31|target.time_to_die<20
-                if use.able.ashvanesRazorCoral(i) and equiped.ashvanesRazorCoral(i)
+                if equiped.ashvanesRazorCoral(i)
                     and (not debuff.razorCoral.exists(units.dyn5) or (debuff.conductiveInk.exists(units.dyn5) or buff.metamorphosis.remain() > 20))
                     and (unit.hp(units.dyn5) or unit.ttd(units.dyn5) < 20)
                 then
@@ -404,18 +383,17 @@ actionList.Cooldowns = function()
                     return
                 end
                 -- use_item,name=azsharas_font_of_power,if=cooldown.metamorphosis.remains<10|cooldown.metamorphosis.remains>60
-                if use.able.azsharasFontOfPower(i) and equiped.azsharasFontOfPower(i) and (cd.metamorphosis.remain() < 10 or cd.metamorphosis.remain() > 60) then
+                if equiped.azsharasFontOfPower(i) and (cd.metamorphosis.remain() < 10 or cd.metamorphosis.remain() > 60) then
                     use.slot(i)
                     ui.debug("Azshara's Font of Power")
                     return
                 end
-                -- use_items,if=buff.metamorphosis.up
-                if use.able.slot(i) and buff.metamorphosis.exists()
-                    and not (equiped.galecallersBoon(i) or equiped.pocketSizedComputationDevice(i) or equiped.ashvanesRazorCoral(i) or equiped.azsharasFontOfPower(i))
-                then
-                    use.slot(i)
-                    ui.debug("Using Trinket in Slot "..i)
-                    return
+                -- Basic Trinket Module
+                if not (equiped.galecallersBoon(i) and equiped.pocketSizedComputationDevice(i) and equiped.ashvanesRazorCoral(i) and equiped.azsharasFontOfPower(i)) then
+                    -- use_items,if=buff.metamorphosis.up
+                    if (buff.metamorphosis.exists() and ui.useCDs() and (opValue == 2 or opValue == 3)) or opValue == 1 or (opValue == 2 and ui.useAoE()) then
+                        module.BasicTrinkets(i)
+                    end
                 end
             end
         end
@@ -438,18 +416,18 @@ actionList.EssenceBreak = function()
         if var.bladeDance then
             -- Death Sweep
             -- death_sweep,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.deathSweep() and buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
-                if cast.deathSweep() then ui.debug("Casting Death Sweep [Essence Break]") return true end
+            if cast.able.deathSweep() and var.onMeta and buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
+                if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep [Essence Break]") return true end
             end
             -- Blade Dance
             -- blade_dance,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.bladeDance() and not buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
-                if cast.bladeDance() then ui.debug("Casting Blade Dance [Essence Break]") return true end
+            if cast.able.bladeDance() and not var.onMeta and not buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
+                if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance [Essence Break]") return true end
             end
         end
         -- Annihilation
         -- annihilation,if=debuff.essence_break.up
-        if cast.able.annihilation() and buff.metamorphosis.exists() then
+        if cast.able.annihilation() and var.onMeta and buff.metamorphosis.exists() then
             if cast.annihilation() then ui.debug("Casting Annihilation [Essence Break]") return true end
         end
         -- Chaos Strike
@@ -555,7 +533,7 @@ actionList.Demonic = function()
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and not unit.isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and var.bladeDance then
+    if cast.able.deathSweep() and var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and var.bladeDance then
         if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep") return true end
     end
     -- Glaive Tempest
@@ -579,7 +557,7 @@ actionList.Demonic = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-    if cast.able.bladeDance() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
+    if cast.able.bladeDance() and not var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
         and (cd.metamorphosis.remain() > gcd or not ui.useCDs() or not ui.checked("Metamorphosis"))
         and ((cd.eyeBeam.remain() > gcd) or ui.mode.eyeBeam == 2)
     then
@@ -592,7 +570,7 @@ actionList.Demonic = function()
     end
     -- Annihilation
     -- annihilation,if=!variable.pooling_for_blade_dance
-    if cast.able.annihilation() and buff.metamorphosis.exists() and not var.poolForBladeDance then
+    if cast.able.annihilation() and var.onMeta and buff.metamorphosis.exists() and not var.poolForBladeDance then
         if cast.annihilation() then ui.debug("Casting Annihilation") return true end
     end
     -- Felblade
@@ -602,7 +580,7 @@ actionList.Demonic = function()
     end
     -- Chaos Strike
     -- chaos_strike,if=!variable.pooling_for_blade_dance&!variable.pooling_for_eye_beam
-    if cast.able.chaosStrike() and not var.poolForBladeDance and not var.poolForEyeBeam then
+    if cast.able.chaosStrike() and not var.onMeta and not var.poolForBladeDance and not var.poolForEyeBeam then
         if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end
     end
     -- Fel Rush
@@ -677,7 +655,7 @@ actionList.Normal = function()
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and not unit.isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and var.bladeDance then
+    if cast.able.deathSweep() and var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and var.bladeDance then
         if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep") return true end
     end
     -- Immolation Aura
@@ -706,7 +684,7 @@ actionList.Normal = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
-    if cast.able.bladeDance() and not unit.isExplosive("target") and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and var.bladeDance then
+    if cast.able.bladeDance() and not var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and var.bladeDance then
         if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance") return true end
     end
     -- Felblade
@@ -724,14 +702,14 @@ actionList.Normal = function()
     end
     -- Annihilation
     -- annihilation,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance&!variable.waiting_for_essence_break
-    if cast.able.annihilation() and buff.metamorphosis.exists() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30 or buff.metamorphosis.remain() < 5)
+    if cast.able.annihilation() and var.onMeta and buff.metamorphosis.exists() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30 or buff.metamorphosis.remain() < 5)
         and not var.poolForBladeDance and not var.waitingForEssenceBreak
     then
         if cast.annihilation() then ui.debug("Casting Annihilation") return true end
     end
     -- Chaos Strike
     -- chaos_strike,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30)&!variable.pooling_for_meta&!variable.pooling_for_blade_dance&!variable.waiting_for_dark_slash
-    if cast.able.chaosStrike() and not buff.metamorphosis.exists() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30)
+    if cast.able.chaosStrike() and not var.onMeta and not buff.metamorphosis.exists() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30)
         and not var.poolForMeta and not var.poolForBladeDance and not var.waitingForEssenceBreak
     then
         if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end
@@ -787,31 +765,18 @@ actionList.PreCombat = function()
         -- if not buff.felCrystalInfusion.exists() and use.able.felCrystalFragments() and has.felCrystalFragments() then
         --     if use.felCrystalFragments() then ui.debug("Using Fel Crystal Fragments") return true end
         -- end
-        -- Flask / Crystal
+        -- Flask Module
         -- flask
-        if ui.value("Elixir") == 1 and var.inRaid and not buff.greaterFlaskOfTheCurrents.exists() and use.able.greaterFlaskOfTheCurrents() then
-            if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if use.greaterFlaskOfTheCurrents() then ui.debug("Using Greater Flask of the Currents") return true end
-        end
-        if ui.value("Elixir") == 2 and not buff.felFocus.exists() and use.able.repurposedFelFocuser() then
-            if not buff.greaterFlaskOfTheCurrents.exists() then
-                if use.repurposedFelFocuser() then ui.debug("Using Repurposed Fel Focuser") return true end
-            end
-        end
-        if ui.value("Elixir") == 3 and not buff.gazeOfTheLegion.exists() and use.able.inquisitorsMenacingEye() then
-            if not buff.greaterFlaskOfTheCurrents.exists() then
-                if use.inquisitorsMenacingEye() then ui.debug("Using Inquisitor's Menacing Eye") return true end
-            end
-        end
+        module.FlaskUp("Agility")
         -- Battle Scarred Augment Rune
         if ui.checked("Augment Rune") and var.inRaid and not buff.battleScarredAugmentation.exists()
             and use.able.battleScarredAugmentRune() and var.lastRune + gcd < GetTime()
         then
             if use.battleScarredAugmentRune() then ui.debug("Using Battle Scarred Augment Rune") var.lastRune = GetTime() return true end
         end
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer()<= ui.value("Pre-Pull Timer") then
+        if ui.checked("Pre-Pull Timer") and (var.inRaid or var.inInstance) and ui.pullTimer()<= ui.value("Pre-Pull Timer") then
             -- Potion
-            if ui.value("Potion") ~= 5 and ui.pullTimer()<= 1 and (var.inRaid or var.inInstance) then
+            if ui.value("Potion") ~= 5 and ui.pullTimer()<= 1 then
                 if ui.value("Potion") == 1 and use.able.potionOfUnbridledFury() then
                     use.potionOfUnbridledFury()
                     ui.debug("Using Potion of Unbridled Fury")
@@ -848,20 +813,20 @@ actionList.PreCombat = function()
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Pre-Pull]") return true end
             end
         end -- End M+ Pre-Pull
-        if unit.valid("target") then
-            if unit.reaction("target","player") < 4 then
+        if unit.exists("target") and unit.valid("target") and unit.facing("target") and unit.distance("target") < 30 then
+            if ui.checked("Auto Engage") and var.solo then
                 -- Throw Glaive
-                if ui.checked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.yards10tnc == 1 and var.solo and ui.checked("Auto Engage") then
+                if ui.checked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.yards10tnc == 1 then
                     if cast.throwGlaive("target","aoe") then ui.debug("Casting Throw Glaive [Pre-Pull]") return true end
                 end
                 -- Torment
-                if cast.able.torment("target") and var.solo and ui.checked("Auto Engage") then
+                if cast.able.torment("target") and (cast.timeSinceLast.throwGlaive() > unit.gcd(true) or not ui.checked("Throw Glaive")) then
                     if cast.torment("target") then ui.debug("Casting Torment [Pre-Pull]") return true end
                 end
             end
             -- Start Attack
             -- auto_attack
-            if unit.exists("target") and unit.distance("target") < 5 then
+            if unit.distance("target") < 5 then
                 StartAttack()
             end
         end
@@ -888,6 +853,7 @@ local function runRotation()
     gcd                                             = br.player.unit.gcd(true)
     has                                             = br.player.has
     item                                            = br.player.items
+    module                                          = br.player.module
     race                                            = br.player.race
     ui                                              = br.player.ui
     unit                                            = br.player.unit
@@ -902,13 +868,15 @@ local function runRotation()
 
     var.combatTime                                  = getCombatTime()
     var.falling                                     = getFallTime()
+    var.flood                                       = (equiped.soulOfTheSlayer() or talent.firstBlood) and 1 or 0
     var.getHealPot                                  = getHealthPot()
     var.hasHealPot                                  = hasHealthPot()
     var.inInstance                                  = unit.instance=="party"
     var.inMythic                                    = select(3,GetInstanceInfo())==23
     var.inRaid                                      = unit.instance=="raid"
     var.solo                                        = #br.friend == 1
-    var.flood                                       = (equiped.soulOfTheSlayer() or talent.firstBlood) and 1 or 0
+
+    var.onMeta                                      = buff.metamorphosis.exists()
 
     units.get(5)
     units.get(8)
