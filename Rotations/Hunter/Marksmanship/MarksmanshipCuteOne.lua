@@ -110,6 +110,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Feign Death
             br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            -- Tranquilizing Shot
+            br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -246,6 +248,19 @@ actionList.Defensive = function()
         -- Feign Death
         if ui.checked("Feign Death") and unit.hp() <= ui.value("Feign Death") then
             if cast.feignDeath("player") then ui.debug("Casting Feign Death") return true end
+        end
+        -- Tranquilizing Shot
+        if ui.checked("Tranquilizing Shot") then
+            if #enemies.yards40f > 0 then
+                for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if ui.value("Tranquilizing Shot") == 1 or (ui.value("Tranquilizing Shot") == 2 and unit.isUnit(thisUnit,"target")) then
+                        if unit.valid(thisUnit) and cast.dispel.tranquilizingShot(thisUnit) then
+                            if cast.tranquilizingShot(thisUnit) then ui.debug("Casting Tranquilizing Shot") return true end
+                        end
+                    end
+                end
+            end
         end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
