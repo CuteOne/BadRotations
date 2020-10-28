@@ -18,7 +18,7 @@ local function createToggles()
     };
     CreateButton("Defensive",2,0)
     -- Interrupt Button
-    canInterruptModes = {
+    InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.legSweep},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Interrupt Defensive", highlight = 0, icon = br.player.spell.legSweep}
     };
