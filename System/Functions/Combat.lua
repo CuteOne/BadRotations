@@ -109,7 +109,7 @@ function hasNoControl(spellID,unit)
 	if unit==nil then unit="player" end
 	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
 	while (eventIndex > 0) do
-		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
+		local _,_,text = C_LossOfControl.GetActiveLossOfControlData(eventIndex)
 		local class = select(3,UnitClass("player"))
 		-- Warrior
 		if class == 1 then
