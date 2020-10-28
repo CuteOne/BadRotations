@@ -486,7 +486,14 @@ local function runRotation()
             end
         end
         local function actionList_Maintenance()
-
+            -- Flametongue
+            if cast.able.flametongue() and select(8, GetWeaponEnchantInfo()) ~= 5400 then
+                if cast.flametongue() then return true end
+            end
+            --Windfury
+            if cast.able.windFuryWeapon() and select(4, GetWeaponEnchantInfo()) ~= 5401 then
+                if cast.windFuryWeapon() then return true end
+            end
         end
         local function actionList_CD()
             if isChecked("Racial") and race == "Troll" and ((talent.ascendance and buff.ascendance.exists())
