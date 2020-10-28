@@ -44,8 +44,9 @@ local function createOptions()
             -- Touch of Death
             br.ui:createCheckbox(section, "Touch of Death")
             -- Trinkets
-            br.ui:createDropdownWithout(section,"Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 1.")
-            br.ui:createDropdownWithout(section,"Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 2.")
+            br.player.module.BasicTrinkets(nil,section)
+            -- br.ui:createDropdownWithout(section,"Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 1.")
+            -- br.ui:createDropdownWithout(section,"Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 2.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -215,6 +216,7 @@ local function runRotation()
     var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or pause() or ui.mode.rotation==4
     -- Units
     units.get(5)
+    units.get(40)
     -- Enemies
     enemies.get(5)
     enemies.get(8)
@@ -275,18 +277,19 @@ local function runRotation()
                 end
                 -- Trinket - Non-Specific
                 if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5  then
-                    local thisTrinket
-                    for i = 13, 14 do
-                        thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
-                        local opValue = ui.value(thisTrinket)
-                        if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i) 
-                        and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
-                        then
-                            use.slot(i)
-                            ui.debug("Using Trinket in Slot "..i)
-                            return
-                        end
-                    end
+                    module.BasicTrinkets()
+                    -- local thisTrinket
+                    -- for i = 13, 14 do
+                    --     thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
+                    --     local opValue = ui.value(thisTrinket)
+                    --     if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i) 
+                    --     and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
+                    --     then
+                    --         use.slot(i)
+                    --         ui.debug("Using Trinket in Slot "..i)
+                    --         return
+                    --     end
+                    -- end
                 end
                 -- Touch of Death
                 if cast.able.touchOfDeath("target") and unit.health("target") < unit.health("player") then
