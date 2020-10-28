@@ -95,8 +95,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
             br.ui:createDropdownWithout(section,"Potion", {"Focused Resolve","None"}, 1, "|cffFFFFFFSet Potion to use.")
-            -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+            -- FlaskUp Module
+            br.player.module.FlaskUp("Agility",section)
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Essences
@@ -111,6 +111,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
             -- Rebirth
             br.ui:createCheckbox(section,"Rebirth")
             br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
@@ -124,10 +126,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Soothe")
             -- Renewal
             br.ui:createSpinner(section, "Renewal",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Healthstone
-            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Survival Instincts
             br.ui:createSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Regrowth
@@ -195,6 +193,7 @@ local equiped
 local essence
 local has
 local item
+local module
 local power
 local spell
 local talent
@@ -563,25 +562,8 @@ actionList.Defensive = function()
                 end
             end
         end
-        -- Pot/Stoned
-        if ui.checked("Pot/Stoned") and unit.inCombat() and (use.able.healthstone() or canUseItem(healPot))
-            and (hasHealthPot() or has.healthstone()) and unit.hp() <= ui.value("Pot/Stoned")
-        then
-            if use.able.healthstone() then
-                if use.healthstone() then ui.debug("Using Healthstone") return true end
-            elseif canUseItem(healPot) then
-                useItem(healPot)
-                ui.debug("Using Health Potion")
-            end
-        end
-        -- Heirloom Neck
-        if ui.checked("Heirloom Neck") and unit.hp() <= ui.value("Heirloom Neck") then
-            if use.able.heirloomNeck() and item.heirloomNeck ~= 0
-                and item.heirloomNeck ~= item.manariTrainingAmulet
-            then
-                if use.heirloomNeck() then ui.debug("Using Heirloom Neck") return true end
-            end
-        end
+        -- Basic Healing Module
+        module.BasicHealing()
         if talent.restorationAffinity and not (IsMounted() or IsFlying())
             and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1
             and unit.distance(br.friend[1].unit) < 40))
@@ -594,14 +576,14 @@ actionList.Defensive = function()
             -- Swiftmend
             local swiftPercent = ui.value("Swiftmend")
             if ui.checked("Swiftmend") and cast.able.swiftmend()
-                and ((not inCombbat and thisHP <= swiftPercent) or (unit.inCombat() and thisHP <= swiftPercent/2))
+                and ((not inCombat and thisHP <= swiftPercent) or (unit.inCombat() and thisHP <= swiftPercent/2))
             then
                 if cast.swiftmend(thisUnit) then ui.debug("Casting Swiftmend on "..unit.name(thisUnit)) return true end
             end
             -- Rejuvenation
             local rejuvPercent = ui.value("Rejuvenation")
             if ui.checked("Rejuvenation") and cast.able.rejuvenation() and buff.rejuvenation.refresh(thisUnit)
-                and ((not inCombbat and thisHP <= rejuvPercent) or (unit.inCombat() and thisHP <= rejuvPercent/2))
+                and ((not inCombat and thisHP <= rejuvPercent) or (unit.inCombat() and thisHP <= rejuvPercent/2))
             then
                 if cast.rejuvenation(thisUnit) then ui.debug("Casting Rejuvenation on "..unit.name(thisUnit)) return true end
             end
@@ -1200,28 +1182,9 @@ end -- End Action List - Bloodtalons
 actionList.PreCombat = function()
     if not unit.inCombat() and not (IsFlying() or IsMounted()) then
         if not stealth then
-            -- Flask / Crystal
+            -- FlaskUp Module
             -- flask
-            local opValue = ui.value("Elixir")
-            if opValue == 1 and inRaid and use.able.greaterFlaskOfTheCurrents()
-                and not buff.greaterFlaskOfTheCurrents.exists()
-            then
-                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-                if buff.felFocus.exists() then buff.felFocus.cancel() end
-                if use.greaterFlaskOfTheCurrents() then ui.debug("Using Greater Flask of the Currents") return true end
-            elseif opValue == 2 and use.able.repurposedFelFocuser() and not buff.felFocus.exists()
-                and (not inRaid or (inRaid and not buff.greaterFlaskOfTheCurrents.exists()))
-            then
-                if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
-                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-                if use.repurposedFelFocuser() then ui.debug("Using Repurposed Fel Focuser") return true end
-            elseif opValue == 3 and use.able.oraliusWhisperingCrystal()
-                and not buff.whispersOfInsanity.exists()
-            then
-                if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
-                if buff.felFocus.exists() then buff.felFocus.cancel() end
-                if use.oraliusWhisperingCrystal() then ui.debug("Using Oralius's Whispering Crystal") return true end
-            end
+            module.FlaskUp("Agility")
             -- Battle Scarred Augment Rune
             -- augmentation,type=defiled
             if ui.checked("Augment Rune") and inRaid and not buff.battleScarredAugmentation.exists()
@@ -1339,6 +1302,7 @@ local function runRotation()
         essence     = br.player.essence
         has         = br.player.has
         item        = br.player.items
+        module      = br.player.module
         opener      = br.player.opener
         race        = br.player.race
         power       = br.player.power

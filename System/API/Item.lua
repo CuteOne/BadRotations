@@ -65,11 +65,12 @@ br.api.items = function(item,k,v,subtable)
     if subtable == "use" then 
         local use = item
         -- br.player.use.item()
-        use[k] = function(slotID)
+        use[k] = function(slotID,thisUnit)
+            if thisUnit == nil then thisUnit = "target" end
             if slotID == nil then
-                if canUseItem(v) then return useItem(v) else return end
+                if canUseItem(v) then return useItem(v,thisUnit) else return end
             else
-                if canUseItem(slotID) then return useItem(slotID) else return end
+                if canUseItem(slotID) then return useItem(slotID,thisUnit) else return end
             end
         end
         if use.able == nil then use.able = {} end
@@ -90,10 +91,11 @@ br.api.items = function(item,k,v,subtable)
             end
         end
         if use.item == nil then
-            use.item = function(itemID)
+            use.item = function(itemID,thisUnit)
                 if itemID == nil then return false end
+                if thisUnit == nil then thisUnit = "target" end
                 if canUseItem(itemID) then
-                    return useItem(itemID)
+                    return useItem(itemID,thisUnit)
                 else
                     return
                 end
@@ -101,8 +103,9 @@ br.api.items = function(item,k,v,subtable)
         end
         -- br.player.use.slot()
         if use.slot == nil then 
-            use.slot = function(slotID)
-                if canUseItem(slotID) then return useItem(slotID) else return end
+            use.slot = function(slotID,thisUnit)
+                if thisUnit == nil then thisUnit = "target" end
+                if canUseItem(slotID) then return useItem(slotID,thisUnit) else return end
             end
         end
     end

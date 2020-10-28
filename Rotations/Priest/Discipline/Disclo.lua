@@ -70,6 +70,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
         --Atonement
         br.ui:createCheckbox(section, "Obey Atonement Limits")
+        br.ui:createCheckbox(section, "Obey Atonement Limits During Rapture")
         br.ui:createSpinnerWithout(section, "Tank Atonement HP", 95, 0, 100, 1, "Apply Atonement to Tank using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95")
         br.ui:createSpinnerWithout(section, "Party Atonement HP", 95, 0, 100, 1, "Apply Atonement using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95")
         br.ui:createSpinnerWithout(section, "Max Atonements", 3, 1, 40, 1, "Max Atonements to Keep Up At Once. Default: 3")
@@ -181,7 +182,8 @@ local function runRotation()
     local cd = br.player.cd
     local charges = br.player.charges
     local debuff = br.player.debuff
-    local enemies = br.player.enemies
+    local drinking = getBuffRemain("player", 274914) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
+	local enemies = br.player.enemies
     local essence = br.player.essence
     local falling, swimming, flying, moving = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
     local freeMana = buff.innervate.exists() or buff.symbolOfHope.exists()
@@ -512,7 +514,7 @@ local function runRotation()
 
     local function HealingTime()
         if buff.rapture.exists("player") then
-            if isChecked("Obey Atonement Limits") then
+            if isChecked("Obey Atonement Limits During Rapture") then
                 for i = 1, #br.friend do
                     if atonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                         if getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
@@ -642,7 +644,7 @@ local function runRotation()
         if isChecked("SHW: Death Snipe") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (getHP(thisUnit) <= 20) then
+                if (getHP(thisUnit) <= 20) or UnitHealth(thisUnit) <= deathnumber then
                     if cast.shadowWordDeath(thisUnit) then
                         return 
                     end
@@ -654,11 +656,11 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ptwTargets() < getValue("SW:P/PtW Targets")  then
-                        if not debuff.purgeTheWicked.exists("target") and ttd("target") > 3 then
+                        if not debuff.purgeTheWicked.exists("target") and ttd("target") > 6 then
                             if cast.purgeTheWicked("target") then
                                 return 
                             end
-                        elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 3 then
+                        elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
                             if cast.purgeTheWicked(thisUnit) then
                                 return
                             end
@@ -670,11 +672,11 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ptwTargets() < getValue("SW:P/PtW Targets") then
-                        if not debuff.shadowWordPain.exists("target") and ttd("target") > 3 then
+                        if not debuff.shadowWordPain.exists("target") and ttd("target") > 6 then
                             if cast.shadowWordPain("target") then
                                 return 
                             end
-                        elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 3 then
+                        elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
                             if cast.shadowWordPain(thisUnit) then
                                 return
                             end
@@ -752,7 +754,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Smite") and not isMoving("player") then
+        if isChecked("Smite") and not isMoving("player") and not cast.current.mindSear() then
             if schismBuff ~= nil and getFacing("player",schismBuff) then
                 if cast.smite(schismBuff) then
                     return
@@ -766,7 +768,7 @@ local function runRotation()
     local localHealingCount = discHealCount
     ------------------------------
     ------- Start the Stuff ------
-    if pause() or drinking then
+    if pause(true) or drinking or isLooting() or (biggestGroup >= getOptionValue("Mind Sear - AoE - High Prio") and cast.current.mindSear()) then
         return true
     else
         if not inCombat then

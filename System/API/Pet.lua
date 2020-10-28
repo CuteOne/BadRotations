@@ -11,7 +11,7 @@ br.api.pets = function(pet,k,v,brplayer)
         pet.active.count = function()
             local count = 0
             for l,w in pairs(brplayer.pet.list) do
-                local listID = brplayer.pet.list[k].id
+                local listID = brplayer.pet.list[l].id
                 if GetObjectID("pet") == listID then count = count + 1 end
             end
             return count

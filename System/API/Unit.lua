@@ -139,11 +139,6 @@ br.api.unit = function(self)
         local UnitName = _G["UnitName"]
         return UnitName(thisUnit)
     end
-    -- No Control
-    unit.noControl = function()
-        local noControl = _G["hasNoControl"]
-        return hasNoControl()
-    end
     -- Player
     unit.player = function(thisUnit)
         local UnitIsPlayer = _G["UnitIsPlayer"]

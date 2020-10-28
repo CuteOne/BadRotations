@@ -1,3 +1,4 @@
+local br = _G["br"]
 if br.api == nil then br.api = {} end
 br.api.module = function(self)
     -- Local reference to actionList
@@ -18,7 +19,9 @@ br.api.module = function(self)
         -- Options - Call, module.BasicHealing(section), in your options to load these
         if section ~= nil then
             -- Gift of the Naaru
-            br.ui:createSpinner(section, "Gift of the Naaru", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            if unit.race() == "Draenei" then
+                br.ui:createSpinner(section, "Gift of the Naaru", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            end
             -- Healthstone / Potion
             br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
@@ -58,6 +61,35 @@ br.api.module = function(self)
                 if cast.giftOfTheNaaru() then ui.debug("Casting Gift of the Naaru") return true end
             end
             return true
+        end
+    end
+
+    -- Basic Trinkets
+    module.BasicTrinkets = function(slotID,section)
+        if section ~= nil then
+            br.ui:createDropdownWithout(section, "Trinket 1", {"|cff0000FFAlways","|cff00FF00CD/AOE","|cffFFFF00CD Only","|cffFF0000Never"}, 2, "|cffFFFFFFWhen to use Trinket 1 (Slot 13).")
+            br.ui:createDropdownWithout(section, "Trinket 2", {"|cff0000FFAlways","|cff00FF00CD/AOE","|cffFFFF00CD Only","|cffFF0000Never"}, 2, "|cffFFFFFFWhen to use Trinket 1 (Slot 14).")
+        end
+        if section == nil then
+            if slotID ~= nil then
+                local opValue = ui.value("Trinket "..slotID - 12)
+                local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
+                -- For use in rotation loop - pass slotID
+                if slotID == 13 or slotID == 14 then
+                    if use.able.slot(slotID) and useTrinket then
+                        if use.slot(slotID) then ui.debug("Using Trinket "..i - 12) return true end
+                    end
+                end
+            else
+                -- If not used in rotation loop - loop here
+                for slotID = 13, 14 do
+                    local opValue = ui.value("Trinket "..slotID - 12)
+                    local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
+                    if use.able.slot(slotID) and useTrinket then
+                        if use.slot(slotID) then ui.debug("Using Trinket "..slotID - 12) return true end
+                    end
+                end
+            end
         end
     end
 
@@ -108,7 +140,7 @@ br.api.module = function(self)
             if buff.greaterFlaskOfEndlessFathoms.exists() then buff.greaterFlaskOfEndlessFathoms.cancel() end
             if buff.greaterFlaskOfTheVastHorizon.exists() then buff.greaterFlaskOfTheVastHorizon.cancel() end
             if buff.greaterFlaskOfTheUndertow.exists() then buff.greaterFlaskOfTheUndertow.cancel() end
-            if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
+            if (isDH and buff.gazeOfTheLegion.exists()) then buff.gazeOfTheLegion.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
         end
