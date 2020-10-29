@@ -26,6 +26,13 @@ br.api.ui = function(self)
             return br.lootManager:emptySlots() == 0
         end
     end
+    if ui.pause == nil then
+        ui.pause = function(ignoreChannel)
+            local pause = _G["pause"]
+            if ignoreChannel == nil then ignoreChannel = false end
+            return pause(ignoreChannel)
+        end
+    end
     if ui.pullTimer == nil then 
         ui.pullTimer = function()
             local PullTimerRemain = _G["PullTimerRemain"]

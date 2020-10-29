@@ -103,6 +103,15 @@ br.api.cast = function(self,spell,id)
         return canDispel(thisUnit,id) or false
     end
 
+    -- br.player.cast.form(formIndex) - Casts the form corresponding to the provided formIndex number
+    if cast.form == nil then 
+        cast.form = function(formIndex)
+            local CastShapeshiftForm = _G["CastShapeshiftForm"]
+            if formIndex == nil then formIndex = 0 end
+            return CastShapeshiftForm(formIndex)
+        end
+    end
+
     -- br.player.cast.inFlight.spell() - Returns if the spell is currently in flight to the target.
     --[[Args:
         thisUnit - Acceptable parameters listed below
@@ -154,11 +163,20 @@ br.api.cast = function(self,spell,id)
         return hasNoControl(id,thisUnit)
     end
 
-    -- br.player.cast.timeSinceLast.spell() - Returns the time since the last cast of this spell occured.
-    if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
-    cast.timeSinceLast[spell] = function()
-        if br.lastCast.castTime[id] == nil then br.lastCast.castTime[id] = GetTime() end
-        return GetTime() - br.lastCast.castTime[id]
+    -- br.player.cast.opener("rip","RIP1",opener.count) -- Attempts to cast special opener condition spell
+    if cast.opener == nil then
+        cast.opener = function(thisSpell,thisTracker,thisCount)
+            local castOpener = _G["castOpener"]
+            return castOpener(thisSpell,thisTracker,thisCount)
+        end
+    end
+
+    -- br.player.cast.openerFail("rip","RIP1",opener.count) -- Resets cast special opener condition if failed to cast
+    if cast.openerFail == nil then 
+        cast.openerFail = function(thisSpell,thisTracker,thisCount)
+            local castOpenerFail = _G["castOpenerFail"]
+            return castOpenerFail(thisSpell,thisTracker,thisCount)
+        end
     end
 
     -- br.player.cast.pool.spell() - Returns true if specified power requirements are not met.
@@ -230,5 +248,12 @@ br.api.cast = function(self,spell,id)
     cast.timeRemain = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return getCastTimeRemain(thisUnit)
+    end
+
+    -- br.player.cast.timeSinceLast.spell() - Returns the time since the last cast of this spell occured.
+    if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
+    cast.timeSinceLast[spell] = function()
+        if br.lastCast.castTime[id] == nil then br.lastCast.castTime[id] = GetTime() end
+        return GetTime() - br.lastCast.castTime[id]
     end
 end

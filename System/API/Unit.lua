@@ -20,6 +20,22 @@ br.api.unit = function(self)
         if playerUnit == nil then playerUnit = "player" end
         return UnitCanAttack(thisUnit,playerUnit)
     end
+    -- Cancelform
+    unit.cancelForm = function()
+        local RunMacroText = _G["RunMacroText"]
+        local CancelShapeshiftForm = _G["CancelShapeshiftForm"]
+        return CancelShapeshiftForm() or RunMacroText("/CancelForm")
+    end
+    -- Combat Time
+    unit.combatTime = function()
+        local getCombatTime = _G["getCombatTime"]
+        return getCombatTime()
+    end
+    -- Charmed
+    unit.charmed = function(thisUnit)
+        local UnitIsCharmed = _G["UnitIsCharmed"]
+        return UnitIsCharmed(thisUnit)
+    end
     -- Dead
     unit.deadOrGhost = function(thisUnit)
         local UnitIsDeadOrGhost = _G["UnitIsDeadOrGhost"]
@@ -51,6 +67,15 @@ br.api.unit = function(self)
     unit.flying = function()
         local IsFlying = _G["IsFlying"]
         return IsFlying()
+    end
+    -- Forms
+    unit.form = function()
+        local GetShapeshiftForm = _G["GetShapeshiftForm"]
+        return GetShapeshiftForm()
+    end
+    unit.formCount = function()
+        local GetNumShapeshiftForms = _G["GetNumShapeshiftForms"]
+        return GetNumShapeshiftForms()
     end
     -- Friend
     unit.friend = function(thisUnit,playerUnit)
@@ -97,6 +122,13 @@ br.api.unit = function(self)
         local instanceType = select(2,IsInInstance())
         return thisInstance == nil and instanceType or instanceType == thisInstance
     end
+    -- Interruptable
+    unit.interruptable = function(thisUnit,castPercent)
+        local canInterrupt = _G["canInterrupt"]
+        if thisUnit == nil then thisUnit = "target" end
+        if castPercent == nil then castPercent = 0 end
+        return canInterrupt(thisUnit,castPercent)
+    end
     -- Is Boss
     unit.isBoss = function(thisUnit)
         local isBoss = _G["isBoss"]
@@ -122,6 +154,12 @@ br.api.unit = function(self)
         local UnitLevel = _G["UnitLevel"]
         if thisUnit == nil then thisUnit = "player" end
         return UnitLevel(thisUnit)
+    end
+    -- Lowest Unit in Range
+    unit.lowest = function(range)
+        local getLowestUnit = _G["getLowestUnit"]
+        if range == nil then range = 5 end
+        return getLowestUnit(range)
     end
     -- Mounted
     unit.mounted = function()
