@@ -1768,6 +1768,7 @@ br.lists.spells = {
                 theEmperorsCapacitor        = 235054,
                 touchOfKarma                = 122470,
                 transferThePower            = 195321,
+                whirlingDragonPunch         = 152175,
             },
             debuffs                         = {
                 markOfTheCrane              = 228287,

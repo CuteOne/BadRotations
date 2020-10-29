@@ -422,8 +422,8 @@ actionList.CdSef = function()
         if cast.racial() then ui.debug("Casting Arcane Torrent") return true end
     end
     -- Touch of Death
-    -- touch_of_death,if=buff.storm_earth_and_fire.down
-    if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and not buff.stormEarthAndFire.exists() and (unit.health("target") < unit.health("player") 
+    -- touch_of_death,if=target.health.pct<=15&buff.storm_earth_and_fire.down
+    if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and not buff.stormEarthAndFire.exists() and (unit.health("target") < unit.health("player")
         or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
         if cast.touchOfDeath() then ui.debug("Casting Touch of Death") return true end
@@ -658,7 +658,7 @@ actionList.CdSerenity = function()
     -- use_item,name=ashvanes_razor_coral
     --TODO: parsing use_item
     -- Touch of Death
-    -- touch_of_death
+    -- touch_of_death,if=target.health.pct<=15
     if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player") 
         or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
@@ -684,9 +684,9 @@ end -- End Action List - CdSerenity
 actionList.SingleTarget = function()
     local startTime = debugprofilestop()
     -- Whirling Dragon Punch
-    -- whirling_dragon_punch
+    -- whirling_dragon_punch,if=buff.whirling_dragon_punch.up
     if ui.checked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
-        and cd.fistsOfFury.exists() and cd.risingSunKick.exists()
+        and buff.whirlingDragonPunch.exists()
     then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [ST]") return true end
     end
@@ -801,9 +801,9 @@ end -- End Action List - Single Target
 actionList.AoE = function()
     local startTime = debugprofilestop()
     -- Whirling Dragon Punch
-    -- whirling_dragon_punch
+    -- whirling_dragon_punch,if=buff.whirling_dragon_punch.up
     if cast.able.whirlingDragonPunch() and ui.checked("Whirling Dragon Punch") and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
-        and cd.fistsOfFury.exists() and cd.risingSunKick.exists()
+        and buff.whirlingDragonPunch.exists()
     then
         if cast.whirlingDragonPunch("player","aoe") then ui.debug("Casting Whirling Dragon Punch [AOE]") return true end
     end
@@ -876,9 +876,9 @@ actionList.AoE = function()
         if cast.flyingSerpentKick() then var.castFSK = true ui.debug("Casting Flying Serpent Kick [AOE]") return true end
     end
     -- Blackout kick
-    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.bok_proc.up|talent.hit_combo.enabled&prev_gcd.1.tiger_palm&(chi.max-chi>=14&energy.time_to_50<1|chi=2&cooldown.fists_of_fury.remains<3))
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.bok_proc.up|talent.hit_combo.enabled&prev_gcd.1.tiger_palm&(chi.max-chi>=1&energy.time_to_50<1|chi=2&cooldown.fists_of_fury.remains<3))
     if cast.able.blackoutKick(var.lowestMark) and (not wasLastCombo(spell.blackoutKick) and (buff.blackoutKick.exists() or talent.hitCombo
-        and cast.last.tigerPalm(1) and (chiMax - chi >= 14 and energyTTM(50) < 1 or chi == 2 and cd.fistsOfFury.remain() < 3)))
+        and cast.last.tigerPalm(1) and (chiMax - chi >= 1 and energyTTM(50) < 1 or chi == 2 and cd.fistsOfFury.remain() < 3)))
         and cast.timeSinceLast.blackoutKick() > unit.gcd("true")
     then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [AOE]") return true end
@@ -986,29 +986,25 @@ end -- End Action List - Serenity
 actionList.Opener = function()
     local startTime = debugprofilestop()
     -- Fist of the White Tiger
-    -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains
-    if cast.able.fistOfTheWhiteTiger(var.lowestMark) then
+    -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=3
+    if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chiMax - chi >= 3 then
         if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [Opener]") return true end
     end
-    -- expel_harm,if=talent.chi_burst.enabled
-    if cast.able.expelHarm() and (talent.chiBurst) then
+    -- expel_harm,if=talent.chi_burst.enabled&chi.max-chi>=3
+    if cast.able.expelHarm() and (talent.chiBurst and chiMax - chi >= 3) then
         if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener Chi Burst") return true end
     end
-    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.max-chi>=2
+    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains+(debuff.recently_rushing_tiger_palm.up*20),if=combo_strike&chi.max-chi>=2
     if cast.able.tigerPalm(var.lowestMark) and (not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2)
         and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
     then
         if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Opener Not Last Combo]") return true end
     end
-    -- expel_harm,if=chi.max-chi=3|chi.max-chi=1
-    if cast.able.expelHarm() and (chiMax - chi == 3 or chiMax - chi == 1) then
+    -- expel_harm
+    if cast.able.expelHarm() then
         if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener]") return true end
     end
-    -- flying_serpent_kick,if=talent.hit_combo.enabled
-    if ui.mode.fsk == 1 and cast.able.flyingSerpentKick() and (talent.hitCombo) then
-        if cast.flyingSerpentKick() then var.castFSK = true ui.debug("Casting Flying Serpent Kick [Opener]") return true end
-    end
-    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2
+    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains+(debuff.recently_rushing_tiger_palm.up*20),if=chi.max-chi>=2
     if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and (chiMax - chi >= 2)
         and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
     then
