@@ -1874,7 +1874,6 @@ br.lists.spells = {
                 divinePurpose               = 216411,
                 ferventMartyr               = 223316,
                 infusionOfLight             = 54149,
-                holyAvenger                 = 105809,
                 ruleOfLaw                   = 214202,
                 theLightSaves               = 200423,
                 vindicator                  = 200376,
@@ -2061,6 +2060,7 @@ br.lists.spells = {
                 divineShield                = 642,
                 divineSteed                 = 190784,
                 blessingOfProtection        = 1022,
+                holyAvenger                 = 105809,
             },
             debuffs                         = {
                 forbearance                 = 25771,

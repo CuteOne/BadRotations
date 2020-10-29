@@ -70,8 +70,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
 		-- Avenging Wrath
 		br.ui:createSpinner(section, "Avenging Wrath",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
-		-- Bastion of Light
-		br.ui:createCheckbox(section,"Bastion of Light")
+		-- Holy Avenger
+		br.ui:createSpinner(section, "Holy Avenger",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
@@ -775,12 +775,16 @@ local function runRotation()
 			end
 			if GetUnitExists(units.dyn5) then
 				-- Seraphim
-				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
+				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and holyPower > 2 and (getOptionValue("Seraphim") <= ttd ) then
 					if CastSpellByName(GetSpellInfo(152262)) then return end
 				end
 				-- Avenging Wrath
-				if isChecked("Avenging Wrath") and cast.able.avengingWrath() and (not talent.seraphim or buff.seraphim.remain() > 15) and (getOptionValue("Avenging Wrath") <= ttd ) then
+				if isChecked("Avenging Wrath") and cast.able.avengingWrath() and (getOptionValue("Avenging Wrath") <= ttd ) then
 					if CastSpellByName(GetSpellInfo(31884)) then return end
+				end
+				-- Holy Avenger
+				if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and (getOptionValue("Holy Avenger") <= ttd ) then
+					if CastSpellByName(GetSpellInfo(105809)) then return end
 				end
 			end
 		end -- End Cooldown Usage Check
@@ -828,7 +832,7 @@ local function runRotation()
 	-- Action List - Opener
 	local function actionList_Opener()
 		if isValidUnit("target") and getFacing("player","target") then
-			if isChecked("Judgment") and getDistance("target") <= 30 then
+			if isChecked("Judgment") and getDistance("target") <= 30 and not inCombat then
 				if CastSpellByName(GetSpellInfo(275779),"target") then return end
 			end
 			-- Start Attack
@@ -887,7 +891,8 @@ local function runRotation()
 			----- In Combat - Feng APL -----
 			--------------------------------
 			-- Shield of the Righteous
-			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and debuff.judgment.exists(units.dyn30) and (holyPower > 2 or buff.divinePurpose.exists()) then
+			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists())
+			and (buff.holyAvenger.remain("player") > gcd or debuff.judgment.exists(units.dyn30) or holyPower == 5) then
 				if CastSpellByName(GetSpellInfo(53600),units.dyn5) then return end
 			end
 			if GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
@@ -895,13 +900,13 @@ local function runRotation()
 				if isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 then
 					if CastSpellByName(GetSpellInfo(31935),units.dyn30) then return end
 				end
+				-- Judgment
+				if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) then
+					if CastSpellByName(GetSpellInfo(275779),units.dyn30) then return end
+				end
 				-- Hammer of Wrath
 				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and getHP(units.dyn30) <= 20 then
 					if CastSpellByName(GetSpellInfo(24275),units.dyn30) then return end
-				end
-				-- Judgment
-				if isChecked("Judgment") and cast.able.judgment() then
-					if CastSpellByName(GetSpellInfo(275779),units.dyn30) then return end
 				end
 				-- Avenger's Shield
 				if isChecked("Avenger's Shield") and cast.able.avengersShield() then
