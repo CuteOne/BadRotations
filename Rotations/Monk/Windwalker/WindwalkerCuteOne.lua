@@ -484,7 +484,7 @@ actionList.CdSef = function()
         or buff.seethingRage.exists() or (cd.bloodOfTheEnemy.remain() + 1 > charges.stormEarthAndFire.timeTillFull() or not essence.bloodOfTheEnemy.major)
         and cd.fistsOfFury.remain() < 10 and chi >= 2 and cd.whirlingDragonPunch.remain() < 12)
     then
-        if cast.stormEarthAndFire() then ui.debug("Casting Storm, Earth, and Fire") return true end
+        if cast.stormEarthAndFire() then ui.debug("Casting Storm, Earth, and Fire") var.fixateTarget = "player" return true end
     end
     -- Ashvane's Razor Coral
     -- use_item,name=ashvanes_razor_coral
@@ -697,7 +697,7 @@ actionList.SingleTarget = function()
     -- Fists of Fury
     -- fists_of_fury
     if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > unit.gcd(true) and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then --and var.useFists then
-        if cast.fistsOfFury(nil,"cone",1,8) then ui.debug("Casting Fists of Fury [ST]") return true end
+        if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [ST]") return true end
     end
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.serenity.remains>1|!talent.serenity.enabled
@@ -817,7 +817,7 @@ actionList.AoE = function()
     if cast.able.fistsOfFury() and ui.useAOE(8,ui.value("Fists of Fury Min Units"))
         and (energyTTM() > var.fofExecute - 1 or buff.stormEarthAndFire.remain())
     then
-        if cast.fistsOfFury(nil,"cone",1,8) then ui.debug("Casting Fists of Fury [AOE]") return true end
+        if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [AOE]") return true end
     end
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.rising_sun_kick.duration>cooldown.whirling_dragon_punch.remains+3)&(cooldown.fists_of_fury.remains>3|chi>=5)
@@ -1131,8 +1131,8 @@ local function runRotation()
     end
 
     -- Fixate - Storm, Earth, and Fire
-    if cast.able.stormEarthAndFireFixate("target") and ui.mode.sef == 1 and buff.stormEarthAndFire.exists()
-        and not talent.serenity and not cast.current.fistsOfFury() and not unit.isUnit(var.fixateTarget,"target")
+    if ui.mode.sef == 1 and not talent.serenity and cast.able.stormEarthAndFireFixate() and buff.stormEarthAndFire.exists()
+        and cast.timeSinceLast.stormEarthAndFire() > unit.gcd("true") and not cast.current.fistsOfFury() and not unit.isUnit(var.fixateTarget,"target")
     then
         if cast.stormEarthAndFireFixate("target") then var.fixateTarget = "target" ui.debug("Casting SEF [Fixate]") return true end
     end
