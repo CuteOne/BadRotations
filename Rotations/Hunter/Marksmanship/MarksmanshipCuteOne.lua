@@ -425,8 +425,8 @@ actionList.TrickShots = function()
             if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame [Trick Shots]") return true end
         end
         -- Blood of the Enemy
-        -- blood_of_the_enemy
-        if cast.able.bloodOfTheEnemy() then
+        -- blood_of_the_enemy,if=prev_gcd.1.volley|!talent.volley.enabled|target.time_to_die<11
+        if cast.able.bloodOfTheEnemy() and (cast.last.volley() or not talent.volley or unit.ttd(units.dyn40) < 11) then
             if cast.bloodOfTheEnemy() then ui.debug("Casting Blood of the Enemy [Trick Shots]") return true end
         end
         -- The Unbound Force
@@ -454,6 +454,11 @@ end -- End Action List - Trick Shots
 
 -- Action List - Single Target
 actionList.SingleTarget = function()
+    -- Steady Shot
+    -- steady_shot,if=talent.steady_focus.enabled&prev_gcd.1.steady_shot&buff.steady_focus.remains<5
+    if cast.able.steadyShot() and talent.steadFocus and cast.last.steadyShot() and buff.steadyFocus.remain() < 5 then
+        if cast.steadyShot() then ui.debug("Casting Steady Shot [Steady Focus]") return true end
+    end
     -- Kill Shot
     -- kill_shot
     if cast.able.killShot() and unit.hp(units.dyn40) < 20 then

@@ -563,10 +563,11 @@ actionList.St = function()
         if cast.bloodshed() then ui.debug("Casting Bloodshed") return true end
     end
     -- Barbed Shot
-    -- barbed_shot,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<gcd|cooldown.bestial_wrath.remains&(full_recharge_time<gcd|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd)
+    -- barbed_shot,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<gcd|cooldown.bestial_wrath.remains&(full_recharge_time<gcd|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd)|cooldown.bestial_wrath.remains<12+gcd&talent.scent_of_blood.enabled
     if cast.able.barbedShot(br.petTarget) and ((buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.1)
         or (cd.bestialWrath.remain() > unit.gcd(true) and (charges.barbedShot.timeTillFull() < unit.gcd(true)
-        or (traits.primalInstincts.active and ui.checked("Aspect of the Wild") and ui.useCDs() and cd.aspectOfTheWild.remain() < unit.gcd(true)))))
+        or (traits.primalInstincts.active and ui.checked("Aspect of the Wild") and ui.useCDs() and cd.aspectOfTheWild.remain() < unit.gcd(true)))
+        or cd.bestialWrath.remains() < 12 + unit.gcd(true) and talent.scentOfBlood))
     then
         if cast.barbedShot(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST 1] Casting Barbed Shot on "..unit.name(br.petTarget)) else ui.debug("[ST 1] Casting Barbed Shot on nil") end return end
     end
@@ -615,10 +616,10 @@ actionList.St = function()
         if cast.theUnboundForce() then ui.debug("Casting The Unbound Force") return true end
     end
     -- Bestial Wrath
-    -- bestial_wrath,if=talent.one_with_the_pack.enabled&buff.bestial_wrath.remains<gcd|buff.bestial_wrath.down&cooldown.aspect_of_the_wild.remains>15|target.time_to_die<15+gcd
+    -- bestial_wrath,if=talent.scent_of_blood.enabled|talent.one_with_the_pack.enabled&buff.bestial_wrath.remains<gcd|buff.bestial_wrath.down&cooldown.aspect_of_the_wild.remains>15|target.time_to_die<15+gcd
     if ui.mode.bestialWrath == 1 and cast.able.bestialWrath()
         and (ui.value("Bestial Wrath") == 2 or (ui.value("Bestial Wrath") == 1 and ui.useCDs()))
-        and (talent.oneWithThePack and buff.bestialWrath.remain() < unit.gcd(true)
+        and (talent.scentOfBlood or talent.oneWithThePack and buff.bestialWrath.remain() < unit.gcd(true)
             or not buff.bestialWrath.exists() and (cd.aspectOfTheWild.remain() > 15 or not ui.checked("Aspect of the Wild"))
             or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()))
     then
@@ -692,8 +693,8 @@ end -- End Action List - Single Target
 -- Action List - Cleave
 actionList.Cleave = function()
     -- Barbed Shot
-    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd.max
-    if cast.able.barbedShot(lowestBarbedShot) and (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.1) then
+    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd.max|cooldown.bestial_wrath.remains<12+gcd&talent.scent_of_blood.enabled
+    if cast.able.barbedShot(lowestBarbedShot) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.1 or cd.bestialWrath.remains() < 12 + unit.gcd(true) and talent.scentOfBlood then
         if cast.barbedShot(lowestBarbedShot) then if lowestBarbedShot ~= nil then ui.debug("[AOE 1] Casting Barbed Shot on "..unit.name(lowestBarbedShot)) else ui.debug("[AOE 1] Casting Barbed Shot on nil") end return end
     end
     -- Multishot
@@ -703,7 +704,7 @@ actionList.Cleave = function()
     then
         if cast.multishot() then ui.debug("Casting Multishot [AOE]") return true end
     end
-    -- Barbeb Shot
+    -- Barbed Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains
     if cast.able.barbedShot(lowestBarbedShot) and (charges.barbedShot.timeTillFull() < unit.gcd(true) and cd.bestialWrath.remain() > unit.gcd(true)) then
         if cast.barbedShot(lowestBarbedShot) then if lowestBarbedShot ~= nil then ui.debug("[AOE 2] Casting Barbed Shot on "..unit.name(lowestBarbedShot)) else ui.debug("[AOE 2] Casting Barbed Shot on nil") end return end
@@ -721,11 +722,10 @@ actionList.Cleave = function()
         if cast.stampede() then ui.debug("Casting Stampede [AOE]") return true end
     end
     -- Bestial Wrath
-    -- bestial_wrath,if=cooldown.aspect_of_the_wild.remains_guess>20|talent.one_with_the_pack.enabled|target.time_to_die<15
-    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath()
-        and (ui.value("Bestial Wrath") == 2 or (ui.value("Bestial Wrath") == 1 and ui.useCDs()))
-        and (not ui.checked("Aspect of the Wild") or (ui.value("Bestial Wrath") == 2 and not ui.useCDs()) or cd.aspectOfTheWild.remains() > 20 or talent.oneWithThePack)
-        and (unit.ttd(units.dyn40) > 15 or ui.useCDs())
+    -- bestial_wrath,if=talent.scent_of_blood.enabled|cooldown.aspect_of_the_wild.remains_guess>20|talent.one_with_the_pack.enabled|target.time_to_die<15
+    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath() and (ui.value("Bestial Wrath") == 2 or (ui.value("Bestial Wrath") == 1 and ui.useCDs()))
+        and (talent.scentOfBlood or not ui.checked("Aspect of the Wild") or (ui.value("Bestial Wrath") == 2 and not ui.useCDs())
+            or cd.aspectOfTheWild.remains() > 20 or talent.oneWithThePack or (unit.ttd(units.dyn40) > 15 or ui.useCDs()))
     then
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath [AOE]") return true end
     end
