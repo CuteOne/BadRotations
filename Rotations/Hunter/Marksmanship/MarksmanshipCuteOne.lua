@@ -538,14 +538,14 @@ actionList.SingleTarget = function()
     end
     -- Arcane Shot
     -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>55)|focus>75|target.time_to_die<5)
-    if cast.able.arcaneShot() and not buff.trueshot.exists() and ((buff.preciseShots.exists()
+    if cast.able.arcaneShot() and not talent.chimaeraShot and not buff.trueshot.exists() and ((buff.preciseShots.exists()
         and power.focus.amount() > 55) or power.focus.amount() > 75 or (unit.ttd(units.dyn40) < 5 and ui.useCDs()))
     then
         if cast.arcaneShot() then ui.debug("Casting Arcane Shot") return true end
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>55)|focus>75|target.time_to_die<5)
-    if cast.able.chimaeraShot() and (not buff.trueshot.exists() and ((buff.preciseShots.exists() and power.focus.amount() > 55)
+    if cast.able.chimaeraShot() and talent.chimaeraShot and (not buff.trueshot.exists() and ((buff.preciseShots.exists() and power.focus.amount() > 55)
         or power.focus.amount() > 75 or (unit.ttd(units.dyn40) < 5 and ui.useCDs())))
     then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot") return true end

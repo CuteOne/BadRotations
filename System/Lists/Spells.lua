@@ -1046,6 +1046,7 @@ br.lists.spells = {
             buffs                           = {
                 doubleTap                   = 260402,
                 feignDeath                  = 5384,
+                inTheRhythm                 = 272733,
                 lethalShots                 = 260395,
                 lockAndLoad                 = 194594,
                 masterMarksman              = 269576,
