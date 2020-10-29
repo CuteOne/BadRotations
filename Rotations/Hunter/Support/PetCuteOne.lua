@@ -288,8 +288,8 @@ br.rotations.support["PetCuteOne"] = {
                     if cast.dragonsGuile() then ui.debug("[Pet] Cast Dragon's Guile") return true end
                 end
                 -- Feather Flurry
-                if cast.able.feathgerFlurry() then 
-                    if cast.feathgerFlurry() then ui.debug("[Pet] Cast Feather Flurry") return true end
+                if cast.able.featherFlurry() then 
+                    if cast.featherFlurry() then ui.debug("[Pet] Cast Feather Flurry") return true end
                 end
                 -- Fleethoof
                 if cast.able.fleethoof() then 
