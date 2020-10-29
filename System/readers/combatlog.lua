@@ -620,9 +620,19 @@ end
 function cl:Priest(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     -- last VT
-    if param == "SPELL_CAST_SUCCESS" and spell == 34914 then
+    if lastVTTime == nil then
+        lastVTTime = -999999999
+    end
+    if param == "SPELL_CAST_START" and spell == 34914 then
         lastVTTarget = destination
         lastVTTime = GetTime()
+    end
+    if param == "SPELL_CAST_FAILED" then
+        if spellType == "Interrupted" then
+            --print("You moved")
+            lastVTTarget = nil
+            lastVTTime = 0
+        end
     end
     if not discHealCount then
         discHealCount = 0

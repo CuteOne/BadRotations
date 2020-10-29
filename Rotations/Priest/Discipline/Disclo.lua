@@ -768,7 +768,7 @@ local function runRotation()
     local localHealingCount = discHealCount
     ------------------------------
     ------- Start the Stuff ------
-    if pause(true) or drinking or isLooting() or (biggestGroup >= getOptionValue("Mind Sear - AoE - High Prio") and cast.current.mindSear()) then
+    if pause(true) or drinking or isLooting() or (biggestGroup >= getOptionValue("Mind Sear - AoE - High Prio") and cast.current.mindSear()) or cast.current.penance() then
         return true
     else
         if not inCombat then
