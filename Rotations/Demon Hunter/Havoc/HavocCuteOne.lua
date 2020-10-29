@@ -330,13 +330,17 @@ actionList.Cooldowns = function()
         end
         -- Metamorphosis
         if ui.checked("Metamorphosis") then
-            -- metamorphosis,if=!(talent.demonic.enabled|variable.pooling_for_meta)|target.time_to_die<25
-            if cast.able.metamorphosis() and (not (talent.demonic or var.poolForMeta) and unit.ttd(units.dyn5) >= 25) and #enemies.yards8 > 0 then
+            -- metamorphosis,if=!(talent.demonic.enabled|variable.pooling_for_meta)&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|target.time_to_die<25
+            if cast.able.metamorphosis() and (not (talent.demonic or var.poolForMeta)
+                -- and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5))
+                and unit.ttd(units.dyn5) >= 25) and #enemies.yards8 > 0
+            then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis") return true end
             end
-            -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled|(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)))
-            if cast.able.metamorphosis() and talent.demonic and (not traits.chaoticTransformation.active
-                or (cd.eyeBeam.remain() > 20 and (not var.bladeDance or cd.bladeDance.remain() > gcd))) and #enemies.yards8 > 0 
+            -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled&level<54|(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)))&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)
+            if cast.able.metamorphosis() and talent.demonic and (not traits.chaoticTransformation.active and unit.level() < 54
+                or (cd.eyeBeam.remain() > 20 and (not var.bladeDance or cd.bladeDance.remain() > gcd))) and #enemies.yards8 > 0
+                -- and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5))
             then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Demonic]") return true end
             end
@@ -596,6 +600,7 @@ actionList.Demonic = function()
         end
     end
     -- Demon's Bite
+    -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
     -- demons_bite
     if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit >= 30 then
         if cast.demonsBite(units.dyn5) then ui.debug("Casting Demon's Bite") return true end
@@ -723,6 +728,7 @@ actionList.Normal = function()
         if cast.eyeBeam(nil,"rect",1,20) then ui.debug("Casting Eye Beam [Blind Fury]") return true end
     end
     -- Demon's Bite
+    -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
     -- demons_bite
     if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit >= 30 then
         if cast.demonsBite(units.dyn5) then ui.debug("Casting Demon's Bite") return true end
