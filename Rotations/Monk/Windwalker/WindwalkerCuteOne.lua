@@ -248,7 +248,7 @@ actionList.Extras = function()
     local startTime = debugprofilestop()
     -- Tiger's Lust
     if ui.checked("Tiger's Lust") and cast.able.tigersLust() then
-        if unit.noControl() or (unit.inCombat() and unit.distance("target") > 10 and unit.valid("target")) then
+        if cast.noControl.tigersLust() or (unit.inCombat() and unit.distance("target") > 10 and unit.valid("target")) then
             if cast.tigersLust() then ui.debug("Casting Tiger's Lust") return true end
         end
     end
