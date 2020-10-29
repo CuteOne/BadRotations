@@ -356,7 +356,7 @@ actionList.TrickShots = function()
     -- Kill Shot
     -- kill_shot
     if cast.able.killShot() then
-        if cast.killShot() then unit.debug("Casting Kill Shot [Trick Shots]") return true end
+        if cast.killShot() then ui.debug("Casting Kill Shot [Trick Shots]") return true end
     end
     -- Volley
     -- volley
