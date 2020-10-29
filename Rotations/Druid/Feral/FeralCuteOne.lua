@@ -705,7 +705,7 @@ actionList.Cooldowns = function()
         -- Shadowmeld
         -- shadowmeld,if=buff.tigers_fury.up&buff.bs_inc.down&combo_points<4&dot.rake.pmultiplier<1.6&energy>40
         if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs()
-            and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not #br.friend < 2 and var.friendsInRange --findFriends() > 0
+            and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange --findFriends() > 0
         then
             if buff.tigersFury.exists() and not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()
                 and not buff.prowl.exists() and comboPoints < 4 and debuff.rake.applied(units.dyn5) < 1.6 and energy > 40
@@ -740,7 +740,7 @@ actionList.Cooldowns = function()
             if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 for i = 13, 14 do
                     local opValue = ui.value("Trinket "..i - 12)
-                    local useTrinket = (opValue == 1 or (opValue == 2 and (ui.ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.ui.useCDs()))
+                    local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
                     if use.able.slot(i) and useTrinket then
                         -- Ashvanes Razor Coral
                         -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|debuff.conductive_ink_debuff.up&target.time_to_pct_30<1.5|!debuff.conductive_ink_debuff.up&(debuff.razor_coral_debuff.stack>=25-10*debuff.blood_of_the_enemy.up|target.time_to_die<40)&buff.tigers_fury.remains>10
@@ -1285,7 +1285,7 @@ local function runRotation()
     energyDeficit   = power.energy.deficit()
     multidot        = ui.mode.cleave == 1 and ui.mode.rotation < 3
     var.lootDelay   = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
-    var.minCount    = ui.ui.useCDs() and 1 or 3
+    var.minCount    = ui.useCDs() and 1 or 3
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1332,11 +1332,13 @@ local function runRotation()
     var.incarnation = buff.incarnationKingOfTheJungle.exists() and 1 or 0
 
     -- Friends In Range
+    var.solo = #br.friend < 2
     var.friendsInRange = false
-    while not #br.friend < 2 and not var.friendsInRange do
+    if not var.solo then
         for i = 1, #br.friend do
             if unit.distance(br.friend[i].unit) < 15 then
                 var.friendsInRange = true
+                break
             end
         end
     end
