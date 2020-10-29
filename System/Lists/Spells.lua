@@ -299,6 +299,7 @@ br.lists.spells = {
                 epidemic                    = 207317,
                 festeringStrike             = 85948,
                 outbreak                    = 77575,
+                raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 -- Pet Abilities
                 claw                        = 47468,

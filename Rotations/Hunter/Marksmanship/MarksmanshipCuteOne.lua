@@ -355,7 +355,7 @@ end -- End Action List - Cooldowns
 actionList.TrickShots = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() then
+    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
         if cast.killShot() then ui.debug("Casting Kill Shot [Trick Shots]") return true end
     end
     -- Volley
@@ -456,7 +456,7 @@ end -- End Action List - Trick Shots
 actionList.SingleTarget = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() then
+    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
         if cast.killShot() then ui.debug("Casting Kill Shot") return true end
     end
     -- Explosive Shot
