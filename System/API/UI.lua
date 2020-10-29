@@ -47,8 +47,10 @@ br.api.ui = function(self)
         end
     end
     if ui.useAOE == nil then
-        ui.useAOE = function()
-            return (ui.mode.rotation == 1 and #self.enemies.get(8) >= 3) or ui.mode.rotation == 2
+        ui.useAOE = function(range,minCount)
+            if range == nil then range = 8 end
+            if minCount == nil then minCount = 3 end
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range) >= minCount) or (ui.mode.rotation == 2 and #self.enemies.get(range) > 0))
         end
     end
     if ui.useCDs == nil then
@@ -68,6 +70,13 @@ br.api.ui = function(self)
     if ui.useInterrupt == nil then
         ui.useInterrupt = function()
             return ui.mode.interrupt == 1
+        end
+    end
+    if ui.useST == nil then
+        ui.useST = function(range,minCount)
+            if range == nil then range = 8 end
+            if minCount == nil then minCount = 3 end
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range) < minCount) or (ui.mode.rotation == 3 and #self.enemies.get(range) > 0))
         end
     end
     if ui.print == nil then
