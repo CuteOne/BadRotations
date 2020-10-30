@@ -488,7 +488,7 @@ actionList.Cooldowns = function()
         end
         -- unholy_assault,target_if=min:debuff.festering_wound.stack,if=active_enemies>=2&debuff.festering_wound.stack<2
         if ui.useAOE(8,2) and var.fwoundLowest < 2 then
-            if cast.unholyAssault(var.fwoundLowUnit) then ui.debuf("Casting Unholy Assault [AOE]") return true end
+            if cast.unholyAssault(var.fwoundLowUnit) then ui.debug("Casting Unholy Assault [AOE]") return true end
         end
     end
     -- Soul Reaper
@@ -711,7 +711,7 @@ actionList.Single = function()
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [No Apocalypse Soon]") return true end
         end
         -- wound_spender,if=debuff.festering_wound.up&talent.unholy_blight.enabled&cooldown.unholy_blight.remains>5&!talent.army_of_the_damned.enabled&!conduit.convocation_of_the_dead.enabled&!cooldown.apocalypse.ready&!raid_event.adds.exists
-        if debuff.festeringWound.exist(unit.dyn5) and talent.unholyBlight and cd.unholyBlight.remains() > 5
+        if debuff.festeringWound.exists(unit.dyn5) and talent.unholyBlight and cd.unholyBlight.remains() > 5
             and not talent.armyOfTheDamned --[[and not conduit.convocationOfTheDead]] and cd.apocalypse.exists() and ui.useST(8,2)
         then
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - Unholy Blight]") return true end
