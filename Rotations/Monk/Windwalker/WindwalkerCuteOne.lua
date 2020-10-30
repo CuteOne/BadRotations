@@ -73,6 +73,7 @@ local function createOptions()
             -- Fists of Fury
             br.ui:createSpinnerWithout(section, "Fists of Fury Min Units", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Fists of Fury on.")
             -- Whirling Dragon Punch
+            br.ui:createCheckbox(section, "Whirling Dragon Punch")
             br.ui:createSpinnerWithout(section, "Whirling Dragon Punch Min Units", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Whirling Dragon Punch on.")
             -- Disable
             br.ui:createCheckbox(section, "Disable")
