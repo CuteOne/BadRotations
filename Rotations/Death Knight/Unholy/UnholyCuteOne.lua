@@ -705,7 +705,7 @@ actionList.Single = function()
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - High Wound Stack]") return true end
         end
         -- wound_spender,if=debuff.festering_wound.up&cooldown.apocalypse.remains>5&(!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled|raid_event.adds.exists)
-        if debuff.festeringWound.exist(unit.dyn5) and cd.apocalypse.remains() > 5 
+        if debuff.festeringWound.exists(unit.dyn5) and cd.apocalypse.remains() > 5 
             and (not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]] or ui.useAOE(8,2))
         then
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [No Apocalypse Soon]") return true end
