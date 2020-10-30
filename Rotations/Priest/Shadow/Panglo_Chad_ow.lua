@@ -462,7 +462,7 @@ local function runRotation()
         end
     end
     local function CwC()
-        if voidForm and cast.able.voidBolt() then
+        if voidForm and cast.able.voidBolt() and inCombat then
             if cast.voidBolt() then
                 return
             end
@@ -552,6 +552,15 @@ local function runRotation()
             end
         end
 
+        for i= 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if power >= 65 and ttd(thisUnit) >=6 and not talent.searingNightmare then
+                if cast.devouringPlague(thisUnit) then
+                    return 
+                end
+            end
+        end
+
         if dotsUP and #enemies.yards10t >= getOptionValue("Mind Sear Units") and not cast.current.mindSear() and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
@@ -568,15 +577,6 @@ local function runRotation()
         if dotsUP and not cast.current.mindSear() and #enemies.yards10t >= 2 and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
-            end
-        end
-
-        for i= 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if power >= 65 and ttd(thisUnit) >=6 and not talent.searingNightmare then
-                if cast.devouringPlague(thisUnit) then
-                    return 
-                end
             end
         end
 
@@ -666,7 +666,7 @@ local function runRotation()
         return true
     end
     if CwC() then return end
-    if pause(true) then
+    if pause() and not (cast.current.mindFlay() or cast.current.mindSear()) then
         return true
     else
         -- combat check
