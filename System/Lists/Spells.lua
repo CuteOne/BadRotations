@@ -327,6 +327,7 @@ br.lists.spells = {
             debuffs                         = {
                 festeringWound              = 194310,
                 soulReaper                  = 343294,
+                unholyBlight                = 115994,
                 virulentPlague              = 191587,
             },
             glyphs                          = {
