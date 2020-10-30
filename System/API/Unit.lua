@@ -13,7 +13,12 @@ br.api.unit = function(self)
     ----------------
     --- Unit API ---
     ----------------
-
+    -- Aberration
+    unit.aberration = function(thisUnit)
+        local isAberration = _G["isAberration"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isAberration(thisUnit)
+    end
     -- Can Attack
     unit.canAttack = function(thisUnit,playerUnit)
         local UnitCanAttack = _G["UnitCanAttack"]
@@ -40,6 +45,12 @@ br.api.unit = function(self)
     unit.deadOrGhost = function(thisUnit)
         local UnitIsDeadOrGhost = _G["UnitIsDeadOrGhost"]
         return UnitIsDeadOrGhost(thisUnit)
+    end
+    -- Demon
+    unit.demon = function(thisUnit)
+        local isDemon = _G["isDemon"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isDemon(thisUnit)
     end
     -- Distance
     unit.distance = function(thisUnit,otherUnit)
@@ -201,6 +212,19 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "target" end
         return UnitGroupRolesAssigned(thisUnit)
     end
+    -- Start Attack
+    unit.startAttack = function(thisUnit,autoShoot)
+        local IsCurrentSpell = _G["IsCurrentSpell"]
+        local StartAttack = _G["StartAttack"]
+        if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
+            StartAttack(thisUnit)
+            if autoShoot then 
+                self.ui.debug("Casting Auto Shot")
+            else
+                self.ui.debug("Casting Auto Attack")
+            end
+        end
+    end
     -- Swimming
     unit.swimming = function()
         local IsSwimming = _G["IsSwimming"]
@@ -217,6 +241,22 @@ br.api.unit = function(self)
         local getTTD = _G["getTTD"]
         if thisUnit == nil then thisUnit = "target" end
         return getTTD(thisUnit,percent)
+    end
+    -- Time Till Death Group
+    unit.ttdGroup = function(range,percent)
+        local getTTD = _G["getTTD"]
+        if range == nil then range = 5 end
+        local enemies = self.enemies.get(range)
+        local groupTTD = 0
+        for i = 1, #enemies do
+            groupTTD = groupTTD + getTTD(enemies[i],percent)
+        end
+        return groupTTD
+    end
+    -- Undead
+    unit.undead = function(thisUnit)
+        local isUndead = _G["isUndead"]
+        return isUndead(thisUnit)
     end
     -- Valid
     unit.valid = function(thisUnit)

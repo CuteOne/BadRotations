@@ -1987,17 +1987,11 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                avengingWrath               = 31884,
                 crusade                     = 231895,
                 divinePurpose               = 223819,
                 divineRight                 = 278523,
-                divineSteed                 = 221886,
-                empyreanPower               = 286393,
-                greaterBlessingOfKings      = 203538,
-                greaterBlessingOfWisdom     = 203539,
-                inquisition                 = 84963,
+                empyreanPower               = 326733, --286393,
                 selflessHealer              = 114250,
-                theFiresOfJustice           = 209785,
             },
             debuffs                         = {
                 executionSentence           = 267798,
@@ -2059,17 +2053,23 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                avengingWrath               = 31884,
                 consecration                = 26573,
+                concentrationAura           = 317920,
+                crusaderAura                = 32223,
+                devotionAura                = 465,
                 divineShield                = 642,
                 divineSteed                 = 190784,
                 blessingOfProtection        = 1022,
                 holyAvenger                 = 105809,
+                retributionAura             = 183435,
                 seraphim                    = 152262,
             },
             debuffs                         = {
+                blindingLight               = 105421,
                 forbearance                 = 25771,
                 hammerOfJustice             = 853,
-                blindingLight               = 105421,
+                turnEvil                    = 10326
             },
             glyphs                          = {
                 glyphOfFireFromHeavens      = 57954,

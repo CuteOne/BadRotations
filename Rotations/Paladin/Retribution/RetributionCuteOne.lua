@@ -31,12 +31,13 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
     };
     CreateButton("Interrupt",4,0)
-    -- Hold Wake
-    WakeModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Use wake", tip = "Use wake", highlight = 1, icon = br.player.spell.wakeOfAshes},
-        [2] = { mode = "Off", value = 2 , overlay = "Don't use wake", tip = "Don't use wake", highlight = 0, icon = br.player.spell.wakeOfAshes}
+    -- Aura
+    AuraModes = {
+        [1] = { mode = "Con", value = 1 , overlay = "Concentration Aura", tip = "Use Concentration Aura", highlight = 0, icon = br.player.spell.concentrationAura},
+        [2] = { mode = "Dev", value = 2 , overlay = "Devotion Aura", tip = "Use Devotion Aura", highlight = 0, icon = br.player.spell.devotionAura},
+        [3] = { mode = "Ret", value = 2 , overlay = "Retribution Aura", tip = "Use Retribution Aura", highlight = 0, icon = br.player.spell.retributionAura},
     };
-    CreateButton("Wake",5,0)
+    CreateButton("Aura",5,0)
 end
 ---------------
 --- OPTIONS ---
@@ -46,28 +47,20 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
+        local playTarMouseFocLow = {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFLowest"}
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Opener
-            br.ui:createCheckbox(section, "Opener")
-            -- Greater Blessing of Might
-            -- br.ui:createCheckbox(section, "Greater Blessing of Might
-            -- Greater Blessing of Kings
-            br.ui:createCheckbox(section, "Greater Blessing of Kings")
-            -- Greater Blessing of Wisdom
-            br.ui:createCheckbox(section, "Greater Blessing of Wisdom")
             -- Blessing of Freedom
-            br.ui:createCheckbox(section, "Blessing of Freedom")
+            br.ui:createDropdown(section, "Blessing of Freedom", playTarMouseFocLow, 1, "|cffFFFFFFTarget to Cast On")
             -- Hand of Hinderance
             br.ui:createCheckbox(section, "Hand of Hinderance")
             -- Divine Storm Units
-            br.ui:createSpinnerWithout(section, "Divine Storm Units",  2,  2,  3,  1,  "|cffFFBB00Units to use Divine Storm.")
+            br.ui:createSpinnerWithout(section, "Divine Storm Units",  2,  1,  5,  1,  "|cffFFBB00Units to use Divine Storm.")
             -- Heart Essence
             br.ui:createCheckbox(section, "Use Essence")
         br.ui:checkSectionState(section)
@@ -76,7 +69,7 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Potion
-            br.ui:createCheckbox(section,"Potion")
+            -- br.ui:createCheckbox(section,"Potion")
             -- FlaskUp Module
             br.player.module.FlaskUp("Strength",section)
             -- Racial
@@ -84,13 +77,21 @@ local function createOptions()
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
             -- Avenging Wrath
-            br.ui:createCheckbox(section,"Avenging Wrath")
-            -- Cruusade
-            br.ui:createCheckbox(section,"Crusade")
-            -- Holy Wrath
-            br.ui:createCheckbox(section,"Holy Wrath")
+            br.ui:createDropdownWithout(section, "Avenging Wrath", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
+            -- Crusade
+            br.ui:createDropdownWithout(section, "Crusade", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
+            -- Execution Sentence
+            br.ui:createDropdownWithout(section, "Execution Sentence", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
+            -- Final Reckoning
+            br.ui:createDropdownWithout(section, "Final Reckoning", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
+            -- Holy Avenger
+            br.ui:createDropdownWithout(section, "Holy Avenger", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
+            -- Seraphim            
+            br.ui:createDropdownWithout(section, "Seraphim", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
             -- Shield of Vengeance
-            br.ui:createCheckbox(section,"Shield of Vengeance - CD")
+            br.ui:createDropdownWithout(section, "Shield of Vengeance - CD", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
+            -- Wake of Ashes
+            br.ui:createDropdownWithout(section, "Wake of Ashes", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -99,42 +100,52 @@ local function createOptions()
             -- Basic Healing Module
             br.player.module.BasicHealing(section)
             -- Blessing of Protection
-            br.ui:createSpinner(section, "Blessing of Protection",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Blessing of Protection",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createDropdownWithout(section, "Blessing of Protection Target", playTarMouseFocLow, 5, "|cffFFFFFFTarget for Blessing of Protection")
+           -- Blessing of Sacrifice
+            br.ui:createDropdown(section, "Blessing of Sacrifice", playTarMouseFocLow, 5, "|cffFFFFFFTarget for Blessing of Sacrifice")
+            br.ui:createSpinnerWithout(section, "Friendly HP", 30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinnerWithout(section, "Personal HP Limit", 80,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            -- Blinding Light
+            br.ui:createSpinner(section, "Blinding Light", 40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinnerWithout(section, "Blinding Light Units", 3, 1, 5, 1, "|cffFFFFFFUnits to Cast On")
             -- Cleanse Toxin
-            br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
+            br.ui:createDropdown(section, "Cleanse Toxin", playTarMouseFocLow, 1, "|cffFFFFFFTarget to Cast On")
             -- Divine Shield
-            br.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Divine Shield",  35,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Eye for an Eye
-            br.ui:createSpinner(section, "Eye for an Eye", 50, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
-            -- Shield of Vengeance
-            br.ui:createSpinner(section,"Shield of Vengeance", 90, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Eye for an Eye", 40, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Flash of Light
             br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createDropdownWithout(section, "Flash of Light Target", playTarMouseFocLow, 5, "|cffFFFFFFTarget for Flash of Light")
             -- Hammer of Justice
-            br.ui:createSpinner(section, "Hammer of Justice - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            br.ui:createCheckbox(section, "Hammer of Justice - Legendary")
+            br.ui:createSpinner(section, "Hammer of Justice - HP",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Justicar's Vengeance
-            br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at over Templar's Verdict.")
+            br.ui:createSpinner(section, "Justicar's Vengeance",  45,  0,  100,  5,  "|cffFFBB00Health Percentage to use at over Templar's Verdict.")
             -- Lay On Hands
             br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "","Health Percentage to use at")
-            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
+            br.ui:createDropdownWithout(section, "Lay on Hands Target", playTarMouseFocLow, 5, "|cffFFFFFFTarget for Lay On Hands")
             -- Redemption
-            br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
+            br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover","|cffFFFFFFFocus"}, 1, "|cffFFFFFFTarget to Cast On")
+            -- Shield of Vengeance
+            br.ui:createSpinner(section,"Shield of Vengeance", 55, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
+            -- Turn Evil
+            br.ui:createCheckbox(section, "Turn Evil")
             -- Word of Glory
-            br.ui:createSpinner(section, "Word of Glory", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            -- Auto-Heal
-            br.ui:createDropdownWithout(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
+            br.ui:createSpinner(section, "Word of Glory", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+            -- Blinding Light 
+            br.ui:createCheckbox(section, "Blinding Light - Int")
             -- Hammer of Justice
             br.ui:createCheckbox(section, "Hammer of Justice")
             -- Rebuke
             br.ui:createCheckbox(section, "Rebuke")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -183,6 +194,12 @@ local var
 ------------------------
 --- Custom Functions ---
 ------------------------
+local alwaysCdNever = function(option)
+    if option == "Racial" then GetSpellInfo(br.player.spell.racial) end
+    local thisOption = ui.value(option)
+    return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+end
+
 local canGlory = function()
     local optionValue = ui.value("Word of Glory")
     local otherCounter = 0
@@ -216,15 +233,61 @@ local canGlory = function()
     return false
 end
 
+local getHealUnitOption = function(option,checkForbearance)
+    local thisTar = ui.value(option)
+    local thisUnit
+    if thisTar == 1 then thisUnit = "player" end
+    if thisTar == 2 then thisUnit = "target" end
+    if thisTar == 3 then thisUnit = "mouseover" end
+    if thisTar == 4 then thisUnit = "focus" end
+    if thisTar == 5 then 
+        thisUnit = var.lowestUnit
+        -- Get the next lowest unit if lowest unit has Forbearance debuff
+        if checkForbearance and #br.friend > 1 and debuff.forbearance.exists(thisUnit) then
+            for i = 1, #br.friend do
+                local nextUnit = br.friend[i].unit
+                if not debuff.forbearance.exists(nextUnit) then
+                    thisUnit = nextUnit
+                    break
+                end
+            end
+        end
+    end
+    return thisUnit
+end
+
+local findEvil = function()
+    for i = 1, #enemies.yards20 do
+        local thisUnit = enemies.yards20[i]
+        if unit.undead() or unit.aberration() or unit.demon() then
+            return thisUnit
+        end
+    end
+end
+
 --------------------
 --- Action Lists ---
 --------------------
 local actionList = {}
 -- Action List - Extras
 actionList.Extras = function()
+    -- Dummy Test
+    if ui.checked("DPS Testing") and unit.isDummy() then
+        if unit.exists("target") then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) then
+                StopAttack()
+                ClearTarget()
+                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                var.profileStop = true
+            end
+        end
+    end
     -- Blessing of Freedom
-    if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() and cast.noControl.blessingOfFreedom() then
-        if cast.blessingOfFreedom() then ui.debug("Casting Blessing of Freedom") return true end
+    if ui.checked("Blessing of Freedom") then
+        local thisUnit = getHealUnitOption("Blessing of Freedom")
+        if cast.able.blessingOfFreedom(thisUnit) and cast.noControl.blessingOfFreedom(thisUnit) and unit.distance(thisUnit) < 40 then
+            if cast.blessingOfFreedom(thisUnit) then ui.debug("Casting Blessing of Freedom") return true end
+        end
     end
     -- Hand of Hinderance
     if ui.checked("Hand of Hinderance") and cast.able.handOfHinderance("target") and unit.moving("target")
@@ -232,85 +295,73 @@ actionList.Extras = function()
     then
         if cast.handOfHinderance("target") then ui.debug("Casting Hand of Hinderance on "..unit.name("target")) return true end
     end
-    -- Greater Blessing of Might
-    -- if ui.checked("Greater Blessing of Might") and greaterBuff < 3 then
-    --     for i = 1, #br.friend do
-    --         local thisUnit = br.friend[i].unit
-    --         local unitRole = UnitGroupRolesAssigned(thisUnit)
-    --         if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) == nil and (unitRole == "DAMAGER" or solo) then
-    --             if cast.greaterBlessingOfMight(thisUnit) then return end
-    --         end
-    --     end
-    -- end
-    -- -- Greater Blessing of Kings
-    -- if ui.checked("Greater Blessing of Kings") and cast.able.greaterBlessingOfKings(kingsUnit)
-    --     and buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and not var.mounted()
-    -- then
-    --     if cast.greaterBlessingOfKings(kingsUnit) then ui.debug("Casting Greater Blessing of Kings on "..unit.name(kingsUnit)) return true end
-    -- end
-    -- -- Greater Blessing of Wisdom
-    -- if ui.checked("Greater Blessing of Wisdom") and cast.able.greaterBlessingOfWisdom(wisdomUnit)
-    --     and buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and not var.mounted()
-    -- then
-    --     if cast.greaterBlessingOfWisdom(wisdomUnit) then ui.debug("Casting Greater Blessing of Wisdom on "..unit.name(wisdomUnit)) return true end
-    -- end
 end -- End Action List - Extras
 -- Action List - Defensives
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Lay On Hands
-        if ui.checked("Lay On Hands") and unit.inCombat() then
-            local lohTar = ui.value("Lay on Hands Target")
-            local lohUnit
-            if lohTar == 1 then lohUnit = "player" end
-            if lohTar == 2 then lohUnit = "target" end
-            if lohTar == 3 then lohUnit = "mouseover" end
-            if lohTar >= 4 then lohUnit = var.lowestUnit end
-            if cast.able.layOnHands(lohUnit) and unit.hp(lohUnit) <= ui.value("Lay On Hands") then
-                if cast.layOnHands(lohUnit) then
-                    ui.debug("Casting Lay On Hands on "..unit.name(lohUnit).." ["..unit.hp(lohUnit).."% Remaining]")
-                    return true
-                end
-            end
-        end
-        -- Divine Shield
-        if ui.checked("Divine Shield") and cast.able.divineShield() then
-            if unit.hp() <= ui.value("Divine Shield") and unit.inCombat() then
-                if cast.divineShield() then ui.debug("Casting Divine Shield") return true end
-            end
-        end
         -- Basic Healing Module
         module.BasicHealing()
         -- Blessing of Protection
-        if ui.checked("Blessing of Protection") and cast.able.blessingOfProtection(var.lowestUnit) then
-            if unit.hp(var.lowestUnit) < ui.value("Blessing of Protection") and unit.inCombat() then
-                if cast.blessingOfProtection(var.lowestUnit) then
-                    ui.debug("Casting Blessing of Protection on "..unit.name(var.lowestUnit).." ["..unit.hp(var.lowestUnit).."% Remaining]")
+        if ui.checked("Blessing of Protection",true) then
+            local thisUnit = getHealUnitOption("Blessing of Protection Target")
+            if cast.able.blessingOfProtection(thisUnit) and unit.inCombat(thisUnit) and not debuff.forbearance.exists(thisUnit)
+                and unit.hp(thisUnit) < ui.value("Blessing of Protection") and unit.distance(thisUnit) < 40
+            then
+                if cast.blessingOfProtection(thisUnit) then
+                    ui.debug("Casting Blessing of Protection on "..unit.name(thisUnit).." ["..unit.hp(thisUnit).."% Remaining]")
                     return true
                 end
             end
         end
+        -- Blessing of Sacrifice
+        if ui.checked("Blessing of Sacrifice") then
+            local thisUnit = getHealUnitOption("Blessing of Sacrifice")
+            if cast.able.blessingOfSacrifice(thisUnit) and unit.inCombat(thisUnit) and unit.distance(thisUnit) < 40
+                and unit.hp(thisUnit) < ui.value("Friendly HP") and unit.hp() >= ui.value("Personal HP Limit")
+            then
+                if cast.blessingOfSacrifice(thisUnit) then
+                    ui.debug("Casting Blessing of Sacrifice on "..unit.name(thisUnit).." ["..unit.hp(thisUnit).."% Remaining]")
+                    return true
+                end
+            end
+        end
+        -- Blinding Light
+        if ui.checked("Blinding Light") and unit.inCombat() and #enemies.yards10 >= ui.value("Blinding Light Units") and unit.hp() < ui.value("Blinding Light") then
+            if cast.blindingLight() then ui.debug("Casting Blinding Light") return true end
+        end
         -- Cleanse Toxins
         if ui.checked("Cleanse Toxins") then
-            local cleanseTar = ui.value("Cleanse Toxins")
-            local cleanseUnit
-            if cleanseTar == 1 then cleanseUnit = "player" end
-            if cleanseTar == 2 then cleanseUnit = "target" end
-            if cleanseTar == 3 then cleanseUnit = "mouseover" end
-            if cast.able.clenseToxins(cleanseUnit) and cast.dispel.cleanseToxins(cleanseUnit) then
-                if cast.cleanseToxins(cleanseUnit) then ui.debug("Casting Cleanse Toxins on "..unit.name(cleanseUnit)) return true end
+            local thisUnit = getHealUnitOption("Cleanse Toxin")
+            if cast.able.clenseToxins(thisUnit) and cast.dispel.cleanseToxins(thisUnit) then
+                if cast.cleanseToxins(thisUnit) then ui.debug("Casting Cleanse Toxins on "..unit.name(thisUnit)) return true end
+            end
+        end
+        -- Divine Shield
+        if ui.checked("Divine Shield") and cast.able.divineShield() and unit.inCombat() then
+            if unit.hp() <= ui.value("Divine Shield") and not debuff.forbearance.exists("player") then
+                if cast.divineShield() then ui.debug("Casting Divine Shield") return true end
             end
         end
         -- Eye for an Eye
-        if ui.checked("Eye for an Eye") and cast.able.eyeForAnEye() then
-            if unit.hp() <= ui.value("Eye for an Eye") and unit.inCombat() then
+        if ui.checked("Eye for an Eye") and cast.able.eyeForAnEye() and unit.inCombat() then
+            if unit.hp() <= ui.value("Eye for an Eye") and #enemies.yards5 > 0 then
                 if cast.eyeForAnEye() then ui.debug("Casting Eye For An Eye") return true end
             end
         end
-        -- Shield of Vengeance
-        if ui.checked("Shield of Vengeance") and cast.able.shieldOfVengeance() then
-            if unit.hp() <= ui.value("Shield of Vengeance") and unit.inCombat() then
-                if cast.shieldOfVengeance() then ui.debug("Casting Shield of Vengeance") return true end
+        -- Flash of Light
+        if ui.checked("Flash of Light") and not (unit.mounted() or unit.flying()) then
+            local thisUnit = getHealUnitOption("Flash of Light Target")
+            if cast.able.flashOfLight(thisUnit) and unit.distance(thisUnit) < 40 then
+                -- Instant Cast
+                if talent.selflessHealer and buff.selflessHealer.stack() == 4 then
+                    -- Don't waste instant heal!
+                    thisUnit = unit.hp(thisUnit) <= ui.value("Flash of Light") and thisUnit or var.lowestUnit
+                    if cast.flashOfLight(thisUnit) then ui.debug("Casting Flash of Light on "..unit.name(thisUnit).." [Instant]") return true end
+                end
+                -- Long Cast
+                if not unit.moving("player") and (var.forceHeal or (unit.inCombat() and unit.hp(thisUnit) <= ui.value("Flash of Light")) or (not unit.inCombat() and unit.hp(thisUnit) <= 90)) then
+                    if cast.flashOfLight(thisUnit) then ui.debug("Casting Flash of Light on "..unit.name(thisUnit).." [Long]") return true end
+                end
             end
         end
         -- Hammer of Justice
@@ -320,9 +371,21 @@ actionList.Defensive = function()
             end
         end
         -- Justicar's Vengeance
-        if ui.checked("Justicar's Vengeance") and cast.able.justicarsVengeance() and holyPower >= 5 then
+        if ui.checked("Justicar's Vengeance") and cast.able.justicarsVengeance() and unit.inCombat() and holyPower >= 5 then
             if unit.hp() <= ui.value("Justicar's Vengeance") then
                 if cast.justicarsVengeance() then ui.debug("Casting Justicar's Vengeance") return true end
+            end
+        end
+        -- Lay On Hands
+        if ui.checked("Lay On Hands") then
+            local thisUnit = getHealUnitOption("Lay On Hands Target",true)
+            if cast.able.layOnHands(thisUnit) and unit.inCombat(thisUnit) and not debuff.forbearance.exists(thisUnit)
+                and unit.hp(thisUnit) <= ui.value("Lay On Hands") and unit.distance(thisUnit) < 40
+            then
+                if cast.layOnHands(thisUnit) then
+                    ui.debug("Casting Lay On Hands on "..unit.name(thisUnit).." ["..unit.hp(thisUnit).."% Remaining]")
+                    return true
+                end
             end
         end
         -- Redemption
@@ -331,46 +394,45 @@ actionList.Defensive = function()
             local redemptionUnit
             if redemptionTar == 1 then redemptionUnit = "target" end
             if redemptionTar == 2 then redemptionUnit = "mouseover" end
+            if redemptionTar == 3 then redemptionUnit = "focus" end
             if cast.able.redemption(redemptionUnit,"dead") then
                 if cast.redemption(redemptionUnit,"dead") then ui.debug("Casting Redemption on "..unit.name(redemptionUnit)) return true end
+            end
+        end
+        -- Shield of Vengeance
+        if ui.checked("Shield of Vengeance") and cast.able.shieldOfVengeance() and unit.inCombat() then
+            if unit.hp() <= ui.value("Shield of Vengeance") and unit.ttdGroup(8) > 15 then
+                if cast.shieldOfVengeance() then ui.debug("Casting Shield of Vengeance") return true end
+            end
+        end
+        -- Turn Evil
+        if ui.checked("Turn Evil") and unit.inCombat() then
+            local thisUnit = findEvil()
+            if cast.able.turnEvil(thisUnit) and unit.hp() < ui.value("Turn Evil") and not debuff.turnEvil.exists(var.turnedEvil) then
+                if cast.turnEvil(thisUnit) then ui.debug("Casting Turn Evil") var.turnedEvil = thisUnit return true end
             end
         end
         -- Word of Glory
         if ui.checked("Word of Glory") and talent.wordOfGlory and cast.able.wordOfGlory() and canGlory() then
             if cast.wordOfGlory(var.thisGlory) then ui.debug("Casting Word of Glory on "..unit.name(var.thisGlory)) return true end
         end
-        -- Flash of Light
-        if ui.checked("Flash of Light") and cast.able.flashOfLight() and not (unit.mounted() or unit.flying())
-            and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1
-            and unit.distance(br.friend[1].unit) < 40))
-        then
-            local folHP = unit.hp()
-            local folUnit = "player"
-            local lowUnit = unit.lowest(40)
-            local fhp = unit.hp(lowUnit)
-            local folValue = ui.value("Flash of Light")
-            if ui.value("Auto Heal") == 1 then folHP = fhp; folUnit = lowUnit end
-            -- Instant Cast
-            if talent.selflessHealer and folHP <= folValue and buff.selflessHealer.stack() == 4 then
-                if cast.flashOfLight(folUnit) then ui.debug("Casting Flash of Light on "..unit.name(folUnit).." [Instant]") return true end
-            end
-            -- Long Cast
-            folHP = unit.hp(br.friend[1].unit)
-            if not unit.moving("player") and (var.forceHeal or (unit.inCombat() and folHP <= folValue / 2) or (not unit.inCombat() and folHP <= folValue)) then
-                if cast.flashOfLight(folUnit) then ui.debug("Casting Flash of Light on "..unit.name(folUnit).." [Long]") return true end
-            end
-        end
     end
 end -- End Action List - Defensive
 -- Action List - Interrupts
 actionList.Interrupts = function()
     if ui.useInterrupt() then
-        for i = 1, #enemies.yards10 do
-            local thisUnit = enemies.yards10[i]
+        for i = 1, #enemies.yards20 do
+            local thisUnit = enemies.yards20[i]
             local distance = unit.distance(thisUnit)
             if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                -- Blinding Light
+                if ui.checked("Blinding Light - Int") and cast.able.blindingLight(thisUnit) and distance < 10
+                    and ((cd.rebuke.remains() > unit.gcd() or distance >= 5) and cd.hammerOfJustice.remains() > unit.gcd())
+                then
+                    if cast.blindingLight() then ui.debug("Casting Blinding Light [Interrupt]") return true end
+                end
                 -- Hammer of Justice
-                if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(thisUnit) and distance < 10 and (not cast.able.rebuke() or distance >= 5) then
+                if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(thisUnit) and distance < 10 and (cd.rebuke.remains() > unit.gcd() or distance >= 5) then
                     if cast.hammerOfJustice(thisUnit) then ui.debug("Casting Hammer of Justice [Interrupt]") return true end
                 end
                 -- Rebuke
@@ -383,149 +445,149 @@ actionList.Interrupts = function()
 end -- End Action List - Interrupts
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if (ui.useCDs() or var.burst) and unit.distance(units.dyn5) < 5 then
-        -- -- Potion
-        -- -- potion,if=(cooldown.guardian_of_azeroth.remains>90|!essence.condensed_lifeforce.major)&(buff.bloodlust.react|buff.avenging_wrath.up&buff.avenging_wrath.remains>18|buff.crusade.up&buff.crusade.remains<25)
-        -- if ui.checked("Potion") and use.able.potionOfFocusedResolve() and unit.instance("raid") then
-        --     if (cd.guardianOfAzeroth.remain() > 90 or not essence.condensedLifeForce.active)
-        --         and (hasBloodlust() or (buff.avengingWrath.exists() and buff.avengingWrath.remain() > 18)
-        --             or (buff.crusade.exists() and buff.crusade.remain() < 25))
-        --     then
-        --         use.potionOfFocusedResolve()
-        --         ui.debug("Used Potion of Focused Resolve")
-        --     end
-        -- end
-        -- Racial
-        if ui.checked("Racial") and cast.able.racial() then
-            -- lights_judgment,if=spell_targets.lights_judgment>=2|(!raid_event.adds.exists|raid_event.adds.in>75)
-            if race == "LightforgedDraenei" and ui.useAOE() then
-                if cast.racial() then ui.debug("Casting Racial: Lightforged Draenei") return true end
-            end
-            -- fireblood,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
-            if race == "DarkIronDwarf" and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)
-            or (talent.crusade and not ui.checked("Crusade")))
-            then
-                if cast.racial() then ui.debug("Casting Racial: Dark Iron Dwarf") return true end
-            end
+    -- -- Potion
+    -- -- potion,if=(cooldown.guardian_of_azeroth.remains>90|!essence.condensed_lifeforce.major)&(buff.bloodlust.react|buff.avenging_wrath.up&buff.avenging_wrath.remains>18|buff.crusade.up&buff.crusade.remains<25)
+    -- if ui.checked("Potion") and use.able.potionOfFocusedResolve() and unit.instance("raid") then
+    --     if (cd.guardianOfAzeroth.remain() > 90 or not essence.condensedLifeForce.active)
+    --         and (hasBloodlust() or (buff.avengingWrath.exists() and buff.avengingWrath.remain() > 18)
+    --             or (buff.crusade.exists() and buff.crusade.remain() < 25))
+    --     then
+    --         use.potionOfFocusedResolve()
+    --         ui.debug("Used Potion of Focused Resolve")
+    --     end
+    -- end
+    -- Racial
+    if ui.checked("Racial") and cast.able.racial() then
+        -- lights_judgment,if=spell_targets.lights_judgment>=2|(!raid_event.adds.exists|raid_event.adds.in>75)
+        if race == "LightforgedDraenei" and ui.useAOE() then
+            if cast.racial() then ui.debug("Casting Racial: Lightforged Draenei") return true end
         end
-        -- Shield of Vengenace
-        -- shield_of_vengeance
-        if ui.checked("Shield of Vengeance - CD") and cast.able.shieldOfVengeance() then
-            if cast.shieldOfVengeance() then ui.debug("Casting Shield of Vengeance [CD]") return true end
-        end
-        -- Trinkets
-        module.BasicTrinkets()
-        -- -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(buff.avenging_wrath.remains>=20|buff.crusade.stack=10&buff.crusade.remains>15)&(cooldown.guardian_of_azeroth.remains>90|target.time_to_die<30|!essence.condensed_lifeforce.major)                
-        -- if ui.checked("Trinkets") and equiped.ashvanesRazorCoral() and (not debuff.razorCoral.exists(units.dyn5)
-        --     or ((not talent.crusade and (not useCDs() or not ui.checked("Avenging Wrath") or buff.avengingWrath.remain() >= 20))
-        --         or (talent.crusade and (not useCDs() or not ui.checked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15))))
-        --     and (cd.guardianOfAzeroth.remain() > 90 or ttd(units.dyn5) < 30 or not essence.condensedLifeForce.active))
-        -- then
-        --     for i = 13, 14 do
-        --         if use.able.slot(i) and equiped.ashvanesRazorCoral(i) then
-        --             use.slot(i)
-        --             ui.debug("Using Ashvanes Razor Coral on Slot "..i)
-        --         end
-        --     end
-        -- end        
-        -- Avenging Wrath
-        -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
-        if ui.checked("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
-            and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
-            and var.timeToHPG == 0
+        -- fireblood,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
+        if race == "DarkIronDwarf" and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)
+        or (talent.crusade and not ui.checked("Crusade")))
         then
-            if cast.avengingWrath() then ui.debug("Casting Avenging Wrath") return true end
+            if cast.racial() then ui.debug("Casting Racial: Dark Iron Dwarf") return true end
         end
-        -- Crusade
-        -- crusade,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
-        if ui.checked("Crusade") and talent.crusade and cast.able.crusade()
-            and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
-            and var.timeToHPG == 0
+    end
+    -- Shield of Vengenace
+    -- shield_of_vengeance
+    if alwaysCdNever("Shield of Vengeance - CD") and cast.able.shieldOfVengeance() and unit.ttdGroup(8) > 15 then
+        if cast.shieldOfVengeance() then ui.debug("Casting Shield of Vengeance [CD]") return true end
+    end
+    -- Trinkets
+    module.BasicTrinkets()
+    -- -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(buff.avenging_wrath.remains>=20|buff.crusade.stack=10&buff.crusade.remains>15)&(cooldown.guardian_of_azeroth.remains>90|target.time_to_die<30|!essence.condensed_lifeforce.major)                
+    -- if ui.checked("Trinkets") and equiped.ashvanesRazorCoral() and (not debuff.razorCoral.exists(units.dyn5)
+    --     or ((not talent.crusade and (not useCDs() or not ui.checked("Avenging Wrath") or buff.avengingWrath.remain() >= 20))
+    --         or (talent.crusade and (not useCDs() or not ui.checked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15))))
+    --     and (cd.guardianOfAzeroth.remain() > 90 or ttd(units.dyn5) < 30 or not essence.condensedLifeForce.active))
+    -- then
+    --     for i = 13, 14 do
+    --         if use.able.slot(i) and equiped.ashvanesRazorCoral(i) then
+    --             use.slot(i)
+    --             ui.debug("Using Ashvanes Razor Coral on Slot "..i)
+    --         end
+    --     end
+    -- end        
+    -- Avenging Wrath
+    -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
+    if alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
+        and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
+        and var.timeToHPG == 0
+    then
+        if cast.avengingWrath() then ui.debug("Casting Avenging Wrath") return true end
+    end
+    -- Crusade
+    -- crusade,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
+    if alwaysCdNever("Crusade") and talent.crusade and cast.able.crusade()
+        and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
+        and var.timeToHPG == 0
+    then
+        if cast.crusade() then ui.debug("Casting Crusade") return true end
+    end
+    -- Ashen Hallow 
+    -- ashen_hallow
+    -- Holy Avenger
+    -- holy_avenger,if=time_to_hpg=0&((buff.avenging_wrath.up|buff.crusade.up)|(buff.avenging_wrath.down&cooldown.avenging_wrath.remains>40|buff.crusade.down&cooldown.crusade.remains>40))
+    if alwaysCdNever("Holy Avenger") and var.timeToHPG == 0
+        and ((buff.avengingWrath.exists() or buff.crusade.exists())
+            or (not buff.avengingWrath.exists() and (cd.avengingWrath.remains() > 40 or not alwaysCdNever("Avenging Wrath"))
+                or not buff.crusade.exists() and (buff.crusade.remains() > 40 or not alwaysCdNever("Crusade"))))
+    then
+        if cast.holyAvenger() then ui.debug("Casting Holy Avenger") return true end
+    end
+    -- Final Reckoning
+    -- final_reckoning,if=holy_power>=3&cooldown.avenging_wrath.remains>gcd&time_to_hpg=0&(!talent.seraphim.enabled|buff.seraphim.up)
+    if alwaysCdNever("Final Reckoning") and holyPower >= 3 and (cd.avengingWrath.remains() > unit.gcd(true) or not alwaysCdNever("Avenging Wrath"))
+        and var.timeToHPG == 0 and (not talent.seraphim or buff.seraphim.exists() or not alwaysCdNever("Seraphim"))
+    then
+        if cast.finalReckoning() then ui.debug("Casting Final Reckoning") return true end
+    end
+    -- Heart Essence
+    if ui.checked("Use Essence") then
+        -- Essence: The Unbound Force
+        -- the_unbound_force,if=time<=2|buff.reckless_force.up
+        if cast.able.theUnboundForce() and (unit.combatTime() <= 2 or buff.recklessForce.exists()) then
+            if cast.theUnboundForce() then ui.debug("Casting Heart Essence: The Unbound Force") return true end
+        end
+        -- Essence: Blood of the Enemy
+        -- blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
+        if cast.able.bloodOfTheEnemy()
+            and ((not talent.crusade and buff.avengingWrath.exists())
+            or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
         then
-            if cast.crusade() then ui.debug("Casting Crusade") return true end
+            if cast.bloodOfTheEnemy() then ui.debug("Casting Heart Essence: Blood of the Enemy") return true end
         end
-        -- Ashen Hallow 
-        -- ashen_hallow
-        -- Holy Avenger
-        -- holy_avenger,if=time_to_hpg=0&((buff.avenging_wrath.up|buff.crusade.up)|(buff.avenging_wrath.down&cooldown.avenging_wrath.remains>40|buff.crusade.down&cooldown.crusade.remains>40))
-        if ui.checked("Holy Avenger") and var.timeToHPG == 0
-            and ((buff.avengingWrath.exists() or buff.crusade.exists())
-                or (not buff.avengingWrath.exists() and cd.avengingWrath.remains() > 40
-                    or not buff.crusade.exists() and buff.crusade.remains() > 40))
+        -- Essence: Guardian of Azeroth
+        -- guardian_of_azeroth,if=!talent.crusade.enabled&(cooldown.avenging_wrath.remains<5&holy_power>=3|cooldown.avenging_wrath.remains>=45)|(talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.crusade.remains>=45)
+        if cast.able.guardianOfAzeroth()
+            and ((not talent.crusade and (cd.avengingWrath.remain() < 5 and holyPower >= 3 or cd.avengingWrath.remain() >= 45))
+                or (talent.crusade and cd.crusade.remain() < unit.gcd(true)and holyPower >= 4 or cd.crusade.remain() >= 45))
         then
-            if cast.holyAvenger() then ui.debug("Casting Holy Avenger") return true end
+            if cast.guardianOfAzeroth() then ui.debug("Casting Heart Essence: Guardian of Azeroth") return true end
         end
-        -- Final Reckoning
-        -- final_reckoning,if=holy_power>=3&cooldown.avenging_wrath.remains>gcd&time_to_hpg=0&(!talent.seraphim.enabled|buff.seraphim.up)
-        if ui.checked("Final Reckoning") and holyPower >= 3 and cd.avengingWrath.remains() > unit.gcd(true) and var.timeToHPG == 0 and (not talent.seraphim or buff.seraphim.exists()) then
-            if cast.finalReckoning() then ui.debug("Casting Final Reckoning") return true end
+        -- Essence: Worldvein Resonance
+        -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
+        if cast.able.worldveinResonance()
+            and ((not talent.crusade and cd.avengingWrath.remain() < unit.gcd(true)and holyPower >= 3)
+                or (talent.crusade and cd.crusade.remain() < unit.gcd(true)and holyPower >= 4)
+                or (not talent.crusade and cd.avengingWrath.remain() >= 45) 
+                or (talent.crusade and cd.crusade.remain() >= 45))
+        then
+            if cast.worldveinResonance() then ui.debug("Casting Heart Essence: Worldvein Resonance") return true end
         end
-        -- Heart Essence
-        if ui.checked("Use Essence") then
-            -- Essence: The Unbound Force
-            -- the_unbound_force,if=time<=2|buff.reckless_force.up
-            if cast.able.theUnboundForce() and (unit.combatTime() <= 2 or buff.recklessForce.exists()) then
-                if cast.theUnboundForce() then ui.debug("Casting Heart Essence: The Unbound Force") return true end
-            end
-            -- Essence: Blood of the Enemy
-            -- blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
-            if cast.able.bloodOfTheEnemy()
-                and ((not talent.crusade and buff.avengingWrath.exists())
-                or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
-            then
-                if cast.bloodOfTheEnemy() then ui.debug("Casting Heart Essence: Blood of the Enemy") return true end
-            end
-            -- Essence: Guardian of Azeroth
-            -- guardian_of_azeroth,if=!talent.crusade.enabled&(cooldown.avenging_wrath.remains<5&holy_power>=3|cooldown.avenging_wrath.remains>=45)|(talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.crusade.remains>=45)
-            if cast.able.guardianOfAzeroth()
-                and ((not talent.crusade and (cd.avengingWrath.remain() < 5 and holyPower >= 3 or cd.avengingWrath.remain() >= 45))
-                    or (talent.crusade and cd.crusade.remain() < unit.gcd(true)and holyPower >= 4 or cd.crusade.remain() >= 45))
-            then
-                if cast.guardianOfAzeroth() then ui.debug("Casting Heart Essence: Guardian of Azeroth") return true end
-            end
-            -- Essence: Worldvein Resonance
-            -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
-            if cast.able.worldveinResonance()
-                and ((not talent.crusade and cd.avengingWrath.remain() < unit.gcd(true)and holyPower >= 3)
-                    or (talent.crusade and cd.crusade.remain() < unit.gcd(true)and holyPower >= 4)
-                    or (not talent.crusade and cd.avengingWrath.remain() >= 45) 
-                    or (talent.crusade and cd.crusade.remain() >= 45))
-            then
-                if cast.worldveinResonance() then ui.debug("Casting Heart Essence: Worldvein Resonance") return true end
-            end
-            -- Essence: Focused Azerite Beam
-            -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&!(buff.avenging_wrath.up|buff.crusade.up)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-            if cast.able.focusedAzeriteBeam() and not (buff.avengingWrath.exists() or buff.crusade.exists())
-                and (cd.bladeOfJustice.remain() > unit.gcd(true)* 3 and cd.judgment.remain() > unit.gcd(true)* 3)
-                and (#enemies.yards8f >= 3 or ui.useCDs()) and not unit.moving()
-            then
-                local minCount = ui.useCDs() and 1 or 3
-                if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then ui.debug("Casting Heart Essence: Focused Azerite Beam") return true end
-            end
-            -- Essence: Memory of Lucid Dreams
-            -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
-            if cast.able.memoryOfLucidDreams()
-                and ((not talent.crusade and buff.avengingWrath.exists())
-                     or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
-                and holyPower <= 3
-            then
-                if cast.memoryOfLucidDreams() then ui.debug("Casting Heart Essence: Memory of Lucid Dreams") return true end
-            end
-            -- Essence: Purifying Blast
-            -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
-            if cast.able.purifyingBlast() then
-                if cast.purifyingBlast("best", nil, 1, 8) then ui.debug("Casting Heart Essence: Purifying Blast") return true end
-            end
+        -- Essence: Focused Azerite Beam
+        -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&!(buff.avenging_wrath.up|buff.crusade.up)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
+        if cast.able.focusedAzeriteBeam() and not (buff.avengingWrath.exists() or buff.crusade.exists())
+            and (cd.bladeOfJustice.remain() > unit.gcd(true)* 3 and cd.judgment.remain() > unit.gcd(true)* 3)
+            and (#enemies.yards8f >= 3 or ui.useCDs()) and not unit.moving()
+        then
+            local minCount = ui.useCDs() and 1 or 3
+            if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then ui.debug("Casting Heart Essence: Focused Azerite Beam") return true end
         end
-    end -- End Cooldown Usage Check
+        -- Essence: Memory of Lucid Dreams
+        -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
+        if cast.able.memoryOfLucidDreams()
+            and ((not talent.crusade and buff.avengingWrath.exists())
+                    or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
+            and holyPower <= 3
+        then
+            if cast.memoryOfLucidDreams() then ui.debug("Casting Heart Essence: Memory of Lucid Dreams") return true end
+        end
+        -- Essence: Purifying Blast
+        -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
+        if cast.able.purifyingBlast() then
+            if cast.purifyingBlast("best", nil, 1, 8) then ui.debug("Casting Heart Essence: Purifying Blast") return true end
+        end
+    end
 end -- End Action List - Cooldowns
 -- Action List - Finisher
 actionList.Finisher = function()
     -- Seraphim
     -- seraphim,if=((!talent.crusade.enabled&buff.avenging_wrath.up|cooldown.avenging_wrath.remains>25)|(buff.crusade.up|cooldown.crusade.remains>25))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains<10)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains<10)&time_to_hpg=0
-    if cast.able.seraphim()
-        and ((not talent.crusade and buff.avengingWrath.exists() or cd.avengingWrath.remains() > 25)
-            or (buff.crusade.exists() and cd.crusade.remains() > 25))
+    if alwaysCdNever("Seraphim") and cast.able.seraphim()
+        and ((not talent.crusade and (buff.avengingWrath.exists() or cd.avengingWrath.remains() > 25 or not alwaysCdNever("Avenging Wrath")))
+            or (buff.crusade.exists() and (cd.crusade.remains() > 25 or not alwaysCdNever("Crusade"))))
         and (not talent.finalReckoning or cd.finalReckoning.remains() < 10)
         and (not talent.executionSentence or cd.executionSentence.remains() < 10)
         and var.timeToHPG == 0
@@ -536,34 +598,33 @@ actionList.Finisher = function()
     -- vanquishers_hammer,if=(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10|debuff.final_reckoning.up)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10|debuff.execution_sentence.up)|spell_targets.divine_storm>=2
     -- Execution Sentence
     -- execution_sentence,if=spell_targets.divine_storm<=3&((!talent.crusade.enabled|buff.crusade.down&cooldown.crusade.remains>10)|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10|debuff.final_reckoning.up)&time_to_hpg=0
-    if cast.able.executionSentence()
-        and (var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and cd.crusade.remain() > 10)
-            or buff.crusade.stack() >= 3 or cd.avengingWrath.remain() > 10 or not ui.checked("Avenging Wrath") or debuff.finalReckoning.exists(units.dyn5))
+    if alwaysCdNever("Execution Sentence") and cast.able.executionSentence()
+        and (var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not alwaysCdNever("Crusade")))
+            or buff.crusade.stack() >= 3 or (cd.avengingWrath.remain() > 10 or not alwaysCdNever("Avenging Wrath")) or debuff.finalReckoning.exists(units.dyn5))
         and var.timeToHPG == 0
     then
         if cast.executionSentence() then ui.debug("Casting Execution Sentence") return true end
     end
     -- Divine Storm
     -- divine_storm,if=variable.ds_castable&!buff.vanquishers_hammer.up&((!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3|spell_targets.divine_storm>=3)|spell_targets.divine_storm>=2&(talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.crusade.up&buff.crusade.stack<10))
-    if cast.able.divineStorm() and var.dsCastable and (((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.checked("Crusade"))
-        and (not talent.executionSentence or cd.executionSentance.remains() > unit.gcd(true) * 3 or var.dsUnits) or var.dsUnits
+    if cast.able.divineStorm() and var.dsCastable --and not buff.vanquishersHammer.exists()
+        and ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
+        and (not talent.executionSentence or (cd.executionSentance.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) or var.dsUnits) or var.dsUnits
         and (talent.holyAvenger and cd.hoylAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10))
-            or not ui.useCDs())
     then
-        local theseUnits = ui.mode.roation == 2 and 1 or ui.value("Divine Storm Units")
-        if cast.divineStorm("player","aoe",theseUnits,8) then ui.debug("Casting Divine Storm") return true end
+        local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
+        if cast.divineStorm(nil,"aoe",theseUnits,8) then ui.debug("Casting Divine Storm") return true end
     end
     -- Templar's Verdict
-    -- templars_verdict,if=variable.wings_pool&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|cooldown.crusade.remains>gcd*3&cooldown.crusade.remains<10|buff.crusade.up&buff.crusade.stack<10)
     -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3&spell_targets.divine_storm<=3)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*3)&(!covenant.necrolord.enabled|cooldown.vanquishers_hammer.remains>gcd)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10|buff.vanquishers_hammer.up
     if cast.able.templarsVerdict() and ((ui.mode.rotation == 1 and #enemies.yards8 < ui.value("Divine Storm Units"))
         or (ui.mode.rotation == 3 and #enemies.yards5 > 0) or unit.level() < 40)
     then
-        if ((not talent.crusade or cd.cursade.remains() > unit.gcd(true) * 3 or not ui.checked("Crusade"))
-            and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 3 and var.dsUnits)
-            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3) 
+        if ((not talent.crusade or cd.cursade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
+            and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) and var.dsUnits)
+            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Final Reckoning")) 
                 or talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() 
-                and buff.crusade.stack() < 10) or not ui.useCDs()
+                and buff.crusade.stack() < 10)
         then
             if cast.templarsVerdict() then ui.debug("Casting Templar's Verdict") return true end
         end
@@ -581,9 +642,10 @@ actionList.Generator = function()
 
     -- Wake of Ashes
     -- wake_of_ashes,if=(holy_power=0|holy_power<=2&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!raid_event.adds.exists|raid_event.adds.in>20)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>15)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>15)
-    if ui.mode.wake == 1 and cast.able.wakeOfAshes()
+    if alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes()
         and (holyPower <= 0 or holyPower <= 2 and (cd.bladeOfJustice.remain() > unit.gcd(true) or debuff.executionSentence.exists(units.dyn5) or debuff.finalReckoning.exists(units.dyn5)))
-        and ui.useST() and (not talent.executionSentence or cd.executionSentence.remains() > 15) and (not talent.finalReckoning or cd.finalReckoning.remains() > 15)
+        and ui.useST() and (not talent.executionSentence or cd.executionSentence.remains() > 15 or not alwaysCdNever("Execution Sentence"))
+        and (not talent.finalReckoning or cd.finalReckoning.remains() > 15 or not alwaysCdNever("Final Reckoning"))
     then
         if cast.wakeOfAshes(units.dyn12,"cone",1,12) then ui.debug("Casting Wake of Ashes") return true end
     end
@@ -676,7 +738,7 @@ actionList.PreCombat = function()
                 if cast.crusaderStrike("target") then ui.debug("Casting Crusader Strike [Pre-Pull]") return true end
             end
             -- Start Attack
-            if unit.distance("target") < 5 then StartAttack() ui.debug("Casting Auto Attack [Pre-Pull]") end
+            if unit.distance("target") < 5 then unit.startAttack("target") end
         end
     end
     -- Opener
@@ -715,13 +777,13 @@ local runRotation = function()
     enemies.get(8)
     enemies.get(8,"player",false,true)
     enemies.get(10)
-    enemies.get(12)
+    enemies.get(20)
     enemies.get(30,"player",false,true)
     
     -- Profile Variables
     -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down|spell_targets.divine_storm>=2&buff.crusade.up&buff.crusade.stack<10
     var.dsUnits = ((ui.mode.rotation == 1 and (#enemies.yards8 >= ui.value("Divine Storm Units"))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
-    var.dsCastable = var.dsUnits or buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists() or var.dsUnits and buff.crusade.exists() and buff.crusade.stack() < 10
+    var.dsCastable = ((var.dsUnits or buff.empyreanPower.exists()) and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()) or (var.dsUnits and buff.crusade.exists() and buff.crusade.stack() < 10)
     var.lowestUnit = br.friend[1].unit
     var.resable   = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target","player")
     var.timeToHPG = cd.crusaderStrike.remain()
@@ -737,17 +799,38 @@ local runRotation = function()
     if unit.level() >= 16 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.judgment.remain())
     end
+    var.turnedEvil = var.turnedEvil or "player"
+    if var.profileStop == nil then var.profileStop = false end
+    
+    -- Auras
+    if ui.checked("Aura") then
+        -- Crusader Aura
+        if unit.mounted() and cast.able.crusaderAura() and not buff.crusaderAura.exists() then
+            if cast.crusaderAura("player") then ui.debug("Casting Crusader Aura") return true end
+        end
+        -- Concentration Aura
+        if ui.mode.aura == 1 and not unit.mounted() and cast.able.concentrationAura() and not buff.concentrationAura.exists() then
+            if cast.concentrationAura("player") then ui.debug("Casting Concentration Aura") return true end
+        end
+        -- Devotion Aura
+        if ui.mode.aura == 2 and not unit.mounted() and cast.able.devotionAura() and not buff.devotionAura.exists() then
+            if cast.devotionAura("player") then ui.debug("Casting Devotion Aura") return true end
+        end
+        -- Retribution Aura
+        if ui.mode.aura == 3 and not unit.mounted() and cast.able.retributionAura() and not buff.retributionAura.exists() then
+            if cast.retributionAura("player") then ui.debug("Casting Retribution Aura") return true end
+        end
+    end
 
-    -- Find Lowest Unit / Greater Buff Unit
-    -- getLowestGreater()
+    ui.chatOverlay("Empyrean Power: "..tostring(buff.empyreanPower.exists()))
 
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not unit.inCombat() and not hastar and profileStop==true then
-        profileStop = false
-    elseif (unit.inCombat() and profileStop==true) or pause() or ui.mode.rotation==4 then
+    if not unit.inCombat() and not unit.exists("target") and var.profileStop then
+        var.profileStop = false
+    elseif (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation==4 then
         return true
     else
         -----------------------
@@ -769,38 +852,28 @@ local runRotation = function()
             ----------------------------------
             --- In Combat - Begin Rotation ---
             ----------------------------------
-            --------------------------------
-            --- In Combat - SimCraft APL ---
-            --------------------------------
-            if ui.value("APL Mode") == 1 then
-                local startTime = debugprofilestop()
-                -- Start Attack
-                -- auto_attack
-                if unit.distance(units.dyn5) < 5 then --and opener == true then
-                    if not IsCurrentSpell(6603) then
-                        StartAttack(units.dyn5)
-                        ui.debug("Casting Auto Attack")
-                    end
-                end
-                -- Action List - Interrupts
-                -- rebuke
-                if actionList.Interrupts() then return end
-                -- Light's Judgment - Lightforged Draenei Racial
-                if ui.checked("Racial") and race == "LightforgedDraenei" and #enemies.yards8 >= 3 then
-                    if cast.racial() then ui.debug("Casting Racial: Lightforged Draenei [AOE]") return true end
-                end
-                -- Action List - Cooldowns
-                -- call_action_list,name=cooldowns
-                if actionList.Cooldowns() then return end
-                -- -- Divine Storm
-                -- if cast.able.divineStorm() and buff.empyreanPower.exists() then
-                --     if cast.divineStorm("player","aoe",1,8) then ui.debug("Casting Divine Storm [Empyrean Power]") return true end
-                -- end
-                -- Call Action List - Generator
-                -- call_action_list,name=generators
-                if actionList.Generator() then return end
-                br.debug.cpu.rotation.inCombat = debugprofilestop()-startTime
-            end -- End SimC Profile
+            local startTime = debugprofilestop()
+            -- Start Attack
+            -- auto_attack
+            if unit.distance(units.dyn5) < 5 then unit.startAttack(units.dyn5) end
+            -- Action List - Interrupts
+            -- rebuke
+            if actionList.Interrupts() then return end
+            -- Light's Judgment - Lightforged Draenei Racial
+            if ui.checked("Racial") and race == "LightforgedDraenei" and #enemies.yards8 >= 3 then
+                if cast.racial() then ui.debug("Casting Racial: Lightforged Draenei [AOE]") return true end
+            end
+            -- Action List - Cooldowns
+            -- call_action_list,name=cooldowns
+            if actionList.Cooldowns() then return end
+            -- Divine Storm
+            -- if cast.able.divineStorm() and buff.empyreanPower.exists() then
+            --     if cast.divineStorm(nil,"aoe",1,8) then ui.debug("Casting Divine Storm [Empyrean Power]") return true end
+            -- end
+            -- Call Action List - Generator
+            -- call_action_list,name=generators
+            if actionList.Generator() then return end
+            br.debug.cpu.rotation.inCombat = debugprofilestop()-startTime
         end -- End In Combat
     end -- End Profile
 end -- runRotation
