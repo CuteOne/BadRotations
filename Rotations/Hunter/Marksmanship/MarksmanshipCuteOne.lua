@@ -110,6 +110,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Feign Death
             br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            -- Tranquilizing Shot
+            br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -247,6 +249,19 @@ actionList.Defensive = function()
         if ui.checked("Feign Death") and unit.hp() <= ui.value("Feign Death") then
             if cast.feignDeath("player") then ui.debug("Casting Feign Death") return true end
         end
+        -- Tranquilizing Shot
+        if ui.checked("Tranquilizing Shot") then
+            if #enemies.yards40f > 0 then
+                for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if ui.value("Tranquilizing Shot") == 1 or (ui.value("Tranquilizing Shot") == 2 and unit.isUnit(thisUnit,"target")) then
+                        if unit.valid(thisUnit) and cast.dispel.tranquilizingShot(thisUnit) then
+                            if cast.tranquilizingShot(thisUnit) then ui.debug("Casting Tranquilizing Shot") return true end
+                        end
+                    end
+                end
+            end
+        end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
 
@@ -340,8 +355,8 @@ end -- End Action List - Cooldowns
 actionList.TrickShots = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() then
-        if cast.killShot() then unit.debug("Casting Kill Shot [Trick Shots]") return true end
+    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
+        if cast.killShot() then ui.debug("Casting Kill Shot [Trick Shots]") return true end
     end
     -- Volley
     -- volley
@@ -410,8 +425,8 @@ actionList.TrickShots = function()
             if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame [Trick Shots]") return true end
         end
         -- Blood of the Enemy
-        -- blood_of_the_enemy
-        if cast.able.bloodOfTheEnemy() then
+        -- blood_of_the_enemy,if=prev_gcd.1.volley|!talent.volley.enabled|target.time_to_die<11
+        if cast.able.bloodOfTheEnemy() and (cast.last.volley() or not talent.volley or unit.ttd(units.dyn40) < 11) then
             if cast.bloodOfTheEnemy() then ui.debug("Casting Blood of the Enemy [Trick Shots]") return true end
         end
         -- The Unbound Force
@@ -439,9 +454,14 @@ end -- End Action List - Trick Shots
 
 -- Action List - Single Target
 actionList.SingleTarget = function()
+    -- Steady Shot
+    -- steady_shot,if=talent.steady_focus.enabled&prev_gcd.1.steady_shot&buff.steady_focus.remains<5
+    if cast.able.steadyShot() and talent.steadFocus and cast.last.steadyShot() and buff.steadyFocus.remain() < 5 then
+        if cast.steadyShot() then ui.debug("Casting Steady Shot [Steady Focus]") return true end
+    end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() then
+    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
         if cast.killShot() then ui.debug("Casting Kill Shot") return true end
     end
     -- Explosive Shot
@@ -523,14 +543,14 @@ actionList.SingleTarget = function()
     end
     -- Arcane Shot
     -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>55)|focus>75|target.time_to_die<5)
-    if cast.able.arcaneShot() and not buff.trueshot.exists() and ((buff.preciseShots.exists()
+    if cast.able.arcaneShot() and not talent.chimaeraShot and not buff.trueshot.exists() and ((buff.preciseShots.exists()
         and power.focus.amount() > 55) or power.focus.amount() > 75 or (unit.ttd(units.dyn40) < 5 and ui.useCDs()))
     then
         if cast.arcaneShot() then ui.debug("Casting Arcane Shot") return true end
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>55)|focus>75|target.time_to_die<5)
-    if cast.able.chimaeraShot() and (not buff.trueshot.exists() and ((buff.preciseShots.exists() and power.focus.amount() > 55)
+    if cast.able.chimaeraShot() and talent.chimaeraShot and (not buff.trueshot.exists() and ((buff.preciseShots.exists() and power.focus.amount() > 55)
         or power.focus.amount() > 75 or (unit.ttd(units.dyn40) < 5 and ui.useCDs())))
     then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot") return true end

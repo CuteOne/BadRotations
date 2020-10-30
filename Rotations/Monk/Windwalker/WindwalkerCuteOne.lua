@@ -34,10 +34,8 @@ local function createToggles()
     CreateButton("Interrupt",4,0)
     -- Storm, Earth, and Fire Button
     SefModes = {
-        [1] = { mode = "Boss", value = 1 , overlay = "Auto SEF on Boss Only", tip = "Will cast Storm, Earth and Fire on Bosses only.", highlight = 1, icon = br.player.spell.stormEarthAndFireFixate},
-        [2] = { mode = "On", value = 2 , overlay = "Auto SEF Enabled", tip = "Will cast Storm, Earth, and Fire.", highlight = 0, icon = br.player.spell.stormEarthAndFire},
-        [3] = { mode = "Off", value = 3 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = br.player.spell.stormEarthAndFireFixate}
-
+        [1] = { mode = "Fixate", value = 1 , overlay = "SEF Fixate Enabled", tip = "SEF will Fixate on Target.", highlight = 1, icon = br.player.spell.stormEarthAndFireFixate},
+        [2] = { mode = "Any", value = 2 , overlay = "SEF Fixate Disabled", tip = "SEF will attack any nearby targets.", highlight = 0, icon = br.player.spell.stormEarthAndFire},
     };
     CreateButton("Sef",5,0)
     -- Flying Serpent Kick Button
@@ -71,11 +69,14 @@ local function createOptions()
             br.ui:createCheckbox(section, "Crackling Jade Lightning")
             br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5, "|cffFFFFFFCancels Crackling Jade Lightning below this range in yards.")
             -- Chi Burst
-            br.ui:createSpinnerWithout(section,"Chi Burst Min Units",1,1,10,1,"|cffFFFFFFSet to the minumum number of units to cast Chi Burst on.")
+            br.ui:createSpinnerWithout(section, "Chi Burst Min Units", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Chi Burst on.")
+            -- Fists of Fury
+            br.ui:createSpinnerWithout(section, "Fists of Fury Min Units", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Fists of Fury on.")
+            -- Whirling Dragon Punch
+            br.ui:createCheckbox(section, "Whirling Dragon Punch")
+            br.ui:createSpinnerWithout(section, "Whirling Dragon Punch Min Units", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Whirling Dragon Punch on.")
             -- Disable
             br.ui:createCheckbox(section, "Disable")
-            -- FoF Targets
-            br.ui:createSpinnerWithout(section, "Fists of Fury Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Fists of Fury on.")
             -- Provoke
             br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
             -- Roll
@@ -104,8 +105,6 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Serenity", alwaysCdNever, 2, "|cffFFFFFFWhen to use Serenity.")
             -- Storm, Earth, and Fire
             br.ui:createDropdownWithout(section, "Storm, Earth, and Fire", alwaysCdNever, 1, "|cffFFFFFFWhen to use Storm, Earth, and Fire.")
-            -- SEF Fixate
-            br.ui:createCheckbox(section, "SEF Fixate", "|cffFFFFFFStorm, Earth, and Fire Fixate on Target.")
             -- Touch of Death
             br.ui:createDropdownWithout(section, "Touch of Death", alwaysCdNever, 2, "|cffFFFFFFWhen to use Touch of Death.")
             -- Touch of Karma
@@ -248,7 +247,7 @@ actionList.Extras = function()
     local startTime = debugprofilestop()
     -- Tiger's Lust
     if ui.checked("Tiger's Lust") and cast.able.tigersLust() then
-        if unit.noControl() or (unit.inCombat() and unit.distance("target") > 10 and unit.valid("target")) then
+        if cast.noControl.tigersLust() or (unit.inCombat() and unit.distance("target") > 10 and unit.valid("target")) then
             if cast.tigersLust() then ui.debug("Casting Tiger's Lust") return true end
         end
     end
@@ -314,13 +313,6 @@ actionList.Extras = function()
         and equiped.touchOfTheVoid() and (ui.useCDs() or ui.useAOE())
     then
         if use.touchOfTheVoid() then ui.debug("Using Touch of the Void") return true end
-    end
-    -- Fixate - Storm, Earth, and Fire
-    if cast.able.stormEarthAndFireFixate("target") and ui.value("SEF Fixate") == 1
-        and not talent.serenity and not cast.current.fistsOfFury() and not unit.isUnit(var.fixateTarget,"target")
-        and #enemies.yards5 > 0
-    then
-        if cast.stormEarthAndFireFixate("target") then var.fixateTarget = "target" ui.debug("Casting SEF [Fixate]") return true end
     end
     -- Debugging
 	br.debug.cpu:updateDebug(startTime,"rotation.profile.extras")
@@ -422,8 +414,8 @@ actionList.CdSef = function()
         if cast.racial() then ui.debug("Casting Arcane Torrent") return true end
     end
     -- Touch of Death
-    -- touch_of_death,if=buff.storm_earth_and_fire.down
-    if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and not buff.stormEarthAndFire.exists() and (unit.health("target") < unit.health("player") 
+    -- touch_of_death,if=target.health.pct<=15&buff.storm_earth_and_fire.down
+    if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and not buff.stormEarthAndFire.exists() and (unit.health("target") < unit.health("player")
         or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
         if cast.touchOfDeath() then ui.debug("Casting Touch of Death") return true end
@@ -493,7 +485,7 @@ actionList.CdSef = function()
         or buff.seethingRage.exists() or (cd.bloodOfTheEnemy.remain() + 1 > charges.stormEarthAndFire.timeTillFull() or not essence.bloodOfTheEnemy.major)
         and cd.fistsOfFury.remain() < 10 and chi >= 2 and cd.whirlingDragonPunch.remain() < 12)
     then
-        if cast.stormEarthAndFire() then ui.debug("Casting Storm, Earth, and Fire") return true end
+        if cast.stormEarthAndFire() then ui.debug("Casting Storm, Earth, and Fire") var.fixateTarget = "player" return true end
     end
     -- Ashvane's Razor Coral
     -- use_item,name=ashvanes_razor_coral
@@ -658,7 +650,7 @@ actionList.CdSerenity = function()
     -- use_item,name=ashvanes_razor_coral
     --TODO: parsing use_item
     -- Touch of Death
-    -- touch_of_death
+    -- touch_of_death,if=target.health.pct<=15
     if cast.able.touchOfDeath() and alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player") 
         or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
@@ -684,9 +676,10 @@ end -- End Action List - CdSerenity
 actionList.SingleTarget = function()
     local startTime = debugprofilestop()
     -- Whirling Dragon Punch
-    -- whirling_dragon_punch
-    if ui.checked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
-        and cd.fistsOfFury.exists() and cd.risingSunKick.exists()
+    -- whirling_dragon_punch,if=buff.whirling_dragon_punch.up
+    if ui.checked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch()
+        and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
+        and ui.useAOE(8,ui.value("Whirling Dragon Punch Min Units")) and buff.whirlingDragonPunch.exists()
     then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [ST]") return true end
     end
@@ -704,8 +697,8 @@ actionList.SingleTarget = function()
     end
     -- Fists of Fury
     -- fists_of_fury
-    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > unit.gcd(true) then --and var.useFists then
-        if cast.fistsOfFury(nil,"cone",1,8) then ui.debug("Casting Fists of Fury [ST]") return true end
+    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > unit.gcd(true) and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then --and var.useFists then
+        if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [ST]") return true end
     end
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.serenity.remains>1|!talent.serenity.enabled
@@ -801,11 +794,12 @@ end -- End Action List - Single Target
 actionList.AoE = function()
     local startTime = debugprofilestop()
     -- Whirling Dragon Punch
-    -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch() and ui.checked("Whirling Dragon Punch") and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
-        and cd.fistsOfFury.exists() and cd.risingSunKick.exists()
+    -- whirling_dragon_punch,if=buff.whirling_dragon_punch.up
+    if cast.able.whirlingDragonPunch() and ui.checked("Whirling Dragon Punch") 
+        and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
+        and ui.useAOE(8,ui.value("Whirling Dragon Punch Min Units")) and buff.whirlingDragonPunch.exists()
     then
-        if cast.whirlingDragonPunch("player","aoe") then ui.debug("Casting Whirling Dragon Punch [AOE]") return true end
+        if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [AOE]") return true end
     end
     -- Energizing Elixir
     -- energizing_elixir,if=chi.max-chi>=2&energy.time_to_max>3|chi.max-chi>=4&(energy.time_to_max>2|!prev_gcd.1.tiger_palm)
@@ -821,8 +815,10 @@ actionList.AoE = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>execute_time-1|buff.storm_earth_and_fire.remains
-    if cast.able.fistsOfFury() and (energyTTM() > var.fofExecute - 1 or buff.stormEarthAndFire.remain()) then
-        if cast.fistsOfFury(nil,"cone",1,8) then ui.debug("Casting Fists of Fury [AOE]") return true end
+    if cast.able.fistsOfFury() and ui.useAOE(8,ui.value("Fists of Fury Min Units"))
+        and (energyTTM() > var.fofExecute - 1 or buff.stormEarthAndFire.remain())
+    then
+        if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [AOE]") return true end
     end
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.rising_sun_kick.duration>cooldown.whirling_dragon_punch.remains+3)&(cooldown.fists_of_fury.remains>3|chi>=5)
@@ -876,9 +872,9 @@ actionList.AoE = function()
         if cast.flyingSerpentKick() then var.castFSK = true ui.debug("Casting Flying Serpent Kick [AOE]") return true end
     end
     -- Blackout kick
-    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.bok_proc.up|talent.hit_combo.enabled&prev_gcd.1.tiger_palm&(chi.max-chi>=14&energy.time_to_50<1|chi=2&cooldown.fists_of_fury.remains<3))
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.bok_proc.up|talent.hit_combo.enabled&prev_gcd.1.tiger_palm&(chi.max-chi>=1&energy.time_to_50<1|chi=2&cooldown.fists_of_fury.remains<3))
     if cast.able.blackoutKick(var.lowestMark) and (not wasLastCombo(spell.blackoutKick) and (buff.blackoutKick.exists() or talent.hitCombo
-        and cast.last.tigerPalm(1) and (chiMax - chi >= 14 and energyTTM(50) < 1 or chi == 2 and cd.fistsOfFury.remain() < 3)))
+        and cast.last.tigerPalm(1) and (chiMax - chi >= 1 and energyTTM(50) < 1 or chi == 2 and cd.fistsOfFury.remain() < 3)))
         and cast.timeSinceLast.blackoutKick() > unit.gcd("true")
     then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [AOE]") return true end
@@ -941,11 +937,10 @@ actionList.Serenity = function()
     then
         if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity]") return true end
     end
-
     -- Fists of Fury
     -- fists_of_fury,if=(buff.bloodlust.up&prev_gcd.1.rising_sun_kick)|buff.serenity.remains<1|(active_enemies>1&active_enemies<5)
-    if chi >= 3 and cast.able.fistsOfFury() and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
-        or (#enemies.yards8f > 1 and #enemies.yards8f < 5))
+    if chi >= 3 and cast.able.fistsOfFury() 
+        and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1 or (#enemies.yards8f > 1 and #enemies.yards8f < 5))
     then
         if cast.fistsOfFury(nil,"cone",1,8) then ui.debug("Casting Fists of Fury [Serenity]") return true end
     end
@@ -986,29 +981,25 @@ end -- End Action List - Serenity
 actionList.Opener = function()
     local startTime = debugprofilestop()
     -- Fist of the White Tiger
-    -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains
-    if cast.able.fistOfTheWhiteTiger(var.lowestMark) then
+    -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=3
+    if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chiMax - chi >= 3 then
         if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [Opener]") return true end
     end
-    -- expel_harm,if=talent.chi_burst.enabled
-    if cast.able.expelHarm() and (talent.chiBurst) then
+    -- expel_harm,if=talent.chi_burst.enabled&chi.max-chi>=3
+    if cast.able.expelHarm() and (talent.chiBurst and chiMax - chi >= 3) then
         if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener Chi Burst") return true end
     end
-    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.max-chi>=2
+    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains+(debuff.recently_rushing_tiger_palm.up*20),if=combo_strike&chi.max-chi>=2
     if cast.able.tigerPalm(var.lowestMark) and (not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2)
         and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
     then
         if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Opener Not Last Combo]") return true end
     end
-    -- expel_harm,if=chi.max-chi=3|chi.max-chi=1
-    if cast.able.expelHarm() and (chiMax - chi == 3 or chiMax - chi == 1) then
+    -- expel_harm
+    if cast.able.expelHarm() then
         if cast.expelHarm() then ui.debug("Casting Expel Harm [Opener]") return true end
     end
-    -- flying_serpent_kick,if=talent.hit_combo.enabled
-    if ui.mode.fsk == 1 and cast.able.flyingSerpentKick() and (talent.hitCombo) then
-        if cast.flyingSerpentKick() then var.castFSK = true ui.debug("Casting Flying Serpent Kick [Opener]") return true end
-    end
-    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2
+    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains+(debuff.recently_rushing_tiger_palm.up*20),if=chi.max-chi>=2
     if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and (chiMax - chi >= 2)
         and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
     then
@@ -1138,6 +1129,13 @@ local function runRotation()
         var.comboCounter = buff.hitCombo.stack()
     else
         var.comboCounter = buff.hitCombo.stack()
+    end
+
+    -- Fixate - Storm, Earth, and Fire
+    if ui.mode.sef == 1 and not talent.serenity and cast.able.stormEarthAndFireFixate() and buff.stormEarthAndFire.exists()
+        and cast.timeSinceLast.stormEarthAndFire() > unit.gcd("true") and not cast.current.fistsOfFury() and not unit.isUnit(var.fixateTarget,"target")
+    then
+        if cast.stormEarthAndFireFixate("target") then var.fixateTarget = "target" ui.debug("Casting SEF [Fixate]") return true end
     end
     
     -- Crackling Jade Lightning - Cancel

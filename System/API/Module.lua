@@ -77,7 +77,7 @@ br.api.module = function(self)
                 -- For use in rotation loop - pass slotID
                 if slotID == 13 or slotID == 14 then
                     if use.able.slot(slotID) and useTrinket then
-                        if use.slot(slotID) then ui.debug("Using Trinket "..i - 12) return true end
+                        if use.slot(slotID) then ui.debug("Using Trinket "..slotID - 12) return true end
                     end
                 end
             else
