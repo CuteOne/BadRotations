@@ -206,7 +206,6 @@ local auto_stealthed
 local buff_rollTheBones_remain = 0
 local buff_rollTheBones_count = 0
 local real_def
-local bte_condition
 local should_pool
 local rnd5 -- rand number between 1 and 5
 local rnd10 --random number between 1 and 10
@@ -452,6 +451,9 @@ local actionList = {}
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+local function int (b)
+    return b and 1 or 0
+end
 
 local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
@@ -824,8 +826,6 @@ actionList.essences = function()
 
 
         --  bloodOfTheEnemy
-        -- blood_of_the_enemy,if=variable.blade_flurry_sync&cooldown.between_the_eyes.up&variable.bte_condition&(spell_targets.blade_flurry>=2|raid_event.adds.in>45)|fight_remains<=10
-
         if essence.bloodOfTheEnemy.active and cast.able.bloodOfTheEnemy() then
             if getTTD("target") > 10 and cd.betweenTheEyes.ready() and (cd.bladeFlurry.ready() or buff.bladeFlurry.exists()) then
                 if cast.bloodOfTheEnemy() then
@@ -848,8 +848,6 @@ end
 --dps()
 actionList.dps = function()
 
-
-    bte_condition = buff.ruthlessPrecision.exists() or (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and buff_rollTheBones_count >= 1
 
     if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
         dps_key()
@@ -921,7 +919,13 @@ actionList.dps = function()
     -- Print("Our current # buffs that reflects on combo points:" .. tostring(buff_count()))
     -- Print("Combo: " .. combo .. " Execute at: " .. (tostring(comboMax - buff_count())))
 
-    if combo >= real_def or cast.last.markedForDeath(1) and not stealth then
+
+    if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
+            * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
+            * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
+    then
+
+        --    if combo >= real_def or cast.last.markedForDeath(1) and not stealth then
         if cast.able.betweenTheEyes() then
             if (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20)) then
                 if cast.betweenTheEyes(units.dyn20) then
@@ -939,25 +943,14 @@ actionList.dps = function()
             end
         end
 
-        if cast.able.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
-            if cast.dispatch(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
+        local finish_target = units.dyn5 or talent.acrobaticStrikes and units.dyn8
+        if cast.able.dispatch(finish_target) and not isExplosive(finish_target) then
+            if cast.dispatch(finish_target) then
                 return true
             end
         end
     end -- end finishers
 
-    -- ambush stuff here
-    --[[
-    cheap_shot,target_if=min:debuff.prey_on_the_weak.remains,if=talent.prey_on_the_weak.enabled&!target.is_boss
-
-    ambush
-    ]]
-
-
-    --  blood_of_the_enemy,
-    --if =variable.blade_flurry_sync&cooldown.between_the_eyes.up&variable.bte_condition&(spell_targets.blade_flurry>=2|raid_event.adds. in >45)
-    -- variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
-    --#enemies.yards8 >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
 
     stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists()
 
@@ -1092,6 +1085,9 @@ actionList.dps = function()
                 useItem(173946)
             end
         end
+        if Trinket13 == 169769 and canUseItem(13) then
+            useItem(13, getBiggestUnitCluster(30, 8))
+        end
         if not hold13 then
             if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
                 --or comboDeficit <= 2
@@ -1108,7 +1104,9 @@ actionList.dps = function()
                 useItem(173946)
             end
         end
-
+        if Trinket14 == 169769 and canUseItem(14) then
+            useItem(14, getBiggestUnitCluster(30, 8))
+        end
         if not hold14 then
             if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
                 --or comboDeficit <= 2
@@ -1424,7 +1422,6 @@ actionList.Defensive = function()
 
 
     -- Arcane Torrent
-
     if isChecked("Arcane Torrent Dispel") and br.player.race == "BloodElf" and getSpellCD(25046) == 0 then
         local torrentUnit = 0
         for i = 1, #enemies.yards8 do
@@ -1440,7 +1437,7 @@ actionList.Defensive = function()
         end
     end
     if isChecked("Arcane Torrent regen") and inCombat and race == "BloodElf" and getSpellCD(25046) == 0 and (br.player.power.energy.deficit() >= 15 + br.player.power.energy.regen()) then
-        if castSpell("player", racial, false, false, false) then
+        if CastSpellByID(25046, "player") then
             return true
         end
     end
@@ -1657,7 +1654,6 @@ local function runRotation()
     ttd = getTTD
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam()
     real_def = br.player.power.comboPoints.max() - buff_count()
-    bte_condition = buff.ruthlessPrecision.exists() or (br.player.traits.deadshot.active or br.player.traits.aceupyoursleeve.active) and buff_rollTheBones_count >= 1
 
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
