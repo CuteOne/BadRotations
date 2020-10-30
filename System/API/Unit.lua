@@ -195,6 +195,12 @@ br.api.unit = function(self)
         if playerUnit == nil then playerUnit = "player" end
         return GetUnitReaction(thisUnit,playerUnit)
     end
+    -- Role
+    unit.role = function(thisUnit)
+        local UnitGroupRolesAssigned = _G["UnitGroupRolesAssigned"]
+        if thisUnit == nil then thisUnit = "target" end
+        return UnitGroupRolesAssigned(thisUnit)
+    end
     -- Swimming
     unit.swimming = function()
         local IsSwimming = _G["IsSwimming"]
