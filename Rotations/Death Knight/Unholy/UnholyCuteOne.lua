@@ -469,7 +469,7 @@ actionList.Cooldowns = function()
             if cast.apocalypse() then ui.debug("Casting Apocalypse [ST]") return true end
         end
         -- apocalypse,target_if=max:debuff.festering_wound.stack,if=active_enemies>=2&debuff.festering_wound.stack>=4&!death_and_decay.ticking
-        if ui.useAOE(8,2) and var.fwoundHighest >= 4 and not debuff.deathAndDecay.exists(var.fwoundHighUnit) then
+        if ui.useAOE(8,2) and var.fwoundHighest >= 4 and not buff.deathAndDecay.exists() then
             if cast.apocalypse(var.fwoundHighUnit) then ui.debug("Casting Apocalypse [AOE]") return true end
         end
     end
@@ -1079,17 +1079,17 @@ local function runRotation()
                 -- run_action_list,name=aoe_setup,if=active_enemies>=2&(cooldown.death_and_decay.remains<10&!talent.defile.enabled|cooldown.defile.remains<10&talent.defile.enabled)&!death_and_decay.ticking
                 if ui.useAOE(8,2)
                     and ((cd.deathAndDecay.remain() < 10 and not talent.defile) or (cd.defile.remains() < 10 and talent.defile))
-                    and not debuff.deathAndDecay.exists(units.dyn5)
+                    and not buff.deathAndDecay.exists()
                 then
                     if actionList.AOE_Setup() then return true end
                 end
                 -- run_action_list,name=aoe_burst,if=active_enemies>=2&death_and_decay.ticking
-                if ui.useAOE(8,2) and debuff.deathAndDecay.exists() then
+                if ui.useAOE(8,2) and buff.deathAndDecay.exists() then
                     if actionList.AOE_Burst() then return true end
                 end
                 -- run_action_list,name=generic_aoe,if=active_enemies>=2&(!death_and_decay.ticking&(cooldown.death_and_decay.remains>10&!talent.defile.enabled|cooldown.defile.remains>10&talent.defile.enabled))
                 if ui.useAOE(8,2)
-                    and not debuff.deathAndDecay.exists() and ((cd.deathAndDecay.remains() > 10 and not talent.defile) or (cd.defile.remain() > 10 and talent.defile))
+                    and not buff.deathAndDecay.exists() and ((cd.deathAndDecay.remains() > 10 and not talent.defile) or (cd.defile.remain() > 10 and talent.defile))
                 then
                     if actionList.AOE_Burst() then return true end
                 end
