@@ -1940,7 +1940,6 @@ br.lists.spells = {
                 divineShield                = 642,
                 divinePurpose               = 223819,
                 guardianOfAncientKings      = 86659,
-                seraphim                    = 152262,
                 shieldOfTheRighteous        = 132403,
                 shiningLight                = 327510,
                 avengersValor               = 197561,
@@ -2002,6 +2001,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 executionSentence           = 267798,
+                finalReckoning              = 343721,
                 judgment                    = 197277,
             },
             glyphs                          = {
@@ -2064,6 +2064,7 @@ br.lists.spells = {
                 divineSteed                 = 190784,
                 blessingOfProtection        = 1022,
                 holyAvenger                 = 105809,
+                seraphim                    = 152262,
             },
             debuffs                         = {
                 forbearance                 = 25771,
