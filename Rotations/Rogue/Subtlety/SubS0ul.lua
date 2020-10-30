@@ -606,11 +606,11 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
+        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points.deficit>=2
-        if cdUsage and sndCondition and not stealthedAll and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
+        if cdUsage and sndCondition == 1 and not stealthedAll and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
             if cast.shadowBlades("player") then return true end
         end
         -- actions.cds+=/blood_fury,if=buff.symbols_of_death.up
@@ -627,7 +627,7 @@ local function runRotation()
     local function actionList_Cooldowns()
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle"
-        -- if sndCondition and not buff.masterAssassinsInitiative.exists() then
+        -- if sndCondition == 1 and not buff.masterAssassinsInitiative.exists() then
         --     if cast.flagellation("target") then return true end
         -- end
         -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2|debuff.flagellation.stack>=40
@@ -640,7 +640,7 @@ local function runRotation()
         -- end
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/call_action_list,name=essences,if=!stealthed.all&variable.snd_condition|essence.breath_of_the_dying.major&time>=2
-        if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition or cast.able.reapingFlames() and combatTime >= 2 then
+        if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition == 1 or cast.able.reapingFlames() and combatTime >= 2 then
             -- actions.essences=concentrated_flame,if=energy.time_to_max>1&!buff.symbols_of_death.up&(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
             if cast.able.concentratedFlame() and (energyDeficit/energyRegen) > 1 and not buff.symbolsOfDeath.exists() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame() or charges.concentratedFlame.timeTillFull() < gcd) then
                 if cast.concentratedFlame() then return true end
@@ -726,16 +726,16 @@ local function runRotation()
         end
         -- # Use Tornado pre SoD when we have the energy whether from pooling without SF or just generally.
         -- actions.cds+=/shuriken_tornado,if=energy>=60&variable.snd_condition&cooldown.symbols_of_death.up&cooldown.shadow_dance.charges>=1
-        if energy >= 60 and sndCondition and not cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 then
+        if energy >= 60 and sndCondition == 1 and not cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 then
             if cast.shurikenTornado("player") then return true end
         end
         -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5
-        -- if sndCondition and not debuff.serratedBoneSpike.exists(enemyTable30.lowestTTDUnit) or ttd("target") <= 5 then
+        -- if sndCondition == 1 and not debuff.serratedBoneSpike.exists(enemyTable30.lowestTTDUnit) or ttd("target") <= 5 then
         --     if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
         -- end
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus. Low CP for The Rotten.
         -- actions.cds+=/symbols_of_death,if=variable.snd_condition&!cooldown.shadow_blades.up&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)&(!runeforge.the_rotten.equipped|combo_points<=2)&(!essence.blood_of_the_enemy.major|cooldown.blood_of_the_enemy.remains>2)
-        if mode.sod == 1 and sndCondition and cd.shadowBlades.exists() and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and 
+        if mode.sod == 1 and sndCondition == 1 and cd.shadowBlades.exists() and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and 
          (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and --and (not runeforge.theRotten.active or combo <= 2)
          (not essence.bloodOfTheEnemy.active or cd.bloodOfTheEnemy.remain() > 2) and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
@@ -758,12 +758,12 @@ local function runRotation()
         end
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/echoing_reprimand,if=variable.snd_condition&combo_points.deficit>=3&spell_targets.shuriken_storm<=4
-        -- if sndCondition and comboDeficit >= 3 and enemies10 <= 4 then
+        -- if sndCondition == 1 and comboDeficit >= 3 and enemies10 <= 4 then
         --     if cast.echoingReprimand("target") then return true end
         -- end
         -- -- # With SF, if not already done, use Tornado with SoD up.
         -- -- actions.cds+=/shuriken_tornado,if=talent.shadow_focus.enabled&variable.snd_condition&buff.symbols_of_death.up
-        -- if talent.shadowFocus and sndCondition and buff.symbolsOfDeath.exists() then
+        -- if talent.shadowFocus and sndCondition == 1 and buff.symbolsOfDeath.exists() then
         --     if cast.shurikenTornado("player") then return true end
         -- end
         -- -- actions.cds+=/shadow_dance,if=!buff.shadow_dance.up&fight_remains<=8+talent.subterfuge.enabled
@@ -885,7 +885,7 @@ local function runRotation()
         if comboDeficit >= 4 or (comboDeficit <= 1 and priorityRotation) then shdComboPoints = 1 else shdComboPoints = 0 end
         -- # Dance during Symbols or above threshold.
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and ttd("target") > 3 and cdUsage and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 15 and not cd.vanish.exists()) or not isChecked("Save SD Charges for CDs"))
+        if mode.sd == 1 and ttd("target") > 3 and (cdUsage and (isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 15 and not cd.vanish.exists()) or not isChecked("Save SD Charges for CDs"))
          and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) then
             if cast.shadowDance("player") then return true end
         end
@@ -993,12 +993,12 @@ local function runRotation()
         --     if cast.shiv("target") then return true end
         -- end
         -- actions.build=shuriken_storm,if=spell_targets>=2+(talent.gloomblade.enabled&azerite.perforate.rank>=2&position_back)
-        local buildersStorm = 0
-        if talent.gloomblade and trait.perforate.rank >= 2 then buildersStorm = 1 else buildersStorm = 0 end
-        if enemies10 >= 2 + buildersStorm then
+        if enemies10 >= 2 then
             for i = 1, #enemyTable10 do
                 thisUnit = enemyTable10[i].unit
-                if not getFacing(thisUnit,"player") then
+                local buildersStorm = 0
+                if talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player") then buildersStorm = 1 else buildersStorm = 0 end
+                if enemies10 >= 2 + buildersStorm then
                     if cast.shurikenStorm("player") then return true end
                 end
             end
@@ -1075,7 +1075,7 @@ local function runRotation()
             if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
                 if actionList_CooldownsOGCD() then return true end
             end
-            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
+            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
                 if gcd < getLatency() then
                     -- # Check CDs at first
                     -- actions+=/call_action_list,name=cds
