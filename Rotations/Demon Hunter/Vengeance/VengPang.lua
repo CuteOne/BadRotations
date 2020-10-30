@@ -179,10 +179,10 @@ local function runRotation()
     local moving = GetUnitSpeed("player") > 0
     local pet = br.player.pet.list
     local php = br.player.health
-    local power = br.player.power.pain.amount()
-    local powgen = br.player.power.pain.regen()
-    local powerDeficit = br.player.power.pain.deficit()
-    local powerMax = br.player.power.pain.max()
+    local power = br.player.power.fury.amount()
+    local powgen = br.player.power.fury.regen()
+    local powerDeficit = br.player.power.fury.deficit()
+    local powerMax = br.player.power.fury.max()
     local pullTimer = br.DBM:getPulltimer()
     local queue = br.player.queue
     local race = br.player.race
@@ -192,7 +192,7 @@ local function runRotation()
     local talent = br.player.talent
     local thp = getHP("target")
     local ttd = getTTD
-    local ttm = br.player.power.pain.ttm()
+    local ttm = br.player.power.fury.ttm()
     local units = br.player.units
     if leftCombat == nil then
         leftCombat = GetTime()
@@ -294,7 +294,7 @@ local function runRotation()
             return
         end
 
-        if (buff.soulFragments.stack() < 1 and power >= 35) then
+        if (power >= 35) then
             if cast.soulCleave() then
                 return
             end
@@ -473,7 +473,7 @@ local function runRotation()
     end -- Pause
 end -- End runRotation
 
-local id = 581
+local id = 0 -- commented out until updated
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
