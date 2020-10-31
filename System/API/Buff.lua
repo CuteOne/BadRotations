@@ -2,7 +2,7 @@ if br.api == nil then br.api = {} end
 -- buff is the table located at br.player.buff
 -- v is the spellID passed from the builder which cycles all the collected buff spells from the spell list for the spec
 -- spell in the examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
-br.api.buffs = function(buff,v)
+br.api.buffs = function(buff,k,v)
     -- br.player.buff.spell.cancel()
     buff.cancel = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end

@@ -74,6 +74,16 @@ br.api.unit = function(self)
         if otherUnit == nil then otherUnit = "player" end
         return getFacing(thisUnit,otherUnit,degrees)
     end
+    -- Falling
+    unit.falling = function()
+        local IsFalling = _G["IsFalling"]
+        return IsFalling()
+    end
+    -- Fall Time
+    unit.fallTime = function()
+        local getFallTime = _G["getFallTime"]
+        return getFallTime()
+    end
     -- Flying
     unit.flying = function()
         local IsFlying = _G["IsFlying"]
@@ -183,6 +193,16 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "player" end
         return GetUnitSpeed(thisUnit) > 0
     end
+    -- Moving Time
+    local movingTimer
+    unit.movingTime = function()
+        local GetTime = _G["GetTime"]
+        if movingTimer == nil then movingTimer = GetTime() end
+        if not self.unit.moving() then
+            movingTimer = GetTime()
+        end
+        return GetTime() - movingTimer
+    end
     -- Name
     unit.name = function(thisUnit)
         local UnitName = _G["UnitName"]
@@ -262,5 +282,36 @@ br.api.unit = function(self)
     unit.valid = function(thisUnit)
         local isValidUnit = _G["isValidUnit"]
         return isValidUnit(thisUnit)
+    end
+    -- Weapon Imbue Fuctions
+    if unit.weaponImbue == nil then unit.weaponImbue = {} end
+    -- Weapon Imbue Exists
+    unit.weaponImbue.exists = function(imbueId,offHand)
+        local GetWeaponEnchantInfo = _G["GetWeaponEnchantInfo"]
+        local hasMain, _, _, mainId, hasOff, _, _, offId = GetWeaponEnchantInfo()
+        if offHand == nil then offHand = false end
+        if imbueId == nil then
+            if offHand then imbueId = offId else imbueId = mainId end
+        end
+        if offHand and hasOff and offId == imbueId then return true end
+        if not offHand and hasMain and mainId == imbueId then return true end
+        return false
+    end
+    -- Weapon Imbue Remains
+    unit.weaponImbue.remain = function(imbueId,offHand)
+        local GetWeaponEnchantInfo = _G["GetWeaponEnchantInfo"]
+        local _, mainExp, _, _, _, offExp = GetWeaponEnchantInfo()
+        local timeRemain = 0
+        if offHand and self.unit.weaponImbue.exists(imbueId,true) then timeRemain = offExp - GetTime() end
+        if not offHand and self.unit.weaponImbue.exists(imbueId) then timeRemain = mainExp - GetTime() end
+        return timeRemain > 0 and timeRemain or 0
+    end
+    -- Weapon Imbue Charges
+    unit.weaponImbue.charges = function(imbueId,offHand)
+        local GetWeaponEnchantInfo = _G["GetWeaponEnchantInfo"]
+        local _, _, mainCharges, _, _, _, offCharges = GetWeaponEnchantInfo()
+        if offHand and self.unit.weaponImbue.exists(imbueId,true) then return offCharges end
+        if not offHand and self.unit.weaponImbue.exists(imbueId) then return mainCharges end
+        return 0
     end
 end
