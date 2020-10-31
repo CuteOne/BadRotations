@@ -620,7 +620,7 @@ actionList.Finisher = function()
     if cast.able.templarsVerdict() --and ((ui.mode.rotation == 1 and #enemies.yards8 < ui.value("Divine Storm Units"))
         --or (ui.mode.rotation == 3 and #enemies.yards5 > 0) or unit.level() < 40)
     then
-        if ((not talent.crusade or cd.cursade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
+        if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
             and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) and var.dsUnits)
             and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Final Reckoning")) 
                 or talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() 
