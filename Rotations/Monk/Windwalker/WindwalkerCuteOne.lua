@@ -441,7 +441,7 @@ actionList.CdSef = function()
         end
         -- Essence - Concentrated Flame
         -- concentrated_flame,if=!dot.concentrated_flame_burn.remains&((!talent.whirling_dragon_punch.enabled|cooldown.whirling_dragon_punch.remains)&cooldown.rising_sun_kick.remains&cooldown.fists_of_fury.remains&buff.storm_earth_and_fire.down)|fight_remains<8
-        if cast.able.concentratedFlame() and alwaysCdNever("Concentrated Flame") and (not debuff.concentratedFlameBurn.remain(units.dyn5)
+        if cast.able.concentratedFlame() and alwaysCdNever("Concentrated Flame") and (not debuff.concentratedFlame.remain(units.dyn5)
             and ((not talent.whirlingDragonPunch or cd.whirlingDragonPunch.exists())
                 and cd.risingSunKick.exists() and cd.fistsOfFury.exists() and not buff.stormEarthAndFire.exists())
                     or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 8))
@@ -572,7 +572,7 @@ actionList.CdSerenity = function()
         -- Essence - Concentrated Flame
         -- concentrated_flame,if=(cooldown.serenity.remains|cooldown.concentrated_flame.charges=2)&!dot.concentrated_flame_burn.remains&(cooldown.rising_sun_kick.remains&cooldown.fists_of_fury.remains|fight_remains<8)
         if cast.able.concentratedFlame() and alwaysCdNever("Concentrated Flame")
-            and ((cd.serenity.exists() or charges.concentratedFlame.count() == 2) and not debuff.concentratedFlameBurn.exists()
+            and ((cd.serenity.exists() or charges.concentratedFlame.count() == 2) and not debuff.concentratedFlame.exists()
             and (cd.risingSunKick.exists() and cd.fistsOfFury.exists() or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 8)))
         then
             if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame") return true end
