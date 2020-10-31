@@ -886,7 +886,7 @@ actionList.dps = function()
             end]]
     -- new roll the rollTheBones
     --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
-    if buff_rollTheBones_remain < 3 then
+    if cast.able.rollTheBones() then
         if cast.rollTheBones() then
             return true
         end
@@ -1175,11 +1175,10 @@ actionList.Extra = function()
         return
     end
 
-    if not inCombat and #enemies.yards40 > 0 and not stealth and combo > 0 and (buff_rollTheBones_remain <= 3 or rollthebones()) then
+    if cast.able.rollTheBones() then
         if cast.rollTheBones() then
             return true
         end
-
     end
 
     if cast.able.sliceAndDice() then
