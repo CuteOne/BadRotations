@@ -160,9 +160,7 @@ local cast
 local cd
 local charges
 local debuff
-local debug
 local enemies
-local equiped
 local essence
 local focus
 local focusMax
@@ -177,7 +175,6 @@ local traits
 local ui
 local unit
 local units
-local use
 local var
 
 local actionList = {}
@@ -1200,9 +1197,7 @@ local function runRotation()
     cd                                            = br.player.cd
     charges                                       = br.player.charges
     debuff                                        = br.player.debuff
-    debug                                         = br.addonDebug
     enemies                                       = br.player.enemies
-    equiped                                       = br.player.equiped
     essence                                       = br.player.essence
     focus                                         = br.player.power.focus.amount()
     focusMax                                      = br.player.power.focus.max()
@@ -1212,8 +1207,9 @@ local function runRotation()
     spell                                         = br.player.spell
     talent                                        = br.player.talent
     traits                                        = br.player.traits
+    ui                                            = br.player.ui
+    unit                                          = br.player.unit
     units                                         = br.player.units
-    use                                           = br.player.use
     var                                           = br.player.variables
     -- Units
     units.get(5)
