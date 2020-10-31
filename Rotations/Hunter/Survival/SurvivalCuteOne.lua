@@ -367,7 +367,7 @@ end -- End Action List - Interrupt
 
 -- Action List - Cooldowns
 actionList.Cooldown = function()
-    if ui.ui.useCDs() and unit.distance(var.eagleUnit) < var.eagleRange then
+    if ui.useCDs() and unit.distance(var.eagleUnit) < var.eagleRange then
         -- -- Trinkets
         -- if ui.checked("Trinkets") then
         --     for i = 13, 14 do
