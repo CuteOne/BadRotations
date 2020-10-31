@@ -88,6 +88,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Vanish", "Will use Vanish")
             br.ui:createCheckbox(section, "Shadow Blades", "Will use Shadow Blades")
             br.ui:createCheckbox(section, "Precombat", "Will use items/pots on pulltimer")
+            br.ui:createCheckbox(section, "Opener", "Cast all cooldowns during opener with bosses")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -522,7 +523,7 @@ local function runRotation()
         for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
             stunList[tonumber(i)] = true
         end
-        if useInterrupts() and not stealthedAll then
+        if useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
                 local distance = getDistance(thisUnit)
@@ -532,17 +533,18 @@ local function runRotation()
                     end
                     if cd.kick.remain() ~= 0 and distance < 5 then
                         if isChecked("Kidney Shot/Cheap Shot") then
-                            if buff.shadowDance.exists() then
+                            if stealthedAll then
                                 if cast.cheapShot(thisUnit) then return true end
+                            elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                                if cast.kidneyShot(thisUnit) then return true end
                             end
-                            if cast.kidneyShot(thisUnit) then return true end
                         end
                     end
                     if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
                         if cast.blind(thisUnit) then return end
                     end
                 end
-                if isChecked("Stuns") and distance < 5 and combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                if isChecked("Stuns") and distance < 5 then
                     local interruptID, castStartTime
                     if UnitCastingInfo(thisUnit) then
                         castStartTime = select(4,UnitCastingInfo(thisUnit))
@@ -554,8 +556,9 @@ local function runRotation()
                     if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
                         if stealthedAll then
                             if cast.cheapShot(thisUnit) then return true end
+                        elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                            if cast.kidneyShot(thisUnit) then return true end
                         end
-                        if cast.kidneyShot(thisUnit) then return true end
                     end
                 end
             end
@@ -885,8 +888,8 @@ local function runRotation()
         if comboDeficit >= 4 or (comboDeficit <= 1 and priorityRotation) then shdComboPoints = 1 else shdComboPoints = 0 end
         -- # Dance during Symbols or above threshold.
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and ttd("target") > 3 and (cdUsage and (isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 15 and not cd.vanish.exists()) or not isChecked("Save SD Charges for CDs"))
-         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) then
+        if mode.sd == 1 and ttd("target") > 3 and (cdUsage and (isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and not cd.vanish.exists()) or not isChecked("Save SD Charges for CDs"))
+         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -1071,11 +1074,18 @@ local function runRotation()
             if not stealthedRogue and validTarget and targetDistance < 5 and not IsCurrentSpell(6603) then
                 StartAttack("target")
             end
+            -- OG Opener
+            if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 118 and buff.sliceAndDice.exists("player") then
+                cast.shadowBlades("player")
+                cast.symbolsOfDeath("player")
+                cast.shadowDance("player")
+                cast.racial()
+            end
             -- Off GCD Cooldowns
             if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
                 if actionList_CooldownsOGCD() then return true end
             end
-            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
+            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118.5 or sndCondition == 1) then
                 if gcd < getLatency() then
                     -- # Check CDs at first
                     -- actions+=/call_action_list,name=cds
