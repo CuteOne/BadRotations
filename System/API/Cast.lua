@@ -67,8 +67,7 @@ br.api.cast = function(self,spell,id)
     cast.cancel[spell] = function()
         local SpellStopCasting = _G["SpellStopCasting"]
         if self.cast.current[spell]() then
-            MoveBackwardStart()
-            MoveBackwardStop()
+            SpellStopCasting()
             return true
         end
         return false

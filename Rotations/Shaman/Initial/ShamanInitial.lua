@@ -1,9 +1,10 @@
-local rotationName = "Initial Shaman" -- Change to name of profile listed in options drop down
+local rotationName = "Initial Shaman"
+local br = _G["br"]
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles() -- Define custom toggles
+local function createToggles()
     -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.lightningBolt },
@@ -33,32 +34,41 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
+        local section
         -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
+        --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General Version 1.0")
-            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
-             -- Ghost Wolf
-             br.ui:createCheckbox(section, "Auto Ghost Wolf", "|cff0070deCheck this to automatically control GW transformation based on toggle bar setting.")
-             br.ui:createDropdownWithout(section, "Ghost Wolf Key",br.dropOptions.Toggle,6,"|cff0070deSet key to hold down for Ghost Wolf")
-             br.ui:createCheckbox(section, "Flametongue", "|cff0070deCheck this to keep flametongue weapon enchant up.")
-             br.ui:createCheckbox(section, "Lightning Shield", "|cff0070deCheck this to keep lightning shield up.")
+            -- Basic Trinket Module
+            br.player.module.BasicTrinkets(nil,section)
+            -- Ghost Wolf
+            br.ui:createCheckbox(section, "Auto Ghost Wolf", "|cff0070deCheck this to automatically control GW transformation based on toggle bar setting.")
+            br.ui:createSpinnerWithout(section, "Ghost Wolf Shift Delay", 2, 0, 5, 1, "|cff0070deSet to desired time to wait before shifting into Ghost Wolf.")
+            br.ui:createDropdownWithout(section, "Ghost Wolf Key",br.dropOptions.Toggle,6,"|cff0070deSet key to hold down for Ghost Wolf")
+            -- FLametongue Weapon
+            br.ui:createCheckbox(section, "Flametongue Weapon", "|cff0070deCheck this to keep flametongue weapon enchant up.")
+            -- Lightning Shield
+            br.ui:createCheckbox(section, "Lightning Shield", "|cff0070deCheck this to keep lightning shield up.")
         br.ui:checkSectionState(section)
         -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+        --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
             -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- OOC Healing
+            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
             --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -73,90 +83,75 @@ end
 --------------
 --- Locals ---
 --------------
--- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
+-- BR API Locals
 local buff
 local cast
 local cd
-local comboPoints
 local debuff
 local enemies
-local energy
-local inCombat
-local mode
+local module
 local ui
 local unit
 local units
-local spell
--- General Locals - Common Non-BR API Locals used in profiles
-local haltProfile
-local profileStop
--- Profile Specific Locals - Any custom to profile locals
+local var
 local actionList = {}
-local wolf                                          
-local movingTimer
 
 -----------------
---- Functions --- -- List all profile specific custom functions here
+--- Functions ---
 -----------------
-
--- Time Moving
-local function timeMoving()
-    if movingTimer == nil then movingTimer = GetTime() end
-    if not unit.moving() then
-        movingTimer = GetTime()
-    end
-    return GetTime() - movingTimer
-end
-
 local function ghostWolf()
     -- Ghost Wolf
-    if not (IsMounted() or IsFlying()) and isChecked("Auto Ghost Wolf") then
-       if mode.ghostWolf == 1 then
-           if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
-               if cast.ghostWolf() then br.addonDebug("Casting Ghost Wolf") end
-           elseif movingCheck and buff.ghostWolf.exists() and br.timer:useTimer("Delay",0.5) then
-               RunMacroText("/cancelAura Ghost Wolf")
-           end
-       elseif mode.ghostWolf == 2 then
-           if not buff.ghostWolf.exists() and isMoving("player") then 
-               if SpecificToggle("Ghost Wolf Key")  and not GetCurrentKeyBoardFocus() then
-                   if cast.ghostWolf() then br.addonDebug("Casting Ghost Wolf") end
-               end
-           elseif buff.ghostWolf.exists() then
-               if SpecificToggle("Ghost Wolf Key") then
-                   return
-               else
-                   if br.timer:useTimer("Delay",0.25) then
-                       RunMacroText("/cancelAura Ghost Wolf")
-                   end
-               end
-           end
-       end        
-   end
+    local moveTimer = unit.movingTime()
+    if not (unit.mounted() or unit.flying()) and ui.checked("Auto Ghost Wolf") then
+        if ui.mode.ghostWolf == 1 then
+            if cast.able.ghostWolf() and ((#enemies.yards20 == 0 and not unit.inCombat()) or (#enemies.yards10 == 0 and unit.inCombat()))
+                and unit.moving() and moveTimer > ui.value("Ghost Wolf Shift Delay") and not buff.ghostWolf.exists()
+            then
+                if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Moving]") end
+            elseif not unit.moving() and buff.ghostWolf.exists() and br.timer:useTimer("Delay",0.5) then
+                -- RunMacroText("/cancelAura Ghost Wolf")
+                buff.ghostWolf.cancel()
+                ui.debug("Canceled Ghost Wolf")
+            end
+       elseif ui.mode.ghostWolf == 2 then
+            if cast.able.ghostWolf() and not buff.ghostWolf.exists() and unit.moving() then 
+                if ui.toggle("Ghost Wolf Key") then
+                    if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Keybind]") end
+                end
+            elseif buff.ghostWolf.exists() then
+                if ui.toggle("Ghost Wolf Key") then
+                    return
+                elseif br.timer:useTimer("Delay",0.25) then
+                    buff.ghostWolf.cancel()
+                    ui.debug("Canceled Ghost Wolf")
+                end
+            end
+        end
+    end
 end
 
 --------------------
---- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
+--- Action Lists ---
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
-    if ui.checked("Flametongue") then
-        if select(4, GetWeaponEnchantInfo()) ~= 5400 then
-            if cast.flametongue() then return true end
-        end
-
+    -- FLametongue Weapon
+    if ui.checked("Flametongue Weapon") and cast.able.flametongueWeapon() and not unit.weaponImbue.exists() then
+        if cast.flametongueWeapon("player") then ui.debug("Casting Flametongue Weapon") return true end
     end
-    if ui.checked("Lightning Shield") then
-        if not buff.lightningShield.exists() then
-            if cast.lightningShield() then return true end
-        end
+    -- Lightning Shield
+    if ui.checked("Lightning Shield") and cast.able.lightningShield() and not buff.lightningShield.exists() then
+        if cast.lightningShield("player") then ui.debug("Casting Lightning Shield") return true end
     end
 end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-       if ui.checked("Healing Surge") and not unit.moving() then
+        -- Basic Healing Module
+        module.BasicHealing()
+        -- Healing Surge
+        if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
             if unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
                 if cast.healingSurge("target") then ui.debug("Casting Healing Surge on "..unit.name("target")) return true end
             elseif unit.hp("player") <= ui.value("Healing Surge") then
@@ -168,8 +163,15 @@ end -- End Action List - Defensive
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    if unit.distance("target") > 5 then
-        if cast.flameShock() then return end
+    if not unit.inCombat() and unit.distance("target") > 5 then
+        -- Lightning Bolt
+        if cast.able.lightningBolt() and not unit.moving() then
+            if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [Pre-Combat]") return true end
+        end
+        -- Flame Shock
+        if cast.able.flameShock() then
+            if cast.flameShock() then ui.debug("Casting Flame Shock [Pre-Combat]") return true end
+        end
     end
 end -- End Action List - PreCombat
 
@@ -184,49 +186,49 @@ local function runRotation()
     buff                                        = br.player.buff
     cast                                        = br.player.cast
     cd                                          = br.player.cd
-    comboPoints                                 = br.player.power.comboPoints.amount()
     debuff                                      = br.player.debuff
     enemies                                     = br.player.enemies
-    energy                                      = br.player.power.energy.amount()
-    inCombat                                    = br.player.inCombat
-    mode                                        = br.player.ui.mode
+    module                                      = br.player.module
     ui                                          = br.player.ui
     unit                                        = br.player.unit
     units                                       = br.player.units
-    spell                                       = br.player.spell
+    var                                         = br.player.variables
     -- General Locals
-    movingTimer                                 = timeMoving()
-    profileStop                                 = profileStop or false
-    haltProfile                                 = (inCombat and profileStop) or pause() or ui.rotation==4
+    var.profileStop                             = var.profileStop or false
+    var.haltProfile                             = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or ui.mode.rotation==4
     -- Units
-    units.get(5) -- Makes a variable called, units.dyn5
-    units.get(40) -- Makes a variable called, units.dyn40
+    units.get(5)
+    units.get(40)
     -- Enemies
-    enemies.get(5) -- Makes a varaible called, enemies.yards5
-    enemies.get(10) -- Makes a varaible called, enemies.yards10
-    enemies.get(20) -- Makes a varaible called, enemies.yards20
-    enemies.get(40) -- Makes a varaible called, enemies.yards40
+    enemies.get(5)
+    enemies.get(10)
+    enemies.get(20)
+    enemies.get(40)
 
-    -- Profile Specific Locals
-    wolf                                        = br.player.buff.ghostWolf.exists()
+
+    -- Cancel Lightning Bolt in Melee
+    if unit.distance("target") < 5 and cast.current.lightningBolt() then
+        if cast.cancel.lightningBolt() then ui.debug("Canceled Lightning Bolt Cast [Melee Range]") end
+    end
 
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not unit.exists("target") and profileStop then
-        profileStop = false
-    elseif haltProfile then
+    if not unit.inCombat()and not unit.exists("target") and var.profileStop then
+        var.profileStop = false
+    elseif var.haltProfile then
         return true
     else
+        -- Ghost Wolf
         ghostWolf()
         ---------------------------------
         --- Out Of Combat - Rotations ---
         ---------------------------------
-        if not inCombat and not IsMounted() and not drinking then
-            if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
+        if not unit.inCombat() and not unit.mounted() then
+            if (buff.ghostWolf.exists() and ui.mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                 actionList.Extra()
-                if isChecked("OOC Healing") then
+                if ui.checked("OOC Healing") then
                     actionList.PreCombat()
                 end
             end
@@ -246,31 +248,30 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if inCombat and unit.valid("target") and cd.global.remain() == 0 then
-            if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
-                if unit.distance("target") > 5 then
-                    if not debuff.flameShock.exists("target") then
-                        if cast.flameShock() then return end
-                    end
-                    if cast.lightningBolt() then return end
+        if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
+            if (buff.ghostWolf.exists() and ui.mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
+                 -- Start Attack
+                unit.startAttack()
+                -- Basic Trinkets Module
+                module.BasicTrinkets()
+                -- Flame Shock
+                if cast.able.flameShock() and not debuff.flameShock.exists(units.dyn40) then
+                    if cast.flameShock() then ui.debug("Casting Flame Shock") return true end
                 end
-                ------------------------
-                --- In Combat - Main ---
-                ------------------------
-                -- Melee in melee range
-                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    -- Start Attack
-                    if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                        StartAttack(units.dyn5)
-                    end
-                    if cast.primalStrike() then return end
+                -- Primal Strike
+                if cast.able.primalStrike() then
+                    if cast.primalStrike() then ui.debug("Casting Primal Strike") return true end
+                end
+                -- Lightning Bolt
+                if cast.able.lightningBolt() and not unit.moving() and (unit.distance("target") > 5 or unit.level() < 2) then
+                    if cast.lightningBolt() then ui.debug("Casting Lightning Bolt") return true end
                 end
             end
         end -- End In Combat Rotation
     end -- Pause
     return true
 end -- End runRotation
-local id = 1444 -- Change to the spec id profile is for.
+local id = 1444
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
