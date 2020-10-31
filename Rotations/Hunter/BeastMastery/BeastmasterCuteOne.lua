@@ -190,19 +190,6 @@ local lowestBarbedShot
 -----------------
 --- Functions ---
 -----------------
-local function isTankInRange()
-    if ui.checked("Auto Growl") then
-        if #br.friend > 1 then
-            for i = 1, #br.friend do
-                local friend = br.friend[i]
-                if friend.GetRole()== "TANK" and not unit.deadOrGhost(friend.unit) and unit.distance(friend.unit) < 100 then
-                return true
-                end
-            end
-        end
-    end
-    return false
-end
 
 --------------------
 --- Action Lists ---
@@ -224,25 +211,22 @@ actionList.Extras = function()
     if ui.mode.misdirection == 1 then
         local misdirectUnit = nil
         if unit.valid("target") and unit.distance("target") < 40 then
+            -- Misdirect to Tank
+            if ui.value("Misdirection") == 1 then
+                local tankInRange, tankUnit = isTankInRange()
+                if tankInRange then misdirectUnit = tankUnit end
+            end
+            -- Misdirect to Focus
+            if ui.value("Misdirection") == 2 and unit.friend("focus","player") then
+                misdirectUnit = "focus"
+            end
+            -- Misdirect to Pet
             if ui.value("Misdirection") == 3 then
                 misdirectUnit = "pet"
             end
-            if ui.value("Misdirection") == 1 then
-                for i = 1, #br.friend do
-                    local thisFriend = br.friend[i].unit
-                    if (thisFriend == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
-                        and not unit.deadOrGhost(thisFriend)
-                    then
-                        misdirectUnit = thisFriend
-                    end
-                end
-            end
-            if ui.value("Misdirection") == 2 and not unit.deadOrGhost("focus")
-                and unit.friend("focus","player")
-            then
-                misdirectUnit = "focus"
-            end
-            if unit.exists(misdirectUnit) then
+            -- Failsafe to Pet, if unable to misdirect to Tank or Focus
+            if misdirectUnit == nil then misdirectUnit = "pet" end
+            if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
                 if cast.misdirection(misdirectUnit) then ui.debug("Casting Misdirection on "..unit.name(misdirectUnit)) return true end
             end
         end
