@@ -572,7 +572,7 @@ actionList.CdSerenity = function()
         -- Essence - Concentrated Flame
         -- concentrated_flame,if=(cooldown.serenity.remains|cooldown.concentrated_flame.charges=2)&!dot.concentrated_flame_burn.remains&(cooldown.rising_sun_kick.remains&cooldown.fists_of_fury.remains|fight_remains<8)
         if cast.able.concentratedFlame() and alwaysCdNever("Concentrated Flame")
-            and ((cd.serenity.exists() or charges.concentratedFlame.count() == 2) and not debuff.concentratedFlame.exists()
+            and ((cd.serenity.exists() or charges.concentratedFlame.count() == 2) and not debuff.concentratedFlame.exists(units.dyn5)
             and (cd.risingSunKick.exists() and cd.fistsOfFury.exists() or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 8)))
         then
             if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame") return true end
