@@ -493,7 +493,7 @@ actionList.CdSef = function()
     -- Touch of Karma
     -- touch_of_karma,interval=90,pct_health=0.5
     if cast.able.touchOfKarma() and alwaysCdNever("Touch of Karma - CD") then
-        if cast.touchOfKarma() then ui.debug("Casting Touch of Karma [CD]") return true end
+        if cast.touchOfKarma() then ui.debug("Casting Touch of Karma [CD - Storm, Earth, and Fire]") return true end
     end
     -- Racials
     if alwaysCdNever("Racial") then
@@ -659,7 +659,7 @@ actionList.CdSerenity = function()
     -- Touch of Karma
     -- touch_of_karma,interval=90,pct_health=0.5
     if cast.able.touchOfKarma() and alwaysCdNever("Touch of Karma - CD") then
-        if cast.touchOfKarma() then ui.debug("Casting Touch of Karma") return true end
+        if cast.touchOfKarma() then ui.debug("Casting Touch of Karma [Serenity]") return true end
     end
     -- Serenity
     -- serenity,if=cooldown.rising_sun_kick.remains<2|fight_remains<15
@@ -1140,9 +1140,7 @@ local function runRotation()
     
     -- Crackling Jade Lightning - Cancel
     if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
-        ui.debug("Canceling Crackling Jade Lightning [Within "..ui.value("Cancel CJL Range").."yrds]")
-        MoveBackwardStart()
-        MoveBackwardStop()
+        if cast.cancel.cracklingJadeLightning() then ui.debug("Canceling Crackling Jade Lightning [Within "..ui.value("Cancel CJL Range").."yrds]") return true end
     end
 
     -- Flying Serpent Kick - Cancel
