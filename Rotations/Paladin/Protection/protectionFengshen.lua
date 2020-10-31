@@ -52,6 +52,8 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Blessing of Freedom")
 		-- Auto cancel Blessing of Protection
 		br.ui:createCheckbox(section, "Auto cancel BoP")
+		-- Automatic Aura replacement
+		br.ui:createCheckbox(section, "Automatic Aura replacement")
 		-- Taunt
 		br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
@@ -842,6 +844,13 @@ local function runRotation()
 	---------------------
 	--- Begin Profile ---
 	---------------------
+	if isChecked("Automatic Aura replacement") then
+		if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
+			if CastSpellByName(GetSpellInfo(465)) then return end
+		elseif not buff.crusaderAura.exists() and IsMounted() then
+			if CastSpellByName(GetSpellInfo(32223)) then return end
+		end
+	end
 	--Profile Stop | Pause
 	if not inCombat and not hastar and profileStop == true then
 		profileStop = false
