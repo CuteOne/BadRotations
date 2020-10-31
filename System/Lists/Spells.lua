@@ -2499,7 +2499,7 @@ br.lists.spells = {
                 masteryMainGauche           = 76806,
                 pistolShot                  = 185763,
                 riposte                     = 199754,
-                rollTheBones                = 193316,
+                rollTheBones                = 315508,
                 sinisterStrike              = 193315,
                 stealth                     = 1784,
             },
@@ -2730,6 +2730,7 @@ br.lists.spells = {
                 masterAssassinsInitiative   = 235027, --235022
                 sprint                      = 2983,
                 stealth                     = 115191,
+                stealthAll                     = 1784,
                 vanish                      = 11327 or 115193,
             },
             debuffs                         = {
