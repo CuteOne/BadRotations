@@ -72,6 +72,7 @@ local function createOptions()
 		br.ui:createSpinner(section, "Avenging Wrath",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
 		-- Holy Avenger
 		br.ui:createSpinner(section, "Holy Avenger",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
+		br.ui:createCheckbox(section, "Holy Avenger with Wings")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
@@ -783,7 +784,8 @@ local function runRotation()
 					if CastSpellByName(GetSpellInfo(31884)) then return end
 				end
 				-- Holy Avenger
-				if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and (getOptionValue("Holy Avenger") <= ttd ) then
+				if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and 
+				((not isChecked("Holy Avenger with Wings") and getOptionValue("Holy Avenger") <= ttd ) or (isChecked("Holy Avenger with Wings") and getSpellCD(31884) == 0))then
 					if CastSpellByName(GetSpellInfo(105809)) then return end
 				end
 			end
@@ -825,10 +827,6 @@ local function runRotation()
 			end
 		end
 	end -- End Action List - Interrupts
-	-- Action List - PreCombat
-	local function actionList_PreCombat()
-		-- PreCombat abilities listed here
-	end -- End Action List - PreCombat
 	-- Action List - Opener
 	local function actionList_Opener()
 		if isValidUnit("target") and getFacing("player","target") then
@@ -864,10 +862,6 @@ local function runRotation()
 		--- Defensive Rotation ---
 		--------------------------
 		if actionList_Defensive() then return end
-		------------------------------
-		--- Out of Combat Rotation ---
-		------------------------------
-		if actionList_PreCombat() then return end
 		----------------------------
 		--- Out of Combat Opener ---
 		----------------------------
@@ -875,7 +869,7 @@ local function runRotation()
 		--------------------------
 		--- In Combat Rotation ---
 		--------------------------
-		if inCombat and not (IsMounted() or buff.divineSteed.exists()) and profileStop==false then
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false then
 			------------------------------
 			--- In Combat - Interrupts ---
 			------------------------------

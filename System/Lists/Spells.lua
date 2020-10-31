@@ -1882,6 +1882,7 @@ br.lists.spells = {
                 vindicator                  = 200376,
                 avengingCrusader            = 216331,
                 symbolOfHope                = 64901,
+                divineSteed                 = 254474,
             },
             debuffs                         = {
                 judgement                   = 214222,
@@ -1943,6 +1944,7 @@ br.lists.spells = {
                 shieldOfTheRighteous        = 132403,
                 shiningLight                = 327510,
                 avengersValor               = 197561,
+                divineSteed                 = 254474,
             },
             debuffs                         = {
                 blessedHammer               = 204301,
@@ -1992,6 +1994,7 @@ br.lists.spells = {
                 divineRight                 = 278523,
                 empyreanPower               = 326733, --286393,
                 selflessHealer              = 114250,
+                divineSteed                 = 221883,
             },
             debuffs                         = {
                 executionSentence           = 267798,
@@ -2059,7 +2062,6 @@ br.lists.spells = {
                 crusaderAura                = 32223,
                 devotionAura                = 465,
                 divineShield                = 642,
-                divineSteed                 = 190784,
                 blessingOfProtection        = 1022,
                 holyAvenger                 = 105809,
                 retributionAura             = 183435,
