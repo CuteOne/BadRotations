@@ -333,7 +333,7 @@ br.rotations.support["PetCuteOne"] = {
                 end
             end
             -- Debuff Abilities
-            if ui.checked("Use Debuff Ability") and debuff.mortalWounds.refresh("pettarget") then
+            if ui.checked("Use Debuff Ability") and petCombat and validTarget and petDistance < 5 and not isTotem(br.petTarget) and debuff.mortalWounds.refresh("pettarget") then
                 -- Acid Bite
                 if cast.able.acidBite() then
                     if cast.acidBite() then ui.debug("[Pet] Cast Acid Bite") return true end
@@ -467,11 +467,12 @@ br.rotations.support["PetCuteOne"] = {
                 if cast.dash("player") then ui.debug("[Pet] Cast Dash") return true end
             end
             -- Fetch
-            if ui.checked("Fetch") and not unit.inCombat() and cast.able.fetch() and petExists and not br.deadPet then
+            if ui.checked("Fetch") and not unit.inCombat() and not petCombat and cast.able.fetch() and petExists and not br.deadPet then
                 if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
                 for k, v in pairs(br.lootable) do
                     if br.lootable[k] ~= nil then
-                        if unit.distance(br.lootable[k]) > 8 and not fetching then
+                        local thisDistance = unit.distance(br.lootable[k])
+                        if thisDistance > 8 and thisDistance < 40 and not fetching then
                             cast.fetch("pet")
                             fetchCount = getLootableCount()
                             fetching = true
