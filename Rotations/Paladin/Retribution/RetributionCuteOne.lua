@@ -57,8 +57,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Blessing of Freedom
             br.ui:createDropdown(section, "Blessing of Freedom", playTarMouseFocLow, 1, "|cffFFFFFFTarget to Cast On")
-            -- Hand of Hinderance
-            br.ui:createCheckbox(section, "Hand of Hinderance")
+            -- Hand of Hindrance
+            br.ui:createCheckbox(section, "Hand of Hindrance")
             -- Divine Storm Units
             br.ui:createSpinnerWithout(section, "Divine Storm Units",  2,  1,  5,  1,  "|cffFFBB00Units to use Divine Storm.")
             -- Heart Essence
@@ -290,10 +290,10 @@ actionList.Extras = function()
         end
     end
     -- Hand of Hinderance
-    if ui.checked("Hand of Hinderance") and cast.able.handOfHinderance("target") and unit.moving("target")
+    if ui.checked("Hand of Hindrance") and cast.able.handOfHinderance("target") and unit.moving("target")
         and not unit.facing("target","player") and unit.distance("target") > 8 and unit.hp("target") < 25
     then
-        if cast.handOfHinderance("target") then ui.debug("Casting Hand of Hinderance on "..unit.name("target")) return true end
+        if cast.handOfHindrance("target") then ui.debug("Casting Hand of Hindrance on "..unit.name("target")) return true end
     end
 end -- End Action List - Extras
 -- Action List - Defensives
@@ -617,8 +617,8 @@ actionList.Finisher = function()
     end
     -- Templar's Verdict
     -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3&spell_targets.divine_storm<=3)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*3)&(!covenant.necrolord.enabled|cooldown.vanquishers_hammer.remains>gcd)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10|buff.vanquishers_hammer.up
-    if cast.able.templarsVerdict() and ((ui.mode.rotation == 1 and #enemies.yards8 < ui.value("Divine Storm Units"))
-        or (ui.mode.rotation == 3 and #enemies.yards5 > 0) or unit.level() < 40)
+    if cast.able.templarsVerdict() --and ((ui.mode.rotation == 1 and #enemies.yards8 < ui.value("Divine Storm Units"))
+        --or (ui.mode.rotation == 3 and #enemies.yards5 > 0) or unit.level() < 40)
     then
         if ((not talent.crusade or cd.cursade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
             and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) and var.dsUnits)
