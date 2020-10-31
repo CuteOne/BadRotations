@@ -72,8 +72,6 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
-            -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Harpoon
@@ -1158,7 +1156,7 @@ actionList.PreCombat = function()
     -- FlaskUp Module
     module.FlaskUp("Agility")
     -- Init Combat
-    if not unit.inCombat() and unit.distance("target") < 40 and unit.valid("target") and opener.complete then
+    if not unit.inCombat() and unit.distance("target") < 40 and unit.valid("target") then --and opener.complete then
         -- Steel Trap
         -- steel_trap
         if cast.able.steelTrap("target") then
@@ -1166,15 +1164,15 @@ actionList.PreCombat = function()
         end
         -- Serpent Sting
         if cast.able.serpentSting("target") and (unit.ttd("target") > 3 or unit.isDummy()) and not debuff.serpentSting.exists("target") then
-            if cast.serpentSting("target") then ui.debug("Casting Serpent Sting [Per-Combat]") return true end
+            if cast.serpentSting("target") then ui.debug("Casting Serpent Sting [Pre-Combat]") return true end
         end
         -- Start Attack
-        if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance("target") < 5 then
-            StartAttack("target")
+        if unit.distance("target") < 5 then
+            unit.startAttack()
         end
     end
     -- Call Action List - Opener
-    if actionList.Opener() then return true end
+    -- if actionList.Opener() then return true end
 end -- End Action List - PreCombat
 
 ----------------
@@ -1302,87 +1300,76 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if unit.inCombat() and unit.valid("target") and opener.complete and cd.global.remain() == 0 and not cast.current.focusedAzeriteBeam() then
+        if unit.inCombat() and unit.valid("target") --[[and opener.complete]] and cd.global.remain() == 0 and not cast.current.focusedAzeriteBeam() then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList.Interrupt() then return true end
-            ---------------------------
-            --- SimulationCraft APL ---
-            ---------------------------
-            if ui.value("APL Mode") == 1 then
-                -- Start Attack
-                -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+            -- Start Attack
+            -- actions=auto_attack
+            if unit.distance(units.dyn5) < 5 then
+                unit.startAttack()
+            end
+            -- Cooldowns
+            -- call_action_list,name=CDs
+            if actionList.Cooldown() then return true end
+            -- Mongoose Bite
+            -- mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
+            if cast.able.mongooseBite() and talent.mongooseBite and #var.eagleEnemies == 1
+                and unit.ttd(var.eagleUnit) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true)
+            then
+                if cast.mongooseBite(var.eagleUnit,nil,1,var.eagleRange) then ui.debug("Casting Mongoose Bite") return true end
+            end
+            if (ui.mode.rotation == 1 and eagleScout() < 3) or (ui.mode.rotation == 3 and eagleScout() > 0) or level < 23 then
+                -- Call Action List - Alpha Predator / Wildfire Infusion
+                -- call_action_list,name=apwfi,if=active_enemies<3&talent.chakrams.enabled&talent.alpha_predator.enabled
+                if talent.chakrams and talent.alphaPredator then
+                    if actionList.ApWfi() then return true end
                 end
-                -- Cooldowns
-                -- call_action_list,name=CDs
-                if actionList.Cooldown() then return true end
-                -- Mongoose Bite
-                -- mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
-                if cast.able.mongooseBite() and talent.mongooseBite and #var.eagleEnemies == 1
-                    and unit.ttd(var.eagleUnit) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true)
-                then
-                    if cast.mongooseBite(var.eagleUnit,nil,1,var.eagleRange) then ui.debug("Casting Mongoose Bite") return true end
+                -- Call Action List - Wildfire Infusion
+                -- call_action_list,name=wfi,if=active_enemies<3&talent.chakrams.enabled
+                if talent.chakrams and not talent.alphaPredator then
+                    if actionList.Wfi() then return true end
                 end
-                if (ui.mode.rotation == 1 and eagleScout() < 3) or (ui.mode.rotation == 3 and eagleScout() > 0) or level < 23 then
-                    -- Call Action List - Alpha Predator / Wildfire Infusion
-                    -- call_action_list,name=apwfi,if=active_enemies<3&talent.chakrams.enabled&talent.alpha_predator.enabled
-                    if talent.chakrams and talent.alphaPredator then
-                        if actionList.ApWfi() then return true end
-                    end
-                    -- Call Action List - Wildfire Infusion
-                    -- call_action_list,name=wfi,if=active_enemies<3&talent.chakrams.enabled
-                    if talent.chakrams and not talent.alphaPredator then
-                        if actionList.Wfi() then return true end
-                    end
-                    -- Call Action List - Single Target
-                    -- call_action_list,name=st,if=active_enemies<3&!talent.alpha_predator.enabled&!talent.wildfire_infusion.enabled
-                    if not talent.alphaPredator and not talent.wildfireInfusion then
-                        if actionList.St() then return true end
-                    end
-                    -- Call Action List - Alpha Predator
-                    -- call_action_list,name=apst,if=active_enemies<3&talent.alpha_predator.enabled&!talent.wildfire_infusion.enabled
-                    if talent.alphaPredator and not talent.wildfireInfusion then
-                        if actionList.ApSt() then return true end
-                    end
-                    -- Call Action List - Alpha Predator / Wildfire Infusion
-                    -- call_action_list,name=apwfi,if=active_enemies<3&talent.alpha_predator.enabled&talent.wildfire_infusion.enabled
-                    if talent.alphaPredator and talent.wildfireInfusion then
-                        if actionList.ApWfi() then return true end
-                    end
-                    -- Call Action List - Wildfire Infusion
-                    -- call_action_list,name=wfi,if=active_enemies<3&!talent.alpha_predator.enabled&talent.wildfire_infusion.enabled
-                    if not talent.alphaPredator and talent.wildfireInfusion then
-                        if actionList.Wfi() then return true end
-                    end
+                -- Call Action List - Single Target
+                -- call_action_list,name=st,if=active_enemies<3&!talent.alpha_predator.enabled&!talent.wildfire_infusion.enabled
+                if not talent.alphaPredator and not talent.wildfireInfusion then
+                    if actionList.St() then return true end
                 end
-                -- Call Action List - Cleave
-                -- call_action_list,name=cleave,if=active_enemies>1&!talent.birds_of_prey.enabled|active_enemies>2
-                if ((ui.mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8t > 1) and not talent.birdsOfPrey)
-                        or (eagleScout() > 2 or #enemies.yards8t > 2)))
-                    or (ui.mode.rotation == 2 and eagleScout() > 0)) and level >= 23
-                then
-                    if actionList.Cleave() then return true end
+                -- Call Action List - Alpha Predator
+                -- call_action_list,name=apst,if=active_enemies<3&talent.alpha_predator.enabled&!talent.wildfire_infusion.enabled
+                if talent.alphaPredator and not talent.wildfireInfusion then
+                    if actionList.ApSt() then return true end
                 end
-                -- Heart Essence - Concentrated Flame
-                -- concentrated_flame
-                if cast.able.concentratedFlame() then
-                    if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame") return true end
+                -- Call Action List - Alpha Predator / Wildfire Infusion
+                -- call_action_list,name=apwfi,if=active_enemies<3&talent.alpha_predator.enabled&talent.wildfire_infusion.enabled
+                if talent.alphaPredator and talent.wildfireInfusion then
+                    if actionList.ApWfi() then return true end
                 end
-                -- Racial - Arcane Torrent
-                -- arcane_torrent
-                if ui.checked("Racial") and cast.able.racial() and unit.race() == "BloodElf" then
-                    if cast.racial() then ui.debug("Casting Racial") return true end
+                -- Call Action List - Wildfire Infusion
+                -- call_action_list,name=wfi,if=active_enemies<3&!talent.alpha_predator.enabled&talent.wildfire_infusion.enabled
+                if not talent.alphaPredator and talent.wildfireInfusion then
+                    if actionList.Wfi() then return true end
                 end
-            end -- End SimC APL
-            ------------------------
-            --- Ask Mr Robot APL ---
-            ------------------------
-            if ui.value("APL Mode") == 2 then
-
-            end -- End AMR
+            end
+            -- Call Action List - Cleave
+            -- call_action_list,name=cleave,if=active_enemies>1&!talent.birds_of_prey.enabled|active_enemies>2
+            if ((ui.mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8t > 1) and not talent.birdsOfPrey)
+                    or (eagleScout() > 2 or #enemies.yards8t > 2)))
+                or (ui.mode.rotation == 2 and eagleScout() > 0)) and level >= 23
+            then
+                if actionList.Cleave() then return true end
+            end
+            -- Heart Essence - Concentrated Flame
+            -- concentrated_flame
+            if cast.able.concentratedFlame() then
+                if cast.concentratedFlame() then ui.debug("Casting Concentrated Flame") return true end
+            end
+            -- Racial - Arcane Torrent
+            -- arcane_torrent
+            if ui.checked("Racial") and cast.able.racial() and unit.race() == "BloodElf" then
+                if cast.racial() then ui.debug("Casting Racial") return true end
+            end
         end -- End In Combat Rotation
     end -- Pause
     return true
