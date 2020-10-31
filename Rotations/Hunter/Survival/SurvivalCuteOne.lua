@@ -1203,6 +1203,7 @@ local function runRotation()
     focusMax                                      = br.player.power.focus.max()
     focusRegen                                    = br.player.power.focus.regen()
     level                                         = br.player.level
+    module                                        = br.player.module
     opener                                        = br.player.opener
     spell                                         = br.player.spell
     talent                                        = br.player.talent
