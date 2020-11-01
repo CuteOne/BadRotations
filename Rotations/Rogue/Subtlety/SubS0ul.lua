@@ -112,6 +112,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kick")
             br.ui:createCheckbox(section, "Kidney Shot/Cheap Shot")
             br.ui:createCheckbox(section, "Blind")
+            br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
             br.ui:createCheckbox(section, "Stuns", "Auto stun mobs from whitelist")
             br.ui:createSpinnerWithout(section,  "Max CP For Stun",  3,  1,  6,  1,  " Maximum number of combo points to stun")
@@ -150,6 +151,21 @@ end
 ----------------
 --- ROTATION ---
 ----------------
+local someone_casting = false
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local function reader()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
+    if param == "SPELL_CAST_START" and unitType == "Creature" then
+        C_Timer.After(0.02, function()
+            someone_casting = true
+            --Print("Mob Type: " .. unitType .. (someone_casting and 'true' or 'false'))
+        end)
+    end
+end
+frame:SetScript("OnEvent", reader)
+
 local function runRotation()
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed
@@ -360,15 +376,6 @@ local function runRotation()
                 end
             end
         end
-        -- if #enemyTable5 > 1 then
-        --     table.sort(enemyTable5, function(x)
-        --         if GetUnitIsUnit(x.unit, "target") then
-        --             return true
-        --         else
-        --             return false
-        --         end
-        --     end)
-        -- end
         if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable30[1].unit)
         end
@@ -395,6 +402,7 @@ local function runRotation()
     local ruptureRemain = debuff.rupture.remain("target")
     local ssThd = 0
     if enemies10 >= 4 then ssThd = 1 end
+    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() then someone_casting = false end
 
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
@@ -520,16 +528,31 @@ local function runRotation()
 
     local function actionList_Interrupts()
         local stunList = {}
+        local interrupt_target
+        local priority_target
+        local distance
+        if isChecked("Priority Mark") then
+            for i = 1, #enemies.yards20 do
+                if GetRaidTargetIndex(enemies.yards20[i]) == getOptionValue("Priority Mark") then
+                    priority_target = enemies.yards20[i]
+                    break
+                end
+            end
+        end
         for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
             stunList[tonumber(i)] = true
         end
         if useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
-                local thisUnit = enemies.yards20[i]
-                local distance = getDistance(thisUnit)
+                if priority_target ~= nil then
+                    interrupt_target = priority_target
+                else
+                    interrupt_target = enemies.yards20[i]
+                end
+                distance = getDistance(interrupt_target)
                 if canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
-                        if cast.kick(thisUnit) then return end
+                        if cast.kick(thisUnit) then end
                     end
                     if cd.kick.remain() ~= 0 and distance < 5 then
                         if isChecked("Kidney Shot/Cheap Shot") then
@@ -1047,8 +1070,11 @@ local function runRotation()
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) and opener == true then
             if cast.last.vanish(1) then StopAttack() end
-            if actionList_Defensive() then return true end
-            if actionList_Interrupts() then return true end
+            --print("Is someone casting: " .. (someone_casting and 'true' or 'false'))
+            if someone_casting == true then
+                if actionList_Defensive() then return true end
+                if actionList_Interrupts() then return true end
+            end
             --pre mfd
             if stealth and validTarget and comboDeficit > 2 and talent.markedForDeath and targetDistance < 10 then
                 if cast.markedForDeath("target") then
@@ -1075,7 +1101,7 @@ local function runRotation()
                 StartAttack("target")
             end
             -- OG Opener
-            if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 118 and buff.sliceAndDice.exists("player") then
+            if cdUsage and isChecked("Opener") and combatTime < 3 and cd.vanish.remain() < 118 and sndCondition == 1 then
                 cast.shadowBlades("player")
                 cast.symbolsOfDeath("player")
                 cast.shadowDance("player")
