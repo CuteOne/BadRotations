@@ -575,21 +575,21 @@ end -- End Action List - Essences
 actionList.AOE_Setup = function()
     -- Death and Decal / Defile
     -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
-    if var.fwoundTargets == #enemies.yards8 or ui.mode.rotation == 2 and #enemies.yards8 <= 11 then
+    if var.fwoundTargets == #enemies.yards5 or (ui.mode.rotation == 2 and #enemies.yards5 <= 11) then
         if cast.able.defile() and talent.defile then
-            if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [AOE Setup]") return true end
+            if cast.defile("best",nil,2,8) then ui.debug("Casting Defile [AOE Setup]") return true end
         end
         if cast.able.deathAndDecay() and not talent.defile then
-            if cast.deathAndDecay("best",nil,1,8) then ui.debug("Casting Death and Decay [AOE Setup]") return true end
+            if cast.deathAndDecay("best",nil,2,8) then ui.debug("Casting Death and Decay [AOE Setup]") return true end
         end
     end
     -- any_dnd,if=death_knight.fwounded_targets>=5
     if var.fwoundTargets >= 5 then
         if cast.able.defile() and talent.defile then
-            if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [AOE Setup - 5+]") return true end
+            if cast.defile("best",nil,2,8) then ui.debug("Casting Defile [AOE Setup - 5+]") return true end
         end
         if cast.able.deathAndDecay() and not talent.defile then
-            if cast.deathAndDecay("best",nil,1,8) then ui.debug("Casting Death and Decay [AOE Setup - 5+]") return true end
+            if cast.deathAndDecay("best",nil,2,8) then ui.debug("Casting Death and Decay [AOE Setup - 5+]") return true end
         end
     end
     -- Epidemic
