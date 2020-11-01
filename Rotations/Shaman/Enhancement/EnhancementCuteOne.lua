@@ -245,7 +245,7 @@ actionList.Defensive = function()
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
             if unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
                 if cast.healingSurge("target") then ui.debug("Casting Healing Surge on "..unit.name("target")) return true end
-            elseif unit.hp("player") <= ui.value("Healing Surge") then
+            elseif unit.hp("player") <= ui.value("Healing Surge") or (not unit.inCombat() and unit.hp() < 100) then
                 if cast.healingSurge("player") then ui.debug("Casting Healing Surge on "..unit.name("player")) return true end
             end
         end
@@ -321,8 +321,8 @@ actionList.HeartEssence = function()
         end
         -- Heart Essence - Reaping Flames
         if cast.able.reapingFlames() then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
+            for i = 1, #enemies.yards40f do
+                local thisUnit = enemies.yards40f[i]
                 if ((essence.reapingFlames.rank >= 2 and unit.hp(thisUnit) > 80) or unit.hp(thisUnit) <= 20 or unit.ttd(thisUnit,20) > 30) then
                     if cast.reapingFlames(thisUnit) then ui.debug("Casting Reaping Flames") return true end
                 end
@@ -345,8 +345,8 @@ actionList.AOE = function()
     -- Flame Shock
     -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|covenant.necrolord
     if talent.fireNova and cast.able.flameShock() then
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
                 if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock [AOE Fire Nova / Covenant]") return true end
             end
@@ -382,7 +382,7 @@ actionList.AOE = function()
     -- end
     -- Elemental Blast
     -- elemental_blast,if=buff.maelstrom_weapon.stack>=5&active_enemies!=3
-    if cast.able.elementalBlast() and buff.maelstromWeapon.stack() >= 5 and #enemies.yards40 ~= 3 then
+    if cast.able.elementalBlast() and buff.maelstromWeapon.stack() >= 5 and #enemies.yards40f ~= 3 then
         if cast.elementalBlast() then ui.debug("Casting Elemental Blast [AOE Not 3 Enemy]") return true end
     end
     -- Stormkeeper
@@ -398,8 +398,8 @@ actionList.AOE = function()
     -- Flame Shock
     -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled
     if talent.fireNova and cast.able.flameShock() then
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
                 if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock [AOE Fire Nova]") return true end
             end
@@ -423,8 +423,8 @@ actionList.AOE = function()
     -- Flame Shock
     -- flame_shock,target_if=refreshable,cycle_targets=1
     if cast.able.flameShock() then
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
                 if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock [AOE]") return true end
             end
@@ -432,7 +432,7 @@ actionList.AOE = function()
     end
     -- Elemental Blast
     -- elemental_blast,if=buff.maelstrom_weapon.stack>=5&active_enemies=3
-    if cast.able.elementalBlast() and buff.maelstromWeapon.stack() >= 5 and #enemies.yards40 == 3 then
+    if cast.able.elementalBlast() and buff.maelstromWeapon.stack() >= 5 and #enemies.yards40f == 3 then
         if cast.elementalBlast() then ui.debug("Casting Elemental Blast [AOE 3 Enemy]") return true end
     end
     -- Fae Trasfusion
@@ -565,8 +565,8 @@ actionList.Single = function()
     -- Flame Shock
     -- flame_shock,target_if=refreshable
     if cast.able.flameShock() then
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
                 if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock [ST Refresh]") return true end
             end
@@ -660,7 +660,7 @@ actionList.PreCombat = function()
                 if cast.feralLunge("target") then ui.debug("Casting Feral Lunge [Pull]") return true end
             end
             -- Lightning Bolt
-            if ui.checked("Lightning Bolt Out of Combat") and cast.able.lightningBolt()
+            if ui.checked("Lightning Bolt Out of Combat") and cast.able.lightningBolt() and not unit.moving()
                 and unit.distance("target") >= 10 and (not ui.checked("Feral Lunge") or not talent.feralLunge
                     or cd.feralLunge.remain() > unit.gcd(true) or not cast.able.feralLunge())
                 and (not ui.checked("Ghost Wolf") or unit.distance("target") <= 20 or not buff.ghostWolf.exists())
@@ -710,7 +710,7 @@ local function runRotation()
     -- enemies.yards11r = getEnemiesInRect(10,11,false) or 0
     enemies.get(20)
     enemies.get(30)
-    enemies.get(40)
+    enemies.get(40,"player",false,true)
 
     if unit.distance("target") < 5 and buff.maelstromWeapon.stack() < 5 then
         -- Cancel Lightning Bolt in Melee
