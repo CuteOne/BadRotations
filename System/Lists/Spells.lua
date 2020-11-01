@@ -2897,9 +2897,9 @@ br.lists.spells = {
                 stormstrike                 = 17364,
                 sundering                   = 197214,
                 totemMastery                = 262395,
-                windFuryWeapon              = 33757,
+                windfuryWeapon              = 33757,
                 windstrike                  = 115356, --17364,
-                windFuryTotem               = 8512,
+                windfuryTotem               = 8512,
             },
             artifacts                       = {
 
