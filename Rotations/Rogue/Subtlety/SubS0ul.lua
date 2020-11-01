@@ -160,7 +160,6 @@ local function reader()
     if param == "SPELL_CAST_START" and unitType == "Creature" then
         C_Timer.After(0.02, function()
             someone_casting = true
-            --Print("Mob Type: " .. unitType .. (someone_casting and 'true' or 'false'))
         end)
     end
 end
@@ -550,37 +549,37 @@ local function runRotation()
                     interrupt_target = enemies.yards20[i]
                 end
                 distance = getDistance(interrupt_target)
-                if canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
+                if canInterrupt(interrupt_target,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
-                        if cast.kick(thisUnit) then end
+                        if cast.kick(interrupt_target) then end
                     end
                     if cd.kick.remain() ~= 0 and distance < 5 then
                         if isChecked("Kidney Shot/Cheap Shot") then
                             if stealthedAll then
-                                if cast.cheapShot(thisUnit) then return true end
+                                if cast.cheapShot(interrupt_target) then return true end
                             elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
-                                if cast.kidneyShot(thisUnit) then return true end
+                                if cast.kidneyShot(interrupt_target) then return true end
                             end
                         end
                     end
                     if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
-                        if cast.blind(thisUnit) then return end
+                        if cast.blind(interrupt_target) then return end
                     end
                 end
                 if isChecked("Stuns") and distance < 5 then
                     local interruptID, castStartTime
-                    if UnitCastingInfo(thisUnit) then
-                        castStartTime = select(4,UnitCastingInfo(thisUnit))
-                        interruptID = select(9,UnitCastingInfo(thisUnit))
-                    elseif UnitChannelInfo(thisUnit) then
-                        castStartTime = select(4,UnitChannelInfo(thisUnit))
-                        interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
+                    if UnitCastingInfo(interrupt_target) then
+                        castStartTime = select(4,UnitCastingInfo(interrupt_target))
+                        interruptID = select(9,UnitCastingInfo(interrupt_target))
+                    elseif UnitChannelInfo(interrupt_target) then
+                        castStartTime = select(4,UnitChannelInfo(interrupt_target))
+                        interruptID = select(7,GetSpellInfo(UnitChannelInfo(interrupt_target)))
                     end
                     if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
                         if stealthedAll then
-                            if cast.cheapShot(thisUnit) then return true end
+                            if cast.cheapShot(interrupt_target) then return true end
                         elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
-                            if cast.kidneyShot(thisUnit) then return true end
+                            if cast.kidneyShot(interrupt_target) then return true end
                         end
                     end
                 end
@@ -1070,7 +1069,6 @@ local function runRotation()
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) and opener == true then
             if cast.last.vanish(1) then StopAttack() end
-            --print("Is someone casting: " .. (someone_casting and 'true' or 'false'))
             if someone_casting == true then
                 if actionList_Defensive() then return true end
                 if actionList_Interrupts() then return true end
