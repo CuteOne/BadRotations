@@ -334,7 +334,7 @@ actionList.Extras = function()
     -- Death Grip
     if ui.checked("Death Grip") and cast.able.deathGrip() then
         local thisUnit = talent.deathsReach and units.dyn40 or units.dyn30
-        if unit.inCombat() and unit.distance(thisUnit) > 8 and ((talent.deathsReach and unit.distance(thisUnit) < 40) or unit.distance(thisUnit) < 30) and not unit.isDummy(thisUnit) then
+        if unit.inCombat() and unit.distance(thisUnit) > 10 and ((talent.deathsReach and unit.distance(thisUnit) < 40) or unit.distance(thisUnit) < 30) and not unit.isDummy(thisUnit) then
             if cast.deathGrip() then ui.debug("Casting Death Grip") return true end
         end
     end
@@ -407,7 +407,7 @@ actionList.Interrupts = function()
             local theseEnemies = talent.deathsReach and enemies.yards40 or enemies.yards30
             for i = 1,  #theseEnemies do
                 local thisUnit = theseEnemies[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
+                if canInterrupt(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 10 then
                     if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Int]") return true end
                 end
             end
@@ -774,7 +774,7 @@ actionList.PreCombat = function()
     if unit.valid("target") and not unit.inCombat() then
         -- Death Grip
         if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not unit.isDummy("target")
-            and unit.distance("target") > 8 and ((talent.deathsReach and unit.distance("target") < 40) or unit.distance("target") < 30)
+            and unit.distance("target") > 10 and ((talent.deathsReach and unit.distance("target") < 40) or unit.distance("target") < 30)
         then
             if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
         end
@@ -820,6 +820,7 @@ local function runRotation()
 
     -- Units Declaration
     units.get(5)
+    units.get(25)
     units.get(30)
     units.get(30,true)
     units.get(40)
@@ -1059,17 +1060,17 @@ local function runRotation()
                     end
                     -- Outbreak
                     -- outbreak,if=dot.virulent_plague.refreshable&!talent.unholy_blight.enabled&!raid_event.adds.exists
-                    if cast.able.outbreak(units.dyn5) and debuff.virulentPlague.refresh(units.dyn5)
-                        and not talent.unholyBlight and ui.useST(8,2)
+                    if cast.able.outbreak(units.dyn25) and debuff.virulentPlague.refresh(units.dyn25)
+                        and not talent.unholyBlight and ui.useST(25,2)
                     then
-                        if cast.outbreak(units.dyn5) then ui.debug("Casting Outbreak [ST]") return true end
+                        if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [ST]") return true end
                     end
                     -- outbreak,if=dot.virulent_plague.refreshable&(!talent.unholy_blight.enabled|talent.unholy_blight.enabled&cooldown.unholy_blight.remains)&active_enemies>=2
-                    if cast.able.outbreak(units.dyn5) and debuff.virulentPlague.refresh(units.dyn5)
+                    if cast.able.outbreak(units.dyn25) and debuff.virulentPlague.refresh(units.dyn25)
                         and (not talent.unholyBlight or talent.unholyBlight and cd.unholyBlight.exists())
-                        and ui.useAOE(8,2)
+                        and ui.useAOE(25,2)
                     then
-                        if cast.outbreak(units.dyn5) then ui.debug("Casting Outbreak [AOE]") return true end
+                        if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [AOE]") return true end
                     end
                     -- Call Action List - Cooldowns
                     -- call_action_list,name=cooldowns
