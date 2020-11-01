@@ -1586,7 +1586,7 @@ local function runRotation()
             end
 
             -- Phantom Singularity
-            if talent.phantomSingularity and not moving and not shards > 1 then
+            if talent.phantomSingularity and not moving and shards > 0 then
                 if cast.phantomSingularity() then br.addonDebug("Casting Phantom Singularity") return true end
             end
 
