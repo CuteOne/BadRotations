@@ -3,6 +3,10 @@ if br.api == nil then br.api = {} end
 br.api.ui = function(self)
     local ui = self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
+    ui.alwaysCdNever = function(thisOption)
+        local thisOption = ui.value(thisOption)
+        return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+    end
     if ui.chatOverlay == nil then
         ui.chatOverlay = function(text)
             local ChatOverlay = _G["ChatOverlay"]
