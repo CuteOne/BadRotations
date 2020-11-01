@@ -24,8 +24,8 @@ local function createToggles()
     CreateButton("Cooldown", 2, 0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 0, icon = br.player.spell.riposte },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.riposte }
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 0, icon = br.player.spell.evasion },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.evasion }
     };
     CreateButton("Defensive", 3, 0)
     -- Interrupt Button
@@ -119,7 +119,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createSpinner(section, "Crimson Vial", 10, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createSpinner(section, "Feint", 10, 0, 100, 5, "Health Percentage to use at.")
-        br.ui:createSpinner(section, "Riposte", 10, 0, 100, 5, "Health Percentage to use at.")
+        br.ui:createSpinner(section, "Evasion", 10, 0, 100, 5, "Health Percentage to use at.")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Aggro")
         br.ui:createCheckbox(section, "Aggro Management", "Shake aggro?")
@@ -128,16 +128,18 @@ local function createOptions()
         end
         br.ui:createCheckbox(section, "[AM] - Tricks", "Shake aggro?")
         br.ui:createCheckbox(section, "[AM] - Vanish", "Shake aggro?")
+        br.ui:createCheckbox(section, "[AM] - Evasion", "Shake aggro?")
+
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupt/stun Options")
         -- Interrupt Percentage
-        br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
-        br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
         br.ui:createDropdownWithout(section, "Gouge", { "None", "Interrupt", "Stun", "Both" }, 4, "", "How do you want to use Gouge?")
         br.ui:createDropdownWithout(section, "Blind", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Blind?")
+        br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
+        br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
         br.ui:checkSectionState(section)
     end
 
@@ -201,16 +203,18 @@ local stealth
 local combo, comboDeficit, comboMax
 local ambush_flag = false
 local do_stun
-local dynamic_target_melee
 local auto_stealthed
-local buff_rollTheBones_remain = 0
-local buff_rollTheBones_count = 0
 local real_def
 local should_pool
 local rnd5 -- rand number between 1 and 5
 local rnd10 --random number between 1 and 10
+local dynamic_target_melee
+local buff_rollTheBones_remain
+
 
 -- lists ...lots of lists
+
+
 
 local debuff_list = {
 
@@ -524,45 +528,6 @@ local function already_stunned(Unit)
     return false
 end
 
-local function rollthebones()
-    local buff_count = 0
-    local rtb_reroll
-    local crit = GetSpellCritChance(1)
-
-    rtb_reroll = buff_rollTheBones_count < 2 and not buff.ruthlessPrecision.exists("player") and not buff.grandMelee.exists("player")
-
-    if br.player.traits.deadshot.active or crit > 42 then
-        rtb_reroll = buff_rollTheBones_count < 2 and (buff.loadedDice.exists() or not buff.broadside.exists())
-        --    Print("2: " .. tostring(rtb_reroll) .. "|" .. tostring(buff_rollTheBones_count))
-    end
-
-    if br.player.traits.aceupyoursleeve.active and (br.player.traits.aceupyoursleeve.rank >= br.player.traits.deadshot.rank and crit < 42) then
-        rtb_reroll = buff_rollTheBones_count < 2 and (buff.loadedDice.exists() or buff.ruthlessPrecision.remains() <= cd.betweenTheEyes.remains())
-    end
-
-    if br.player.traits.snakeeyes.rank >= 2 and buff.snakeeyes.stack() >= (2 - buff.broadside.exists()) then
-        rtb_reroll = false
-    end
-    if (buff.bladeFlurry.exists()) then
-        --or #enemies > 1) then
-        buff_count = buff.skullAndCrossbones.exists() and 1 or 0
-        --[[     if buff.skullAndCrossbones.exists() then
-                 buff_count = 1
-             end]]
-        rtb_reroll = ((buff_rollTheBones_count - buff_count) < 2)
-                and (buff.loadedDice.exists() or not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists() and not buff.broadside.exists())
-    end
-    if buff.loadedDice.exists() then
-        rtb_reroll = buff_rollTheBones_count - buff.buriedTreasure.exists() < 2 or buff_rollTheBones_remain < 10.8 + (1.8 * br.player.talent.deeperStratagem)
-    end
-
-    if cd.betweenTheEyes.remains() == 0 and buff_rollTheBones_count > 0 then
-        rtb_reroll = false
-    end
-
-    return (rtb_reroll)
-
-end
 local function ambushCondition()
     if mode.ambush == 1 and #br.friend > 1 then
         local buff_count = 0
@@ -723,7 +688,7 @@ end
 -- essences
 actionList.essences = function()
 
-    real_def = br.player.power.comboPoints.max() - buff_count()
+    --   real_def = br.player.power.comboPoints.max() - buff_count()
 
     if (getCombatTime() > 2 or buff.tricksOfTheTrade.exists() or #br.friend == 1) and not stealth and not IsMounted() then
         -- Reaping Flames
@@ -867,7 +832,7 @@ actionList.dps = function()
 
     --Auto attack
     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
-        StartAttack(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
+        StartAttack(dynamic_target_melee)
     end
     --[[
         --Marked for death, high priority
@@ -886,7 +851,7 @@ actionList.dps = function()
             end]]
     -- new roll the rollTheBones
     --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
-    if cast.able.rollTheBones() then
+    if cast.able.rollTheBones() and mode.cooldown == 1 and buff_rollTheBones_remain < 3 then
         if cast.rollTheBones() then
             return true
         end
@@ -935,7 +900,7 @@ actionList.dps = function()
         end
 
         --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
-        if cast.able.sliceAndDice() then
+        if cast.able.sliceAndDice() and combo > 0 then
             if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                 if cast.sliceAndDice() then
                     return true
@@ -943,10 +908,26 @@ actionList.dps = function()
             end
         end
 
-        local finish_target = units.dyn5 or talent.acrobaticStrikes and units.dyn8
-        if cast.able.dispatch(finish_target) and not isExplosive(finish_target) then
-            if cast.dispatch(finish_target) then
+        if cast.able.dispatch(dynamic_target_melee) and not isExplosive(dynamic_target_melee) then
+            if cast.dispatch(dynamic_target_melee) then
                 return true
+            end
+        end
+    else
+        if not stealth and not should_pool then
+            if cast.able.pistolShot() and buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
+                    or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
+                    and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
+                --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
+                if cast.pistolShot(units.dyn20) then
+                    return true
+                end
+            end
+            if cast.able.sinisterStrike(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) then
+                --Print("Casting Sinister at: " .. combo)
+                if cast.sinisterStrike(dynamic_target_melee) then
+                    return true
+                end
             end
         end
     end -- end finishers
@@ -967,8 +948,8 @@ actionList.dps = function()
     blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>2
     variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
     ]]
-    if talent.bladeRush and cast.able.bladeRush() and ((#enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
-        if cast.bladeRush(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
+    if talent.bladeRush and cast.able.bladeRush() and ((#enemies.yards5 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
+        if cast.bladeRush(dynamic_target_melee) then
             return true
         end
     end
@@ -1116,29 +1097,6 @@ actionList.dps = function()
             end
         end
     end
-    -- builders\
-    --serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
-
-
-    -- echoing_reprimand
-    --Print("Combo: " .. combo .. "/ goal: " .. tostring((comboMax - buff_count())))
-    if combo < real_def and not stealth and not should_pool then
-
-        if cast.able.pistolShot() and buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
-                or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
-                and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
-            --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
-            if cast.pistolShot(units.dyn20) then
-                return true
-            end
-        end
-        if cast.able.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) and not noDamageCheck(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
-            --Print("Casting Sinister at: " .. combo)
-            if cast.sinisterStrike(units.dyn5 or talent.acrobaticStrikes and units.dyn8) then
-                return true
-            end
-        end
-    end
 end
 
 actionList.Stealth = function()
@@ -1174,21 +1132,21 @@ actionList.Extra = function()
         CastSpellByName(GetSpellInfo(spell.distract), "cursor")
         return
     end
-
-    if cast.able.rollTheBones() then
-        if cast.rollTheBones() then
-            return true
-        end
-    end
-
-    if cast.able.sliceAndDice() then
-        if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
-            if cast.sliceAndDice() then
+    if mode.cooldown == 1 then
+        if cast.able.rollTheBones() then
+            if cast.rollTheBones() then
+                br.player.ui.debug("rolling bones!")
                 return true
             end
         end
+        if cast.able.sliceAndDice() and combo > 0 then
+            if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+                if cast.sliceAndDice() then
+                    return true
+                end
+            end
+        end
     end
-
     if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
         dps_key()
     end
@@ -1255,7 +1213,7 @@ actionList.Defensive = function()
             [261440] = true, -- Virulent Pathogen WM
             [265773] = true -- Spit Gold KR
         }
-        local parryList = {
+        local dodgeList = {
             [266231] = true -- Severing Axe KR
         }
 
@@ -1264,13 +1222,8 @@ actionList.Defensive = function()
         }
 
 
-
-
-
-
-
-        -- vanish/cloak/riposte logic
-        if someone_casting and (cast.able.vanish() or cast.able.cloakOfShadows() or cast.able.riposte() or cast.able.feint()) then
+        -- vanish/cloak/evasion logic
+        if someone_casting and (cast.able.vanish() or cast.able.cloakOfShadows() or cast.able.evasion() or cast.able.feint()) then
             local bosscount = 0 -- counting bosses
             for i = 1, 5 do
                 if GetUnitExists("boss" .. i) then
@@ -1301,8 +1254,8 @@ actionList.Defensive = function()
                             if cast.cloakOfShadows() then
                                 return true
                             end
-                        elseif parryList[interruptID] then
-                            if cast.riposte() then
+                        elseif dodgeList[interruptID] then
+                            if cast.evasion() then
                                 return true
                             end
                         elseif br.player.talent.elusiveness and feintList[interruptID] then
@@ -1323,8 +1276,8 @@ actionList.Defensive = function()
                             if cast.cloakOfShadows() then
                                 return true
                             end
-                        elseif parryList[interruptID] then
-                            if cast.riposte() then
+                        elseif dodgeList[interruptID] then
+                            if cast.evasion() then
                                 return true
                             end
                         elseif feintList[interruptID] then
@@ -1407,8 +1360,8 @@ actionList.Defensive = function()
         end
 
         -- Evasion
-        if isChecked("Riposte") and php <= getOptionValue("Riposte") and inCombat then
-            if cast.riposte() then
+        if isChecked("Evasion") and php <= getOptionValue("Evasion") and inCombat then
+            if cast.evasion() then
                 return true
             end
         end
@@ -1595,7 +1548,7 @@ end -- End Action List - PreCombat
 ---------------
 
 
-local dice_reroll = false
+
 local someone_casting = false
 
 -- SimC specific variables
@@ -1603,18 +1556,10 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 local function reader()
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    -- print(...)
-    if param == "SPELL_CAST_SUCCESS" and spell == 193316 then
-        -- or param == "SPELL_AURA_REMOVED" then
-        C_Timer.After(0.02, function()
-            --    print("refresh rtb")
-            dice_reroll = true
-        end)
-    end
-    if param == "SPELL_CAST_START" then
+    if param == "SPELL_CAST_START" and bit.band(sourceFlags, 0x00000800) > 0 then
         C_Timer.After(0.02, function()
             someone_casting = true
-            --Print(source .. "/" .. sourceName .. " is casting " .. spellName)
+            --   Print(sourceName .. " is casting " .. spellName .. " - creature[" .. tostring(bit.band(sourceFlags, 0x00000800) > 0) .. "]")
         end)
     end
 end
@@ -1653,6 +1598,7 @@ local function runRotation()
     ttd = getTTD
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam()
     real_def = br.player.power.comboPoints.max() - buff_count()
+    dynamic_target_melee = talent.acrobaticStrikes and units.dyn8 or units.dyn5
 
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
@@ -1709,7 +1655,7 @@ local function runRotation()
         end
     end
 
-    if combo > 0 then
+    if br.timer:useTimer("check_for_buffs", 1) then
         for k, v in pairs(br.player.spell.buffs.rollTheBones) do
             if UnitBuffID("player", tonumber(v)) then
                 buff_rollTheBones_remain = tonumber(getBuffRemain("player", tonumber(v)))
@@ -1717,19 +1663,8 @@ local function runRotation()
                 break
             end
         end
-        --[[
-             Print("foo")
-             if cast.rollTheBones() then
-                 return true
-             end
-         end]]
     end
 
-    if talent.acrobaticStrikes then
-        dynamic_target_melee = units.dyn8
-    else
-        dynamic_target_melee = units.dyn5
-    end
 
     --        br.ui:createDropdown(section, "Draw Range", { "Never", "Blade Flurry", "always" }, 1, "Draw range on screen")
     if inCombat and getOptionValue("Draw Range") == 3 or getOptionValue("Draw Range") == 2 and buff.bladeFlurry.exists() then
@@ -1762,6 +1697,11 @@ local function runRotation()
                         end
                     end
                 end
+                if isChecked("[AM] - Evasion") and cast.able.evasion() and useDefensive() then
+                    if cast.evasion() then
+                        return true
+                    end
+                end
                 if not stealth then
                     if isChecked("[AM] - Shadowmeld") and br.player.race == "NightElf" and cast.able.shadowmeld() and isChecked("Use Racial") and not cast.last.tricksOfTheTrade(1) then
                         if cast.shadowmeld() then
@@ -1792,18 +1732,18 @@ local function runRotation()
     elseif haltProfile then
         return true
     else
-        if isChecked("Poison") then
-            if not moving and getOptionValue("Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison(1) then
+        if isChecked("Poison") and not inCombat and not moving then
+            if getOptionValue("Poison") == 1 and buff.instantPoison.remain() < 500 and not cast.last.instantPoison(1) then
                 if cast.instantPoison("player") then
                     return true
                 end
             end
-            if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+            if getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 500 and not cast.last.woundPoison(1) then
                 if cast.woundPoison("player") then
                     return true
                 end
             end
-            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+            if buff.cripplingPoison.remain() < 500 and not cast.last.cripplingPoison(1) then
                 if cast.cripplingPoison("player") then
                     return true
                 end
