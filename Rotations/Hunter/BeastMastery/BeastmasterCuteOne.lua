@@ -72,9 +72,8 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            -- Target Lock
             br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
-            -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Beast Mode
@@ -86,7 +85,7 @@ local function createOptions()
             -- Heart Essence
             br.ui:createCheckbox(section,"Use Essence")
             -- Opener
-            br.ui:createCheckbox(section, "Opener")
+            -- br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
         -- Pet Options
         br.rotations.support["PetCuteOne"].options()
@@ -822,13 +821,13 @@ actionList.PreCombat = function()
         --     end
         -- end
         -- Init Combat
-        if unit.distance("target") < 40 and unit.valid("target") and opener.complete then
+        if unit.distance("target") < 40 and unit.valid("target") then-- and opener.complete then
             -- Auto Shot
-            StartAttack()
+            unit.startAttack("target",true)
         end
     end -- End No Combat
     -- Opener
-    if actionList.Opener() then return true end
+    -- if actionList.Opener() then return true end
 end -- End Action List - PreCombat
 
 ----------------
@@ -962,30 +961,32 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if unit.inCombat() and unit.valid("target") and opener.complete then
+        if unit.inCombat() and unit.valid("target") then --and opener.complete then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList.Interrupts() then return true end
-            ---------------------------
-            --- SimulationCraft APL ---
-            ---------------------------
-            if ui.value("APL Mode") == 1 then
-                -- auto_shot
-                 StartAttack()
-                -- Basic Trinket Module
-                module.BasicTrinkets()
-                -- call_action_list,name=cds
-                if actionList.Cooldowns() then return true end
-                -- call_action_list,name=st,if=active_enemies<2
-                if (ui.mode.rotation == 1 and #enemies.yards8p < ui.value("Units To AoE")) or ui.mode.rotation == 3 or unit.level() < 16 then
-                    if actionList.St() then return true end
-                end
-                -- call_action_list,name=cleave,if=active_enemies>1
-                if (ui.mode.rotation == 1 and #enemies.yards8p >= ui.value("Units To AoE")) or ui.mode.rotation == 2 then
-                    if actionList.Cleave() then return true end
-                end
-            end -- End SimC APL
+            ------------------------
+            --- In Combat - Main ---
+            ------------------------
+            -- Start Attack
+            -- auto_shot
+            unit.startAttack("target",true)
+            -- Basic Trinket Module
+            module.BasicTrinkets()
+            -- Call Action List - Cooldowns
+            -- call_action_list,name=cds
+            if actionList.Cooldowns() then return true end
+            -- Call Action List - Single Target
+            -- call_action_list,name=st,if=active_enemies<2
+            if (ui.mode.rotation == 1 and #enemies.yards8p < ui.value("Units To AoE")) or ui.mode.rotation == 3 or unit.level() < 16 then
+                if actionList.St() then return true end
+            end
+            -- Call Action List - Cleave
+            -- call_action_list,name=cleave,if=active_enemies>1
+            if (ui.mode.rotation == 1 and #enemies.yards8p >= ui.value("Units To AoE")) or ui.mode.rotation == 2 then
+                if actionList.Cleave() then return true end
+            end
         end --End In Combat
     end --End Rotation Logic
 end -- End runRotation
