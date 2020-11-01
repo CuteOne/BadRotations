@@ -2910,7 +2910,7 @@ br.lists.spells = {
                 hotHand                     = 215785,
                 maelstromWeapon             = 344179,
                 stormkeeper                 = 320137,
-                windFuryTotem               = 327942,
+                windfuryTotem               = 327942,
             },
             debuffs                         = {
 
