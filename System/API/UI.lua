@@ -3,6 +3,10 @@ if br.api == nil then br.api = {} end
 br.api.ui = function(self)
     local ui = self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
+    ui.alwaysCdNever = function(thisOption)
+        local thisOption = ui.value(thisOption)
+        return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+    end
     if ui.chatOverlay == nil then
         ui.chatOverlay = function(text)
             local ChatOverlay = _G["ChatOverlay"]
@@ -26,10 +30,23 @@ br.api.ui = function(self)
             return br.lootManager:emptySlots() == 0
         end
     end
+    if ui.pause == nil then
+        ui.pause = function(ignoreChannel)
+            local pause = _G["pause"]
+            if ignoreChannel == nil then ignoreChannel = false end
+            return pause(ignoreChannel)
+        end
+    end
     if ui.pullTimer == nil then 
         ui.pullTimer = function()
             local PullTimerRemain = _G["PullTimerRemain"]
             return PullTimerRemain()
+        end
+    end
+    if ui.toggle == nil then
+        ui.toggle = function(thisToggle)
+            local SpecificToggle = _G["SpecificToggle"]
+            return not GetCurrentKeyBoardFocus() and SpecificToggle(thisToggle) or false
         end
     end
     if ui.value == nil then
@@ -40,8 +57,10 @@ br.api.ui = function(self)
         end
     end
     if ui.useAOE == nil then
-        ui.useAOE = function()
-            return (ui.mode.rotation == 1 and #self.enemies.get(8) >= 3) or ui.mode.rotation == 2
+        ui.useAOE = function(range,minCount)
+            if range == nil then range = 8 end
+            if minCount == nil then minCount = 3 end
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range) >= minCount) or (ui.mode.rotation == 2 and #self.enemies.get(range) > 0))
         end
     end
     if ui.useCDs == nil then
@@ -61,6 +80,13 @@ br.api.ui = function(self)
     if ui.useInterrupt == nil then
         ui.useInterrupt = function()
             return ui.mode.interrupt == 1
+        end
+    end
+    if ui.useST == nil then
+        ui.useST = function(range,minCount)
+            if range == nil then range = 8 end
+            if minCount == nil then minCount = 3 end
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range) < minCount) or (ui.mode.rotation == 3 and #self.enemies.get(range) > 0))
         end
     end
     if ui.print == nil then

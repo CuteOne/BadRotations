@@ -60,15 +60,15 @@ function hasItem(itemID)
 	return itemFound
 end
 -- useItem(12345)
-function useItem(itemID)
+function useItem(itemID,thisUnit)
 	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID <= 19 then
 		if GetItemSpell(GetInventoryItemID("player", itemID)) ~= nil then
 			local slotItemID = GetInventoryItemID("player", itemID)
 			if GetItemCooldown(slotItemID) == 0 then
 				if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
-					RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
-					-- UseItemByName((select(1,GetItemInfo(slotItemID))));
+					-- RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
+					UseItemByName(select(1,GetItemInfo(slotItemID)),thisUnit);
 					br.itemSpamDelay = GetTime() + 1
 					return true
 				end
@@ -77,8 +77,8 @@ function useItem(itemID)
 	elseif itemID > 19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID) == 0 then
 			if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
-				RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
-				-- UseItemByName((select(1,GetItemInfo(itemID))));
+				-- RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
+				UseItemByName(select(1,GetItemInfo(itemID)),thisUnit);
 				br.itemSpamDelay = GetTime() + 1
 				return true
 			end

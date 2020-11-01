@@ -13,17 +13,44 @@ br.api.unit = function(self)
     ----------------
     --- Unit API ---
     ----------------
-
+    -- Aberration
+    unit.aberration = function(thisUnit)
+        local isAberration = _G["isAberration"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isAberration(thisUnit)
+    end
     -- Can Attack
     unit.canAttack = function(thisUnit,playerUnit)
         local UnitCanAttack = _G["UnitCanAttack"]
         if playerUnit == nil then playerUnit = "player" end
         return UnitCanAttack(thisUnit,playerUnit)
     end
+    -- Cancelform
+    unit.cancelForm = function()
+        local RunMacroText = _G["RunMacroText"]
+        local CancelShapeshiftForm = _G["CancelShapeshiftForm"]
+        return CancelShapeshiftForm() or RunMacroText("/CancelForm")
+    end
+    -- Combat Time
+    unit.combatTime = function()
+        local getCombatTime = _G["getCombatTime"]
+        return getCombatTime()
+    end
+    -- Charmed
+    unit.charmed = function(thisUnit)
+        local UnitIsCharmed = _G["UnitIsCharmed"]
+        return UnitIsCharmed(thisUnit)
+    end
     -- Dead
     unit.deadOrGhost = function(thisUnit)
         local UnitIsDeadOrGhost = _G["UnitIsDeadOrGhost"]
         return UnitIsDeadOrGhost(thisUnit)
+    end
+    -- Demon
+    unit.demon = function(thisUnit)
+        local isDemon = _G["isDemon"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isDemon(thisUnit)
     end
     -- Distance
     unit.distance = function(thisUnit,otherUnit)
@@ -47,10 +74,29 @@ br.api.unit = function(self)
         if otherUnit == nil then otherUnit = "player" end
         return getFacing(thisUnit,otherUnit,degrees)
     end
+    -- Falling
+    unit.falling = function()
+        local IsFalling = _G["IsFalling"]
+        return IsFalling()
+    end
+    -- Fall Time
+    unit.fallTime = function()
+        local getFallTime = _G["getFallTime"]
+        return getFallTime()
+    end
     -- Flying
     unit.flying = function()
         local IsFlying = _G["IsFlying"]
         return IsFlying()
+    end
+    -- Forms
+    unit.form = function()
+        local GetShapeshiftForm = _G["GetShapeshiftForm"]
+        return GetShapeshiftForm()
+    end
+    unit.formCount = function()
+        local GetNumShapeshiftForms = _G["GetNumShapeshiftForms"]
+        return GetNumShapeshiftForms()
     end
     -- Friend
     unit.friend = function(thisUnit,playerUnit)
@@ -97,6 +143,13 @@ br.api.unit = function(self)
         local instanceType = select(2,IsInInstance())
         return thisInstance == nil and instanceType or instanceType == thisInstance
     end
+    -- Interruptable
+    unit.interruptable = function(thisUnit,castPercent)
+        local canInterrupt = _G["canInterrupt"]
+        if thisUnit == nil then thisUnit = "target" end
+        if castPercent == nil then castPercent = 0 end
+        return canInterrupt(thisUnit,castPercent)
+    end
     -- Is Boss
     unit.isBoss = function(thisUnit)
         local isBoss = _G["isBoss"]
@@ -123,6 +176,12 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "player" end
         return UnitLevel(thisUnit)
     end
+    -- Lowest Unit in Range
+    unit.lowest = function(range)
+        local getLowestUnit = _G["getLowestUnit"]
+        if range == nil then range = 5 end
+        return getLowestUnit(range)
+    end
     -- Mounted
     unit.mounted = function()
         local IsMounted = _G["IsMounted"]
@@ -134,15 +193,20 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "player" end
         return GetUnitSpeed(thisUnit) > 0
     end
+    -- Moving Time
+    local movingTimer
+    unit.movingTime = function()
+        local GetTime = _G["GetTime"]
+        if movingTimer == nil then movingTimer = GetTime() end
+        if not self.unit.moving() then
+            movingTimer = GetTime()
+        end
+        return GetTime() - movingTimer
+    end
     -- Name
     unit.name = function(thisUnit)
         local UnitName = _G["UnitName"]
         return UnitName(thisUnit)
-    end
-    -- No Control
-    unit.noControl = function()
-        local noControl = _G["hasNoControl"]
-        return hasNoControl()
     end
     -- Player
     unit.player = function(thisUnit)
@@ -162,6 +226,25 @@ br.api.unit = function(self)
         if playerUnit == nil then playerUnit = "player" end
         return GetUnitReaction(thisUnit,playerUnit)
     end
+    -- Role
+    unit.role = function(thisUnit)
+        local UnitGroupRolesAssigned = _G["UnitGroupRolesAssigned"]
+        if thisUnit == nil then thisUnit = "target" end
+        return UnitGroupRolesAssigned(thisUnit)
+    end
+    -- Start Attack
+    unit.startAttack = function(thisUnit,autoShoot)
+        local IsCurrentSpell = _G["IsCurrentSpell"]
+        local StartAttack = _G["StartAttack"]
+        if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
+            StartAttack(thisUnit)
+            if autoShoot then 
+                self.ui.debug("Casting Auto Shot")
+            else
+                self.ui.debug("Casting Auto Attack")
+            end
+        end
+    end
     -- Swimming
     unit.swimming = function()
         local IsSwimming = _G["IsSwimming"]
@@ -179,9 +262,56 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "target" end
         return getTTD(thisUnit,percent)
     end
+    -- Time Till Death Group
+    unit.ttdGroup = function(range,percent)
+        local getTTD = _G["getTTD"]
+        if range == nil then range = 5 end
+        local enemies = self.enemies.get(range)
+        local groupTTD = 0
+        for i = 1, #enemies do
+            groupTTD = groupTTD + getTTD(enemies[i],percent)
+        end
+        return groupTTD
+    end
+    -- Undead
+    unit.undead = function(thisUnit)
+        local isUndead = _G["isUndead"]
+        return isUndead(thisUnit)
+    end
     -- Valid
     unit.valid = function(thisUnit)
         local isValidUnit = _G["isValidUnit"]
         return isValidUnit(thisUnit)
+    end
+    -- Weapon Imbue Fuctions
+    if unit.weaponImbue == nil then unit.weaponImbue = {} end
+    -- Weapon Imbue Exists
+    unit.weaponImbue.exists = function(imbueId,offHand)
+        local GetWeaponEnchantInfo = _G["GetWeaponEnchantInfo"]
+        local hasMain, _, _, mainId, hasOff, _, _, offId = GetWeaponEnchantInfo()
+        if offHand == nil then offHand = false end
+        if imbueId == nil then
+            if offHand then imbueId = offId else imbueId = mainId end
+        end
+        if offHand and hasOff and offId == imbueId then return true end
+        if not offHand and hasMain and mainId == imbueId then return true end
+        return false
+    end
+    -- Weapon Imbue Remains
+    unit.weaponImbue.remain = function(imbueId,offHand)
+        local GetWeaponEnchantInfo = _G["GetWeaponEnchantInfo"]
+        local _, mainExp, _, _, _, offExp = GetWeaponEnchantInfo()
+        local timeRemain = 0
+        if offHand and self.unit.weaponImbue.exists(imbueId,true) then timeRemain = offExp - GetTime() end
+        if not offHand and self.unit.weaponImbue.exists(imbueId) then timeRemain = mainExp - GetTime() end
+        return timeRemain > 0 and timeRemain or 0
+    end
+    -- Weapon Imbue Charges
+    unit.weaponImbue.charges = function(imbueId,offHand)
+        local GetWeaponEnchantInfo = _G["GetWeaponEnchantInfo"]
+        local _, _, mainCharges, _, _, _, offCharges = GetWeaponEnchantInfo()
+        if offHand and self.unit.weaponImbue.exists(imbueId,true) then return offCharges end
+        if not offHand and self.unit.weaponImbue.exists(imbueId) then return mainCharges end
+        return 0
     end
 end

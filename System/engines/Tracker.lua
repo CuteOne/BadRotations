@@ -3,7 +3,7 @@ local drawInterval = 0.006
 DrawTargets = {}
 local magicScale = 5/256
 trackerFrame:SetScript("OnUpdate", function(...)
-	if getOptionValue("Enable Tracker") == 2 and br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 0 then
+	if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 0 and getOptionValue("Enable Tracker") == 2 then
 		if not GetWoWWindow then return end -- a
 		local sWidth, sHeight = GetWoWWindow()
 		for guid, target in pairs(DrawTargets) do

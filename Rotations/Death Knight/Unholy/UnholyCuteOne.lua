@@ -101,11 +101,11 @@ local function createOptions()
             -- Potion
             br.ui:createCheckbox(section, "Potion")
             -- Elixir
-            br.ui:createDropdownWithout(section, "Elixir", {"Flask of the Undertow","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+            br.player.module.FlaskUp("Strength",section)
             -- Racial
             br.ui:createCheckbox(section, "Racial")
             -- Trinkets
-            br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+            br.player.module.BasicTrinkets(nil,section)
             -- Ashvane's Razor Coral Stacks
             br.ui:createSpinnerWithout(section, "Ashvane's Razor Coral Stacks", 1, 1, 30, 1, "|cffFFBB00 Number of debuff stacks to cast trinket (Default=1 'SimC').")
             -- Azerite Beam Units
@@ -129,10 +129,8 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Healthstone
-            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to use at.")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to use at.")
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
             -- Anti-Magic Shell
             br.ui:createSpinner(section, "Anti-Magic Shell", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
             -- Death Strike
@@ -193,8 +191,8 @@ local debuff
 local enemies
 local equiped
 local essence
+local module
 local pet
-local race
 local runes
 local runeDeficit
 local runesTTM
@@ -207,10 +205,10 @@ local ui
 local unit
 local units
 local use
+local var
 
 -- General Locals
 local actionList = {}
-local var = {}
 
 --------------------
 --- Action Lists ---
@@ -350,6 +348,8 @@ end -- End Action List - Extras
 
 -- Action List - Defensive
 actionList.Defensive = function()
+    -- Basic Healing Module
+    module.BasicHealing()
     -- Anti-Magic Shell
     if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() and unit.hp() < ui.value("Anti-Magic Shell") then
         if cast.antiMagicShell() then ui.debug("Casting Anti-Magic Shell") return true end
@@ -417,76 +417,90 @@ end-- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    local groupTTD = 0
-    for i = 1, #enemies.yards45 do
-        local thisUnit = enemies.yards45[i]
-        groupTTD = groupTTD + unit.ttd(thisUnit)
-    end
+    -- Trinkets
+    -- use_items
+    module.BasicTrinkets()
+    -- Potion
+    -- potion,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned.enabled&(pet.army_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
     -- Army of the Dead
-    -- army_of_the_dead
+    -- army_of_the_dead,if=cooldown.unholy_blight.remains<5&talent.unholy_blight.enabled|!talent.unholy_blight.enabled
     if (ui.value("Army of the Dead") == 1 or (ui.value("Army of the Dead") == 2 and ui.useCDs()))
-        and groupTTD >= ui.value("CDs TTD Limit") and cast.able.armyOfTheDead() 
+        and var.fightRemains >= ui.value("CDs TTD Limit") and cast.able.armyOfTheDead()
+        and ((cd.unholyBlight.remains() < 5 and talent.unholyBlight) or not talent.unholyBlght)
     then
         if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead") return true end
     end
-    -- Apocalypse
-    -- apocalypse,if=debuff.festering_wound.stack>=4&(active_enemies>=2|!essence.vision_of_perfection.enabled|!azerite.magus_of_the_dead.enabled|essence.vision_of_perfection.enabled&(talent.unholy_assault.enabled&cooldown.unholy_assault.remains<=3|!talent.unholy_assault.enabled))    
-    if (ui.value("Apocalypse") == 1 or (ui.value("Apocalypse") == 2 and ui.useCDs()))
-        and cast.able.apocalypse() and debuff.festeringWound.stack(units.dyn5) >= 4
-        and (((ui.mode.rotation == 1 and #enemies.yards8 >= 2) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
-            or not essence.visionOfPerfection.active or not trait.magusOfTheDead.active
-            and (talent.unholyAssault and cd.unholyAssault.remain() <= 3 or not talent.unholyAssault))
-        and groupTTD >= ui.value("CDs TTD Limit")
-    then
-        if cast.apocalypse(units.dyn5) then ui.debug("Casting Apocalypse") return true end
+    -- Unholy Blight
+    if cast.able.unholyBlight() then
+        -- unholy_blight,if=!raid_event.adds.exists&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)&(cooldown.apocalypse.ready&(debuff.festering_wound.stack>=4|rune>=3)|cooldown.apocalypse.remains)&!raid_event.adds.exists
+        if ui.useST(8,2) and (cd.armyOfTheDead.remains() > 5 or var.aotdBypass)
+            and (not cd.apocalypse.exists() and (debuff.festeringWound.stack(units.dyn5) >= 4 or runes >= 3)
+                or cd.apocalypse.exists()) and ui.useST(8,2)
+        then
+            if cast.unholyBlight("player","aoe",1,10) then ui.debug("Casting Unholy Blight [ST]") return true end
+        end
+        -- unholy_blight,if=raid_event.adds.exists&(active_enemies>=2|raid_event.adds.in>15)
+        if ui.useAOE(8,2) then
+            if cast.unholyBlight("player","aoe",1,10) then ui.debug("Casting Unholy Blight [AOE]") return true end
+        end
     end
     -- Dark Transformation
-    -- dark_transformation,if=!raid_event.adds.exists|raid_event.adds.in>15
-    if pet.active.exists() and cast.able.darkTransformation()
-        and (ui.value("Dark Transformation") == 1 or (ui.value("Dark Transformation") == 2 and ui.useCDs())) and groupTTD >= ui.value("CDs TTD Limit")
-    then
-        if cast.darkTransformation() then ui.debug("Casting Dark Transformation") return true end
+    if cast.able.darkTransformation() then
+        -- dark_transformation,if=!raid_event.adds.exists&cooldown.unholy_blight.remains&(!runeforge.deadliest_coil.equipped|runeforge.deadliest_coil.equipped&(!buff.dark_transformation.up&!talent.unholy_pact.enabled|talent.unholy_pact.enabled))
+        if ui.useST(8,2) and cd.unholyBlight.exists() then--and (not )
+            if cast.darkTransformation() then ui.debug("Casting Dark Transformation [Unholy Blight]") return true end
+        end
+        -- dark_transformation,if=!raid_event.adds.exists&!talent.unholy_blight.enabled
+        if ui.useST(8,2) and not talent.unholyBlight then
+            if cast.darkTransformation() then ui.debug("Casting Dark Transformation [ST]") return true end
+        end
+        -- dark_transformation,if=raid_event.adds.exists&(active_enemies>=2|raid_event.adds.in>15)
+        if ui.useAOE(8,2) then
+            if cast.darkTransformation() then ui.debug("Casting Dark Transformation [AOE]") return true end
+        end
+    end
+    -- Apocalypse
+    if (ui.value("Apocalypse") == 1 or (ui.value("Apocalypse") == 2 and ui.useCDs())) and cast.able.apocalypse() then
+        -- apocalypse,if=active_enemies=1&debuff.festering_wound.stack>=4&((!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled)|talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&dot.unholy_blight.remains)
+        if enemies.yards8 == 1 and debuff.festeringWound.stack(units.dyn5) >= 4
+            and ((not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]]
+                or talent.unholyBlight and not talent.armyOfTheDamned and debuff.unholyBlight.exists(units.dyn5)))
+        then
+            if cast.apocalypse() then ui.debug("Casting Apocalypse [ST]") return true end
+        end
+        -- apocalypse,target_if=max:debuff.festering_wound.stack,if=active_enemies>=2&debuff.festering_wound.stack>=4&!death_and_decay.ticking
+        if ui.useAOE(8,2) and var.fwoundHighest >= 4 and not buff.deathAndDecay.exists() then
+            if cast.apocalypse(var.fwoundHighUnit) then ui.debug("Casting Apocalypse [AOE]") return true end
+        end
     end
     -- Summon Gargoyle
     -- summon_gargoyle,if=runic_power.deficit<14
-    if ui.checked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and groupTTD >= ui.value("CDs TTD Limit") then
+    if ui.checked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and var.fightRemains >= ui.value("CDs TTD Limit") then
         if cast.summonGargoyle() then ui.debug("Casting Summon Gargoyle") return true end
     end
     -- Unholy Assault
     if (ui.value("Unholy Assault") == 1 or (ui.value("Unholy Assault") == 2 and ui.useCDs()))
-        and cast.able.unholyAssault() and groupTTD >= ui.value("CDs TTD Limit")
+        and cast.able.unholyAssault() and var.fightRemains >= ui.value("CDs TTD Limit")
     then
-        -- unholy_assault,if=essence.vision_of_perfection.enabled&pet.apoc_ghoul.active|debuff.festering_wound.stack<4&!essence.vision_of_perfection.enabled&(!azerite.magus_of_the_dead.enabled|azerite.magus_of_the_dead.enabled&pet.apoc_ghoul.active)
-        if essence.visionOfPerfection.active and pet.apocalypseGhoul.exists() or debuff.festeringWound.stack(units.dyn5) < 4
-            and not essence.visionOfPerfection.active and (not trait.magusOfTheDead.active or trait.magusOfTheDead.active and pet.apocalypseGhoul.exists())
-        then
-            if cast.unholyAssault() then ui.debug("Casting Unholy Assauly") return true end
+        -- unholy_assault,if=active_enemies=1&debuff.festering_wound.stack<2&(pet.apoc_ghoul.active|conduit.convocation_of_the_dead.enabled)
+        if ui.useST(8,2) and debuff.festeringWound.stack(units.dyn5) < 2 and pet.apocalypseGhoul.active() then
+            if cast.unholyAssault() then ui.debug("Casting Unholy Assault [ST]") return true end
         end
-        -- unholy_assault,if=active_enemies>=2&((cooldown.death_and_decay.remains<=gcd&!talent.defile.enabled)|(cooldown.defile.remains<=gcd&talent.defile.enabled))
-        if ((ui.mode.rotation == 1 and #enemies.yards8 >= 2) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
-            and ((cd.deathAndDecay.remain() <= unit.gcd(true) and not talent.defile) or (cd.defile.remain() <= unit.gcd(true) and talent.defile))
-        then
-            if cast.unholyAssault() then ui.debug("Casting Unholy Assault [AOE]") return true end
+        -- unholy_assault,target_if=min:debuff.festering_wound.stack,if=active_enemies>=2&debuff.festering_wound.stack<2
+        if ui.useAOE(8,2) and var.fwoundLowest < 2 then
+            if cast.unholyAssault(var.fwoundLowUnit) then ui.debug("Casting Unholy Assault [AOE]") return true end
         end
     end
     -- Soul Reaper
     if (ui.value("Soul Reaper") == 1 or (ui.value("Soul Reaper") == 2 and ui.useCDs())) and cast.able.soulReaper() then
-        -- soul_reaper,target_if=target.time_to_die<8&target.time_to_die>4
-        if unit.ttd(units.dyn5) < 8 and unit.ttd(units.dyn5) > 4 then
+        -- soul_reaper,target_if=target.time_to_pct_35<5&target.time_to_die>5
+        if unit.ttd(units.dyn5,35) < 5 and unit.ttd(units.dyn5) > 5 then
             if cast.soulReaper() then ui.debug("Casting Soul Reaper") return true end
         end
-        -- soul_reaper,if=(!raid_event.adds.exists|raid_event.adds.in>20)&rune<=(1-buff.unholy_assault.up)
-        if ((ui.mode.rotation == 1 and #enemies.yards8 == 1) or (ui.mode.rotation == 3 and #enemies.yards8 > 0) or unit.isDummy())
-            and runes <= (1 - var.frenzied) and groupTTD >= ui.value("CDs TTD Limit")
-        then
-            if cast.soulReaper() then ui.debug("Casting Soul Reaper [Low Runes]") return true end
-        end
     end
-    -- Unholy Blight
-    -- unholu_blight
-    if (ui.value("Unholy Assault") == 1 or (ui.value("Unholy Assault") == 2 and ui.useCDs())) and cast.able.unholyBlight("player","aoe",1,10) and groupTTD >= ui.value("CDs TTD Limit") then
-        if cast.unholyBlight("player","aoe",1,10) then ui.debug("Casting Unholy Blight") return true end
-    end
+    -- Call Action List - Essence
+    -- heart_essence
+    if actionList.Essences() then return true end
 end -- End Action List - Cooldowns
 
 -- Action List - Essences
@@ -557,140 +571,151 @@ actionList.Essences = function()
     end
 end -- End Action List - Essences
 
--- Action List - AOE
-actionList.AOE = function()
-    -- Death and Decay
-    -- death_and_decay,if=cooldown.apocalypse.remains
-    if ui.mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile
-        and (cd.apocalypse.remain() > 0 or var.apocBypass)
-    then
-        if cast.deathAndDecay("best",nil,1,8) then ui.debug("Casting Death and Decay") return true end
+-- Action List - AOE Setup
+actionList.AOE_Setup = function()
+    -- Death and Decal / Defile
+    -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
+    if var.fwoundTargets == #enemies.yards8 or ui.mode.rotation == 2 and #enemies.yards8 <= 11 then
+        if cast.able.defile() and talent.defile then
+            if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [AOE Setup]") return true end
+        end
+        if cast.able.deathAndDecay() and not talent.defile then
+            if cast.deathAndDecay("best",nil,1,8) then ui.debug("Casting Death and Decay [AOE Setup]") return true end
+        end
     end
-    -- Defile
-    -- defile,if=cooldown.apocalypse.remains
-    if ui.mode.dnd == 1 and cast.able.defile() and cd.apocalypse.exists() then
-        if cast.defile("best",nil,1,8) then ui.debug("Casting Defile") return true end
+    -- any_dnd,if=death_knight.fwounded_targets>=5
+    if var.fwoundTargets >= 5 then
+        if cast.able.defile() and talent.defile then
+            if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [AOE Setup - 5+]") return true end
+        end
+        if cast.able.deathAndDecay() and not talent.defile then
+            if cast.deathAndDecay("best",nil,1,8) then ui.debug("Casting Death and Decay [AOE Setup - 5+]") return true end
+        end
     end
     -- Epidemic
-    -- epidemic,if=death_and_decay.ticking&runic_power.deficit<14&!talent.bursting_sores.enabled&!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and runicPowerDeficit < 14 and not talent.burstingSores and not var.poolForGargoyle then
-        if cast.epidemic() then ui.debug("Casting Epidemic") return true end
+    -- epidemic,if=!variable.pooling_for_gargoyle&runic_power.deficit<20|buff.sudden_doom.react
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPowerDeficit < 20 or buff.suddenDoom.exists() then
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup - Low Runic or Sudden Doom]") return true end
     end
-    -- epidemic,if=death_and_decay.ticking&(!death_knight.fwounded_targets&talent.bursting_sores.enabled)&!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and (not var.fwoundTargets and talent.burstingSores) and not var.poolForGargoyle then
-        if cast.epidemic() then ui.debug("Casting Epidemic [Bursting Sores]") return true end
-    end
-    -- Scourge Strike
-    -- scourge_strike,if=death_and_decay.ticking&cooldown.apocalypse.remains
-    if cast.able.scourgeStrike() and not talent.clawingShadows and var.deathAndDecayRemain > 0 and cd.apocalypse.remain() > 0 then
-        if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [Apocalypse]") return true end
-    end
-    -- Clawing Shadows
-    -- clawing_shadows,if=death_and_decay.ticking&cooldown.apocalypse.remains
-    if cast.able.clawingShadows() and talent.clawingShadows and var.deathAndDecayRemain > 0 and cd.apocalypse.remain() > 0 then
-        if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [Apocalypse]") return true end
+    -- Festering Strike
+    if cast.able.festeringStrike() then
+        -- festering_strike,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack<=3&cooldown.apocalypse.remains<3
+        if debuff.festeringWound.stack(var.fwoundHighUnit) <= 3 and cd.apocalypse.remain() < 3 then
+            if cast.festeringStrike(var.fwoundHighUnit) then ui.debug("Casting Festering Strike [AOE Setup - Highest Stacks]") return true end
+        end
+        -- festering_strike,target_if=debuff.festering_wound.stack<1
+        for i = 1, #enemies.yards5 do
+            local thisUnit = enemies.yards5[i]
+            if debuff.festeringWound.stack(thisUnit) < 1 then
+                if cast.festeringStrike(thisUnit) then ui.debug("Casting Festering Strike [AOE Setup - No Stacks") return true end
+            end
+        end
+        -- festering_strike,target_if=min:debuff.festering_wound.stack,if=rune.time_to_4<(cooldown.death_and_decay.remains&!talent.defile.enabled|cooldown.defile.remains&talent.defile.enabled)
+        if runesTTM(4) < var.deathAndDefileRemain then
+            if cast.festeringStrike(var.fwoundLowUnit) then ui.debug("Casting Festering Strike [AOE Setup - 4 Runes before DnD") return true end
+        end
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle
     if cast.able.epidemic() and not var.poolForGargoyle then
-        if cast.epidemic() then ui.debug("Casting Epidemic [No Gargoyle Pool]") return true end
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup]") return true end
     end
-    -- Festering Strike
-    -- festering_strike,target_if=debuff.festering_wound.stack<=2&cooldown.death_and_decay.remains&cooldown.apocalypse.remains>5&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
-    if cast.able.festeringStrike() and cd.deathAndDecay.remain() > 0 and cd.apocalypse.remain() > 5
-        and (cd.armyOfTheDead.remains() > 5 or var.aotdBypass)
-    then
-        for i = 1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
-            if debuff.festeringWound.stack(thisUnit) <= 2 then
-                if cast.festeringStrike(thisUnit) then ui.debug("Casting Festering Strike [Stack <= 2]") return true end
-            end
-        end
+end -- End Action List - AOE Setup
+
+-- Action List - AOE Burst
+actionList.AOE_Burst = function()
+    -- Epidemic
+    -- epidemic,if=runic_power.deficit<(10+death_knight.fwounded_targets*3)&death_knight.fwounded_targets<6&!variable.pooling_for_gargoyle
+    if cast.able.epidemic() and runicPowerDeficit < (10 + var.fwoundTargets * 3) and var.fwoundTargets < 6 and not var.poolForGargoyle then
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - Low Wounded]") return true end
     end
-    -- Death Coil
-    -- death_coil,if=buff.sudden_doom.react&rune.time_to_4>gcd
-    if cast.able.deathCoil() and buff.suddenDoom.exists() and runesTTM(4) > unit.gcd(true) then
-        if cast.deathCoil() then ui.debug("Casting Death Coil [AOE Runes < 4]") return true end
+    -- epidemic,if=runic_power.deficit<25&death_knight.fwounded_targets>5&!variable.pooling_for_gargoyle
+    if cast.able.epidemic() and runicPowerDeficit < 25 and var.fwoundTargets > 5 and not var.poolForGargoyle then
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - High Wounded]") return true end
     end
-    -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.exists
-    if cast.able.deathCoil() and buff.suddenDoom.exists() and (not var.poolForGargoyle or pet.gargoyle.exists()) then
-        if cast.deathCoil() then ui.debug("Casting Death Coil [AOE Gargoyle]") return true end
-    end
-    -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
-    if cast.able.deathCoil() and runicPowerDeficit < 14 and not var.poolForGargoyle
-        and (cd.apocalypse.remain() > 5 or var.apocBypass or debuff.festeringWound.stack(units.dyn5) > 4)
-    then
-        if cast.deathCoil() then ui.debug("Casting Death Coil [AOE Apoc/Fester]") return true end
+    -- epidemic,if=!death_knight.fwounded_targets&!variable.pooling_for_gargoyle
+    if cast.able.epidemic() and var.fwoundTargets == 0 and not var.poolForGargoyle then
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - No Wounded]") return true end
     end
     -- Scourge Strike
-    -- scourge_strike,target_if=((cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)&(cooldown.apocalypse.remains>5&debuff.festering_wound.stack>0|debuff.festering_wound.stack>4)&(target.1.time_to_die<cooldown.death_and_decay.remains+10|target.1.time_to_die>cooldown.apocalypse.remains))
-    if cast.able.scourgeStrike() and not talent.clawingShadows then
-        for i = 1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
-            if ((cd.armyOfTheDead.remain() > 5 or var.aotdBypass) and (cd.apocalypse.remain() > 5 and debuff.festeringWound.stack(units.dyn5) > 4) 
-                and (unit.ttd(thisUnit) < cd.deathAndDecay.remain() + 10 or unit.ttd(thisUnit) > cd.apocalypse.remain()))
-            then
-                if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [Apoc/Fester]") return true end
-            end
-        end
+    -- wound_spender
+    if cast.able.scourgeStrike() then
+        if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [AOE Burst]") return true end
     end
-    -- Clawing Shadows
-    -- clawing_shadows,target_if=((cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)&(cooldown.apocalypse.remains>5&debuff.festering_wound.stack>0|debuff.festering_wound.stack>4)&(target.1.time_to_die<cooldown.death_and_decay.remains+10|target.1.time_to_die>cooldown.apocalypse.remains))
-    if cast.able.clawingShadows() and talent.clawingShadows then
-        for i = 1, #enemies.yards30 do
-            local thisUnit = enemies.yards30[i]
-            if ((cd.armyOfTheDead.remain() > 5 or var.aotdBypass) and (cd.apocalypse.remain() > 5 and debuff.festeringWound.stack(units.dyn5) > 4) 
-                and (unit.ttd(thisUnit) < cd.deathAndDecay.remain() + 10 or unit.ttd(thisUnit) > cd.apocalypse.remain()))
-            then
-                if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [Apoc/Fester]") return true end
-            end
-        end
+    -- Epidemic
+    -- epidemic,if=!variable.pooling_for_gargoyle
+    if cast.able.epidemic() and not var.poolForGargoyle then
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst]") return true end
     end
-    -- Death Coil
-    -- death_coil,if=runic_power.deficit<20&!variable.pooling_for_gargoyle
-    if cast.able.deathCoil() and runicPowerDeficit < 20 and not var.poolForGargoyle then
-        if cast.deathCoil() then ui.debug("Death Coil [AOE High Runic Power]") return true end
+end -- End Action List - AOE Burst
+
+-- Action List - AOE
+actionList.AOE = function()
+    -- Epidemic
+    -- epidemic,if=buff.sudden_doom.react
+    if cast.able.epidemic() and buff.suddenDoom.exists() then
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE - Sudden Doom]") return true end
+    end
+    -- epidemic,if=!variable.pooling_for_gargoyle
+    if cast.able.epidemic() and not var.poolForGargoyle then
+        if cast.epidemic() then ui.debug("Casting Epidemic [AOE]") return true end
+    end
+    -- Scourge Strike
+    -- wound_spender,target_if=max:debuff.festering_wound.stack,if=(cooldown.apocalypse.remains>5&debuff.festering_wound.up|debuff.festering_wound.stack>4)&(fight_remains<cooldown.death_and_decay.remains+10|fight_remains>cooldown.apocalypse.remains)
+    if cast.able.scourgeStrike() and (cd.apocalypse.remain() > 5 and debuff.festeringWound.exists(var.fwoundHighUnit) or var.fwoundHighest > 4)
+        and (var.fightRemains < cd.deathAndDecay.remains() + 10 or var.fightRemains > cd.apocalypse.remains())
+    then
+        if cast.scourgeStrike(var.fwoundHighUnit) then ui.debug("Casting Scourge Strike [AOE]") return true end
     end
     -- Festering Strike
-    -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_assault.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
-    if cast.able.festeringStrike() and (cd.armyOfTheDead.remain() > 5 or var.aotdBypass)
-        and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyAssault.exists())
-            or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3)
-                or debuff.festeringWound.stack(units.dyn5) < 1)
-    then
-        if cast.festeringStrike(units.dyn5) then ui.debug("Casting Festering Wounds [AOE Stacker]") return true end
-    end
-    -- Death Coil
-    -- death_coil,if=!variable.pooling_for_gargoyle
-    if cast.able.deathCoil() and not var.poolForGargoyle then
-        if cast.deathCoil() then ui.debug("Casting Death Coil [AOE Dump]") return true end
+    if cast.able.festeringStrike() then
+        -- festering_strike,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack<=3&cooldown.apocalypse.remains<3|debuff.festering_wound.stack<1
+        if var.fwoundHighest <= 3 and cd.apocalypse.remains() < 3 or var.fwoundHighest < 1 then
+            if cast.festeringStrike(var.fwoundHighUnit) then ui.debug("Casting Festering Strike [AOE - Max Stack Low") return true end
+        end 
+        -- festering_strike,target_if=min:debuff.festering_wound.stack,if=cooldown.apocalypse.remains>5&debuff.festering_wound.stack<1
+        if cd.apocalypse.remains() > 5 and var.fwoundLowest < 1 then
+            if cast.festeringStrike(var.fwoundLowUnit) then ui.debug("Casting Festering Strike [AOE - Low Stack") return true end
+        end
     end
 end -- End Action List - AOE
 
 -- Action List - Generic
 actionList.Single = function()
     -- Death Coil
-    -- death_coil,if=buff.sudden_doom.react&rune.time_to_4>gcd&!variable.pooling_for_gargoyle|pet.gargoyle.active
-    if cast.able.deathCoil() and buff.suddenDoom.exists() and runesTTM(4) > unit.gcd(true)
-        and (not var.poolForGargoyle or pet.gargoyle.exists())
-    then
-        if cast.deathCoil() then ui.debug("Death Coil [ST Low Runes]") return true end
+    if cast.able.deathCoil() then
+        -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.active
+        if cast.able.deathCoil() and buff.suddenDoom.exists() and (not var.poolForGargoyle or pet.gargoyle.exists()) then
+            if cast.deathCoil() then ui.debug("Death Coil [ST Sudden Doom]") return true end
+        end
+        -- death_coil,if=runic_power.deficit<13&!variable.pooling_for_gargoyle
+        if cast.able.deathCoil() and runicPowerDeficit < 13 and not var.poolForGargoyle then
+            if cast.deathCoil() then ui.debug("Death Coil [ST High Runic Power]") return true end
+        end
     end
-    -- death_coil,if=runic_power.deficit<14&rune.time_to_4>gcd&!variable.pooling_for_gargoyle
-    if cast.able.deathCoil() and runicPowerDeficit < 14 and runesTTM(4) > unit.gcd(true) and not var.poolForGargoyle then
-        if cast.deathCoil() then ui.debug("Death Coil [ST High Runic Power & Low Runes]") return true end
-    end
+    -- Defile
+    -- defile,if=cooldown.apocalypse.remains
+    if cast.able.defile() and talent.defile and cd.apocalypse.exists() then
+        if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [ST]") return true end
+    end 
     -- Scourge Strike
-    -- scourge_strike,if=debuff.festering_wound.up
-    if cast.able.scourgeStrike() and not talent.clawingShadows and debuff.festeringWound.exists(units.dyn5) then
-        if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST Festering Wounds]") return true end
-    end
-    -- Clawing Shadows
-    -- clawing_shadows,if=debuff.festering_wound.up&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)
-    if cast.able.clawingShadows() and talent.clawingShadows and debuff.festeringWound.exists(units.dyn5)
-        and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4)
-    then
-        if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [ST]") return true end
+    if cast.able.scourgeStrike() then
+        -- wound_spender,if=debuff.festering_wound.stack>4
+        if debuff.festeringWound.stack(units.dyn5) > 4 then
+            if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - High Wound Stack]") return true end
+        end
+        -- wound_spender,if=debuff.festering_wound.up&cooldown.apocalypse.remains>5&(!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled|raid_event.adds.exists)
+        if debuff.festeringWound.exists(unit.dyn5) and cd.apocalypse.remains() > 5 
+            and (not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]] or ui.useAOE(8,2))
+        then
+            if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [No Apocalypse Soon]") return true end
+        end
+        -- wound_spender,if=debuff.festering_wound.up&talent.unholy_blight.enabled&cooldown.unholy_blight.remains>5&!talent.army_of_the_damned.enabled&!conduit.convocation_of_the_dead.enabled&!cooldown.apocalypse.ready&!raid_event.adds.exists
+        if debuff.festeringWound.exists(unit.dyn5) and talent.unholyBlight and cd.unholyBlight.remains() > 5
+            and not talent.armyOfTheDamned --[[and not conduit.convocationOfTheDead]] and cd.apocalypse.exists() and ui.useST(8,2)
+        then
+            if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - Unholy Blight]") return true end
+        end
     end
     -- Death Coil
     -- death_coil,if=runic_power.deficit<20&!variable.pooling_for_gargoyle
@@ -698,11 +723,23 @@ actionList.Single = function()
         if cast.deathCoil() then ui.debug("Casting Death Coil [ST High Runic Power]") return true end
     end
     -- Festering Strike
-    -- festering_strike,if=debuff.festering_wound.stack<4&cooldown.apocalypse.remains<3|debuff.festering_wound.stack<1
-    if cast.able.festeringStrike() and debuff.festeringWound.stack(units.dyn5) < 4
-        and (cd.apocalypse.remain() < 3 or debuff.festeringWound.stack() < 1)
-    then
-        if cast.festeringStrike(units.dyn5) then ui.debug("Casting Festering Strike [ST]") return true end
+    if cast.able.festeringStrike() then
+        -- festering_strike,if=debuff.festering_wound.stack<1
+        if debuff.festeringWound.stack(units.dyn5) < 1 then
+            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - No Wounds") return true end
+        end
+        -- festering_strike,if=debuff.festering_wound.stack<4&cooldown.apocalypse.remains<3&(!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled|raid_event.adds.exists)
+        if debuff.festeringWound.stack(units.dyn5) < 4 and cd.apocalypse.remains() < 3
+            and (not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]] or ui.useAOE(8,2))
+        then
+            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Apoc Soon") return true end
+        end
+        -- festering_strike,if=debuff.festering_wound.stack<4&talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&!conduit.convocation_of_the_dead.enabled&!raid_event.adds.exists&cooldown.apocalypse.ready&(cooldown.unholy_blight.remains<3|dot.unholy_blight.remains)
+        if debuff.festeringWound.stack(unit.dyn5) < 4 and talent.unholyBlight and not talent.armyOfTheDamned --[[and not conduit.convocationOfTheDead]]
+            and ui.useST(8,2) and cd.apocalypse.exists() and (cd.unholyBlight.remains() < 3 or debuff.unholyBlight.exists(units.dyn5))
+        then
+            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Unholy Blight]") return true end
+        end
     end
     -- Death Coil
     -- death_coil,if=!variable.pooling_for_gargoyle
@@ -713,23 +750,8 @@ end -- End Action List - Single
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    -- Flask / Crystal
-    -- flask,type=flask_of_the_seventh_demon
-    if ui.value("Elixir") == 1 and var.inRaid and not buff.flaskOfTheUndertow.exists() and use.able.flaskOfTheUndertow() then
-        if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-        if buff.felFocus.exists() then buff.felFocus.cancel() end
-        if use.flaskOfTheUndertow() then ui.debug("Using Flask of the Undertow") return true end
-    end
-    if ui.value("Elixir") == 2 and not buff.felFocus.exists() and use.able.repurposedFelFocuser() then
-        if buff.flaskOfTheUndertow.exists() then buff.flaskOfTheUndertow.cancel() end
-        if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-        if use.repurposedFelFocuser() then ui.debug("Using Repurposed Fel Focuser") return true end
-    end
-    if ui.value("Elixir") == 3 and not buff.whispersOfInsanity.exists() and use.able.oraliusWhisperingCrystal() then
-        if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
-        if buff.felFocus.exists() then buff.felFocus.cancel() end
-        if use.oraliusWhisperingCrystal() then ui.debug("Using Oralius Whispering Crystal") return true end
-    end
+    -- Flask Module
+    module.FlaskUp("Strength")
     -- Pre-pull
     if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
         -- Potion
@@ -780,8 +802,8 @@ local function runRotation()
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
     essence                                       = br.player.essence
+    module                                        = br.player.module
     pet                                           = br.player.pet
-    race                                          = br.player.race
     runes                                         = br.player.power.runes.amount()
     runeDeficit                                   = br.player.power.runes.deficit()
     runesTTM                                      = br.player.power.runes.ttm
@@ -794,10 +816,7 @@ local function runRotation()
     unit                                          = br.player.unit
     units                                         = br.player.units
     use                                           = br.player.use
-    -- Other Locals
-    var.apocBypass                                = nil
-    var.inRaid                                    = br.player.instance=="raid"
-    var.combatTime                                = getCombatTime()
+    var                                           = br.player.variables
 
     -- Units Declaration
     units.get(5)
@@ -828,15 +847,35 @@ local function runRotation()
     var.poolForGargoyle = cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
     var.deathAndDecayRemain = 0
     if (cd.deathAndDecay.remain() - 10) > 0 then var.deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) end
+    var.deathAndDefileRemain = 0
+    if cd.deathAndDecay.remains() and not talent.defile then var.deathAndDefileRemain = cd.deathAndDecay.remain() end
+    if cd.defile.remains() and talent.defile then var.deathAndDefileRemain = cd.defile.remain() end
     var.apocBypass = ui.value("Apocalypse") == 3 or (ui.value("Apocalypse") == 2 and not ui.useCDs()) or not spell.known.apocalypse()
     var.aotdBypass = ui.value("Army of the Dead") == 3 or (ui.value("Army of the Dead") == 2 and not ui.useCDs()) or not spell.known.armyOfTheDead()
-    var.fwoundTargets = false
+    var.fwoundTargets = 0
+    var.fwoundHighest = 0
+    var.fwoundHighUnit = "target"
+    var.fwoundLowest = 99
+    var.fwoundLowUnit = "target"
     for i = 1, #enemies.yards5 do
         local thisUnit = enemies.yards5[i]
-        if debuff.festeringWound.stack(thisUnit) > 0 then
-            var.fwoundTargets = true
+        local fwoundStacks = debuff.festeringWound.stack(thisUnit)
+        if fwoundStacks > 0 then
+            var.fwoundTargets = var.fwoundTargets + 1
+            if fwoundStacks >= var.fwoundHighest then
+                var.fwoundHighest = fwoundStacks
+                var.fwoundHighUnit = thisUnit
+            end
+            if fwoundStacks <= var.fwoundLowest then
+                var.fwoundLowest = fwoundStacks
+                var.fwoundLowUnit = thisUnit
+            end
             break
         end
+    end
+    var.fightRemains = 0
+    for i = 1, #enemies.yards40 do
+        var.fightRemains = var.fightRemains + unit.ttd(enemies.yards40[i])
     end
 
     --Asphyxiate Logic
@@ -851,8 +890,8 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop) or pause() or ui.mode.rotation == 4 then
-        if ui.checked("Auto Attack/Passive") and pause(true) and IsPetAttackActive() then
+    elseif (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation == 4 then
+        if ui.checked("Auto Attack/Passive") and ui.pause(true) and IsPetAttackActive() then
             PetStopAttack()
             PetFollow()
         end
@@ -894,22 +933,21 @@ local function runRotation()
                     -- Racial                    
                     if ui.checked("Racial") and cast.able.racial()
                         -- arcane_torrent,if=runic_power.deficit>65&(pet.gargoyle.active|!talent.summon_gargoyle.enabled)&rune.deficit>=5
-                        and ((race == "BloodElf" and runicPowerDeficit > 65 and (pet.gargoyle.exists() or not talent.summonGargoyle) and runeDeficit >= 5)
-                        -- blood_fury,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
-                        or (race == "Orc" and (pet.gargoyle.exists() or not talent.summonGargoyle))
-                        -- berserking,if=buff.unholy_assault.up|pet.gargoyle.active|(talent.army_of_the_damned.enabled&pet.apoc_ghoul.active)
-                        or (race == "Troll" and (buff.unholyAssault.exists() or pet.gargoyle.exists() or (talent.armyOfTheDamned and pet.apocalypseGhoul.exists()))
-                        -- lights_judgment,if=(buff.unholy_strength.up&buff.festermight.remains<=5)|active_enemies>=2&(buff.unholy_strength.up|buff.festermight.remains<=5)
-                        or (race == "LightforgedDraenei" and (buff.unholyStrength and buff.festermight.remains() <= 5 
-                            or ((ui.mode.rotation == 1 and #enemies.yards8 >= 2) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)) and (buff.unholyStrength and buff.festermight.remains() <= 5)))
-                        -- ancestral_call,if=(pet.gargoyle.active&talent.summon_gargoyle.enabled)|pet.apoc_ghoul.active
-                        or (race == "MagharOrc" and ((pet.gargoyle.exists() and talent.summonGargoyle) or pet.apocalypseGhoul.exists()))
+                        and ((unit.race() == "BloodElf" and runicPowerDeficit > 65 and (pet.gargoyle.exists() or not talent.summonGargoyle) and runeDeficit >= 5)
+                        -- blood_fury,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned.enabled&(pet.army_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
+                        or (unit.race() == "Orc" and (pet.gargoyle.exists() or buff.unholyAssault.exists() or not talent.armyOfTheDamned and (pet.armyOfTheDead.active() or cd.armyOfTheDead.remains() > unit.ttd(units.dyn5))))
+                        -- berserking,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned.enabled&(pet.army_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
+                        or (unit.race() == "Troll" and (pet.gargoyle.exists() or buff.unholyAssault.exists() or not talent.armyOfTheDamned and (pet.armyOfTheDead.active() or cd.armyOfTheDead.remains() > unit.ttd(units.dyn5))))
+                        -- lights_judgment,if=buff.unholy_strength.up
+                        or (unit.race() == "LightforgedDraenei" and buff.unholyStrength)
+                        -- ancestral_call,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned.enabled&(pet.army_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
+                        or (unit.race() == "MagharOrc" and (pet.gargoyle.exists() or buff.unholyAssault.exists() or not talent.armyOfTheDamned and (pet.armyOfTheDead.active() or cd.armyOfTheDead.remains() > unit.ttd(units.dyn5))))
                         -- arcane_pulse,if=active_enemies>=2|(rune.deficit>=5&runic_power.deficit>=60)
-                        or (race == "Nightborne" and ((ui.mode.rotation == 1 and #enemies.yards8 >= 2) or (ui.mode.rotation == 2 and #enemies.yards8 > 0) or (runeDeficit >= 5 and runicPowerDeficit >= 60)))
-                        -- fireblood,if=(pet.gargoyle.active&talent.summon_gargoyle.enabled)|pet.apoc_ghoul.active
-                        or (race == "DarkIronDwarf" and ((pet.gargoyle.exists() and talent.summonGargoyle) or pet.apocalypseGhoul.exists()))
-                        -- bag_of_tricks,if=buff.unholy_strength.up&active_enemies=1|buff.festermight.remains<gcd&active_enemies=1
-                        ))
+                        or (unit.race() == "Nightborne" and (ui.useAOE(8,2) or (runeDeficit >= 5 and runicPowerDeficit >= 60)))
+                        -- fireblood,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned.enabled&(pet.army_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
+                        or (unit.race() == "DarkIronDwarf" and (pet.gargoyle.exists() or buff.unholyAssault.exists() or not talent.armyOfTheDamned and (pet.armyOfTheDead.active() or cd.armyOfTheDead.remains() > unit.ttd(units.dyn5))))
+                        -- bag_of_tricks,if=buff.unholy_strength.up&active_enemies=1
+                        )
                     then
                         if cast.racial("player") then ui.debug("Casting Racial") return true end
                     end
@@ -918,99 +956,99 @@ local function runRotation()
                         use.battleScarredAugmentRune()
                         ui.debug("Using Augment Rune")
                     end
-                    -- Trinkets
-                    if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                        for i = 13, 14 do
-                            if use.able.slot(i) then
-                                -- All Others
-                                -- use_items,if=time>20|!equipped.ramping_amplitude_gigavolt_engine|!equipped.vision_of_demise
-                                if var.combatTime > 20 or not (equiped.azsharasFontOfPower(i) or equiped.ashvanesRazorCoral(i) or equiped.visionOfDemise(i)
-                                    or equiped.rampingAmplitudeGigavoltEngine(i) or equiped.bygoneBeeAlmanac(i)
-                                    or equiped.jesHowler(i) or equiped.galecallersBeak(i) or equiped.grongsPrimalRage(i))
-                                then
-                                    use.slot(i)
-                                    ui.debug("Using Trinket [Slot "..i.."]")
-                                end
-                                -- Azshara's Font of Power
-                                -- actions+=/use_item,name=azsharas_font_of_power,if=(essence.vision_of_perfection.enabled&!talent.unholy_frenzy.enabled)|(!essence.condensed_lifeforce.major&!essence.vision_of_perfection.enabled)
-                                if equiped.azsharasFontOfPower(i) and ((essence.visionOfPerfection.active and not talent.unholyAssault) 
-                                    or (not essence.condensedLifeForce.major and not essence.visionOfPerfection.active)) and not unit.moving()
-                                then
-                                    use.slot(i)
-                                    ui.debug("Using Azshara's Font of Power")
-                                end  
-                                -- actions+=/use_item,name=azsharas_font_of_power,if=cooldown.apocalypse.remains<14&(essence.condensed_lifeforce.major|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled)
-                                if equiped.azsharasFontOfPower(i) and cd.apocalypse.remain() < 14 and (essence.condensedLifeForce.major or essence.visionOfPerfection.active) and talent.unholyAssault and not unit.moving() then
-                                    use.slot(i)
-                                    ui.debug("Using Azshara's Font of Power")
-                                end
-                                -- actions+=/use_item,name=azsharas_font_of_power,if=target.1.time_to_die<cooldown.apocalypse.remains+34
-                                if equiped.azsharasFontOfPower(i) and  unit.ttd(units.dyn5) < cd.apocalypse.remain() + 34 and not unit.moving() then
-                                    use.slot(i)
-                                    ui.debug("Using Azshara's Font of Power")
-                                end
-                                -- Ashvanes Razor Coral
-                                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.stack<1
-                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and debuff.razorCoral.stack(units.dyn5) == ui.value("Ashvane's Razor Coral Stacks") then
-                                    use.slot(i)
-                                    ui.debug("Using Ashvane's Razor Coral")
-                                end
-                                -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
-                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
-                                    or (cd.apocalypse.remain() < unit.gcd(true) and not essence.condensedLifeForce.active and not talent.unholyAssault)
-                                    or (unit.ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain() < unit.gcd(true) and unit.ttd(units.dyn5) < cd.guardianOfAzeroth.remain() + 20)
-                                    or (buff.unholyAssault.exists() and not essence.condensedLifeForce.active))
-                                then
-                                    use.slot(i)
-                                    ui.debug("Using Ashvane's Razor Coral")
-                                end
-                                -- Vision of Demise
-                                -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.exists
-                                if equiped.visionOfDemise(i) and ((cd.apocalypse.remain() == 0 and debuff.festeringWound.stack(units.dyn5) >= 4
-                                    and essence.visionOfPerfection.active) or buff.unholyAssault.exists() or pet.gargoyle.exists())
-                                then
-                                    use.slot(i)
-                                    ui.debug("Using Vision of Demise")
-                                end
-                                -- Ramping Amplitude Gigavolt Engine
-                                -- use_item,name=ramping_amplitude_gigavolt_engine,if=cooldown.apocalypse.remains<2|talent.army_of_the_damned.enabled|raid_event.adds.in<5
-                                if equiped.rampingAmplitudeGigavoltEngine(i) and (cd.apocalypse.remain() < 2 or talent.armyOfTheDamned) then
-                                    use.slot(i)
-                                    ui.debug("Using Rampaging Gigavolt Engine")
-                                end
-                                -- Bygone Bee Almanac
-                                -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                                if equiped.bygoneBeeAlmanac(i) and (cd.summonGargoyle.remain() > 60
-                                    or (not talent.summonGargoyle and var.combatTime > 20) or not equiped.rampingAmplitudeGigavoltEngine(i))
-                                then
-                                    use.slot(i)
-                                    ui.debug("Using Bygone Bee ALmanac")
-                                end
-                                -- Jes Howler
-                                -- use_item,name=jes_howler,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                                if equiped.jesHowler(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and var.combatTime > 20)
-                                    or not equiped.rampingAmplitudeGigavoltEngine(i))
-                                then
-                                    use.slot(i)
-                                    ui.debug("Using Jes Howler")
-                                end
-                                -- Galecaller's Beak
-                                -- use_item,name=galecallers_beak,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                                if equiped.galecallersBeak(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and var.combatTime > 20)
-                                    or not equiped.rampingAmplitudeGigavoltEngine(i))
-                                then
-                                    use.slot(i)
-                                    ui.debug("Using Galecaller's Beak")
-                                end
-                                -- Grong's Primal Rage
-                                -- use_item,name=grongs_primal_rage,if=rune<=3&(time>20|!equipped.ramping_amplitude_gigavolt_engine)
-                                if equiped.grongsPrimalRage(i) and runes <= 3 and (var.combatTime > 20 or not equiped.rampingAmplitudeGigavoltEngine()) then
-                                    use.slot(i)
-                                    ui.debug("Using Grong's Primal Rage")
-                                end
-                            end
-                        end
-                    end
+                    -- -- Trinkets
+                    -- if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                    --     for i = 13, 14 do
+                    --         if use.able.slot(i) then
+                    --             -- All Others
+                    --             -- use_items,if=time>20|!equipped.ramping_amplitude_gigavolt_engine|!equipped.vision_of_demise
+                    --             if unit.combatTime > 20 or not (equiped.azsharasFontOfPower(i) or equiped.ashvanesRazorCoral(i) or equiped.visionOfDemise(i)
+                    --                 or equiped.rampingAmplitudeGigavoltEngine(i) or equiped.bygoneBeeAlmanac(i)
+                    --                 or equiped.jesHowler(i) or equiped.galecallersBeak(i) or equiped.grongsPrimalRage(i))
+                    --             then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Trinket [Slot "..i.."]")
+                    --             end
+                    --             -- Azshara's Font of Power
+                    --             -- actions+=/use_item,name=azsharas_font_of_power,if=(essence.vision_of_perfection.enabled&!talent.unholy_frenzy.enabled)|(!essence.condensed_lifeforce.major&!essence.vision_of_perfection.enabled)
+                    --             if equiped.azsharasFontOfPower(i) and ((essence.visionOfPerfection.active and not talent.unholyAssault) 
+                    --                 or (not essence.condensedLifeForce.major and not essence.visionOfPerfection.active)) and not unit.moving()
+                    --             then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Azshara's Font of Power")
+                    --             end  
+                    --             -- actions+=/use_item,name=azsharas_font_of_power,if=cooldown.apocalypse.remains<14&(essence.condensed_lifeforce.major|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled)
+                    --             if equiped.azsharasFontOfPower(i) and cd.apocalypse.remain() < 14 and (essence.condensedLifeForce.major or essence.visionOfPerfection.active) and talent.unholyAssault and not unit.moving() then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Azshara's Font of Power")
+                    --             end
+                    --             -- actions+=/use_item,name=azsharas_font_of_power,if=target.1.time_to_die<cooldown.apocalypse.remains+34
+                    --             if equiped.azsharasFontOfPower(i) and  unit.ttd(units.dyn5) < cd.apocalypse.remain() + 34 and not unit.moving() then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Azshara's Font of Power")
+                    --             end
+                    --             -- Ashvanes Razor Coral
+                    --             -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.stack<1
+                    --             if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and debuff.razorCoral.stack(units.dyn5) == ui.value("Ashvane's Razor Coral Stacks") then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Ashvane's Razor Coral")
+                    --             end
+                    --             -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
+                    --             if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
+                    --                 or (cd.apocalypse.remain() < unit.gcd(true) and not essence.condensedLifeForce.active and not talent.unholyAssault)
+                    --                 or (unit.ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain() < unit.gcd(true) and unit.ttd(units.dyn5) < cd.guardianOfAzeroth.remain() + 20)
+                    --                 or (buff.unholyAssault.exists() and not essence.condensedLifeForce.active))
+                    --             then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Ashvane's Razor Coral")
+                    --             end
+                    --             -- Vision of Demise
+                    --             -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.exists
+                    --             if equiped.visionOfDemise(i) and ((cd.apocalypse.remain() == 0 and debuff.festeringWound.stack(units.dyn5) >= 4
+                    --                 and essence.visionOfPerfection.active) or buff.unholyAssault.exists() or pet.gargoyle.exists())
+                    --             then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Vision of Demise")
+                    --             end
+                    --             -- Ramping Amplitude Gigavolt Engine
+                    --             -- use_item,name=ramping_amplitude_gigavolt_engine,if=cooldown.apocalypse.remains<2|talent.army_of_the_damned.enabled|raid_event.adds.in<5
+                    --             if equiped.rampingAmplitudeGigavoltEngine(i) and (cd.apocalypse.remain() < 2 or talent.armyOfTheDamned) then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Rampaging Gigavolt Engine")
+                    --             end
+                    --             -- Bygone Bee Almanac
+                    --             -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                    --             if equiped.bygoneBeeAlmanac(i) and (cd.summonGargoyle.remain() > 60
+                    --                 or (not talent.summonGargoyle and unit.combatTime > 20) or not equiped.rampingAmplitudeGigavoltEngine(i))
+                    --             then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Bygone Bee ALmanac")
+                    --             end
+                    --             -- Jes Howler
+                    --             -- use_item,name=jes_howler,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                    --             if equiped.jesHowler(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and unit.combatTime > 20)
+                    --                 or not equiped.rampingAmplitudeGigavoltEngine(i))
+                    --             then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Jes Howler")
+                    --             end
+                    --             -- Galecaller's Beak
+                    --             -- use_item,name=galecallers_beak,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                    --             if equiped.galecallersBeak(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and unit.combatTime > 20)
+                    --                 or not equiped.rampingAmplitudeGigavoltEngine(i))
+                    --             then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Galecaller's Beak")
+                    --             end
+                    --             -- Grong's Primal Rage
+                    --             -- use_item,name=grongs_primal_rage,if=rune<=3&(time>20|!equipped.ramping_amplitude_gigavolt_engine)
+                    --             if equiped.grongsPrimalRage(i) and runes <= 3 and (unit.combatTime > 20 or not equiped.rampingAmplitudeGigavoltEngine()) then
+                    --                 use.slot(i)
+                    --                 ui.debug("Using Grong's Primal Rage")
+                    --             end
+                    --         end
+                    --     end
+                    -- end
                     -- Potion
                     -- potion,if=cooldown.army_of_the_dead.ready|pet.gargoyle.exists|buff.unholy_frenzy.up
                     if ui.checked("Potion") and var.inRaid and ui.useCDs() and use.able.battlePotionOfStrength()
@@ -1020,25 +1058,44 @@ local function runRotation()
                         ui.debug("Using Battle Potion of Strength")
                     end
                     -- Outbreak
-                    -- outbreak,target_if=dot.virulent_plague.remains<=gcd
-                    if cast.able.outbreak(units.dyn30AOE) and debuff.virulentPlague.remain(units.dyn30AOE) <= unit.gcd(true) then
-                        if cast.outbreak(units.dyn30AOE) then ui.debug("Casting Outbreak") return true end
+                    -- outbreak,if=dot.virulent_plague.refreshable&!talent.unholy_blight.enabled&!raid_event.adds.exists
+                    if cast.able.outbreak(units.dyn5) and debuff.virulentPlague.refresh(units.dyn5)
+                        and not talent.unholyBlight and ui.useST(8,2)
+                    then
+                        if cast.outbreak(units.dyn5) then ui.debug("Casting Outbreak [ST]") return true end
                     end
-                    -- Call Action List - Essences
-                    -- call_action_list,name=essences
-                    if actionList.Essences() then return true end
+                    -- outbreak,if=dot.virulent_plague.refreshable&(!talent.unholy_blight.enabled|talent.unholy_blight.enabled&cooldown.unholy_blight.remains)&active_enemies>=2
+                    if cast.able.outbreak(units.dyn5) and debuff.virulentPlague.refresh(units.dyn5)
+                        and (not talent.unholyBlight or talent.unholyBlight and cd.unholyBlight.exists())
+                        and ui.useAOE(8,2)
+                    then
+                        if cast.outbreak(units.dyn5) then ui.debug("Casting Outbreak [AOE]") return true end
+                    end
                     -- Call Action List - Cooldowns
                     -- call_action_list,name=cooldowns
                     if actionList.Cooldowns() then return true end
                 end
                 -- Run Action List - AOE
-                -- run_action_list,name=aoe,if=active_enemies>=2
-                if ((ui.mode.rotation == 1 and #enemies.yards8 >= 2) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)) then
-                    if actionList.AOE() then return true end
+                -- run_action_list,name=aoe_setup,if=active_enemies>=2&(cooldown.death_and_decay.remains<10&!talent.defile.enabled|cooldown.defile.remains<10&talent.defile.enabled)&!death_and_decay.ticking
+                if ui.useAOE(8,2)
+                    and ((cd.deathAndDecay.remain() < 10 and not talent.defile) or (cd.defile.remains() < 10 and talent.defile))
+                    and not buff.deathAndDecay.exists()
+                then
+                    if actionList.AOE_Setup() then return true end
+                end
+                -- run_action_list,name=aoe_burst,if=active_enemies>=2&death_and_decay.ticking
+                if ui.useAOE(8,2) and buff.deathAndDecay.exists() then
+                    if actionList.AOE_Burst() then return true end
+                end
+                -- run_action_list,name=generic_aoe,if=active_enemies>=2&(!death_and_decay.ticking&(cooldown.death_and_decay.remains>10&!talent.defile.enabled|cooldown.defile.remains>10&talent.defile.enabled))
+                if ui.useAOE(8,2)
+                    and not buff.deathAndDecay.exists() and ((cd.deathAndDecay.remains() > 10 and not talent.defile) or (cd.defile.remain() > 10 and talent.defile))
+                then
+                    if actionList.AOE_Burst() then return true end
                 end
                 -- Call Action List - Single
                 -- call_action_list,name=generic
-                if ((ui.mode.rotation == 1 and #enemies.yards8 < 2) or (ui.mode.rotation == 3 and #enemies.yards8 > 0)) then
+                if ui.useST(8,2) then
                     if actionList.Single() then return true end
                 end
             end -- End SimC APL

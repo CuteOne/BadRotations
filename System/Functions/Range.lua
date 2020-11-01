@@ -131,7 +131,7 @@ function getDistanceCalc(Unit1,Unit2,option)
         end
     -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
         if currentDist < 100 and isKnown(193468) and option ~= "noMod" then
-            currentDist = currentDist - (currentDist * 0.12)
+            currentDist = currentDist - (currentDist * 0.05)
         end
         if meleeSpell ~= nil then
             if IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then
