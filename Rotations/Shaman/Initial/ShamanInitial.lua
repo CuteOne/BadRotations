@@ -108,10 +108,6 @@ local function ghostWolf()
                 and unit.moving() and moveTimer > ui.value("Ghost Wolf Shift Delay") and not buff.ghostWolf.exists()
             then
                 if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Moving]") end
-            elseif not unit.moving() and buff.ghostWolf.exists() and br.timer:useTimer("Delay",0.5) then
-                -- RunMacroText("/cancelAura Ghost Wolf")
-                buff.ghostWolf.cancel()
-                ui.debug("Canceled Ghost Wolf")
             end
        elseif ui.mode.ghostWolf == 2 then
             if cast.able.ghostWolf() and not buff.ghostWolf.exists() and unit.moving() then 
@@ -119,12 +115,7 @@ local function ghostWolf()
                     if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Keybind]") end
                 end
             elseif buff.ghostWolf.exists() then
-                if ui.toggle("Ghost Wolf Key") then
-                    return
-                elseif br.timer:useTimer("Delay",0.25) then
-                    buff.ghostWolf.cancel()
-                    ui.debug("Canceled Ghost Wolf")
-                end
+                if ui.toggle("Ghost Wolf Key") then return end
             end
         end
     end
@@ -139,6 +130,8 @@ actionList.Extra = function()
     if ui.checked("Flametongue Weapon") and cast.able.flametongueWeapon() and not unit.weaponImbue.exists() then
         if cast.flametongueWeapon("player") then ui.debug("Casting Flametongue Weapon") return true end
     end
+    -- Ghost Wolf
+    ghostWolf()
     -- Lightning Shield
     if ui.checked("Lightning Shield") and cast.able.lightningShield() and not buff.lightningShield.exists() then
         if cast.lightningShield("player") then ui.debug("Casting Lightning Shield") return true end
@@ -220,19 +213,6 @@ local function runRotation()
     elseif var.haltProfile then
         return true
     else
-        -- Ghost Wolf
-        ghostWolf()
-        ---------------------------------
-        --- Out Of Combat - Rotations ---
-        ---------------------------------
-        if not unit.inCombat() and not unit.mounted() then
-            if (buff.ghostWolf.exists() and ui.mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
-                actionList.Extra()
-                if ui.checked("OOC Healing") then
-                    actionList.PreCombat()
-                end
-            end
-        end -- End Out of Combat Rotation
         -----------------------
         --- Extras Rotation ---
         -----------------------
@@ -249,23 +229,21 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
-            if (buff.ghostWolf.exists() and ui.mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
-                 -- Start Attack
-                unit.startAttack()
-                -- Basic Trinkets Module
-                module.BasicTrinkets()
-                -- Flame Shock
-                if cast.able.flameShock() and not debuff.flameShock.exists(units.dyn40) then
-                    if cast.flameShock() then ui.debug("Casting Flame Shock") return true end
-                end
-                -- Primal Strike
-                if cast.able.primalStrike() then
-                    if cast.primalStrike() then ui.debug("Casting Primal Strike") return true end
-                end
-                -- Lightning Bolt
-                if cast.able.lightningBolt() and not unit.moving() and (unit.distance("target") > 5 or unit.level() < 2) then
-                    if cast.lightningBolt() then ui.debug("Casting Lightning Bolt") return true end
-                end
+                -- Start Attack
+            unit.startAttack()
+            -- Basic Trinkets Module
+            module.BasicTrinkets()
+            -- Flame Shock
+            if cast.able.flameShock() and not debuff.flameShock.exists(units.dyn40) then
+                if cast.flameShock() then ui.debug("Casting Flame Shock") return true end
+            end
+            -- Primal Strike
+            if cast.able.primalStrike() then
+                if cast.primalStrike() then ui.debug("Casting Primal Strike") return true end
+            end
+            -- Lightning Bolt
+            if cast.able.lightningBolt() and not unit.moving() and (unit.distance("target") > 5 or unit.level() < 2) then
+                if cast.lightningBolt() then ui.debug("Casting Lightning Bolt") return true end
             end
         end -- End In Combat Rotation
     end -- Pause
