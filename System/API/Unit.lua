@@ -250,6 +250,12 @@ br.api.unit = function(self)
         local IsSwimming = _G["IsSwimming"]
         return IsSwimming()
     end
+    -- Taxi
+    unit.taxi = function(thisUnit)
+        local UnitIsOnTaxi = _G["UnitOnTaxi"]
+        if thisUnit == nil then thisUnit = "player" end
+        return UnitIsOnTaxi(thisUnit)
+    end
     -- Threat
     unit.threat = function(thisUnit)
         local hasThreat = _G["hasThreat"]
