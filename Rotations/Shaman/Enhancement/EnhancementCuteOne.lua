@@ -100,6 +100,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Earth Shield")
             -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui.createCheckbox(section, "Instant Only In Combat")
             br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Lightning Surge Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -262,7 +263,9 @@ actionList.Defensive = function()
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
             if unit.player("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
                 if cast.healingSurge("target") then ui.debug("Casting Healing Surge on "..unit.name("target")) return true end
-            elseif unit.hp("player") <= ui.value("Healing Surge") or (not unit.inCombat() and unit.hp() < ui.value("Healing Surge OoC")) then
+            elseif (unit.hp("player") <= ui.value("Healing Surge") and (not ui.checked("Instant Only In Combat") or (not ui.checked("Instant Only In Combat") and buff.maelstromWeapon.stack() >= 5))) 
+                or (not unit.inCombat() and unit.hp() < ui.value("Healing Surge OoC"))
+            then
                 if cast.healingSurge("player") then ui.debug("Casting Healing Surge on "..unit.name("player")) return true end
             end
         end
