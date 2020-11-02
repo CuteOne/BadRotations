@@ -93,15 +93,16 @@ local function createOptions()
             -- Ancestral Spirit
             br.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
             -- Astral Shift
-            br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Astral Shift",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Cleanse Spirit
             br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
             -- Earth Shield
             br.ui:createCheckbox(section, "Earth Shield")
             -- Healing Surge
-            br.ui:createSpinner(section, "Healing Surge",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Lightning Surge Totem
-            br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
             -- Purge
             br.ui:createCheckbox(section,"Purge")
@@ -259,9 +260,9 @@ actionList.Defensive = function()
         end
         -- Healing Surge
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
+            if unit.player("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
                 if cast.healingSurge("target") then ui.debug("Casting Healing Surge on "..unit.name("target")) return true end
-            elseif unit.hp("player") <= ui.value("Healing Surge") or (not unit.inCombat() and unit.hp() < 90) then
+            elseif unit.hp("player") <= ui.value("Healing Surge") or (not unit.inCombat() and unit.hp() < ui.value("Healing Surge OoC")) then
                 if cast.healingSurge("player") then ui.debug("Casting Healing Surge on "..unit.name("player")) return true end
             end
         end
