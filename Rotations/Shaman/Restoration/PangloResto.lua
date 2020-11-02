@@ -90,6 +90,9 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
 
+        br.ui:createSpinner(section, "Ascendance", 50, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Ascendance Targets", 3, 0, 40, 1, "Targets Below Ascendance (excluding yourself)")
+
         br.ui:createSpinner(section, "Healing Tide Totem", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Healing Tide Totem Targets", 3, 0, 40, 1, "Minimum Healing Tide Totem Targets (excluding yourself)")
 
@@ -168,6 +171,16 @@ local function runRotation()
     local ttm = br.player.timeToMax
     local mana = br.player.power.mana.percent()
     local tanks = getTanksTable()
+    local function tideTotemExists()
+        for i=1, 10 do
+            if GetTotemInfo(i) ~= nil then
+                if select(2,GetTotemInfo(i)) == "Healing Tide Totem" then
+                    return true
+                end
+            end
+        end
+        return false
+    end
     
 
     if leftCombat == nil then
@@ -198,7 +211,7 @@ local function runRotation()
 
     if #tanks > 0 then
         if tanks[1].hp <= getValue("Tank Emergency") then
-            lowest = tanks[1].unit
+            lowest = tanks[1]
         end
     end
 
@@ -234,11 +247,14 @@ local function runRotation()
 
     local function cooldownTime()
         if useCDs() then
+            if isChecked("Ascendance") and getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") and not tideTotemExists() then
+                if cast.ascendance() then
+                    return true
+                end
+            end
             if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
                 if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then
                     if cast.healingTideTotem() then
-                        br.addonDebug("Casting Healing Tide Totem")
-                        HTTimer = GetTime()
                         return
                     end
                 end
