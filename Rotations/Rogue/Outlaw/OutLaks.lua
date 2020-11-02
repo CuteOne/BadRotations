@@ -80,7 +80,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 135008222020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 122111022020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -151,6 +151,12 @@ local function createOptions()
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
         br.ui:createCheckbox(section, "Shrine - ignore adds last boss", "wont DPS those critters", 1)
         br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Controlled by CD")
+        br.ui:createCheckbox(section, "Adrenaline Rush", "triggerred by CD toggle", 1)
+        br.ui:createCheckbox(section, "Roll The Bones", "triggerred by CD toggle", 1)
+        br.ui:createCheckbox(section, "Slice and Dice", "triggerred by CD toggle", 1)
+        br.ui:checkSectionState(section)
+
     end
 
     optionTable = { {
@@ -209,7 +215,7 @@ local should_pool
 local rnd5 -- rand number between 1 and 5
 local rnd10 --random number between 1 and 10
 local dynamic_target_melee
-local buff_rollTheBones_remain
+local buff_rollTheBones_remain = 0
 
 
 -- lists ...lots of lists
@@ -549,7 +555,7 @@ end
 local function dps_key()
 
     -- popping CD's with DPS Key
-    if mode.cooldown == 1 then
+    if (mode.cooldown == 1 and isChecked("Adrenaline Rush")) then
         if cast.adrenalineRush() then
             return true
         end
@@ -851,7 +857,7 @@ actionList.dps = function()
             end]]
     -- new roll the rollTheBones
     --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
-    if cast.able.rollTheBones() and mode.cooldown == 1 and buff_rollTheBones_remain < 3 then
+    if cast.able.rollTheBones() and (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
         if cast.rollTheBones() then
             return true
         end
@@ -900,10 +906,12 @@ actionList.dps = function()
         end
 
         --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
-        if cast.able.sliceAndDice() and combo > 0 then
-            if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
-                if cast.sliceAndDice() then
-                    return true
+        if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) then
+            if cast.able.sliceAndDice() and combo > 0 then
+                if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+                    if cast.sliceAndDice() then
+                        return true
+                    end
                 end
             end
         end
@@ -948,7 +956,7 @@ actionList.dps = function()
     blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>2
     variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
     ]]
-    if talent.bladeRush and cast.able.bladeRush() and ((#enemies.yards5 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
+    if talent.bladeRush and cast.able.bladeRush() and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
         if cast.bladeRush(dynamic_target_melee) then
             return true
         end
@@ -964,7 +972,7 @@ actionList.dps = function()
 
 
     --adrenaline_rush,if=!buff.adrenaline_rush.up&(!equipped.azsharas_font_of_power|cooldown.latent_arcana.remains>20)
-    if mode.cooldown == 1 then
+    if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) then
         if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(20) > 0 then
             if cast.adrenalineRush() then
                 return true
@@ -1132,13 +1140,16 @@ actionList.Extra = function()
         CastSpellByName(GetSpellInfo(spell.distract), "cursor")
         return
     end
-    if mode.cooldown == 1 then
-        if cast.able.rollTheBones() then
-            if cast.rollTheBones() then
-                br.player.ui.debug("rolling bones!")
-                return true
-            end
+    if cast.able.rollTheBones() and
+            (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
+        if cast.rollTheBones() then
+          --  Print(tostring(isChecked("Roll The Bones")))
+            br.player.ui.debug("rolling bones!")
+            return true
         end
+    end
+
+    if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) then
         if cast.able.sliceAndDice() and combo > 0 then
             if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                 if cast.sliceAndDice() then

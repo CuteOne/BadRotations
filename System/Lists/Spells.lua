@@ -2400,7 +2400,6 @@ br.lists.spells = {
                 cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
                 envenom                     = 32645,
-                evasion                     = 5277,
                 eviscerate                  = 196819,
                 exsanguinate                = 200806,
                 fanOfKnives                 = 51723,
@@ -2602,7 +2601,6 @@ br.lists.spells = {
                 backstab                    = 53,
                 rupture                     = 1943,
                 secretTechnique             = 280719,
-                evasion                     = 5277,
                 eviscerate                  = 196819,
                 gloomblade                  = 200758,
                 --nightblade                  = 195452,
@@ -2713,6 +2711,7 @@ br.lists.spells = {
                 stealth                     = 115191,
                 tricksOfTheTrade            = 57934,
                 vanish                      = 1856,
+                evasion                     = 5277,
             },
             artifacts                       = {
 
