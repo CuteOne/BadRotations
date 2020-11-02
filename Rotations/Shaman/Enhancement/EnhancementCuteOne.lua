@@ -158,6 +158,22 @@ local var
 -- General API Locals
 local actionList = {}
 
+local function canLightning(aoe)
+    local level = unit.level()
+    if level < 20 or unit.moving() or buff.maelstromWeapon.stack() > 0 then return false end
+    local timeTillLightning = (aoe and level >= 24) and cast.time.chainLightning() or cast.time.lightningBolt()
+    local flameShock = cd.flameShock.remain() -- Level 3
+    local lavaLash  = cd.lavaLash.remain() -- Level 11
+    local frostShock = cd.frostShock.remain() -- Level 17
+    local stormstrike = cd.stormstrike.remain() or 99 -- Level 20
+    local elementalBlast = talent.elementalBlast and cd.elementalBlast.remain() or 99 -- Level 25 - Talent
+    local iceStrike = talent.iceStrike and cd.iceStrike.remain() or 99 -- Level 25 - Talent
+    local fireNova = talent.fireNova and cd.fireNova.remain() or 99 -- Level 35 - Talent
+    local crashLightning = level >= 38 and cd.crashLightning.remain() or 99 -- Level 38
+    local earthenSpike = talent.earthenSpike and cd.earthenSpike.remain() or 99 -- Level 50 - Talent
+    return math.min(flameShock,lavaLash,frostShock,stormstrike,elementalBlast,iceStrike,fireNova,crashLightning,earthenSpike) > timeTillLightning
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -245,7 +261,7 @@ actionList.Defensive = function()
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
             if unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
                 if cast.healingSurge("target") then ui.debug("Casting Healing Surge on "..unit.name("target")) return true end
-            elseif unit.hp("player") <= ui.value("Healing Surge") or (not unit.inCombat() and unit.hp() < 100) then
+            elseif unit.hp("player") <= ui.value("Healing Surge") or (not unit.inCombat() and unit.hp() < 90) then
                 if cast.healingSurge("player") then ui.debug("Casting Healing Surge on "..unit.name("player")) return true end
             end
         end
@@ -484,6 +500,13 @@ actionList.AOE = function()
     if cast.able.primalStrike() and unit.level() < 20 then
         if cast.primalStrike() then ui.debug("Casting Primal Strike [AOE]") return true end
     end
+    -- Chain Lightning / Lightning Bolt
+    if cast.able.chainLightning() and unit.level() >= 24 and canLightning(true) then
+        if cast.chainLightning() then var.fillLightning = true ui.debug("Casting Chain Lightning [AOE - Filler]") return true end
+    end
+    if cast.able.lightningBolt() and unit.level() < 24 and canLightning() then
+        if cast.lightningBolt() then var.fillLightning = true ui.debug("Casting Lightning Bolt [AOE - Filler]") return true end
+    end
 end -- End Action List - AOE
 -- Action List - Single
 actionList.Single = function()
@@ -616,10 +639,14 @@ actionList.Single = function()
     if cast.able.primalStrike() and unit.level() < 20 then
         if cast.primalStrike() then ui.debug("Casting Primal Strike [ST]") return true end
     end
+    -- Lightning Bolt
+    if cast.able.lightningBolt() and canLightning() then
+        if cast.lightningBolt() then var.fillLightning = true ui.debug("Casting Lightning Bolt [ST - Filler]") return true end
+    end
 end -- End Action List - Single
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
+    if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
         -- Flask Up Module
         -- flask
         module.FlaskUp("Agility")
@@ -663,7 +690,7 @@ actionList.PreCombat = function()
             if ui.checked("Lightning Bolt Out of Combat") and cast.able.lightningBolt() and not unit.moving()
                 and unit.distance("target") >= 10 and (not ui.checked("Feral Lunge") or not talent.feralLunge
                     or cd.feralLunge.remain() > unit.gcd(true) or not cast.able.feralLunge())
-                and (not ui.checked("Ghost Wolf") or unit.distance("target") <= 20 or not buff.ghostWolf.exists())
+                -- and (not ui.checked("Ghost Wolf") or unit.distance("target") <= 20 or not buff.ghostWolf.exists())
             then
                 if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end
             end
@@ -712,13 +739,14 @@ local function runRotation()
     enemies.get(30)
     enemies.get(40,"player",false,true)
 
-    if unit.distance("target") < 5 and buff.maelstromWeapon.stack() < 5 then
+    if var.fillLightning == nil then var.fillLightning = false end
+    if unit.distance("target") < 5 and buff.maelstromWeapon.stack() < 5 and not var.fillLightning then
         -- Cancel Lightning Bolt in Melee
-        if cast.current.lightningBolt() then
+        if cast.current.lightningBolt() and not canLightning() then
             if cast.cancel.lightningBolt() then ui.debug("Canceled Lightning Bolt Cast [Melee Range]") end
         end
         -- Cancel Chain Lightning Bolt in Melee
-        if cast.current.chainLightning() then
+        if cast.current.chainLightning() and not canLightning(true) then
             if cast.cancel.chainLightning() then ui.debug("Canceled Chain Lightning Cast [Melee Range]") end
         end
     end
