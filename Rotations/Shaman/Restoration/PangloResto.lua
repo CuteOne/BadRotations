@@ -271,11 +271,10 @@ local function runRotation()
     end
 
     local function healingTime()
-        if isChecked("Riptide") and not IsMounted() and not IsFlying() then
+        if isChecked("Riptide") then
             for i = 1, #br.friend do
                 if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
                     if cast.riptide(lowest.unit) then
-                        br.addonDebug("Casting Riptide")
                         return
                     end
                 end
@@ -283,19 +282,17 @@ local function runRotation()
         end
 
         -- upkeep riptide start
-        if isChecked("Upkeep Riptide") and not IsMounted() and not IsFlying() and (inCombat or not isChecked("Only in Combat (Riptide Upkeep)")) then
+        if isChecked("Upkeep Riptide") and (inCombat or not isChecked("Only in Combat (Riptide Upkeep)")) then
             if getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
                 if cast.riptide("target") then
-                    br.addonDebug("Upkeep Riptide Target")
                     return
                 end
             end
 
             if getOptionValue("Upkeep Riptide") == 2 then -- Tank
                 for i = 1, #tanks do
-                    if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
+                    if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) then
                         if cast.riptide(tanks[i].unit) then
-                            br.addonDebug("Upkeep Riptide Tank")
                             return
                         end
                     end
@@ -303,9 +300,8 @@ local function runRotation()
             end
 
             if getOptionValue("Upkeep Riptide") == 3 then -- Player
-                if not UnitIsDeadOrGhost("player") and not buff.riptide.exists("player") and not IsMounted() and not IsFlying() then
+                if not UnitIsDeadOrGhost("player") and not buff.riptide.exists("player") then
                     if cast.riptide("player") then
-                        br.addonDebug("Upkeep Riptide Tank")
                         return
                     end
                 end
@@ -316,7 +312,6 @@ local function runRotation()
             for i = 1, #br.friend do
                 if canDispel(br.friend[i].unit, spell.purifySpirit) then
                     if cast.purifySpirit(br.friend[i].unit) then
-                        br.addonDebug("Casting Purify Spirit")
                         return
                     end
                 end
@@ -324,19 +319,21 @@ local function runRotation()
         end
 
         -- start of ES upkeep
-        if isChecked("Upkeep Earth Shield") and not IsMounted() and not IsFlying() and (inCombat or not isChecked("Only in Combat (Earth Shield)")) then
+        if isChecked("Upkeep Earth Shield") and (inCombat or not isChecked("Only in Combat (Earth Shield)")) then
             if getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
                 if cast.earthShield("target") then
-                    br.addonDebug("Upkeep Earth Shield Target")
                     return
                 end
             end
 
             if getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
                 for i = 1, #tanks do
-                    if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
+                    if inRaid and buff.earthShield.count() == 1 then
+                        if GetUnitIsUnit(tanks[i].unit, "boss1target") and not buff.earthShield.exists(tanks[i].unit) then
+                            cast.earthShield(tanks[i].unit)
+                        end
+                    elseif (not inRaid or buff.earthShield.count() < 1) and UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) then
                         if cast.earthShield(tanks[i].unit) then
-                            br.addonDebug("Upkeep Earth Shield Tank")
                             return
                         end
                     end
@@ -348,7 +345,6 @@ local function runRotation()
             for i = 1, #tanks do
                 if tanks[i].hp <= getValue("Healing Surge") then
                     if cast.healingSurge(tanks[i].unit) then
-                        br.addonDebug("Casting Healing Surge")
                         return
                     end
                 end
@@ -358,7 +354,6 @@ local function runRotation()
         if isChecked("Healing Surge") and notmoving then
             if lowest.hp <= getValue("Healing Surge") then
                 if cast.healingSurge(lowest.unit) then
-                    br.addonDebug("Casting Healing Surge")
                     return
                 end
             end
@@ -375,7 +370,6 @@ local function runRotation()
 
         if isChecked("Chain Heal") and notmoving then
             if chainHealUnits(spell.chainHeal, 15, getValue("Chain Heal"), getValue("Chain Heal Targets")) then
-                br.addonDebug("Casting Chain Heal")
                 return
             end
         end
@@ -383,7 +377,6 @@ local function runRotation()
         if isChecked("Healing Wave") and notmoving and not isChecked("HW Buff") then
             if lowest.hp <= getValue("Healing Wave") then
                 if cast.healingWave(lowest.unit) then
-                    br.addonDebug("Casting Healing Wave")
                     return
                 end
             end
@@ -392,7 +385,6 @@ local function runRotation()
         if isChecked("Healing Wave") and notmoving and isChecked("HW Buff") then
             if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
                 if cast.healingWave(lowest.unit) then
-                    br.addonDebug("Casting Healing Wave with buff")
                     return
                 end
             end
@@ -455,7 +447,6 @@ local function runRotation()
 
         if isChecked("Water Shield") and not buff.waterShield.exists() then
             if cast.waterShield() then
-                br.addonDebug("Upkeep Water Shield")
                 return
             end
         end
@@ -496,7 +487,7 @@ local function runRotation()
 
     --if IsAoEPending() and inCombat then SpellStopTargeting() return end
     -- Pause
-    if (pause() or isLooting() or (SpecificToggle("Ghost Wolf Key") and buff.ghostWolf.exists("player"))) and not IsMounted() and not IsFlying() then
+    if (pause() or isLooting() or (SpecificToggle("Ghost Wolf Key") and buff.ghostWolf.exists("player"))) or IsMounted() or IsFlying() then
         return true
     else
         ---------------------------------
