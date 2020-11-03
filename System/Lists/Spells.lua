@@ -1523,6 +1523,7 @@ br.lists.spells = {
                 icyVeins                    = 12472,
                 petFreeze                   = 33395,
                 rayOfFrost                  = 205021,
+                runeofPower                 = 116011,
                 removeCurse                 = 475,
                 summonWaterElemental        = 31687,
                 waterbolt                   = 31707,
@@ -1532,6 +1533,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 brainFreeze                 = 190446,
+                concentratedCoolness        = 198148,
                 freezingRain                = 270232,
                 frostBomb                   = 112948,
                 fingersOfFrost              = 44544,
