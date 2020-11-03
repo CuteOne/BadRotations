@@ -80,7 +80,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 122111022020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 142211032020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -121,6 +121,18 @@ local function createOptions()
         br.ui:createSpinner(section, "Feint", 10, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createSpinner(section, "Evasion", 10, 0, 100, 5, "Health Percentage to use at.")
         br.ui:checkSectionState(section)
+        -------------------------
+        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Interrupt/stun Options")
+        -- Interrupt Percentage
+        br.ui:createDropdownWithout(section, "Gouge", { "None", "Interrupt", "Stun", "Both" }, 4, "", "How do you want to use Gouge?")
+        br.ui:createDropdownWithout(section, "Blind", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Blind?")
+        br.ui:createDropdownWithout(section, "Kidney", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Kidney Shot?")
+        br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
+        br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
+        br.ui:checkSectionState(section)
+
         section = br.ui:createSection(br.ui.window.profile, "Aggro")
         br.ui:createCheckbox(section, "Aggro Management", "Shake aggro?")
         if br.player.race == "NightElf" then
@@ -131,16 +143,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "[AM] - Evasion", "Shake aggro?")
 
         br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt/stun Options")
-        -- Interrupt Percentage
-        br.ui:createDropdownWithout(section, "Gouge", { "None", "Interrupt", "Stun", "Both" }, 4, "", "How do you want to use Gouge?")
-        br.ui:createDropdownWithout(section, "Blind", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Blind?")
-        br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
-        br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
-        br.ui:checkSectionState(section)
+
     end
 
     local function mplusoptions()
@@ -866,7 +869,7 @@ actionList.dps = function()
 
 
     --  Print(tostring(getOutLaksTTD(8)))
-    if mode.rotation == 1 then
+    if cast.able.bladeFlurry() and mode.rotation == 1 then
         local explosiveCount = 0
         for i = 1, #enemies.yards8 do
             thisUnit = enemies.yards8[i]
@@ -874,23 +877,32 @@ actionList.dps = function()
                 explosiveCount = explosiveCount + 1
             end
         end
-
-        if cast.able.bladeFlurry() and (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
+        -- dps cd's
+        if (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
             if cast.bladeFlurry() then
                 return true
             end
         end
     end
+    if talent.killingSpree and cast.able.killingSpree() and ((#enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
+        if cast.killingSpree() then
+            return true
+        end
+    end
+    if talent.bladeRush and cast.able.bladeRush() and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
+        if cast.bladeRush(dynamic_target_melee) then
+            return true
+        end
+    end
+    if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) then
+        if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(20) > 0 then
+            if cast.adrenalineRush() then
+                return true
+            end
+        end
+    end
 
-    -- killing_spree,if=variable.blade_flurry_sync&energy.time_to_max>2
-
-
-    -- Finishers
-    -- test
-    -- Print("Our current # buffs that reflects on combo points:" .. tostring(buff_count()))
-    -- Print("Combo: " .. combo .. " Execute at: " .. (tostring(comboMax - buff_count())))
-
-
+    -- dps regular damage
     if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
             * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
             * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
@@ -945,40 +957,7 @@ actionList.dps = function()
 
     --variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
 
-    if talent.killingSpree and cast.able.killingSpree() and ((#enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
-        if cast.killingSpree() then
-            return true
-        end
-    end
 
-
-    --[[
-    blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>2
-    variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
-    ]]
-    if talent.bladeRush and cast.able.bladeRush() and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
-        if cast.bladeRush(dynamic_target_melee) then
-            return true
-        end
-    end
-
-    --[[
-    marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
-    If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or without any CP.
-    0.00	marked_for_death,if=raid_event.adds.in>30-raid_event.adds.duration&!stealthed.rogue&combo_points.deficit>=cp_max_spend-1
-    If no adds will die within the next 30s, use MfD on boss without any CP.
-    ]]
-
-
-
-    --adrenaline_rush,if=!buff.adrenaline_rush.up&(!equipped.azsharas_font_of_power|cooldown.latent_arcana.remains>20)
-    if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) then
-        if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(20) > 0 then
-            if cast.adrenalineRush() then
-                return true
-            end
-        end
-    end
     --[[
     vanish,if=!stealthed.all&variable.ambush_condition
     Using Vanish/Ambush is only a very tiny increase, so in reality, you're absolutely fine to use it as a utility spell.
@@ -1143,7 +1122,7 @@ actionList.Extra = function()
     if cast.able.rollTheBones() and
             (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
         if cast.rollTheBones() then
-          --  Print(tostring(isChecked("Roll The Bones")))
+            --  Print(tostring(isChecked("Roll The Bones")))
             br.player.ui.debug("rolling bones!")
             return true
         end
@@ -1477,9 +1456,16 @@ actionList.Interrupt = function()
                                 return true
                             end
                         end
-                        if mode.blind == 1 and (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cd.blind.exists() and (cd.kick.exists or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
+                        if mode.blind == 1 and (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cast.able.blind(interrupt_target) and (cd.kick.exists() or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
                             if cast.blind(interrupt_target) then
                                 br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
+                                someone_casting = false
+                                return true
+                            end
+                        end
+                        if (getValue("Kidney") == 2 or getValue("Kidney") == 4) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
+                            if cast.kidneyShot(interrupt_target) then
+                                br.addonDebug("[int]Kidney/stunning")
                                 someone_casting = false
                                 return true
                             end
@@ -1500,7 +1486,7 @@ actionList.Interrupt = function()
 
             --check for stun here
             if cd.global.remain() == 0 and mode.stun == 1 then
-                if cast.able.blind() or cast.able.cheapShot() then
+                if cast.able.blind() or cast.able.cheapShot() or cast.able.kidneyShot() then
                     distance = getDistance(interrupt_target)
                     if (isCrowdControlCandidates(interrupt_target) or isChecked("Motherload - Stun jockeys") and getUnitID(interrupt_target) == 130488)
                             and not already_stunned(interrupt_target)
@@ -1514,6 +1500,12 @@ actionList.Interrupt = function()
                         elseif (getValue("Blind") == 3 or getValue("Blind") == 4) and cast.able.blind() and (distance <= 15 or talent.blindingPowder and distance <= 30) and not cd.blind.exists() then
                             if cast.blind(interrupt_target) then
                                 br.addonDebug("Blind/stunning")
+                                someone_casting = false
+                                return true
+                            end
+                        elseif (getValue("Kidney") == 3 or getValue("Kidney") == 4) and fcast.able.kidneyShot() and combo > 0 then
+                            if cast.kidneyShot(interrupt_target) then
+                                br.addonDebug("Kidney/stunning")
                                 someone_casting = false
                                 return true
                             end
