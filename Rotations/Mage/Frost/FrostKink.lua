@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.0"
+local rotationVer  = "v1.0.1"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -18,6 +18,7 @@ local function createToggles()
         [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.frostbolt},
     }
     CreateButton("Rotation", 1, 0)
+
     -- Cooldown Button
     CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.icyVeins},
@@ -26,42 +27,76 @@ local function createToggles()
         [4] = {mode = "Lust", value = 4, overlay = "Cooldowns With Lust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.icyVeins}
     }
     CreateButton("Cooldown", 2, 0)
+
     -- Defensive Button
     DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.iceBarrier},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.iceBarrier}
     }
     CreateButton("Defensive", 3, 0)
+
     -- Interrupt Button
     InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterspell},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterspell}
     }
     CreateButton("Interrupt", 4, 0)
+
     -- Frozen Orb Button
     FrozenOrbModes = {
         [1] = {mode = "On", value = 1, overlay = "Auto FO Enabled", tip = "Will Automatically use Frozen Orb", highlight = 1, icon = br.player.spell.frozenOrb},
         [2] = {mode = "Off", value = 2, overlay = "Auto FO Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.frozenOrb}
     }
     CreateButton("FrozenOrb", 5, 0)
+
     -- Ebonbolt Button
     EbonboltModes = {
         [1] = {mode = "On", value = 1, overlay = "Ebonbolt Enabled", tip = "Will use Ebonbolt", highlight = 1, icon = br.player.spell.ebonbolt},
         [2] = {mode = "Off", value = 2, overlay = "Ebonbolt Disabled", tip = "Will not use Ebonbolt", highlight = 0, icon = br.player.spell.ebonbolt}
     }
     CreateButton("Ebonbolt", 6, 0)
+
     -- Comet Storm Button
     CometStormModes = {
         [1] = {mode = "On", value = 1, overlay = "Comet Storm Enabled", tip = "Will use Comet Storm", highlight = 1, icon = br.player.spell.cometStorm},
         [2] = {mode = "Off", value = 2, overlay = "Comet Storm Disabled", tip = "Will not use Comet Storm", highlight = 0, icon = br.player.spell.cometStorm}
     }
     CreateButton("CometStorm", 7, 0)
-    -- Comet Storm Button
+
+    -- Cone of Cold Button
     ConeOfColdModes = {
         [1] = {mode = "On", value = 1, overlay = "Cone Of Cold Enabled", tip = "Will use Cone Of Cold", highlight = 1, icon = br.player.spell.coneOfCold},
         [2] = {mode = "Off", value = 2, overlay = "Cone Of Cold Disabled", tip = "Will not use Cone Of Cold", highlight = 0, icon = br.player.spell.coneOfCold}
     }
     CreateButton("ConeOfCold", 1, 1)
+
+    -- Fire Blast Button
+    FireBlastModes = {
+        [1] = {mode = "On", value = 1, overlay = "Fire Blast Enabled", tip = "Will use Fire Blast", highlight = 1, icon = br.player.spell.fireBlast},
+        [2] = {mode = "Off", value = 2, overlay = "Fire Blast Disabled", tip = "Will not use Fire Blast", highlight = 0, icon = br.player.spell.fireBlast}
+    }
+    CreateButton("FireBlast", 2, 1)
+
+    -- Rune of Power Button
+    RoPModes = {
+        [1] = {mode = "On", value = 1, overlay = "Rune of Power Enabled", tip = "Will use Rune of Power", highlight = 1, icon = br.player.spell.runeOfPower},
+        [2] = {mode = "Off", value = 2, overlay = "Rune of Power Disabled", tip = "Will not use Rune of Power", highlight = 0, icon = br.player.spell.runeOfPower}
+    }
+    CreateButton("RoP", 3, 1)
+
+    -- Arcane Explosion Button
+    ArcaneExplosionModes = {
+        [1] = {mode = "On", value = 1, overlay = "Arcane Explosion Enabled", tip = "Will use Arcane Explosion", highlight = 1, icon = br.player.spell.arcaneExplosion},
+        [2] = {mode = "Off", value = 2, overlay = "Arcane Explosion Disabled", tip = "Will not use Arcane Explosion", highlight = 0, icon = br.player.spell.arcaneExplosion}
+    }
+    CreateButton("ArcaneExplosion", 4, 1)
+
+        -- Arcane Explosion Button
+    FrostNovaModes = {
+        [1] = {mode = "On", value = 1, overlay = "Frost Nova Enabled", tip = "Will use Frost Nova", highlight = 1, icon = br.player.spell.frostNova},
+        [2] = {mode = "Off", value = 2, overlay = "Frost Nova Disabled", tip = "Will not use Frost Nova", highlight = 0, icon = br.player.spell.frostNova}
+    }
+    CreateButton("FrostNova", 5, 1)
 end
 
 ---------------
@@ -94,10 +129,7 @@ local function createOptions()
         ------------------------
         ---   DPS SETTINGS   ---
         ------------------------
-       section = br.ui:createSection(br.ui.window.profile, "DPS Settings")
-        -- Arcane Explosion
-        br.ui:createCheckbox(section, "Rune of Power", "|cffFFBB00Use Toggle the use of Rune of Power on Cooldown.")     
-
+       section = br.ui:createSection(br.ui.window.profile, "DPS Settings") 
         -- Blizzard Units
         br.ui:createSpinnerWithout(section, "Blizzard Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Blizzard will be cast on.")
         
@@ -107,13 +139,8 @@ local function createOptions()
         -- Frozen Orb Units
         br.ui:createSpinnerWithout(section, "Frozen Orb Units", 3, 1, 10, 1, "|cffFFBB00Min. number of units Frozen Orb will be cast on.")
 
-        -- Arcane Explosion
-        br.ui:createCheckbox(section, "Arcane Explosion", "|cffFFBB00Use Toggle the use of Arcane Explosion.")     
         -- Arcane Explosion Units
         br.ui:createSpinner(section, "Arcane Explosion Units", 2, 1, 10, 1, "|cffFFB000 Number of adds to cast Arcane Explosion")
-
-        -- Frost Nova 
-        br.ui:createCheckbox(section, "Frost Nova", "|cffFFBB00Use Toggle the use of Frost Nova. ")  
 
         -- Frozen Orb Key
         br.ui:createDropdown(section, "Frozen Orb Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to manually use Frozen Orb")
@@ -126,10 +153,6 @@ local function createOptions()
 
         -- Casting Interrupt Delay
         br.ui:createCheckbox(section, "No Ice Lance", "|cffFFBB00Use No Ice Lance Rotation.")
-
-        -- Fire Blast
-        br.ui:createCheckbox(section, "Fire Blast", "|cffFFBB00Use Toggle the use of fire blast.")     
-        br.ui:createCheckbox(section, "Fire Blast Moving", "|cffFFBB00Use Toggle the use of fire blast while moving.")   
 
         -- Predict movement
         --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
@@ -293,6 +316,11 @@ local function runRotation()
     br.player.ui.mode.cometStorm = br.data.settings[br.selectedSpec].toggles["CometStorm"]
     br.player.ui.mode.ebonbolt = br.data.settings[br.selectedSpec].toggles["Ebonbolt"]
     br.player.ui.mode.coc = br.data.settings[br.selectedSpec].toggles["ConeOfCold"]
+    br.player.ui.mode.fb = br.data.settings[br.selectedSpec].toggles["FireBlast"]
+    br.player.ui.mode.rop = br.data.settings[br.selectedSpec].toggles["RoP"]
+    br.player.ui.mode.ae = br.data.settings[br.selectedSpec].toggles["ArcaneExplosion"]
+    br.player.ui.mode.fn = br.data.settings[br.selectedSpec].toggles["FrostNova"]
+    
     --------------
     --- Locals ---
     --------------
@@ -466,6 +494,7 @@ local function runRotation()
     if profileStop == nil or not inCombat then
         profileStop = false
     end
+
     --ttd
     local function ttd(unit)
         local ttdSec = getTTD(unit)
@@ -475,7 +504,8 @@ local function runRotation()
         if ttdSec == -1 then
             return 999
         end
-        return ttdSec
+        return
+         ttdSec
     end
     --is frozen
     local function isFrozen(unit)
@@ -939,7 +969,7 @@ local function runRotation()
                 end
             end
 
-            if getDistance("target") < 12 and not isBoss("target") then
+            if mode.fn == 1 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
                 if cast.frostNova("player") then
                     return true
                 end
@@ -1036,9 +1066,6 @@ local function runRotation()
             --CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
             if cast.able.icyVeins() then CastSpellByName(GetSpellInfo(spell.icyVeins)) return true end
 
-            -- Rune of Power on Cooldown
-            if cast.able.runeofPower() and not moving and ui.checked("Rune of Power") then if cast.runeofPower() then return true end end
-
            -- if cast.icyVeins("player") then return true end
 
             -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
@@ -1067,6 +1094,11 @@ local function runRotation()
     end
 
     local function actionList_Leveling()
+        -- Rune of Power on Cooldown
+        if mode.rop == 1 and cast.able.runeofPower() and not moving and ui.checked("Rune of Power") and not buff.runeOfPower.exists("player") then 
+            if cast.runeofPower() then return true end 
+        end
+
         actionList_Cooldowns()
         
         if targetUnit.frozen or targetUnit.calcHP < calcDamage(spell.iceLance, targetUnit) or (inInstance and targetUnit.ttd < cast.time.frostbolt()) then
@@ -1081,19 +1113,19 @@ local function runRotation()
             end
         end
 
-        if getDistance("target") < 12 and not isBoss("target") then
+        if mode.fn == 1 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
             if cast.frostNova("player") then
                 return true
             end
         end
 
         if mode.coc == 1 then
-            if getEnemiesInCone(90,10) >= ui.value("Cone of Cold Units") then
+            if getDistance("target") <= 8 then
                 if cast.coneOfCold("player") then return true end
             end
         end
 
-        if ui.checked("Arcane Explosion") and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
             CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
         end
 
@@ -1134,7 +1166,7 @@ local function runRotation()
             end
         end
 
-        if cast.able.fireBlast("target") and ui.checked("Fire Blast") then 
+        if mode.fb == 1 and cast.able.fireBlast("target") then 
             if cast.fireBlast("target") then return true end
         end
 
@@ -1153,7 +1185,7 @@ local function runRotation()
     local function actionList_ST()
         -- # In some situations, you can shatter Ice Nova even after already casting Flurry and Ice Lance. Otherwise this action is used when the mage has FoF after casting Flurry, see above.
         -- arcane explosion
-        if ui.checked("Arcane Explosion") and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
             CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
          end 
             
@@ -1283,7 +1315,7 @@ local function runRotation()
         end
 
         -- fireblast
-        if cast.able.fireBlast("target") and ui.checked("Fire Blast") then 
+        if mode.fb ~= 2 and cast.able.fireBlast("target") then 
             if cast.fireBlast("target") then return true end
         end
 
@@ -1300,12 +1332,15 @@ local function runRotation()
 
         -- actions.single+=/ice_lance
         if cast.iceLance("target") then return true end
+
+        -- Fire Blast Moving
+        ---if mode.fb ~= 2 and moving and cast.able.fireBlast() then if cast.fireBlast() then return true end end 
     end
 
     local function actionList_AoE()
         -- # With Freezing Rain, it's better to prioritize using Frozen Orb when both FO and Blizzard are off cooldown. Without Freezing Rain, the converse is true although the difference is miniscule until very high target counts.
         -- arcane explosion
-        if ui.checked("Arcane Explosion") and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if mode.ae == 1 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
             CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
         end
 
@@ -1326,10 +1361,16 @@ local function runRotation()
 
         -- # Using Cone of Cold is mostly DPS neutral with the AoE target thresholds. It only becomes decent gain with roughly 7 or more targets.
         -- actions.aoe+=/cone_of_cold
-        if mode.coc == 1 then
+       --[[ if mode.coc == 1 then
            -- if castBestConeAngle then
              --   if castBestConeAngle(spell.coneOfCold,10,90,4,false) then return true end
-            if getEnemiesInCone(90,10) >= ui.value("Cone of Cold Units")then
+            if getEnemiesInCone(90,10) >= ui.value("Cone of Cold Units") then
+                if cast.coneOfCold("player") then return true end
+            end
+        end--]]
+
+        if mode.coc == 1 then
+            if getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
                 if cast.coneOfCold("player") then return true end
             end
         end
@@ -1419,6 +1460,10 @@ local function runRotation()
 
         -- actions.aoe+=/ice_lance
         if cast.iceLance("target") then return true end
+
+        -- Fire Blast Moving
+       -- if mode.fb ~= 2 and moving and cast.able.fireBlast() then if cast.fireBlast() then return true end end 
+
     end
 
     local function actionList_Rotation()
@@ -1432,6 +1477,18 @@ local function runRotation()
             -- actions+=/ice_lance,if=prev_gcd.1.flurry&!buff.fingers_of_frost.react
             if not isChecked("No Ice Lance") and cast.last.flurry() and not fofExists then
                 if cast.iceLance("target") then return true end
+            end
+
+            -- Cone of Cold, Nigga
+            if mode.coc == 1 then
+                if getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
+                   if cast.coneOfCold("player") then return true end
+                end
+            end
+
+            -- Rune of Power on Cooldown
+            if mode.rop == 1 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists("player") then 
+                if cast.runeofPower() then return true end 
             end
 
             -- actions+=/call_action_list,name=cooldowns
@@ -1564,8 +1621,6 @@ local function runRotation()
             --------------------------
             ---      Rotation      ---
             --------------------------
-            if moving and ui.checked("Fire Blast Moving") and ui.checked("Fire Blast") then if cast.fireBlast() then return true end end 
-
                 if getOptionValue("APL Mode") == 1 then
                     if actionList_Rotation() then return true end
 
