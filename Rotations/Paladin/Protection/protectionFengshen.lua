@@ -895,6 +895,8 @@ local function runRotation()
 			--------------------------------
 			-- Shield of the Righteous
 			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists())
+			and ((isChecked("Word of Glory") and getHP("player") > getOptionValue("Word of Glory")) or not isChecked("Word of Glory"))
+			and ((isChecked("Word of Glory - Party") and getHP(lowest.unit) > getOptionValue("Word of Glory - Party")) or not isChecked("Word of Glory - Party"))
 			and (buff.holyAvenger.remain("player") > gcd or debuff.judgment.exists(units.dyn30) or holyPower == 5) then
 				if CastSpellByName(GetSpellInfo(53600),units.dyn5) then return end
 			end
