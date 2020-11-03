@@ -100,7 +100,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Earth Shield")
             -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui.createCheckbox(section, "Instant Only In Combat")
+            br.ui:createCheckbox(section, "Instant Only In Combat")
             br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Lightning Surge Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
