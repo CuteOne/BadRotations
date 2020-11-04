@@ -516,11 +516,11 @@ local function runRotation()
 			if cast.able.wordOfGlory() and (holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists()) then
 				if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") then
 					if CastSpellByName(GetSpellInfo(85673),"player") then return end
-				elseif isChecked("Word of Glory - Party") and getHP(lowest.unit) <= getOptionValue("Word of Glory - Party") then
-					if CastSpellByName(GetSpellInfo(85673),lowest.unit) then return end
+				elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") and not UnitIsDeadOrGhost(lowestUnit) and UnitInRange(lowestUnit) then
+					if CastSpellByName(GetSpellInfo(85673),lowestUnit) then return end
 				end
-				if buff.shiningLight.exists() and getBuffRemain("player", 327510) <= 1 then
-					if CastSpellByName(GetSpellInfo(85673),lowest.unit) then return end
+				if buff.shiningLight.exists() and getBuffRemain("player", 327510) <= 1 and not UnitIsDeadOrGhost(lowestUnit) and UnitInRange(lowestUnit) then
+					if CastSpellByName(GetSpellInfo(85673),lowestUnit) then return end
 				end
 			end
 			-- Lay On Hands
@@ -532,15 +532,15 @@ local function runRotation()
 					end
 					-- Target
 				elseif getOptionValue("Lay on Hands Target") == 2 then
-					if getHP("target") <= getValue("Lay On Hands") then
+					if getHP("target") <= getValue("Lay On Hands") and not UnitIsDeadOrGhost("target") then
 						if CastSpellByName(GetSpellInfo(633),"target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Lay on Hands Target") == 3 then
-					if getHP("mouseover") <= getValue("Lay On Hands") then
+					if getHP("mouseover") <= getValue("Lay On Hands") and not UnitIsDeadOrGhost("mouseover") then
 						if CastSpellByName(GetSpellInfo(633),"mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
+				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 and not UnitIsDeadOrGhost(lowestUnit) then
 					-- Tank
 					if getOptionValue("Lay on Hands Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -576,15 +576,15 @@ local function runRotation()
 					end
 					-- Target
 				elseif getOptionValue("Blessing of Protection Target") == 2 then
-					if getHP("target") <= getValue("Blessing of Protection") then
+					if getHP("target") <= getValue("Blessing of Protection") and not UnitIsDeadOrGhost("target") then
 						if CastSpellByName(GetSpellInfo(1022),"target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Blessing of Protection Target") == 3 then
-					if getHP("mouseover") <= getValue("Blessing of Protection") then
+					if getHP("mouseover") <= getValue("Blessing of Protection") and not UnitIsDeadOrGhost("mouseover") then
 						if CastSpellByName(GetSpellInfo(1022),"mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and UnitInRange(lowestUnit) then
+				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and UnitInRange(lowestUnit) and not UnitIsDeadOrGhost(lowestUnit) then
 					-- Tank
 					if getOptionValue("Blessing of Protection Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -615,15 +615,15 @@ local function runRotation()
 			if isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
 				-- Target
 				if getOptionValue("Blessing Of Sacrifice Target") == 1 then
-					if getHP("target") <= getValue("Blessing Of Sacrifice") then
+					if getHP("target") <= getValue("Blessing Of Sacrifice") and not UnitIsDeadOrGhost("target") then
 						if CastSpellByName(GetSpellInfo(6940),"target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Blessing Of Sacrifice Target") == 2 then
-					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
+					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") and not UnitIsDeadOrGhost("mouseover") then
 						if CastSpellByName(GetSpellInfo(6940),"mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
+				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 and not UnitIsDeadOrGhost(lowestUnit) then
 					-- Tank
 					if getOptionValue("Blessing Of Sacrifice Target") == 3 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -896,7 +896,7 @@ local function runRotation()
 			-- Shield of the Righteous
 			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists())
 			and ((isChecked("Word of Glory") and getHP("player") > getOptionValue("Word of Glory")) or not isChecked("Word of Glory"))
-			and ((isChecked("Word of Glory - Party") and getHP(lowest.unit) > getOptionValue("Word of Glory - Party")) or not isChecked("Word of Glory - Party"))
+			and ((isChecked("Word of Glory - Party") and getHP(lowestUnit) > getOptionValue("Word of Glory - Party")) or not isChecked("Word of Glory - Party"))
 			and (buff.holyAvenger.remain("player") > gcd or debuff.judgment.exists(units.dyn30) or holyPower == 5) then
 				if CastSpellByName(GetSpellInfo(53600),units.dyn5) then return end
 			end
