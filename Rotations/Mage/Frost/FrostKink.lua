@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.3"
+local rotationVer  = "v1.0.4"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -116,7 +116,6 @@ local function createOptions()
 
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-
 
         -- Ice Floes Delay
         br.ui:createSpinnerWithout(section, "Ice Floes Delay", 1.5, 0, 10, 0.1, "|cffFFBB00Delay between casting Ice Floes.")
@@ -464,7 +463,7 @@ local function runRotation()
     end       
 
     -- Ice Floes
-    if moving and talent.iceFloes and buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
+    if moving and talent.iceFloes and buff.iceFloes.exists() then
         moving = false
     end
 
@@ -1327,7 +1326,7 @@ local function runRotation()
         end
 
         -- actions.single+=/call_action_list,name=movement
-        if talent.iceFloes and moving and not buff.iceFloes.exists() then
+        if talent.iceFloes and moving and not buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
             if cast.iceFloes("player") then return true end
         end
 
@@ -1462,7 +1461,7 @@ local function runRotation()
         end
 
         -- actions.aoe+=/call_action_list,name=movement
-        if talent.iceFloes and moving and not buff.iceFloes.exists() then
+        if talent.iceFloes and moving and not buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
             if cast.iceFloes("player") then return true end
         end
 
