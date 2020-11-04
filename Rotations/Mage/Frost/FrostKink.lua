@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.2"
+local rotationVer  = "v1.0.3"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -116,6 +116,10 @@ local function createOptions()
 
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+
+
+        -- Ice Floes Delay
+        br.ui:createSpinnerWithout(section, "Ice Floes Delay", 1.5, 0, 10, 0.1, "|cffFFBB00Delay between casting Ice Floes.")
 
         -- Pre-Pull Timer
         br.ui:createCheckbox(section, "Pre-Pull Logic", "|cffFFBB00Will precast Frostbolt on pull if pulltimer is active")
@@ -460,7 +464,7 @@ local function runRotation()
     end       
 
     -- Ice Floes
-    if moving and talent.iceFloes and buff.iceFloes.exists() then
+    if moving and talent.iceFloes and buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
         moving = false
     end
 
@@ -1014,15 +1018,15 @@ local function runRotation()
         
         if isChecked("Purifying Blast") and cast.able.purifyingBlast() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
             -- actions.essences+=/purifying_blast,if=buff.rune_of_power.down|active_enemies>3
-                if cast.purifyingBlast("target") then return true end
+            if cast.purifyingBlast("target") then return true end
         end
                 -- actions.essences+=/ripple_in_space,if=buff.rune_of_power.down|active_enemies>3
         if isChecked("Ripple in Space") and cast.able.rippleInSpace() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
-                if cast.rippleInSpace("target") then return true end 
+            if cast.rippleInSpace("target") then return true end 
         end
                 -- actions.essences+=/worldvein_resonance,if=buff.rune_of_power.down|active_enemies>3
         if isChecked("Worldvein Resonance") and cast.able.worldveinResonance() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
-                if cast.worldveinResonance("target") then return true end
+            if cast.worldveinResonance("target") then return true end
         end
             -- actions.essences+=/concentrated_flame,line_cd=6,if=buff.rune_of_power.down
         if isChecked("Concentrated Flame DPS") and cast.able.concentratedFlame() and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and (not debuff.concentratedFlame.exists("target") and not cast.last.concentratedFlame()
@@ -1092,7 +1096,7 @@ local function runRotation()
 
     local function actionList_Leveling()
         -- Rune of Power on Cooldown
-        if mode.rop == 1 and cast.able.runeofPower() and not moving and ui.checked("Rune of Power") and not buff.runeOfPower.exists() then 
+        if mode.rop ~= 2 and cast.able.runeofPower() and not moving and ui.checked("Rune of Power") and not buff.runeOfPower.exists() then 
             if cast.runeofPower() then return true end 
         end
 
@@ -1182,7 +1186,7 @@ local function runRotation()
     local function actionList_ST()  
         -- # In some situations, you can shatter Ice Nova even after already casting Flurry and Ice Lance. Otherwise this action is used when the mage has FoF after casting Flurry, see above.
         -- arcane explosion
-        if mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if mode.ae ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
             CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
          end 
             
@@ -1337,7 +1341,7 @@ local function runRotation()
     local function actionList_AoE()
         -- # With Freezing Rain, it's better to prioritize using Frozen Orb when both FO and Blizzard are off cooldown. Without Freezing Rain, the converse is true although the difference is miniscule until very high target counts.
         -- arcane explosion
-        if mode.ae == 1 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if mode.ae ~= 2 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
             CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
         end
 
@@ -1367,7 +1371,7 @@ local function runRotation()
         end--]]
 
         
-        if mode.fn == 1 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
+        if mode.fn ~= 2 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
             if cast.frostNova("player") then
                 return true
             end
@@ -1494,7 +1498,7 @@ local function runRotation()
             if actionList_Cooldowns() then return true end
 
 
-            if mode.rop == 1 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and not cast.able.icyVeins() or cast.timeSinceLast.icyVeins() >= 15 then 
+            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and not cast.able.icyVeins() or cast.timeSinceLast.icyVeins() >= 13.5 then 
                 if cast.runeofPower() then return true end 
             end
 
