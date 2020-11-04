@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.1"
+local rotationVer  = "v1.0.2"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -809,6 +809,7 @@ local function runRotation()
             end
         end
     end
+
     --Tank move check for aoe
     local tankMoving = false
     if inInstance then
@@ -968,12 +969,6 @@ local function runRotation()
                     end
                 end
             end
-
-            if mode.fn == 1 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
-                if cast.frostNova("player") then
-                    return true
-                end
-            end
         end
     end
 
@@ -1064,7 +1059,9 @@ local function runRotation()
             -- actions.cooldowns=icy_veins
 
             --CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
-            if cast.able.icyVeins() then CastSpellByName(GetSpellInfo(spell.icyVeins)) return true end
+           -- if talent.iceForm and cd.iceForm.remain() <= gcdMax 
+
+            if cast.able.icyVeins() and not buff.iceForm.exists() and not buff.runeOfPower.exists() then CastSpellByName(GetSpellInfo(spell.icyVeins)) return true end
 
            -- if cast.icyVeins("player") then return true end
 
@@ -1095,7 +1092,7 @@ local function runRotation()
 
     local function actionList_Leveling()
         -- Rune of Power on Cooldown
-        if mode.rop == 1 and cast.able.runeofPower() and not moving and ui.checked("Rune of Power") and not buff.runeOfPower.exists("player") then 
+        if mode.rop == 1 and cast.able.runeofPower() and not moving and ui.checked("Rune of Power") and not buff.runeOfPower.exists() then 
             if cast.runeofPower() then return true end 
         end
 
@@ -1182,7 +1179,7 @@ local function runRotation()
 
     end
 
-    local function actionList_ST()
+    local function actionList_ST()  
         -- # In some situations, you can shatter Ice Nova even after already casting Flurry and Ice Lance. Otherwise this action is used when the mage has FoF after casting Flurry, see above.
         -- arcane explosion
         if mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
@@ -1369,6 +1366,13 @@ local function runRotation()
             end
         end--]]
 
+        
+        if mode.fn == 1 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
+            if cast.frostNova("player") then
+                return true
+            end
+        end
+
         if mode.coc == 1 then
             if getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
                 if cast.coneOfCold("player") then return true end
@@ -1486,13 +1490,13 @@ local function runRotation()
                 end
             end
 
-            -- Rune of Power on Cooldown
-            if mode.rop == 1 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists("player") then 
-                if cast.runeofPower() then return true end 
-            end
-
             -- actions+=/call_action_list,name=cooldowns
             if actionList_Cooldowns() then return true end
+
+
+            if mode.rop == 1 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and not cast.able.icyVeins() or cast.timeSinceLast.icyVeins() >= 15 then 
+                if cast.runeofPower() then return true end 
+            end
 
             -- essences
             if actionList_Essences() then return true end
