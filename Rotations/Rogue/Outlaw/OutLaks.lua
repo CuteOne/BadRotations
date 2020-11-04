@@ -1503,7 +1503,7 @@ actionList.Interrupt = function()
                                 someone_casting = false
                                 return true
                             end
-                        elseif (getValue("Kidney") == 3 or getValue("Kidney") == 4) and fcast.able.kidneyShot() and combo > 0 then
+                        elseif (getValue("Kidney") == 3 or getValue("Kidney") == 4) and cast.able.kidneyShot() and combo > 0 then
                             if cast.kidneyShot(interrupt_target) then
                                 br.addonDebug("Kidney/stunning")
                                 someone_casting = false
