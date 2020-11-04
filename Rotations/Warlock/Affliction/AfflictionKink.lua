@@ -983,32 +983,30 @@ actionList.PreCombat = function()
     end      
 end -- End Action List - PreCombat
 
-function unstableAfflictionFUCK(unit)
-    if unit == nil then unit = "target" end
-    if moving then return false end
+    function unstableAfflictionFUCK(unit)
+        if unit == nil then unit = "target" end
+        if moving then return false end
 
-    if debuff.unstableAffliction.remain(unit) <= 6.8
-      --  and debuff.agony.exists("target") and (debuff.corruption.exists("target") 
-       -- and (debuff.siphonLife.exists("target") or not talent.siphonLife)) then
-    then
-        if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
+        if debuff.unstableAffliction.remain(unit) <= 6.8
+        and debuff.agony.exists("target") and (debuff.corruption.exists("target") 
+        and (debuff.siphonLife.exists("target") or not talent.siphonLife)) then
+           if cast.unstableAffliction(unit) then br.addonDebug("Casting Unstable Affliction") return true end
+        end
     end
-end
 
 actionList.Fillers = function()
     if debuff.agony.remain("target") > 5.8 and debuff.corruption.exists("target") and debuff.unstableAffliction.remain("target") > 7.2 then
-        if not moving and not cast.current.drainSoul() and not debuff.vileTaint.exists("target") and shards > 0 or debuff.vileTaint.exists("target") and debuff.vileTaint.remain("target") < 2 and shards < 1 then
-            if cast.drainSoul() then
-                dsInterrupt = true
-                return true 
-            end
-        end
+    if not moving and not cast.current.drainSoul() and not debuff.vileTaint.exists("target") and shards > 0 or debuff.vileTaint.exists("target") and debuff.vileTaint.remain("target") < 2 and shards < 1 then
+        if cast.drainSoul() then
+        dsInterrupt = true
+        return true end
     end
+end
 end
 
 actionList.multi = function()
     -- Seed of Corruption
-    if #enemies.yards10t >= 4 then
+    if #enemies.yards10t >= 15 then
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         local thisHP = getHP(thisUnit)
@@ -1171,7 +1169,7 @@ local function runRotation()
     elseif mode.petSummon == 3 then summonId = 417
     elseif mode.petSummon == 4 then summonId = 1863 end
 
-    local seedTarget = seedTarget or "target"
+     local seedTarget = seedTarget or "target"
     local dsTarget
     local seedHit = 0
     local seedCorruptionExist = 0
@@ -1260,7 +1258,6 @@ local function runRotation()
     
     --actions+=/variable,name=padding,op=set,value=action.shadow_bolt.execute_time*azerite.cascading_calamity.enabled
     padding = cast.time.shadowBolt() * (traits.cascadingCalamity.active and 1 or 0)
-
     -- actions+=/variable,name=padding,op=reset,value=gcd,if=azerite.cascading_calamity.enabled&(talent.drain_soul.enabled|talent.deathbolt.enabled&cooldown.deathbolt.remains<=gcd)
     if traits.cascadingCalamity.active and (talent.drainSoul or talent.deathbolt and cd.deathbolt.remain() <= gcd) then
         padding = gcd
@@ -1314,14 +1311,14 @@ local function runRotation()
             ------------------------------
             if actionList.Interrupts() then return true end
 
-            if debuff.agony.exists("target") and debuff.corruption.exists("target") and debuff.unstableAffliction.exists("target") then
-               if dsTarget ~= nil and (not cast.current.drainSoul() or (cast.current.drainSoul() and dsInterrupt)) and not moving and shards < 5 and not debuff.vileTaint.exists("target") and shards > 0 or debuff.vileTaint.exists("target") and debuff.vileTaint.remain("target") < 1.5 then
-                  if cast.drainSoul(dsTarget) then
-                    dsInterrupt = false
-                    return true
-                  end
-               end
+                if debuff.agony.remain("target") > 5.8 and debuff.corruption.exists("target") and debuff.unstableAffliction.remain("target") > 7.2 then
+            if dsTarget ~= nil and (not cast.current.drainSoul() or (cast.current.drainSoul() and dsInterrupt)) and not moving and shards < 5 and not debuff.vileTaint.exists("target") and shards > 0 or debuff.vileTaint.exists("target") and debuff.vileTaint.remain("target") < 1.5 then
+            if cast.drainSoul(dsTarget) then
+                dsInterrupt = false
+                return true
             end
+        end
+    end
 
          --[[  if opener == false and ui.checked("Opener") and isBoss("target") or getTTD("target") >= 20 or isDummy() then
                 if actionList_Opener() then return true end
@@ -1499,13 +1496,11 @@ local function runRotation()
 
             -- Unstable Affliction
             unstableAfflictionFUCK()
-
             if ui.checked("Mousever UA") 
             and UnitExists("mouseover")
             and not UnitIsDeadOrGhost("mouseover")
             then 
                 unstableAfflictionFUCK("mouseover")
-
             end
             
 
@@ -1513,7 +1508,7 @@ local function runRotation()
             if agonyCount < ui.value("Spread Agony on ST") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and debuff.agony.refresh(thisUnit) and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+                    if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 6 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
                         if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Refresh]") return true end
                     end
                 end
@@ -1524,7 +1519,7 @@ local function runRotation()
                 if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.corruption.refresh(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
+                        if not noDotCheck(thisUnit) and debuff.corruption.remain(thisUnit) <= 4.2 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
                             if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Pandemic Invocation]") return true end
                         end
                     end
@@ -1533,7 +1528,7 @@ local function runRotation()
                 if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and  debuff.corruption.refresh(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
+                        if not noDotCheck(thisUnit) and  debuff.corruption.refresh(thisUnit) <= 4.2 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
                             if cast.corruption(thisUnit) then br.addonDebug("Casting Corruption [Refresh]") return true end
                         end
                     end
@@ -1566,17 +1561,17 @@ local function runRotation()
             and talent.haunt 
             and not debuff.haunt.exists("target") 
             and getTTD("target") >= ui.value("Haunt TTD")
-          --  and (debuff.unstableAffliction.exists("target")
-           -- and debuff.agony.exists("target")and debuff.corruption.exists("target")
+            and (debuff.unstableAffliction.exists("target")
+            and debuff.agony.exists("target")and debuff.corruption.exists("target")
             and getTTD("target") > gcdMax + cast.time.vileTaint()
-          --  and ((debuff.siphonLife.exists("target") or not talent.siphonLife)) 
-         --   and (debuff.corruption.exists("target")  or talent.absoluteCorruption and debuff.corruption.exists("target")))
+            and ((debuff.siphonLife.exists("target") or not talent.siphonLife)) 
+            and (debuff.corruption.exists("target")  or talent.absoluteCorruption and debuff.corruption.exists("target")))
             then
                 if cast.haunt("target") then br.addonDebug("Casting Haunt") return true end
             end
     
             -- Multi Target
-            if #enemies.yards10t >= ui.value("Multi-Target Units") then 
+            if #enemies.yards10t >= ui.value("Multi-Target Units") and mode.single ~= 1 then 
                 if actionList.multi() then return true end 
             end
 
@@ -1597,22 +1592,21 @@ local function runRotation()
 
             -- Vile Taint
             if not moving and talent.vileTaint and shards > 1
-            and getDistance("target") <= 40
-           -- and (debuff.unstableAffliction.remain("target") > gcdMax + 7.5
-           -- and debuff.agony.remain("target") > gcdMax + 3 and debuff.corruption.remain("target") > gcdMax + 3
+            and (debuff.unstableAffliction.remain("target") > gcdMax + 7.5
+            and debuff.agony.remain("target") > gcdMax + 3 and debuff.corruption.remain("target") > gcdMax + 3
             and getTTD("target") > gcdMax + cast.time.vileTaint() + 3
-           -- and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
-           -- and (debuff.corruption.remain("target") > gcdMax + 3  or talent.absoluteCorruption and debuff.corruption.exists("target")))
+            and ((debuff.siphonLife.remain("target") > gcdMax + 3 or not talent.siphonLife)) 
+            and (debuff.corruption.remain("target") > gcdMax + 3  or talent.absoluteCorruption and debuff.corruption.exists("target")))
             then
                 if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("Casting Vile Taint") return true end
             end
 
             -- Malefic Rapture
             if not moving and getDistance("target") <= 40
-          --  and (debuff.agony.exists("target") 
+            and (debuff.agony.exists("target") 
             --and getTTD("target") >= gcdMax + cast.time.maleficRapture()
-         --   and ((debuff.unstableAffliction.exists("target") and debuff.siphonLife.exists("target") or not talent.siphonLife)) 
-          --  and (debuff.corruption.exists("target") or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
+            and ((debuff.unstableAffliction.exists("target") and debuff.siphonLife.exists("target") or not talent.siphonLife)) 
+            and (debuff.corruption.exists("target") or talent.absoluteCorruption and debuff.corruption.exists("target"))) 
             then
                 -- Vile Taint not talented
                 --if not talent.vileTaint or debuff.vileTaint.remains("target") > gcdMax then if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end end
