@@ -100,8 +100,12 @@ local function createOptions()
             br.ui:createCheckbox(section, "Earth Shield")
             -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createCheckbox(section, "Instant Only In Combat")
             br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- Auto/Insta-Heal
+            br.ui:createDropdownWithout(section, "Heal Target", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Heal")
+            br.ui:createDropdownWithout(section, "Instant Behavior", {"|cff00FF00Always","|cffFFFF00Combat Only","|cffFF0000Never"}, 2, "|cffFFFFFFSelect how to use Instant Heal proc.")
+            -- Healing Steam Totem
+            br.ui:createSpinner(section, "Healing Stream Totem", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Lightning Surge Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -260,14 +264,36 @@ actionList.Defensive = function()
             if cast.earthShield() then ui.debug("Casting Earth Shield") return true end
         end
         -- Healing Surge
-        if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
-            if unit.player("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
-                if cast.healingSurge("target") then ui.debug("Casting Healing Surge on "..unit.name("target")) return true end
-            elseif (unit.hp("player") <= ui.value("Healing Surge") and (not ui.checked("Instant Only In Combat") or (not ui.checked("Instant Only In Combat") and buff.maelstromWeapon.stack() >= 5))) 
-                or (not unit.inCombat() and unit.hp() < ui.value("Healing Surge OoC"))
-            then
-                if cast.healingSurge("player") then ui.debug("Casting Healing Surge on "..unit.name("player")) return true end
+        if ui.checked("Healing Surge") and cast.able.healingSurge() and not (unit.mounted() or unit.flying())
+            and (ui.value("Heal Target") ~= 1 or (ui.value("Heal Target") == 1
+            and unit.distance(br.friend[1].unit) < 40)) and not cast.current.healingSurge()
+        then
+            local thisHP = unit.hp()
+            local thisUnit = "player"
+            if ui.value("Auto Heal") == 1 then thisUnit = unit.lowest(40); thisHP = unit.hp(thisUnit) end
+            if not unit.inCombat() then
+                -- Lowest Party/Raid or Player
+                if (thisHP <= ui.value("Healing Surge OoC") and not unit.moving())
+                    and (buff.maelstromeWeapon.stack() == 0 or ui.value("Instant Behavior") == 1)
+                then
+                    if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [OoC] on "..unit.name(thisUnit)) return true end
+                end
+            elseif unit.inCombat() and (not unit.moving() or buff.maelstromWeapon.stack() >= 5) then
+                -- Lowest Party/Raid or Player
+                if thisHP <= ui.value("Healing Surge") then
+                    if ui.value("Instant Behavior") == 1 or (ui.value("Instant Behavior") == 2 and buff.maelstromWeapon.stack() >= 5) or (ui.value("Isntant Behavior") == 3 and buff.malestromWeapon.stack() == 0) then
+                        if buff.maelstromWeapon.stack() >= 5 then
+                            if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(thisUnit)) return true end
+                        else
+                            if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Long] on "..unit.name(thisUnit)) return true end
+                        end
+                    end
+                end
             end
+        end
+        -- Healing Stream Totem
+        if ui.checked("Healing Stream Totem") and cast.able.healingStreamTotem() and unit.hp(unit.lowest(40)) < ui.value("Healing Stream Totem") then
+            if cast.healingStreamTotem("player","ground") then ui.debug("Casting Healing Stream Totem") return true end
         end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
