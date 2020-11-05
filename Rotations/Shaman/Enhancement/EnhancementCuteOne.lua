@@ -274,14 +274,14 @@ actionList.Defensive = function()
             if not unit.inCombat() then
                 -- Lowest Party/Raid or Player
                 if (thisHP <= ui.value("Healing Surge OoC") and not unit.moving())
-                    and (buff.maelstromeWeapon.stack() == 0 or ui.value("Instant Behavior") == 1)
+                    and (buff.maelstromWeapon.stack() == 0 or ui.value("Instant Behavior") == 1)
                 then
                     if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [OoC] on "..unit.name(thisUnit)) return true end
                 end
             elseif unit.inCombat() and (not unit.moving() or buff.maelstromWeapon.stack() >= 5) then
                 -- Lowest Party/Raid or Player
                 if thisHP <= ui.value("Healing Surge") then
-                    if ui.value("Instant Behavior") == 1 or (ui.value("Instant Behavior") == 2 and buff.maelstromWeapon.stack() >= 5) or (ui.value("Isntant Behavior") == 3 and buff.malestromWeapon.stack() == 0) then
+                    if ui.value("Instant Behavior") == 1 or (ui.value("Instant Behavior") == 2 and buff.maelstromWeapon.stack() >= 5) or (ui.value("Isntant Behavior") == 3 and buff.maelstromWeapon.stack() == 0) then
                         if buff.maelstromWeapon.stack() >= 5 then
                             if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(thisUnit)) return true end
                         else
