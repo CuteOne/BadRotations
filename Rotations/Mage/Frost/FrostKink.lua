@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.4"
+local rotationVer  = "v1.0.5"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -212,6 +212,9 @@ local function createOptions()
 
         -- Arcane Intellect
         br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFBB00 Will use Arcane Intellect")
+
+        -- Focus Magic
+        br.ui:createCheckbox(section, "Focus Magic", "|cffFFBB00 Will use Focus Magic")
 
         -- Slow Fall
         br.ui:createSpinner(section, "Slow Fall Distance", 30, 0, 100, 1, "|cffFFBB00 Will cast slow fall based on the fall distance")          
@@ -874,6 +877,13 @@ local function runRotation()
                 if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                     if cast.arcaneIntellect() then return true end
                 end
+            end
+        end
+        
+        -- Focus Magic
+        if ui.checked("Focus Magic") and br.timer:useTimer("FM Delay", math.random(15, 30)) then
+            if not buff.focusMagic.exists() and not UnitIsDeadOrGhost("player") then
+                if cast.focusMagic("player") then return true end
             end
         end
 
