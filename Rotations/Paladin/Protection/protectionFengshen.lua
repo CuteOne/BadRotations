@@ -42,7 +42,7 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-	
+
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
@@ -197,7 +197,7 @@ local function runRotation()
 	UpdateToggle("BossCase",0.25)
 	br.player.ui.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
 	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
-	
+
 	--------------
 	--- Locals ---
 	--------------
@@ -229,7 +229,7 @@ local function runRotation()
 	local talent        = br.player.talent
 	local ttd           = getTTD("target")
 	local units         = br.player.units
-	
+
 	units.get(5)
 	units.get(10)
 	units.get(30)
@@ -237,7 +237,7 @@ local function runRotation()
 	enemies.get(8)
 	enemies.get(10)
 	enemies.get(30)
-	
+
 	if profileStop == nil then profileStop = false end
 	if consecrationCastTime == nil then consecrationCastTime = 0 end
 	if consecrationRemain == nil then consecrationRemain = 0 end
@@ -247,10 +247,12 @@ local function runRotation()
 	lowestUnit = "player"
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i].unit
-		local thisHP = getHP(thisUnit)
-		local lowestHP = getHP(lowestUnit)
-		if thisHP < lowestHP then
-			lowestUnit = thisUnit
+		if UnitInRange(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) then
+			local thisHP = getHP(thisUnit)
+			local lowestHP = getHP(lowestUnit)
+			if thisHP < lowestHP then
+				lowestUnit = thisUnit
+			end
 		end
 	end
 	local StunsBlackList={
@@ -329,32 +331,7 @@ local function runRotation()
 	[134388] = "A Knot of Snakes",
 	[129758] = "Irontide Grenadier",
 	}
-	-- Auto cancel Blessing of Protection
-	if isChecked("Auto cancel BoP") then
-		if buff.blessingOfProtection.exists() then
-			if CastSpellByName(GetSpellInfo(62124),"target") then return end
-		end
-		if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
-			RunMacroText("/cancelAura Blessing of Protection")
-		end
-	end
-	-- Arcane Torrent
-	if isChecked("Arcane Torrent Dispel") and race == "BloodElf" then
-		local torrentUnit = 0
-		for i=1, #enemies.yards8 do
-			local thisUnit = enemies.yards8[i]
-			if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
-				torrentUnit = torrentUnit + 1
-				if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
-					if castSpell("player",racial,false,false,false) then return true end
-					break
-				end
-			end
-		end
-	end
-	if br.player.ui.mode.BossCase == 1 then
-		bossHelper()
-	end
+
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -371,6 +348,15 @@ local function runRotation()
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
 					if CastSpellByName(GetSpellInfo(62124),thisUnit) then return end
 				end
+			end
+		end
+		-- Auto cancel Blessing of Protection
+		if isChecked("Auto cancel BoP") then
+			if buff.blessingOfProtection.exists() then
+				if CastSpellByName(GetSpellInfo(62124),"target") then return end
+			end
+			if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
+				RunMacroText("/cancelAura Blessing of Protection")
 			end
 		end
 	end -- End Action List - Extras
@@ -397,6 +383,8 @@ local function runRotation()
 				cleanseToxinsCase2 = br.friend[i].unit
 			end
 		end
+		-- Automatic catch the pig
+		bossHelper()
 		-- Avoid indigestion
 		if UnitCastingInfo("target") == GetSpellInfo(260793) then
 			if not buff.divineSteed.exists() then
@@ -512,14 +500,28 @@ local function runRotation()
 			if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
 				if castSpell("player",racial,false,false,false) then return end
 			end
+			-- Arcane Torrent
+			if isChecked("Arcane Torrent Dispel") and race == "BloodElf" then
+				local torrentUnit = 0
+				for i=1, #enemies.yards8 do
+					local thisUnit = enemies.yards8[i]
+					if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+						torrentUnit = torrentUnit + 1
+						if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
+							if castSpell("player",racial,false,false,false) then return true end
+							break
+						end
+					end
+				end
+			end
 			-- Word of Glory
 			if cast.able.wordOfGlory() and (holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists()) then
 				if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") then
 					if CastSpellByName(GetSpellInfo(85673),"player") then return end
-				elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") and not UnitIsDeadOrGhost(lowestUnit) and UnitInRange(lowestUnit) then
+				elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") then
 					if CastSpellByName(GetSpellInfo(85673),lowestUnit) then return end
 				end
-				if buff.shiningLight.exists() and getBuffRemain("player", 327510) <= 1 and not UnitIsDeadOrGhost(lowestUnit) and UnitInRange(lowestUnit) then
+				if buff.shiningLight.exists() and getBuffRemain("player", 327510) <= 1 then
 					if CastSpellByName(GetSpellInfo(85673),lowestUnit) then return end
 				end
 			end
@@ -532,15 +534,15 @@ local function runRotation()
 					end
 					-- Target
 				elseif getOptionValue("Lay on Hands Target") == 2 then
-					if getHP("target") <= getValue("Lay On Hands") and not UnitIsDeadOrGhost("target") then
+					if getHP("target") <= getValue("Lay On Hands") then
 						if CastSpellByName(GetSpellInfo(633),"target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Lay on Hands Target") == 3 then
-					if getHP("mouseover") <= getValue("Lay On Hands") and not UnitIsDeadOrGhost("mouseover") then
+					if getHP("mouseover") <= getValue("Lay On Hands") then
 						if CastSpellByName(GetSpellInfo(633),"mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 and not UnitIsDeadOrGhost(lowestUnit) then
+				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and getDebuffRemain(lowestUnit,267037) == 0 and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if getOptionValue("Lay on Hands Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -576,15 +578,15 @@ local function runRotation()
 					end
 					-- Target
 				elseif getOptionValue("Blessing of Protection Target") == 2 then
-					if getHP("target") <= getValue("Blessing of Protection") and not UnitIsDeadOrGhost("target") then
+					if getHP("target") <= getValue("Blessing of Protection") then
 						if CastSpellByName(GetSpellInfo(1022),"target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Blessing of Protection Target") == 3 then
-					if getHP("mouseover") <= getValue("Blessing of Protection") and not UnitIsDeadOrGhost("mouseover") then
+					if getHP("mouseover") <= getValue("Blessing of Protection") then
 						if CastSpellByName(GetSpellInfo(1022),"mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and UnitInRange(lowestUnit) and not UnitIsDeadOrGhost(lowestUnit) then
+				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if getOptionValue("Blessing of Protection Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -615,15 +617,15 @@ local function runRotation()
 			if isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
 				-- Target
 				if getOptionValue("Blessing Of Sacrifice Target") == 1 then
-					if getHP("target") <= getValue("Blessing Of Sacrifice") and not UnitIsDeadOrGhost("target") then
+					if getHP("target") <= getValue("Blessing Of Sacrifice") then
 						if CastSpellByName(GetSpellInfo(6940),"target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Blessing Of Sacrifice Target") == 2 then
-					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") and not UnitIsDeadOrGhost("mouseover") then
+					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
 						if CastSpellByName(GetSpellInfo(6940),"mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 and not UnitIsDeadOrGhost(lowestUnit) then
+				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and getDebuffRemain(lowestUnit,267037) == 0 and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if getOptionValue("Blessing Of Sacrifice Target") == 3 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -786,7 +788,7 @@ local function runRotation()
 					if CastSpellByName(GetSpellInfo(31884)) then return end
 				end
 				-- Holy Avenger
-				if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and 
+				if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and
 				((not isChecked("Holy Avenger with Wings") and getOptionValue("Holy Avenger") <= ttd ) or (isChecked("Holy Avenger with Wings") and getSpellCD(31884) == 0))then
 					if CastSpellByName(GetSpellInfo(105809)) then return end
 				end
