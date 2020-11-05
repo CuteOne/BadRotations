@@ -303,7 +303,7 @@ local function runRotation()
             end
         end
 
-        if buff.unfurlingDarkness.exists() and spellQueueReady() then
+        if buff.unfurlingDarkness.exists() and select(2,GetSpellCooldown(61304)) ~= 1 then
             for i = 1, #enemies.yards40 do
                 local thisUnit
                 if mode.rotation == 1 and debuff.vampiricTouch.exists("target") then
@@ -362,7 +362,7 @@ local function runRotation()
                 elseif mode.rotation == 2 or not debuff.vampiricTouch.exists("target") then
                     thisUnit = "target"
                 end
-                if spellQueueReady() and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
+                if select(2,GetSpellCooldown(61304)) ~= 1 and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
                     if cast.vampiricTouch(thisUnit) then
                         lastVTTarget = UnitGUID(thisUnit)
                         lastVTTime = GetTime()
@@ -424,7 +424,7 @@ local function runRotation()
             end
         end
 
-        if spellQueueReady() and (not debuff.vampiricTouch.exists("target") or debuff.vampiricTouch.remain("target") < 6.3 or (talent.misery and debuff.shadowWordPain.remain("target") < 4.8)) and ttd("target") > 6 then
+        if select(2,GetSpellCooldown(61304)) ~= 1 and (not debuff.vampiricTouch.exists("target") or debuff.vampiricTouch.remain("target") < 6.3 or (talent.misery and debuff.shadowWordPain.remain("target") < 4.8)) and ttd("target") > 6 then
             if cast.vampiricTouch("target") then
                 lastVTTarget = UnitGUID("target")
                 lastVTTime = GetTime()
@@ -500,7 +500,7 @@ local function runRotation()
             end
         end
 
-        if buff.unfurlingDarkness.exists() and spellQueueReady() then
+        if buff.unfurlingDarkness.exists() and select(2,GetSpellCooldown(61304)) ~= 1 then
             for i = 1, #enemies.yards40 do
                 local thisUnit
                 if mode.rotation == 1 and debuff.vampiricTouch.exists("target") then
@@ -542,7 +542,7 @@ local function runRotation()
                 elseif mode.rotation == 2 or not debuff.vampiricTouch.exists("target") then
                     thisUnit = "target"
                 end
-                if  spellQueueReady() and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
+                if select(2,GetSpellCooldown(61304)) ~= 1 and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
                     if cast.vampiricTouch(thisUnit) then
                         lastVTTarget = UnitGUID(thisUnit)
                         lastVTTime = GetTime()
@@ -666,7 +666,7 @@ local function runRotation()
         return true
     end
     if CwC() then return end
-    if pause() and not (cast.current.mindFlay() or cast.current.mindSear()) then
+    if (pause() and not (cast.current.mindFlay() or cast.current.mindSear())) or select(2,GetSpellCooldown(61304)) == 1 then
         return true
     else
         -- combat check
