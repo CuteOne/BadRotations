@@ -845,7 +845,7 @@ local function runRotation()
             -- Feral Spirit
             -- feral_spirit
             if ui.alwaysCdNever("Feral Spirits") and cast.able.feralSpirit() then
-                if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
+                if cast.feralSpirit("player") then ui.debug("Casting Feral Spirit") return true end
             end
             -- Ascendance
             -- ascendance
