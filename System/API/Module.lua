@@ -195,11 +195,8 @@ br.api.module = function(self)
                 then
                     cancelFlaskBuff()
                     if use.oraliusWhisperingCrystal() then ui.debug("Using Oralius's Whispering Crystal") return true end
-                else
-                    cancelFlaskBuff()
                 end
             end
-            if opValue == 5 then cancelFlaskBuff() end
         end
     end
 end
