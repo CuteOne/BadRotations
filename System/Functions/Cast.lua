@@ -612,7 +612,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCast.tracker[1] ~= spellID)
 	end
 	-- Base Spell Availablility Check
-	if IsUsableSpell(spellID) --[[not select(2,IsUsableSpell(spellID))]] and getSpellCD(spellID) == 0 and (getSpellCD(61304) == 0 or select(2,GetSpellBaseCooldown(spellID) == 0)) 
+	if IsUsableSpell(spellID) --[[not select(2,IsUsableSpell(spellID))]] and getSpellCD(spellID) == 0 and (getSpellCD(61304) == 0 or select(2,GetSpellBaseCooldown(spellID)) == 0) 
 		and (isKnown(spellID) or debug == "known") and not IsCurrentSpell(spellID)
 		and not isCastingSpell(spellID,"player") and hasTalent(spellID) and hasEssence() and queensCourtCastCheck(spellID)--and not isIncapacitated(spellID)
 	then
