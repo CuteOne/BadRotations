@@ -155,6 +155,7 @@ local debuff
 local enemies
 local essence
 local module
+local spell
 local talent
 local ui
 local unit
@@ -166,7 +167,7 @@ local actionList = {}
 
 local function canLightning(aoe)
     local level = unit.level()
-    if level < 20 or unit.moving() or buff.maelstromWeapon.stack() > 0 then return false end
+    if level < 20 or unit.moving() or (buff.maelstromWeapon.stack() > 0 and (spell.known.elementalBlast() or spell.known.stormkeeper())) then return false end
     local timeTillLightning = (aoe and level >= 24) and cast.time.chainLightning() or cast.time.lightningBolt()
     local flameShock = cd.flameShock.remain() -- Level 3
     local lavaLash  = cd.lavaLash.remain() -- Level 11
@@ -747,6 +748,7 @@ local function runRotation()
     enemies                                       = br.player.enemies
     essence                                       = br.player.essence
     module                                        = br.player.module
+    spell                                         = br.player.spell
     talent                                        = br.player.talent
     ui                                            = br.player.ui
     unit                                          = br.player.unit
