@@ -545,7 +545,7 @@ actionList.St = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax - focusRegen or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax or outOfMelee()) then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ST]") return true end
     end
     -- Serpent Sting
@@ -997,7 +997,7 @@ actionList.Wfi = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max-focus.regen
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax - focusRegen or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax or outOfMelee()) then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [Wfi]") return true end
     end
     -- A Murder of Crows
