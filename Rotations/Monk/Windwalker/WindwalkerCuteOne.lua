@@ -802,8 +802,8 @@ actionList.AoE = function()
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [AOE]") return true end
     end
     -- Energizing Elixir
-    -- energizing_elixir,if=chi.max-chi>=2&energy.time_to_max>3|chi.max-chi>=4&(energy.time_to_max>2|!prev_gcd.1.tiger_palm)
-    if cast.able.energizingElixir() and (chiMax - chi >= 2 and energyTTM() > 3 or chiMax - chi >= 4 and (energyTTM() > 2 or not cast.last.tigerPalm(1))) then
+    -- energizing_elixir,if=chi.max-chi>=2&energy.time_to_max>2|chi.max-chi>=4
+    if cast.able.energizingElixir() and ((chiMax - chi >= 2 and energyTTM() > 2) or chiMax - chi >= 4) then
         if cast.energizingElixir() then ui.debug("Casting Energizing Elixir [AOE]") return true end
     end
     -- Spinning Crane Kick
@@ -814,15 +814,15 @@ actionList.AoE = function()
         if cast.spinningCraneKick(nil,"aoe") then ui.debug("Casting Spinning Crane Kick [AOE Dance of Chi-Ji]") return true end
     end
     -- Fists of Fury
-    -- fists_of_fury,if=energy.time_to_max>execute_time-1|buff.storm_earth_and_fire.remains
+    -- fists_of_fury,if=energy.time_to_max>execute_time-1|chi.max-chi<=1|buff.storm_earth_and_fire.remains
     if cast.able.fistsOfFury() and ui.useAOE(8,ui.value("Fists of Fury Min Units"))
-        and (energyTTM() > var.fofExecute - 1 or buff.stormEarthAndFire.remain())
+        and (energyTTM() > var.fofExecute - 1 or chiMax - chi <= 1 or buff.stormEarthAndFire.remain())
     then
         if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [AOE]") return true end
     end
     -- Rising Sun Kick
-    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.rising_sun_kick.duration>cooldown.whirling_dragon_punch.remains+3)&(cooldown.fists_of_fury.remains>3|chi>=5)
-    if cast.able.risingSunKick(var.lowestMark) and ((talent.whirlingDragonPunch and var.rskDuration > cd.whirlingDragonPunch.remain() + 3) and (cd.fistsOfFury.remain() > 3 or chi >= 5)) then
+    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.rising_sun_kick.duration>cooldown.whirling_dragon_punch.remains+4)&(cooldown.fists_of_fury.remains>3|chi>=5)
+    if cast.able.risingSunKick(var.lowestMark) and ((talent.whirlingDragonPunch and var.rskDuration > cd.whirlingDragonPunch.remain() + 4) and (cd.fistsOfFury.remain() > 3 or chi >= 5)) then
         if cast.risingSunKick(var.lowestMark) then ui.debug("Casting Rising Sun Kick [AOE]") return true end
     end
     -- Rushing Jade Wind
@@ -842,17 +842,17 @@ actionList.AoE = function()
     if cast.able.expelHarm() and (chiMax - chi >= 1 + var.expelCAS) then
         if cast.expelHarm() then ui.debug("Casting Expel Harm [AOE]") return true end
     end
-    -- Chi Burst
-    -- chi_burst,if=chi.max-chi>=1
-    if cast.able.chiBurst() and chiMax - chi >= 1
-        and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and enemies.yards40r > 0))
-    then
-        if cast.chiBurst(nil,"rect",1,12) then ui.debug("Casting Chi Burst [AOE]") return true end
-    end
     -- Fist of the White Tiger
     -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=3
     if cast.able.fistOfTheWhiteTiger(var.lowestMark) and (chiMax - chi >= 3) then
         if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [AOE]") return true end
+    end
+    -- Chi Burst
+    -- chi_burst,if=chi.max-chi>=2
+    if cast.able.chiBurst() and chiMax - chi >= 2
+        and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and enemies.yards40r > 0))
+    then
+        if cast.chiBurst(nil,"rect",1,12) then ui.debug("Casting Chi Burst [AOE]") return true end
     end
     -- Tiger Palm
     -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2&(!talent.hit_combo.enabled|combo_strike)
@@ -873,8 +873,9 @@ actionList.AoE = function()
     end
     -- Blackout kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.bok_proc.up|talent.hit_combo.enabled&prev_gcd.1.tiger_palm&(chi.max-chi>=1&energy.time_to_50<1|chi=2&cooldown.fists_of_fury.remains<3))
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.bok_proc.up|talent.hit_combo.enabled&prev_gcd.1.tiger_palm&chi=2&cooldown.fists_of_fury.remains<3|chi.max-chi<=1&prev_gcd.1.spinning_crane_kick)
     if cast.able.blackoutKick(var.lowestMark) and (not wasLastCombo(spell.blackoutKick) and (buff.blackoutKick.exists() or talent.hitCombo
-        and cast.last.tigerPalm(1) and (chiMax - chi >= 1 and energyTTM(50) < 1 or chi == 2 and cd.fistsOfFury.remain() < 3)))
+        and cast.last.tigerPalm(1) and chi == 2 and cd.fistsOfFury.remain() < 3 or chiMax - chi <= 1 and wasLastCombo(spell.spinningCraneKick)))
         and cast.timeSinceLast.blackoutKick() > unit.gcd("true")
     then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [AOE]") return true end
