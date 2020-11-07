@@ -791,7 +791,7 @@ local function runRotation()
     var.unitsNeedingHealing = 0
     if #br.friend > 1 then
         for i = 1, #br.friend do
-            local thisFriend = br.friend[i]
+            local thisFriend = br.friend[i].unit
             local thisDistance = unit.distance(thisFriend)
             if not unit.isUnit(thisFriend,"player") and thisDistance < 40 and unit.hp(thisFriend) <= ui.value("Healing Stream Totem") then
                 var.unitsNeedingHealing = var.unitsNeedingHealing + 1
