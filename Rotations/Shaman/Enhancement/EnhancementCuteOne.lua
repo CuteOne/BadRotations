@@ -167,18 +167,20 @@ local actionList = {}
 
 local function canLightning(aoe)
     local level = unit.level()
-    if level < 20 or unit.moving() or (buff.maelstromWeapon.stack() > 0 and (spell.known.elementalBlast() or spell.known.stormkeeper())) then return false end
+    if level < 20 or unit.moving() --[[or (buff.maelstromWeapon.stack() > 0 and (spell.known.elementalBlast() or spell.known.stormkeeper()))]] then return false end
     local timeTillLightning = (aoe and level >= 24) and cast.time.chainLightning() or cast.time.lightningBolt()
     local flameShock = cd.flameShock.remain() -- Level 3
     local lavaLash  = cd.lavaLash.remain() -- Level 11
+    local elementalBlast = talent.elementalBlast and cd.elementalBlast.remain() or 99 -- Level 15 - Talent
     local frostShock = cd.frostShock.remain() -- Level 17
     local stormstrike = cd.stormstrike.remain() or 99 -- Level 20
-    local elementalBlast = talent.elementalBlast and cd.elementalBlast.remain() or 99 -- Level 25 - Talent
     local iceStrike = talent.iceStrike and cd.iceStrike.remain() or 99 -- Level 25 - Talent
     local fireNova = talent.fireNova and cd.fireNova.remain() or 99 -- Level 35 - Talent
     local crashLightning = level >= 38 and cd.crashLightning.remain() or 99 -- Level 38
+    local stormkeeper = talent.stormkeeper and cd.stormkeeper.remain() or 99 -- Level 45 - Talent
+    local sundering = talent.sundering and cd.sundering.remain() or 99 -- Level 45 - Talent
     local earthenSpike = talent.earthenSpike and cd.earthenSpike.remain() or 99 -- Level 50 - Talent
-    return math.min(flameShock,lavaLash,frostShock,stormstrike,elementalBlast,iceStrike,fireNova,crashLightning,earthenSpike) > timeTillLightning
+    return math.min(flameShock,lavaLash,elementalBlast,frostShock,stormstrike,iceStrike,fireNova,crashLightning,stormkeeper,sundering,earthenSpike) > timeTillLightning
 end
 
 --------------------
@@ -846,8 +848,8 @@ local function runRotation()
             end
             -- Feral Spirit
             -- feral_spirit
-            if ui.alwaysCdNever("Feral Spirits") and cast.able.feralSpirit() then
-                if cast.feralSpirit("player") then ui.debug("Casting Feral Spirit") return true end
+            if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() then
+                if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
             end
             -- Ascendance
             -- ascendance
