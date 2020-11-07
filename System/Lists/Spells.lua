@@ -1570,7 +1570,6 @@ br.lists.spells = {
                 glacialSpike                = 199786,
                 iceNova                     = 157997,
                 iceFloes                    = 108839,
-                iceForm                     = 198144,
                 lonelyWinter                = 205024,
                 rayOfFrost                  = 205021,
                 splittingIce                = 56377,
