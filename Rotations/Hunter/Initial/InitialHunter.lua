@@ -1,5 +1,6 @@
 local br = _G["br"]
 local rotationName = "Initial"
+loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
@@ -53,35 +54,7 @@ local function createOptions()
         -------------------
         --- PET OPTIONS ---
         -------------------
-        section = br.ui:createSection(br.ui.window.profile, "Pet")
-            -- Auto Summon
-            -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
-            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit", "Assist"},1,"Select how you want pet to acquire targets.")
-            -- Auto Attack/Passive
-            br.ui:createCheckbox(section, "Auto Attack/Passive")
-            -- Auto Growl
-            br.ui:createCheckbox(section, "Auto Growl")
-            -- Bite/Claw
-            br.ui:createCheckbox(section, "Bite / Claw")
-            -- Cat-like Reflexes
-            br.ui:createSpinner(section, "Cat-like Reflexes", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
-            -- Dash
-            br.ui:createCheckbox(section, "Dash")
-            -- Fetch
-            br.ui:createCheckbox(section, "Fetch")
-            -- Play Dead / Wake Up
-            br.ui:createSpinner(section, "Play Dead / Wake Up", 25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Prowl/Spirit Walk
-            br.ui:createCheckbox(section, "Prowl / Spirit Walk")
-            -- Mend Pet
-            br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Purge
-            br.ui:createDropdown(section, "Purge", {"Every Unit","Only Target"}, 2, "Select if you want Purge only Target or every Unit arround the Pet")
-            -- Spirit Mend
-            br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Survival of the Fittest
-            br.ui:createSpinner(section, "Survival of the Fittest", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
+        br.rotations.support["PetCuteOne"].options()
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -237,8 +210,7 @@ local function runRotation()
     --- Load Additional Rotation Files ---
     --------------------------------------
     if actionList.PetManagement == nil then
-        var.loadSupport("PetCuteOne")
-        actionList.PetManagement = br.rotations.support["PetCuteOne"]
+        actionList.PetManagement = br.rotations.support["PetCuteOne"].run
     end
 
     ---------------------

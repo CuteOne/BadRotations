@@ -4,6 +4,7 @@ br.api.module = function(self)
     -- Local reference to actionList
     local buff              = self.buff
     local cast              = self.cast
+    local cd                = self.cd
     local module            = self.module
     local has               = self.has
     local item              = self.items
@@ -56,7 +57,7 @@ br.api.module = function(self)
             end
             -- Gift of the Naaru
             if ui.checked("Gift of the Naaru") and unit.race() == "Draenei"
-                and unit.inCombat() and unit.hp() <= ui.value("Gift of the Naaru")
+                and unit.inCombat() and not cd.giftOfTheNaaru.exists() and unit.hp() <= ui.value("Gift of the Naaru")
             then
                 if cast.giftOfTheNaaru() then ui.debug("Casting Gift of the Naaru") return true end
             end
@@ -194,11 +195,8 @@ br.api.module = function(self)
                 then
                     cancelFlaskBuff()
                     if use.oraliusWhisperingCrystal() then ui.debug("Using Oralius's Whispering Crystal") return true end
-                else
-                    cancelFlaskBuff()
                 end
             end
-            if opValue == 5 then cancelFlaskBuff() end
         end
     end
 end

@@ -774,6 +774,27 @@ function cl:Shaman(...) -- 7
     if param == "UNIT_DESTROYED" and activeTotem == destination then
         activeTotem = nil
     end
+    -------------
+    --[[ Lightning Bolt ]]
+    if br.player ~= nil and GetSpecialization() == 2 then
+        if sourceName ~= nil then
+            if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+                -- Chain Lightning / Lightning Bolt 
+                if lightningStarted == nil then lightningStarted = false end
+                if param == "SPELL_CAST_START" then
+                    if (spell == br.player.spell.lightningBolt or spell == br.player.spell.chainLightning) and br.player.variables.fillLightning then
+                        lightningStarted= true
+                    end
+                end
+                if param == "SPELL_CAST_SUCCESS" then
+                    if (spell == br.player.spell.lightningBolt or spell == br.player.spell.chainLightning) and br.player.variables.fillLightning and lightningStarted then
+                        br.player.variables.fillLightning = false
+                        lightningStarted = false
+                    end
+                end
+            end
+        end
+    end
 end
 function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()

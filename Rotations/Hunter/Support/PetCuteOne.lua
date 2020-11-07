@@ -138,26 +138,26 @@ br.rotations.support["PetCuteOne"] = {
                 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit(units.dyn40,br.petTarget)))
             then
                 br.petTarget = units.dyn40
-                ui.debug("[Pet - Target Mode Dynamic] Pet is now targeting - "..unit.name(br.petTarget))
+                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Dynamic] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
             -- Target
             if petTargetOp == 2 and unit.valid("target")
                 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit("target",br.petTarget)))
             then
                 br.petTarget = "target"
-                ui.debug("[Pet - Target Mode Only Target] Pet is now targeting - "..unit.name(br.petTarget))
+                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Only Target] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
             -- Any
             if petTargetOp == 3 and enemies.yards40[1] ~= nil
                 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit(enemies.yards40[1],br.petTarget)))
             then
                 br.petTarget = enemies.yards40[1]
-                ui.debug("[Pet - Target Mode Any Unit] Pet is now targeting - "..unit.name(br.petTarget))
+                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Any Unit] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
             -- Assist
             if petTargetOp == 4 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget))) then
                 br.petTarget = "pettarget"
-                ui.debug("[Pet - Target Mode Assist] Pet is now targeting - "..unit.name(br.petTarget))
+                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Assist] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
         end
 
@@ -333,54 +333,54 @@ br.rotations.support["PetCuteOne"] = {
                 end
             end
             -- Debuff Abilities
-            if ui.checked("Use Debuff Ability") and debuff.mortalWounds.refresh("pettarget") then
+            if ui.checked("Use Debuff Ability") and petCombat and validTarget and petDistance < 5 and not isTotem(br.petTarget) and debuff.mortalWounds.refresh(br.petTarget) then
                 -- Acid Bite
                 if cast.able.acidBite() then
-                    if cast.acidBite() then ui.debug("[Pet] Cast Acid Bite") return true end
+                    if cast.acidBite(br.petTarget) then ui.debug("[Pet] Cast Acid Bite") return true end
                 end
                 -- Bloody Screech
                 if cast.able.bloodyScreech() then
-                    if cast.bloodyScreech() then ui.debug("[Pet] Cast Bloody Screech") return true end
+                    if cast.bloodyScreech(br.petTarget) then ui.debug("[Pet] Cast Bloody Screech") return true end
                 end
                 -- Deadly Sting
                 if cast.able.deadlySting() then
-                    if cast.deadlySting() then ui.debug("[Pet] Cast Deadly Sting") return true end
+                    if cast.deadlySting(br.petTarget) then ui.debug("[Pet] Cast Deadly Sting") return true end
                 end
                 -- Gnaw
                 if cast.able.gnaw() then
-                    if cast.gnaw() then ui.debug("[Pet] Cast Gnaw") return true end
+                    if cast.gnaw(br.petTarget) then ui.debug("[Pet] Cast Gnaw") return true end
                 end
                 -- Gore
                 if cast.able.gore() then
-                    if cast.gore() then ui.debug("[Pet] Cast Gore") return true end
+                    if cast.gore(br.petTarget) then ui.debug("[Pet] Cast Gore") return true end
                 end
                 -- Grievous Bite
                 if cast.able.grievousBite() then
-                    if cast.grievousBite() then ui.debug("[Pet] Cast Grievous Bite") return true end
+                    if cast.grievousBite(br.petTarget) then ui.debug("[Pet] Cast Grievous Bite") return true end
                 end
                 -- Gruesome Bite
                 if cast.able.gruesomeBite() then
-                    if cast.gruesomeBite() then ui.debug("[Pet] Cast Gruesome Bite") return true end
+                    if cast.gruesomeBite(br.petTarget) then ui.debug("[Pet] Cast Gruesome Bite") return true end
                 end
                 -- Infected Bite
                 if cast.able.infectedBite() then
-                    if cast.infectedBite() then ui.debug("[Pet] Cast Infected Bite") return true end
+                    if cast.infectedBite(br.petTarget) then ui.debug("[Pet] Cast Infected Bite") return true end
                 end
                 -- Monsterous Bite
                 if cast.able.monsterousBite() then
-                    if cast.monsterousBite() then ui.debug("[Pet] Cast Monsterous Bite") return true end
+                    if cast.monsterousBite(br.petTarget) then ui.debug("[Pet] Cast Monsterous Bite") return true end
                 end
                 -- Ravage
                 if cast.able.ravage() then
-                    if cast.ravage() then ui.debug("[Pet] Cast Ravage") return true end
+                    if cast.ravage(br.petTarget) then ui.debug("[Pet] Cast Ravage") return true end
                 end
                 -- Savage Rend
                 if cast.able.savageRend() then
-                    if cast.savageRend() then ui.debug("[Pet] Cast Savage Rend") return true end
+                    if cast.savageRend(br.petTarget) then ui.debug("[Pet] Cast Savage Rend") return true end
                 end
                 -- Toxic Sting
                 if cast.able.toxicSting() then
-                    if cast.toxicSting() then ui.debug("[Pet] Cast Toxic Sting") return true end
+                    if cast.toxicSting(br.petTarget) then ui.debug("[Pet] Cast Toxic Sting") return true end
                 end                
             end
             -- Heal Abilities
@@ -467,11 +467,12 @@ br.rotations.support["PetCuteOne"] = {
                 if cast.dash("player") then ui.debug("[Pet] Cast Dash") return true end
             end
             -- Fetch
-            if ui.checked("Fetch") and not unit.inCombat() and cast.able.fetch() and petExists and not br.deadPet then
+            if ui.checked("Fetch") and not unit.inCombat() and not petCombat and cast.able.fetch() and petExists and not br.deadPet then
                 if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
                 for k, v in pairs(br.lootable) do
                     if br.lootable[k] ~= nil then
-                        if unit.distance(br.lootable[k]) > 8 and not fetching then
+                        local thisDistance = unit.distance(br.lootable[k])
+                        if thisDistance > 8 and thisDistance < 40 and not fetching then
                             cast.fetch("pet")
                             fetchCount = getLootableCount()
                             fetching = true

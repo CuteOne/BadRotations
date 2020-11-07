@@ -88,6 +88,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Vanish", "Will use Vanish")
             br.ui:createCheckbox(section, "Shadow Blades", "Will use Shadow Blades")
             br.ui:createCheckbox(section, "Precombat", "Will use items/pots on pulltimer")
+            br.ui:createCheckbox(section, "Opener", "Cast all cooldowns during opener with bosses")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -111,6 +112,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kick")
             br.ui:createCheckbox(section, "Kidney Shot/Cheap Shot")
             br.ui:createCheckbox(section, "Blind")
+            br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
             br.ui:createCheckbox(section, "Stuns", "Auto stun mobs from whitelist")
             br.ui:createSpinnerWithout(section,  "Max CP For Stun",  3,  1,  6,  1,  " Maximum number of combo points to stun")
@@ -149,6 +151,20 @@ end
 ----------------
 --- ROTATION ---
 ----------------
+local someone_casting = false
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local function reader()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
+    if param == "SPELL_CAST_START" and unitType == "Creature" then
+        C_Timer.After(0.02, function()
+            someone_casting = true
+        end)
+    end
+end
+frame:SetScript("OnEvent", reader)
+
 local function runRotation()
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed
@@ -359,15 +375,6 @@ local function runRotation()
                 end
             end
         end
-        -- if #enemyTable5 > 1 then
-        --     table.sort(enemyTable5, function(x)
-        --         if GetUnitIsUnit(x.unit, "target") then
-        --             return true
-        --         else
-        --             return false
-        --         end
-        --     end)
-        -- end
         if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable30[1].unit)
         end
@@ -394,6 +401,7 @@ local function runRotation()
     local ruptureRemain = debuff.rupture.remain("target")
     local ssThd = 0
     if enemies10 >= 4 then ssThd = 1 end
+    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() then someone_casting = false end
 
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
@@ -519,43 +527,60 @@ local function runRotation()
 
     local function actionList_Interrupts()
         local stunList = {}
+        local interrupt_target
+        local priority_target
+        local distance
+        if isChecked("Priority Mark") then
+            for i = 1, #enemies.yards20 do
+                if GetRaidTargetIndex(enemies.yards20[i]) == getOptionValue("Priority Mark") then
+                    priority_target = enemies.yards20[i]
+                    break
+                end
+            end
+        end
         for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
             stunList[tonumber(i)] = true
         end
-        if useInterrupts() and not stealthedAll then
+        if useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
-                local thisUnit = enemies.yards20[i]
-                local distance = getDistance(thisUnit)
-                if canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
+                if priority_target ~= nil then
+                    interrupt_target = priority_target
+                else
+                    interrupt_target = enemies.yards20[i]
+                end
+                distance = getDistance(interrupt_target)
+                if canInterrupt(interrupt_target,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
-                        if cast.kick(thisUnit) then return end
+                        if cast.kick(interrupt_target) then end
                     end
                     if cd.kick.remain() ~= 0 and distance < 5 then
                         if isChecked("Kidney Shot/Cheap Shot") then
-                            if buff.shadowDance.exists() then
-                                if cast.cheapShot(thisUnit) then return true end
+                            if stealthedAll then
+                                if cast.cheapShot(interrupt_target) then return true end
+                            elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                                if cast.kidneyShot(interrupt_target) then return true end
                             end
-                            if cast.kidneyShot(thisUnit) then return true end
                         end
                     end
                     if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
-                        if cast.blind(thisUnit) then return end
+                        if cast.blind(interrupt_target) then return end
                     end
                 end
-                if isChecked("Stuns") and distance < 5 and combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                if isChecked("Stuns") and distance < 5 then
                     local interruptID, castStartTime
-                    if UnitCastingInfo(thisUnit) then
-                        castStartTime = select(4,UnitCastingInfo(thisUnit))
-                        interruptID = select(9,UnitCastingInfo(thisUnit))
-                    elseif UnitChannelInfo(thisUnit) then
-                        castStartTime = select(4,UnitChannelInfo(thisUnit))
-                        interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
+                    if UnitCastingInfo(interrupt_target) then
+                        castStartTime = select(4,UnitCastingInfo(interrupt_target))
+                        interruptID = select(9,UnitCastingInfo(interrupt_target))
+                    elseif UnitChannelInfo(interrupt_target) then
+                        castStartTime = select(4,UnitChannelInfo(interrupt_target))
+                        interruptID = select(7,GetSpellInfo(UnitChannelInfo(interrupt_target)))
                     end
                     if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
                         if stealthedAll then
-                            if cast.cheapShot(thisUnit) then return true end
+                            if cast.cheapShot(interrupt_target) then return true end
+                        elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                            if cast.kidneyShot(interrupt_target) then return true end
                         end
-                        if cast.kidneyShot(thisUnit) then return true end
                     end
                 end
             end
@@ -606,11 +631,11 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
+        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points.deficit>=2
-        if cdUsage and sndCondition and not stealthedAll and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
+        if cdUsage and sndCondition == 1 and not stealthedAll and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
             if cast.shadowBlades("player") then return true end
         end
         -- actions.cds+=/blood_fury,if=buff.symbols_of_death.up
@@ -627,7 +652,7 @@ local function runRotation()
     local function actionList_Cooldowns()
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle"
-        -- if sndCondition and not buff.masterAssassinsInitiative.exists() then
+        -- if sndCondition == 1 and not buff.masterAssassinsInitiative.exists() then
         --     if cast.flagellation("target") then return true end
         -- end
         -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2|debuff.flagellation.stack>=40
@@ -640,7 +665,7 @@ local function runRotation()
         -- end
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/call_action_list,name=essences,if=!stealthed.all&variable.snd_condition|essence.breath_of_the_dying.major&time>=2
-        if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition or cast.able.reapingFlames() and combatTime >= 2 then
+        if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition == 1 or cast.able.reapingFlames() and combatTime >= 2 then
             -- actions.essences=concentrated_flame,if=energy.time_to_max>1&!buff.symbols_of_death.up&(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
             if cast.able.concentratedFlame() and (energyDeficit/energyRegen) > 1 and not buff.symbolsOfDeath.exists() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame() or charges.concentratedFlame.timeTillFull() < gcd) then
                 if cast.concentratedFlame() then return true end
@@ -726,16 +751,16 @@ local function runRotation()
         end
         -- # Use Tornado pre SoD when we have the energy whether from pooling without SF or just generally.
         -- actions.cds+=/shuriken_tornado,if=energy>=60&variable.snd_condition&cooldown.symbols_of_death.up&cooldown.shadow_dance.charges>=1
-        if energy >= 60 and sndCondition and not cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 then
+        if energy >= 60 and sndCondition == 1 and not cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 then
             if cast.shurikenTornado("player") then return true end
         end
         -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5
-        -- if sndCondition and not debuff.serratedBoneSpike.exists(enemyTable30.lowestTTDUnit) or ttd("target") <= 5 then
+        -- if sndCondition == 1 and not debuff.serratedBoneSpike.exists(enemyTable30.lowestTTDUnit) or ttd("target") <= 5 then
         --     if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
         -- end
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus. Low CP for The Rotten.
         -- actions.cds+=/symbols_of_death,if=variable.snd_condition&!cooldown.shadow_blades.up&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)&(!runeforge.the_rotten.equipped|combo_points<=2)&(!essence.blood_of_the_enemy.major|cooldown.blood_of_the_enemy.remains>2)
-        if mode.sod == 1 and sndCondition and cd.shadowBlades.exists() and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and 
+        if mode.sod == 1 and sndCondition == 1 and cd.shadowBlades.exists() and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and 
          (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and --and (not runeforge.theRotten.active or combo <= 2)
          (not essence.bloodOfTheEnemy.active or cd.bloodOfTheEnemy.remain() > 2) and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
@@ -758,12 +783,12 @@ local function runRotation()
         end
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/echoing_reprimand,if=variable.snd_condition&combo_points.deficit>=3&spell_targets.shuriken_storm<=4
-        -- if sndCondition and comboDeficit >= 3 and enemies10 <= 4 then
+        -- if sndCondition == 1 and comboDeficit >= 3 and enemies10 <= 4 then
         --     if cast.echoingReprimand("target") then return true end
         -- end
         -- -- # With SF, if not already done, use Tornado with SoD up.
         -- -- actions.cds+=/shuriken_tornado,if=talent.shadow_focus.enabled&variable.snd_condition&buff.symbols_of_death.up
-        -- if talent.shadowFocus and sndCondition and buff.symbolsOfDeath.exists() then
+        -- if talent.shadowFocus and sndCondition == 1 and buff.symbolsOfDeath.exists() then
         --     if cast.shurikenTornado("player") then return true end
         -- end
         -- -- actions.cds+=/shadow_dance,if=!buff.shadow_dance.up&fight_remains<=8+talent.subterfuge.enabled
@@ -885,8 +910,8 @@ local function runRotation()
         if comboDeficit >= 4 or (comboDeficit <= 1 and priorityRotation) then shdComboPoints = 1 else shdComboPoints = 0 end
         -- # Dance during Symbols or above threshold.
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and ttd("target") > 3 and cdUsage and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 15 and not cd.vanish.exists()) or not isChecked("Save SD Charges for CDs"))
-         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) then
+        if mode.sd == 1 and ttd("target") > 3 and (cdUsage and (isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and not cd.vanish.exists()) or not isChecked("Save SD Charges for CDs"))
+         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -993,12 +1018,12 @@ local function runRotation()
         --     if cast.shiv("target") then return true end
         -- end
         -- actions.build=shuriken_storm,if=spell_targets>=2+(talent.gloomblade.enabled&azerite.perforate.rank>=2&position_back)
-        local buildersStorm = 0
-        if talent.gloomblade and trait.perforate.rank >= 2 then buildersStorm = 1 else buildersStorm = 0 end
-        if enemies10 >= 2 + buildersStorm then
+        if enemies10 >= 2 then
             for i = 1, #enemyTable10 do
                 thisUnit = enemyTable10[i].unit
-                if not getFacing(thisUnit,"player") then
+                local buildersStorm = 0
+                if talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player") then buildersStorm = 1 else buildersStorm = 0 end
+                if enemies10 >= 2 + buildersStorm then
                     if cast.shurikenStorm("player") then return true end
                 end
             end
@@ -1044,8 +1069,10 @@ local function runRotation()
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) and opener == true then
             if cast.last.vanish(1) then StopAttack() end
-            if actionList_Defensive() then return true end
-            if actionList_Interrupts() then return true end
+            if someone_casting == true then
+                if actionList_Defensive() then return true end
+                if actionList_Interrupts() then return true end
+            end
             --pre mfd
             if stealth and validTarget and comboDeficit > 2 and talent.markedForDeath and targetDistance < 10 then
                 if cast.markedForDeath("target") then
@@ -1071,11 +1098,18 @@ local function runRotation()
             if not stealthedRogue and validTarget and targetDistance < 5 and not IsCurrentSpell(6603) then
                 StartAttack("target")
             end
+            -- OG Opener
+            if cdUsage and isChecked("Opener") and combatTime < 3 and cd.vanish.remain() < 118 and sndCondition == 1 then
+                cast.shadowBlades("player")
+                cast.symbolsOfDeath("player")
+                cast.shadowDance("player")
+                cast.racial()
+            end
             -- Off GCD Cooldowns
             if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
                 if actionList_CooldownsOGCD() then return true end
             end
-            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition) then
+            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118.5 or sndCondition == 1) then
                 if gcd < getLatency() then
                     -- # Check CDs at first
                     -- actions+=/call_action_list,name=cds

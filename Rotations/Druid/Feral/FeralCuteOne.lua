@@ -113,6 +113,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Basic Healing Module
             br.player.module.BasicHealing(section)
+            -- Barkskin
+            br.ui:createSpinner(section, "Barkskin",  55,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Rebirth
             br.ui:createCheckbox(section,"Rebirth")
             br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
@@ -299,12 +301,12 @@ local function snipeTF()
         and (#enemies.yards40 == 1 and unit.ttd(units.dyn40) > power.energy.ttm()) or #enemies.yards40 > 1
     then
         local lowestUnit = units.dyn5
-        br.friend[1].unit = 100
+        local lowestHP = 100
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             local thisHP = unit.hp(thisUnit)
-            if thisHP < br.friend[1].unit then
-                br.friend[1].unit = thisHP
+            if thisHP < lowestHP then
+                lowestHP = thisHP
                 lowestUnit = thisUnit
             end
         end
@@ -633,6 +635,10 @@ actionList.Defensive = function()
                     end
                 end
             end
+        end
+        -- Barkskin
+        if ui.checked("Barkskin") and unit.inCombat() and cast.able.barkskin() and unit.hp() <= ui.value("Barkskin") then
+            if cast.barkskin() then ui.debug("Casting Barkskin") return true end
         end
         -- Survival Instincts
         if ui.checked("Survival Instincts") and unit.inCombat() and cast.able.survivalInstincts()
@@ -1247,7 +1253,7 @@ actionList.PreCombat = function()
         end
     end -- End No Combat
     -- Opener
-    if actionList.Opener() then return true end
+    -- if actionList.Opener() then return true end
 end -- End Action List - PreCombat
 
 ----------------
@@ -1355,6 +1361,7 @@ local function runRotation()
         opener.RIP1 = false
         opener.complete = false
     end
+    if not opener.complete then opener.complete = true end
 
     -- Variables
     -- variable,name=reaping_delay,value=target.time_to_die,if=variable.reaping_delay=0

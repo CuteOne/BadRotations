@@ -223,9 +223,7 @@ local function runRotation()
 
     -- Cancel Crackling Jade Lightning
     if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
-        ui.debug("Canceling Crackling Jade Lightning [Within "..ui.value("Cancel CJL Range").."yrds]")
-        MoveBackwardStart()
-        MoveBackwardStop()
+        if cast.cancel.cracklingJadeLightning() then ui.debug("Canceling Crackling Jade Lightning [Within "..ui.value("Cancel CJL Range").."yrds]") return true end
     end
 
     ---------------------

@@ -63,6 +63,16 @@ br.api.cast = function(self,spell,id)
         return isCastingSpell(id,thisUnit)
     end
 
+    if cast.cancel == nil then cast.cancel = {} end
+    cast.cancel[spell] = function()
+        local SpellStopCasting = _G["SpellStopCasting"]
+        if self.cast.current[spell]() then
+            SpellStopCasting()
+            return true
+        end
+        return false
+    end
+
     -- br.player.cast.cost.spell() - Returns the cost of the spell
     --[[Args: 
         altPower = Set to "true" to return alternate power cost.

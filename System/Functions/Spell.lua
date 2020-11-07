@@ -204,7 +204,7 @@ function getSpellCD(SpellID)
 	else
 		local Start, CD = GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - GetTime()
-		MyCD = MyCD - getLatency()
+		MyCD = MyCD -- getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
 	end

@@ -219,7 +219,7 @@ function hasThreat(unit,playerUnit)
 	if targetUnit == "None" then targetFriend = false
 	else targetFriend = (UnitName(targetUnit) == UnitName("player") or (UnitExists("pet") and UnitName(targetUnit) == UnitName("pet")) or UnitInParty(targetUnit) or UnitInRaid(targetUnit))
 	end
-
+	
 	local function threatSituation(friendlyUnit,enemyUnit)
 		local _,_,threatPct = UnitDetailedThreatSituation(friendlyUnit,enemyUnit)
 		if threatPct ~= nil then 
@@ -230,10 +230,11 @@ function hasThreat(unit,playerUnit)
 		end	
 		return false
 	end
-
+	
 	-- Valididation Checks
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
 	if unit == nil --[[or (not GetObjectExists(targetUnit) and br.lists.threatBypass[unitID] == nil)]] then return false end
+	-- Print("Unit: "..tostring(UnitName(unit)).." | Player: "..tostring(playerUnit))
 	local playerInCombat = UnitAffectingCombat("player")
 	local unitInCombat = UnitAffectingCombat(unit)
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
@@ -247,8 +248,13 @@ function hasThreat(unit,playerUnit)
 	-- elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil and #getEnemies(unit,20,true) == 0 then
 	-- 		return true
 	-- Open World Mob Pack Validation
-	elseif instance == "none" and playerInCombat and unitInCombat and #getEnemies(unit,8) > 0 then
-		return true
+	elseif instance == "none" and playerInCombat and unitInCombat then
+		local theseEnemies = getEnemies(unit,8)
+		if #theseEnemies == 1 and GetObjectExists("target") then return true end
+		for i = 1, #theseEnemies do
+			local thisUnit = theseEnemies[i]
+			if UnitIsUnit("target",thisUnit) then return true end
+		end
 	-- Player Threat Valdation
 	elseif threatSituation(playerUnit, unit) then
 		return true
