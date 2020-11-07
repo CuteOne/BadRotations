@@ -187,16 +187,16 @@ local function focusTimeTill(amount)
     return ((amount-focus)/focusRegen)+0.5
 end
 
-local function castRegen(spellID)
-    if GetSpellInfo(spellID) ~= nil then
-        local desc = GetSpellDescription(spellID)
-        local generates = desc:gsub("%D+", "")
-        local amount = generates:sub(-2)
-        return tonumber(amount)
-    else
-        return 0
-    end
-end
+-- local function castRegen(spellID)
+--     if GetSpellInfo(spellID) ~= nil then
+--         local desc = GetSpellDescription(spellID)
+--         local generates = desc:gsub("%D+", "")
+--         local amount = generates:sub(-2)
+--         return tonumber(amount)
+--     else
+--         return 0
+--     end
+-- end
 
 local function nextBomb(nextBomb)
     local _,_,currentBomb = GetSpellInfo(spell.wildfireBomb)
@@ -222,7 +222,7 @@ local function eagleScout()
 end
 
 local function outOfMelee()
-    if focus + castRegen(spell.killCommand) < focusMax then return false end
+    if focus + cast.regen.killCommand() < focusMax then return false end
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
         if unit.distance(thisUnit) > var.eagleRange and debuff.serpentSting.refresh(thisUnit) then return false end
@@ -524,7 +524,7 @@ actionList.St = function()
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
+    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [ST]") return true end
     end
     -- Raptor Strike
@@ -545,7 +545,7 @@ actionList.St = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and (focus + cast.regen.killCommand() < focusMax or outOfMelee()) then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ST]") return true end
     end
     -- Serpent Sting
@@ -672,7 +672,7 @@ actionList.Cleave = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and (focus + cast.regen.killCommand() < focusMax or outOfMelee()) then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [AOE - Lowest Bloodseeker]") return true end
     end
     -- Harpoon
@@ -692,7 +692,7 @@ actionList.Cleave = function()
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
+    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [AOE]") return true end
     end
     -- Wildfire Bomb
@@ -760,13 +760,13 @@ actionList.ApSt = function()
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
+    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [AP]") return true end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max
     if cast.able.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < 1.5 * unit.gcd(true)
-        and (focus + castRegen(spell.killCommand) < focusMax or outOfMelee())
+        and (focus + cast.regen.killCommand() < focusMax or outOfMelee())
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [AP - Cap Prevention]") return true end
     end
@@ -790,7 +790,7 @@ actionList.ApSt = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand(var.lowestBloodseeker) and ((focus + castRegen(spell.killCommand) < focusMax
+    if cast.able.killCommand(var.lowestBloodseeker) and ((focus + cast.regen.killCommand() < focusMax
         and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())) or outOfMelee())
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [AP]") return true end
@@ -868,7 +868,7 @@ actionList.ApWfi = function()
     -- wildfire_bomb,if=full_recharge_time<1.5*gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
     if cast.able.wildfireBomb() and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true) or focus + focusRegen < focusMax
         and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40)
-            or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - castRegen(spell.killCommand) * 3))
+            or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - cast.regen.killCommand() * 3))
     then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [ApWfi Cap Prevention]") return true end
     end
@@ -886,8 +886,8 @@ actionList.ApWfi = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max-20
-    if cast.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < 1.5 * unit.gcd(true)
-        and (focus + castRegen(spell.killCommand) < focusMax - 20 or outOfMelee())
+    if cast.able.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < 1.5 * unit.gcd(true)
+        and (focus + cast.regen.killCommand() < focusMax - 20 or outOfMelee())
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApWfi - Cap Prevention]") return true end
     end
@@ -927,8 +927,9 @@ actionList.ApWfi = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand(var.lowestBloodseeker) and  ((focus + castRegen(spell.killCommand) < focusMax
-        and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())) or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and  focus + cast.regen.killCommand() < focusMax
+        and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite() or outOfMelee())
+    then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApWfi]") return true end
     end
     -- Raptor Strike
@@ -991,13 +992,13 @@ actionList.Wfi = function()
     -- wildfire_bomb,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max|(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
     if cast.able.wildfireBomb() and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true)
         or (nextBomb(spell.volatileBomb) and debuff.serpentSting.refresh(units.dyn40))
-        or (nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - castRegen(spell.killCommand) * 3))
+        or (nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - cast.regen.killCommand() * 3))
     then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [Wfi - Cap Prevention]") return true end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max-focus.regen
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and (focus + cast.regen.killCommand() < focusMax or outOfMelee()) then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [Wfi]") return true end
     end
     -- A Murder of Crows
@@ -1245,9 +1246,9 @@ local function runRotation()
     var.eagleUnit                                 = buff.aspectOfTheEagle.exists() and units.dyn40 or units.dyn5
     var.eagleRange                                = buff.aspectOfTheEagle.exists() and 40 or 5
     var.eagleEnemies                              = buff.aspectOfTheEagle.exists() and enemies.yards40 or enemies.yards5
-    var.lowestBloodseeker                         = debuff.bloodseeker.lowest(40,"remain")
-    var.lowestSerpentSting                        = debuff.serpentSting.lowest(40,"remain")
-    var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack")
+    var.lowestBloodseeker                         = debuff.bloodseeker.lowest(40,"remain") or "target"
+    var.lowestSerpentSting                        = debuff.serpentSting.lowest(40,"remain") or "target"
+    var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack") or "target"
     
     if var.eagleUnit == nil then var.eagleUnit = "target" end
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
