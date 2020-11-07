@@ -106,6 +106,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Instant Behavior", {"|cff00FF00Always","|cffFFFF00Combat Only","|cffFF0000Never"}, 2, "|cffFFFFFFSelect how to use Instant Heal proc.")
             -- Healing Steam Totem
             br.ui:createSpinner(section, "Healing Stream Totem", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Healing Stream Totem - Min Units", 1, 0, 5, 1, "|cffFFFFFFNumber of Units below HP Level to Cast At")
             -- Lightning Surge Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -202,7 +203,7 @@ actionList.Extras = function()
     -- Ghost Wolf
     if ui.checked("Ghost Wolf") and cast.able.ghostWolf() and not (unit.mounted() or unit.flying()) then
         if ((#enemies.yards20 == 0 and not unit.inCombat()) or (#enemies.yards10 == 0 and unit.inCombat())) and unit.moving("player") and not buff.ghostWolf.exists() then
-            if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf") return true end
+            if cast.ghostWolf() then ui.debug("Casting Ghost Wolf") return true end
         end
     end
     -- Purge
@@ -211,14 +212,14 @@ actionList.Extras = function()
     end
     -- Spirit Walk
     if ui.checked("Spirit Walk") and cast.able.spiritWalk() and cast.noControl.spiritWalk() then
-        if cast.spiritWalk("player") then ui.debug("Casting Spirit Walk") return true end
+        if cast.spiritWalk() then ui.debug("Casting Spirit Walk") return true end
     end
     -- Water Walking
     if unit.fallTime() > 1.5 and buff.waterWalking.exists() then
         if buff.waterWalking.cancel() then ui.debug("Canceled Water Walking [Falling]") return true end
     end
     if ui.checked("Water Walking") and cast.able.waterWalking() and not unit.inCombat() and unit.swimming() and not buff.waterWalking.exists() then
-        if cast.waterWalking("player") then ui.debug("Casting Water Walking") return true end
+        if cast.waterWalking() then ui.debug("Casting Water Walking") return true end
     end
 end -- End Action List - Extras
 -- Action List - Defensive
@@ -237,7 +238,7 @@ actionList.Defensive = function()
         end
         -- Astral Shift
         if ui.checked("Astral Shift") and cast.able.astralShift() and unit.hp() <= ui.value("Astral Shift") and unit.inCombat() then
-            if cast.astralShift("player") then ui.debug("Casting Astral Shift") return true end
+            if cast.astralShift() then ui.debug("Casting Astral Shift") return true end
         end
         -- Capacitor Totem
         if ui.checked("Capacitor Totem - HP") and cast.able.capacitorTotem() and cd.capacitorTotem.ready()
@@ -295,7 +296,9 @@ actionList.Defensive = function()
             end
         end
         -- Healing Stream Totem
-        if ui.checked("Healing Stream Totem") and cast.able.healingStreamTotem() and unit.hp(unit.lowest(40)) < ui.value("Healing Stream Totem") then
+        if ui.checked("Healing Stream Totem") and cast.able.healingStreamTotem()
+            and var.unitsNeedingHealing >= ui.value("Healing Stream Totem - Min Units")
+        then
             if cast.healingStreamTotem("player","ground") then ui.debug("Casting Healing Stream Totem") return true end
         end
     end -- End Defensive Toggle
@@ -312,7 +315,7 @@ actionList.Interrupts = function()
                     if cast.windShear(thisUnit) then ui.debug("Casting Wind Sheer") return true end
                 end
                 -- Hex
-                if ui.checked("Hex") and cast.able.hex(thisUnit) then
+                if ui.checked("Hex") and cast.able.hex(thisUnit) and (unit.humanoid(thisUnit) or unit.beast(thisUnit)) then
                     if cast.hex(thisUnit) then ui.debug("Casting Hex") return true end
                 end
                 -- Capacitor Totem
@@ -782,6 +785,17 @@ local function runRotation()
         -- Cancel Chain Lightning Bolt in Melee
         if cast.current.chainLightning() and not canLightning(true) then
             if cast.cancel.chainLightning() then ui.debug("Canceled Chain Lightning Cast [Melee Range]") end
+        end
+    end
+
+    var.unitsNeedingHealing = 0
+    if #br.friend > 1 then
+        for i = 1, #br.friend do
+            local thisFriend = br.friend[i]
+            local thisDistance = unit.distance(thisFriend)
+            if not unit.isUnit(thisFriend,"player") and thisDistance < 40 and unit.hp(thisFriend) <= ui.value("Healing Stream Totem") then
+                var.unitsNeedingHealing = var.unitsNeedingHealing + 1
+            end
         end
     end
 

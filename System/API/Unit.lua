@@ -19,6 +19,12 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "target" end
         return isAberration(thisUnit)
     end
+    -- Beast
+    unit.beast = function(thisUnit)
+        local isBeast = _G["isBeast"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isBeast(thisUnit)
+    end
     -- Can Attack
     unit.canAttack = function(thisUnit,playerUnit)
         local UnitCanAttack = _G["UnitCanAttack"]
@@ -126,6 +132,12 @@ br.api.unit = function(self)
         local getHP = _G["getHP"]
         if thisUnit == nil then thisUnit = "player" end
         return getHP(thisUnit)
+    end
+    -- Humanoid
+    unit.humanoid = function(thisUnit)
+        local isHumanoid = _G["isHumanoid"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isHumanoid(thisUnit)
     end
     --  In Combat
     unit.inCombat = function(thisUnit)
