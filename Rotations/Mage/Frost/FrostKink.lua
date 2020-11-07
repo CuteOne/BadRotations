@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.5"
+local rotationVer  = "v1.0.6"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -1507,7 +1507,7 @@ local function runRotation()
             if actionList_Cooldowns() then return true end
 
 
-            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and not cast.able.icyVeins() or cast.timeSinceLast.icyVeins() >= 13.5 then 
+            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and cast.timeSinceLast.icyVeins() >= 10 then 
                 if cast.runeofPower() then return true end 
             end
 
