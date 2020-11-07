@@ -537,8 +537,8 @@ end -- End Action List - Opener
 actionList.St = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
-        if cast.killShot() then ui.debug("Casting Kill Shot") return true end
+    if cast.able.killShot() and unit.hp("target") < 20 then
+        if cast.killShot("target") then ui.debug("Casting Kill Shot") return true end
     end
     -- BLoodshed
     -- bloodshed

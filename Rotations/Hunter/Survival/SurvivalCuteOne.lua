@@ -514,8 +514,8 @@ end -- End Action List - Cooldowns
 actionList.St = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
-        if cast.killShot() then ui.debug("Casting Kill Shot [ST]") return true end
+    if cast.able.killShot() and unit.hp("target") < 20 then
+        if cast.killShot("target") then ui.debug("Casting Kill Shot [ST]") return true end
     end
     -- Harpoon
     -- harpoon,if=talent.terms_of_engagement.enabled
@@ -739,8 +739,8 @@ end -- End Action List - Cleave
 actionList.ApSt = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
-        if cast.killShot() then ui.debug("Casting Kill Shot [AP]") return true end
+    if cast.able.killShot() and unit.hp("target") < 20 then
+        if cast.killShot("target") then ui.debug("Casting Kill Shot [AP]") return true end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
@@ -837,8 +837,8 @@ end -- End Action List - Alpha Predator
 actionList.ApWfi = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
-        if cast.killShot() then ui.debug("Casting Kill Shot [ApWfi]") return true end
+    if cast.able.killShot() and unit.hp("target") < 20 then
+        if cast.killShot("target") then ui.debug("Casting Kill Shot [ApWfi]") return true end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
@@ -956,8 +956,8 @@ end -- End Action List - Alpha Predator / Wildfire Infusion
 actionList.Wfi = function()
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp(units.dyn40) < 20 then
-        if cast.killShot() then ui.debug("Casting Kill Shot [Wfi]") return true end
+    if cast.able.killShot() and unit.hp("target") < 20 then
+        if cast.killShot("target") then ui.debug("Casting Kill Shot [Wfi]") return true end
     end
     -- Harpoon
     -- harpoon,if=focus+cast_regen<focus.max&talent.terms_of_engagement.enabled
