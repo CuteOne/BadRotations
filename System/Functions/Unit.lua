@@ -134,28 +134,30 @@ function UnitIsTappedByPlayer(mob)
 	end
 end
 function getSpellUnit(spellCast,aoe,minRange,maxRange,spellType)
-	-- local spellName,_,_,_,minRange,maxRange = GetSpellInfo(spellCast)
+	local spellName = GetSpellInfo(spellCast)
 	-- local spellType = getSpellType(spellName)
 	-- if minRange == nil then minRange = 0 end
 	-- if maxRange == nil or maxRange == 0 then maxRange = 5 end
 	if aoe == nil then aoe = false end
+	local hasRange = SpellHasRange(spellName) and true or false
 	local facing = not aoe
-	local unit = dynamicTarget(maxRange,facing) or ("target" and (aoe or getFacing("player","target")))
+	local unit = dynamicTarget(maxRange,facing) --[[or ((aoe or getFacing("player","target")) and "target")]] or (not hasRange and "player")
 	if not unit then return "None" end
 	local distance = getDistance(unit)
 	local thisUnit = "None"
-	if distance >= minRange and distance < maxRange then
-		if spellType == "Helpful" then
-			thisUnit = "player"
-		elseif spellType == "Harmful" or spellType == "Both" then
-			thisUnit = unit
-		elseif spellType == "Unknown" then --and getDistance(unit) < maxRange then
-			if castSpell(unit,spellCast,false,false,false,false,false,false,false,true) then
-				thisUnit = unit
-			elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
-				thisUnit = "player"
-			end
-		end
+	if (distance >= minRange and distance < maxRange) then
+		if spellType == "Helpful" then thisUnit = "player" end
+		-- if spellType == "Harmful" or spellType == "Both" then
+			if hasRange then thisUnit = unit else thisUnit = "player" end
+		-- end
+		-- if spellType == "Unknown" then --and getDistance(unit) < maxRange then
+			
+			-- if castSpell(unit,spellCast,false,false,false,false,false,false,false,true) then
+			-- 	thisUnit = unit
+			-- elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
+			-- 	thisUnit = "player"
+			-- end
+		-- end
 	end
     return thisUnit
 end
