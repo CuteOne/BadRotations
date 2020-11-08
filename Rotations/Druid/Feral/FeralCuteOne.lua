@@ -382,15 +382,21 @@ actionList.Extras = function()
         if cast.able.travelForm("player") and not unit.inCombat() and canFly() and not unit.swimming() and br.fallDist > 90
             --[[falling > ui.value("Fall Timer")]] and unit.level() >= 24 and not buff.prowl.exists()
         then
-            if unit.form() ~= 0 and not cast.last.travelForm() then unit.cancelForm() end
-            if cast.travelForm("player") then ui.debug("Casting Travel Form [Flying]") return true end
+            if unit.form() ~= 0 and not cast.last.travelForm() then
+                unit.cancelForm()
+            elseif unit.form() == 0 then
+                if cast.travelForm("player") then ui.debug("Casting Travel Form [Flying]") return true end
+            end
         end
         -- Aquatic Form
         if cast.able.travelForm("player") and (not unit.inCombat() --[[or unit.distance("target") >= 10--]])
             and unit.swimming() and not buff.travelForm.exists() and not buff.prowl.exists() and unit.moving()
         then
-            if unit.form() ~= 0 and not cast.last.travelForm() then unit.cancelForm() end
-            if cast.travelForm("player") then ui.debug("Casting Travel From [Swimming]") return true end
+            if unit.form() ~= 0 and not cast.last.travelForm() then
+                unit.cancelForm()
+            elseif unit.form() == 0 then
+                if cast.travelForm("player") then ui.debug("Casting Travel From [Swimming]") return true end
+            end
         end
         -- Cat Form
         if cast.able.catForm() and not buff.catForm.exists() and not unit.mounted() and not unit.flying() then
@@ -451,7 +457,7 @@ actionList.Extras = function()
                     var.swipeSoon = GetTime();
                 end
                 if var.swipeSoon ~= nil and var.swipeSoon < GetTime() - 1 then
-                    if cast.swipeCat(nil,"aoe") then ui.debug("Casting Swipe [Death Cat Mode]") ; var.swipeSoon = nil; return true end
+                    if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe [Death Cat Mode]") ; var.swipeSoon = nil; return true end
                 end
             end
         end -- End 20yrd Enemy Scan
@@ -615,7 +621,7 @@ actionList.Defensive = function()
                 if ui.value("Regrowth - OoC") == 1 and unit.hp() <= ui.value("Regrowth") and not unit.moving() then
                     if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
                         unit.cancelForm()
-                    else
+                    elseif unit.form() == 0 then
                        if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..unit.name(thisUnit)) return true end
                     end
                 end
@@ -1011,7 +1017,7 @@ actionList.Filler = function()
     if cast.able.swipeCat() and filler == 4 and not talent.brutalSlash
         and not unit.isExplosive("target") and range.dyn8AOE
     then
-        if cast.swipeCat() then ui.debug("Casting Swipe [Filler - 4]") return true end
+        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
     end
     -- Shred
     -- shred
@@ -1090,7 +1096,7 @@ actionList.Bloodtalons = function()
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
             if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > 8 then
-                if cast.thrashCat(thisUnit) then 
+                if cast.thrashCat(thisUnit,"aoe",1,8) then 
                     ui.debug("Casting Thrash [BT - Ticks Gain]") 
                     btGen.thrash = true 
                     if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
@@ -1102,7 +1108,7 @@ actionList.Bloodtalons = function()
     -- Brutal Slash
     -- brutal_slash,if=buff.bt_brutal_slash.down
     if cast.able.brutalSlash() and not btGen.brutalSlash then
-        if cast.brutalSlash() then 
+        if cast.brutalSlash(units.dyn8AOE,"aoe",1,8) then 
             ui.debug("Casting Brutal Slash [BT]") 
             btGen.brutalSlash = true 
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
@@ -1112,7 +1118,7 @@ actionList.Bloodtalons = function()
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down&spell_targets.swipe_cat>1
     if cast.able.swipeCat() and not btGen.swipe and #enemies.yards8 > 1 then
-        if cast.swipeCat() then 
+        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then 
             ui.debug("Casting Swipe [BT - Multi]") 
             btGen.swipe = true 
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
@@ -1132,7 +1138,7 @@ actionList.Bloodtalons = function()
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down
     if cast.able.swipeCat() and not btGen.swipe then
-        if cast.swipeCat() then 
+        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then 
             ui.debug("Casting Swipe [BT]") 
             btGen.swipe = true 
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
@@ -1142,7 +1148,7 @@ actionList.Bloodtalons = function()
     -- Thrash
     -- thrash_cat,if=buff.bt_thrash.down
     if cast.able.thrashCat() and not btGen.thrash then
-        if cast.thrashCat() then 
+        if cast.thrashCat(units.dyn8AOE,"aoe",1,8) then 
             ui.debug("Casting Thrash [BT - No Buff]") 
             btGen.thrash = true 
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
@@ -1191,8 +1197,9 @@ actionList.PreCombat = function()
                 if unit.form() ~= 0 then
                     -- CancelShapeshiftForm()
                     unit.cancelForm()
+                elseif unit.form() == 0 then
+                    if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = GetTime(); return true end
                 end
-                if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = GetTime(); return true end
             end
             -- Azshara's Font of Power
             -- use_item,name=azsharas_font_of_power
@@ -1247,8 +1254,8 @@ actionList.PreCombat = function()
             end
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-                StartAttack(units.dyn5)
+            if range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+                unit.startAttack(units.dyn5)
             end
         end
     end -- End No Combat
@@ -1483,8 +1490,8 @@ local function runRotation()
             -------------------------
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-                StartAttack(units.dyn5)
+            if range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+                unit.startAttack(units.dyn5)
             end
             ---------------------------
             --- SimulationCraft APL ---
@@ -1523,8 +1530,8 @@ local function runRotation()
                     end
                     -- Action List - Bloodtalons
                     -- pool_resource,if=talent.bloodtalons.enabled&buff.bloodtalons.down&(energy+3.5*energy.regen+(40*buff.clearcasting.up))>=(115-23*buff.incarnation_king_of_the_jungle.up)&active_bt_triggers=0
-                    if talent.bloodtalons and not buff.bloodtalons.exists() and (energy + 3.5 * energyRegen + (40 * var.clearcasting)) >= (115 - 23 * var.incarnation) and btGen.stack == 0 then
-                        ui.debug("Pooling for Bloodtalons")
+                    if talent.bloodtalons and not buff.bloodtalons.exists() and (energy + 3.5 * energyRegen + (40 * var.clearcasting)) < (115 - 23 * var.incarnation) and btGen.stack == 0 then
+                        -- ui.debug("Pooling for Bloodtalons")
                         return true
                     end
                     -- run_action_list,name=bloodtalons,if=talent.bloodtalons.enabled&(buff.bloodtalons.down|active_bt_triggers=2)
@@ -1532,12 +1539,14 @@ local function runRotation()
                         if actionList.Bloodtalons() then return true end
                     end
                     -- Rake
+                    -- pool_resource,for_next=1
                     -- rake,target_if=refreshable|persistent_multiplier>dot.rake.pmultiplier
-                    if cast.able.rake() and canDoT(units.dyn5)
+                    if (cast.able.rake() or cast.pool.rake()) and canDoT(units.dyn5)
                         and debuff.rake.count() < ui.value("Multi-DoT Limit")
                         and #enemies.yards5f < ui.value("Multi-DoT Limit")
                         and (debuff.rake.refresh(units.dyn5) or debuff.rake.calc() > debuff.rake.applied(units.dyn5))
                     then
+                        if cast.pool.rake() then return true end
                         if cast.rake(units.dyn5) then ui.debug("Casting Rake") return true end
                     end
                     -- Feral Frenzy
@@ -1556,9 +1565,11 @@ local function runRotation()
                         end
                     end
                     -- Thrash
+                    -- pool_resource,for_next=1
                     -- thrash_cat,if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>variable.thrash_ticks
-                    if cast.able.thrashCat() and (debuff.thrashCat.refresh(units.dyn8AoE) and ticksGain.thrash > thrashTicks) then
-                        if cast.thrashCat() then ui.debug("Casting Thrash") return true end
+                    if (cast.able.thrashCat() and cast.pool.thrashCat()) and (debuff.thrashCat.refresh(units.dyn8AoE) and ticksGain.thrash > thrashTicks) then
+                        if cast.pool.thrashCat() then return true end
+                        if cast.thrashCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Thrash") return true end
                     end
                     -- Brutal Slash
                     -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
@@ -1566,12 +1577,12 @@ local function runRotation()
                         and (#enemies.yards8 < ui.value("Brutal Slash Targets") or (ui.mode.rotation == 3 and #enemies.yards8 > 0))
                         and range.dyn8AOE 
                     then
-                        if cast.brutalSlash() then ui.debug("Casting Brutal Slash") return true end
+                        if cast.brutalSlash(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
                     end
                     -- Swipe
                     -- swipe_cat,if=spell_targets.swipe_cat>2
                     if cast.able.swipeCat() and not talent.brutalSlash and (#enemies.yards8 > 2) then
-                        if cast.swipeCat() then ui.debug("Casting Swipe") return true end
+                        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe") return true end
                     end
                     -- Shred
                     -- shred,if=buff.clearcasting.up
