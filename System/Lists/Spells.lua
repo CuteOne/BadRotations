@@ -2995,6 +2995,7 @@ br.lists.spells = {
                 riptide                     = 61295,
                 tidalWaves                  = 53390,
                 unleashLife                 = 73685,
+                undulation                  = 216251,
                 spiritwalkersGrace          = 79206,
             },
             debuffs                         = {
