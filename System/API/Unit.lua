@@ -65,7 +65,7 @@ br.api.unit = function(self)
     end
     -- Dual Wielding
     unit.dualWielding = function()
-        local IsDualWielding = _G["IsDualWeilding"]
+        local IsDualWielding = _G["IsDualWielding"]
         return IsDualWielding()
     end
     -- Enemy
