@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v0.1.9"
+local rotationVer  = "v0.2.0"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -42,8 +42,8 @@ local function createToggles()
 
     -- Rune of Power Button
     RuneOfPowerModes = {
-        [1] = {mode = "On", value = 1, overlay = "Auto AO Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
-        [2] = {mode = "Off", value = 2, overlay = "Auto AO Disabled", tip = "Will not use Arcane Orb", highlight = 0, icon = br.player.spell.arcaneOrb}
+        [1] = {mode = "On", value = 1, overlay = "Auto Rune Of Power Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.runeofPower},
+        [2] = {mode = "Off", value = 2, overlay = "Auto Rune Of Power Disabled", tip = "Will not use Arcane Orb", highlight = 0, icon = br.player.spell.runeofPower}
     }
     CreateButton("RuneOfPower", 1, 1)
 end
@@ -247,6 +247,7 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        br.player.ui.mode.rop = br.data.settings[br.selectedSpec].toggles["RuneOfPower"]
 --------------
 --- Locals ---
 --------------
@@ -1140,6 +1141,7 @@ local function actionList_Cooldowns()
 
     --actions.cooldowns+=/rune_of_power,if=buff.rune_of_power.down&cooldown.touch_of_the_magi.remains>variable.rop_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
     if cast.able.runeofPower()
+    and mode.rop ~= 2
     and not moving
     and cast.timeSinceLast.arcanePower() >= 15 or not cast.able.arcanePower() and not buff.runeofPower.exists()
     and not buff.runeofPower.exists()
@@ -1311,6 +1313,7 @@ local function actionList_AoE()
 
     --actions.aoe+=/rune_of_power,if=buff.rune_of_power.down&((cooldown.touch_of_the_magi.remains>20&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
     if cast.able.runeofPower()
+    and mode.rop ~= 2
     and not moving
     and cast.timeSinceLast.arcanePower() >= 15 or not cast.able.arcanePower() and not buff.runeofPower.exists()
     and not buff.runeofPower.exists()
