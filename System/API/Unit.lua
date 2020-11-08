@@ -63,6 +63,11 @@ br.api.unit = function(self)
         local getDistance = _G["getDistance"]
         return getDistance(thisUnit,otherUnit)
     end
+    -- Dual Wielding
+    unit.dualWielding = function()
+        local IsDualWielding = _G["IsDualWeilding"]
+        return IsDualWielding()
+    end
     -- Enemy
     unit.enemy = function(thisUnit,playerUnit)
         local UnitIsEnemy = _G["UnitIsEnemy"]

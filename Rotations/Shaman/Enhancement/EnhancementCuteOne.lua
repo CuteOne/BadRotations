@@ -460,7 +460,7 @@ actionList.AOE = function()
     -- Sundering
     -- sundering
     if ui.alwaysCdNever("Sundering") and cast.able.sundering() then
-        if cast.sundering(nil,"rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
+        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Stormstrike
     -- stormstrike
@@ -644,7 +644,7 @@ actionList.Single = function()
     -- Sundering
     -- sundering
     if ui.alwaysCdNever("Sundering") and cast.able.sundering() then
-        if cast.sundering(nil,"rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
+        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock
@@ -695,7 +695,7 @@ actionList.PreCombat = function()
         end
         -- Flametongue Weapon
         -- flametongue_weapon
-        if ui.checked("Flametongue Weapon") and cast.able.flametongueWeapon() and not unit.weaponImbue.exists(5400,true) then
+        if ui.checked("Flametongue Weapon") and cast.able.flametongueWeapon() and unit.dualWielding() and not unit.weaponImbue.exists(5400,true) then
             if cast.flametongueWeapon("player") then ui.debug("Casting Flametongue Weapon [Off Hand]") return true end
         end
         -- Lightning Shield
