@@ -290,7 +290,7 @@ actionList.Extras = function()
         end
     end
     -- Hand of Hinderance
-    if ui.checked("Hand of Hindrance") and cast.able.handOfHinderance("target") and unit.moving("target")
+    if ui.checked("Hand of Hindrance") and cast.able.handOfHindrance("target") and unit.moving("target")
         and not unit.facing("target","player") and unit.distance("target") > 8 and unit.hp("target") < 25
     then
         if cast.handOfHindrance("target") then ui.debug("Casting Hand of Hindrance on "..unit.name("target")) return true end
@@ -802,28 +802,23 @@ local runRotation = function()
     var.turnedEvil = var.turnedEvil or "player"
     if var.profileStop == nil then var.profileStop = false end
     
-    -- Auras
-    if ui.checked("Aura") then
-        -- Crusader Aura
-        if unit.mounted() and cast.able.crusaderAura() and not buff.crusaderAura.exists() then
-            if cast.crusaderAura("player") then ui.debug("Casting Crusader Aura") return true end
-        end
-        -- Concentration Aura
-        if ui.mode.aura == 1 and not unit.mounted() and cast.able.concentrationAura() and not buff.concentrationAura.exists() then
-            if cast.concentrationAura("player") then ui.debug("Casting Concentration Aura") return true end
-        end
-        -- Devotion Aura
-        if ui.mode.aura == 2 and not unit.mounted() and cast.able.devotionAura() and not buff.devotionAura.exists() then
-            if cast.devotionAura("player") then ui.debug("Casting Devotion Aura") return true end
-        end
-        -- Retribution Aura
-        if ui.mode.aura == 3 and not unit.mounted() and cast.able.retributionAura() and not buff.retributionAura.exists() then
-            if cast.retributionAura("player") then ui.debug("Casting Retribution Aura") return true end
-        end
+    -- Crusader Aura
+    if unit.mounted() and cast.able.crusaderAura() and not buff.crusaderAura.exists() then
+        if cast.crusaderAura("player") then ui.debug("Casting Crusader Aura") return true end
     end
-
-    ui.chatOverlay("Empyrean Power: "..tostring(buff.empyreanPower.exists()))
-
+    -- Concentration Aura
+    if ui.mode.aura == 1 and not unit.mounted() and cast.able.concentrationAura() and not buff.concentrationAura.exists() then
+        if cast.concentrationAura("player") then ui.debug("Casting Concentration Aura") return true end
+    end
+    -- Devotion Aura
+    if ui.mode.aura == 2 and not unit.mounted() and cast.able.devotionAura() and not buff.devotionAura.exists() then
+        if cast.devotionAura("player") then ui.debug("Casting Devotion Aura") return true end
+    end
+    -- Retribution Aura
+    if ui.mode.aura == 3 and not unit.mounted() and cast.able.retributionAura() and not buff.retributionAura.exists() then
+        if cast.retributionAura("player") then ui.debug("Casting Retribution Aura") return true end
+    end
+    
     ---------------------
     --- Begin Profile ---
     ---------------------
