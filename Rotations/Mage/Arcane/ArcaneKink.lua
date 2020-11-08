@@ -851,7 +851,7 @@ local function actionList_Leveling()
         if level >= 45 and talent.arcaneOrb
         and mode.arcaneOrb == 1
         and aoeUnits >= ui.value("Arcane Orb Units")
-        or isBoss("target") or ttd >= 20 then
+        or isBoss("target") or getTTD("target") >= 20 then
             if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
         end
 
