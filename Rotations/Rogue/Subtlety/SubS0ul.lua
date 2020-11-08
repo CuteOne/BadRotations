@@ -438,10 +438,10 @@ local function runRotation()
             if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
             (botSpell ~= spell.stealth or (botSpellTime == nil or GetTime() - botSpellTime > 0.1)) then
                 if getOptionValue("Auto Stealth") == 1 then
-                    if cast.stealth() then return end
+                    if cast.stealth("player") then return end
                 end
                 if #enemies.yards25nc > 0 and getOptionValue("Auto Stealth") == 2 then
-                    if cast.stealth() then return end
+                    if cast.stealth("player") then return end
                 end
             end
         end
@@ -463,34 +463,34 @@ local function runRotation()
                 local bossID = GetObjectID("boss1")
                 if bossID == 126848 and isCastingSpell(256979, "target") and GetUnitIsUnit("player", UnitTarget("target")) then
                     if talent.elusiveness then
-                        if cast.feint() then return true end
+                        if cast.feint("player") then return true end
                     elseif getOptionValue("Evasion Unavoidables HP Limit") >= php then
-                        if cast.evasion() then return true end
+                        if cast.evasion("player") then return true end
                     end
                 end
                 --Azerite Powder Shot (1st boss freehold)
                 if bossID == 126832 and isCastingSpell(256106, "boss1") and getFacing("boss1", "player") then
-                    if cast.feint() then return true end
+                    if cast.feint("player") then return true end
                 end
                 --Spit gold (1st boss KR)
                 if bossID == 135322 and isCastingSpell(265773, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) and isChecked("Cloak Unavoidables") then
-                    if cast.cloakOfShadows() then return true end
+                    if cast.cloakOfShadows("player") then return true end
                 end
                 if UnitDebuffID("player",265773) and getDebuffRemain("player",265773) <= 2 then
-                    if cast.feint() then return true end
+                    if cast.feint("player") then return true end
                 end
                 --Static Shock (1st boss Temple)
                 if (bossID == 133944 or GetObjectID("boss2") == 133944) and (isCastingSpell(263257, "boss1") or isCastingSpell(263257, "boss2")) then
                     if isChecked("Cloak Unavoidables") then
-                        if cast.cloakOfShadows() then return true end
+                        if cast.cloakOfShadows("player") then return true end
                     end
                     if not buff.cloakOfShadows.exists() then
-                        if cast.feint() then return true end
+                        if cast.feint("player") then return true end
                     end
                 end
                 --Noxious Breath (2nd boss temple)
                 if bossID == 133384 and isCastingSpell(263912, "boss1") and (select(5,UnitCastingInfo("boss1"))/1000-GetTime()) < 1.5 then
-                    if cast.feint() then return true end
+                    if cast.feint("player") then return true end
                 end
             end
             if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
@@ -511,16 +511,16 @@ local function runRotation()
                 end
             end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
-                if cast.cloakOfShadows() then return true end
+                if cast.cloakOfShadows("player") then return true end
             end
             if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
-                if cast.crimsonVial() then return true end
+                if cast.crimsonVial("player") then return true end
             end
             if isChecked("Evasion") and php < getOptionValue("Evasion") and inCombat and not stealth then
-                if cast.evasion() then return true end
+                if cast.evasion("player") then return true end
             end
             if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
-                if cast.feint() then return true end
+                if cast.feint("player") then return true end
             end
         end
     end
@@ -611,7 +611,7 @@ local function runRotation()
         end
         -- actions.precombat+=/Slice and Dice, if=precombat_seconds=1
         if isChecked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 and buff.sliceAndDice.remain() < 6+(combo*3) then
-            if cast.sliceAndDice() then return true end
+            if cast.sliceAndDice("player") then return true end
         end
         -- -- actions.precombat+=/shadowBlades, if=runeforge.mark_of_the_master_assassin.equipped
         -- if isChecked("Precombat") and validTarget and cdUsage and targetDistance < 5 then -- and runeforge.markOfTheMasterAssassin.active()
@@ -668,7 +668,7 @@ local function runRotation()
         if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition == 1 or cast.able.reapingFlames() and combatTime >= 2 then
             -- actions.essences=concentrated_flame,if=energy.time_to_max>1&!buff.symbols_of_death.up&(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
             if cast.able.concentratedFlame() and (energyDeficit/energyRegen) > 1 and not buff.symbolsOfDeath.exists() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame() or charges.concentratedFlame.timeTillFull() < gcd) then
-                if cast.concentratedFlame() then return true end
+                if cast.concentratedFlame("target") then return true end
             end
             -- actions.essences+=/blood_of_the_enemy,if=!cooldown.shadow_blades.up&cooldown.symbols_of_death.up|fight_remains<=10
             if cast.able.bloodOfTheEnemy() and cd.shadowBlades.exists() and not cd.symbolsOfDeath.exists() or ttd("target") <= 10 then
@@ -747,7 +747,7 @@ local function runRotation()
         -- # Pool for Tornado pre-SoD with ShD ready when not running SF.
         -- actions.cds+=/pool_resource,for_next=1,if=!talent.shadow_focus.enabled
         if not talent.shadowFocus and cast.able.shurikenTornado() then
-            if cast.pool.shurikenTornado() then return true end
+            if cast.pool.shurikenTornado("player") then return true end
         end
         -- # Use Tornado pre SoD when we have the energy whether from pooling without SF or just generally.
         -- actions.cds+=/shuriken_tornado,if=energy>=60&variable.snd_condition&cooldown.symbols_of_death.up&cooldown.shadow_dance.charges>=1
@@ -836,7 +836,7 @@ local function runRotation()
     local function actionList_Finishers()
         -- actions.finish=slice_and_dice,if=spell_targets.shuriken_storm<6&!buff.shadow_dance.up&buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
         if enemies10 < 6 and not buff.shadowDance.exists() and buff.sliceAndDice.remain() < ttd("target") and buff.sliceAndDice.remain() < (1 + combo)*1.8 then
-            if cast.sliceAndDice() then return true end
+            if cast.sliceAndDice("player") then return true end
         end
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
         -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=6
@@ -898,7 +898,7 @@ local function runRotation()
              and comboDeficit > 1 and debuff.findWeakness.remain(units.dyn5) < 1 then
                 if cast.pool.racial() then return true end
                 if cast.able.racial() then
-                    if cast.racial() then return true end
+                    if cast.racial("player") then return true end
                 end
             end
         end
@@ -1044,7 +1044,7 @@ local function runRotation()
         if cast.backstab("target") then return end
         -- Use Shuriken Toss if we can't reach the target
         if isChecked("Shuriken Toss out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Shuriken Toss out of range") and inCombat then
-            if cast.shurikenToss() then return true end
+            if cast.shurikenToss("target") then return true end
         end
     end
 -----------------
@@ -1099,11 +1099,11 @@ local function runRotation()
                 StartAttack("target")
             end
             -- OG Opener
-            if cdUsage and isChecked("Opener") and combatTime < 3 and cd.vanish.remain() < 118 and sndCondition == 1 then
+            if cdUsage and isChecked("Opener") and combatTime < 3 and cd.vanish.remain() < 115 and sndCondition == 1 then
                 cast.shadowBlades("player")
                 cast.symbolsOfDeath("player")
                 cast.shadowDance("player")
-                cast.racial()
+                cast.racial("player")
             end
             -- Off GCD Cooldowns
             if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
