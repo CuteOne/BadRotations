@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v0.1.8"
+local rotationVer  = "v0.1.9"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -33,12 +33,19 @@ local function createToggles()
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterspell}
     }
     CreateButton("Interrupt", 4, 0)
-    -- Frozen Orb Button
+    -- Arcane Orb Button
     ArcaneOrbModes = {
         [1] = {mode = "On", value = 1, overlay = "Auto AO Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
         [2] = {mode = "Off", value = 2, overlay = "Auto AO Disabled", tip = "Will not use Arcane Orb", highlight = 0, icon = br.player.spell.arcaneOrb}
     }
     CreateButton("ArcaneOrb", 5, 0)
+
+    -- Rune of Power Button
+    RuneOfPowerModes = {
+        [1] = {mode = "On", value = 1, overlay = "Auto AO Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
+        [2] = {mode = "Off", value = 2, overlay = "Auto AO Disabled", tip = "Will not use Arcane Orb", highlight = 0, icon = br.player.spell.arcaneOrb}
+    }
+    CreateButton("RuneOfPower", 1, 1)
 end
 --------------- 
 --- OPTIONS ---
@@ -72,6 +79,9 @@ local function createOptions()
         ---   DPS SETTINGS   ---
         ------------------------
        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. DPS Config")
+        -- Evocation Mana Percent
+        br.ui:createSpinnerWithout(section, "Evocation Mana Percent", 25, 1, 100, 1, "|cffFFBB00Min. Mana Percent to use Evocation.")
+
         -- Arcane Explosion
         br.ui:createSpinnerWithout(section, "Arcane Explosion Units", 3, 1, 15, 1, "|cffFFBB00Min. number of units Arcane Explosion will be cast on.")
 
@@ -753,14 +763,12 @@ end
 --------------------
 --- Action Lists ---
 --------------------
-
-
-local function ActionList_Leveling()
+local function actionList_Leveling()
     if level >= 10 then
         -- Conjure Mana Gem
         if level >= 17
         and not inCOmbat 
-        and cast.able.conjueManaGem()
+        and cast.able.conjuremanaGem()
         and GetItemCount(36799) < 1
         then
             if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
@@ -768,18 +776,19 @@ local function ActionList_Leveling()
 
         -- Presence of Mind
         if level >= 42 
-        and cast.able.presenceOfMind()
+        and cast.able.presenceofMind()
         and moving
         then
-            if cast.presenceOfMind() then return true end 
+            if cast.presenceofMind() then return true end 
         end
 
         -- Touch of the Magi
         if level >= 34
-        and cast.able.touchoftheMagi()
+        and not moving
+        and cast.able.touchOfTheMagi()
         and arcaneCharges < 0
         then
-            if cast.touchoftheMagi() then return true end 
+            if cast.touchOfTheMagi() then return true end 
         end
 
         -- Arcane Power 
@@ -792,6 +801,7 @@ local function ActionList_Leveling()
 
         -- Evocation
         if level >= 27
+        and not moving
         and cast.able.evocation()
         and manaPercent < 10 
         then
@@ -819,10 +829,10 @@ local function ActionList_Leveling()
         -- Arcane Barrage
         if cast.able.arcaneBarrage() then
             -- If touch of the magi is ready. 
-            if level >= 46 and cd.touchoftheMagi.remain() <= gcdMax then if cast.arcaneBarrage() then return true end end 
+            if level >= 46 and cd.touchOfTheMagi.remain() <= gcdMax then if cast.arcaneBarrage() then return true end end 
 
             -- If unit is about to die. 
-            if thisHP <= 35 and ttd >= gcdMax + cast.time.arcaneBarrage() then if cast.arcaneBarrage() then return true end end
+            if thp <= 35 and getTTD("target") >= gcdMax + cast.time.arcaneBarrage() then if cast.arcaneBarrage() then return true end end
 
             -- If we're low on mana.
             if manaPercent < 30 then if cast.arcaneBarrage() then return true end end
@@ -854,7 +864,7 @@ local function ActionList_Leveling()
         end
 
         -- Arcane Blast
-        if cast.able.arcaneBlast() then if cast.arcaneBlast() then return true end end
+        if cast.able.arcaneBlast() and not moving then if cast.arcaneBlast() then return true end end
     end 
 end
 
@@ -1130,6 +1140,8 @@ local function actionList_Cooldowns()
 
     --actions.cooldowns+=/rune_of_power,if=buff.rune_of_power.down&cooldown.touch_of_the_magi.remains>variable.rop_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
     if cast.able.runeofPower()
+    and not moving
+    and cast.timeSinceLast.arcanePower() >= 15 or not cast.able.arcanePower() and not buff.runeofPower.exists()
     and not buff.runeofPower.exists()
     and cd.touchOfTheMagi.remain() > var_rop_max_delay
     and arcaneCharges > 3
@@ -1169,14 +1181,13 @@ local function actionList_Movement()
     end--]]
 
     --ctions.movement+=/presence_of_mind
-    if cast.able.presenceofMind() then if cast.presenceofMind() then br.addonDebug("Presence of Mind (Movement)") return true end end
-
+   if cast.presenceofMind("player") then br.addonDebug("Presence of Mind (Movement)") return true end 
     --actions.movement+=/arcane_missiles,if=movement.distance<10
-    if cast.able.arcaneMissiles() 
+   --[[ if cast.able.arcaneMissiles() 
     and getDistance("target") < 40
     then 
         if cast.arcaneMissiles() then br.addonDebug("Arcane Missiles (Movement)") return true end 
-    end
+    end--]]
 
     --actions.movement+=/arcane_orb
     if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
@@ -1195,7 +1206,8 @@ local function actionList_Final_Burn()
     end
 
     --arcane_blast
-    if cast.able.arcaneBlast() 
+    if cast.able.arcaneBlast()
+    and not moving
     and getDistance("target") <= 40
     then
         if cast.arcaneBlast() then br.addonDebug("Cast Arcane Blast (Final Burn)") return true end 
@@ -1275,6 +1287,7 @@ local function actionList_AoE()
     --actions.aoe+=/touch_of_the_magi,if=buff.arcane_charge.stack<=variable.aoe_totm_charges&((talent.rune_of_power.enabled&cooldown.rune_of_power.remains<=gcd&cooldown.arcane_power.remains>variable.totm_max_delay)
     --|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd)
     if cast.able.touchOfTheMagi()
+    and not moving
     and (arcaneCharges <= var_aoe_totm_charges
     and talent.runeofPower
     and cd.runeofPower.remain() <= gcdMax 
@@ -1298,6 +1311,8 @@ local function actionList_AoE()
 
     --actions.aoe+=/rune_of_power,if=buff.rune_of_power.down&((cooldown.touch_of_the_magi.remains>20&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&(cooldown.arcane_power.remains>15|debuff.touch_of_the_magi.up)
     if cast.able.runeofPower()
+    and not moving
+    and cast.timeSinceLast.arcanePower() >= 15 or not cast.able.arcanePower() and not buff.runeofPower.exists()
     and not buff.runeofPower.exists()
     and ((cd.touchOfTheMagi.remain() > 20 
     and arcaneCharges > 3))
@@ -1405,7 +1420,7 @@ local function actionList_AoE()
 
     if cast.able.evocation()
     and not buff.runeofPower.exists()
-    and manaPercent < 85
+    and manaPercent <= ui.value("Evocation Mana Percent")
     then
         if cast.evocation() then br.addonDebug("[Action:AoE] Evocation (17)") return true end
     end
@@ -1454,13 +1469,13 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     --actions.opener+=/shifting_power,if=soulbind.field_of_blossoms.enabled
 
     --actions.opener+=/touch_of_the_magi
-    if cast.able.touchOfTheMagi() then if cast.touchOfTheMagi() then return true end end 
+    if cast.able.touchOfTheMagi() and not moving then if cast.touchOfTheMagi() then return true end end 
 
     --actions.opener+=/arcane_power
     if cast.able.arcanePower() then if cast.arcanePower() then return true end end 
 
     --actions.opener+=/rune_of_power,if=buff.rune_of_power.down
-    if cast.able.runeofPower() then if cast.runeofPower() then return true end end
+   -- if cast.able.runeofPower() and not moving and cast.timeSinceLast.arcanePower() >= 15 or not cast.able.arcanePower() and not buff.runeofPower.exists()then if cast.runeofPower() then return true end end
 
     --actions.opener+=/use_mana_gem,if=(talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85)
     if use.able.manaGem()
@@ -1476,11 +1491,11 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     --actions.opener+=/time_warp,if=runeforge.temporal_warp.equipped
 
     --actions.opener+=/presence_of_mind,if=debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=buff.presence_of_mind.max_stack*action.arcane_blast.execute_time
-    if cast.able.presenceOfMind()
+    if cast.able.presenceofMind()
     and debuff.touchoftheMagi.exists("target")
     and debuff.touchoftheMagi.remain("target") <= 2 * cast.time.arcaneBlast() 
     then
-        if cast.presenceOfMind() then return true end
+        if cast.presenceofMind() then return true end
     end
 
     --actions.opener+=/arcane_blast,if=dot.radiant_spark.remains>5|debuff.radiant_spark_vulnerability.stack>0
@@ -1493,6 +1508,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     
     --actions.opener+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_time
     if cast.able.arcaneBlast()
+    and not moving
     and buff.presenceOfMind.exists()
     and debuff.touchoftheMagi.remain("target") < cast.time.arcaneBlast() 
     then
@@ -1534,6 +1550,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
 
     --actions.opener+=/arcane_blast,if=buff.rune_of_power.up|mana.pct>15
     if cast.able.arcaneBlast()
+    and not moving
     and buff.runeofPower.exists()
     or manaPercent > 15
     and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
@@ -1547,6 +1564,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
 
     if cast.able.evocation()
     and not buff.runeofPower.exists()
+    and manaPercent < ui.value("Evocation Mana Percent")
     then
         if cast.evocation() then return true end
     end
@@ -1556,8 +1574,27 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
 end
     --
 local function actionList_Rotation()
+
+--[[if moving then
+    if cast.able.presenceofMind() then if cast.presenceofMind() then br.addonDebug("Presence of Mind (Movement)") return true end end
+
+    --actions.movement+=/arcane_missiles,if=movement.distance<10
+    if cast.able.arcaneMissiles() 
+    and getDistance("target") < 40
+    then 
+        if cast.arcaneMissiles() then br.addonDebug("Arcane Missiles (Movement)") return true end 
+    end
+
+    --actions.movement+=/arcane_orb
+    if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
+
+    --actions.movement+=/fire_blast
+    if cast.able.fireBlast() then if cast.fireBlast() then return true end end
+end--]]
+
     --actions.rotation=variable,name=final_burn,op=set,value=1,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&!buff.rule_of_threes.up&target.time_to_die<=((mana%action.arcane_blast.cost)*action.arcane_blast.execute_time)
-    if cast.able.arcaneMissiles()
+    if cast.able.arcaneBlast()
+    and not moving
     and arcaneCharges > 3 
     and not buff.ruleOfThrees.exists() 
     and getTTD("target") <= (( power / 275))*cast.time.arcaneBlast()
@@ -1567,6 +1604,7 @@ local function actionList_Rotation()
 
     --aactions.rotation+=/arcane_blast,if=buff.presence_of_mind.up&debuff.touch_of_the_magi.up&debuff.touch_of_the_magi.remains<=action.arcane_blast.execute_tim
     if cast.able.arcaneBlast() 
+    and not moving
     and buff.presenceOfMind.exists() 
     and debuff.touchoftheMagi.exists("target") 
     and debuff.touchoftheMagi.remain("target") <= cast.time.arcaneBlast() 
@@ -1579,7 +1617,7 @@ local function actionList_Rotation()
     and debuff.touchoftheMagi.exists("target") 
     and talent.arcaneEcho 
     and not buff.deathBorne.exists() 
-    and debuff.touchoftheMagi.remain("target") > cast.time.arcaneMissiles() or cd.presenceOfMind.remain() > 0 
+    and debuff.touchoftheMagi.remain("target") > cast.time.arcaneMissiles() or cd.presenceofMind.remain() > 0 
     then
        if cast.arcaneMissiles() then br.addonDebug("Casting Arcane Missiles (clear casting + expanded potential)") return true end
     end
@@ -1648,6 +1686,7 @@ local function actionList_Rotation()
 
     -- actions.rotation+=/arcane_blast,if=buff.rule_of_threes.up&buff.arcane_charge.stack>3
     if cast.able.arcaneBlast() 
+    and not moving
     and buff.ruleOfThrees.exists() 
     and arcaneCharges > 3 then
         if cast.arcaneBlast() then return true end 
@@ -1686,11 +1725,13 @@ local function actionList_Rotation()
     end
 
     -- actions.rotation+=/arcane_blast
-    if cast.able.arcaneBlast() then if cast.arcaneBlast() then return true end
+    if cast.able.arcaneBlast() and not moving then if cast.arcaneBlast() then return true end
 
     -- Cancel Evocation 
+    --actions.aoe+=/evocation,interrupt_if=mana.pct>=85,interrupt_immediate=1
+    if manaPercent >= 85 and UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:Rotation] Cancel Evocation") SpellStopCasting() return true end
   --  if UnitCastingInfo("player") == GetSpellInfo(spell.evocation) and manaPercent >= 83 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
-    if cast.able.evocation() then
+    if cast.able.evocation() and manaPercent <= ui.value("Evocation Mana Percent") then
         if cast.evocation() then br.addonDebug("Casting Evocation (>= 85 mana)") return true end end -- Somehow cancel at 85% max mana
     end
 
@@ -1728,6 +1769,10 @@ end
             -----------------------
             ---     Opener      ---
             -----------------------
+        if spellQueueReady() then
+
+            if moving then if actionList_Movement() then return end end
+
             if opener == false and ui.checked("Opener") and isBoss("target") or getTTD("target") >= 20 or isDummy() then
                 if actionList_Opener() then return true end
             end
@@ -1743,16 +1788,13 @@ end
             if finalBurn == true then
                 if actionList_Final_Burn() then return end 
             end
-            
-            if moving then
-                if actionList_Movement() then return end 
-            end
+
             else
                 if actionList_Leveling() then
                     return true
                 end
             end
-
+        end
             -- Movement Rotation
             --if isMoving() then if actionList_Movement() then return end end
         end -- End In Combat Rotation
