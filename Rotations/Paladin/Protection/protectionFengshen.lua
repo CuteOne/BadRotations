@@ -1,4 +1,7 @@
 ﻿local rotationName = "Feng"
+local StunsBlackList="87318|122984|128455|129553|129552|129602|130400|133935|134174|134158|137474|137478|137486|137487|134251|134331|137484|134739|137969|135231|138489|134144|136214|134150|136249|134417|136353|136295|136297|129369|129373|128969|138255|138465|135245|134991|139422|136076|134691|139110|136250|139946|130485|136139|136643|134012|133430|133463|133436|133482|131436|133912|138281|130025|131677|135329|131812|131670|135365"
+local StunSpellList="274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
+local HoJPrioList = "131009|134388|129758"
 ---------------
 --- Toggles ---
 ---------------
@@ -157,6 +160,14 @@ local function createOptions()
 		-- Hammer of Wrath
 		br.ui:createCheckbox(section,"Hammer of Wrath")
 		br.ui:checkSectionState(section)
+        ----------------------
+        -------- LISTS -------
+        ----------------------
+		section = br.ui:createSection(br.ui.window.profile,  "Lists")
+		br.ui:createScrollingEditBoxWithout(section,"Stuns Black Units", StunsBlackList, "List of units to blacklist when Hammer of Justice", 240, 50)
+		br.ui:createScrollingEditBoxWithout(section,"Stun Spells", StunSpellList, "List of spells to stun with auto stun function", 240, 50)
+		br.ui:createScrollingEditBoxWithout(section,"HoJ Prio Units", HoJPrioList, "List of units to prioritize for Hammer of Justice", 240, 50)
+		br.ui:checkSectionState(section)
 		----------------------
 		--- TOGGLE OPTIONS ---
 		----------------------
@@ -243,11 +254,10 @@ local function runRotation()
 	if consecrationRemain == nil then consecrationRemain = 0 end
 	if cast.last.consecration() then consecrationCastTime = GetTime() + 12 end
 	if consecrationCastTime > GetTime() then consecrationRemain = consecrationCastTime - GetTime() else consecrationCastTime = 0; consecrationRemain = 0 end
-	local lowestUnit
-	lowestUnit = "player"
+	local lowestUnit = "player"
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i].unit
-		if UnitInRange(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) then
+		if UnitInRange(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) and getLineOfSight("player",thisUnit) then
 			local thisHP = getHP(thisUnit)
 			local lowestHP = getHP(lowestUnit)
 			if thisHP < lowestHP then
@@ -255,83 +265,18 @@ local function runRotation()
 			end
 		end
 	end
-	local StunsBlackList={
-	-- Atal'Dazar
-	[87318] = "Dazar'ai Colossus",
-	[122984] = "Dazar'ai Colossus",
-	[128455] = "T'lonja",
-	[129553] = "Dinomancer Kish'o",
-	[129552] = "Monzumi",
-	-- Freehold
-	[129602] = "Irontide Enforcer",
-	[130400] = "Irontide Crusher",
-	-- King's Rest
-	[133935] = "Animated Guardian",
-	[134174] = "Shadow-Borne Witch Doctor",
-	[134158] = "Shadow-Borne Champion",
-	[137474] = "King Timalji",
-	[137478] = "Queen Wasi",
-	[137486] = "Queen Patlaa",
-	[137487] = "Skeletal Hunting Raptor",
-	[134251] = "Seneschal M'bara",
-	[134331] = "King Rahu'ai",
-	[137484] = "King A'akul",
-	[134739] = "Purification Construct",
-	[137969] = "Interment Construct",
-	[135231] = "Spectral Brute",
-	[138489] = "Shadow of Zul",
-	-- Shrine of the Storm
-	[134144] = "Living Current",
-	[136214] = "Windspeaker Heldis",
-	[134150] = "Runecarver Sorn",
-	[136249] = "Guardian Elemental",
-	[134417] = "Deepsea Ritualist",
-	[136353] = "Colossal Tentacle",
-	[136295] = "Sunken Denizen",
-	[136297] = "Forgotten Denizen",
-	-- Siege of Boralus
-	[129369] = "Irontide Raider",
-	[129373] = "Dockhound Packmaster",
-	[128969] = "Ashvane Commander",
-	[138255] = "Ashvane Spotter",
-	[138465] = "Ashvane Cannoneer",
-	[135245] = "Bilge Rat Demolisher",
-	-- Temple of Sethraliss
-	[134991] = "Sandfury Stonefist",
-	[139422] = "Scaled Krolusk Tamer",
-	[136076] = "Agitated Nimbus",
-	[134691] = "Static-charged Dervish",
-	[139110] = "Spark Channeler",
-	[136250] = "Hoodoo Hexer",
-	[139946] = "Heart Guardian",
-	-- MOTHERLODE!!
-	[130485] = "Mechanized Peacekeeper",
-	[136139] = "Mechanized Peacekeeper",
-	[136643] = "Azerite Extractor",
-	[134012] = "Taskmaster Askari",
-	[133430] = "Venture Co. Mastermind",
-	[133463] = "Venture Co. War Machine",
-	[133436] = "Venture Co. Skyscorcher",
-	[133482] = "Crawler Mine",
-	-- Underrot
-	[131436] = "Chosen Blood Matron",
-	[133912] = "Bloodsworn Defiler",
-	[138281] = "Faceless Corruptor",
-	-- Tol Dagor
-	[130025] = "Irontide Thug",
-	-- Waycrest Manor
-	[131677] = "Heartsbane Runeweaver",
-	[135329] = "Matron Bryndle",
-	[131812] = "Heartsbane Soulcharmer",
-	[131670] = "Heartsbane Vinetwister",
-	[135365] = "Matron Alma",
-	}
-	local HOJ_unitList={
-	[131009] = "Spirit of Gold",
-	[134388] = "A Knot of Snakes",
-	[129758] = "Irontide Grenadier",
-	}
-
+	local noStunsUnits = {}
+	for i in string.gmatch(getOptionValue("Stuns Black Units"), "%d+") do
+		noStunsUnits[tonumber(i)] = true
+	end
+	local StunSpellsList = {}
+	for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
+		StunSpellsList[tonumber(i)] = true
+	end
+	local HoJList = {}
+	for i in string.gmatch(getOptionValue("HoJ Prio Units"), "%d+") do
+		HoJList[tonumber(i)] = true
+	end
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -402,17 +347,10 @@ local function runRotation()
 		end
 		-- Hammer of Justice
 		if cast.able.hammerOfJustice() then
-			local HOJ_list={
-			274400,274383,257756,276292,268273,256897,272542,272888,269266,258317,258864,259711,258917,264038,253239,269931,270084,270482,270506,270507,267433,
-			267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,277567,265540,
-			}
 			for i = 1, #enemies.yards10 do
-				local thisUnit = enemies.yards10[i]
-				local distance = getDistance(thisUnit)
-				for k,v in pairs(HOJ_list) do
-					if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) == 0 and distance <= 10 then
-						if cast.hammerOfJustice(thisUnit) then return end
-					end
+			local thisUnit = enemies.yards10[i]
+				if HoJList[GetObjectID(thisUnit)] ~= nil then
+					if cast.hammerOfJustice(thisUnit) then return end
 				end
 			end
 			if hammerOfJusticeCase ~= nil then
@@ -625,7 +563,7 @@ local function runRotation()
 					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
 						if cast.blessingOfSacrifice("mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and getDebuffRemain(lowestUnit,267037) == 0 and not debuff.forbearance.exists(lowestUnit) then
+				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and getDebuffRemain(lowestUnit,267037) == 0 and not cast.last.blessingOfProtection() then
 					-- Tank
 					if getOptionValue("Blessing Of Sacrifice Target") == 3 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -710,7 +648,7 @@ local function runRotation()
 			if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
-					if isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+					if isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
 						if cast.hammerOfJustice(thisUnit) then return end
 					end
 				end
@@ -814,10 +752,21 @@ local function runRotation()
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
 				local distance = getDistance(thisUnit)
-				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
-					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+				-- Hammer of Justice
+				if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
+				local interruptID
+					if UnitCastingInfo(thisUnit) then
+						interruptID = select(9,UnitCastingInfo(thisUnit))
+					elseif UnitChannelInfo(thisUnit) then
+						interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
+					end
+					if interruptID ~=nil and StunSpellsList[interruptID] then
+						if cast.hammerOfJustice(thisUnit) then return end
+					end
+				end
+				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 					-- Hammer of Justice
-					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
 						if cast.hammerOfJustice(thisUnit) then return end
 						InterruptTime = GetTime()
 					end
@@ -826,7 +775,7 @@ local function runRotation()
 						if cast.rebuke(thisUnit) then return end
 					end
 					-- Blinding Light
-					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and not isBoss(thisUnit) and noStunsUnits[GetObjectID(thisUnit)] == nil then
 						if cast.blindingLight() then return end
 					end
 				end
