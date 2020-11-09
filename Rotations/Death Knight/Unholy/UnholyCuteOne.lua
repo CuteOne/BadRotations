@@ -209,6 +209,7 @@ local var
 
 -- General Locals
 local actionList = {}
+local waitForPetToAppear
 
 --------------------
 --- Action Lists ---
@@ -232,7 +233,6 @@ actionList.PetManagement = function()
     local petCombat = unit.inCombat("pet")
     local petExists = br.player.pet.active.exists()
     local petMode = getCurrentPetMode()
-    local waitForPetToAppear
     local validTarget = unit.exists("pettarget") or (not unit.exists("pettarget") and unit.valid("target")) or unit.isDummy("target")
     if petExists and br.deadPet then br.deadPet = false end
     if waitForPetToAppear == nil or IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
@@ -242,7 +242,7 @@ actionList.PetManagement = function()
             if cast.able.raiseDead() and (br.deadPet or (not br.deadPet and not petExists)
                 or (talent.allWillServe and not pet.risenSkulker.exists()))
             then
-                if cast.raiseDead() then waitForPetToAppear = GetTime(); ui.debug("Casting Raise Dead") return true end
+                if cast.raiseDead("player") then waitForPetToAppear = GetTime(); ui.debug("Casting Raise Dead") return true end
             end
         end
     end
