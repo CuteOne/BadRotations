@@ -445,7 +445,7 @@ actionList.Cooldowns = function()
         end
     end
     -- Dark Transformation
-    if cast.able.darkTransformation() then
+    if cast.able.darkTransformation() and pet.active.exists() then
         -- dark_transformation,if=!raid_event.adds.exists&cooldown.unholy_blight.remains&(!runeforge.deadliest_coil.equipped|runeforge.deadliest_coil.equipped&(!buff.dark_transformation.up&!talent.unholy_pact.enabled|talent.unholy_pact.enabled))
         if ui.useST(8,2) and cd.unholyBlight.exists() then--and (not )
             if cast.darkTransformation() then ui.debug("Casting Dark Transformation [Unholy Blight]") return true end
