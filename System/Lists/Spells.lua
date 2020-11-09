@@ -104,7 +104,7 @@ local function flipRace()
     end
 end
 
-function br.getRacial()
+function br.getRacial(thisRace)
     local forTheAlliance = UnitBuffID("player",193863) or false
     local forTheHorde = UnitBuffID("player", 193864) or false
     local race = select(2,UnitRace("player"))
@@ -115,13 +115,13 @@ function br.getRacial()
     local DraeneiRacial
     local OrcRacial
 
-    if race == "BloodElf" then
+    if race == "BloodElf" or race == thisRace then
         BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
     end
-    if race == "Draenei" then
+    if race == "Draenei" or race == thisRace then
         DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
     end
-    if race == "Orc" then
+    if race == "Orc" or race == thisRace then
         OrcRacial = select(7, GetSpellInfo(GetSpellInfo(33702)))
     end
     local racialSpells = {
@@ -153,6 +153,7 @@ function br.getRacial()
 		Vulpera				= 312411, -- Bag of Tricks
 		Mechagnome 			= 312924, -- Hyper Organic Light Originator
     }
+    if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
     return racialSpells[race]
     -- return racialSpells[race]
 end
@@ -3635,7 +3636,7 @@ br.lists.spells = {
         Shared = {
             abilities                           = {
                 autoAttack                      = 6603,
-                giftOfTheNaaru                  = select(7, GetSpellInfo(GetSpellInfo(28880))),
+                giftOfTheNaaru                  = br.getRacial("Draenei"),--select(7, GetSpellInfo(GetSpellInfo(28880))),
                 global                          = 61304,
                 latentArcana                    = 296971,
                 lightsJudgment                  = 247427,
