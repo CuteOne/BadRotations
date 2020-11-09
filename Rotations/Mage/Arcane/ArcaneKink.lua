@@ -464,20 +464,6 @@ local function runRotation()
         end
         return ttdSec
     end
-    --is frozen
-    local function isFrozen(unit)
-        local function getRawDistance(unit)
-            local x1, y1, z1 = ObjectPosition("player")
-            local x2, y2, z2 = ObjectPosition(unit)
-            return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-        end
-        local distance = getRawDistance(unit)
-        local travelTime = distance / 50 + 0.15 --Ice lance
-        if buff.fingersOfFrost.remain() > (gcd + travelTime) or debuff.frostNova.remain(unit, "any") > (gcd + travelTime) or debuff.iceNova.remain(unit, "any") > (gcd + travelTime) or debuff.wintersChill.remain(unit) > (gcd + travelTime) then
-            return true
-        end
-        return false
-    end
 
     --calc damge
     local function calcDamage(spellID, unit)
@@ -626,9 +612,6 @@ local function runRotation()
                 enemyUnit.distance20 = math.abs(enemyUnit.distance - 20)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
                 enemyUnit.facing = getFacing("player", thisUnit)
-                if getOptionValue("APL Mode") == 2 then
-                    enemyUnit.frozen = isFrozen(thisUnit)
-                end
                 enemyUnit.calcHP = calcHP(enemyUnit)
                 tinsert(enemyTable40, enemyUnit)
                 if enemyUnit.facing then
