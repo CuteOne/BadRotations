@@ -240,6 +240,7 @@ local function runRotation()
 	local talent        = br.player.talent
 	local ttd           = getTTD("target")
 	local units         = br.player.units
+	local level         = br.player.level
 
 	units.get(5)
 	units.get(10)
@@ -741,11 +742,9 @@ local function runRotation()
 			if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
-					if canInterrupt(thisUnit,100) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
-						if getFacing("player",thisUnit) then
-							if cast.avengersShield(thisUnit) then return end
-							InterruptTime = GetTime()
-						end
+					if canInterrupt(thisUnit,100) and getFacing("player",thisUnit) then
+						if cast.avengersShield(thisUnit) then return end
+						InterruptTime = GetTime()
 					end
 				end
 			end
@@ -863,7 +862,7 @@ local function runRotation()
 					if cast.judgment(units.dyn30) then return end
 				end
 				-- Hammer of Wrath
-				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and getHP(units.dyn30) <= 20 then
+				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()))then
 					if cast.hammerOfWrath(units.dyn30) then return end
 				end
 				-- Avenger's Shield
@@ -874,6 +873,10 @@ local function runRotation()
 			-- Consecration
 			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and not buff.consecration.exists() then
 				if cast.consecration() then return end
+			end
+			-- Crusader Strike
+			if cast.able.crusaderStrike() and level < 14 and getFacing("player",units.dyn5) and GetUnitExists(units.dyn5) then
+				if cast.crusaderStrike(units.dyn5) then return end
 			end
 			-- Blessed Hammer
 			if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 1 then
