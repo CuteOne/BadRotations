@@ -459,7 +459,7 @@ actionList.AOE = function()
     end
     -- Sundering
     -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() then
+    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Stormstrike
@@ -643,7 +643,7 @@ actionList.Single = function()
     end
     -- Sundering
     -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() then
+    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
     end
     -- Fire Nova
@@ -722,6 +722,11 @@ actionList.PreCombat = function()
             if ui.checked("Feral Lunge") and cast.able.feralLunge() then
                 if cast.feralLunge("target") then ui.debug("Casting Feral Lunge [Pull]") return true end
             end
+            -- Windfury Totem
+            -- windfury_totem
+            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists() then
+                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
+            end
             -- Lightning Bolt
             if ui.checked("Lightning Bolt Out of Combat") and cast.able.lightningBolt() and not unit.moving()
                 and unit.distance("target") >= 10 and (not ui.checked("Feral Lunge") or not talent.feralLunge
@@ -769,9 +774,9 @@ local function runRotation()
     -- Enemies Lists
     enemies.get(5)
     -- enemies.get(5,"player",false,true)
-    -- enemies.get(8)
+    enemies.get(8,"player",false,true)
     enemies.get(10)
-    -- enemies.yards11r = getEnemiesInRect(10,11,false) or 0
+    enemies.yards11r = getEnemiesInRect(10,11,false) or 0
     enemies.get(20)
     enemies.get(30)
     enemies.get(40,"player",false,true)
@@ -839,6 +844,11 @@ local function runRotation()
             if unit.distance("target") <= 5 then
                 unit.startAttack("target")
             end
+            -- Windfury Totem
+            -- windfury_totem
+            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists() then
+                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
+            end
             -- Windstrike
             -- windstrike
             if cast.able.windstrike() and buff.ascendance.exists() then
@@ -848,7 +858,9 @@ local function runRotation()
             -- heart_essence
             if actionList.HeartEssence() then return true end
             -- Basic Trinkets Module
-            module.BasicTrinkets()
+            if #enemies.yards8f > 0 then
+                module.BasicTrinkets()
+            end
             -- Racials
             -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
             -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
