@@ -591,7 +591,7 @@ actionList.AOE_Setup = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle&runic_power.deficit<20|buff.sudden_doom.react
-    if cast.able.epidemic() and not var.poolForGargoyle and runicPowerDeficit < 20 or buff.suddenDoom.exists() then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPowerDeficit < 20 or (buff.suddenDoom.exists() and unit.level() >= 34) then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup - Low Runic or Sudden Doom]") return true end
     end
     -- Festering Strike
@@ -614,7 +614,7 @@ actionList.AOE_Setup = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and not var.poolForGargoyle then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup]") return true end
     end
 end -- End Action List - AOE Setup
@@ -631,7 +631,7 @@ actionList.AOE_Burst = function()
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - High Wounded]") return true end
     end
     -- epidemic,if=!death_knight.fwounded_targets&!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and var.fwoundTargets == 0 and not var.poolForGargoyle then
+    if cast.able.epidemic() and var.fwoundTargets == 0 and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - No Wounded]") return true end
     end
     -- Scourge Strike
@@ -641,7 +641,7 @@ actionList.AOE_Burst = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and not var.poolForGargoyle then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst]") return true end
     end
 end -- End Action List - AOE Burst
@@ -650,11 +650,11 @@ end -- End Action List - AOE Burst
 actionList.AOE = function()
     -- Epidemic
     -- epidemic,if=buff.sudden_doom.react
-    if cast.able.epidemic() and buff.suddenDoom.exists() then
+    if cast.able.epidemic() and (buff.suddenDoom.exists() or unit.level() >= 34) and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE - Sudden Doom]") return true end
     end
     -- epidemic,if=!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and not var.poolForGargoyle then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE]") return true end
     end
     -- Scourge Strike
