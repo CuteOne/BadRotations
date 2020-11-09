@@ -609,7 +609,7 @@ actionList.Finisher = function()
     -- divine_storm,if=variable.ds_castable&!buff.vanquishers_hammer.up&((!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3|spell_targets.divine_storm>=3)|spell_targets.divine_storm>=2&(talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.crusade.up&buff.crusade.stack<10))
     if cast.able.divineStorm() and var.dsCastable --and not buff.vanquishersHammer.exists()
         and ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
-        and (not talent.executionSentence or (cd.executionSentance.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) or var.dsUnits) or var.dsUnits
+        and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) or var.dsUnits) or var.dsUnits
         and (talent.holyAvenger and cd.hoylAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10))
     then
         local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
