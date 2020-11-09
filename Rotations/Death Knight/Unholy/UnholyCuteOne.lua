@@ -462,7 +462,7 @@ actionList.Cooldowns = function()
     -- Apocalypse
     if (ui.value("Apocalypse") == 1 or (ui.value("Apocalypse") == 2 and ui.useCDs())) and cast.able.apocalypse() then
         -- apocalypse,if=active_enemies=1&debuff.festering_wound.stack>=4&((!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled)|talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&dot.unholy_blight.remains)
-        if enemies.yards8 == 1 and debuff.festeringWound.stack(units.dyn5) >= 4
+        if ui.useST(8,2) and debuff.festeringWound.stack(units.dyn5) >= 4
             and ((not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]]
                 or talent.unholyBlight and not talent.armyOfTheDamned and debuff.unholyBlight.exists(units.dyn5)))
         then
@@ -709,7 +709,7 @@ actionList.Single = function()
         end
         -- wound_spender,if=debuff.festering_wound.up&talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&!conduit.convocation_of_the_dead.enabled&!raid_event.adds.exists&(cooldown.unholy_blight.remains>5&cooldown.apocalypse.ready&!dot.unholy_blight.remains|!cooldown.apocalypse.ready)
         if debuff.festeringWound.exists(unit.dyn5) and talent.unholyBlight and not talent.armyOfTheDamned --[[and not conduit.convocationOfTheDead]]
-            and ui.useST(8,2) and (cd.unholyBlight.remains() > 5 and cd.apocalypse.exists() and not debuff.unholyBlight.remains(units.dyn30) or cd.apocalypse.exists)
+            and ui.useST(8,2) and (cd.unholyBlight.remains() > 5 and not cd.apocalypse.exists() and not debuff.unholyBlight.exists(units.dyn30) or cd.apocalypse.exists())
         then
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - Unholy Blight]") return true end
         end
@@ -723,17 +723,17 @@ actionList.Single = function()
     if cast.able.festeringStrike() then
         -- festering_strike,if=debuff.festering_wound.stack<1
         if debuff.festeringWound.stack(units.dyn5) < 1 then
-            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - No Wounds") return true end
+            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - No Wounds]") return true end
         end
         -- festering_strike,if=debuff.festering_wound.stack<4&cooldown.apocalypse.remains<3&(!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled|raid_event.adds.exists)
         if debuff.festeringWound.stack(units.dyn5) < 4 and cd.apocalypse.remains() < 3
             and (not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]] or ui.useAOE(8,2))
         then
-            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Apoc Soon") return true end
+            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Apoc Soon]") return true end
         end
         -- festering_strike,if=debuff.festering_wound.stack<4&talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&!conduit.convocation_of_the_dead.enabled&!raid_event.adds.exists&cooldown.apocalypse.ready&(cooldown.unholy_blight.remains<3|dot.unholy_blight.remains)
         if debuff.festeringWound.stack(unit.dyn5) < 4 and talent.unholyBlight and not talent.armyOfTheDamned --[[and not conduit.convocationOfTheDead]]
-            and ui.useST(8,2) and cd.apocalypse.exists() and (cd.unholyBlight.remains() < 3 or debuff.unholyBlight.exists(units.dyn5))
+            and ui.useST(8,2) and not cd.apocalypse.exists() and (cd.unholyBlight.remains() < 3 or debuff.unholyBlight.exists(units.dyn5))
         then
             if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Unholy Blight]") return true end
         end
