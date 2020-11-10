@@ -13,6 +13,7 @@ local function createToggles()
         [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneMissiles},
     }
     CreateButton("Rotation", 1, 0)
+    
     -- Cooldown Button
     CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.runeofPower},
@@ -21,18 +22,21 @@ local function createToggles()
         [4] = {mode = "Lust", value = 4, overlay = "Cooldowns With Lust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.runeofPower}
     }
     CreateButton("Cooldown", 2, 0)
+
     -- Defensive Button
     DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.prismaticBarrier},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.prismaticBarrier}
     }
     CreateButton("Defensive", 3, 0)
+
     -- Interrupt Button
     InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterspell},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterspell}
     }
     CreateButton("Interrupt", 4, 0)
+    
     -- Arcane Orb Button
     ArcaneOrbModes = {
         [1] = {mode = "On", value = 1, overlay = "Auto AO Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
@@ -1187,7 +1191,7 @@ local function actionList_Movement()
     --actions.movement+=/arcane_orb
     if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
     
-    if  buff.arcanePower.exists() or debuff.touchoftheMagi.exists("target") or buff.RuneOfPower.exists() and not mode.fb == 3 or not mode.fb == 1 and cd.evocation.remain() > 30 then if cast.arcaneBarrage() then br.addonDebug("Arcane Blast (Movement-Not Burn Phase)") return true end end 
+    if  buff.arcanePower.exists() or debuff.touchoftheMagi.exists("target") or buff.runeofPower.exists() and not mode.fb == 3 or not mode.fb == 1 and cd.evocation.remain() > 30 then if cast.arcaneBarrage() then br.addonDebug("Arcane Blast (Movement-Not Burn Phase)") return true end end 
 
     --actions.movement+=/fire_blast
     if cast.able.fireBlast() then if cast.fireBlast() then return true end end
