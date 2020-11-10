@@ -751,7 +751,7 @@ local function actionList_Leveling()
     if level >= 10 then
         -- Conjure Mana Gem
         if level >= 17
-        and not inCOmbat 
+        and not inCombat 
         and cast.able.conjuremanaGem()
         and GetItemCount(36799) < 1
         then
