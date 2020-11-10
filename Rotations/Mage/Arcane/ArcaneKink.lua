@@ -1187,7 +1187,7 @@ local function actionList_Movement()
     --actions.movement+=/arcane_orb
     if cast.able.arcaneOrb() then if castarcaneOrb(1, true, 4) then return true end end
     
-    if  buff.arcanePower.exists() or debuff.touchoftheMagi.exists("target") or buff.RuneOfPower.exists() and not mode.fb == 3 or not mode.fb == 1 and cd.evocation.remain() > 30 then if cast.arcaneBarrage() then br.addonDebug("Arcane Blast (Movement-Not Burn Phase)") return true end end 
+    if  buff.arcanePower.exists() or debuff.touchoftheMagi.exists("target") or buff.RuneofPower.exists() and not mode.fb == 3 or not mode.fb == 1 and cd.evocation.remain() > 30 then if cast.arcaneBarrage() then br.addonDebug("Arcane Blast (Movement-Not Burn Phase)") return true end end 
 
     --actions.movement+=/fire_blast
     if cast.able.fireBlast() then if cast.fireBlast() then return true end end
