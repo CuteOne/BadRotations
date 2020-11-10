@@ -1657,6 +1657,7 @@ br.lists.spells = {
             buffs                           = {
                 ironskinBrew                = 215479,
                 blackoutCombo               = 228563,
+                purifiedChi                 = 325092,
                 rushingJadeWind             = 116847,
                 zenMeditation               = 115176,
             },

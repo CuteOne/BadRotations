@@ -106,6 +106,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Fortifying Brew",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Celestial Brew
             br.ui:createSpinner(section, "Celestial Brew", 50,  0,  100,  5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Celestial Purify Stacks", 4, 0, 10, 1, "Purifying damage adds 1 stack to the buff")
         -- Dampen Harm
             br.ui:createSpinner(section, "Dampen Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Detox
@@ -426,7 +427,7 @@ local function actionList_Defensive()
                 if cast.fortifyingBrew() then return end
             end
 
-            if isChecked("Celestial Brew") and php <= getValue("Celestial Brew") and inCombat then
+            if isChecked("Celestial Brew") and php <= getValue("Celestial Brew") and inCombat and buff.purifiedChi.stack() >= getValue("Celestial Purify Stacks") then
                 if cast.celestialBrew() then return end
             end
         end
@@ -440,7 +441,7 @@ local function actionList_Defensive()
             if isChecked("Touch of Death") then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if UnitHealth("player") < UnitHealth(thisUnit) then
+                    if UnitHealth("player") > UnitHealth(thisUnit) then
                         if cast.touchOfDeath(thisUnit) then
                             return
                         end
