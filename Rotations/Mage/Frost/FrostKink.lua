@@ -1599,17 +1599,17 @@ local function runRotation()
     -----------------------
     --- Extras Rotation ---
     -----------------------
-    if actionList_Extras() then return true end
+        if actionList_Extras() then return true end
 
     -----------------------
     ---     Opener      ---
     -----------------------
-    if opener == false and isChecked("Opener") and isBoss("target") then if actionList_Opener() then return true end end
+        if opener == false and isChecked("Opener") and isBoss("target") then if actionList_Opener() then return true end end
 
     ------------------------------
     --- Out of Combat Rotation ---
     ------------------------------
-    if actionList_PreCombat() then return true end
+        if actionList_PreCombat() then return true end
 
     --------------------------
     --- In Combat Rotation ---
@@ -1619,7 +1619,7 @@ local function runRotation()
         --------------------------
         --- Defensive Rotation ---
         --------------------------
-        if actionList_Defensive() then return true end
+            if actionList_Defensive() then return true end
 
         ------------------------------
         --- In Combat - Interrupts ---

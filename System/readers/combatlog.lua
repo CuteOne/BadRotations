@@ -550,43 +550,34 @@ function cl:Mage(...)
         -- SPELL_AURA_APPLIED,
         -- SPELL_AURA_APPLIED_DOSE,
         -- SPELL_AURA_APPLIED_REMOVED,
-        -- Spell Aura Refreshed, reset counters
-        if param == "SPELL_AURA_REFRESH" then
-            Print("Spell Aura Refresh " ..GetTime())
-            if spellName == GetSpellInfo(5143) then 
-                br.amTicks = 1 
-                br.maxamTicks = 5 
-            end
+        if param == "SPELL" and spell == 30451 then
+        -- Print("Spell " ..GetTime())
         end
-
-        -- Periodic Damage Events
-        if param == "SPELL_PERIODIC_DAMAGE" then
-            if br.amTicks == nil then br.amTicks = 0 end
-            -- Drain Soul Ticks
-            if spellName == GetSpellInfo(5143) then 
-                br.amTicks = br.amTicks + 1 
-                br.addonDebug("Arcane Missiles [ " .. "Total Ticks: " .. br.amTicks .. " ]") 
-            end
+        if param == "SPEL_PERIODIC" and spell == 30451 then
+        --Print("Spell Periodic " ..GetTime())
         end
-   
-        -- Corruption was removed.
-    	if param == "SPELL_AURA_REMOVED" then
-            -- Drain Soul
-            if spellName == GetSpellInfo(5143) then 
-                br.amTicks = 1 
-                br.maxamTicks = 5 
-                br.addonDebug("Arcane Missiles [Ticks Reset]") 
-            end
+        if param == "SPELL_CAST_SUCCESS" and spell == 30451 then
+        --Print("Spell Cast Success " ..GetTime())
         end
-    
-        -- We started a channel, reset counters. 
-        if param == "UNIT_SPELLCAST_CHANNEL_START" then
-            if UnitChannelInfo("player") == GetSpellInfo(5143) then br.amTicks = 0 end
+        if param == "SPELL_DAMAGE" and spell == 30451 then
+        --Print("Spell Damage " ..GetTime())
         end
-
-        -- We stopped a channel, reset counters.
-        if param == "UNIT_SPELLCAST_CHANNEL_STOP" then br.amTicks = 0 end
-	end
+        if param == "SPELL_MISSED" and spell == 30451 then
+        --Print("Spell Missed " ..GetTime())
+        end
+        if param == "SPELL_AURA_REFRESH" and spell == 36032 then
+        --Print("Spell Aura Refresh " ..GetTime())
+        end
+        if param == "SPELL_AURA_APPLIED" and spell == 36032 then
+        --Print("Spell Aura Applied " ..GetTime())
+        end
+        if param == "SPELL_AURA_APPLIED_DOSE" and spell == 36032 then
+        --Print("Spell Aura Applied Dose " ..GetTime())
+        end
+        if param == "SPELL_AURA_REMOVED" and spell == 36032 then
+        --Print("Spell Aura Removed " ..GetTime())
+        end
+    end
 end
 function cl:Monk(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
