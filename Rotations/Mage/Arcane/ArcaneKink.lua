@@ -259,7 +259,6 @@ local function runRotation()
         local cl                                            = br.read
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
-        local inCombat                                      = isInCombat("player")
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
