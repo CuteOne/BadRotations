@@ -194,12 +194,6 @@ local var
 ------------------------
 --- Custom Functions ---
 ------------------------
-local alwaysCdNever = function(option)
-    if option == "Racial" then GetSpellInfo(br.player.spell.racial) end
-    local thisOption = ui.value(option)
-    return thisOption == 1 or (thisOption == 2 and ui.useCDs())
-end
-
 local canGlory = function()
     local optionValue = ui.value("Word of Glory")
     local otherCounter = 0
@@ -332,7 +326,7 @@ actionList.Defensive = function()
         -- Cleanse Toxins
         if ui.checked("Cleanse Toxins") then
             local thisUnit = getHealUnitOption("Cleanse Toxin")
-            if cast.able.clenseToxins(thisUnit) and cast.dispel.cleanseToxins(thisUnit) then
+            if cast.able.clenseToxins(thisUnit) and cast.dispel.cleanseToxins(thisUnit) and unit.distance(thisUnit) < 40 then
                 if cast.cleanseToxins(thisUnit) then ui.debug("Casting Cleanse Toxins on "..unit.name(thisUnit)) return true end
             end
         end
@@ -463,15 +457,15 @@ actionList.Cooldowns = function()
             if cast.racial() then ui.debug("Casting Racial: Lightforged Draenei") return true end
         end
         -- fireblood,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
-        if race == "DarkIronDwarf" and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)
-        or (talent.crusade and not ui.checked("Crusade")))
+        if race == "DarkIronDwarf" and (unit.level() < 37 or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)
+            or ((not ui.alwaysCdNever("Avenging Wrath") and not talent.crusade) or (talent.crusade and not ui.alwaysCdNever("Crusade"))))
         then
             if cast.racial() then ui.debug("Casting Racial: Dark Iron Dwarf") return true end
         end
     end
     -- Shield of Vengenace
     -- shield_of_vengeance
-    if alwaysCdNever("Shield of Vengeance - CD") and cast.able.shieldOfVengeance() and unit.ttdGroup(8) > 15 then
+    if ui.alwaysCdNever("Shield of Vengeance - CD") and cast.able.shieldOfVengeance() and unit.ttdGroup(8) > 15 then
         if cast.shieldOfVengeance() then ui.debug("Casting Shield of Vengeance [CD]") return true end
     end
     -- Trinkets
@@ -491,7 +485,7 @@ actionList.Cooldowns = function()
     -- end        
     -- Avenging Wrath
     -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
-    if alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
+    if ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
         and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
         and var.timeToHPG == 0
     then
@@ -499,7 +493,7 @@ actionList.Cooldowns = function()
     end
     -- Crusade
     -- crusade,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
-    if alwaysCdNever("Crusade") and talent.crusade and cast.able.crusade()
+    if ui.alwaysCdNever("Crusade") and talent.crusade and cast.able.crusade()
         and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
         and var.timeToHPG == 0
     then
@@ -509,17 +503,17 @@ actionList.Cooldowns = function()
     -- ashen_hallow
     -- Holy Avenger
     -- holy_avenger,if=time_to_hpg=0&((buff.avenging_wrath.up|buff.crusade.up)|(buff.avenging_wrath.down&cooldown.avenging_wrath.remains>40|buff.crusade.down&cooldown.crusade.remains>40))
-    if alwaysCdNever("Holy Avenger") and var.timeToHPG == 0
+    if ui.alwaysCdNever("Holy Avenger") and var.timeToHPG == 0
         and ((buff.avengingWrath.exists() or buff.crusade.exists())
-            or (not buff.avengingWrath.exists() and (cd.avengingWrath.remains() > 40 or not alwaysCdNever("Avenging Wrath"))
-                or not buff.crusade.exists() and (buff.crusade.remains() > 40 or not alwaysCdNever("Crusade"))))
+            or (not buff.avengingWrath.exists() and (cd.avengingWrath.remains() > 40 or not ui.alwaysCdNever("Avenging Wrath"))
+                or not buff.crusade.exists() and (buff.crusade.remains() > 40 or not ui.alwaysCdNever("Crusade"))))
     then
         if cast.holyAvenger() then ui.debug("Casting Holy Avenger") return true end
     end
     -- Final Reckoning
     -- final_reckoning,if=holy_power>=3&cooldown.avenging_wrath.remains>gcd&time_to_hpg=0&(!talent.seraphim.enabled|buff.seraphim.up)
-    if alwaysCdNever("Final Reckoning") and holyPower >= 3 and (cd.avengingWrath.remains() > unit.gcd(true) or not alwaysCdNever("Avenging Wrath"))
-        and var.timeToHPG == 0 and (not talent.seraphim or buff.seraphim.exists() or not alwaysCdNever("Seraphim"))
+    if ui.alwaysCdNever("Final Reckoning") and holyPower >= 3 and (cd.avengingWrath.remains() > unit.gcd(true) or not ui.alwaysCdNever("Avenging Wrath"))
+        and var.timeToHPG == 0 and (not talent.seraphim or buff.seraphim.exists() or not ui.alwaysCdNever("Seraphim"))
     then
         if cast.finalReckoning() then ui.debug("Casting Final Reckoning") return true end
     end
@@ -585,9 +579,9 @@ end -- End Action List - Cooldowns
 actionList.Finisher = function()
     -- Seraphim
     -- seraphim,if=((!talent.crusade.enabled&buff.avenging_wrath.up|cooldown.avenging_wrath.remains>25)|(buff.crusade.up|cooldown.crusade.remains>25))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains<10)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains<10)&time_to_hpg=0
-    if alwaysCdNever("Seraphim") and cast.able.seraphim()
-        and ((not talent.crusade and (buff.avengingWrath.exists() or cd.avengingWrath.remains() > 25 or not alwaysCdNever("Avenging Wrath")))
-            or (buff.crusade.exists() and (cd.crusade.remains() > 25 or not alwaysCdNever("Crusade"))))
+    if ui.alwaysCdNever("Seraphim") and cast.able.seraphim()
+        and ((not talent.crusade and (buff.avengingWrath.exists() or cd.avengingWrath.remains() > 25 or not ui.alwaysCdNever("Avenging Wrath")))
+            or (buff.crusade.exists() and (cd.crusade.remains() > 25 or not ui.alwaysCdNever("Crusade"))))
         and (not talent.finalReckoning or cd.finalReckoning.remains() < 10)
         and (not talent.executionSentence or cd.executionSentence.remains() < 10)
         and var.timeToHPG == 0
@@ -598,9 +592,9 @@ actionList.Finisher = function()
     -- vanquishers_hammer,if=(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10|debuff.final_reckoning.up)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10|debuff.execution_sentence.up)|spell_targets.divine_storm>=2
     -- Execution Sentence
     -- execution_sentence,if=spell_targets.divine_storm<=3&((!talent.crusade.enabled|buff.crusade.down&cooldown.crusade.remains>10)|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10|debuff.final_reckoning.up)&time_to_hpg=0
-    if alwaysCdNever("Execution Sentence") and cast.able.executionSentence()
-        and (var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not alwaysCdNever("Crusade")))
-            or buff.crusade.stack() >= 3 or (cd.avengingWrath.remain() > 10 or not alwaysCdNever("Avenging Wrath")) or debuff.finalReckoning.exists(units.dyn5))
+    if ui.alwaysCdNever("Execution Sentence") and cast.able.executionSentence()
+        and (var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not ui.alwaysCdNever("Crusade")))
+            or buff.crusade.stack() >= 3 or (cd.avengingWrath.remain() > 10 or not ui.alwaysCdNever("Avenging Wrath")) or debuff.finalReckoning.exists(units.dyn5))
         and var.timeToHPG == 0
     then
         if cast.executionSentence() then ui.debug("Casting Execution Sentence") return true end
@@ -608,8 +602,8 @@ actionList.Finisher = function()
     -- Divine Storm
     -- divine_storm,if=variable.ds_castable&!buff.vanquishers_hammer.up&((!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3|spell_targets.divine_storm>=3)|spell_targets.divine_storm>=2&(talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.crusade.up&buff.crusade.stack<10))
     if cast.able.divineStorm() and var.dsCastable --and not buff.vanquishersHammer.exists()
-        and ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
-        and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) or var.dsUnits) or var.dsUnits
+        and ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
+        and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits) or var.dsUnits
         and (talent.holyAvenger and cd.hoylAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10))
     then
         local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
@@ -620,9 +614,9 @@ actionList.Finisher = function()
     if cast.able.templarsVerdict() --and ((ui.mode.rotation == 1 and #enemies.yards8 < ui.value("Divine Storm Units"))
         --or (ui.mode.rotation == 3 and #enemies.yards5 > 0) or unit.level() < 40)
     then
-        if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Crusade"))
-            and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Execution Sentence")) and var.dsUnits)
-            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not alwaysCdNever("Final Reckoning")) 
+        if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
+            and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) and var.dsUnits)
+            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Final Reckoning")) 
                 or talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() 
                 and buff.crusade.stack() < 10)
         then
@@ -642,10 +636,10 @@ actionList.Generator = function()
 
     -- Wake of Ashes
     -- wake_of_ashes,if=(holy_power=0|holy_power<=2&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!raid_event.adds.exists|raid_event.adds.in>20)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>15)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>15)
-    if alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes()
+    if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes()
         and (holyPower <= 0 or holyPower <= 2 and (cd.bladeOfJustice.remain() > unit.gcd(true) or debuff.executionSentence.exists(units.dyn5) or debuff.finalReckoning.exists(units.dyn5)))
-        and ui.useST() and (not talent.executionSentence or cd.executionSentence.remains() > 15 or not alwaysCdNever("Execution Sentence"))
-        and (not talent.finalReckoning or cd.finalReckoning.remains() > 15 or not alwaysCdNever("Final Reckoning"))
+        and ui.useST() and (not talent.executionSentence or cd.executionSentence.remains() > 15 or not ui.alwaysCdNever("Execution Sentence"))
+        and (not talent.finalReckoning or cd.finalReckoning.remains() > 15 or not ui.alwaysCdNever("Final Reckoning"))
     then
         if cast.wakeOfAshes(units.dyn12,"cone",1,12) then ui.debug("Casting Wake of Ashes") return true end
     end
@@ -704,8 +698,7 @@ actionList.Generator = function()
     end
     -- Consecration
     -- consecration,if=time_to_hpg>gcd
-    if cast.able.consecration() and var.timeToHPG > unit.gcd(true)
-    then
+    if cast.able.consecration() and var.timeToHPG > unit.gcd(true) then
         if cast.consecration("player","aoe",1,8) then ui.debug("Casting Consecration") return true end
     end
 end -- End Action List - Generator
