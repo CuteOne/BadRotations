@@ -529,7 +529,7 @@ actionList.AOE = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and buff.windfuryTotem.remains() < 30 then
+    if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE]") return true end
     end
     -- Primal Strike
@@ -668,7 +668,7 @@ actionList.Single = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains() < 30 then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST]") return true end
     end
     -- Primal Strike
@@ -724,7 +724,7 @@ actionList.PreCombat = function()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists() then
+            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- Lightning Bolt
@@ -846,7 +846,7 @@ local function runRotation()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists() then
+            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- Windstrike
