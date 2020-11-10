@@ -524,12 +524,12 @@ actionList.AOE = function()
     end
     -- Earth Elemental
     -- earth_elemental
-    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() then
+    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and #enemies.yards5 > 0 and unit.ttd("target") > 60 then
         if cast.earthElemental() then ui.debug("Casting Earth Elemental [AOE]") return true end
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 then
+    if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE]") return true end
     end
     -- Primal Strike
@@ -663,12 +663,12 @@ actionList.Single = function()
     end
     -- Earth Elemental
     -- earth_elemental
-    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and not unit.moving() then
+    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and not unit.moving() and #enemies.yards5 > 0 and unit.ttd("target") > 60 then
         if cast.earthElemental() then ui.debug("Casting Earth Elemental [ST]") return true end
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST]") return true end
     end
     -- Primal Strike
@@ -724,7 +724,7 @@ actionList.PreCombat = function()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") then
+            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- Lightning Bolt
@@ -774,6 +774,7 @@ local function runRotation()
     -- Enemies Lists
     enemies.get(5)
     -- enemies.get(5,"player",false,true)
+    enemies.get(8)
     enemies.get(8,"player",false,true)
     enemies.get(10)
     enemies.yards11r = getEnemiesInRect(10,11,false) or 0
@@ -846,7 +847,7 @@ local function runRotation()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") then
+            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- Windstrike
@@ -874,12 +875,12 @@ local function runRotation()
             end
             -- Feral Spirit
             -- feral_spirit
-            if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() then
+            if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() and unit.ttd("target") > 15 then
                 if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
             end
             -- Ascendance
             -- ascendance
-            if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() then
+            if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() and #enemies.yards8 > 0 and unit.ttd("target") > 15 then
                 if cast.ascendance() then ui.debug("Casting Ascendance") return true end
             end
             -- Call Action List - Single
