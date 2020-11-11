@@ -2919,13 +2919,12 @@ br.lists.spells = {
                 earthShield                 = 974,
                 hailstorm                   = 334196,
                 hotHand                     = 215785,
-                lashingFlames               = 334168,
                 maelstromWeapon             = 344179,
                 stormkeeper                 = 320137,
                 windfuryTotem               = 327942,
             },
             debuffs                         = {
-
+                lashingFlames               = 334168,
             },
             glyphs                          = {
 
