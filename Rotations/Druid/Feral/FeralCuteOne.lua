@@ -278,7 +278,7 @@ end
 -- Multi-Dot HP Limit Set
 local function canDoT(thisUnit)
     local unitHealthMax = unit.healthMax(thisUnit)
-    if var.noDoT then return false end
+    if var.noDoT or not unit.exists(units.dyn5) then return false end
     if not unit.isBoss(thisUnit) and unit.facing("player",thisUnit)
         and (multidot or (unit.isUnit(thisUnit,units.dyn5) and not multidot))
         and not unit.charmed(thisUnit)

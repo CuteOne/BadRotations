@@ -185,6 +185,7 @@ br.api.unit = function(self)
     -- Is Unit
     unit.isUnit = function(thisUnit,otherUnit)
         local UnitIsUnit = _G["UnitIsUnit"]
+        if thisUnit == nil or otherUnit == nil then return false end
         return UnitIsUnit(thisUnit,otherUnit)
     end
     -- Level
@@ -253,7 +254,8 @@ br.api.unit = function(self)
     unit.startAttack = function(thisUnit,autoShoot)
         local IsCurrentSpell = _G["IsCurrentSpell"]
         local StartAttack = _G["StartAttack"]
-        if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
+        -- if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
+        if not IsCurrentSpell(6603) then
             StartAttack(thisUnit)
             if autoShoot then 
                 self.ui.debug("Casting Auto Shot")
