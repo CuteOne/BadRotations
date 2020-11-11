@@ -389,14 +389,16 @@ actionList.AOE = function()
     if cast.able.frostShock() and buff.hailstorm.exists() then
         if cast.frostShock() then ui.debug("Casting Frost Shock [AOE Hailstorm]") return true end
     end
-    -- Fire Nova
-    -- fire_nova,if=active_dot.flame_shock>=3
-    if cast.able.fireNova() and debuff.flameShock.count() >= 3 then
-        if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 3+ Flame Shock]") return true end
-    end
+    -- Windfury Totem
+    -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
+    -- if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
+    --     and runeforge.doomWinds.equiped() and not buff.doomWinds.exists()
+    -- then
+    --     if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE Doom Winds]") return true end
+    -- end
     -- Flame Shock
-    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|covenant.necrolord
-    if talent.fireNova and cast.able.flameShock() then
+    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord
+    if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames --[[or covenant.necrolord]]) then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
@@ -407,24 +409,39 @@ actionList.AOE = function()
     -- Primodial Wave
     -- primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up&(!talent.stormkeeper.enabled|buff.stormkeeper.up)
     -- TODO
+    -- Fire Nova
+    -- fire_nova,if=active_dot.flame_shock>=3
+    if cast.able.fireNova() and debuff.flameShock.count() >= 3 then
+        if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 3+ Flame Shock]") return true end
+    end
     -- Vesper Totem
     -- vesper_totem
     -- if cast.able.vesperTotem() then
     --     if cast.vesperTotem() then ui.debug("Casting Vesper Totem [AOE]") return true end
     -- end
     -- Lightning Bolt
-    -- lightning_bolt,if=buff.primordial_wave.up&buff.maelstrom_weapon.stack>=5
-    -- if cast.able.lightningBolt() and buff.primordialWave.exists() and buff.maelstromWeapon.stack() >= 5 then
+    -- lightning_bolt,if=buff.primordial_wave.up&(buff.stormkeeper.up|buff.maelstrom_weapon.stack>=5)
+    -- if cast.able.lightningBolt() and buff.primordialWave.exists() and (buff.stormkeeper.exists() or buff.maelstromWeapon.stack() >= 5) then
     --     if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [AOE Primordial Wave]") return true end
     -- end
+    -- Crash Lightning
+    -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
+    if cast.able.crashLightning() and (talent.crashingStorm or not buff.crashLightning.exists()) then
+        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
+    end
+    -- Lava Lash
+    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
+    if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
+        if cast.lashingFlames(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
+    end
     -- Crash Lightning
     -- crash_lightning
     if cast.able.crashLightning() then
         if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
     end
     -- Chain Lightning
-    -- chain_lightning,if=buff.stormkeeper.up&buff.maelstrom_weapon.stack>=5
-    if cast.able.chainLightning() and buff.stormkeeper.exists() and buff.maelstromWeapon.stack() >= 5 then
+    -- chain_lightning,if=buff.stormkeeper.up
+    if cast.able.chainLightning() and buff.stormkeeper.exists() then
         if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE Stormkeeper]") return true end
     end
     -- Chain Harvest
@@ -433,9 +450,9 @@ actionList.AOE = function()
     --     if cast.chainHarvest() then ui.debug("Casting Chain Harvest [AOE]") return true end
     -- end
     -- Elemental Blast
-    -- elemental_blast,if=buff.maelstrom_weapon.stack>=5&active_enemies!=3
-    if cast.able.elementalBlast() and buff.maelstromWeapon.stack() >= 5 and #enemies.yards40f ~= 3 then
-        if cast.elementalBlast() then ui.debug("Casting Elemental Blast [AOE Not 3 Enemy]") return true end
+    -- elemental_blast,if=buff.maelstrom_weapon.stack>=5
+    if cast.able.elementalBlast() and buff.maelstromWeapon.stack() >= 5 then
+        if cast.elementalBlast() then ui.debug("Casting Elemental Blast [AOE]") return true end
     end
     -- Stormkeeper
     -- stormkeeper,if=buff.maelstrom_weapon.stack>=5
@@ -462,13 +479,18 @@ actionList.AOE = function()
     if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
+    -- Lava lash
+    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6
+    -- if cast.able.lavaLash(var.lowestLashingFlames) and runeforge.primalLava.equiped() and buff.primalLavaActuators.stack() > 6 then
+    --     if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lava Lash [AOE Primal Lava Actuators]") return true end
+    -- end
     -- Stormstrike
     -- stormstrike
     if cast.able.stormstrike() and unit.level() >= 20 then
         if cast.stormstrike() then ui.debug("Casting Stormstrike [AOE]") return true end
     end
     -- Lava lash
-    -- lava_lash
+    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6
     if cast.able.lavaLash() then
         if cast.lavaLash() then ui.debug("Casting Lava Lash [AOE]") return true end
     end
@@ -481,11 +503,6 @@ actionList.AOE = function()
                 if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock [AOE]") return true end
             end
         end
-    end
-    -- Elemental Blast
-    -- elemental_blast,if=buff.maelstrom_weapon.stack>=5&active_enemies=3
-    if cast.able.elementalBlast() and buff.maelstromWeapon.stack() >= 5 and #enemies.yards40f == 3 then
-        if cast.elementalBlast() then ui.debug("Casting Elemental Blast [AOE 3 Enemy]") return true end
     end
     -- Fae Trasfusion
     -- fae_transfusion
@@ -547,9 +564,16 @@ end -- End Action List - AOE
 -- Action List - Single
 actionList.Single = function()
     -- Primordial Wave
-    -- primordial_wave,if=!buff.primordial_wave.up&(!talent.stormkeeper.enabled|buff.stormkeeper.up)
-    -- if not buff.primordialWave.exists() and (not talent.sotrmkeeper or buff.stormkeeper.exists()) then
+    -- primordial_wave,if=!buff.primordial_wave.up
+    -- if not buff.primordialWave.exists() then
     --     if cast.primordialWave() then ui.debug("Casting Primordial Wave [ST]") return true end
+    -- end
+    -- Windfury Totem
+    -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
+    -- if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
+    --     and runeforge.doomWinds.equiped() and not buff.doomWinds.exists()
+    -- then
+    --     if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST Doom Winds]") return true end
     -- end
     -- Flame Shock
     -- flame_shock,if=!ticking
@@ -577,8 +601,8 @@ actionList.Single = function()
     --     if cast.faeTransfusion() then ui.debug("Casting Fae Transfusion [ST]") return true end
     -- end
     -- Lightning Bolt
-    -- lightning_bolt,if=buff.stormkeeper.up&buff.maelstrom_weapon.stack>=5
-    if cast.able.lightningBolt() and buff.stormkeeper.exists() and buff.maelstromWeapon.stack() >= 5 then
+    -- lightning_bolt,if=buff.stormkeeper.up
+    if cast.able.lightningBolt() and buff.stormkeeper.exists() then
         if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [ST Stormkeeper]") return true end
     end
     -- Elemental Blast
@@ -597,9 +621,9 @@ actionList.Single = function()
         if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [ST 10 Maelstrom]") return true end
     end
     -- Lava Lash
-    -- lava_lash,if=buff.hot_hand.up
-    if cast.able.lavaLash() and buff.hotHand.exists() then
-        if cast.lavaLash() then ui.debug("Casting Lava Lash [ST Hot Hand]") return true end
+    -- lava_lash,if=buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
+    if cast.able.lavaLash() and (buff.hotHand.exists() --[[or (runeforge.primalLavaActuators.equiped() and buff.primalLavaActuators.stack() > 6)]]) then
+        if cast.lavaLash() then ui.debug("Casting Lava Lash [ST Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Stormstrike
     -- stormstrike
@@ -781,6 +805,8 @@ local function runRotation()
     enemies.get(20)
     enemies.get(30)
     enemies.get(40,"player",false,true)
+
+    var.lowestLashingFlames                         = debuff.lashingFlames.lowest(5,"remain") or "target"
 
     if var.fillLightning == nil then var.fillLightning = false end
     if unit.distance("target") < 5 and buff.maelstromWeapon.stack() < 5 and not var.fillLightning then
