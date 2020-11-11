@@ -1386,8 +1386,8 @@ local function actionList_AoE()
     if cast.able.arcaneExplosion()
     and getDistance("target") <= 10
     and arcaneCharges > 3
-    and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
-    or not ui.checked("Arcane Explosion Units")
+    and aoeUnits >= ui.value("Arcane Explosion Units")
+   -- or not ui.checked("Arcane Explosion Units")
     then
         if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
     end
@@ -1397,8 +1397,8 @@ local function actionList_AoE()
     and getDistance("target") <= 10
     and arcaneCharges > 3
     and cast.last.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
-    and ui.checked("Arcane Explosion Units") and aoeUnits >= ui.value("Arcane Explosion Units")
-    or not ui.checked("Arcane Explosion Units")
+    and aoeUnits >= ui.value("Arcane Explosion Units")
+    --or not ui.checked("Arcane Explosion Units")
     then
         if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
     end
