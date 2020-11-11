@@ -283,7 +283,7 @@ actionList.Extras = function()
             if cast.blessingOfFreedom(thisUnit) then ui.debug("Casting Blessing of Freedom") return true end
         end
     end
-    -- Hand of Hinderance
+    -- Hand of Hindrance
     if ui.checked("Hand of Hindrance") and cast.able.handOfHindrance("target") and unit.moving("target")
         and not unit.facing("target","player") and unit.distance("target") > 8 and unit.hp("target") < 25
     then
@@ -453,8 +453,10 @@ actionList.Cooldowns = function()
     -- Racial
     if ui.checked("Racial") and cast.able.racial() then
         -- lights_judgment,if=spell_targets.lights_judgment>=2|(!raid_event.adds.exists|raid_event.adds.in>75)
-        if race == "LightforgedDraenei" and ui.useAOE() then
-            if cast.racial() then ui.debug("Casting Racial: Lightforged Draenei") return true end
+        if ui.useCDs() and race == "LightforgedDraenei" and unit.health("target") < unit.healthMax("target")
+            and unit.ttd("target") > cast.time.racial()
+        then
+            if cast.racial("target") then ui.debug("Casting Racial: Lightforged Draenei") return true end
         end
         -- fireblood,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
         if race == "DarkIronDwarf" and (unit.level() < 37 or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)
@@ -593,7 +595,7 @@ actionList.Finisher = function()
     -- Execution Sentence
     -- execution_sentence,if=spell_targets.divine_storm<=3&((!talent.crusade.enabled|buff.crusade.down&cooldown.crusade.remains>10)|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10|debuff.final_reckoning.up)&time_to_hpg=0
     if ui.alwaysCdNever("Execution Sentence") and cast.able.executionSentence()
-        and (var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not ui.alwaysCdNever("Crusade")))
+        and (not var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not ui.alwaysCdNever("Crusade")))
             or buff.crusade.stack() >= 3 or (cd.avengingWrath.remain() > 10 or not ui.alwaysCdNever("Avenging Wrath")) or debuff.finalReckoning.exists(units.dyn5))
         and var.timeToHPG == 0
     then
@@ -603,8 +605,8 @@ actionList.Finisher = function()
     -- divine_storm,if=variable.ds_castable&!buff.vanquishers_hammer.up&((!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3|spell_targets.divine_storm>=3)|spell_targets.divine_storm>=2&(talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.crusade.up&buff.crusade.stack<10))
     if cast.able.divineStorm() and var.dsCastable --and not buff.vanquishersHammer.exists()
         and ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
-        and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits) or var.dsUnits
-        and (talent.holyAvenger and cd.hoylAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10))
+        and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits)
+            or var.dsUnits and (talent.holyAvenger and cd.hoylAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10))
     then
         local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
         if cast.divineStorm(nil,"aoe",theseUnits,8) then ui.debug("Casting Divine Storm") return true end
@@ -615,8 +617,8 @@ actionList.Finisher = function()
         --or (ui.mode.rotation == 3 and #enemies.yards5 > 0) or unit.level() < 40)
     then
         if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
-            and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) and var.dsUnits)
-            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Final Reckoning")) 
+            and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) and not var.dsUnits)
+            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Final Reckoning"))
                 or talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() 
                 and buff.crusade.stack() < 10)
         then
@@ -772,6 +774,7 @@ local runRotation = function()
     enemies.get(10)
     enemies.get(20)
     enemies.get(30,"player",false,true)
+    enemies.get(40)
     
     -- Profile Variables
     -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down|spell_targets.divine_storm>=2&buff.crusade.up&buff.crusade.stack<10
@@ -848,8 +851,15 @@ local runRotation = function()
             -- rebuke
             if actionList.Interrupts() then return end
             -- Light's Judgment - Lightforged Draenei Racial
-            if ui.checked("Racial") and race == "LightforgedDraenei" and #enemies.yards8 >= 3 then
-                if cast.racial() then ui.debug("Casting Racial: Lightforged Draenei [AOE]") return true end
+            if ui.checked("Racial") and race == "LightforgedDraenei" then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if #enemies.get(8,thisUnit) > 2 and unit.health(thisUnit) < unit.healthMax(thisUnit)
+                        and unit.ttd(thisUnit) > cast.time.racial()
+                    then
+                        if cast.racial(thisUnit) then ui.debug("Casting Racial: Lightforged Draenei [AOE]") return true end
+                    end
+                end
             end
             -- Action List - Cooldowns
             -- call_action_list,name=cooldowns
