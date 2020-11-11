@@ -2916,6 +2916,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 ascendance                  = 114051,
+                crashLightning              = 187874,
                 earthShield                 = 974,
                 hailstorm                   = 334196,
                 hotHand                     = 215785,
