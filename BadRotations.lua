@@ -105,6 +105,8 @@ function br:Run()
 		-- Complete Loadin
 		ChatOverlay("-= BadRotations Loaded =-")
 		Print("Loaded")
+		-- Initialize Minimap Button
+		br:MinimapButton()
 		br.loadedIn = true
 	end
 end
@@ -136,8 +138,6 @@ function br:defaultSettings()
 		br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
 	end
 	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
-	-- Initialize Minimap Button
-	br:MinimapButton()
 end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
