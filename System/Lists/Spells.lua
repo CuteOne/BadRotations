@@ -266,18 +266,18 @@ br.lists.spells = {
 
             },
             talents                         = {
-                asphyxiate                  = 108194,--
-                avalanche                   = 207142,--
-                blindingSleet               = 207167,--
-                breathOfSindragosa          = 152279,--
-                coldHeart                   = 281208,--
-                deathPact                   = 48743,--
+                asphyxiate                  = 108194,
+                avalanche                   = 207142,
+                blindingSleet               = 207167,
+                breathOfSindragosa          = 152279,
+                coldHeart                   = 281208,
                 deathsReach                 = 276079,
                 frostscythe                 = 207230,
                 frozenPulse                 = 194909,
                 gatheringStorm              = 194912,
                 glacialAdvance              = 194913,
                 hornOfWinter                = 57330,
+                hypothermicPresence         = 321995,
                 icecap                      = 207126,
                 icyTalons                   = 194878,
                 inexorableAssault           = 253593,
@@ -300,7 +300,6 @@ br.lists.spells = {
                 epidemic                    = 207317,
                 festeringStrike             = 85948,
                 outbreak                    = 77575,
-                raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 -- Pet Abilities
                 claw                        = 47468,
@@ -340,7 +339,6 @@ br.lists.spells = {
                 asphyxiate                  = 108194,
                 burstingSores               = 207264,
                 clawingShadows              = 207311,
-                deathPact                   = 48743,
                 deathsReach                 = 276079,
                 defile                      = 152280,
                 ebonFever                   = 207269,        
@@ -382,7 +380,9 @@ br.lists.spells = {
                 mindFreeze                  = 47528,
                 pathOfFrost                 = 3714,
                 raiseAlly                   = 61999,
+                raiseDead                   = 46585,
                 runeStrike                  = 316239,
+                runeforging                 = 53428,
                 sacraficialPact             = 327574,
             },
             artifacts                       = {
@@ -408,6 +408,7 @@ br.lists.spells = {
 
             },
             talents                         = {
+                deathPact                   = 48743,
                 wraithWalk                  = 212552,
             },
         },
