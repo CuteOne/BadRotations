@@ -98,10 +98,7 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
-            br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
-            br.ui:createCheckbox(section,"Power Reactor")
-            br.ui:createCheckbox(section,"Ashvane's Razor Coral")
-            br.ui:createCheckbox(section,"Pocket Sized Computation Device")
+            br.player.module.BasicTrinkets(nil,section)
             -- Bestial Wrath
             br.ui:createDropdownWithout(section,"Bestial Wrath", {"|cff00FF00Boss","|cffFFFF00Always"}, 1, "|cffFFFFFFSelect Bestial Wrath Usage.")
             -- Trueshot
