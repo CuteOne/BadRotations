@@ -266,12 +266,12 @@ br.lists.spells = {
 
             },
             talents                         = {
-                asphyxiate                  = 108194,
-                avalanche                   = 207142,
-                blindingSleet               = 207167,
-                breathOfSindragosa          = 152279,
-                coldHeart                   = 281208,
-                deathPact                   = 48743,
+                asphyxiate                  = 108194,--
+                avalanche                   = 207142,--
+                blindingSleet               = 207167,--
+                breathOfSindragosa          = 152279,--
+                coldHeart                   = 281208,--
+                deathPact                   = 48743,--
                 deathsReach                 = 276079,
                 frostscythe                 = 207230,
                 frozenPulse                 = 194909,
@@ -2916,7 +2916,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 ascendance                  = 114051,
-                crashLightning              = 187874,
+                crashLightning              = 187878,
                 earthShield                 = 974,
                 hailstorm                   = 334196,
                 hotHand                     = 215785,

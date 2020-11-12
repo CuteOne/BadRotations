@@ -432,7 +432,7 @@ actionList.AOE = function()
     -- Lava Lash
     -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
     if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
-        if cast.lashingFlames(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
+        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
     end
     -- Crash Lightning
     -- crash_lightning
