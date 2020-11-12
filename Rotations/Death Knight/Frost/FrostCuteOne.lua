@@ -661,7 +661,7 @@ actionList.Aoe = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and (buff.rime.exists()) and #enemies.yards10t > 0 then
+    if cast.able.howlingBlast() and (buff.rime.exists() or (runicPower < 25 and unit.level() < 14)) and #enemies.yards10t > 0 then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast [AoE - Rime]") return true end
     end
     -- Frostscythe
@@ -742,7 +742,7 @@ actionList.Standard = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and (buff.rime.exists()) and #enemies.yards10t > 0 then
+    if cast.able.howlingBlast() and (buff.rime.exists() or (runicPower < 25 and unit.level() < 14)) and #enemies.yards10t > 0 then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast") return true end
     end
     -- Obliterate
@@ -799,18 +799,18 @@ actionList.PreCombat = function()
 
     end -- Pre-Pull
     if unit.valid("target") and not unit.inCombat() then
-        -- -- Howling Blast
-        -- if cast.able.howlingBlast("target") then
-        --     if cast.howlingBlast("target") then ui.debug("") return true end
-        -- end
-        -- -- Death Grip
-        -- if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") then --and not cast.able.howlingBlast("target") then
-        --     if cast.deathGrip("target") then ui.debug("") return true end
-        -- end
-        -- -- Dark Command
-        -- if ui.checked("Dark Command") and cast.able.darkCommand("target") and not (ui.checked("Death Grip") or cast.able.deathGrip("target")) then -- and not cast.able.howlingBlast("target") then
-        --     if cast.darkCommand("target") then ui.debug("") return true end
-        -- end
+        -- Howling Blast
+        if cast.able.howlingBlast("target") then
+            if cast.howlingBlast("target") then ui.debug("Casting Howling Blast [Pull]") return true end
+        end
+        -- Death Grip
+        if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") then --and not cast.able.howlingBlast("target") then
+            if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
+        end
+        -- Dark Command
+        if ui.checked("Dark Command") and cast.able.darkCommand("target") and not (ui.checked("Death Grip") or cast.able.deathGrip("target")) then -- and not cast.able.howlingBlast("target") then
+            if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
+        end
         -- Start Attack
         if unit.distance("target") < 5 then
             unit.startAttack("target")
@@ -869,11 +869,17 @@ local function runRotation()
     -- Runeforge Detection
     var.fallenCrusader = false
     var.razorice = false
-    var.EnchantMH = (select(6,string.find(GetInventoryItemLink("player",16),itemLinkRegex)))
-    var.EnchantOH = (select(6,string.find(GetInventoryItemLink("player",17),itemLinkRegex)))
-    var.EnchantMH = tonumber(var.EnchantMH)
-    var.EnchantOH = tonumber(var.EnchantOH)
-    if var.EnchantMH == 3368 or var.EnchantOH == 3368 then var.fallenCrusader = true end
+    var.EnchantMH = 0
+    if GetInventoryItemLink("player",16) ~= nil then
+        var.EnchantMH = (select(6,string.find(GetInventoryItemLink("player",16),itemLinkRegex)))
+        var.EnchantMH = tonumber(var.EnchantMH)
+        if var.EnchantMH == 3368 or var.EnchantOH == 3368 then var.fallenCrusader = true end
+    end
+    var.EnchantOH = 0
+    if GetInventoryItemLink("player",17) ~= nil then
+        var.EnchantOH = (select(6,string.find(GetInventoryItemLink("player",17),itemLinkRegex)))
+        var.EnchantOH = tonumber(var.EnchantOH)
+    end
     if var.EnchantMH == 3370 or var.EnchantOH == 3370 then var.razorice = true end
 
     -- Obliterate Target
