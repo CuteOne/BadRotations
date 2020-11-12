@@ -595,8 +595,8 @@ actionList.Finisher = function()
     -- Execution Sentence
     -- execution_sentence,if=spell_targets.divine_storm<=3&((!talent.crusade.enabled|buff.crusade.down&cooldown.crusade.remains>10)|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10|debuff.final_reckoning.up)&time_to_hpg=0
     if ui.alwaysCdNever("Execution Sentence") and cast.able.executionSentence()
-        and (not var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not ui.alwaysCdNever("Crusade")))
-            or buff.crusade.stack() >= 3 or (cd.avengingWrath.remain() > 10 or not ui.alwaysCdNever("Avenging Wrath")) or debuff.finalReckoning.exists(units.dyn5))
+        and (not var.dsUnits or unit.level() < 23) and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not ui.alwaysCdNever("Crusade"))
+            or buff.crusade.stack() >= 3) or (cd.avengingWrath.remain() > 10 or not ui.alwaysCdNever("Avenging Wrath")) or debuff.finalReckoning.exists(units.dyn5))
         and var.timeToHPG == 0
     then
         if cast.executionSentence() then ui.debug("Casting Execution Sentence") return true end
@@ -606,16 +606,14 @@ actionList.Finisher = function()
     if cast.able.divineStorm() and var.dsCastable --and not buff.vanquishersHammer.exists()
         and ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
         and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits)
-            or var.dsUnits and (talent.holyAvenger and cd.hoylAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10))
+            or (var.dsUnits and (talent.holyAvenger and cd.hoylAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10)))
     then
         local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
         if cast.divineStorm(nil,"aoe",theseUnits,8) then ui.debug("Casting Divine Storm") return true end
     end
     -- Templar's Verdict
     -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3&spell_targets.divine_storm<=3)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*3)&(!covenant.necrolord.enabled|cooldown.vanquishers_hammer.remains>gcd)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10|buff.vanquishers_hammer.up
-    if cast.able.templarsVerdict() --and ((ui.mode.rotation == 1 and #enemies.yards8 < ui.value("Divine Storm Units"))
-        --or (ui.mode.rotation == 3 and #enemies.yards5 > 0) or unit.level() < 40)
-    then
+    if cast.able.templarsVerdict() then
         if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
             and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) and not var.dsUnits)
             and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Final Reckoning"))
@@ -779,7 +777,7 @@ local runRotation = function()
     -- Profile Variables
     -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down|spell_targets.divine_storm>=2&buff.crusade.up&buff.crusade.stack<10
     var.dsUnits = ((ui.mode.rotation == 1 and (#enemies.yards8 >= ui.value("Divine Storm Units"))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
-    var.dsCastable = ((var.dsUnits or buff.empyreanPower.exists()) and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()) or (var.dsUnits and buff.crusade.exists() and buff.crusade.stack() < 10)
+    var.dsCastable = (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()) or (var.dsUnits and buff.crusade.exists() and buff.crusade.stack() < 10))
     var.lowestUnit = br.friend[1].unit
     var.resable   = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target","player")
     var.timeToHPG = cd.crusaderStrike.remain()
