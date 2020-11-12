@@ -1655,6 +1655,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                eyeOfTheTiger               = 196608,
                 ironskinBrew                = 215479,
                 blackoutCombo               = 228563,
                 purifiedChi                 = 325092,

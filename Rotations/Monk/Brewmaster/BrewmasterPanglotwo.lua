@@ -387,7 +387,7 @@ local function actionList_Defensive()
                 if cast.vivify() then return end
             end
     --Expel Harm
-            if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
+            if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(322101) >= getOptionValue("Expel Harm Orbs") then
                 if cast.expelHarm() then return end
             end
     -- Pot/Stoned
@@ -581,6 +581,11 @@ local function actionList_Multi()
     -- Chi Wave
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
             if cast.chiWave(units.dyn8) then return end
+        end
+        if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and (not talent.eyeOfTheTiger or buff.eyeOfTheTiger.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
+            if cast.spinningCraneKick("player") then
+                return
+            end
         end
     -- Tiger Palm
         if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
