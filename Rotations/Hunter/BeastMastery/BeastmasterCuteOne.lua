@@ -131,6 +131,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Counter Shot
             br.ui:createCheckbox(section,"Counter Shot")
+            -- Freezing Trap
+            br.ui:createCheckbox(section, "Freezing Trap")
             -- Intimidation
             br.ui:createCheckbox(section,"Intimidation")
             -- Interrupt Percentage
@@ -280,6 +282,15 @@ actionList.Interrupts = function()
             thisUnit = enemies.yards40f[i]
                 if canInterrupt(thisUnit,ui.value("Interrupt At")) then
                     if cast.counterShot(thisUnit) then ui.debug("Casting Counter Shot") return true end
+                end
+            end
+        end
+        -- Freezing Trap
+        if ui.checked("Freezing Trap") and cast.able.freezingTrap() then
+            for i = 1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
+                if unit.distance(thisUnit) > 8 and cast.timeRemain(thisUnit) > 3 then
+                    if cast.freezingTrap(thisUnit,"ground") then ui.debug("Casting Freezing Trap") return true end
                 end
             end
         end
