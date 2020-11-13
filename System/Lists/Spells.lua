@@ -1642,8 +1642,7 @@ br.lists.spells = {
                 blackoutKick                = 205523,
                 breathOfFire                = 115181,
                 celestialBrew               = 322507,
-                clash                       = 324312,                
-                fortifyingBrew              = 115203,
+                clash                       = 324312,
                 invokeNiuzao                = 132578,
                 kegSmash                    = 121253,
                 purifyingBrew               = 119582,
@@ -1757,10 +1756,10 @@ br.lists.spells = {
         [269] = {
             abilities                       = {
                 disable                     = 116095,
-                disableRoot                 = 116706,
                 fistsOfFury                 = 113656,
                 flyingSerpentKick           = 101545,
                 flyingSerpentKickEnd        = 115057,
+                fortifyingBrew              = 243435,
                 invokeXuenTheWhiteTiger     = 123904,
                 risingSunKick               = 107428,
                 spearHandStrike             = 116705,
@@ -1769,7 +1768,7 @@ br.lists.spells = {
                 touchOfKarma                = 122470,
             },
             artifacts                       = {
-
+                
             },
             buffs                           = {
                 blackoutKick                = 116868,
@@ -1787,6 +1786,8 @@ br.lists.spells = {
                 whirlingDragonPunch         = 152175,
             },
             debuffs                         = {
+                disable                     = 116095,
+                disableRoot                 = 116706,
                 markOfTheCrane              = 228287,
                 risingFist                  = 242259,
             },
@@ -1820,8 +1821,9 @@ br.lists.spells = {
                 blackoutKick                = 100784,
                 cracklingJadeLightning      = 117952,
                 detox                       = 218164,
+                disablingTechnique          = 175697, -- Exists for some reason
                 expelHarm                   = 322101,
-                fortifyingBrew              = 243435,
+                fortifyingBrew              = 115203,
                 legSweep                    = 119381,
                 paralysis                   = 115078,
                 provoke                     = 115546,
