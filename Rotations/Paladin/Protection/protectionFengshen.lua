@@ -55,6 +55,8 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Blessing of Freedom")
 		-- Auto cancel Blessing of Protection
 		br.ui:createCheckbox(section, "Auto cancel BoP")
+		-- Auto cancel Divine Shield
+		br.ui:createCheckbox(section, "Auto cancel DS")
 		-- Automatic Aura replacement
 		br.ui:createCheckbox(section, "Automatic Aura replacement")
 		-- Taunt
@@ -303,6 +305,15 @@ local function runRotation()
 			end
 			if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
 				RunMacroText("/cancelAura Blessing of Protection")
+			end
+		end
+		-- Auto cancel Divine Shield
+		if isChecked("Auto cancel DS") then
+			if buff.divineShield.exists() and cast.able.handOfReckoning() then
+				if cast.handOfReckoning("target") then return end
+			end
+			if buff.divineShield.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
+				RunMacroText("/cancelAura Divine Shield")
 			end
 		end
 	end -- End Action List - Extras
