@@ -1509,7 +1509,7 @@ actions.st+=/glacial_spike,if=buff.brain_freeze.react
 actions.st+=/frostbolt
     ]]
 
-    local function actionList_ST()
+    local function actionList_ST2()
 
 
         
