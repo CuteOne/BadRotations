@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.6"
+local rotationVer  = "v1.0.7"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -1201,7 +1201,7 @@ local function runRotation()
             
         -- actions.single=ice_nova,if=cooldown.ice_nova.ready&debuff.winters_chill.up
         if debuff.wintersChill.exists("target") then
-            if cast.iceNova("target") then return true end
+            if cast.iceLance("target") then return true end
         end
 
         -- # Without GS, Ebonbolt is always shattered. With GS, Ebonbolt is shattered if it would waste Brain Freeze charge (i.e. when the mage starts casting Ebonbolt with Brain Freeze active) or when below 4 Icicles (if Ebonbolt is cast when the mage has 4-5 Icicles, it's better to use the Brain Freeze from it on Glacial Spike).
@@ -1480,6 +1480,45 @@ local function runRotation()
 
         -- Fire Blast Moving
        -- if mode.fb ~= 2 and moving and cast.able.fireBlast() then if cast.fireBlast() then return true end end 
+
+    end
+
+
+    --[[
+
+Simc Action list Date: 11/14/2020
+-----------------------------------
+actions.st=flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.glacial_spike|prev_gcd.1.frostbolt|prev_gcd.1.radiant_spark|buff.fingers_of_frost.react=0&(debuff.mirrors_of_torment.up|buff.freezing_winds.up|buff.expanded_potential.react)))
+actions.st+=/frozen_orb
+actions.st+=/blizzard,if=buff.freezing_rain.up|active_enemies>=2
+actions.st+=/ray_of_frost,if=remaining_winters_chill=1&debuff.winters_chill.remains
+actions.st+=/glacial_spike,if=remaining_winters_chill&debuff.winters_chill.remains>cast_time+travel_time
+actions.st+=/ice_lance,if=remaining_winters_chill&remaining_winters_chill>buff.fingers_of_frost.react&debuff.winters_chill.remains>travel_time
+actions.st+=/comet_storm
+actions.st+=/ice_nova
+actions.st+=/radiant_spark,if=buff.freezing_winds.up&active_enemies=1
+actions.st+=/ice_lance,if=buff.fingers_of_frost.react|debuff.frozen.remains>travel_time
+actions.st+=/ebonbolt
+actions.st+=/radiant_spark,if=(!runeforge.freezing_winds.equipped|active_enemies>=2)&buff.brain_freeze.react
+actions.st+=/mirrors_of_torment
+actions.st+=/shifting_power,if=buff.rune_of_power.down&(!cooldown.rune_of_power.ready|soulbind.grove_invigoration.enabled|soulbind.field_of_blossoms.enabled|runeforge.freezing_winds.equipped|active_enemies>=2)
+actions.st+=/frost_nova,if=runeforge.grisly_icicle.equipped&target.level<=level&debuff.frozen.down
+actions.st+=/arcane_explosion,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_arcane.down
+actions.st+=/fire_blast,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
+actions.st+=/glacial_spike,if=buff.brain_freeze.react
+actions.st+=/frostbolt
+    ]]
+
+    local function actionList_ST()
+
+
+        
+
+        -- actions.st+=/glacial_spike,if=buff.brain_freeze.react
+        if cast.able.glacialSpike() and buff.brainFreeze.exists() then br.addonDebug("[Action:ST] Glacial Spike (Brain Freeze React)") return true end 
+
+        -- actions.st+=/frostbolt
+        if cast.able.frostbolt() then if cast.frostbolt() then br.addonDebug("[Action:ST] Frostbolt") return true end end 
 
     end
 
