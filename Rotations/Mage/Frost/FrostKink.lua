@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.7"
+local rotationVer  = "v1.0.8"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -91,7 +91,7 @@ local function createToggles()
     }
     CreateButton("ArcaneExplosion", 4, 1)
 
-        -- Arcane Explosion Button
+    -- Frost Nova Button
     FrostNovaModes = {
         [1] = {mode = "On", value = 1, overlay = "Frost Nova Enabled", tip = "Will use Frost Nova", highlight = 1, icon = br.player.spell.frostNova},
         [2] = {mode = "Off", value = 2, overlay = "Frost Nova Disabled", tip = "Will not use Frost Nova", highlight = 0, icon = br.player.spell.frostNova}
@@ -113,6 +113,9 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General | " .. rotationVer)
         -- APL
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
+
+        -- Filler Spell
+        br.ui:createDropdownWithout(section, "Filler Spell", {"|cffFFBB00Frostbolt", "|cffFFBB00Ice Lance"}, 1, "|cffFFBB00Filler Spell to use.")
 
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -751,7 +754,7 @@ local function runRotation()
         end
     end
 
-    --
+    -- Frozen orb
     local function castFrozenOrb(minUnits, safe, minttd)
         if not isKnown(spell.frozenOrb) or getSpellCD(spell.frozenOrb) ~= 0 or mode.frozenOrb ~= 1 then
             return false
@@ -1340,9 +1343,13 @@ local function runRotation()
             if cast.iceFloes("player") then return true end
         end
 
-        -- actions.single+=/ice_lance
-        if cast.iceLance("target") then return true end
-
+        -- actions.single+=/frostbolt
+        --Filler Spell
+        if ui.value("Filler Spell") ~= 2 then
+            if cast.frostbolt("target") then return true end
+        else
+            if cast.iceLance("target") then return true end
+        end
         -- Fire Blast Moving
         ---if mode.fb ~= 2 and moving and cast.able.fireBlast() then if cast.fireBlast() then return true end end 
     end
