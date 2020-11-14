@@ -50,7 +50,7 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         -----------------------
         local section
-        local alwaysCdNever = alwaysCdNever
+        local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
         section = br.ui:createSection(br.ui.window.profile,  "General")
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
