@@ -663,7 +663,7 @@ actionList.CdSerenity = function()
     end
     -- Serenity
     -- serenity,if=cooldown.rising_sun_kick.remains<2|fight_remains<15
-    if cast.able.serenity() and alwaysCdNever("Serenity") and (cd.risingSunKick.remain() < 2 or (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 15)) then
+    if cast.able.serenity() and alwaysCdNever("Serenity") and (cd.risingSunKick.remain() < 2 or unit.ttdGroup(5) < 15) then
         if cast.serenity() then ui.debug("Casting Serenity") return true end
     end
     -- -- bag_of_tricks
@@ -895,7 +895,7 @@ actionList.Serenity = function()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&(active_enemies>2|active_enemies>1&!cooldown.rising_sun_kick.up)
     if cast.able.spinningCraneKick() and (not wasLastCombo(spell.spinningCraneKick) 
-        and ((ui.mode.rotation == 1 and (#enemies.yards8 > 2 or (#enemies.yards > 1 and cd.risingSunKick.exists()))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)))
+        and ((ui.mode.rotation == 1 and (#enemies.yards8 > 2 or (#enemies.yards8 > 1 and cd.risingSunKick.exists()))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)))
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick(nil,"aoe") then ui.debug("Casting Spinning Crane Kick [Serenity AOE]") return true end
