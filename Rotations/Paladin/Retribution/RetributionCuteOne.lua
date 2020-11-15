@@ -110,7 +110,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Blinding Light", 40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinnerWithout(section, "Blinding Light Units", 3, 1, 5, 1, "|cffFFFFFFUnits to Cast On")
             -- Cleanse Toxin
-            br.ui:createDropdown(section, "Cleanse Toxin", playTarMouseFocLow, 1, "|cffFFFFFFTarget to Cast On")
+            br.ui:createDropdown(section, "Cleanse Toxins", playTarMouseFocLow, 1, "|cffFFFFFFTarget to Cast On")
             -- Divine Shield
             br.ui:createSpinner(section, "Divine Shield",  35,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Eye for an Eye
@@ -326,7 +326,7 @@ actionList.Defensive = function()
         -- Cleanse Toxins
         if ui.checked("Cleanse Toxins") then
             local thisUnit = getHealUnitOption("Cleanse Toxin")
-            if cast.able.clenseToxins(thisUnit) and cast.dispel.cleanseToxins(thisUnit) and unit.distance(thisUnit) < 40 then
+            if cast.able.cleanseToxins(thisUnit) and cast.dispel.cleanseToxins(thisUnit) and unit.distance(thisUnit) < 40 then
                 if cast.cleanseToxins(thisUnit) then ui.debug("Casting Cleanse Toxins on "..unit.name(thisUnit)) return true end
             end
         end
