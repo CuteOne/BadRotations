@@ -71,7 +71,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 202010230709")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 202011151511")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -109,7 +109,6 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Radar")
-        br.ui:createCheckbox(section, "All - root the thing")
         br.ui:createCheckbox(section, "FH - root grenadier")
         br.ui:createCheckbox(section, "AD - root Spirit of Gold")
         br.ui:createCheckbox(section, "KR - root Minions of Zul")
@@ -124,10 +123,6 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Pots - 1 target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile, "Corruption")
-        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Everything", "never" }, 5, "", "")
-        br.ui:createSpinnerWithout(section, "Eye Stacks", 3, 1, 10, 1, "How many stacks before using cloak")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -330,7 +325,11 @@ local function runRotation()
         return time and (GetTime() - time) or 0
     end
 
-
+    local function isCC(unit)
+        if getOptionCheck("Don't break CCs") then
+            return isLongTimeCCed(Unit)
+        end
+    end
     --Print(tostring(mode.DPS))
 
     local function hasHot(unit)
@@ -492,16 +491,23 @@ local function runRotation()
         if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
             return true
         end
-        --[[
-        if inInstance and UnitBuffID(unit, 290026) then
-            if not queenBuff and IsSpellInRange(GetSpellInfo(spell.moonfire), unit) == 1 then
-                queenBuff = true
-            end
+        if isCC(unit) then
             return true
         end
-        ]]
-        if isCasting(302415, unit) then
-            -- emmisary teleporting home
+        if GetObjectID(unit) == 127019 then
+            --dummies inside of Freehold
+            return true
+        end
+        if hasBuff(263246, unit) then
+            -- shields on first boss in temple
+            return true
+        end
+        if hasBuff(260189, unit) then
+            -- shields on last boss in MOTHERLODE
+            return true
+        end
+        if hasBuff(261264, unit) or hasBuff(261265, unit) or hasBuff(261266, unit) then
+            -- shields on witches in wm
             return true
         end
         return false
@@ -587,16 +593,12 @@ local function runRotation()
             root_UnitList[133943] = "minion-of-zul"
             radar = "on"
         end
-        if isChecked("All - root the thing") then
-            root_UnitList[161895] = "the thing from beyond"
-            radar = "on"
-        end
         if isChecked("FH - root grenadier") then
             root_UnitList[129758] = "grenadier"
             radar = "on"
         end
         if isChecked("KR - root Spirit of Gold") then
-            root_UnitList[131009] = "the thing from beyond"
+            root_UnitList[131009] = "root Spirit of Gold"
             radar = "on"
         end
         if isChecked("KR - animated gold") then
@@ -708,20 +710,6 @@ local function runRotation()
                 br.addonDebug("Using neuralSynapseEnhancer ")
             end
         end
-        -- Corruption stuff
-        -- 1 = snare  2 = eye  3 = thing 4 = reverything = 5 = never   -- snare = 315176
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
-                    or getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks"))
-            then
-                if br.player.use.shroudOfResolve() then
-                    br.addonDebug("Using shroudOfResolve")
-                end
-            end
-        end
-
 
 
         --Essence Support
@@ -811,7 +799,7 @@ local function runRotation()
             eclipse_next = "none"
         end
 
-       -- Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
+        -- Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
 
         if mode.rotation < 4 then
 
@@ -899,7 +887,7 @@ local function runRotation()
                 for i = 1, #enemies.yards45 do
                     thisUnit = enemies.yards45[i]
                     -- Print((14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)))
-                    if cast.able.sunfire() and not cast.last.sunfire(1)
+                    if cast.able.sunfire() and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
                             and debuff.sunfire.refresh(thisUnit)
                             and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
                     then
@@ -908,7 +896,7 @@ local function runRotation()
                         end
                     end
                     -- moonfire
-                    if cast.able.moonfire(thisUnit) then
+                    if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
                         if ((cd.incarnationChoseOfElune.ready() or cd.celestialAlignment.ready())
                                 or #enemies.yards45 < 3
                                 or (buff.eclipse_solar.exists() or (buff.eclipse_solar.exists() and buff.eclipse_lunar.exists())
@@ -1507,7 +1495,7 @@ local function runRotation()
                         return true
                     end
                 end
-            end
+            end -- end if 1 = 2
         end --end mode < 4
     end -- end dps()
 
@@ -1788,10 +1776,17 @@ local function runRotation()
             end
         end
         if isChecked("Auto Engage On Target") then
-            if cast.sunfire() then
-                return true
+            if cast.able.sunfire("target") then
+                if cast.sunfire("target") then
+                    return true
+                end
+            elseif cast.able.moonfire("target") then
+                if cast.moonfire("target") then
+                    return true
+                end
             end
         end
+
         if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
             bossHelper()
         end
