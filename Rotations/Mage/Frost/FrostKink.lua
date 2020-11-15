@@ -1650,7 +1650,7 @@ actions.st+=/frostbolt
     -----------------------
     ---     Opener      ---
     -----------------------
-        if opener == false and isChecked("Opener") and isBoss("target") then if actionList_Opener() then return true end end
+       -- if opener == false and isChecked("Opener") and isBoss("target") then if actionList_Opener() then return true end end
 
     ------------------------------
     --- Out of Combat Rotation ---
