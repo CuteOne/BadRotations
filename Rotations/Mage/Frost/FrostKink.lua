@@ -1660,7 +1660,7 @@ actions.st+=/frostbolt
     --------------------------
     --- In Combat Rotation ---
     --------------------------        
-        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target")) then
+        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit then
 
         --------------------------
         --- Defensive Rotation ---
