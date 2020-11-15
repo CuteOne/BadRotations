@@ -1767,7 +1767,7 @@ end-- End of Rotation
         end
         return true
     else
-         if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target") or isDummy()) then
+         if (inCombat or cast.inFlight.arcaneMissiles() or targetUnit) and profileStop == false and targetUnit then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
