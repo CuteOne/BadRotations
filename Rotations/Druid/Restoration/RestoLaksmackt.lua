@@ -2787,7 +2787,7 @@ local function runRotation()
             for i = 1, #enemies.yards10tnc do
                 --if our target is engaged with our tank
                 local thisUnit = enemies.yards10tnc[i]
-                if UnitThreatSituation(tanks[1].unit, thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) or solo then
+                if #tanks > 0 and UnitThreatSituation(tanks[1].unit, thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) or solo then
                     if cast.rake(thisUnit) then
                         return
                     end
