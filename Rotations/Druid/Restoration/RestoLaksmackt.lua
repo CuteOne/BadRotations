@@ -1147,7 +1147,8 @@ local function runRotation()
             local spellTarget = nil
             local furthers_friend
             local furthest_distance = 0
-            if someone_casting and mode.HEALS == 1 then
+
+            if someone_casting and mode.hEALS == 1 then
                 for i = 1, countSmart do
                     local thisUnit = enemies.yards40[i]
                     local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
@@ -1198,7 +1199,7 @@ local function runRotation()
                                     return true
                                 end
                             end
-                            if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) > getValue("Use Bark w/Smart Hot") then
+                            if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) < getValue("Use Bark w/Smart Hot") then
                                 if cast.ironbark(spellTarget) then
                                     br.addonDebug("[Snipe]Bark on: " .. UnitName(spellTarget))
                                     return true
@@ -1282,9 +1283,6 @@ local function runRotation()
 
         -- Underrot
 
-
-
-
         -- Temple of Sethraliss
         if lowest.hp > getOptionValue("Critical HP") then
             for i = 1, GetObjectCountBR() do
@@ -1330,8 +1328,6 @@ local function runRotation()
         end
 
         if heal_target ~= "none" then
-
-
             if talent.germination and not buff.rejuvenationGermination.exists(heal_target) then
                 if cast.rejuvenation(heal_target) then
                     br.addonDebug("[BOSS]Germination on: " .. UnitName(heal_target))
@@ -1343,7 +1339,6 @@ local function runRotation()
                     return true
                 end
             end
-
             if not seth_routine then
                 if cast.able.ironbark() then
                     if cast.ironbark(heal_target) then
