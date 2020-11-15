@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.5"
+local rotationVer  = "v1.0.8"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -91,7 +91,7 @@ local function createToggles()
     }
     CreateButton("ArcaneExplosion", 4, 1)
 
-        -- Arcane Explosion Button
+    -- Frost Nova Button
     FrostNovaModes = {
         [1] = {mode = "On", value = 1, overlay = "Frost Nova Enabled", tip = "Will use Frost Nova", highlight = 1, icon = br.player.spell.frostNova},
         [2] = {mode = "Off", value = 2, overlay = "Frost Nova Disabled", tip = "Will not use Frost Nova", highlight = 0, icon = br.player.spell.frostNova}
@@ -113,6 +113,9 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General | " .. rotationVer)
         -- APL
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
+
+        -- Filler Spell
+        br.ui:createDropdownWithout(section, "Filler Spell", {"|cffFFBB00Frostbolt", "|cffFFBB00Ice Lance"}, 1, "|cffFFBB00Filler Spell to use.")
 
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -751,7 +754,7 @@ local function runRotation()
         end
     end
 
-    --
+    -- Frozen orb
     local function castFrozenOrb(minUnits, safe, minttd)
         if not isKnown(spell.frozenOrb) or getSpellCD(spell.frozenOrb) ~= 0 or mode.frozenOrb ~= 1 then
             return false
@@ -1201,7 +1204,7 @@ local function runRotation()
             
         -- actions.single=ice_nova,if=cooldown.ice_nova.ready&debuff.winters_chill.up
         if debuff.wintersChill.exists("target") then
-            if cast.iceNova("target") then return true end
+            if cast.iceLance("target") then return true end
         end
 
         -- # Without GS, Ebonbolt is always shattered. With GS, Ebonbolt is shattered if it would waste Brain Freeze charge (i.e. when the mage starts casting Ebonbolt with Brain Freeze active) or when below 4 Icicles (if Ebonbolt is cast when the mage has 4-5 Icicles, it's better to use the Brain Freeze from it on Glacial Spike).
@@ -1340,9 +1343,13 @@ local function runRotation()
             if cast.iceFloes("player") then return true end
         end
 
-        -- actions.single+=/ice_lance
-        if cast.iceLance("target") then return true end
-
+        -- actions.single+=/frostbolt
+        --Filler Spell
+        if ui.value("Filler Spell") ~= 2 then
+            if cast.frostbolt("target") then return true end
+        else
+            if cast.iceLance("target") then return true end
+        end
         -- Fire Blast Moving
         ---if mode.fb ~= 2 and moving and cast.able.fireBlast() then if cast.fireBlast() then return true end end 
     end
@@ -1483,6 +1490,45 @@ local function runRotation()
 
     end
 
+
+    --[[
+
+Simc Action list Date: 11/14/2020
+-----------------------------------
+actions.st=flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.glacial_spike|prev_gcd.1.frostbolt|prev_gcd.1.radiant_spark|buff.fingers_of_frost.react=0&(debuff.mirrors_of_torment.up|buff.freezing_winds.up|buff.expanded_potential.react)))
+actions.st+=/frozen_orb
+actions.st+=/blizzard,if=buff.freezing_rain.up|active_enemies>=2
+actions.st+=/ray_of_frost,if=remaining_winters_chill=1&debuff.winters_chill.remains
+actions.st+=/glacial_spike,if=remaining_winters_chill&debuff.winters_chill.remains>cast_time+travel_time
+actions.st+=/ice_lance,if=remaining_winters_chill&remaining_winters_chill>buff.fingers_of_frost.react&debuff.winters_chill.remains>travel_time
+actions.st+=/comet_storm
+actions.st+=/ice_nova
+actions.st+=/radiant_spark,if=buff.freezing_winds.up&active_enemies=1
+actions.st+=/ice_lance,if=buff.fingers_of_frost.react|debuff.frozen.remains>travel_time
+actions.st+=/ebonbolt
+actions.st+=/radiant_spark,if=(!runeforge.freezing_winds.equipped|active_enemies>=2)&buff.brain_freeze.react
+actions.st+=/mirrors_of_torment
+actions.st+=/shifting_power,if=buff.rune_of_power.down&(!cooldown.rune_of_power.ready|soulbind.grove_invigoration.enabled|soulbind.field_of_blossoms.enabled|runeforge.freezing_winds.equipped|active_enemies>=2)
+actions.st+=/frost_nova,if=runeforge.grisly_icicle.equipped&target.level<=level&debuff.frozen.down
+actions.st+=/arcane_explosion,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_arcane.down
+actions.st+=/fire_blast,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
+actions.st+=/glacial_spike,if=buff.brain_freeze.react
+actions.st+=/frostbolt
+    ]]
+
+    local function actionList_ST2()
+
+
+        
+
+        -- actions.st+=/glacial_spike,if=buff.brain_freeze.react
+        if cast.able.glacialSpike() and buff.brainFreeze.exists() then br.addonDebug("[Action:ST] Glacial Spike (Brain Freeze React)") return true end 
+
+        -- actions.st+=/frostbolt
+        if cast.able.frostbolt() then if cast.frostbolt() then br.addonDebug("[Action:ST] Frostbolt") return true end end 
+
+    end
+
     local function actionList_Rotation()
         if (((fofExists and not isChecked("No Ice Lance")) or ((bfExists or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
@@ -1507,7 +1553,7 @@ local function runRotation()
             if actionList_Cooldowns() then return true end
 
 
-            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and not cast.able.icyVeins() or cast.timeSinceLast.icyVeins() >= 13.5 then 
+            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and cast.timeSinceLast.icyVeins() >= 10 then 
                 if cast.runeofPower() then return true end 
             end
 

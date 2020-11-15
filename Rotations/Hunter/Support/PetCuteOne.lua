@@ -162,7 +162,7 @@ br.rotations.support["PetCuteOne"] = {
         end
 
         -- Pet Summoning (Call, Dismiss, Revive)
-        if mode.petSummon ~= 6 and not var.haltPetProfile then
+        if mode.petSummon ~= 6 and not var.haltPetProfile and not pause() then
             if petAppearTimer < GetTime() - 2 then
                 -- Check for Pet
                 if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
@@ -173,13 +173,12 @@ br.rotations.support["PetCuteOne"] = {
                 if mode.petSummon <  6 and callPetName ~= "" then
                     -- Call Pet
                     if ((not br.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
-                        Print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")
-                        if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Call Pet") petAppearTimer = GetTime(); petCalled = true; petRevived = false; return true end
+                        if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Call Pet") ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!") petAppearTimer = GetTime(); petCalled = true; petRevived = false; return true end
                     end
                     -- Revive Pet
                     if br.deadPet or (petExists and petHealth == 0) or petCalled == true then
                         if cast.able.revivePet() and cast.timeSinceLast.revivePet() > unit.gcd(true) then
-                            if cast.revivePet("player") then ui.debug("[Pet] Revive Pet") petAppearTimer = GetTime(); petRevived = true; petCalled = false; return true end
+                            if cast.revivePet("player") then ui.debug("[Pet] Revive Pet") ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!") petAppearTimer = GetTime(); petRevived = true; petCalled = false; return true end
                         end
                     end
                 end

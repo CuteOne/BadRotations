@@ -19,6 +19,12 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "target" end
         return isAberration(thisUnit)
     end
+    -- Beast
+    unit.beast = function(thisUnit)
+        local isBeast = _G["isBeast"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isBeast(thisUnit)
+    end
     -- Can Attack
     unit.canAttack = function(thisUnit,playerUnit)
         local UnitCanAttack = _G["UnitCanAttack"]
@@ -56,6 +62,11 @@ br.api.unit = function(self)
     unit.distance = function(thisUnit,otherUnit)
         local getDistance = _G["getDistance"]
         return getDistance(thisUnit,otherUnit)
+    end
+    -- Dual Wielding
+    unit.dualWielding = function()
+        local IsDualWielding = _G["IsDualWielding"]
+        return IsDualWielding()
     end
     -- Enemy
     unit.enemy = function(thisUnit,playerUnit)
@@ -127,6 +138,12 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "player" end
         return getHP(thisUnit)
     end
+    -- Humanoid
+    unit.humanoid = function(thisUnit)
+        local isHumanoid = _G["isHumanoid"]
+        if thisUnit == nil then thisUnit = "target" end
+        return isHumanoid(thisUnit)
+    end
     --  In Combat
     unit.inCombat = function(thisUnit)
         local UnitAffectingCombat = _G["UnitAffectingCombat"]
@@ -168,6 +185,7 @@ br.api.unit = function(self)
     -- Is Unit
     unit.isUnit = function(thisUnit,otherUnit)
         local UnitIsUnit = _G["UnitIsUnit"]
+        if thisUnit == nil or otherUnit == nil then return false end
         return UnitIsUnit(thisUnit,otherUnit)
     end
     -- Level
@@ -236,7 +254,8 @@ br.api.unit = function(self)
     unit.startAttack = function(thisUnit,autoShoot)
         local IsCurrentSpell = _G["IsCurrentSpell"]
         local StartAttack = _G["StartAttack"]
-        if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
+        -- if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
+        if not IsCurrentSpell(6603) then
             StartAttack(thisUnit)
             if autoShoot then 
                 self.ui.debug("Casting Auto Shot")

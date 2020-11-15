@@ -545,8 +545,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
     -- Invalid Spell ID Check
 	if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
     local spellCast = spellID
-    local spellName,_,icon,castTime,minRange,maxRange = GetSpellInfo(spellID)
-	local spellType = getSpellType(spellName)
+	local spellName,_,icon,castTime,minRange,maxRange = GetSpellInfo(spellID)
+	local baseSpellID = FindBaseSpellByID(spellID)
+	local baseSpellName = GetSpellInfo(baseSpellID)
+	local spellType = getSpellType(baseSpellName)
 	-- Quaking helper - M+ Affix
 	if getOptionCheck("Quaking Helper") then
 		--Detect channels
@@ -590,6 +592,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		mainButton:SetNormalTexture(icon)
 		-- Update Last Cast
 		lastSpellCast = spellID
+		lastSpellTarget = UnitGUID(thisUnit)
 		return true
 	end
 	-- Talent Check
@@ -612,9 +615,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCast.tracker[1] ~= spellID)
 	end
 	-- Base Spell Availablility Check
-	if IsUsableSpell(spellID) --[[not select(2,IsUsableSpell(spellID))]] and getSpellCD(spellID) == 0 and (getSpellCD(61304) == 0 or select(2,GetSpellBaseCooldown(spellID)) == 0) 
-		and (isKnown(spellID) or debug == "known") and not IsCurrentSpell(spellID)
-		and not isCastingSpell(spellID,"player") and hasTalent(spellID) and hasEssence() and queensCourtCastCheck(spellID)--and not isIncapacitated(spellID)
+	if IsUsableSpell(spellID) --[[not select(2,IsUsableSpell(spellID))]] and getSpellCD(spellID) == 0 and (getSpellCD(61304) == 0 or select(2,GetSpellBaseCooldown(spellID)) == 0)
+		and (isKnown(spellID) or debug == "known") and not IsCurrentSpell(spellID) and not isCastingSpell(spellID,"player")
+		and hasTalent(spellID) and hasEssence() and queensCourtCastCheck(spellID)--and not isIncapacitated(spellID)
 	then
 		local function printReport(debugOnly)
 			if ((isChecked("Display Failcasts") and not debugOnly) or isChecked("Cast Debug")) and debug ~= "debug" and thisUnit ~= "None" then
@@ -634,9 +637,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		local unitAssigned = false
 		if thisUnit == nil then
 			if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then
-				thisUnit = getSpellUnit(spellID,false,minRange,maxRange,spellType)
+				thisUnit = getSpellUnit(baseSpellID,false,minRange,maxRange,spellType)
 			else
-				thisUnit = getSpellUnit(spellID,true,minRange,maxRange,spellType)
+				thisUnit = getSpellUnit(baseSpellID,true,minRange,maxRange,spellType)
 			end
 			if thisUnit ~= nil and thisUnit ~= "None" then unitAssigned = true end
 		end
@@ -663,9 +666,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 			end
 		end
 		-- Other Cast Conditions - Require Target
-		if thisUnit ~= nil and thisUnit ~= "None" then
+		if thisUnit ~= nil and thisUnit ~= "None" and (GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or getLineOfSight(thisUnit)) then
 			-- Determined Target Pet/Normal Cast (Early Exit as Range Checks done to determine target)
-			if unitAssigned and (debug == "norm" or debug == "pet") then
+			if unitAssigned and (debug == "norm" or debug == "pet") and (thisUnit == "player" or getFacing("player",thisUnit)) then
 				if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
 					-- Cast Ability
 					if debug == "pet" then return castingSpell(thisUnit,spellID,spellName,icon) else return castingSpell(thisUnit,spellID,spellName,icon) end
@@ -692,9 +695,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 					local enemyCount = #getEnemies("player",maxRange) or 0
 					if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
 						if isDummy() or isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
-							if debug == "ground" and getLineOfSight(thisUnit) then
+							if debug == "ground" then--and getLineOfSight(thisUnit) then
 								return castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
-							elseif debug == "aoe" or debug == "cone" or debug == "rect" then
+							elseif debug == "aoe" or ((debug == "cone" or debug == "rect") and (thisUnit == "player" or getFacing("player",thisUnit))) then
 								return castingSpell(thisUnit,spellID,spellName,icon)
 							end
 						elseif isChecked("Display Failcasts") or isChecked("Cast Debug") then
@@ -704,7 +707,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..enemyCount.." enemies in "..maxRange.."yrds, but "..minUnits.." are needed to cast.")
 					end
 				-- Cast Non-AOE
-				elseif (debug == "norm" or debug == "pet") then
+				elseif (debug == "norm" or debug == "pet") and (thisUnit == "player" or getFacing("player",thisUnit)) then
 					if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
 						return castingSpell(thisUnit,spellID,spellName,icon)
 					elseif isChecked("Display Failcasts") or isChecked("Cast Debug") then

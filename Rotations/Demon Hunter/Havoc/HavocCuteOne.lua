@@ -273,7 +273,7 @@ actionList.Defensive = function()
         end
         -- Chaos Nova
         if ui.checked("Chaos Nova - HP") and cast.able.chaosNova() and not buff.metamorphosis.exists()
-            and unit.hp()<= ui.value("Chaos Nova - HP") and unit.inCombat() and #enemies.yards5 > 0
+            and unit.hp() <= ui.value("Chaos Nova - HP") and unit.inCombat() and #enemies.yards5 > 0
         then
             if cast.chaosNova() then ui.debug("Casting Chaos Nova [HP]") return true end
         end
@@ -431,7 +431,7 @@ actionList.Cooldowns = function()
                 -- Basic Trinket Module
                 if not (equiped.galecallersBoon(i) and equiped.pocketSizedComputationDevice(i) and equiped.ashvanesRazorCoral(i) and equiped.azsharasFontOfPower(i)) then
                     -- use_items,if=buff.metamorphosis.up
-                    if (buff.metamorphosis.exists() and ui.useCDs() and (opValue == 2 or opValue == 3)) or opValue == 1 or (opValue == 2 and ui.useAoE()) then
+                    if (buff.metamorphosis.exists() and ui.useCDs() and (opValue == 2 or opValue == 3)) or opValue == 1 or (opValue == 2 and ui.useAOE()) then
                         module.BasicTrinkets(i)
                     end
                 end

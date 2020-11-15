@@ -1071,7 +1071,7 @@ local function runRotation()
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
                 if cast.able.cenarionWard() then
-                    if cast.cenarionWard(lowest.hp) then
+                    if cast.cenarionWard(lowest.unit) then
                         br.addonDebug("[CRIT]CWard on: " .. UnitName(lowest.unit))
                         return true
                     end
@@ -1181,9 +1181,11 @@ local function runRotation()
                     if isChecked("Smart Hot") then
                         --        if someone_casting then
                         if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
-                            if cast.cenarionWard(spellTarget) then
-                                br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
-                                return true
+                            if cast.able.cenarionWard() then
+                                if cast.cenarionWard(spellTarget) then
+                                    br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
+                                    return true
+                                end
                             end
                             if talent.germination and not buff.rejuvenationGermination.exists(spellTarget) then
                                 if cast.rejuvenation(spellTarget) then

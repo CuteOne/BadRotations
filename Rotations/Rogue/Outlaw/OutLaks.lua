@@ -141,7 +141,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "[AM] - Tricks", "Shake aggro?")
         br.ui:createCheckbox(section, "[AM] - Vanish", "Shake aggro?")
         br.ui:createCheckbox(section, "[AM] - Evasion", "Shake aggro?")
-
+        br.ui:createCheckbox(section, "[AM] - Kidney", "Shake aggro?")
         br.ui:checkSectionState(section)
 
     end
@@ -935,8 +935,10 @@ actionList.dps = function()
         end
     else
         if not stealth and not should_pool then
+
             if cast.able.pistolShot() and buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
                     or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
+                    or buff.opportunity.exists() and (buff.deadShot.exists()) --or buff.greenskinsWickers.exists() or buff.concealedBlunderbuss.exists())
                     and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
                 --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
                 if cast.pistolShot(units.dyn20) then
@@ -1698,6 +1700,14 @@ local function runRotation()
                         if cast.tricksOfTheTrade(tricksunit) then
                             br.addonDebug("[AM] - Tricks on: " .. tricksunit)
                         end
+                    end
+                end
+                if isChecked("[AM] - Kidney") and cast.able.kidneyShot(enemies.yards20[i]) and combo > 0 and getDistance(enemies.yards20[i]) < 8 and ObjectIsFacing("player", enemies.yards20[i])
+                        and not isBoss(enemies.yards20[i]) and StunsBlackList[GetObjectID(enemies.yards20[i])] == nil and not already_stunned(enemies.yards20[i]) then
+                    if cast.kidneyShot(enemies.yards20[i]) then
+                        br.addonDebug("[AM]Kidney/stunning")
+                        someone_casting = false
+                        return true
                     end
                 end
                 if isChecked("[AM] - Evasion") and cast.able.evasion() and useDefensive() then

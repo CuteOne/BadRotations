@@ -81,7 +81,7 @@ Raidable means if its good to raid with.
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Panglo    | Unknown |  8.3  |   100% | :white_check_mark:
+Panglo  | Unknown |  8.3  |   100% | :white_check_mark:
 
 - Frost
 
@@ -102,7 +102,7 @@ CuteOne  |  Full   |  9.0  |   100% | :white_check_mark:
 - Havoc
 
 author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
+:------ | :-----: | :--:  | -----: | :----------------:
 CuteOne |  Full   |  9.0  |   100% | :white_check_mark:
 Kuukuu  |Sporadic |  8.3  |   99%  | :white_check_mark:
 
@@ -140,7 +140,7 @@ Laksmackt        |  Full   | 9.0   |   98% | :white_check_mark:
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
 Aura             |  Full   | 8.2   |   99%  | :white_check_mark:
-Laksmackt        |  M+     | 9.0   |   100%  | :x:
+Laksmackt        |  M+     | 9.0   |   100% | :x:
 
 - Inital 1-10 Supported - Patch 9.0
 
@@ -149,19 +149,19 @@ Laksmackt        |  M+     | 9.0   |   100%  | :x:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |  Full    |  8.3  |   100% | :white_check_mark:
+CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 - Marksmanship
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |  Full    |  8.3  |   100% | :interrobang:
+CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 - Survival
 
 author   | support  | patch | status |   raidable?
 :------- | :------: | :---: | -----: | :-----------:
-CuteOne  |  Full    |  8.3  |   100% | :white_check_mark:
+CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
 
@@ -177,8 +177,8 @@ Reyne  |  Inactive   | 8.0   |   100% | :interrobang:
 
 author          | support | patch | status |   raidable?
 :-------------- | :-----: | :---: | -----: | :-----------:
-winston         |  Full   | 8.0 |   99% | :interrobang:
-Psy             |  Full   | 8.3   | 90% | :white_check_mark:
+winston         |  Full   | 8.0   |   99%  | :interrobang:
+Psy             |  Full   | 8.3   | 90%    | :white_check_mark:
 
 - Frost
 
@@ -201,13 +201,13 @@ Panglo |   Full  |  8.0  |    100%| :white_check_mark:
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 Panglo   | Full     | 8.1   |    75% | :interrobang:
-Laksmackt   | Full     | 8.3   |    75% | :heavy_check_mark:
+Laksmackt| Full     | 8.3   |    75% | :heavy_check_mark:
 
 - Windwalker
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   |  8.3  |   99%  | :white_check_mark:
+CuteOne |  Full   |  9.0  |  100%  | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
 
@@ -217,20 +217,20 @@ CuteOne |  Full   |  8.3  |   99%  | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Laksmackt |  none   | 8.3 |   99% | :white_check_mark:
+Laksmackt|  none   | 8.3   |   99%  | :white_check_mark:
 
 - Protection
 
-author | support  | patch | status |   raidable?
-:----- | :------: | :---: | -----: | :-----------:
-Fengshen| Inactive | 8.0 |   99% | :interrobang:
-Panglo | Full     | 8.3   | ???    | :white_check_mark:
+author  | support  | patch | status |   raidable?
+:-----  | :------: | :---: | -----: | :-----------:
+Fengshen| Inactive | 8.0   |   99%  | :interrobang:
+Panglo  | Full     | 8.3   | ???    | :white_check_mark:
 
 - Retribution
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.2   |   100% | :white_check_mark:
+CuteOne |  Full   | 9.0   |   100% | :white_check_mark:
 Fiskee  |  Full   | 8.0   |   99%  | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
@@ -253,7 +253,7 @@ Aura       | Full    | 8.2   |   100% |   :white_check_mark:
 
 author           |    support    | patch | status | raidable?
 :--------------- | :-----------: | :---: | -----: | :-------:
-winston       | Full          | 8.0  |   95% | :white_check_mark:
+winston          | Full          | 8.0   |   95%  | :white_check_mark:
 Panglo           | Full          | 8.2   | ???    | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
@@ -296,7 +296,7 @@ Aura    |  Full   | 8.0   |   90% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.3   |   99%  | :white_check_mark:
+CuteOne |  Full   | 9.0   |   99%  | :white_check_mark:
 Aura    |  Full   | 8.0   |   90%  | :white_check_mark:
 
 - Restoration

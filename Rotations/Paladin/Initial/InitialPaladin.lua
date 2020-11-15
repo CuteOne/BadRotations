@@ -52,7 +52,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Flash of Light", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Hammer of Justice
             br.ui:createSpinner(section, "Hammer of Justice - Defensive", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Lay on Hands            
+            -- Lay on Hands
             br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Word of Glory
             br.ui:createSpinner(section, "Word of Glory", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -143,7 +143,7 @@ actionList.Defensive = function()
             end
         end
         -- Call Module- Basic Healing
-        if module.BasicHealing() then return true end
+        module.BasicHealing()
         -- -- Pot/Stoned
         -- if ui.checked("Healthstone/Potion") and unit.hp()<= ui.value("Healthstone/Potion") and unit.inCombat() then
         --     -- Lock Candy
@@ -212,7 +212,7 @@ end -- End Action List - Interrupt
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() then
-        if unit.valid("target") then   
+        if unit.valid("target") then
             -- Judgment
             if cast.able.judgment("target") and unit.exists("target") and unit.distance("target") < 30 then
                 if cast.judgment("target") then ui.debug("Casting Judgment [Pull]") return true end
@@ -301,7 +301,7 @@ local function runRotation()
                 if actionList.Interrupt() then return true end
                 ------------
                 --- Main ---
-                ------------   
+                ------------
                 if var.range5 then
                     -- Start Attack
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
@@ -312,7 +312,7 @@ local function runRotation()
                     for i = 13, 14 do
                         thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
                         local opValue = ui.value(thisTrinket)
-                        if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i) 
+                        if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i)
                         and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
                         then
                             use.slot(i)
@@ -321,7 +321,7 @@ local function runRotation()
                         end
                     end
                     -- Shield of the Righteous
-                    if cast.able.shieldOfTheRighteous() and equiped.type("Shields") then
+                    if cast.able.shieldOfTheRighteous() then
                         if cast.shieldOfTheRighteous() then ui.debug("Casting Shield of the Righteous") return true end
                     end
                 end

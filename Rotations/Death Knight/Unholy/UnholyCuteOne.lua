@@ -45,11 +45,12 @@ end
 ---------------
 local function createOptions()
     local optionTable
-    local section
     local function rotationOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
+        local section
+        local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
         section = br.ui:createSection(br.ui.window.profile,  "General")
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
@@ -111,19 +112,19 @@ local function createOptions()
             -- Azerite Beam Units
             br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
             -- Apocalypse
-            br.ui:createDropdownWithout(section, "Apocalypse", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Apocalypse.")
+            br.ui:createDropdownWithout(section, "Apocalypse", alwaysCdNever, 1, "|cffFFFFFFWhen to use Apocalypse.")
             -- Army of the Dead
-            br.ui:createDropdownWithout(section, "Army of the Dead", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Army of the Dead.")
+            br.ui:createDropdownWithout(section, "Army of the Dead", alwaysCdNever, 1, "|cffFFFFFFWhen to use Army of the Dead.")
             -- Dark Transformation
-            br.ui:createDropdownWithout(section, "Dark Transformation", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Dark Transformation.")
+            br.ui:createDropdownWithout(section, "Dark Transformation", alwaysCdNever, 1, "|cffFFFFFFWhen to use Dark Transformation.")
             -- Soul Reaper
-            br.ui:createDropdownWithout(section, "Soul Reaper", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Soul Reaper.")
+            br.ui:createDropdownWithout(section, "Soul Reaper", alwaysCdNever, 1, "|cffFFFFFFWhen to use Soul Reaper.")
             -- Summon Gargoyle
-            br.ui:createCheckbox(section, "Summon Gargoyle")
+            br.ui:createDropdownWithout(section, "Summon Gargoyle", alwaysCdNever, 1, "|cffFFFFFFWhen to use Summon Gargoyle.")
             -- Unholy BLight
-            br.ui:createDropdownWithout(section, "Unholy Blight", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Blight.")
+            br.ui:createDropdownWithout(section, "Unholy Blight", alwaysCdNever, 1, "|cffFFFFFFWhen to use Unholy Blight.")
             -- Unholy Assault
-            br.ui:createDropdownWithout(section, "Unholy Assault", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Assault.")
+            br.ui:createDropdownWithout(section, "Unholy Assault", alwaysCdNever, 1, "|cffFFFFFFWhen to use Unholy Assault.")
             br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -209,6 +210,7 @@ local var
 
 -- General Locals
 local actionList = {}
+local waitForPetToAppear
 
 --------------------
 --- Action Lists ---
@@ -232,7 +234,6 @@ actionList.PetManagement = function()
     local petCombat = unit.inCombat("pet")
     local petExists = br.player.pet.active.exists()
     local petMode = getCurrentPetMode()
-    local waitForPetToAppear
     local validTarget = unit.exists("pettarget") or (not unit.exists("pettarget") and unit.valid("target")) or unit.isDummy("target")
     if petExists and br.deadPet then br.deadPet = false end
     if waitForPetToAppear == nil or IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
@@ -242,7 +243,7 @@ actionList.PetManagement = function()
             if cast.able.raiseDead() and (br.deadPet or (not br.deadPet and not petExists)
                 or (talent.allWillServe and not pet.risenSkulker.exists()))
             then
-                if cast.raiseDead() then waitForPetToAppear = GetTime(); ui.debug("Casting Raise Dead") return true end
+                if cast.raiseDead("player") then waitForPetToAppear = GetTime(); ui.debug("Casting Raise Dead") return true end
             end
         end
     end
@@ -424,14 +425,13 @@ actionList.Cooldowns = function()
     -- potion,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned.enabled&(pet.army_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
     -- Army of the Dead
     -- army_of_the_dead,if=cooldown.unholy_blight.remains<5&talent.unholy_blight.enabled|!talent.unholy_blight.enabled
-    if (ui.value("Army of the Dead") == 1 or (ui.value("Army of the Dead") == 2 and ui.useCDs()))
-        and var.fightRemains >= ui.value("CDs TTD Limit") and cast.able.armyOfTheDead()
-        and ((cd.unholyBlight.remains() < 5 and talent.unholyBlight) or not talent.unholyBlght)
+    if ui.alwaysCdNever("Army of the Dead") and unit.ttdGroup(40) >= ui.value("CDs TTD Limit") and cast.able.armyOfTheDead()
+        and ((cd.unholyBlight.remains() < 5 and talent.unholyBlight) or not talent.unholyBlght or not ui.alwaysCdNever("Unholy Blight"))
     then
         if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead") return true end
     end
     -- Unholy Blight
-    if cast.able.unholyBlight() then
+    if ui.alwaysCdNever("Unholy Blight") and cast.able.unholyBlight() then
         -- unholy_blight,if=!raid_event.adds.exists&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)&(cooldown.apocalypse.ready&(debuff.festering_wound.stack>=4|rune>=3)|cooldown.apocalypse.remains)&!raid_event.adds.exists
         if ui.useST(8,2) and (cd.armyOfTheDead.remains() > 5 or var.aotdBypass)
             and (not cd.apocalypse.exists() and (debuff.festeringWound.stack(units.dyn5) >= 4 or runes >= 3)
@@ -445,7 +445,7 @@ actionList.Cooldowns = function()
         end
     end
     -- Dark Transformation
-    if cast.able.darkTransformation() then
+    if ui.alwaysCdNever("Dark Transformation") and cast.able.darkTransformation() and pet.active.exists() then
         -- dark_transformation,if=!raid_event.adds.exists&cooldown.unholy_blight.remains&(!runeforge.deadliest_coil.equipped|runeforge.deadliest_coil.equipped&(!buff.dark_transformation.up&!talent.unholy_pact.enabled|talent.unholy_pact.enabled))
         if ui.useST(8,2) and cd.unholyBlight.exists() then--and (not )
             if cast.darkTransformation() then ui.debug("Casting Dark Transformation [Unholy Blight]") return true end
@@ -460,11 +460,11 @@ actionList.Cooldowns = function()
         end
     end
     -- Apocalypse
-    if (ui.value("Apocalypse") == 1 or (ui.value("Apocalypse") == 2 and ui.useCDs())) and cast.able.apocalypse() then
+    if ui.alwaysCdNever("Apocalypse") and cast.able.apocalypse() then
         -- apocalypse,if=active_enemies=1&debuff.festering_wound.stack>=4&((!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled)|talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&dot.unholy_blight.remains)
-        if enemies.yards8 == 1 and debuff.festeringWound.stack(units.dyn5) >= 4
-            and ((not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]]
-                or talent.unholyBlight and not talent.armyOfTheDamned and debuff.unholyBlight.exists(units.dyn5)))
+        if ui.useST(8,2) and debuff.festeringWound.stack(units.dyn5) >= 4
+            and ((not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]])
+                or ((talent.unholyBlight and not talent.armyOfTheDamned and debuff.unholyBlight.exists(units.dyn5)) or not ui.alwaysCdNever("Unholy Blight")))
         then
             if cast.apocalypse() then ui.debug("Casting Apocalypse [ST]") return true end
         end
@@ -475,13 +475,11 @@ actionList.Cooldowns = function()
     end
     -- Summon Gargoyle
     -- summon_gargoyle,if=runic_power.deficit<14
-    if ui.checked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and var.fightRemains >= ui.value("CDs TTD Limit") then
+    if ui.alwaysCdNever("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and unit.ttdGroup(40) >= ui.value("CDs TTD Limit") then
         if cast.summonGargoyle() then ui.debug("Casting Summon Gargoyle") return true end
     end
     -- Unholy Assault
-    if (ui.value("Unholy Assault") == 1 or (ui.value("Unholy Assault") == 2 and ui.useCDs()))
-        and cast.able.unholyAssault() and var.fightRemains >= ui.value("CDs TTD Limit")
-    then
+    if ui.alwaysCdNever("Unholy Assault") and cast.able.unholyAssault() and unit.ttdGroup(40) >= ui.value("CDs TTD Limit") then
         -- unholy_assault,if=active_enemies=1&debuff.festering_wound.stack<2&(pet.apoc_ghoul.active|conduit.convocation_of_the_dead.enabled)
         if ui.useST(8,2) and debuff.festeringWound.stack(units.dyn5) < 2 and pet.apocalypseGhoul.active() then
             if cast.unholyAssault() then ui.debug("Casting Unholy Assault [ST]") return true end
@@ -492,7 +490,7 @@ actionList.Cooldowns = function()
         end
     end
     -- Soul Reaper
-    if (ui.value("Soul Reaper") == 1 or (ui.value("Soul Reaper") == 2 and ui.useCDs())) and cast.able.soulReaper() then
+    if ui.alwaysCdNever("Soul Reaper") and cast.able.soulReaper() then
         -- soul_reaper,target_if=target.time_to_pct_35<5&target.time_to_die>5
         if unit.ttd(units.dyn5,35) < 5 and unit.ttd(units.dyn5) > 5 then
             if cast.soulReaper() then ui.debug("Casting Soul Reaper") return true end
@@ -591,7 +589,7 @@ actionList.AOE_Setup = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle&runic_power.deficit<20|buff.sudden_doom.react
-    if cast.able.epidemic() and not var.poolForGargoyle and runicPowerDeficit < 20 or buff.suddenDoom.exists() then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPowerDeficit < 20 or (buff.suddenDoom.exists() and unit.level() >= 34) then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup - Low Runic or Sudden Doom]") return true end
     end
     -- Festering Strike
@@ -614,7 +612,7 @@ actionList.AOE_Setup = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and not var.poolForGargoyle then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup]") return true end
     end
 end -- End Action List - AOE Setup
@@ -631,7 +629,7 @@ actionList.AOE_Burst = function()
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - High Wounded]") return true end
     end
     -- epidemic,if=!death_knight.fwounded_targets&!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and var.fwoundTargets == 0 and not var.poolForGargoyle then
+    if cast.able.epidemic() and var.fwoundTargets == 0 and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - No Wounded]") return true end
     end
     -- Scourge Strike
@@ -641,7 +639,7 @@ actionList.AOE_Burst = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and not var.poolForGargoyle then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst]") return true end
     end
 end -- End Action List - AOE Burst
@@ -650,17 +648,17 @@ end -- End Action List - AOE Burst
 actionList.AOE = function()
     -- Epidemic
     -- epidemic,if=buff.sudden_doom.react
-    if cast.able.epidemic() and buff.suddenDoom.exists() then
+    if cast.able.epidemic() and (buff.suddenDoom.exists() or unit.level() >= 34) and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE - Sudden Doom]") return true end
     end
     -- epidemic,if=!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and not var.poolForGargoyle then
+    if cast.able.epidemic() and not var.poolForGargoyle and runicPower >= 30 then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE]") return true end
     end
     -- Scourge Strike
     -- wound_spender,target_if=max:debuff.festering_wound.stack,if=(cooldown.apocalypse.remains>5&debuff.festering_wound.up|debuff.festering_wound.stack>4)&(fight_remains<cooldown.death_and_decay.remains+10|fight_remains>cooldown.apocalypse.remains)
-    if cast.able.scourgeStrike() and (cd.apocalypse.remain() > 5 and debuff.festeringWound.exists(var.fwoundHighUnit) or var.fwoundHighest > 4)
-        and (var.fightRemains < cd.deathAndDecay.remains() + 10 or var.fightRemains > cd.apocalypse.remains())
+    if cast.able.scourgeStrike() and ((cd.apocalypse.remain() > 5 or var.apocBypass) and debuff.festeringWound.exists(var.fwoundHighUnit) or var.fwoundHighest > 4)
+        and (unit.ttdGroup(40) < cd.deathAndDecay.remains() + 10 or unit.ttdGroup(40) > cd.apocalypse.remains())
     then
         if cast.scourgeStrike(var.fwoundHighUnit) then ui.debug("Casting Scourge Strike [AOE]") return true end
     end
@@ -671,7 +669,7 @@ actionList.AOE = function()
             if cast.festeringStrike(var.fwoundHighUnit) then ui.debug("Casting Festering Strike [AOE - Max Stack Low") return true end
         end 
         -- festering_strike,target_if=min:debuff.festering_wound.stack,if=cooldown.apocalypse.remains>5&debuff.festering_wound.stack<1
-        if cd.apocalypse.remains() > 5 and var.fwoundLowest < 1 then
+        if (cd.apocalypse.remains() > 5 or var.apocBypass) and var.fwoundLowest < 1 then
             if cast.festeringStrike(var.fwoundLowUnit) then ui.debug("Casting Festering Strike [AOE - Low Stack") return true end
         end
     end
@@ -692,7 +690,7 @@ actionList.Single = function()
     end
     -- Defile
     -- defile,if=cooldown.apocalypse.remains
-    if cast.able.defile() and talent.defile and cd.apocalypse.exists() then
+    if cast.able.defile() and talent.defile and (cd.apocalypse.exists() or var.apocBypass) then
         if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [ST]") return true end
     end 
     -- Scourge Strike
@@ -702,14 +700,14 @@ actionList.Single = function()
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - High Wound Stack]") return true end
         end
         -- wound_spender,if=debuff.festering_wound.up&cooldown.apocalypse.remains>5&(!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled|raid_event.adds.exists)
-        if debuff.festeringWound.exists(unit.dyn5) and cd.apocalypse.remains() > 5 
+        if debuff.festeringWound.exists(unit.dyn5) and (cd.apocalypse.remains() > 5 or var.apocBypass)
             and (not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]] or ui.useAOE(8,2))
         then
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [No Apocalypse Soon]") return true end
         end
         -- wound_spender,if=debuff.festering_wound.up&talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&!conduit.convocation_of_the_dead.enabled&!raid_event.adds.exists&(cooldown.unholy_blight.remains>5&cooldown.apocalypse.ready&!dot.unholy_blight.remains|!cooldown.apocalypse.ready)
         if debuff.festeringWound.exists(unit.dyn5) and talent.unholyBlight and not talent.armyOfTheDamned --[[and not conduit.convocationOfTheDead]]
-            and ui.useST(8,2) and (cd.unholyBlight.remains() > 5 and cd.apocalypse.exists() and not debuff.unholyBlight.remains(units.dyn30) or cd.apocalypse.exists)
+            and ui.useST(8,2) and (cd.unholyBlight.remains() > 5 and not cd.apocalypse.exists() and not debuff.unholyBlight.exists(units.dyn30) or cd.apocalypse.exists())
         then
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - Unholy Blight]") return true end
         end
@@ -722,18 +720,18 @@ actionList.Single = function()
     -- Festering Strike
     if cast.able.festeringStrike() then
         -- festering_strike,if=debuff.festering_wound.stack<1
-        if debuff.festeringWound.stack(units.dyn5) < 1 then
-            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - No Wounds") return true end
+        if debuff.festeringWound.stack(units.dyn5) < 1 or var.apocBypass then
+            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - No Wounds / No Apocalypse]") return true end
         end
         -- festering_strike,if=debuff.festering_wound.stack<4&cooldown.apocalypse.remains<3&(!talent.unholy_blight.enabled|talent.army_of_the_damned.enabled|conduit.convocation_of_the_dead.enabled|raid_event.adds.exists)
         if debuff.festeringWound.stack(units.dyn5) < 4 and cd.apocalypse.remains() < 3
             and (not talent.unholyBlight or talent.armyOfTheDamned --[[or conduit.convocationOfTheDead]] or ui.useAOE(8,2))
         then
-            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Apoc Soon") return true end
+            if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Apoc Soon]") return true end
         end
         -- festering_strike,if=debuff.festering_wound.stack<4&talent.unholy_blight.enabled&!talent.army_of_the_damned.enabled&!conduit.convocation_of_the_dead.enabled&!raid_event.adds.exists&cooldown.apocalypse.ready&(cooldown.unholy_blight.remains<3|dot.unholy_blight.remains)
         if debuff.festeringWound.stack(unit.dyn5) < 4 and talent.unholyBlight and not talent.armyOfTheDamned --[[and not conduit.convocationOfTheDead]]
-            and ui.useST(8,2) and cd.apocalypse.exists() and (cd.unholyBlight.remains() < 3 or debuff.unholyBlight.exists(units.dyn5))
+            and ui.useST(8,2) and not cd.apocalypse.exists() and (cd.unholyBlight.remains() < 3 or debuff.unholyBlight.exists(units.dyn5))
         then
             if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Unholy Blight]") return true end
         end
@@ -757,7 +755,7 @@ actionList.PreCombat = function()
             ui.debug("Using Battle Potion of Strength")
         end
         -- Army of the Dead
-        if ui.checked("Army of the Dead") and ui.useCDs() and ui.pullTimer() <= 2 then
+        if ui.alwaysCdNeer("Army of the Dead") and ui.pullTimer() <= 2 then
             if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead [Pre-Pull]") return true end
         end
         -- Azshara's Font of Power
@@ -837,19 +835,13 @@ local function runRotation()
     -- Nil Checks
     if var.profileStop == nil then var.profileStop = false end
 
-    -- Numeric Returns
-    if buff.unholyAssault.exists() then var.frenzied = 1 else var.frenzied = 0 end
-
     -- Variables
     -- variable,name=pooling_for_gargoyle,value=cooldown.summon_gargoyle.remains<5&talent.summon_gargoyle.enabled
-    var.poolForGargoyle = cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
-    var.deathAndDecayRemain = 0
-    if (cd.deathAndDecay.remain() - 10) > 0 then var.deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) end
-    var.deathAndDefileRemain = 0
-    if cd.deathAndDecay.remains() and not talent.defile then var.deathAndDefileRemain = cd.deathAndDecay.remain() end
-    if cd.defile.remains() and talent.defile then var.deathAndDefileRemain = cd.defile.remain() end
-    var.apocBypass = ui.value("Apocalypse") == 3 or (ui.value("Apocalypse") == 2 and not ui.useCDs()) or not spell.known.apocalypse()
-    var.aotdBypass = ui.value("Army of the Dead") == 3 or (ui.value("Army of the Dead") == 2 and not ui.useCDs()) or not spell.known.armyOfTheDead()
+    var.poolForGargoyle = ui.alwaysCdNever("Summon Gargoyle") and cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
+    var.deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) > 0 and (cd.deathAndDecay.remain() - 10) or 0
+    var.deathAndDefileRemain = talent.defile and cd.defile.remain() or cd.deathAndDecay.remain()
+    var.apocBypass = not ui.alwaysCdNever("Apocalypse") or not spell.known.apocalypse() or unit.level() < 19
+    var.aotdBypass = not ui.alwaysCdNever("Army of the Dead") or not spell.known.armyOfTheDead() or unit.level() < 44
     var.fwoundTargets = 0
     var.fwoundHighest = 0
     var.fwoundHighUnit = "target"
@@ -868,20 +860,9 @@ local function runRotation()
                 var.fwoundLowest = fwoundStacks
                 var.fwoundLowUnit = thisUnit
             end
-            break
         end
     end
-    var.fightRemains = 0
-    for i = 1, #enemies.yards40 do
-        var.fightRemains = var.fightRemains + unit.ttd(enemies.yards40[i])
-    end
 
-    --Asphyxiate Logic
-    local Asphyxiate_unitList = {
-        [131009] = "Spirit of Gold",
-        [134388] = "A Knot of Snakes",
-        [129758] = "Irontide Grenadier"
-    }
 -----------------
 --- Rotations ---
 -----------------
