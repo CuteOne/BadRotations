@@ -501,6 +501,7 @@ br.lists.spells = {
                 demonSpikes                 = 203819,
                 empowerWards                = 218256,
                 feastofSouls                = 207693,
+                felBombardment              = 337775,
                 metamorphosis               = 187827,
                 soulFragments               = 203981,
                 siphonedPower               = 218561,

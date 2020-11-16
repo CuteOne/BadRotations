@@ -167,6 +167,7 @@ var.hasThreat       = _G["hasThreat"]
 var.isTanking       = _G["isTanking"]
 var.pause           = _G["pause"]
 -- Profile Variables
+var.brandBuilt      = false
 var.inRaid          = false
 var.lastRune        = var.getTime()
 var.profileStop     = false
@@ -213,9 +214,10 @@ actionList.Defensive = function()
             end
         end
         -- Metamorphosis
-        -- metamorphosis
+        -- metamorphosis,if=!(talent.demonic.enabled)&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|target.time_to_die<15
         if ui.checked("Metamorphosis") and unit.inCombat() and cast.able.metamorphosis() and not buff.demonSpikes.exists()
             and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() and unit.hp() <= ui.value("Metamorphosis")
+            -- and not talent.demonic and (not covenant.venthyr.enabled or debuff.sinfulBrand.exists(units.dyn5))
         then
             if cast.metamorphosis() then ui.debug("Casting Metamorphosis") return true end
         end
@@ -309,26 +311,30 @@ actionList.Cooldowns = function()
             end
         end
     end -- End ui.useCDs check
+    -- sinful_brand,if=!dot.sinful_brand.ticking
+    -- the_hunt
+    -- fodder_to_the_flame
+    -- elysian_decree
 end -- End Action List - Cooldowns
 
 -- Action List - FieryBrand
 actionList.FieryBrand = function()
-    -- Sigil of Flame
-    -- sigil_of_flame,if=cooldown.fiery_brand.remains<2
-    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5)
-        and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 and cd.fieryBrand.remain() < 2
-    then
-        if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand Soon") return true end
-    end
-    -- Infernal Strike
-    -- infernal_strike,if=cooldown.fiery_brand.remains=0
-    if ui.mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
-        if cast.infernalStrike("player","ground",1,6) then ui.debug("Casting Infernal Strike [Fiery Brand Soon]") return true end
-    end
+    -- -- Sigil of Flame
+    -- -- sigil_of_flame,if=cooldown.fiery_brand.remains<2
+    -- if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5)
+    --     and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 and cd.fieryBrand.remain() < 2
+    -- then
+    --     if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand Soon") return true end
+    -- end
+    -- -- Infernal Strike
+    -- -- infernal_strike,if=cooldown.fiery_brand.remains=0
+    -- if ui.mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
+    --     if cast.infernalStrike("player","ground",1,6) then ui.debug("Casting Infernal Strike [Fiery Brand Soon]") return true end
+    -- end
     -- Fiery Brand
     -- fiery_brand (ignore if checked for defensive use)
     if cast.able.fieryBrand() then
-            if cast.fieryBrand() then ui.debug("Casting Fiery Brand") return true end
+        if cast.fieryBrand() then ui.debug("Casting Fiery Brand") return true end
     end
     -- Fiery Brand Exists
     if debuff.fieryBrand.exists(units.dyn5) then
@@ -337,16 +343,16 @@ actionList.FieryBrand = function()
         if ui.checked("Immolation Aura") and cast.able.immolationAura() and #enemies.yards5 > 0 then
             if cast.immolationAura() then ui.debug("Casting Immolation Aura [Fiery Brand]") return true end
         end
-        -- Infernal Strike
-        -- infernal_strike,if=dot.fiery_brand.ticking
-        if ui.mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
-            if cast.infernalStrike("player","ground",1,6) then ui.debug("Casting Infernal Strike [Fiery Brand]") return true end
-        end
-        -- Sigil of Flame
-        -- sigil_of_flame,if=dot.fiery_brand.ticking
-        if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 then
-            if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand]") return true end
-        end
+        -- -- Infernal Strike
+        -- -- infernal_strike,if=dot.fiery_brand.ticking
+        -- if ui.mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
+        --     if cast.infernalStrike("player","ground",1,6) then ui.debug("Casting Infernal Strike [Fiery Brand]") return true end
+        -- end
+        -- -- Sigil of Flame
+        -- -- sigil_of_flame,if=dot.fiery_brand.ticking
+        -- if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 then
+        --     if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand]") return true end
+        -- end
     end
 end -- End Action List - PreCombat
 
@@ -363,37 +369,45 @@ actionList.Normal = function()
         if cast.bulkExtraction() then ui.debug("Casting Bulk Extraction") return true end
     end
     -- Spirit Bomb
-    -- spirit_bomb,if=((buff.metamorphosis.up&soul_fragments>=3)|soul_fragments>=4)
-    if cast.able.spiritBomb() and ((buff.metamorphosis.exists() and buff.soulFragments.stack() >= 3) or buff.soulFragments.stack() >= 4) then
+    -- spirit_bomb,if=((buff.metamorphosis.up&talent.fracture.enabled&soul_fragments>=3)|soul_fragments>=4)
+    if cast.able.spiritBomb() and ((buff.metamorphosis.exists() and talent.fracture and buff.soulFragments.stack() >= 3) or buff.soulFragments.stack() >= 4) then
         if cast.spiritBomb() then ui.debug("Casting Spirit Bomb") return true end
     end
+    -- Fel Devastation
+    -- fel_devastation
+    if cast.able.felDevastation() then
+        if cast.felDevastation() then ui.debug("Casting Fel Devastation") return true end
+    end
     -- Soul Cleave
-    -- soul_cleave,if=(!talent.spirit_bomb.enabled&((buff.metamorphosis.up&soul_fragments>=3)|soul_fragments>=4))
-    if cast.able.soulCleave() and not talent.spiritBomb and ((buff.metamorphosis.exists() and buff.soulFragments.stack() >= 3) or buff.soulFragments.stack() >= 4) then
+    -- soul_cleave,if=((talent.spirit_bomb.enabled&soul_fragments=0)|!talent.spirit_bomb.enabled)&((talent.fracture.enabled&fury>=55)|(!talent.fracture.enabled&fury>=70)|cooldown.fel_devastation.remains>target.time_to_die|(buff.metamorphosis.up&((talent.fracture.enabled&fury>=35)|(!talent.fracture.enabled&fury>=50))))
+    if cast.able.soulCleave() and ((talent.spiritBomb and buff.soulFragments.stack() == 0) or not talent.spiritBomb)
+        and ((talent.fracture and fury >= 55) or (not talent.fracture and fury >= 70) or cd.felDevastation.remains() > unit.ttd(units.dyn5)
+            or (buff.metamorphosis.exists() and ((talent.fracture and fury >= 35) or (not talent.fracture and fury >= 50))))
+    then
         if cast.soulCleave() then ui.debug("Casting Soul Cleave") return true end
     end
-    -- soul_cleave,if=talent.spirit_bomb.enabled&soul_fragments=0
-    if cast.able.soulCleave() and talent.spiritBomb and buff.soulFragments.stack() == 0 then
-        if cast.soulCleave() then ui.debug("Casting Soul Cleave [Spirit Bomb]") return true end
-    end
     -- Immolation Aura
-    -- immolation_aura,if=pain<=90
-    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and fury <= 90 and #enemies.yards5 > 0 then
+    -- immolation_aura,if=((variable.brand_build&cooldown.fiery_brand.remains>10)|!variable.brand_build)&fury<=90
+    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards5 > 0 then
         if cast.immolationAura("player") then ui.debug("Casting Immolation Aura") return true end
     end
     -- Felblade
-    -- felblade,if=pain<=70
-    if cast.able.felblade() and fury <= 70 then
+    -- felblade,if=pain<=60
+    if cast.able.felblade() and fury <= 60 then
         if cast.felblade() then ui.debug("Casting Felblade") return true end
     end
     -- Fracture
-    -- fracture,if=soul_fragments<=3
-    if cast.able.fracture() and buff.soulFragments.stack() <= 3 and talent.fracture then
+    -- fracture,if=((talent.spirit_bomb.enabled&soul_fragments<=3)|(!talent.spirit_bomb.enabled&((buff.metamorphosis.up&fury<=55)|(buff.metamorphosis.down&fury<=70))))
+    if cast.able.fracture() and talent.fracture and ((talent.spiritBomb and buff.soulFragments.stack() <= 3)
+        or (not talent.spiritBomb and ((buff.metamorphosis.exists() and fury <= 55) or (not buff.metamorphosis.exists() and fury <= 70))))
+    then
         if cast.fracture() then ui.debug("Casting Fracture") return true end
     end
     -- Sigil of Flame
-    -- sigil_of_flame
-    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and #enemies.yards5 > 0 then
+    -- sigil_of_flame,if=!(covenant.kyrian.enabled&runeforge.razelikhs_defilement.equipped)
+    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and #enemies.yards5 > 0
+        -- and not (covenant.kyrian.enabled() and runeforge.razelikhsDefilement.equiped())
+    then
         if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame") return true end
     end
     -- Shear
@@ -514,6 +528,9 @@ local function runRotation()
     enemies.get(8)
     enemies.get(30)
 
+    -- variable,name=brand_build,value=talent.agonizing_flames.enabled&talent.burning_alive.enabled&talent.charred_flesh.enabled
+    var.brandBuild = talent.agonizingFLames and talent.burningAlive and talent.charredFlesh 
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -551,9 +568,16 @@ local function runRotation()
             if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.isBoss("target") and unit.exists("target") then
                 if cast.consumeMagic("target") then ui.debug("Casting Consume Magic") return true end
             end
+            -- Throw Glaive
+            -- throw_glaive,if=buff.fel_bombardment.stack=5&(buff.immolation_aura.up|!buff.metamorphosis.up)
+            if cast.able.throwGlaive() and buff.felBombardment.stack() == 5 and (buff.immolationAura.exists() or not buff.metamorphosis.exists()) then
+                if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Fel Bombardment]") return true end
+            end
             -- Call Action List - Fiery Brand
-            -- call_action_list,name=brand
-            if actionList.FieryBrand() then return true end
+            -- call_action_list,name=brand,if=variable.brand_build
+            if var.brandBuild then
+                if actionList.FieryBrand() then return true end
+            end
             -- Call Action List - Defensive
             -- call_action_list,name=defensives
             if actionList.Defensive() then return true end
