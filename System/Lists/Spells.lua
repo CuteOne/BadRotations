@@ -3482,6 +3482,7 @@ br.lists.spells = {
                 recklessness                = 1719,
                 siegebreaker                = 280772,
                 whirlwind                   = 190411,
+                ignorePain                  = 190456,
             },
             artifacts                       = {
 
@@ -3493,6 +3494,7 @@ br.lists.spells = {
                 recklessness                = 1719,
                 suddenDeath                 = 280776,
                 whirlwind                   = 85739,
+                ignorePain                  = 190456,
             },
             debuffs                         = {
                 siegebreaker                = 280773,
