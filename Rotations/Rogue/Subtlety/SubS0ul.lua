@@ -687,7 +687,7 @@ local function runRotation()
                 if cast.rippleInSpace() then return true end
             end
             -- actions.essences+=/worldvein_resonance,if=cooldown.symbols_of_death.remains<5|fight_remains<18
-            if cast.able.worldveinResonance() and cd.symbolsOfDeath.remain < 5 or ttd("target") <= 18 then
+            if cast.able.worldveinResonance() and cd.symbolsOfDeath.remain() < 5 or ttd("target") <= 18 then
                 if cast.worldveinResonance("player") then return true end
             end
             -- actions.essences+=/memory_of_lucid_dreams,if=energy<40&buff.symbols_of_death.up
@@ -910,7 +910,7 @@ local function runRotation()
         if comboDeficit >= 4 or (comboDeficit <= 1 and priorityRotation) then shdComboPoints = 1 else shdComboPoints = 0 end
         -- # Dance during Symbols or above threshold.
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and ttd("target") > 3 and (cdUsage and (isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and not cd.vanish.exists()) or not isChecked("Save SD Charges for CDs"))
+        if mode.sd == 1 and ttd("target") > 3 and (cdUsage and (isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
          and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) then
             if cast.shadowDance("player") then return true end
         end
