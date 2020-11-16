@@ -914,6 +914,114 @@ local function runRotation()
         return false
     end
 
+    local function owl_combat()
+
+        local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
+
+        if not eclipse_in then
+            if GetSpellCount(5176) > 0 and GetSpellCount(197628) == 0 then
+                eclipse_next = "lunar"
+            elseif GetSpellCount(5176) == 0 and GetSpellCount(197628) > 0 then
+                eclipse_next = "solar"
+            elseif GetSpellCount(5176) > 0 and GetSpellCount(197628) > 0 then
+                eclipse_next = "any"
+            end
+        end
+
+        --  Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
+
+        if not buff.moonkinForm.exists() then
+            if cast.moonkinForm() then
+                return true
+            end
+        end
+        --dots
+        for i = 1, #enemies.yards40 do
+            thisUnit = enemies.yards40[i]
+            if not noDamageCheck(thisUnit) then
+                if isChecked("Safe Dots") and
+                        ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
+                                or (inInstance and #tanks == 0)
+                                or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
+                                or solo
+                                or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+                                --need to add, or if tank is dead
+                        ) or not isChecked("Safe Dots") then
+
+                    if cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
+                        if cast.sunfire(thisUnit) then
+                            return true
+                        end
+                    end
+                    if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and not cast.last.moonfire(1) then
+                        if cast.moonfire(thisUnit) then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+        --eclipse
+
+        --[[7	69.05	moonfire,target_if=refreshable
+        --8	27.90	sunfire,target_if=refreshable
+
+
+        --0.00	heart_of_the_wild
+        --0.00	convoke_the_spirits,if=buff.eclipse_solar.up
+        --9	22.86	starsurge
+        --A	66.20	wrath,if=buff.eclipse_solar.up|eclipse.lunar_next
+        --B	39.13	starfire]]
+        if talent.heartOfTheWild then
+            if cast.heartOfTheWild() then
+                return true
+            end
+        end
+
+        if not buff.prowl.exists() then
+            if cast.able.concentratedFlame() and not buff.prowl.exists() then
+                if isChecked("ConcentratedFlame - DPS") and ttd(units.dyn40) > 8 and not debuff.concentratedFlame.exists(units.dyn40) then
+                    if cast.concentratedFlame(units.dyn40) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        if cast.able.starsurge(units.dyn45) and eclipse_in then
+            if cast.starsurge(units.dyn45) then
+                return true
+            end
+        end
+
+        if cast.able.wrath(units.dyn45) and buff.eclipse_solar.exists() or eclipse_next == "lunar" then
+            if cast.wrath(units.dyn45) then
+                if not eclipse_in then
+                    starfire_counter = 0
+                    wrath_counter = wrath_counter + 1
+                end
+                return true
+            end
+        end
+
+        if cast.able.starfire(units.dyn45) then
+            if cast.starfire(units.dyn45) then
+                if not eclipse_in then
+                    starfire_counter = starfire_counter + 1
+                    wrath_counter = 0
+                end
+                return true
+            end
+        end
+        if SpecificToggle("Owl Key") and not GetCurrentKeyBoardFocus()
+                and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+                and isChecked("Break form for dots") and (not debuff.moonfire.exists("target") or not debuff.sunfire.exists("target")) or not isChecked("Break form for dots")
+        then
+            return
+        end
+
+    end
+
     local function BossEncounterCase()
 
         local burst = false
@@ -963,7 +1071,7 @@ local function runRotation()
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
                 if cast.able.cenarionWard() then
-                    if cast.cenarionWard(lowest.hp) then
+                    if cast.cenarionWard(lowest.unit) then
                         br.addonDebug("[CRIT]CWard on: " .. UnitName(lowest.unit))
                         return true
                     end
@@ -1039,7 +1147,8 @@ local function runRotation()
             local spellTarget = nil
             local furthers_friend
             local furthest_distance = 0
-            if someone_casting and mode.HEALS == 1 then
+
+            if someone_casting and mode.hEALS == 1 then
                 for i = 1, countSmart do
                     local thisUnit = enemies.yards40[i]
                     local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
@@ -1073,9 +1182,11 @@ local function runRotation()
                     if isChecked("Smart Hot") then
                         --        if someone_casting then
                         if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
-                            if cast.cenarionWard(spellTarget) then
-                                br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
-                                return true
+                            if cast.able.cenarionWard() then
+                                if cast.cenarionWard(spellTarget) then
+                                    br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
+                                    return true
+                                end
                             end
                             if talent.germination and not buff.rejuvenationGermination.exists(spellTarget) then
                                 if cast.rejuvenation(spellTarget) then
@@ -1088,7 +1199,7 @@ local function runRotation()
                                     return true
                                 end
                             end
-                            if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) > getValue("Use Bark w/Smart Hot") then
+                            if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) < getValue("Use Bark w/Smart Hot") then
                                 if cast.ironbark(spellTarget) then
                                     br.addonDebug("[Snipe]Bark on: " .. UnitName(spellTarget))
                                     return true
@@ -1172,9 +1283,6 @@ local function runRotation()
 
         -- Underrot
 
-
-
-
         -- Temple of Sethraliss
         if lowest.hp > getOptionValue("Critical HP") then
             for i = 1, GetObjectCountBR() do
@@ -1220,8 +1328,6 @@ local function runRotation()
         end
 
         if heal_target ~= "none" then
-
-
             if talent.germination and not buff.rejuvenationGermination.exists(heal_target) then
                 if cast.rejuvenation(heal_target) then
                     br.addonDebug("[BOSS]Germination on: " .. UnitName(heal_target))
@@ -1233,7 +1339,6 @@ local function runRotation()
                     return true
                 end
             end
-
             if not seth_routine then
                 if cast.able.ironbark() then
                     if cast.ironbark(heal_target) then
@@ -1864,7 +1969,9 @@ local function runRotation()
 
 
     local function DPS()
-        clearForm()
+        if not owl and talent.balanceAffinity then
+            clearForm()
+        end
 
         --dots
 
@@ -1985,124 +2092,6 @@ local function runRotation()
         0.00	shred
         ]]
 
-
-    end
-
-    local function owl_combat()
-
-        --  Print("star :" .. tostring(starfire_counter) .. eclipse_next)
-        --  Print("wrath:" .. tostring(wrath_counter) .. eclipse_next)
-
-        local starfire_fallback = starfire_counter >= 2 or false
-        local wrath_fallback = wrath_counter >= 2 or false
-        local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
-
-        if eclipse_in then
-            starfire_counter = 0
-            wrath_counter = 0
-            if buff.eclipse_solar.exists() and not buff.eclipse_lunar.exists() then
-                eclipse_next = "lunar"
-            elseif buff.eclipse_lunar.exists() and not buff.eclipse_solar.exists() then
-                eclipse_next = "solar"
-            end
-        elseif not eclipse_in then
-            if starfire_fallback then
-                eclipse_next = "lunar"
-            end
-            if wrath_fallback then
-                eclipse_next = "solar"
-            end
-        end
-
-        if not buff.moonkinForm.exists() then
-            if cast.moonkinForm() then
-                return true
-            end
-        end
-        --dots
-        for i = 1, #enemies.yards40 do
-            thisUnit = enemies.yards40[i]
-            if not noDamageCheck(thisUnit) then
-                if isChecked("Safe Dots") and
-                        ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
-                                or (inInstance and #tanks == 0)
-                                or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
-                                or solo
-                                or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
-                                --need to add, or if tank is dead
-                        ) or not isChecked("Safe Dots") then
-
-                    if cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
-                        if cast.sunfire(thisUnit) then
-                            return true
-                        end
-                    end
-                    if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and not cast.last.moonfire(1) then
-                        if cast.moonfire(thisUnit) then
-                            return true
-                        end
-                    end
-                end
-            end
-        end
-        --eclipse
-
-        --[[7	69.05	moonfire,target_if=refreshable
-        --8	27.90	sunfire,target_if=refreshable
-
-
-        --0.00	heart_of_the_wild
-        --0.00	convoke_the_spirits,if=buff.eclipse_solar.up
-        --9	22.86	starsurge
-        --A	66.20	wrath,if=buff.eclipse_solar.up|eclipse.lunar_next
-        --B	39.13	starfire]]
-        if talent.heartOfTheWild then
-            if cast.heartOfTheWild() then
-                return true
-            end
-        end
-
-        if not buff.prowl.exists() then
-            if cast.able.concentratedFlame() and not buff.prowl.exists() then
-                if isChecked("ConcentratedFlame - DPS") and ttd(units.dyn40) > 8 and not debuff.concentratedFlame.exists(units.dyn40) then
-                    if cast.concentratedFlame(units.dyn40) then
-                        return true
-                    end
-                end
-            end
-        end
-
-        if cast.able.starsurge(units.dyn45) and eclipse_in then
-            if cast.starsurge(units.dyn45) then
-                return true
-            end
-        end
-
-        if cast.able.wrath(units.dyn45) and buff.eclipse_solar.exists() or eclipse_next == "lunar" then
-            if cast.wrath(units.dyn45) then
-                if not eclipse_in then
-                    starfire_counter = 0
-                    wrath_counter = wrath_counter + 1
-                end
-                return true
-            end
-        end
-
-        if cast.able.starfire(units.dyn45) then
-            if cast.starfire(units.dyn45) then
-                if not eclipse_in then
-                    starfire_counter = starfire_counter + 1
-                    wrath_counter = 0
-                end
-                return true
-            end
-        end
-        if SpecificToggle("Owl Key") and not GetCurrentKeyBoardFocus()
-                and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
-                and isChecked("Break form for dots") and (not debuff.moonfire.exists("target") or not debuff.sunfire.exists("target")) or not isChecked("Break form for dots")
-        then
-            return
-        end
 
     end
 
@@ -2798,7 +2787,7 @@ local function runRotation()
             for i = 1, #enemies.yards10tnc do
                 --if our target is engaged with our tank
                 local thisUnit = enemies.yards10tnc[i]
-                if UnitThreatSituation(tanks[1].unit, thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) or solo then
+                if #tanks > 0 and UnitThreatSituation(tanks[1].unit, thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) or solo then
                     if cast.rake(thisUnit) then
                         return
                     end
@@ -2935,6 +2924,9 @@ local function runRotation()
                 if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) and not hasBuff(185710) then
                     if hasItem(65499) and canUseItem(65499) then
                         useItem(65499)
+                    end
+                    if hasItem(80610) and canUseItem(80610) then
+                        useItem(80610)
                     end
                     if hasItem(113509) and canUseItem(113509) then
                         useItem(113509)

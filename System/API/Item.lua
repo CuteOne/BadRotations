@@ -41,6 +41,13 @@ br.api.items = function(item,k,v,subtable)
             local checkSpell = GetItemInfo(gemID) 
             return socketSpell == checkSpell
         end
+        if equiped.type == nil then
+            equiped.type = function(itemType)
+                local IsEquippedItemType = _G["IsEquippedItemType"]
+                if itemType == nil then return false end
+                return IsEquippedItemType(itemType)
+            end
+        end
     end 
     if subtable == "has" then 
         local has = item
@@ -58,17 +65,24 @@ br.api.items = function(item,k,v,subtable)
     if subtable == "use" then 
         local use = item
         -- br.player.use.item()
-        use[k] = function(slotID)
+        use[k] = function(slotID,thisUnit)
+            if thisUnit == nil then thisUnit = "target" end
             if slotID == nil then
-                if canUseItem(v) then return useItem(v) else return end
+                if canUseItem(v) then return useItem(v,thisUnit) else return end
             else
-                if canUseItem(slotID) then return useItem(slotID) else return end
+                if canUseItem(slotID) then return useItem(slotID,thisUnit) else return end
             end
         end
         if use.able == nil then use.able = {} end
         -- br.player.use.able.item()
         use.able[k] = function(slotID)
             if slotID == nil then return canUseItem(v) else return canUseItem(slotID) end
+        end
+        if use.able.item == nil then
+            use.able.item = function(itemID)
+                if itemID == nil then return false end
+                return canUseItem(itemID)
+            end
         end
         -- br.player.use.able.slot()
         if use.able.slot == nil then
@@ -77,10 +91,11 @@ br.api.items = function(item,k,v,subtable)
             end
         end
         if use.item == nil then
-            use.item = function(itemID)
-                if itemID == nil then return end
+            use.item = function(itemID,thisUnit)
+                if itemID == nil then return false end
+                if thisUnit == nil then thisUnit = "target" end
                 if canUseItem(itemID) then
-                    return useItem(itemID)
+                    return useItem(itemID,thisUnit)
                 else
                     return
                 end
@@ -88,8 +103,9 @@ br.api.items = function(item,k,v,subtable)
         end
         -- br.player.use.slot()
         if use.slot == nil then 
-            use.slot = function(slotID)
-                if canUseItem(slotID) then return useItem(slotID) else return end
+            use.slot = function(slotID,thisUnit)
+                if thisUnit == nil then thisUnit = "target" end
+                if canUseItem(slotID) then return useItem(slotID,thisUnit) else return end
             end
         end
     end

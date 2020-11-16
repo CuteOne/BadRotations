@@ -640,7 +640,7 @@ function pause(skipCastingCheck)
 	end
 	-- Pause Hold/Auto
 	if	(pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode")) or profileStop or
-		((IsMounted() or IsFlying()) and --and (GetObjectExists("target") and GetObjectID("target") ~= 56877)
+		((IsMounted() or IsFlying() or UnitOnTaxi("player")) and --and (GetObjectExists("target") and GetObjectID("target") ~= 56877)
 		not (UnitBuffID("player", 190784) or UnitBuffID("player", 164222) or UnitBuffID("player", 165803) or
 		UnitBuffID("player", 157059) or
 		UnitBuffID("player", 157060))) or

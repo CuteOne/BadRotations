@@ -204,13 +204,14 @@ function getSpellCD(SpellID)
 	else
 		local Start, CD = GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - GetTime()
-		MyCD = MyCD - getLatency()
+		MyCD = MyCD -- getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
 	end
 end
 function getGlobalCD(max)
 	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
+	if currentSpecName == "" then currentSpecName = "Initial" end
 	if max == true then
 		if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
 			return 1
@@ -256,8 +257,18 @@ function getCastingRegen(spellID)
 end
 function getSpellRange(spellID)
 	local _,_,_,_,_,maxRange = GetSpellInfo(spellID)
-    if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
-	return maxRange
+	if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
+	-- Modifiers
+	local rangeMod = 0
+	-- Balance Affinity range change (Druid - Not Balance)
+	if br.player ~= nil then
+		if br.player.talent.balanceAffinity ~= nil then
+			if br.player.talent.balanceAffinity and option ~= "noMod" then
+				rangeMod = 5
+			end
+		end
+	end
+	return maxRange + rangeMod
 end
 function isSpellInSpellbook(spellID,spellType)
     local spellSlot = FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)

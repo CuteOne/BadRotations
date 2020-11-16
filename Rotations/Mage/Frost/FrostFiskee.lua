@@ -1,4 +1,4 @@
-local rotationName = "Fiskee - 8.3"
+local rotationName = "Fiskee"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -36,8 +36,8 @@ local function createToggles()
     CreateButton("Interrupt", 4, 0)
     -- Frozen Orb Button
     FrozenOrbModes = {
-        [1] = {mode = "On", value = 1, overlay = "Frozen Orb Enabled", tip = "Will use Frozen Orb", highlight = 1, icon = br.player.spell.frozenOrb},
-        [2] = {mode = "Off", value = 2, overlay = "Frozen Orb Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.frozenOrb}
+        [1] = {mode = "On", value = 1, overlay = "Auto FO Enabled", tip = "Will Automatically use Frozen Orb", highlight = 1, icon = br.player.spell.frozenOrb},
+        [2] = {mode = "Off", value = 2, overlay = "Auto FO Disabled", tip = "Will not use Frozen Orb", highlight = 0, icon = br.player.spell.frozenOrb}
     }
     CreateButton("FrozenOrb", 5, 0)
     -- Ebonbolt Button
@@ -71,7 +71,7 @@ local function createOptions()
         ------------------------
         --- GENERAL  OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, "General - 10152020")
         -- APL
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
         -- Dummy DPS Test
@@ -92,7 +92,11 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Blizzard Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Blizzard will be cast on.")
         -- Frozen Orb Units
         br.ui:createSpinnerWithout(section, "Frozen Orb Units", 3, 1, 10, 1, "|cffFFBB00Min. number of units Frozen Orb will be cast on.")
-        -- Frozen Orb Units
+        -- Arcane Explosion Units
+        br.ui:createSpinner(section, "Arcane Explosion Units", 2, 1, 10, 1, "|cffFFB000 Number of adds to cast Arcane Explosion")
+        -- Frozen Orb Key
+        br.ui:createDropdown(section, "Frozen Orb Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to manually use Frozen Orb")
+        -- Comet Storm Units
         br.ui:createSpinnerWithout(section, "Comet Storm Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Comet Storm will be cast on.")
         -- Casting Interrupt Delay
         br.ui:createSpinner(section, "Casting Interrupt Delay", 0.3, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
@@ -104,9 +108,9 @@ local function createOptions()
         -- br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
         br.ui:checkSectionState(section)
 
-        ------------------------
-        ---     ESSENCES     ---
-        ------------------------
+        -- ------------------------
+        -- ---     ESSENCES     ---
+        -- ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Essences")
         -- Essences Usage
         br.ui:createDropdownWithout(section, "Use Essences", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use Essences.")
@@ -126,7 +130,10 @@ local function createOptions()
         -- The Unbound Force
         br.ui:createCheckbox(section, "The Unbound Force", "|cffFFBB00 Use The Unbound Force as per SimC Logic")        
         -- Worldvein Resonance    
-        br.ui:createCheckbox(section, "Worldvein Resonance", "|cffFFBB00 Use Worldvein Resonance as per SimC Logic")        
+        br.ui:createCheckbox(section, "Worldvein Resonance", "|cffFFBB00 Use Worldvein Resonance as per SimC Logic")   
+        -- Reaping Flames
+        br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only"}, 1)
+        br.ui:createSpinnerWithout(section, "Reaping Flames Damage", 30, 10, 100, 1)
         br.ui:checkSectionState(section)
 
         ------------------------
@@ -285,6 +292,7 @@ local function runRotation()
     local ttm = br.player.power.mana.ttm()
     local units = br.player.units
     local use = br.player.use
+    local reapingDamage = getOptionValue("Reaping Flames Damage") * 1000
 
     -- Super scuffed IF tracker
     local curIF = select(3,AuraUtil.FindAuraByName(GetSpellInfo(116267), "player", "HELPFUL"))
@@ -391,6 +399,7 @@ local function runRotation()
     end
 
     units.get(40)
+    enemies.get(10)
     enemies.get(10, "target", true)
     enemies.get(40, nil, nil, nil, spell.frostbolt)
 
@@ -737,51 +746,6 @@ local function runRotation()
         fbInc = false
     end
 
---    local function castBeam(minUnits, safe, minttd)
---        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
---            return false
---        end
---        if not isChecked("Obey AoE units when using CDs") and useCDs() then
---            minUnits = 1
---        end
---        local x, y, z = ObjectPosition("player")
---        local length = 30
---        local width = 6
- --       ttd = ttd or 0
---        safe = safe or true
---        local function getRectUnit(facing)
---        local halfWidth = width/2
---        local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
---        local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
---        local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
---        return nlX, nlY, nrX, nrY, frX, frY
---        end
---        local enemiesTable = getEnemies("player", length, true)
---        local facing = ObjectFacing("player")        
---        local unitsInRect = 0
---        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
---        local thisUnit
---        for i = 1, #enemiesTable do
---            thisUnit = enemiesTable[i]
---            local uX, uY, uZ = ObjectPosition(thisUnit)
---            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
---                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
---                    unitsInRect = 0
---                    break
---                end            
---                if ttd(thisUnit) >= minttd then                
---                    unitsInRect = unitsInRect + 1
---                end
---            end
---        end
---        if unitsInRect >= minUnits then
---            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
---            return true
---        else
---            return false
---        end
---    end
-
     local function actionList_Extras()
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
             StopAttack()
@@ -907,6 +871,11 @@ local function runRotation()
                     end
                 end
             end
+            if getDistance("target") < 12 and not isBoss("target") then
+                if cast.frostNova("player") then
+                    return true
+                end
+            end
         end
     end
 
@@ -975,9 +944,21 @@ local function runRotation()
             if cast.theUnboundForce("target") then return true end
         end
         --actions.essences+=/reaping_flames,if=buff.rune_of_power.down
-        if isChecked("Reaping Flames") and cast.able.reapingFlames() and not buff.runeOfPower.exists("player") then
-            if cast.reapingFlames() then return true end
-        end
+		for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            local distance = getDistance(thisUnit)
+                if isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and not buff.runeOfPower.exists("player") and (getOptionValue("Reaping Flames") == 1) then
+                    if cast.reapingFlames(thisUnit) then
+                        br.addonDebug("Reaping 1")
+                        return
+                    end
+                elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and not buff.runeOfPower.exists("player") and getOptionValue("Reaping Flames") == 2 and (buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage*2)) or (not buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) then
+                    if cast.reapingFlames(thisUnit) then
+                        br.addonDebug("Reaping Snipe")
+                        return
+                    end
+                end
+        end     
     end
 
     local function actionList_Cooldowns()
@@ -989,8 +970,8 @@ local function runRotation()
                 use.battlePotionOfIntellect()
                 return true
             end
-            -- actions.cooldowns+=/mirror_image
-            if cast.mirrorImage("player") then return true end
+            -- -- actions.cooldowns+=/mirror_image
+            -- if cast.mirrorImage("player") then return true end
             -- # Rune of Power is always used with Frozen Orb. Any leftover charges at the end of the fight should be used, ideally if the boss doesn't die in the middle of the Rune buff.
             -- actions.cooldowns+=/rune_of_power,if=prev_gcd.1.frozen_orb|target.time_to_die>10+cast_time&target.time_to_die<20
             -- # On single target fights, the cooldown of Rune of Power is lower than the cooldown of Frozen Orb, this gives extra Rune of Power charges that should be used with active talents, if possible.
@@ -1026,10 +1007,17 @@ local function runRotation()
                 return true
             end
         end
-        if useCDs() then
+        if cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        end
+        if mode.frozenOrb == 1 and useCDs() then
             if castFrozenOrb(1, true, 4) then return true end
         else
-            if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
+        -- Frozen Orb Key
+            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+                return
+            end
         end
         if mode.rotation ~= 2 and not playerCasting and blizzardUnits >= getOptionValue("Blizzard Units") and not tankMoving and not moving then
             if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
@@ -1041,11 +1029,6 @@ local function runRotation()
                 return true
             end
             if cast.iceNova("target") then
-                return true
-            end
-        end
-        if level < 10 then
-            if cast.fireBlast("target") then
                 return true
             end
         end
@@ -1061,18 +1044,26 @@ local function runRotation()
                 return true
             end
         end
+        if cast.able.fireBlast("target") then 
+            if cast.fireBlast("target") then return true end
+        end
+        if cast.frostbolt("target") then
+            return true
+        end
         if targetUnit.facing then
             if mode.ebonbolt == 1 and targetUnit.calcHP > (calcDamage(spell.frostbolt, targetUnit) * 2) and targetUnit.ttd > 4 then
                 if cast.ebonbolt("target") then return true end
             end
-            if cast.frostbolt("target") then
-                return true
-            end
+
         end
     end
 
     local function actionList_ST()
         -- # In some situations, you can shatter Ice Nova even after already casting Flurry and Ice Lance. Otherwise this action is used when the mage has FoF after casting Flurry, see above.
+        -- arcane explosion
+        if cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+         end    
         -- actions.single=ice_nova,if=cooldown.ice_nova.ready&debuff.winters_chill.up
         if debuff.wintersChill.exists("target") then
             if cast.iceNova("target") then return true end
@@ -1093,11 +1084,17 @@ local function runRotation()
             if cast.flurry("target") then return true end
         end
         -- actions.single+=/frozen_orb
-        if not moving and targetMoveCheck then
+        if mode.frozenOrb == 1 and not moving and targetMoveCheck then
             if not isChecked("Obey AoE units when using CDs") and useCDs() then
                 if castFrozenOrb(1, true, 4) then return true end
             else
                 if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
+            end
+        else
+        -- Frozen Orb Key
+            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+                return
             end
         end
         -- # With Freezing Rain and at least 2 targets, Blizzard needs to be used with higher priority to make sure you can fit both instant Blizzards into a single Freezing Rain. Starting with three targets, Blizzard leaves the low priority filler role and is used on cooldown (and just making sure not to waste Brain Freeze charges) with or without Freezing Rain.
@@ -1178,6 +1175,10 @@ local function runRotation()
         if not moving and targetUnit.facing then
             if cast.iceNova("target") then return true end
         end
+        -- fireblast
+        if cast.able.fireBlast("target") then 
+            if cast.fireBlast("target") then return true end
+        end
         -- actions.single+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.single+=/frostbolt
         if not moving and targetUnit.facing and (isChecked("No Ice Lance") or not fofExists) then
@@ -1193,14 +1194,25 @@ local function runRotation()
 
     local function actionList_AoE()
         -- # With Freezing Rain, it's better to prioritize using Frozen Orb when both FO and Blizzard are off cooldown. Without Freezing Rain, the converse is true although the difference is miniscule until very high target counts.
+        -- arcane explosion
+        if mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        end
         -- actions.aoe=frozen_orb
-        if not moving and targetMoveCheck then
+        if mode.frozenOrb == 1 and not moving and targetMoveCheck then
             if not isChecked("Obey AoE units when using CDs") and useCDs() then
                 if castFrozenOrb(1, true, 4) then return true end
             else
                 if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
             end
+        else
+        -- Frozen Orb Key
+            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+                return
+            end
         end
+
         -- actions.aoe+=/blizzard
         if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if buff.freezingRain.exists() then

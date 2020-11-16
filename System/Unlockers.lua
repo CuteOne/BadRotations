@@ -1,5 +1,6 @@
 function br:loadUnlockerAPI()
     local unlocked = false
+    local class = br.class
     -- EWT Unlocker
     if EasyWoWToolbox ~= nil then -- Native Support - API found at https://ewtwow.com/EWT/ewt.lua
         -- Active Player
@@ -245,7 +246,11 @@ function br:loadUnlockerAPI()
         unlocked = false
     end
     -- Set Spell Queue Window to 0
-    if unlocked and br.prevQueueWindow ~= 0 then RunMacroText("/console SpellQueueWindow 0") end
+    if class ~= 8 then
+        if unlocked and br.prevQueueWindow ~= 0 then RunMacroText("/console SpellQueueWindow 0") end
+    else
+        if unlocked and br.prevQueueWindow ~= 400 then RunMacroText("/console SpellQueueWindow 400") end
+    end
     return unlocked
 end
 

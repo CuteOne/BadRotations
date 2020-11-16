@@ -108,6 +108,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Lava Beam Targets", 3, 1, 10, 1, "|cff0070deSet to desired number of targets needed to use Lava Beam. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Meteor Targets", 2, 1, 10, 1, "|cff0070deSet to desired number of targets needed to use Meteor. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Earth Shock Maelstrom Dump", 90, 1, 100, 5, "|cff0070deSet to desired value to use Earth Shock as maelstrom dump. Min: 1 / Max: 100 / Interval: 5")
+            br.ui:createSpinnerWithout(section, "Chain Lightning Stormkeeper", 3, 1, 10, 1, "|cff0070deSet to desired number of targets needed to use Chain Lightning during Stormkeeper. Min: 1 / Max: 10 / Interval: 1" )
         br.ui:checkSectionState(section)
         ------------------------
         --- ESSENCE  OPTIONS --- -- Define Essence Options
@@ -688,6 +689,28 @@ local function runRotation()
                 end
                 if cc == false then
                     if cast.liquidMagmaTotem() then br.addonDebug("Casting Liquid Magma Totem") return true end
+                end
+            end
+            --Echoing Shock
+            if talent.echoingShock then
+                if power >= 60 and cast.able.earthShock and cast.able.echoingShock then
+                    if cast.echoingShock() then
+                        if buff.echoingShock.exists() and castable.able.earthShock() then
+                            if cast.earthShock() then return true end
+                        end
+                    end
+                elseif talent.stormKeeper and #enemies.yards10t >= getOptionValue("Chain Lightning Stormkeeper") and cast.able.echoingShock then
+                    if cast.echoingShock() then
+                        if buff.echoingShock.exists() then
+                            if cast.chainLightning() then return true end
+                        end
+                    end
+                elseif power <= 59 and cast.able.lavaBurst then
+                    if cast.echoingShock() then
+                        if buff.echoingShock.exists() then
+                            if cast.lavaBurst() then return true end
+                        end
+                    end
                 end
             end
             -- Lightning Bolt

@@ -364,31 +364,37 @@ function br.read.commonReaders()
 				local MyClass = select(2, UnitClass("player"))
 				if MyClass == "MAGE" then -- Mage
 				end
-				if MyClass == "MONK" then -- Monk
-					if br.player ~= nil and GetSpecialization() == 3 and br.player.spell.fistsOfFury ~= nil then
-						local comboSpells = {
-							[br.player.spell.blackoutKick]              = true,
-							[br.player.spell.chiBurst]                  = true,
-							[br.player.spell.chiWave]                   = true,
-							[br.player.spell.cracklingJadeLightning]    = true,
-							[br.player.spell.fistsOfFury]               = true,
-							[br.player.spell.fistOfTheWhiteTiger]       = true,
-							[br.player.spell.flyingSerpentKick]         = true,
-							[br.player.spell.risingSunKick]             = true,
-							[br.player.spell.rushingJadeWind]           = true,
-							[br.player.spell.spinningCraneKick]         = true,
-							[br.player.spell.tigerPalm]                 = true,
-							[br.player.spell.touchOfDeath]              = true,
-							[br.player.spell.whirlingDragonPunch]       = true,
-						}
-						if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
-						if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
-						if comboSpells[spell] and not (getSpellCD(spell) > br.player.gcdMax) and isInCombat("player") then
-							lastCombo = prevCombo
-							prevCombo = 6603
-						end
-					end
-				end
+				-- if MyClass == "MONK" then -- Monk
+				-- 	local br = _G["br"]
+				-- 	local spec = _G["GetSpecialization"]
+				-- 	if br.player ~= nil and spec() == 3 and br.player.spell.fistsOfFury ~= nil then
+				-- 		local cd 	= br.player.cd
+				-- 		local spell = br.player.spell
+				-- 		local unit 	= br.player.unit
+				-- 		local var 	= br.player.variables
+				-- 		local comboSpells = {
+				-- 			[spell.blackoutKick]              = true,
+				-- 			[spell.chiBurst]                  = true,
+				-- 			[spell.chiWave]                   = true,
+				-- 			[spell.cracklingJadeLightning]    = true,
+				-- 			[spell.fistsOfFury]               = true,
+				-- 			[spell.fistOfTheWhiteTiger]       = true,
+				-- 			[spell.flyingSerpentKick]         = true,
+				-- 			[spell.risingSunKick]             = true,
+				-- 			[spell.rushingJadeWind]           = true,
+				-- 			[spell.spinningCraneKick]         = true,
+				-- 			[spell.tigerPalm]                 = true,
+				-- 			[spell.touchOfDeath]              = true,
+				-- 			[spell.whirlingDragonPunch]       = true,
+				-- 		}
+				-- 		if var.prevCombo == nil or not unit.inCombat() then var.prevCombo = 6603 end
+				-- 		if var.lastCombo == nil or not unit.inCombat() then var.lastCombo = 6603 end
+				-- 		if comboSpells[spell] and not (cd[spell].remain() > unit.gcd("true")) and unit.inCombat() then
+				-- 			var.lastCombo = var.prevCombo
+				-- 			var.prevCombo = 6603
+				-- 		end
+				-- 	end
+				-- end
 			end
 		end
 		-----------------------------
