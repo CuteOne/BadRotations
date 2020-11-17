@@ -264,8 +264,8 @@ actionList.Defensive = function()
             end
         end
         -- Earth Shield
-        if ui.value("Shields Up") == 2 and cast.able.earthShield() and not buff.earthShield.exists() then
-            if cast.earthShield() then ui.debug("Casting Earth Shield") return true end
+        if talent.earthShield and ui.value("Shields Up") == 2 and cast.able.earthShield() and not buff.earthShield.exists() then
+            if cast.earthShield("player") then ui.debug("Casting Earth Shield") return true end
         end
         -- Healing Surge
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not (unit.mounted() or unit.flying())
@@ -724,7 +724,7 @@ actionList.PreCombat = function()
         end
         -- Lightning Shield
         -- lightning_shield
-        if ui.value("Shields Up") == 1 and cast.able.lightningShield() and not buff.lightningShield.exists() then
+        if (ui.value("Shields Up") == 1 or (ui.value("Shields Up") == 2 and not talent.earthShield)) and cast.able.lightningShield() and not buff.lightningShield.exists() then
             if cast.lightningShield("player") then ui.debug("Casting Lightning Shield") return true end
         end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
