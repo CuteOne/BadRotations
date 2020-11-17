@@ -436,7 +436,7 @@ actionList.EssenceBreak = function()
         end
         -- Chaos Strike
         -- chaos_strike,if=debuff.essence_break.up
-        if cast.able.chaosStrikle() and not buff.metamorphosis.exists() then
+        if cast.able.chaosStrike() and not buff.metamorphosis.exists() then
             if cast.chaosStrike() then ui.debug("Casting Chaos Strike [Essence Break]") return true end
         end
     end
