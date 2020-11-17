@@ -542,7 +542,7 @@ actionList.Demonic = function()
     end
     -- Glaive Tempest
     -- glaive_tempest,if=active_enemies>desired_targets|raid_event.adds.in>10
-    if cast.able.glaiveTempest() and ((ui.mode.rotation == 1 and #enemeies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
+    if cast.able.glaiveTempest() and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
     -- Throw Glaive
@@ -671,7 +671,7 @@ actionList.Normal = function()
     -- Glaive Tempest
     -- glaive_tempest,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>10)
     if cast.able.glaiveTempest() and not var.waitingForMomentum
-        and ((ui.mode.rotation == 1 and #enemeies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
+        and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
     then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
