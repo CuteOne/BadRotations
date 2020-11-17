@@ -56,7 +56,7 @@ local function createOptions()
             -- Lightning Bolt OOC
             br.ui:createCheckbox(section,"Lightning Bolt Out of Combat")
             -- Shields Up
-            br.ui:createSpinnerWithout(section, "Shields Up", {"Lightning Shield","Earth Shield","No Shields"}, 1, "|cffFFFFFFSet to desired shield to use.")
+            br.ui:createDropdownWithout(section, "Shields Up", {"Lightning Shield","Earth Shield","No Shields"}, 1, "|cffFFFFFFSet to desired shield to use.")
             -- Spirit Walk
             br.ui:createCheckbox(section,"Spirit Walk")
             -- Water Walking
