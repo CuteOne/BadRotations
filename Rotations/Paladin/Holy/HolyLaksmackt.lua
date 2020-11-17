@@ -1796,7 +1796,7 @@ local function runRotation()
             end
         end
         -- Light of Dawn
-        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and holyPower >=3 then
+        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and holyPower >=3 or buff.divinePurpose.exists() then
             if br.unlocked then --EasyWoWToolbox == nil then
                 if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                     if cast.lightOfDawn() then
@@ -2023,7 +2023,7 @@ local function runRotation()
                 end
             elseif getSpellCD(20473) > gcd then
                 if br.unlocked then --EasyWoWToolbox == nil then
-                    if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) and holyPower >=3 then
+                    if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) and holyPower >=3 or buff.divinePurpose.exists() then
                         if cast.lightOfDawn() then
                             return true
                         end
@@ -2301,7 +2301,7 @@ local function runRotation()
         end -- end Bestow Faith
 
         -- Word of Glory
-        if isChecked("Word of Glory") and holyPower >=3 then
+        if isChecked("Word of Glory") and holyPower >=3 or buff.divinePurpose.exists() then
             --Critical first
             if php <= getValue("Critical HP") then
                 if cast.wordOfGlory("player") then

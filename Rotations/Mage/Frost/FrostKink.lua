@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.8"
+local rotationVer  = "v1.0.9"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -156,6 +156,9 @@ local function createOptions()
 
         -- Casting Interrupt Delay
         br.ui:createSpinner(section, "Casting Interrupt Delay", 0.3, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
+
+        -- Cast Mirror Image
+        br.ui:createCheckbox(section, "Mirror Image", "|cffFFBB00Use Mirror Image during boss fights.")
 
         -- Casting Interrupt Delay
         br.ui:createCheckbox(section, "No Ice Lance", "|cffFFBB00Use No Ice Lance Rotation.")
@@ -1086,8 +1089,10 @@ local function runRotation()
                 use.battlePotionOfIntellect()
                 return true
             end
+
             -- -- actions.cooldowns+=/mirror_image
-            -- if cast.mirrorImage("player") then return true end
+            if cast.able.mirrorImage() and ui.checked("Mirror Image") and cast.mirrorImage("player") then return true end
+
             -- # Rune of Power is always used with Frozen Orb. Any leftover charges at the end of the fight should be used, ideally if the boss doesn't die in the middle of the Rune buff.
             -- actions.cooldowns+=/rune_of_power,if=prev_gcd.1.frozen_orb|target.time_to_die>10+cast_time&target.time_to_die<20
             -- # On single target fights, the cooldown of Rune of Power is lower than the cooldown of Frozen Orb, this gives extra Rune of Power charges that should be used with active talents, if possible.
@@ -1650,7 +1655,7 @@ actions.st+=/frostbolt
     -----------------------
     ---     Opener      ---
     -----------------------
-        if opener == false and isChecked("Opener") and isBoss("target") then if actionList_Opener() then return true end end
+    --    if opener == false and isChecked("Opener") and isBoss("target") then if actionList_Opener() then return true end end
 
     ------------------------------
     --- Out of Combat Rotation ---
@@ -1660,7 +1665,7 @@ actions.st+=/frostbolt
     --------------------------
     --- In Combat Rotation ---
     --------------------------        
-        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target")) then
+        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit then
 
         --------------------------
         --- Defensive Rotation ---
