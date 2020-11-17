@@ -467,7 +467,7 @@ br.lists.spells = {
                 netherwalk                  = 196555,
                 soulRending                 = 204909,
                 trailOfRuin                 = 258881,
-                unboundChaos                = 275144,
+                unboundChaos                = 347461,
                 unleashedPower              = 206477,
             },
             traits                          = {
