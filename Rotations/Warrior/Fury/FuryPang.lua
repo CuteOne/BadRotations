@@ -193,13 +193,6 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Reaping Flame Damage", 30, 10, 100, 1)
         br.ui:checkSectionState(section)
         ------------------------
-        --- Mythicplus----------
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "M+")
-        br.ui:createSpinner(section, "Dont kill your friends with bursting", 3, 1, 10, 1)
-        br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
-        br.ui:checkSectionState(section)
-        ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -211,6 +204,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Bladestorm Units", 3, 1, 10, 1, "Number of units to Bladestorm on")
         -- Dragons Roar
         br.ui:createCheckbox(section, "Dragon Roar")
+        -- Bloodrage
+        -- br.ui:createCheckbox(section, "Bloodrage")
         -- Recklessness
         br.ui:createDropdownWithout(section, "Recklessness", {"Always", "Cooldown"}, 1, "Desired usage of spell.")
         br.ui:checkSectionState(section)
@@ -241,7 +236,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "Health Percentage to use at.")
         -- Victory Rush
         br.ui:createSpinner(section, "Victory Rush", 60, 0, 100, 5, "Health Percentage to use at.")
-        br.ui:createCheckbox(section, "Howl")
+        -- Ignore Pain
+        br.ui:createSpinner(section, "Ignore Pain", 30, 0, 100, 5, "Health Percentage to use at.")
+        br.ui:createSpinner(section, "Piercing Howl", 20, 0, 100, 5, "Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -256,15 +253,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Storm Bolt - Int")
         -- Interrupt Percentage
         br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- CORRUPTION ---------
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Corruption")
-        br.ui:createCheckbox(section, "Radar On")
-        br.ui:createCheckbox(section, "All - stun the thing")
-        br.ui:createCheckbox(section, "Fear the thing")
-        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
         br.ui:checkSectionState(section)
     end
     optionTable = {
@@ -341,7 +329,6 @@ local function runRotation()
             [131009] = "Spirit of Gold",
             [134388] = "A Knot of Snakes",
             [129758] = "Irontide Grenadier",
-			[161895] = "The Thing from beyond"
     }
     --Keybindings
     local leapKey = false
@@ -430,6 +417,20 @@ local function runRotation()
             -- Storm Bolt
             if isChecked("Storm Bolt") and cast.able.stormBolt() and php <= getOptionValue("Storm Bolt") then
                 if cast.stormBolt() then
+                    return
+                end
+            end
+
+            -- Ignore Pain
+            if isChecked("Ignore Pain") and cast.able.ignorePain() and rage > 60 and php <= getOptionValue("Ignore Pain") and not buff.ignorePain.exists("player") then
+                if cast.ignorePain("player") then
+                    return
+                end
+            end
+
+            -- Piercing Howl
+            if isChecked("Piercing Howl") and php <= getOptionValue("Piercing Howl") and inCombat then
+                if cast.piercingHowl("player") then
                     return
                 end
             end
@@ -852,41 +853,13 @@ local function runRotation()
     end -- end multi target
 
     local function cooldownlist()
-        --trinkets
-		--actions+=/use_item,name=ashvanes_razor_coral,if=!debuff.razor_coral_debuff.up|(target.health.pct<30.1&debuff.conductive_ink_debuff.up)|(!debuff.conductive_ink_debuff.up&buff.memory_of_lucid_dreams.up|prev_gcd.2.recklessness&(buff.guardian_of_azeroth.up|!essence.memory_of_lucid_dreams.major&!essence.condensed_lifeforce.major))
-		--Mechagon Trinket WITH enrage but WITHOUT CDs
-        if isChecked("Trinkets") then
-            if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs()) or (getOptionValue("Trinkets") == 3 and getSpellCD(1719) < 5 and br.player.ui.mode.cooldown ~= 3) then
-                if canTrinket(13) and not hasEquiped(169311,13) and not hasEquiped(167555,13) then
-                    useItem(13)
-				elseif hasEquiped(169311,13) then
-					if (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5) or (getHP(thisUnit) <= 30.2 and debuff.conductiveInk.exists("target")) or buff.memoryOfLucidDreams.exists("player") or getBuffRemain("player", spell.recklessness) > 4.5 and br.timer:useTimer("Razor Coral Delay", 3) then
-						br.addonDebug("Using second activation of Ashvane's Razor Coral")
-						useItem(13)
-					elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
-						br.addonDebug("Using first activation of Ashvane's Razor Coral")
-                        useItem(13)
-					end
-			--	elseif hasEquiped(167555,13) then
-			--		if buff.enrage.exists("player") and not buff.recklessness.exists("player") and not debuff.siegebreaker.exists("target") then
-			--			br.addonDebug("using mecha trinket beam")
-			--			useItem(13)
-			--		end
-                end
-                if canTrinket(14) and not hasEquiped(169311,14) and not hasEquiped(167555,14) then
-                    useItem(14)
-				elseif hasEquiped(169311,14) then
-					if (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5) or (getHP(thisUnit) <= 30.2 and debuff.conductiveInk.exists("target")) or buff.memoryOfLucidDreams.exists("player") or getBuffRemain("player", spell.recklessness) > 4.5 and br.timer:useTimer("Razor Coral Delay", 3) then
-						br.addonDebug("Using second activation of Ashvane's Razor Coral")
-						useItem(14)
-					elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
-						br.addonDebug("Using first activation of Ashvane's Razor Coral")
-                        useItem(14)
-					end
-                end
-            end
-        end
 
+        -- Bloodrage
+        --if isChecked("Bloodrage") and inCombat and IsSpellKnown(329038) and cast.able.bloodrage()then
+        --    if cast.bloodrage("player") then
+        --        return
+        --    end
+        --end
         --racials
         if isChecked("Racials") and br.player.ui.mode.cooldown ~= 3 then
             if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
@@ -923,48 +896,9 @@ local function runRotation()
             end
         end
     end
-	if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    br.addonDebug("Using shroudOfResolve")
-                end
-            end
-        end
     if br.player.ui.mode.lazyass == 1 and hastar and getDistance("target") > 5 then
         RunMacroText("/follow")
     end
-
-
- if isChecked("Radar On") then
-
-
-            local stun = "Storm Bolt"
-
-            for i = 1, GetObjectCountBR() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if isChecked("All - stun the thing") then
-                    if ID == 161895 then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 8 and isChecked("Fear the thing") and cd.intimidatingShout.remains() <= gcdMax then
-                            cast.intimidatingShout(object)
-							br.addonDebug("Fearing the Thing")
-                            return true
-                        end
-                        if distance < 20 and not isLongTimeCCed(object) and talent.stormBolt and cd.stormBolt.remains() <= gcdMax then
-                            cast.stormBolt(object)
-                        end
-                    end
-                end -- end the thing
-            end
-        end
-
-
-
 
     if isCastingSpell(295258) then
         return true
@@ -981,9 +915,6 @@ local function runRotation()
         end
         if extralist() then
             return
-        end
-		if isChecked("Pig Catcher") then
-                    bossHelper()
         end
         if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards5 >= 1 then
             if getDistance(units.dyn5) < 6 then

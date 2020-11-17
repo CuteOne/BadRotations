@@ -209,12 +209,6 @@ actionList.Extras = function()
             if cast.deathGrip(units.dyn30) then ui.debug("Casting Death Grip [Out of Melee]") return true end
         end
     end
-    -- Path of Frost
-    if ui.checked("Path of Frost") and cast.able.pathOfFrost() then
-        if not unit.inCombat() and unit.swimming() and not buff.pathOfFrost.exists() then
-            if cast.pathOfFrost() then ui.debug("Casting Path of Frost") return true end
-        end
-    end
 end -- End Action List - Extras
 
 -- Action List - Defensive
@@ -295,7 +289,7 @@ actionList.ColdHeart = function()
     var.profileDebug = "Cold Heart"
     -- Chains of Ice
     -- chains_of_ice,if=fight_remains<gcd|buff.pillar_of_frost.remains<3&buff.cold_heart.stack=20&!talent.obliteration.enabled
-    if cast.able.chainsOfIce() and (unit.ttdGroup(30) < unit.gcd(true) or buff.pillarOfFrost.remains() < 3 and buff.coldHeart.stack() == 20 and not talent.obliteration) then
+    if cast.able.chainsOfIce() and (unit.ttdGroup(30) < unit.gcd(true) or buff.pillarOfFrost.remains() < 3) and buff.coldHeart.stack() == 20 and not talent.obliteration then
         if cast.chainsOfIce() then ui.debug("Casting Chains of Ice [No-Obliteration]") return true end
     end
     -- chains_of_ice,if=talent.obliteration.enabled&!buff.pillar_of_frost.up&(buff.cold_heart.stack>=16&buff.unholy_strength.up|buff.cold_heart.stack>=19)
@@ -904,6 +898,14 @@ local function runRotation()
     -- Profile Stop
     if var.profileStop == nil then var.profileStop = false end
 
+    
+    -- Path of Frost
+    if ui.checked("Path of Frost") and cast.able.pathOfFrost() then
+        if not unit.inCombat() and unit.mounted() and not buff.pathOfFrost.exists() then
+            if cast.pathOfFrost() then ui.debug("Casting Path of Frost") return true end
+        end
+    end
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -929,7 +931,7 @@ local function runRotation()
         --- In Combat Rotation ---
         --------------------------
         -- Combat Start
-        if unit.inCombat() and var.profileStop==false and unit.valid(units.dyn5) then
+        if unit.inCombat() and var.profileStop==false and unit.valid(units.dyn5) and unit.exists("target") then
             var.profileDebug = "Combat Rotation"
             -- auto_attack
             if unit.distance(units.dyn5) < 5 then

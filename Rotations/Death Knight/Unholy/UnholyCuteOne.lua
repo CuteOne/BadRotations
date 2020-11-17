@@ -945,83 +945,6 @@ local function runRotation()
                 --                 use.slot(i)
                 --                 ui.debug("Using Trinket [Slot "..i.."]")
                 --             end
-                --             -- Azshara's Font of Power
-                --             -- actions+=/use_item,name=azsharas_font_of_power,if=(essence.vision_of_perfection.enabled&!talent.unholy_frenzy.enabled)|(!essence.condensed_lifeforce.major&!essence.vision_of_perfection.enabled)
-                --             if equiped.azsharasFontOfPower(i) and ((essence.visionOfPerfection.active and not talent.unholyAssault) 
-                --                 or (not essence.condensedLifeForce.major and not essence.visionOfPerfection.active)) and not unit.moving()
-                --             then
-                --                 use.slot(i)
-                --                 ui.debug("Using Azshara's Font of Power")
-                --             end  
-                --             -- actions+=/use_item,name=azsharas_font_of_power,if=cooldown.apocalypse.remains<14&(essence.condensed_lifeforce.major|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled)
-                --             if equiped.azsharasFontOfPower(i) and cd.apocalypse.remain() < 14 and (essence.condensedLifeForce.major or essence.visionOfPerfection.active) and talent.unholyAssault and not unit.moving() then
-                --                 use.slot(i)
-                --                 ui.debug("Using Azshara's Font of Power")
-                --             end
-                --             -- actions+=/use_item,name=azsharas_font_of_power,if=target.1.time_to_die<cooldown.apocalypse.remains+34
-                --             if equiped.azsharasFontOfPower(i) and  unit.ttd(units.dyn5) < cd.apocalypse.remain() + 34 and not unit.moving() then
-                --                 use.slot(i)
-                --                 ui.debug("Using Azshara's Font of Power")
-                --             end
-                --             -- Ashvanes Razor Coral
-                --             -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.stack<1
-                --             if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and debuff.razorCoral.stack(units.dyn5) == ui.value("Ashvane's Razor Coral Stacks") then
-                --                 use.slot(i)
-                --                 ui.debug("Using Ashvane's Razor Coral")
-                --             end
-                --             -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
-                --             if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
-                --                 or (cd.apocalypse.remain() < unit.gcd(true) and not essence.condensedLifeForce.active and not talent.unholyAssault)
-                --                 or (unit.ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain() < unit.gcd(true) and unit.ttd(units.dyn5) < cd.guardianOfAzeroth.remain() + 20)
-                --                 or (buff.unholyAssault.exists() and not essence.condensedLifeForce.active))
-                --             then
-                --                 use.slot(i)
-                --                 ui.debug("Using Ashvane's Razor Coral")
-                --             end
-                --             -- Vision of Demise
-                --             -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.exists
-                --             if equiped.visionOfDemise(i) and ((cd.apocalypse.remain() == 0 and debuff.festeringWound.stack(units.dyn5) >= 4
-                --                 and essence.visionOfPerfection.active) or buff.unholyAssault.exists() or pet.gargoyle.exists())
-                --             then
-                --                 use.slot(i)
-                --                 ui.debug("Using Vision of Demise")
-                --             end
-                --             -- Ramping Amplitude Gigavolt Engine
-                --             -- use_item,name=ramping_amplitude_gigavolt_engine,if=cooldown.apocalypse.remains<2|talent.army_of_the_damned.enabled|raid_event.adds.in<5
-                --             if equiped.rampingAmplitudeGigavoltEngine(i) and (cd.apocalypse.remain() < 2 or talent.armyOfTheDamned) then
-                --                 use.slot(i)
-                --                 ui.debug("Using Rampaging Gigavolt Engine")
-                --             end
-                --             -- Bygone Bee Almanac
-                --             -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                --             if equiped.bygoneBeeAlmanac(i) and (cd.summonGargoyle.remain() > 60
-                --                 or (not talent.summonGargoyle and unit.combatTime > 20) or not equiped.rampingAmplitudeGigavoltEngine(i))
-                --             then
-                --                 use.slot(i)
-                --                 ui.debug("Using Bygone Bee ALmanac")
-                --             end
-                --             -- Jes Howler
-                --             -- use_item,name=jes_howler,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                --             if equiped.jesHowler(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and unit.combatTime > 20)
-                --                 or not equiped.rampingAmplitudeGigavoltEngine(i))
-                --             then
-                --                 use.slot(i)
-                --                 ui.debug("Using Jes Howler")
-                --             end
-                --             -- Galecaller's Beak
-                --             -- use_item,name=galecallers_beak,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                --             if equiped.galecallersBeak(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and unit.combatTime > 20)
-                --                 or not equiped.rampingAmplitudeGigavoltEngine(i))
-                --             then
-                --                 use.slot(i)
-                --                 ui.debug("Using Galecaller's Beak")
-                --             end
-                --             -- Grong's Primal Rage
-                --             -- use_item,name=grongs_primal_rage,if=rune<=3&(time>20|!equipped.ramping_amplitude_gigavolt_engine)
-                --             if equiped.grongsPrimalRage(i) and runes <= 3 and (unit.combatTime > 20 or not equiped.rampingAmplitudeGigavoltEngine()) then
-                --                 use.slot(i)
-                --                 ui.debug("Using Grong's Primal Rage")
-                --             end
                 --         end
                 --     end
                 -- end
@@ -1047,6 +970,10 @@ local function runRotation()
                 then
                     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [AOE]") return true end
                 end
+                -- outbreak,if=runeforge.superstrain.equipped&(dot.frost_fever.refreshable|dot.blood_plague.refreshable)
+                -- if cast.able.outbreak(units.dyn25) and runeforge.superstrain.equiped() and (debuff.frostFever.refresh(units.dyn25) or debuff.bloodPlague.refresh()) then
+                --     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [Superstrain]") return true end
+                -- end
                 -- Call Action List - Cooldowns
                 -- call_action_list,name=cooldowns
                 if actionList.Cooldowns() then return true end
