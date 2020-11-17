@@ -319,7 +319,7 @@ local function runRotation()
         local pet                                           = br.player.pet.list
         local hasPet                                        = IsPetActive()
         local equiped                                       = br.player.equiped
-        local ttd                                           = getTTD("target")
+        local ttd                                           = getTTD
         
         units.get(40)
         enemies.get(10)
