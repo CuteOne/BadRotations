@@ -2301,7 +2301,7 @@ local function runRotation()
         end -- end Bestow Faith
 
         -- Word of Glory
-        if isChecked("Word of Glory") and holyPower >=3 or buff.divinePurpose.exists() then
+        if isChecked("Word of Glory") and getSpellCD(20473) > gcd and holyPower >=3 or buff.divinePurpose.exists() then
             --Critical first
             if php <= getValue("Critical HP") then
                 if cast.wordOfGlory("player") then
