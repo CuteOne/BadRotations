@@ -416,16 +416,16 @@ actionList.EssenceBreak = function()
     if cast.able.essenceBreak() and fury >= 80 and (cd.bladeDance.ready() or not var.bladeDance) then
         if cast.essenceBreak() then ui.debug("Casting Essence Break") return true end
     end
-    if buff.essenceBreak.exists() then
+    if debuff.essenceBreak.exists(units.dyn5) then
         if var.bladeDance then
             -- Death Sweep
             -- death_sweep,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.deathSweep() and var.onMeta and buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
+            if cast.able.deathSweep() and var.onMeta and buff.metamorphosis.exists() and var.bladeDance then
                 if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep [Essence Break]") return true end
             end
             -- Blade Dance
             -- blade_dance,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.bladeDance() and not var.onMeta and not buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
+            if cast.able.bladeDance() and not var.onMeta and not buff.metamorphosis.exists() and var.bladeDance then
                 if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance [Essence Break]") return true end
             end
         end

@@ -436,7 +436,6 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                essenceBreak                = 320338,
                 innerDemon                  = 337313,
                 metamorphosis               = 162264,
                 momentum                    = 208628,
@@ -444,7 +443,7 @@ br.lists.spells = {
                 unboundChaos                = 234059,
             },
             debuffs                         = {
-                essenceBreak                = 258860,
+                essenceBreak                = 320338,
             },
             glyphs                          = {
 
