@@ -55,6 +55,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Feral Lunge")
             -- Lightning Bolt OOC
             br.ui:createCheckbox(section,"Lightning Bolt Out of Combat")
+            -- Shields Up
+            br.ui:createDropdownWithout(section, "Shields Up", {"Lightning Shield","Earth Shield","No Shields"}, 1, "|cffFFFFFFSet to desired shield to use.")
             -- Spirit Walk
             br.ui:createCheckbox(section,"Spirit Walk")
             -- Water Walking
@@ -96,8 +98,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Astral Shift",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Cleanse Spirit
             br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-            -- Earth Shield
-            br.ui:createCheckbox(section, "Earth Shield")
             -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
@@ -264,8 +264,8 @@ actionList.Defensive = function()
             end
         end
         -- Earth Shield
-        if ui.checked("Earth Shield") and cast.able.earthShield() and not buff.earthShield.exists() then
-            if cast.earthShield() then ui.debug("Casting Earth Shield") return true end
+        if talent.earthShield and ui.value("Shields Up") == 2 and cast.able.earthShield() and not buff.earthShield.exists() then
+            if cast.earthShield("player") then ui.debug("Casting Earth Shield") return true end
         end
         -- Healing Surge
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not (unit.mounted() or unit.flying())
@@ -724,7 +724,7 @@ actionList.PreCombat = function()
         end
         -- Lightning Shield
         -- lightning_shield
-        if cast.able.lightningShield() and not buff.lightningShield.exists() then
+        if (ui.value("Shields Up") == 1 or (ui.value("Shields Up") == 2 and not talent.earthShield)) and cast.able.lightningShield() and not buff.lightningShield.exists() then
             if cast.lightningShield("player") then ui.debug("Casting Lightning Shield") return true end
         end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then

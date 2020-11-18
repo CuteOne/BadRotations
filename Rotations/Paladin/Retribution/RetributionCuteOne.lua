@@ -588,7 +588,7 @@ actionList.Finisher = function()
         and (not talent.executionSentence or cd.executionSentence.remains() < 10)
         and var.timeToHPG == 0
     then
-        if cast.serphim() then ui.debug("Casting Seraphim") return true end
+        if cast.seraphim() then ui.debug("Casting Seraphim") return true end
     end
     -- Vanquisher's Hammer
     -- vanquishers_hammer,if=(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10|debuff.final_reckoning.up)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10|debuff.execution_sentence.up)|spell_targets.divine_storm>=2
