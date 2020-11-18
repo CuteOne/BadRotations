@@ -3173,6 +3173,7 @@ br.lists.spells = {
                 drainSoul                   = 198590,
                 grimoireOfSacrifice         = 108503,
                 haunt                       = 48181,
+                inevitableDemise            = 334319,
                 phantomSingularity          = 205179,
                 siphonLife                  = 63106,
                 soulConduit                 = 215941,
@@ -3345,6 +3346,10 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                banish                      = 710,
+                curseOfExhaustion           = 334275,
+                curseOfTongues              = 1714,
+                curseOfWeakness             = 702,
                 createHealthstone           = 6201,
                 darkPact                    = 108416,
                 demonicCircle               = 48018,
@@ -3362,6 +3367,7 @@ br.lists.spells = {
                 soulHarvest                 = 196098,
                 soulstone                   = 20707,
                 --summonDoomguard             = 18540,
+                subjugateDemon              = 1098,
                 summonFelguard              = 30146,
                 summonFelhunter             = 691,
                 summonFelImp                = 688,
@@ -3370,17 +3376,20 @@ br.lists.spells = {
                 summonSuccubus              = 712,
                 summonVoidwalker            = 697,
                 summonWrathguard            = 112870,
+                unendingBreath              = 5697,
                 unendingResolve             = 104773,
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                demonicCircle               = 48018,
                 demonicSynergy              = 171982,
                 healthFunnel                = 755,
                 sindoreiSpite               = 208871,
                 soulHarvest                 = 196098,
                 soulstone                   = 20707,
+                unendingBreath              = 5697,
                 unendingResolve             = 104773,
             },
             debuffs                         = {
