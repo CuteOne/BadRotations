@@ -3353,6 +3353,7 @@ br.lists.spells = {
                 createHealthstone           = 6201,
                 darkPact                    = 108416,
                 demonicCircle               = 48018,
+                demonicTeleport             = 48020,
                 devourMagic                 = 19505,
                 fear                        = 5782,
                 grimoireFelhunter           = 111897,

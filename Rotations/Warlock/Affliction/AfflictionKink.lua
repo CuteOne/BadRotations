@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local rotationVer  = "v1.5.1"
+local rotationVer  = "v1.5.2"
 local dsInterrupt = false
 ----------------------------------------------------
 -- Credit and huge thanks to: Fiskee forthe basis of this rotation/API
@@ -172,7 +172,6 @@ local function createOptions ()
         section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. DoTs")
             -- Seed of Corruption TTD
             br.ui:createSpinnerWithout(section, "Seed of Corruption TTD", 6, 1, 25, 1, "|cffFFBB00Minimum Time to Die of a unit to cast Seed of Corruption on.")
-
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "SoC Spam Delay", 0.1, 0, 10, 0.1, "Set desired delqy between SoC casts during SoC Spam. Min: 0 / Max: 10 / Interval: 0.1")
 
@@ -198,6 +197,9 @@ local function createOptions ()
         --- OFFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. Offensive")
+            -- Curse of Tongues
+            br.ui:createCheckbox(section, "Curse of Tongues", "Use Curse Of Tongues on enemy healers")
+
             -- Darkglare
             br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare")
 
@@ -452,6 +454,67 @@ local function runRotation()
         end
         return false
     end    
+
+    --[[
+local function CanUseCurse(target, targetTTD, targetIsPlayer, obj, isP)
+    -- @return boolean 
+    if (not isP and obj:IsReady(target)) or (isP and obj:IsReadyP(target)) then 
+        if obj == A.CurseofAgony then 
+            return targetTTD >= 10 and Unit(target):HasDeBuffs(obj.ID) == 0 and obj:AbsentImun(target, Temp.AuraForCC)
+        elseif obj == A.CurseofDoom then 
+            return targetTTD >= 60 and not targetIsPlayer and Unit(target):HasDeBuffs(obj.ID) == 0 and obj:AbsentImun(target, Temp.AuraForCC)
+        elseif obj == A.CurseofExhaustion then 
+            return targetTTD >= 6 and targetIsPlayer and Unit(target):GetCurrentSpeed() >= 100 and Unit(target):HasDeBuffs(obj.ID) == 0 and obj:AbsentImun(target, Temp.AuraForFreedom)
+        else 
+            if targetTTD >= 10 then 
+                if Unit(target):HasDeBuffs(obj.ID) == 0 then 
+                    return obj:AbsentImun(target, Temp.AuraForCC)
+                else 
+                    local myDur = Unit(target):HasDeBuffs(obj.ID, true)
+                    return myDur > 0 and myDur <= 4 and obj:AbsentImun(target, Temp.AuraForCC)
+                end 
+            end 
+        end 
+    end 
+end 
+    ]]
+
+    local function isHealer(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+
+        if (class == "DRUID" or class =="PALADIN" or class =="PRIEST" or class =="MONK" or class =="SHAMAN") then
+            if UnitPowerMax(unit >= 290000) and not UnitBuffID(unit, 24858) and not UnitBuffID(unit, 15473) and not UnitBuffID(unit, 324) then
+                return true
+            end
+        end
+    end
+
+    local function isMelee(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+        if (class == "DRUID" or class =="PALADIN" or class =="WARRIOR" or class =="MONK" or class =="SHAMAN" or class =="DEATHKNIGHT" or class =="ROGUE" or class =="DEMONHUNTER" )and UnitPowerMax(unit) < 70000 then
+            return true
+        end
+    end
+
+    -- canCurse("target", ttd("target"), CoT)
+    local function canCurse(unit, obj)
+        if unit == nil then unit = target end 
+        if UnitIsDeadOrGhost(unit) then return false end 
+        local class = select(2, UnitClass(unit))
+        local name = GetUnitName(unit, true)
+        if obj == nil and isHealer(unit) then obj = CoT end
+        
+        if GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPVP(unit) and UnitIsPlayer("target") then 
+            if obj == CoT and ttd(unit) >= 6 and isHealer(unit) then
+                if cast.curseOfTongues(unit) then 
+                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
+                    return true
+                end
+            end
+        end
+    end
 
     -- Blacklist enemies
     local function isTotem(unit)
@@ -888,7 +951,7 @@ local function runRotation()
             if SpecificToggle("Demonic Circle Teleport")
             and not GetCurrentKeyBoardFocus() 
                         then
-                if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicCircle("player") br.addonDebug("Demonic Circle (Summon)") return true end 
+                if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicTeleport("player") br.addonDebug("Demonic Circle (Summon)") return true end 
             end
 
             -- Mortal Coil
@@ -1132,7 +1195,7 @@ local function runRotation()
         -- Unstable Affliction -------------------------
         ------------------------------------------------
         -- actions.aoe+=/unstable_affliction,if=dot.unstable_affliction.refreshable
-        if not moving and debuff.unstableAffliction.remains("target") <= 9.9 + cast.time.unstableAffliction() and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
+        if not moving and debuff.unstableAffliction.remains("target") <= 10 + cast.time.unstableAffliction() and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
             if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") return true end
         end
         
@@ -1281,7 +1344,14 @@ actions+=/shadow_bolt
             -- AoE Rotation --------------------------------
             ------------------------------------------------
             if aoeUnits >= ui.value("Multi-Target Units") and mode.single ~= 1 then if actionList_AoE() then return end end
-
+        if ui.checked("Curse of Tongues") then
+            for i = 1, #enemyTable40 do
+                local thisUnit = enemyTable40[i].unit
+                if isHealer(unit) and canCurse(unit, CoT) then
+                    return true
+                end
+            end
+        end
             ------------------------------------------------
             -- Agony ---------------------------------------
             ------------------------------------------------
@@ -1300,7 +1370,7 @@ actions+=/shadow_bolt
 
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
-                if ttd(thisUnit) > 10 and debuff.agony.exists(thisUnit) and debuff.agony.remains(thisUnit) <= 7 then
+                if ttd(thisUnit) > 10 and debuff.agony.exists(thisUnit) and debuff.agony.remains(thisUnit) <= 7.5 then
                     if cast.agony(thisUnit) then return true end
                 end
             end
@@ -1308,7 +1378,7 @@ actions+=/shadow_bolt
             ------------------------------------------------
             -- Unstable Affliction -------------------------
             ------------------------------------------------
-            if not moving and debuff.unstableAffliction.remains("target") <= 9.9 + cast.time.unstableAffliction() and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
+            if not moving and debuff.unstableAffliction.remains("target") <= 10 + cast.time.unstableAffliction() and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
                if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") return true end
             end
 
@@ -1321,6 +1391,7 @@ actions+=/shadow_bolt
             ------------------------------------------------
             -- Seed of Corruption, ST ----------------------
             ------------------------------------------------
+        if aoeUnits >= ui.value("Multi-Target Units") then
             if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption(1) and not cast.last.seedOfCorruption(2) then
                 if cast.seedOfCorruption(seedTarget) then return true end
             end
@@ -1328,7 +1399,7 @@ actions+=/shadow_bolt
             if mode.ss == 3 and not moving and br.timer:useTimer("SoC Spam", ui.value("SoC Spam Delay")) then
                if cast.seedOfCorruption(seedTarget) then return true end
             end
-
+        end
             ------------------------------------------------
             -- Agony on seed if missing --------------------
             ------------------------------------------------
@@ -1646,12 +1717,12 @@ actions+=/shadow_bolt
             return
         end
 
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and debuff.unstableAffliction.remains("target") <= 9.9 + cast.time.unstableAffliction() then
+        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and debuff.unstableAffliction.remains("target") <= 12 + cast.time.unstableAffliction() then
          --  SpellStopCasting()
-            if not moving and debuff.unstableAffliction.remains("target") <= 9.9 + cast.time.unstableAffliction() 
+            if not moving 
             and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
            -- and not cast.current.unstableAffliction()
-            and br.timer:useTimer("UA", 1.5) 
+            and br.timer:useTimer("UA", 1.3) 
            -- and cast.timeSinceLast.unstableAffliction() >= 3
            -- and not cast.last.unstableAffliction(2)
             then
@@ -1672,7 +1743,23 @@ actions+=/shadow_bolt
            -- and cast.timeSinceLast.unstableAffliction() >= 3
            -- and not cast.last.unstableAffliction(2)
             then
-               if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] MaleficRapture, Clipped DS [Refresh]") return true end
+               if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] MaleficRapture, Clipped DS") return true end
+            end
+        end
+
+        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) 
+        --and debuff.unstableAffliction.remains("target") >= 11
+        and cd.haunt.remain() <= gcdMax
+        then
+              --SpellStopCasting()
+            if not moving
+           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+           -- and not cast.current.unstableAffliction()
+           -- and br.timer:useTimer("UA", 1.5) 
+           -- and cast.timeSinceLast.unstableAffliction() >= 3
+           -- and not cast.last.unstableAffliction(2)
+            then
+               if cast.haunt("target") then br.addonDebug("[Action:Rotation] Haunt, Clipped DS") return true end
             end
         end
         --------------------------
