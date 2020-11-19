@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local rotationVer  = "v1.5.2"
+local rotationVer  = "v1.5.4"
 local dsInterrupt = false
 ----------------------------------------------------
 -- Credit and huge thanks to: Fiskee forthe basis of this rotation/API
