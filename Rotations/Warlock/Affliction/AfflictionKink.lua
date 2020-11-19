@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local rotationVer  = "v1.5.4"
+local rotationVer  = "v1.5.5"
 local dsInterrupt = false
 ----------------------------------------------------
 -- Credit and huge thanks to: Fiskee forthe basis of this rotation/API
@@ -1371,6 +1371,16 @@ actions+=/shadow_bolt
             if not debuff.agony.exists("target") and ttd("target") > 10 then
                 if cast.agony("target") then return true end
             end
+
+            ------------------------------------------------
+            -- Unstable Affliction -------------------------
+            ------------------------------------------------
+          --  if not moving and debuff.unstableAffliction.remains("target") <= 9 and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
+         --      if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") return true end
+        --    end
+        if not moving and (not lcast or GetTime() - lcast >= 3) and debuff.unstableAffliction.remains("target") <= 6.5 then
+               if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end
+            end
             ------------------------------------------------
             -- Agony ---------------------------------------
             ------------------------------------------------
@@ -1381,12 +1391,6 @@ actions+=/shadow_bolt
                         if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Refresh]") return true end
                     end
                 end
-            end
-            ------------------------------------------------
-            -- Unstable Affliction -------------------------
-            ------------------------------------------------
-            if not moving and debuff.unstableAffliction.remains("target") <= 6.5 and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
-               if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") return true end
             end
 
             for i = 1, #enemyTable40 do
@@ -1440,7 +1444,7 @@ actions+=/shadow_bolt
                 if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and  debuff.corruption.refresh(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
+                        if not noDotCheck(thisUnit) and  debuff.corruption.refresh(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) and not debuff.seedOfCorruption.exists(thisUnit) then
                            if cast.corruption(thisUnit) then br.addonDebug("[Action:Rotation] Corruption [Refresh]") return true end
                         end
                     end
@@ -1516,7 +1520,7 @@ actions+=/shadow_bolt
             ------------------------------------------------
             -- Malefic Rapture, Max Periodic Effects -------
             ------------------------------------------------
-            if not moving and shards > 0 and getDistance("target") <= 40 then
+            if not moving and shards > 0 then
                 -- Malefic Rapture, Phantom Singularity
                 if debuff.phantomSingularity.exists("target") or (cd.phantomSingularity.remain() > 12 or shards > 3) then 
                    if cast.maleficRapture() then br.addonDebug("[Action:Rotation] Malefic Rapture, Phantom Singularity") return true end 
@@ -1550,9 +1554,9 @@ actions+=/shadow_bolt
             if not moving and talent.inevitableDemise and buff.inevitableDemise.stack() >= 30 and br.timer:useTimer("ID Delay", 5) then
                 if cast.drainLife() then br.addonDebug("[Action:Rotation] Drain Life (ID > 30)") return true end
             end]]
-            if not moving and not cast.current.drainSoul() then
-
-            end
+        --    if not moving and not cast.current.drainSoul() then
+        --        if cast.drainSoul() then return true end 
+        --    end
 
             ------------------------------------------------
             -- Shadow Bolt ---------------------------------
@@ -1593,22 +1597,20 @@ actions+=/shadow_bolt
         and  not IsFlying() or IsMounted()
         and (not inCombat or buff.felDomination.exists())
         and (not moving or buff.felDomination.exists())
-        and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + 2) 
+        and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + 5) 
         then
             if mode.petSummon == 5 and pet.active.id() ~= 0 then
                 PetDismiss()
             end
-            if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId
-                or pet.active.id() ~= summonId or pet.active.id() == 0)
-            then
-            if mode.petSummon == 1 then
-                if cast.summonImp("player") then castSummonId = spell.summonImp return true end
-            elseif mode.petSummon == 2 then
-                if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return true end
-            elseif mode.petSummon == 3 then
-                if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return true end
-            elseif mode.petSummon == 4  then
-                if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
+            if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId or pet.active.id() ~= summonId or activePetId == 0) then
+                if mode.petSummon == 1 and (lastSpell ~= spell.summonImp or activePetId == 0) then
+                    if cast.summonImp("player") then castSummonId = spell.summonImp return end
+                elseif mode.petSummon == 2 and (lastSpell ~= spell.summonVoidwalker or pet.active.id() == 0)  then
+                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return end
+                elseif mode.petSummon == 3 and (lastSpell ~= spell.summonFelhunter or pet.active.id() == 0) then
+                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return end
+                elseif mode.petSummon == 4 and (lastSpell ~= spell.summonSuccubus or pet.active.id() == 0) then
+                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return end
                 end
             end
         end
@@ -1648,8 +1650,8 @@ actions+=/shadow_bolt
             end
 
             -- Create Healthstone
-            if not moving and ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < 3 and br.timer:useTimer("SoC Delay", 1.5) then
-                if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
+            if not moving and ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < 3 and (not lcast or GetTime() - lcast >= 3) then
+                if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) lcast = GetTime() return true end
             end
 
             -- Auto Engage
@@ -1704,20 +1706,19 @@ actions+=/shadow_bolt
         ---------------------------
         if actionList_PreCombat() then return end
 
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and debuff.unstableAffliction.remains("target") <= 6.3 then
+        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and debuff.unstableAffliction.remains("target") <= 6.5 then
          --  SpellStopCasting()
-            if not moving and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+            if not moving and (not lcast or GetTime() - lcast >= 1) and debuff.unstableAffliction.remains("target") <= 6.5 then
            -- and not cast.current.unstableAffliction()
-            and br.timer:useTimer("UA", 1.5) 
+            --and br.timer:useTimer("UA", 1.5) 
            -- and cast.timeSinceLast.unstableAffliction() >= 3
            -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction, Clipped DS [Refresh]") return true end
+               if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction, Clipped DS [Refresh]") lcast = GetTime() return true end
             end
         end
 
         if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 0
-        --and debuff.unstableAffliction.remains("target") >= 
+        and debuff.unstableAffliction.remains("target") >= 10
         and debuff.phantomSingularity.remains("target") >= cast.time.maleficRapture() + gcd 
         or debuff.vileTaint.remains("target") >= cast.time.maleficRapture() + gcdMax  
         then
@@ -1774,7 +1775,7 @@ actions+=/shadow_bolt
                 ------------------------------------------------
                 if not moving then
                     if cast.drainSoul() then br.addonDebug("[Action:Rotation] Drain Soul") return true end
-                end
+               end
 
             end -- End SimC APL
         end --End In Combat
