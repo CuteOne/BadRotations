@@ -1796,7 +1796,7 @@ local function runRotation()
             end
         end
         -- Light of Dawn
-        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and holyPower >=3 or buff.divinePurpose.exists() then
+        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and getSpellCD(20473) > gcd and holyPower >=3 or buff.divinePurpose.exists() then
             if br.unlocked then --EasyWoWToolbox == nil then
                 if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                     if cast.lightOfDawn() then
@@ -1905,7 +1905,7 @@ local function runRotation()
                     return
                 end
             end
-            if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and holyPower >=3 and #enemies.yards5 >= getValue("Shield of the Righteous") then
+            if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= getValue("Shield of the Righteous") and holyPower >=3 or buff.divinePurpose.exists() then
                 if cast.shieldOfTheRighteous(thisUnit) then
                     return true
                 end
@@ -2231,7 +2231,7 @@ local function runRotation()
         -- Grievous stuff
 
         if BleedFriend ~= nil then
-            if cast.able.lightOfDawn() and isChecked("Light of Dawn") then
+            if cast.able.lightOfDawn() and isChecked("Light of Dawn") and holyPower >=3 or buff.divinePurpose.exists() then
                 if bestConeHeal(spell.lightOfDawn, 1, 80, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
                     return true
                 end
@@ -2301,7 +2301,7 @@ local function runRotation()
         end -- end Bestow Faith
 
         -- Word of Glory
-        if isChecked("Word of Glory") and holyPower >=3 or buff.divinePurpose.exists() then
+        if isChecked("Word of Glory") and getSpellCD(20473) > gcd and holyPower >=3 or buff.divinePurpose.exists() then
             --Critical first
             if php <= getValue("Critical HP") then
                 if cast.wordOfGlory("player") then
