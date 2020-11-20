@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.1.1"
+local rotationVer  = "v1.1.2"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -173,7 +173,7 @@ local function createOptions()
         -- Predict movement
         --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
         -- Auto target
-        -- br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
+        br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
         br.ui:checkSectionState(section)
 
         -- ------------------------
@@ -1594,7 +1594,7 @@ actions.st+=/frostbolt
     local function actionList_PreCombat()
         local petPadding = 2
         if isChecked("Pet Management") and not talent.lonelyWinter and not (IsFlying() or IsMounted()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonWaterElemental() + petPadding) and not moving then
-            if activePetId == 0 and lastSpell ~= spell.summonWaterElemental then
+            if activePetId == 0 and lastSpell ~= spell.summonWaterElemental and select(2,GetSpellCooldown(spell.summonWaterElemental)) ~= 1 then
                 if cast.summonWaterElemental("player") then
                     return true
                 end
