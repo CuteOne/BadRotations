@@ -3369,6 +3369,10 @@ br.lists.spells = {
                 lifeTap                     = 1454,
                 mortalCoil                  = 6789,
                 shadowfury                  = 30283,
+                shadowBulwark               = 119907,
+                spellLock                   = 19647,
+                seduction                   = 6358,
+                singeMagic                  = 89808,
                 soulHarvest                 = 196098,
                 soulstone                   = 20707,
                 --summonDoomguard             = 18540,
@@ -3383,6 +3387,7 @@ br.lists.spells = {
                 summonWrathguard            = 112870,
                 unendingBreath              = 5697,
                 unendingResolve             = 104773,
+
             },
             artifacts                       = {
 
@@ -3400,6 +3405,9 @@ br.lists.spells = {
             },
             debuffs                         = {
                 fear                        = 5782,
+                curseOfExhaustion           = 334275,
+                curseOfTongues              = 1714,
+                curseOfWeakness             = 702,
             },
             glyphs                          = {
                 glyphOfTheFelImp            = 219424,
