@@ -1,5 +1,5 @@
 local rotationName = "KinkDestruction"
-local VerNum = "1.2.0"
+local VerNum = "1.2.2"
 ---------------
 --- Toggles ---
 ---------------
@@ -98,6 +98,12 @@ local function createOptions()
             -- Cataclysm
             br.ui:createCheckbox(section, "Cataclysm")
 
+            -- Use Essence
+            br.ui:createCheckbox(section, "Curse of Tongues")
+            
+            -- Use Essence
+            br.ui:createCheckbox(section, "Curse of Weakness")
+
 
             -- Cataclysm Units
             br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
@@ -133,6 +139,11 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Use Essence
+            br.ui:createCheckbox(section, "Curse of Tongues")
+            
+            -- Use Essence
+            br.ui:createCheckbox(section, "Curse of Weakness")
             -- Soulstone
 		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover","|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
@@ -142,6 +153,9 @@ local function createOptions()
 
             -- Create Healthstone
             br.ui:createCheckbox(section,"Create Healthstone", "|cffFFFFFFToggle the creation of healthstones")
+
+            -- Shadow Bulwark
+            br.ui:createSpinner(section, "Shadow Bulwark",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             
             -- Demonic Gateway
             br.ui:createDropdown(section, "Demonic Gateway", br.dropOptions.Toggle, 6)
@@ -497,7 +511,7 @@ actionList.Cooldowns = function()
         -- Immolate
         -- immolate,if=talent.grimoire_of_supremacy.enabled&remains<8&cooldown.summon_infernal.remains<4.5
         if UnitHealth("target") >= immoTick and ttd("target") >= 9 and not moving and cast.able.immolate() and okToDoT and not cast.last.immolate() and (talent.grimoireOfSupremacy
-            and debuff.immolate.remain("target") < 8 and cd.summonInfernal.remain() < 4.5)
+            and debuff.immolate.remain("target") <= 10 and cd.summonInfernal.remain() < 4.5)
         then
             if cast.immolate() then debug("Cast Immolate [CD]") return true end
         end
@@ -729,13 +743,13 @@ actionList.Aoe = function()
     if not moving and cast.able.immolate() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) < 6 and (not ui.checked("Cataclysm") or not talent.cataclysm 
+            if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) <= 10 and (not ui.checked("Cataclysm") or not talent.cataclysm 
             or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit))) 
             then
                 if not GetUnitIsUnit(thisUnit,br.lastImmo) then
                     if cast.immolate(thisUnit) then debug("Cast Immolate [AOE]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
                 else
-                    if br.lastImmoCast == nil or GetTime() - br.lastImmoCast > 4.5 then
+                    if br.lastImmoCast == nil or GetTime() - br.lastImmoCast > 6.5 then
                         if cast.immolate(thisUnit) then debug("Cast Immolate [AOE Same Target]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
                     end
                 end
@@ -1041,6 +1055,29 @@ actionList.ST = function()
             if debuff.havoc.count() > 0 and #enemies.yards40f < 5 - inferno + internalInferno then
                 if actionList.Havoc() then return true end
             end
+           
+            -- Curse of Weakness
+                for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if ui.checked("Curse of Weakness") and ttd(unit) >= 6 and not UnitIsDeadOrGhost(unit) and isMelee(unit) and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPVP(unit) and UnitIsPlayer("target") then 
+                        if cast.curseOfWeakness(unit) then 
+                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
+                        return true
+                        end
+                    end
+                end
+
+            -- Curse of Tongues
+            for i = 1, #enemies.yards40f do
+                local unit = enemies.yards40f[i]
+                if ui.checked("Curse of Tongues") and ttd(unit) >= 6 and not UnitIsDeadOrGhost(unit) and isHealer(unit) and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPVP(unit) and UnitIsPlayer("target") then
+                    if cast.curseOfTongues(unit) then 
+                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
+                    return true
+                    end
+                end
+            end
+
 
             -- Cataclysm
             -- cataclysm,if=!(pet.infernal.active&dot.immolate.remains+1>pet.infernal.remains)|spell_targets.cataclysm>1|!talent.grimoire_of_supremacy.enabled
@@ -1169,7 +1206,7 @@ actionList.ST = function()
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
                     if ttd(thisUnit) > 10 and (not (GetUnitIsUnit("target",thisUnit))
-                        and (debuff.immolate.remain(thisUnit) > debuff.immolate.duration() * 0.5
+                        and (debuff.immolate.remain(thisUnit) > debuff.immolate.duration() * 0.5 
                         or not talent.internalCombustion) and (cd.summonInfernal.exists()
                         or not talent.grimoireOfSupremacy or talent.grimoireOfSupremacy and infernalRemain <= 10))
                     then
@@ -1385,6 +1422,25 @@ local function runRotation()
             if thisRemain > havocRemain then
                 havocRemain = thisRemain
             end
+        end
+    end
+
+    local function isHealer(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+
+        if (class == "DRUID" or class =="PALADIN" or class =="PRIEST" or class =="MONK" or class =="SHAMAN") then
+            if UnitPowerMax(unit) >= 290000 and not UnitBuffID(unit, 24858) and not UnitBuffID(unit, 15473) and not UnitBuffID(unit, 324) then
+                return true
+            end
+        end
+    end
+
+    local function isMelee(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+        if (class == "DRUID" or class =="PALADIN" or class =="WARRIOR" or class =="MONK" or class =="SHAMAN" or class =="DEATHKNIGHT" or class =="ROGUE" or class =="DEMONHUNTER" )and UnitPowerMax(unit) < 70000 then
+            return true
         end
     end
 

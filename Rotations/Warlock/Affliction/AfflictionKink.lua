@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local rotationVer  = "v1.5.5"
+local rotationVer  = "v1.5.6"
 local dsInterrupt = false
 ----------------------------------------------------
 -- Credit and huge thanks to: Fiskee forthe basis of this rotation/API
@@ -120,6 +120,12 @@ local function createOptions ()
             -- Use Essence
             br.ui:createCheckbox(section, "Use Essence")
 
+            -- Use Essence
+            br.ui:createCheckbox(section, "Curse of Tongues")
+            
+            -- Use Essence
+            br.ui:createCheckbox(section, "Curse of Weakness")
+
             -- Concentrated Flame
             br.ui:createSpinnerWithout(section, "Concentrated Flame", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
 
@@ -187,9 +193,6 @@ local function createOptions ()
         --- OFFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. Offensive")
-            -- Curse of Tongues
-            br.ui:createCheckbox(section, "Curse of Tongues", "Use Curse Of Tongues on enemy healers")
-
             -- Darkglare
             br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare")
 
@@ -470,7 +473,7 @@ local function CanUseCurse(target, targetTTD, targetIsPlayer, obj, isP)
 end 
     ]]
 
-   --[[ local function isHealer(unit)
+    local function isHealer(unit)
         if unit == nil then unit = "target" end
         local class = select(2, UnitClass(unit))
 
@@ -505,7 +508,7 @@ end
                 end
             end
         end
-    end]]
+    end
 
     -- Blacklist enemies
     --[[local function isTotem(unit)
@@ -1345,10 +1348,33 @@ actions+=/shadow_bolt
                 if cast.haunt() then return true end
             end
 
+
+            -- Curse of Weakness
+            for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if ui.checked("Curse of Weakness") and ttd(unit) >= 6 and isMelee(unit) and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPVP(unit) and UnitIsPlayer("target") then 
+                        if cast.curseOfWeakness(unit) then 
+                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
+                        return true
+                    end
+                end
+            end
+
+            -- Curse of Tongues
+            for i = 1, #enemies.yards40f do
+                local thisUnit = enemies.yards40f[i]
+                if ui.checked("Curse of Tongues") and ttd(unit) >= 6 and isHealer(unit) and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPVP(unit) and UnitIsPlayer("target") then
+                    if cast.curseOfTongues(unit) then 
+                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
+                    return true
+                    end
+                end
+            end
+
             ------------------------------------------------
             -- Malefic Rapture, Max Periodic Effects -------
             ------------------------------------------------
-            if not moving and shards > 0 and combatTime > 9 then
+            if not moving and shards > 0 and combatTime > 5 then
                 -- Malefic Rapture, Phantom Singularity
                 if debuff.phantomSingularity.exists("target") or (cd.phantomSingularity.remain() > 12 or shards > 3) then 
                    if cast.maleficRapture() then br.addonDebug("[Action:Rotation] Malefic Rapture, Phantom Singularity") return true end 
@@ -1386,7 +1412,7 @@ actions+=/shadow_bolt
             ------------------------------------------------
             -- Agony ---------------------------------------
             ------------------------------------------------
-            if not debuff.agony.exists("target") and ttd("target") > 10 then
+            if not debuff.curseOfWeakness.exists() or debuff.curseOfTongues.exists() and not debuff.agony.exists("target") and ttd("target") > 10 then
                 if cast.agony("target") then return true end
             end
 
@@ -1405,7 +1431,7 @@ actions+=/shadow_bolt
             if agonyCount < ui.value("Spread Agony on ST") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 7 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+                    if not debuff.curseOfWeakness.exists() or debuff.curseOfTongues.exists() and not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 7 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
                         if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Refresh]") return true end
                     end
                 end
@@ -1413,7 +1439,7 @@ actions+=/shadow_bolt
 
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
-                if ttd(thisUnit) > 10 and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
+                if not debuff.curseOfWeakness.exists() or debuff.curseOfTongues.exists() and ttd(thisUnit) > 10 and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
                     if cast.agony(thisUnit) then return true end
                 end
             end
@@ -1439,7 +1465,7 @@ actions+=/shadow_bolt
             ------------------------------------------------
             -- Agony on seed if missing --------------------
             ------------------------------------------------
-            if not debuff.agony.exists(seedTarget) and debuff.seedOfCorruption.exists(seedTarget) then
+            if not debuff.curseOfWeakness.exists() or debuff.curseOfTongues.exists() and not debuff.agony.exists(seedTarget) and debuff.seedOfCorruption.exists(seedTarget) then
                 if cast.agony(seedTarget) then return true end
             end
             -- actions+=/seed_of_corruption,if=active_enemies>2&!talent.vile_taint.enabled&(!talent.writhe_in_agony.enabled|talent.sow_the_seeds.enabled)&!dot.seed_of_corruption.ticking&!in_flight&dot.corruption.refreshable
