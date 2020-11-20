@@ -320,7 +320,7 @@ actionList.Extras = function()
 
     -- Demonic Gateway
     if SpecificToggle("Demonic Gateway") and not GetCurrentKeyBoardFocus() then
-        if br.timer:useTimer("RoF Delay", 1) and cast.demonicGateway(nil,"aoe",1,8,true) then br.addonDebug("Casting Demonic Gateway") return end 
+        if br.timer:useTimer("DG Delay", 1) and CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
         if IsAoEPending() then CancelPendingSpell() end
     end
 
