@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.1.0"
+local rotationVer  = "v1.1.1"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -97,7 +97,8 @@ local function createToggles()
         [2] = {mode = "Off", value = 2, overlay = "Frost Nova Disabled", tip = "Will not use Frost Nova", highlight = 0, icon = br.player.spell.frostNova}
     }
     CreateButton("FrostNova", 5, 1)
-    -- Frost Nova Button
+
+    -- Ice Lance Button
     IceLanceModes = {
         [1] = {mode = "On", value = 1, overlay = "Ice Lance Movement Enabled", tip = "Will use Ice Lance w/ movement", highlight = 1, icon = br.player.spell.iceLance},
         [2] = {mode = "Off", value = 2, overlay = "Ice Lance Movement Disabled", tip = "Will not use Ice Lance w/ movement", highlight = 0, icon = br.player.spell.iceLance}
@@ -1219,9 +1220,8 @@ local function runRotation()
             if cast.iceLance("target") then return true end
         end
 
-        if moving and mode.il ~= 2 then
-            if cast.iceLance("target") then return true end
-        end
+        
+        if moving and mode.il ~= 2 then if cast.iceLance() then return true end end
 
         -- # Without GS, Ebonbolt is always shattered. With GS, Ebonbolt is shattered if it would waste Brain Freeze charge (i.e. when the mage starts casting Ebonbolt with Brain Freeze active) or when below 4 Icicles (if Ebonbolt is cast when the mage has 4-5 Icicles, it's better to use the Brain Freeze from it on Glacial Spike).
         -- actions.single+=/flurry,if=talent.ebonbolt.enabled&prev_gcd.1.ebonbolt&(!talent.glacial_spike.enabled|buff.icicles.stack<4|buff.brain_freeze.react)
@@ -1587,45 +1587,61 @@ actions.st+=/frostbolt
         end
     end
 
+    local function actionList_Opener()
+        opener = true
+    end
+
     local function actionList_PreCombat()
         local petPadding = 2
         if isChecked("Pet Management") and not talent.lonelyWinter and not (IsFlying() or IsMounted()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonWaterElemental() + petPadding) and not moving then
             if activePetId == 0 and lastSpell ~= spell.summonWaterElemental then
-                if cast.summonWaterElemental("player") then return true end
+                if cast.summonWaterElemental("player") then
+                    return true
+                end
             end
         end
 
         if not inCombat and not (IsFlying() or IsMounted()) then
-            if useCDs() and isChecked("Pre-Pull Logic") and GetObjectExists("target") and getDistance("target") <= 40 then
-                local frostboltExecute = cast.time.frostbolt() + (getDistance("target") / 35)
-                if pullTimer <= frostboltExecute then
-                    if isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
-                        use.battlePotionOfIntellect()
+            if (not isChecked("Opener") or opener == true) then
+                if useCDs() and isChecked("Pre-Pull Logic") and GetObjectExists("target") and getDistance("target") < 40 then
+                    local frostboltExecute = cast.time.frostbolt() + (getDistance("target") / 35)
+                    if pullTimer <= frostboltExecute then
+                        if isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
+                            use.battlePotionOfIntellect()
+                        end
+
+                        if fbInc == false and cast.frostbolt("target") then
+                            fbInc = true
+                            return true
+                        end
+                    end
+                end
+
+                if targetUnit and (not isChecked("Opener") or opener == true) then
+                    if isChecked("Pet Management") and not talent.lonelyWinter and not UnitAffectingCombat("pet") then
+                        PetAssistMode()
+                        PetAttack("target")
                     end
 
-                    if fbInc == false and cast.frostbolt("target") then
-                        fbInc = true
-                        return true
+                    if getOptionValue("APL Mode") == 2 then
+                        if moving or targetUnit.calcHP < calcDamage(spell.iceLance, targetUnit) then
+                            if cast.iceLance("target") then
+                                return true
+                            end
+
+                        else
+                            if cast.frostbolt("target") then
+                                return true
+                            end
+                        end
+
+                    elseif getOptionValue("APL Mode") == 3 then
+                        if cast.iceLance("target") then
+                            return true
+                        end
                     end
                 end
             end
-
-            if targetUnit then
-                if isChecked("Pet Management") and not talent.lonelyWinter and not UnitAffectingCombat("pet") then
-                    PetAssistMode()
-                    PetAttack("target")
-                end
-
-                if getOptionValue("APL Mode") == 2 then
-                    if moving or targetUnit.calcHP < calcDamage(spell.iceLance,targetUnit) then
-                        if cast.iceLance("target") then return true end
-                        else
-                            if cast.frostbolt("target") then return true end
-                        end
-                    elseif getOptionValue("APL Mode") == 3 then
-                        if cast.iceLance("target") then return true end
-                    end
-                end
         end -- End No Combat
     end -- End Action List - PreCombat
     ---------------------
@@ -1660,7 +1676,7 @@ actions.st+=/frostbolt
     --------------------------
     --- In Combat Rotation ---
     --------------------------        
-        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and Unit then
+        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit then
 
         --------------------------
         --- Defensive Rotation ---
@@ -1692,7 +1708,6 @@ actions.st+=/frostbolt
 
                 elseif getOptionValue("APL Mode") == 3 then
                     if bfExists then if cast.flurry("target") then return true end end
-
                     if cast.iceLance("target") then return true end
 
                     -----------------------
