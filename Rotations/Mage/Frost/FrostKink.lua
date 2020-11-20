@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.1.2"
+local rotationVer  = "v1.1.3"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -1546,7 +1546,7 @@ actions.st+=/frostbolt
     end
 
     local function actionList_Rotation()
-        if (((fofExists and not isChecked("No Ice Lance")) or ((bfExists or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
+        if (((buff.fingersOfFrost.count() > 1 and not isChecked("No Ice Lance")) or ((buff.fingersOfFrost.count() > 1 or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (buff.fingersOfFrost.count() > 1 and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
             return true
         end
