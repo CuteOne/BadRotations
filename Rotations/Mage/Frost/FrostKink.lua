@@ -1151,8 +1151,8 @@ local function runRotation()
             end
         end
 
-        if mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        if not isTotem("target") and mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+            if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
         end
 
         if mode.frozenOrb == 1 and useCDs() and not talent.concentratedCoolness then
@@ -1211,8 +1211,8 @@ local function runRotation()
     local function actionList_ST()  
         -- # In some situations, you can shatter Ice Nova even after already casting Flurry and Ice Lance. Otherwise this action is used when the mage has FoF after casting Flurry, see above.
         -- arcane explosion
-        if mode.ae ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        if not isTotem("target") and mode.ae ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+            if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
          end 
             
         -- actions.single=ice_nova,if=cooldown.ice_nova.ready&debuff.winters_chill.up
@@ -1373,8 +1373,8 @@ local function runRotation()
     local function actionList_AoE()
         -- # With Freezing Rain, it's better to prioritize using Frozen Orb when both FO and Blizzard are off cooldown. Without Freezing Rain, the converse is true although the difference is miniscule until very high target counts.
         -- arcane explosion
-        if mode.ae ~= 2 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        if not isTotem("target") and mode.ae ~= 2 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+             if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
         end
 
         -- actions.aoe=frozen_orb
