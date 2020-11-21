@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.1.3"
+local rotationVer  = "v1.1.4"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -435,6 +435,7 @@ local function runRotation()
             buttonEbonbolt:Show()
         end
     end
+
     -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
@@ -1570,6 +1571,10 @@ actions.st+=/frostbolt
 
 
             if mode.rop ~= 2 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and cast.timeSinceLast.icyVeins() >= 10 then 
+                if cast.runeofPower() then return true end 
+            end
+
+            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and combatTime >= 13.5 then 
                 if cast.runeofPower() then return true end 
             end
 
