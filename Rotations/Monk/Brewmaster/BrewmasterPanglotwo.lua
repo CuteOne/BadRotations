@@ -84,6 +84,7 @@ local function createOptions()
         -- Small Dave  
             br.ui:createCheckbox(section, "Summon Dave - The Statue")
             br.ui:createCheckbox(section, "Pig Catcher")
+            br.ui:createSpinnerWithout(section, "Spinning Crane Cutoff", 1, 0, 2, 0.1, "How many Purifying Brews needed before SCK in AoE")
             br.ui:createDropdown(section, "Ring of Peace", br.dropOptions.Toggle, 6, "Hold this key to cast Ring of Peace at Mouseover")
 		br.ui:checkSectionState(section)
         -------------------------
@@ -533,29 +534,29 @@ local function actionList_Defensive()
 -- Single Target Rotation
 local function actionList_Single()
     -- Print("Single")
+        -- Keg Smash
+        if cast.kegSmash(units.dyn5) then return end
     -- Black Out Strike
-        if cast.blackoutKick(units.dyn8) then return end
-    -- Keg Smash
-        if cast.kegSmash(units.dyn8) then return end
+        if cast.blackoutKick(units.dyn5) then return end
     -- Breath of Fire
-        if debuff.kegSmash.exists(units.dyn8) then
-            if cast.breathOfFire(units.dyn8) then return end
+        if debuff.kegSmash.exists(units.dyn5) then
+            if cast.breathOfFire(units.dyn5) then return end
         end
     -- High Energy TP
         if (power > 55) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.blackoutKick.remain() < gcd or cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
-            if cast.tigerPalm(units.dyn8) then return end
+            if cast.tigerPalm(units.dyn5) then return end
         end
     -- Rushing Jade Wind
         if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd)) then
-            if cast.rushingJadeWind(units.dyn8) then return end
+            if cast.rushingJadeWind(units.dyn5) then return end
         end
     -- Chi Wave
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
-            if cast.chiWave(units.dyn8) then return end
+            if cast.chiWave(units.dyn5) then return end
         end
     -- Chi Burst
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
-            if cast.chiBurst(units.dyn8) then return end
+            if cast.chiBurst(units.dyn5) then return end
         end
 end -- End Single Target
 
@@ -563,9 +564,9 @@ end -- End Single Target
 local function actionList_Multi()
     -- Print("Multi")
     -- Keg Smash
-        if cast.kegSmash(units.dyn8) then return end
+        if cast.kegSmash(units.dyn5) then return end
     -- Breath of Fire
-        if debuff.kegSmash.exists(units.dyn8) then
+        if debuff.kegSmash.exists(units.dyn5) then
             if cast.breathOfFire() then return end
         end
     -- Rushing Jade Wind
@@ -574,39 +575,39 @@ local function actionList_Multi()
         end
     -- Chi Burst
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
-            if cast.chiBurst(units.dyn8) then return end
+            if cast.chiBurst(units.dyn5) then return end
         end
     -- Black Out Strike
-        if cast.blackoutKick(units.dyn8) then return end
+        if cast.blackoutKick(units.dyn5) then return end
     -- Chi Wave
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
-            if cast.chiWave(units.dyn8) then return end
+            if cast.chiWave(units.dyn5) then return end
         end
-        if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and (not talent.eyeOfTheTiger or buff.eyeOfTheTiger.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
+        if power > 55 and (charges.purifyingBrew.frac() >= getValue("Spinning Crane Cutoff")) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and (not talent.eyeOfTheTiger or buff.eyeOfTheTiger.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
             if cast.spinningCraneKick("player") then
                 return
             end
         end
     -- Tiger Palm
         if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
-            if cast.tigerPalm(units.dyn8) then return end
+            if cast.tigerPalm(units.dyn5) then return end
         end
 end
 
 -- Blackout Combo Rotation
 local function actionList_AutoBlackout()
     if buff.blackoutCombo.exists() then
-        if cast.kegSmash(units.dyn8) then return end
+        if cast.kegSmash(units.dyn5) then return end
         if cd.kegSmash.remain() > gcd then
-            if cast.tigerPalm(units.dyn8) then return end
+            if cast.tigerPalm(units.dyn5) then return end
         end
     else
-        if cast.blackoutKick(units.dyn8) then return end
+        if cast.blackoutKick(units.dyn5) then return end
         if (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.blackoutKick.remain() < gcd or cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) and power > 45 then
-            if cast.tigerPalm(units.dyn8) then return end
+            if cast.tigerPalm(units.dyn5) then return end
         end
-        if cd.kegSmash.remain() > gcd and debuff.kegSmash.exists(units.dyn8) then
-            if cast.breathOfFire(units.dyn8) then return end
+        if cd.kegSmash.remain() > gcd and debuff.kegSmash.exists(units.dyn5) then
+            if cast.breathOfFire(units.dyn5) then return end
         end
         if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd)) then
             if cast.rushingJadeWind("player") then return end
@@ -649,28 +650,30 @@ local function actionList_Brews()
         if isChecked("Black Ox Brew") and talent.blackoxBrew then
             if (charges.purifyingBrew.frac() < 0.7) or
                 (charges.purifyingBrew.count() == 0 and (staggerPct >= getValue("Stagger dmg % to purify"))) then
-                if cast.blackoxBrew() then return end
+                if cast.blackoxBrew("player") then return end
             end
         end
     -- Auto Purify
         if isChecked("High Stagger Debuff") then
             if debuff.heavyStagger.exists("player") and charges.purifyingBrew.frac() > 0.8 then
-                if cast.purifyingBrew() then return end
+                if cast.purifyingBrew("player") then return end
             end
         end
     -- Percentage Purify
         if isChecked("Stagger dmg % to purify") then
             if (staggerPct >= getValue("Stagger dmg % to purify") and charges.purifyingBrew.frac() > 0.5) then
-                if cast.purifyingBrew() then return end
+                if cast.purifyingBrew("player") then return end
             end
         end
     --Brew Capper
-        if mode.superbrew == 1 then
+        if mode.superbrew == 1 and UnitStagger("player") > 1 then
             if charges.purifyingBrew.frac() == charges.purifyingBrew.max() and inCombat then
                 if debuff.heavyStagger.exists("player") then
-                    if cast.purifyingBrew() then return end
+                    if cast.purifyingBrew("player") then return end
                 elseif staggerPct > (getValue("Stagger dmg % to purify")/2) then
-                    if cast.purifyingBrew() then return end 
+                    if cast.purifyingBrew("player") then return end 
+                elseif buff.purifiedChi.remains("player") <= 3 and charges.purifyingBrew.frac() > 1.8 then
+                    if cast.purifyingBrew("player") then return end 
                 end
             end
         end
@@ -680,6 +683,10 @@ if isCastingSpell(115176) or buff.zenMeditation.exists("player") then
     return true
 end
 
+-- Brews
+if br.player.ui.mode.brews == 1 then
+    if actionList_Brews() then return end
+end
 ----------------------
 --- Begin Rotation ---
 ----------------------
@@ -712,10 +719,6 @@ if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enem
 if getDistance(units.dyn5) < 5 then
     StartAttack()
 end
-        -- Brews
-        if br.player.ui.mode.brews == 1 then
-            if actionList_Brews() then return end
-        end
         -- Cooldowns
         if actionList_Cooldowns() then return end
 

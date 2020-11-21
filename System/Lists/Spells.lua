@@ -3268,6 +3268,7 @@ br.lists.spells = {
                 devourMagic                 = 19505,
                 dimensionalRift             = 196586,
                 drainLife                   = 234153,
+                felDomination               = 333889,
                 grimoireOfSacrifice         = 108503,
                 havoc                       = 80240,
                 immolate                    = 348,
@@ -3292,6 +3293,7 @@ br.lists.spells = {
                 darkSoulInstability         = 113858,
                 demonicPower                = 196099,
                 empoweredLifeTap            = 235156,
+                felDomination               = 333889,
                 lessonsOfSpaceTime          = 236174,
                 lordOfFlames                = 224103,
             },
@@ -3352,9 +3354,11 @@ br.lists.spells = {
                 curseOfWeakness             = 702,
                 createHealthstone           = 6201,
                 darkPact                    = 108416,
+                demonicGateway              = 111771,
                 demonicCircle               = 48018,
                 demonicTeleport             = 48020,
                 devourMagic                 = 19505,
+                felDomination               = 333889,
                 fear                        = 5782,
                 grimoireFelhunter           = 111897,
                 grimoireImp                 = 111859,
@@ -3365,6 +3369,10 @@ br.lists.spells = {
                 lifeTap                     = 1454,
                 mortalCoil                  = 6789,
                 shadowfury                  = 30283,
+                shadowBulwark               = 119907,
+                spellLock                   = 19647,
+                seduction                   = 6358,
+                singeMagic                  = 89808,
                 soulHarvest                 = 196098,
                 soulstone                   = 20707,
                 --summonDoomguard             = 18540,
@@ -3379,6 +3387,7 @@ br.lists.spells = {
                 summonWrathguard            = 112870,
                 unendingBreath              = 5697,
                 unendingResolve             = 104773,
+
             },
             artifacts                       = {
 
@@ -3386,6 +3395,7 @@ br.lists.spells = {
             buffs                           = {
                 demonicCircle               = 48018,
                 demonicSynergy              = 171982,
+                felDomination               = 333889,
                 healthFunnel                = 755,
                 sindoreiSpite               = 208871,
                 soulHarvest                 = 196098,
@@ -3395,6 +3405,9 @@ br.lists.spells = {
             },
             debuffs                         = {
                 fear                        = 5782,
+                curseOfExhaustion           = 334275,
+                curseOfTongues              = 1714,
+                curseOfWeakness             = 702,
             },
             glyphs                          = {
                 glyphOfTheFelImp            = 219424,

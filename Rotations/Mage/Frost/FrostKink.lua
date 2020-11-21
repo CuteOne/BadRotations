@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.0.9"
+local rotationVer  = "v1.1.4"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -97,6 +97,13 @@ local function createToggles()
         [2] = {mode = "Off", value = 2, overlay = "Frost Nova Disabled", tip = "Will not use Frost Nova", highlight = 0, icon = br.player.spell.frostNova}
     }
     CreateButton("FrostNova", 5, 1)
+
+    -- Ice Lance Button
+    IceLanceModes = {
+        [1] = {mode = "On", value = 1, overlay = "Ice Lance Movement Enabled", tip = "Will use Ice Lance w/ movement", highlight = 1, icon = br.player.spell.iceLance},
+        [2] = {mode = "Off", value = 2, overlay = "Ice Lance Movement Disabled", tip = "Will not use Ice Lance w/ movement", highlight = 0, icon = br.player.spell.iceLance}
+    }
+    CreateButton("IceLance", 0, 1)
 end
 
 ---------------
@@ -166,7 +173,7 @@ local function createOptions()
         -- Predict movement
         --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
         -- Auto target
-        -- br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
+        br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
         br.ui:checkSectionState(section)
 
         -- ------------------------
@@ -332,6 +339,7 @@ local function runRotation()
     br.player.ui.mode.rop = br.data.settings[br.selectedSpec].toggles["RoP"]
     br.player.ui.mode.ae = br.data.settings[br.selectedSpec].toggles["ArcaneExplosion"]
     br.player.ui.mode.fn = br.data.settings[br.selectedSpec].toggles["FrostNova"]
+    br.player.ui.mode.il = br.data.settings[br.selectedSpec].toggles["IceLance"]
     
     --------------
     --- Locals ---
@@ -427,6 +435,7 @@ local function runRotation()
             buttonEbonbolt:Show()
         end
     end
+
     -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
@@ -1143,8 +1152,8 @@ local function runRotation()
             end
         end
 
-        if mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        if not isTotem("target") and mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+            if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
         end
 
         if mode.frozenOrb == 1 and useCDs() and not talent.concentratedCoolness then
@@ -1203,14 +1212,17 @@ local function runRotation()
     local function actionList_ST()  
         -- # In some situations, you can shatter Ice Nova even after already casting Flurry and Ice Lance. Otherwise this action is used when the mage has FoF after casting Flurry, see above.
         -- arcane explosion
-        if mode.ae ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        if not isTotem("target") and mode.ae ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+            if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
          end 
             
         -- actions.single=ice_nova,if=cooldown.ice_nova.ready&debuff.winters_chill.up
         if debuff.wintersChill.exists("target") then
             if cast.iceLance("target") then return true end
         end
+
+        
+        if moving and mode.il ~= 2 then if cast.iceLance() then return true end end
 
         -- # Without GS, Ebonbolt is always shattered. With GS, Ebonbolt is shattered if it would waste Brain Freeze charge (i.e. when the mage starts casting Ebonbolt with Brain Freeze active) or when below 4 Icicles (if Ebonbolt is cast when the mage has 4-5 Icicles, it's better to use the Brain Freeze from it on Glacial Spike).
         -- actions.single+=/flurry,if=talent.ebonbolt.enabled&prev_gcd.1.ebonbolt&(!talent.glacial_spike.enabled|buff.icicles.stack<4|buff.brain_freeze.react)
@@ -1362,8 +1374,8 @@ local function runRotation()
     local function actionList_AoE()
         -- # With Freezing Rain, it's better to prioritize using Frozen Orb when both FO and Blizzard are off cooldown. Without Freezing Rain, the converse is true although the difference is miniscule until very high target counts.
         -- arcane explosion
-        if mode.ae ~= 2 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
+        if not isTotem("target") and mode.ae ~= 2 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+             if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
         end
 
         -- actions.aoe=frozen_orb
@@ -1535,7 +1547,7 @@ actions.st+=/frostbolt
     end
 
     local function actionList_Rotation()
-        if (((fofExists and not isChecked("No Ice Lance")) or ((bfExists or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
+        if (((buff.fingersOfFrost.count() > 1 and not isChecked("No Ice Lance")) or ((buff.fingersOfFrost.count() > 1 or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (buff.fingersOfFrost.count() > 1 and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
             return true
         end
@@ -1562,6 +1574,10 @@ actions.st+=/frostbolt
                 if cast.runeofPower() then return true end 
             end
 
+            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and combatTime >= 13.5 then 
+                if cast.runeofPower() then return true end 
+            end
+
             -- essences
             if actionList_Essences() then return true end
 
@@ -1583,7 +1599,7 @@ actions.st+=/frostbolt
     local function actionList_PreCombat()
         local petPadding = 2
         if isChecked("Pet Management") and not talent.lonelyWinter and not (IsFlying() or IsMounted()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonWaterElemental() + petPadding) and not moving then
-            if activePetId == 0 and lastSpell ~= spell.summonWaterElemental then
+            if activePetId == 0 and lastSpell ~= spell.summonWaterElemental and select(2,GetSpellCooldown(spell.summonWaterElemental)) ~= 1 then
                 if cast.summonWaterElemental("player") then
                     return true
                 end
@@ -1697,7 +1713,6 @@ actions.st+=/frostbolt
 
                 elseif getOptionValue("APL Mode") == 3 then
                     if bfExists then if cast.flurry("target") then return true end end
-
                     if cast.iceLance("target") then return true end
 
                     -----------------------
