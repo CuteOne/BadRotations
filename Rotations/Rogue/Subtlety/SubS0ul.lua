@@ -1,7 +1,5 @@
 local rotationName = "SubS0ul - 9.0"
-local opener = true
-local resetButton
-local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
+local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651|158315|157461|157452|161019|159173|144081"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
 --- Toggles ---
@@ -13,6 +11,11 @@ local function createToggles() -- Define custom toggles
         [3] = { mode = "Off", value = 3 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.stealth}
     };
     CreateButton("Rotation",1,0)
+    AoeModes = {
+        [1] = { mode = "Std", value = 1 , overlay = "Standard AoE Rotation", tip = "Standard AoE Rotation.", highlight = 1, icon = br.player.spell.rupture },
+        [2] = { mode = "Prio", value = 2 , overlay = "Priority Target AoE Rotation", tip = "Priority Target AoE Rotation.", highlight = 1, icon = br.player.spell.eviscerate }
+    };
+    CreateButton("Aoe",1,-1)
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.shadowBlades },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.shadowBlades },
@@ -24,32 +27,32 @@ local function createToggles() -- Define custom toggles
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.evasion },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.evasion }
     };
-    CreateButton("Defensive",3,0)
+    CreateButton("Defensive",2,-1)
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.kick },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick }
     };
-    CreateButton("Interrupt",4,0)
-    AoeModes = {
-        [1] = { mode = "Std", value = 1 , overlay = "Standard AoE Rotation", tip = "Standard AoE Rotation.", highlight = 1, icon = br.player.spell.rupture },
-        [2] = { mode = "Prio", value = 2 , overlay = "Priority Target AoE Rotation", tip = "Priority Target AoE Rotation.", highlight = 1, icon = br.player.spell.eviscerate }
+    CreateButton("Interrupt",3,0)
+    VanishModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Use Vanish", tip = "Use Vanish", highlight = 1, icon = br.player.spell.vanish },
+        [2] = { mode = "Off", value = 2 , overlay = "Vanish Disabled", tip = "Vanish Disabled.", highlight = 0, icon = br.player.spell.vanish }
     };
-    CreateButton("Aoe",5,0)
+    CreateButton("Vanish",3,-1)
     SDModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Shadow Dance", tip = "Using Shadow Dance.", highlight = 1, icon = br.player.spell.shadowDance },
         [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Shadow Dance Disabled.", highlight = 0, icon = br.player.spell.shadowDance }
     };
-    CreateButton("SD",6,0)
+    CreateButton("SD",4,0)
     SoDModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Symbols of Death", tip = "Using Symbols of Death.", highlight = 1, icon = br.player.spell.symbolsOfDeath },
         [2] = { mode = "Off", value = 2 , overlay = "Symbols of Death Disabled", tip = "Symbols of Death Disabled.", highlight = 0, icon = br.player.spell.symbolsOfDeath }
     };
-    CreateButton("SoD",7,0)
+    CreateButton("SoD",4,-1)
     STModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Secret Technique", tip = "Using Secret Technique.", highlight = 1, icon = br.player.spell.secretTechnique },
         [2] = { mode = "Off", value = 2 , overlay = "Secret Technique Disabled", tip = "Secret Technique Disabled.", highlight = 0, icon = br.player.spell.secretTechnique }
     };
-    CreateButton("ST",8,0)
+    CreateButton("ST",5,0)
 end
 
 ---------------
@@ -85,7 +88,6 @@ local function createOptions()
             br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  50,  1,  "* 5k Put damage of your Reaping Flames")
             br.ui:createCheckbox(section, "Trinkets", "Will use Trinkets")
             br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "Potion with CDs")
-            br.ui:createCheckbox(section, "Vanish", "Will use Vanish")
             br.ui:createCheckbox(section, "Shadow Blades", "Will use Shadow Blades")
             br.ui:createCheckbox(section, "Precombat", "Will use items/pots on pulltimer")
             br.ui:createCheckbox(section, "Opener", "Cast all cooldowns during opener with bosses")
@@ -132,13 +134,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Lists")
             br.ui:createScrollingEditBoxWithout(section,"Dot Blacklist Units", dotBlacklist, "List of units to blacklist when multidotting", 240, 40)
             br.ui:createScrollingEditBoxWithout(section,"Stun Spells", stunSpellList, "List of spells to stun with auto stun function", 240, 50)
-            -- resetButton = br.ui:createButton(section, "Reset Lists")
-            -- resetButton:SetEventListener("OnClick", function()
-            --     local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
-            --     selectedProfile["Dot Blacklist UnitsEditBox"] = dotBlacklist
-            --     selectedProfile["Stun SpellsEditBox"] = stunSpellList
-            --     br.rotationChanged = true
-            -- end)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -177,6 +172,8 @@ local function runRotation()
     br.player.ui.mode.sd = br.data.settings[br.selectedSpec].toggles["SD"]
     br.player.ui.mode.sod = br.data.settings[br.selectedSpec].toggles["SoD"]
     br.player.ui.mode.st = br.data.settings[br.selectedSpec].toggles["ST"]
+    br.player.ui.mode.sap = br.data.settings[br.selectedSpec].toggles["Sap"]
+    br.player.ui.mode.vanish = br.data.settings[br.selectedSpec].toggles["Vanish"]
     if not UnitAffectingCombat("player") then
         if not br.player.talent.secretTechnique then
             buttonST:Hide()
@@ -191,8 +188,6 @@ local function runRotation()
     local talent                              = br.player.talent
     local trait                               = br.player.traits
     local essence                             = br.player.essence
-    -- local runeforge                           = br.player.runeforge
-    -- local conduit                             = br.player.conduit
     local cast                                = br.player.cast
     local php                                 = br.player.health
     local power, powmax, powgen               = br.player.power, br.player.powerMax, br.player.powerRegen
@@ -225,6 +220,7 @@ local function runRotation()
     local thp                                 = getHP("target")
     local tickTime                            = 2 / (1 + (GetHaste()/100))
     local validTarget                         = isValidUnit("target")
+    local targetDistance                      = getDistance("target")
     local inInstance                          = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid                              = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     if leftCombat == nil then leftCombat = GetTime() end
@@ -232,7 +228,7 @@ local function runRotation()
 
     enemies.get(20)
     enemies.get(20,"player",true)
-    enemies.get(25,"player", true) -- makes enemies.yards25nc
+    enemies.get(25,"player",true) -- makes enemies.yards25nc
     enemies.get(30)
 
     if timersTable then
@@ -383,40 +379,29 @@ local function runRotation()
     if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
 
     --Variables
-    local dSEnabled, stEnabled, subterfugeActive, sRogue, darkShadowEnabled, nsEnabled, tfdActive, vEnabled, mosEnabled, sfEnabled, aEnabled, sndCondition
+    local dSEnabled, subterfugeActive, vEnabled, mosEnabled, sfEnabled, aEnabled, sndCondition, ssThd, priorityRotation
+    local ruptureRemain = debuff.rupture.remain("target")
+    local enemies10 = #enemyTable10
     if talent.deeperStratagem then dSEnabled = 1 else dSEnabled = 0 end
-    if talent.darkShadow then darkShadowEnabled = 1 else darkShadowEnabled = 0 end
-    if talent.nightstalker then nsEnabled = 1 else nsEnabled = 0 end
-    if talent.secretTechnique then stEnabled = 1 else stEnabled = 0 end
     if talent.vigor then vEnabled = 1 else vEnabled = 0 end
     if talent.masterOfShadows then mosEnabled = 1 else mosEnabled = 0 end
     if talent.shadowFocus then sfEnabled = 1 else sfEnabled = 0 end
-    if talent.aEnabled then aEnabled = 1 else aEnabled = 0 end
+    if talent.alacrity then aEnabled = 1 else aEnabled = 0 end
     if talent.subterfuge then subterfugeActive = 1 else subterfugeActive = 0 end
     if talent.gloomblade then gloombladeActive = 1 else gloombladeActive = 0 end
-    if trait.theFirstDance.active then tfdActive = 1 else tfdActive = 0 end
     if trait.bladeInTheShadows.active then bitsActive = 1 else bitsActive = 0 end
-    if stealthedAll == true then sRogue = 1 else sRogue = 0 end
-    local enemies10 = #enemyTable10
-    local ruptureRemain = debuff.rupture.remain("target")
-    local ssThd = 0
-    if enemies10 >= 4 then ssThd = 1 end
+    if enemies10 >= 4 then ssThd = 1 else ssThd = 0 end
     if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() then someone_casting = false end
-
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
     if buff.sliceAndDice.exists("player") or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
     -- # Only change rotation if we have priority_rotation set and multiple targets up.
     -- actions+=/variable,name=use_priority_rotation,value=priority_rotation&spell_targets.shuriken_storm>=2
-    local priorityRotation = false
     if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = true else priorityRotation = false end
 
     if isChecked("Ignore Blacklist for SS") then
         enemies10 = #enemies.get(10)
     end
-
-    local targetDistance = getDistance("target")
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -448,7 +433,6 @@ local function runRotation()
         --Burn Units
         local burnUnits = {
             [120651]=true, -- Explosive
-            [141851]=true -- Infested
         }
         if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
             if combo >= 4 then
@@ -587,10 +571,6 @@ local function runRotation()
         end
     end
 
-    local function actionList_Opener()
-        opener = true
-    end
-
     local function actionList_PreCombat()
         -- actions.precombat+=/potion
         if isChecked("Precombat") and pullTimer <= 1.5 then
@@ -660,7 +640,7 @@ local function runRotation()
         --     if cast.flagellation("target") then return true end
         -- end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin.equipped&combo_points.deficit<=3|runeforge.deathly_shadows.equipped&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
-        -- if (runeforge.markOfTheMasterAssassin.active and comboDeficit <= 3 or runeforge.deathlyShadows.active and combo < 1) and buff.symbolsOfDeath.exists() and buff.shadowDance.exists() and not buff.masterAssassin.exists() and not buff.deathlyShadows.exists() then
+        -- if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.active and comboDeficit <= 3 or runeforge.deathlyShadows.active and combo < 1) and buff.symbolsOfDeath.exists() and buff.shadowDance.exists() and not buff.masterAssassin.exists() and not buff.deathlyShadows.exists() then
         --     if cast.vanish("player") then return true end
         -- end
 ---------------------------- SHADOWLANDS
@@ -847,7 +827,7 @@ local function runRotation()
             if cast.rupture("target") then return true end
         end
         -- actions.finish+=/secret_technique
-        if talent.secretTechnique then
+        if talent.secretTechnique and mode.st == 1 then
             if cast.secretTechnique("target") then return true end
         end
         -- # Multidotting targets that will live for the duration of Rupture, refresh during pandemic.
@@ -881,7 +861,7 @@ local function runRotation()
         if charges.shadowDance.frac() >= 1.75 then shdThreshold = true else shdThreshold = false end
         -- # Vanish if we are capping on Dance charges. Early before first dance if we have no Nightstalker but Dark Shadow in order to get Rupture up (no Master Assassin).
         -- actions.stealth_cds+=/vanish,if=(!variable.shd_threshold|!talent.nightstalker.enabled&talent.dark_shadow.enabled)&combo_points.deficit>1&!runeforge.mark_of_the_master_assassin.equipped
-        if cdUsage and (not shdThreshold or not talent.nightstalker and talent.darkShadow) and comboDeficit > 1 and targetDistance < 5 and combatTime > 16 and isChecked("Vanish") and ttd("target") > getOptionValue("CDs TTD Limit") then -- and not runeforge.markOfTheMasterAssassin.active
+        if cdUsage and mode.vanish == 1 and (not shdThreshold or not talent.nightstalker and talent.darkShadow) and comboDeficit > 1 and targetDistance < 5 and combatTime > 16 and ttd("target") > getOptionValue("CDs TTD Limit") then -- and not runeforge.markOfTheMasterAssassin.active
             if cast.vanish("player") then return true end
         end
         -- # Pool for Shadowmeld + Shadowstrike unless we are about to cap on Dance charges. Only when Find Weakness is about to run out.
@@ -934,11 +914,6 @@ local function runRotation()
         if (buff.shurikenTornado.exists() and comboDeficit <= 2) or (enemies10 >= 4 and combo >= 4) or (comboDeficit <= (1 - finishThd)) then
             if actionList_Finishers() then return true end
         end
-        -- actions.stealthed+=/shiv,if=talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped
-        -- if talent.nightstalker and runeforge.tinyToxicBlade.active and (debuff.rupture.exists("target") or not shallWeDot("target")) and (buff.symbolsOfDeath.remain() > 8 
-        --  or buff.shadowBlades.remain() > 9) and (ttd("target") > 3 or isBoss()) then
-        --     if cast.shiv("target") then return true end
-        -- end
         -- # For pre-patch, keep Find Weakness up on the primary target due to no Shadow Vault
         -- actions.stealthed+=/shadowstrike,if=level<52&debuff.find_weakness.remains<1&target.time_to_die-remains>6
         if level < 52 and debuff.findWeakness.remain("target") < 1 and ttd("target") > 6 then
@@ -1001,7 +976,7 @@ local function runRotation()
         -- end
 ---------------------------- SHADOWLANDS
         -- actions.stealthed+=/shadowstrike
-        if targetDistance < 5 then
+        if cast.able.shadowstrike() then
             if cast.shadowstrike("target") then return true end
         end
     end
@@ -1041,7 +1016,7 @@ local function runRotation()
             if cast.shadowstrike("target") then return true end
         end
         -- actions.build+=/backstab
-        if not buff.vanish.exists() and not cast.last.vanish(1) and not buff.shadowDance.exists() then
+        if not buff.vanish.exists() and not cast.last.vanish(1) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1) then
             if cast.backstab("target") then return true end
         end
         -- Use Shuriken Toss if we can't reach the target
@@ -1065,11 +1040,10 @@ local function runRotation()
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
-        if actionList_Opener() then return true end
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) and opener == true then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
             if cast.last.vanish(1) then StopAttack() end
             if someone_casting == true then
                 if actionList_Defensive() then return true end
@@ -1115,7 +1089,6 @@ local function runRotation()
                 if actionList_CooldownsOGCD() then return true end
             end
             if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118.5 or sndCondition == 1) then
-                -- print("latency: " .. getLatency() .. " GCD: " .. gcd)
                 if gcd < getLatency() then
                     -- # Check CDs at first
                     -- actions+=/call_action_list,name=cds
@@ -1138,7 +1111,7 @@ local function runRotation()
                     --print("Valid target: " .. (validTarget and 'true' or 'false'))
                     if actionList_StealthCD() then return true end
                 end
-                    -- # Used to define when to use stealth CDs or builders
+                -- # Used to define when to use stealth CDs or builders
                 -- actions+=/variable,name=stealth_threshold,value=25+talent.vigor.enabled*20+talent.master_of_shadows.enabled*20+talent.shadow_focus.enabled*25+talent.alacrity.enabled*20+25*(spell_targets.shuriken_storm>=4)
                 local stealthThd = 25 + vEnabled * 20 + mosEnabled * 20 + sfEnabled * 25 + aEnabled * 20 + 25 * ssThd
                 -- # Consider using a Stealth CD when reaching the energy threshold
