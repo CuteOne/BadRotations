@@ -221,14 +221,14 @@ local function eagleScout()
     end
 end
 
-local function outOfMelee()
-    if focus + cast.regen.killCommand() < focusMax then return false end
-    for i = 1, #enemies.yards40f do
-        local thisUnit = enemies.yards40f[i]
-        if unit.distance(thisUnit) > var.eagleRange and debuff.serpentSting.refresh(thisUnit) then return false end
-    end
-    return true
-end
+-- local function outOfMelee()
+--     if focus + cast.regen.killCommand() < focusMax then return false end
+--     for i = 1, #enemies.yards40f do
+--         local thisUnit = enemies.yards40f[i]
+--         if unit.distance(thisUnit) > var.eagleRange and debuff.serpentSting.refresh(thisUnit) then return false end
+--     end
+--     return true
+-- end
 
 -- Multi-Dot HP Limit Set
 local function canDoT(thisUnit)
@@ -545,7 +545,7 @@ actionList.St = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + cast.regen.killCommand() < focusMax or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ST]") return true end
     end
     -- Serpent Sting
@@ -672,7 +672,7 @@ actionList.Cleave = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + cast.regen.killCommand() < focusMax or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [AOE - Lowest Bloodseeker]") return true end
     end
     -- Harpoon
@@ -766,7 +766,7 @@ actionList.ApSt = function()
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max
     if cast.able.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < 1.5 * unit.gcd(true)
-        and (focus + cast.regen.killCommand() < focusMax or outOfMelee())
+        and focus + cast.regen.killCommand() < focusMax
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [AP - Cap Prevention]") return true end
     end
@@ -790,8 +790,8 @@ actionList.ApSt = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand(var.lowestBloodseeker) and ((focus + cast.regen.killCommand() < focusMax
-        and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())) or outOfMelee())
+    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax
+        and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [AP]") return true end
     end
@@ -887,8 +887,9 @@ actionList.ApWfi = function()
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max-20
     if cast.able.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < 1.5 * unit.gcd(true)
-        and (focus + cast.regen.killCommand() < focusMax - 20 or outOfMelee())
+        and focus + cast.regen.killCommand() < focusMax - 20
     then
+        Print("Focus: "..focus..", Regen: "..round2(cast.regen.killCommand(),2)..", Max: "..focusMax)
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApWfi - Cap Prevention]") return true end
     end
     -- Steel Trap
@@ -927,8 +928,8 @@ actionList.ApWfi = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand(var.lowestBloodseeker) and  focus + cast.regen.killCommand() < focusMax
-        and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite() or outOfMelee())
+    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax
+        and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApWfi]") return true end
     end
@@ -998,7 +999,7 @@ actionList.Wfi = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max-focus.regen
-    if cast.able.killCommand(var.lowestBloodseeker) and (focus + cast.regen.killCommand() < focusMax or outOfMelee()) then
+    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [Wfi]") return true end
     end
     -- A Murder of Crows

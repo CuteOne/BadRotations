@@ -389,6 +389,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                antiMagicShell              = 48707,
                 coldHeartItem               = 235599,
                 iceboundFortitude           = 48792,
                 pathOfFrost                 = 3714,
