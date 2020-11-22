@@ -132,6 +132,19 @@ function br.loader:new(spec,specName)
                 end
                 return false
             end
+            local function isPvP(thisText)
+                -- From https://github.com/tekkub/wow-globalstrings
+                local pvpTalent = {
+                    ["PvP Talent"] = true, -- DE / US
+                    ["PvP Talento"] = true, -- FR / IT
+                    ["JcJ Talento"] = true, -- ES / MX / BR
+                    ["전적 특성"] = true, -- KR
+                    ["PvP Талант"] = true, -- RU
+                    ["PvP 天赋"] = true,-- CN
+                    ["PvP 天賦"] = true-- TW
+                }
+                return pvpTalent[thisText] ~= nil
+            end
             -- Search each Spell Book Tab
             local numTabs = GetNumSpellTabs()
             for i = 1, numTabs do
@@ -142,10 +155,11 @@ function br.loader:new(spec,specName)
                     for spellIdx = idxStart, idxStart + idxTotal do
                         -- Print("Book: "..tostring(bookName).." | Class: "..tostring(UnitClass('player').." | Spec: "..tostring(specName)))
                         local _, id = GetSpellBookItemInfo(spellIdx,"spell")
-                        local name = GetSpellInfo(id)
+                        local name, subname = GetSpellBookItemName(spellIdx,"spell")
+                        -- local name = GetSpellInfo(id)
                         -- Print("Name: "..tostring(name).." | ID: "..tostring(id))
                         -- Only look at spells that have a level we learn and are not passive
-                        if GetSpellLevelLearned(id) > 0 and not IsPassiveSpell(id) then
+                        if GetSpellLevelLearned(id) > 0 and not IsPassiveSpell(id) and not isPvP(subname) then
                             -- Check if spell is listed in the Shared Class Abilities / Shared Class Talents, Specializaiton Abilities / Specilization Talents tables.
                             local spellFound = false
                             if not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
