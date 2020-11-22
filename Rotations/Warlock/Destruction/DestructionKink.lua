@@ -1,5 +1,5 @@
 local rotationName = "KinkDestruction"
-local VerNum = "1.2.2"
+local VerNum = "1.2.4"
 ---------------
 --- Toggles ---
 ---------------
@@ -314,7 +314,7 @@ end
             return true
         end
     end
-    
+
     -- spellqueue ready
     local function SpellQueueReady()
         --Check if we can queue cast
@@ -1034,7 +1034,7 @@ actionList.PreCombat = function()
     if UnitChannelInfo("player") == GetSpellInfo(spell.drainLife) and php >= ui.value("Drain Life Cancel Cast") then SpellStopCasting() return true end
 
 
-        if getOptionValue("Soulstone") == 7 then -- Player
+        if isChecked("Soulstone") and getOptionValue("Soulstone") == 7 then -- Player
             if not UnitIsDeadOrGhost("player") and not moving and not inCombat then
                 if cast.soulstone("player") then br.addonDebug("Casting Soulstone [Player]" ) return true end
             end
