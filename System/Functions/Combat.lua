@@ -86,9 +86,9 @@ function getNumEnemies(Unit,Radius)
 end
 
 function isIncapacitated(spellID)
-	local eventIndex = C_LossOfControl.GetNumEvents()
+	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
 	while (eventIndex > 0) do
-		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
+		local _,_,text = C_LossOfControl.GetActiveLossOfControlData(eventIndex)
 		if (text == LOSS_OF_CONTROL_DISPLAY_FEAR
 			or text == LOSS_OF_CONTROL_DISPLAY_HORROR
 			or text == LOSS_OF_CONTROL_DISPLAY_STUN
@@ -97,8 +97,98 @@ function isIncapacitated(spellID)
 			or text == LOSS_OF_CONTROL_DISPLAY_DISORIENT
 			or text == LOSS_OF_CONTROL_DISPLAY_INCAPACITATE
 			or text == LOSS_OF_CONTROL_DISPLAY_GRIP)
-			and not hasNoControl(spellID)
+			and not canRegainControl(spellID,"player",text)
 		then
+			return true
+		end
+	end
+	return false
+end
+function canRegainControl(spellID,unit,controlEvent)
+	local class = select(3,UnitClass("player"))
+	-- Warrior
+	if class == 1 then
+		if spellID == 18499
+			-- Fear, Sap and Incapacitate
+			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_FEAR
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_STUN)
+		then
+			return true
+		end
+	end
+	-- Paladin
+	if class == 2 then
+		if spellID == 1044
+			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+		then
+			return true
+		end
+	end
+	-- Hunter
+	if class == 3 then
+		if controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE then
+			return true
+		end
+	end
+	-- Rogue
+	if class == 4 then
+	end
+	-- Priest
+	if class == 5 then
+	end
+	-- Death Knight
+	if class == 6 then
+		if spellID == 49039 --Lichborne
+			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_CHARM
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_FEAR
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SLEEP)
+		then
+			return true
+		end
+		if spellID == 108201 --Desecrated Ground
+			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+		then
+			return true
+		end
+	end
+	-- Shaman
+	if class == 7 then
+		if spellID == 58875 -- Spirit Walk
+			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+		then
+			return true
+		end
+		if spellID == 8143 --Tremor Totem
+			and	(controlEvent == LOSS_OF_CONTROL_DISPLAY_CHARM
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_FEAR
+			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SLEEP)
+		then
+			return true
+		end
+		if spellID == 108273 --Windwalk Totem
+			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+		then
+			return true
+		end
+	end
+	-- Mage
+	if class == 8 then
+	end
+	-- Warlock
+	if class == 9 then
+	end
+	-- Monk
+	if class == 10 then
+		if controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE then
+			return true
+		end
+	end
+	-- Druid
+	if class == 11 then
+		if tostring(controlEvent) == "Rooted" --[[LOSS_OF_CONTROL_DISPLAY_ROOT]] or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE then
 			return true
 		end
 	end
@@ -110,93 +200,7 @@ function hasNoControl(spellID,unit)
 	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
 	while (eventIndex > 0) do
 		local _,_,text = C_LossOfControl.GetActiveLossOfControlData(eventIndex)
-		local class = select(3,UnitClass("player"))
-		-- Warrior
-		if class == 1 then
-			if spellID == 18499
-				-- Fear, Sap and Incapacitate
-				and (text == LOSS_OF_CONTROL_DISPLAY_FEAR
-				or text == LOSS_OF_CONTROL_DISPLAY_ROOT
-				or text == LOSS_OF_CONTROL_DISPLAY_SNARE
-				or text == LOSS_OF_CONTROL_DISPLAY_STUN)
-			then
-				return true
-			end
-		end
-		-- Paladin
-		if class == 2 then
-			if spellID == 1044
-				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
-			then
-				return true
-			end
-		end
-		-- Hunter
-		if class == 3 then
-			if text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE then
-				return true
-			end
-		end
-		-- Rogue
-		if class == 4 then
-		end
-		-- Priest
-		if class == 5 then
-		end
-		-- Death Knight
-		if class == 6 then
-			if spellID == 49039 --Lichborne
-				and (text == LOSS_OF_CONTROL_DISPLAY_CHARM
-				or text == LOSS_OF_CONTROL_DISPLAY_FEAR
-				or text == LOSS_OF_CONTROL_DISPLAY_SLEEP)
-			then
-				return true
-			end
-			if spellID == 108201 --Desecrated Ground
-				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT
-				or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
-			then
-				return true
-			end
-		end
-		-- Shaman
-		if class == 7 then
-			if spellID == 58875 -- Spirit Walk
-				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
-			then
-				return true
-			end
-			if spellID == 8143 --Tremor Totem
-				and	(text == LOSS_OF_CONTROL_DISPLAY_CHARM
-				or text == LOSS_OF_CONTROL_DISPLAY_FEAR
-				or text == LOSS_OF_CONTROL_DISPLAY_SLEEP)
-			then
-				return true
-			end
-			if spellID == 108273 --Windwalk Totem
-				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
-			then
-				return true
-			end
-		end
-		-- Mage
-		if class == 8 then
-		end
-		-- Warlock
-		if class == 9 then
-		end
-		-- Monk
-		if class == 10 then
-			if text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE then
-				return true
-			end
-		end
-		-- Druid
-		if class == 11 then
-			if tostring(text) == "Rooted" --[[LOSS_OF_CONTROL_DISPLAY_ROOT]] or text == LOSS_OF_CONTROL_DISPLAY_SNARE then
-				return true
-			end
-		end
+		if canRegainControl(spellID,unit,text) then return true end	
 		eventIndex = eventIndex - 1
 	end
 	return false
@@ -204,7 +208,7 @@ end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
 	-- Damaged Validation
-	if br.damaged[ObjectPointer(unit)] ~= nil then return true end
+	if br.damaged[ObjectPointer(unit)] ~= nil then --[[Print("[Damage Threat] You attacked "..UnitName(unit).." it now hates you.")]] return true end
 	local unitID = getUnitID(unit)
 	local instance = select(2,IsInInstance())
 	if playerUnit == nil then playerUnit = "player" end
@@ -217,7 +221,7 @@ function hasThreat(unit,playerUnit)
 		targetUnit = "None"
 	end
 	if targetUnit == "None" then targetFriend = false
-	else targetFriend = (UnitName(targetUnit) == UnitName("player") or (UnitExists("pet") and UnitName(targetUnit) == UnitName("pet")) or UnitInParty(targetUnit) or UnitInRaid(targetUnit))
+	else targetFriend = (isTargeting(unit) or UnitName(targetUnit) == UnitName("player") or (UnitExists("pet") and UnitName(targetUnit) == UnitName("pet")) or UnitInParty(targetUnit) or UnitInRaid(targetUnit))
 	end
 	
 	local function threatSituation(friendlyUnit,enemyUnit)
@@ -240,29 +244,39 @@ function hasThreat(unit,playerUnit)
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
 		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(GetUnit(unit)).." is targetting "..UnitName(targetUnit)) end
+		-- Print("[Targeting Threat] "..UnitName(GetUnit(unit)).." is targetting "..UnitName(targetUnit))
 		return targetFriend
+	end
 	-- Boss Adds Validation
-	elseif isBoss() and unitInCombat and (instance == "party" or instance == "raid") then
+	if isBoss(unit) and unitInCombat and (instance == "party" or instance == "raid") then
+		-- Print("[Boss Threat] "..UnitName(unit).." has threat with you.")
 		return true
 	-- Threat Bypass Validation
 	-- elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil and #getEnemies(unit,20,true) == 0 then
 	-- 		return true
+	end
 	-- Open World Mob Pack Validation
-	elseif instance == "none" and playerInCombat and unitInCombat then
+	if instance == "none" and playerInCombat and unitInCombat then
 		local theseEnemies = getEnemies(unit,8)
-		if #theseEnemies == 1 and GetObjectExists("target") then return true end
+		if #theseEnemies == 1 and GetObjectExists("target") then --[[Print("[Open World Threat] Your Target "..UnitName(unit).." has threat on you.")]] return true end
 		for i = 1, #theseEnemies do
 			local thisUnit = theseEnemies[i]
-			if UnitIsUnit("target",thisUnit) then return true end
+			if UnitIsUnit(unit,thisUnit) then return true end
+			-- Print("[Open World Threat] "..UnitName(thisUnit).." is within 8yrds of your target and has threat on you.") return true
+			-- if UnitIsUnit("target",thisUnit) then Print("[Open World Threat] "..UnitName(thisUnit)) return true end
 		end
+	end
 	-- Player Threat Valdation
-	elseif threatSituation(playerUnit, unit) then
+	if threatSituation(playerUnit, unit) then
+		-- Print("[Player Threat] "..UnitName(playerUnit).." have threat with "..UnitName(unit))
 		return true
+	end
 	-- Party/Raid Threat Validation
-	elseif #br.friend > 1 then
+	if #br.friend > 1 then
 		for i = 1, #br.friend do
 			local thisUnit = br.friend[i].unit
 			if threatSituation(thisUnit,unit) then
+				-- Print("[Party/Raid Threat] "..UnitName(thisUnit).." has threat with "..UnitName(unit))
 				return true
 			end
 		end
