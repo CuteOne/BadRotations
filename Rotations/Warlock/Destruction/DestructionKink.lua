@@ -139,14 +139,15 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Use Essence
-            br.ui:createCheckbox(section, "Curse of Tongues")
-            
-            -- Use Essence
-            br.ui:createCheckbox(section, "Curse of Weakness")
             -- Soulstone
 		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover","|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
+
+            -- Healthstone
+            br.ui:createSpinner(section, "Health Funnel Cancel Cast",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cancel At")
+            
+            -- Healthstone
+            br.ui:createSpinner(section, "Drain Life Cancel Cast",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cancel At")
 
             -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
@@ -294,6 +295,26 @@ end
 --- Functions ---
 -----------------
 
+
+    local function isHealer(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+
+        if (class == "DRUID" or class =="PALADIN" or class =="PRIEST" or class =="MONK" or class =="SHAMAN") then
+            if UnitPowerMax(unit) >= 290000 and not UnitBuffID(unit, 24858) and not UnitBuffID(unit, 15473) and not UnitBuffID(unit, 324) then
+                return true
+            end
+        end
+    end
+
+    local function isMelee(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+        if (class == "DRUID" or class =="PALADIN" or class =="WARRIOR" or class =="MONK" or class =="SHAMAN" or class =="DEATHKNIGHT" or class =="ROGUE" or class =="DEMONHUNTER" )and UnitPowerMax(unit) < 70000 then
+            return true
+        end
+    end
+    
     -- spellqueue ready
     local function SpellQueueReady()
         --Check if we can queue cast
@@ -1009,8 +1030,12 @@ actionList.PreCombat = function()
         end
     end
 
+    if UnitChannelInfo("player") == GetSpellInfo(spell.healthFunnel) and php >= ui.value ("Health Funnel Cancel Cast") then SpellStopCasting() return true end 
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainLife) and php >= ui.value("Drain Life Cancel Cast") then SpellStopCasting() return true end
+
+
         if getOptionValue("Soulstone") == 7 then -- Player
-            if not UnitIsDeadOrGhost("player") then
+            if not UnitIsDeadOrGhost("player") and not moving and not inCombat then
                 if cast.soulstone("player") then br.addonDebug("Casting Soulstone [Player]" ) return true end
             end
         end
@@ -1422,25 +1447,6 @@ local function runRotation()
             if thisRemain > havocRemain then
                 havocRemain = thisRemain
             end
-        end
-    end
-
-    local function isHealer(unit)
-        if unit == nil then unit = "target" end
-        local class = select(2, UnitClass(unit))
-
-        if (class == "DRUID" or class =="PALADIN" or class =="PRIEST" or class =="MONK" or class =="SHAMAN") then
-            if UnitPowerMax(unit) >= 290000 and not UnitBuffID(unit, 24858) and not UnitBuffID(unit, 15473) and not UnitBuffID(unit, 324) then
-                return true
-            end
-        end
-    end
-
-    local function isMelee(unit)
-        if unit == nil then unit = "target" end
-        local class = select(2, UnitClass(unit))
-        if (class == "DRUID" or class =="PALADIN" or class =="WARRIOR" or class =="MONK" or class =="SHAMAN" or class =="DEATHKNIGHT" or class =="ROGUE" or class =="DEMONHUNTER" )and UnitPowerMax(unit) < 70000 then
-            return true
         end
     end
 
