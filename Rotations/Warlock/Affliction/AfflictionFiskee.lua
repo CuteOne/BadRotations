@@ -1,4 +1,4 @@
-local rotationName = "KinkFiskee"
+local rotationName = "AfflictionFiskee"
 local rotationVer  = "v1.4.8"
 local dsInterrupt = false
 ----------------------------------------------------

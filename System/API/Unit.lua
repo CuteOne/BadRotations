@@ -172,6 +172,12 @@ br.api.unit = function(self)
         local isBoss = _G["isBoss"]
         return isBoss(thisUnit)
     end
+    -- Is Casting
+    unit.isCasting = function(thisUnit)
+        local isUnitCasting = _G.isUnitCasting
+        if thisUnit == nil then thisUnit = "player" end
+        return isUnitCasting(thisUnit)
+    end
     -- Is Dummy
     unit.isDummy = function(thisUnit)
         local isDummy = _G["isDummy"]
@@ -251,17 +257,21 @@ br.api.unit = function(self)
         return UnitGroupRolesAssigned(thisUnit)
     end
     -- Start Attack
+    local autoAttackStarted
     unit.startAttack = function(thisUnit,autoShoot)
         local IsCurrentSpell = _G["IsCurrentSpell"]
         local StartAttack = _G["StartAttack"]
         -- if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
-        if not IsCurrentSpell(6603) then
-            StartAttack(thisUnit)
+        if autoAttackStarted == nil or not unit.inCombat() then autoAttackStarted = false end
+        -- if not IsCurrentSpell(6603) then
+        StartAttack(thisUnit)
+        if not autoAttackStarted then
             if autoShoot then 
                 self.ui.debug("Casting Auto Shot")
             else
                 self.ui.debug("Casting Auto Attack")
             end
+            autoAttackStarted = true
         end
     end
     -- Swimming
