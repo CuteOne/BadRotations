@@ -102,31 +102,73 @@ function br.loader:new(spec,specName)
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
 
+        local function getTalentTest()
+            if specName ~= "Initial" then
+                for r = 1, 7 do --search each talent row
+                    for c = 1, 3 do -- search each talent column
+                        local _,_,_,_,_,id = GetTalentInfo(r,c,br.activeSpecGroup)
+                        local name = GetSpellInfo(id)
+                        local spellFound = false
+                        -- Check if spell is listed in the Shared Class Talents table.
+                        for _, listId in pairs(sharedClassSpells.talents) do
+                            if listId == id then spellFound = true break end
+                        end
+                        -- Check if spell is listed in the Specialization Talents table.
+                        for _, listId in pairs(specSpells.talents) do
+                            if listId == id then spellFound = true break end
+                        end
+                        -- If not found in either location, then report it as we need it in one of those 2 locations
+                        if not spellFound then 
+                            Print("|cffff0000No spell found for: |r"..tostring(id).." ("..tostring(name)..") |cffff0000was not found, please notify dev to add it to the appropriate Talent table for |r"..playerClass.."|cffff0000.")
+                        end
+                    end
+                end
+            end
+        end
         local function getSpellsTest()
-            local i = 1
-            while true do
-                local spellName, spellSubName = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-                if not spellName then
-                    do break end
+            local function findSpellInTable(id,thisTable)
+                for _, listId in pairs(thisTable) do
+                    if listId == id then return true end
                 end
-                local id = select(2,GetSpellBookItemInfo(i," "))
-                if isKnown(id) and not IsPassiveSpell(id) then
-                    local spellFound = false
-                    for k,v in pairs(self.spell.abilities) do
-                        if GetSpellInfo(v) == GetSpellInfo(id) then spellFound = true end
-                    end
-                    if not spellFound then Print("Spell: "..spellName.." ("..id..") not found in Spells List, please notify developer.")
-                    -- if br.spells == nil then br.spells = {} br.spells.abilities = {} end
-                    -- if br.spells.abilities[id] == nil then
-                    --     br.spells.abilities[id] = spellName
-                    -- local thisSpell = convertName(spellName)
-                    -- if br.spells.abilities[thisSpell] == nil then
-                    --     br.spells.abilities[thisSpell] = id
-                    -- elseif id ~= br.spells.abilities[thisSpell] then
-                    --     Print("Spell: "..spellName.." was already added. Current ID: "..br.spells.abilities[thisSpell].." Alternate ID: "..id)
+                return false
+            end
+            -- Search each Spell Book Tab
+            local numTabs = GetNumSpellTabs()
+            for i = 1, numTabs do
+                local bookName, _, idxStart, idxTotal = GetSpellTabInfo(i)
+                -- Only search spells in the Class and Current Specialization Tabs
+                if bookName == UnitClass('player') or (bookName == specName and specName ~= "Initial") then
+                    -- Print("Book: "..tostring(bookName).." | Start: "..idxStart.." | Total: "..idxTotal)
+                    for spellIdx = idxStart, idxStart + idxTotal do
+                        -- Print("Book: "..tostring(bookName).." | Class: "..tostring(UnitClass('player').." | Spec: "..tostring(specName)))
+                        local _, id = GetSpellBookItemInfo(spellIdx,"spell")
+                        local name = GetSpellInfo(id)
+                        -- Print("Name: "..tostring(name).." | ID: "..tostring(id))
+                        -- Only look at spells that have a level we learn and are not passive
+                        if GetSpellLevelLearned(id) > 0 and not IsPassiveSpell(id) then
+                            -- Check if spell is listed in the Shared Class Abilities / Shared Class Talents, Specializaiton Abilities / Specilization Talents tables.
+                            local spellFound = false
+                            if not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
+                            if not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
+                            if not spellFound then spellFound = findSpellInTable(id,specSpells.abilities) end
+                            if not spellFound then spellFound = findSpellInTable(id,specSpells.talents) end
+                            -- If not found in either location, then report it as we need it in one of those 2 locations
+                            if not spellFound then
+                                local reportString = "|cffff0000No spell found for: |r"..tostring(id).." ("..tostring(name)..") |cffff0000was not found, please notify dev to add it to the |r"
+                                if bookName == UnitClass('player') then reportString = reportString.."Shared" end
+                                if bookName == specName and specName ~= "Initial" then reportString = reportString..specName end
+                                reportString = reportString.." Abilities |cffff0000table for |r"..playerClass.."|cffff0000."
+                                Print(reportString)
+                                -- Add to ability list, This would be nice but only works properly for enUS Locale
+                                -- local thisSpell = convertName(name)
+                                -- if specSpells.abilities[thisSpell] == nil and sharedClassSpells.abilities[thisSpell] == nil then
+                                --     specSpells.abilities[thisSpell] = id
+                                --     Print("Spell: "..name.." ("..id..") was added to spell list as "..thisSpell..".")
+                                -- end
+                            end
+                        end
                     end
                 end
-                i = i + 1
             end
         end
 
@@ -152,14 +194,16 @@ function br.loader:new(spec,specName)
             end
         end
 
+        -- Spell Test
+        getSpellsTest()
+        -- Talent Test
+        getTalentTest()
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
         -- Shared Class Spells
         getSpells(sharedClassSpells)
         -- Spec Spells - Don't Load on Initial Levels
         if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
-        -- -- Spell Test
-        -- getSpellsTest()
 
         -- Ending the Race War!
         if self.spell.abilities["racial"] == nil then
@@ -202,7 +246,7 @@ function br.loader:new(spec,specName)
             end
             -- No matching talent for listed talent id, report to
             if not talentFound then
-                Print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer.")
+                Print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
             end
         end
     end
@@ -301,8 +345,7 @@ function br.loader:new(spec,specName)
         -- Make Debuff Functions from br.api.debuffs
         for k,v in pairs(self.spell.debuffs) do
             if self.debuff[k] == nil then self.debuff[k] = {} end
-            local debuff = self.debuff[k]
-            br.api.debuffs(debuff,k,v)
+            br.api.debuffs(self.debuff[k],k,v)
         end
 
         self.units.get = function(range,aoe)
