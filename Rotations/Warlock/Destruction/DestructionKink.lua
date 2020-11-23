@@ -1338,7 +1338,7 @@ actionList.ST = function()
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
                     if ui.checked("Curse of Weakness") and ttd(thisUnit) >= 6 and not UnitIsDeadOrGhost(thisUnit) and isMelee(thisUnit) and GetObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and UnitIsPlayer(thisUnit) then 
-                        if cast.curseOfWeakness(unit) then 
+                        if cast.curseOfWeakness(thisunit) then 
                     --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
                     return true
                         end
@@ -1348,7 +1348,7 @@ actionList.ST = function()
             -- Curse of Tongues
             for i = 1, #enemies.yards40f do
                 local unit = enemies.yards40f[i]
-                if ui.checked("Curse of Tongues") and ttd(thisUnit) >= 6 and not UnitIsDeadOrGhost(thisUnit) and isMelee(thisUnit)and GetObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and UnitIsPlayer(thisUnit) then
+                if ui.checked("Curse of Tongues") and ttd(unit) >= 6 and not UnitIsDeadOrGhost(unit) and isMelee(thisUnit)and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPlayer(unit) then
                     if cast.curseOfTongues(unit) then 
                     --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
                     return true
