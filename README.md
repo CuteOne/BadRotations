@@ -171,14 +171,14 @@ CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 author |   support   | patch | status |   raidable?
 :----- | :---------: | :---: | -----: | :-----------:
-Kink   |  Full       | 9.0       100% | :white_check_mark:
+Kink   |  Full       | 9.0   |   100% | :white_check_mark:
 Reyne  |  Inactive   | 8.0   |   100% | :interrobang:
 
 - Fire
 
 author          | support | patch | status |   raidable?
 :-------------- | :-----: | :---: | -----: | :-----------:
-Kink            |  Full     9.0   |   90%  | :interrobang:
+Kink            |  Full   | 9.0   |   90%  | :interrobang:
 winston         |  Full   | 8.0   |   99%  | :interrobang:
 Psy             |  Full   | 8.3   |   90%  | :white_check_mark:
 
@@ -316,8 +316,8 @@ Aura   |  Full   | 8.2   |   90%  |  :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Kink    |  Full   | 9.0 |   100% |   :white_check_mark:
-Fiskee  |  Full   | 8.0 |   100% |   :white_check_mark:
+Kink    |  Full   | 9.0 |   100% |  :white_check_mark:
+Fiskee  |  Full   | 8.0 |   100% |  :white_check_mark:
 
 - Demonology
 
