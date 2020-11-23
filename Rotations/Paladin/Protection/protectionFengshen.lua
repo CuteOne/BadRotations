@@ -216,7 +216,6 @@ local function runRotation()
 	--------------
 	local holyPower     = br.player.power.holyPower.amount()
 	local holyPowerMax  = br.player.power.holyPower.max()
-	local charges = br.player.charges
 	local artifact      = br.player.artifact
 	local buff          = br.player.buff
 	local cast          = br.player.cast
