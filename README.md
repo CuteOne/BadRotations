@@ -171,19 +171,22 @@ CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 author |   support   | patch | status |   raidable?
 :----- | :---------: | :---: | -----: | :-----------:
+Kink   |  Full       | 9.0       100% | :white_check_mark:
 Reyne  |  Inactive   | 8.0   |   100% | :interrobang:
 
 - Fire
 
 author          | support | patch | status |   raidable?
 :-------------- | :-----: | :---: | -----: | :-----------:
+Kink            |  Full     9.0   |   90%  | :interrobang:
 winston         |  Full   | 8.0   |   99%  | :interrobang:
-Psy             |  Full   | 8.3   | 90%    | :white_check_mark:
+Psy             |  Full   | 8.3   |   90%  | :white_check_mark:
 
 - Frost
 
 author | support      | patch | status |   raidable?
 :----- | :---------:  | :---: | -----: | :-----------:
+Kink   |  Full        | 9.0   |   100% | :white_check_mark:
 Reyne  |   Inactive   | 8.0   |   100% | :interrobang:
 
 - Inital 1-10 Supported - Patch 9.0
@@ -272,7 +275,7 @@ Immy    |  Full   | 8.0   |   100%  | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Vilt    | Inactive| 8.0   |   90%  | :white_check_mark:
-Immy    |  Full   | 8.3   |   95% | :white_check_mark:
+Immy    |  Full   | 8.3   |   95%  | :white_check_mark:
 Laks    |  Full   | 9.0   |  100%  | :heavy_check_mark:
 
 - Subtlety
@@ -326,8 +329,9 @@ Fiskee        |  Full   | 8.0   |   99%  | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Fiskee  |  Full   | 8.0 |   100% | :white_check_mark:
-Aura    |  Full   | 8.3   |   90%  |  :white_check_mark:
+Kink    |  FUll   | 9.0   |   100% | :white_check_mark:
+Fiskee  |  Full   | 8.0   |   100% | :white_check_mark:
+Aura    |  Full   | 8.3   |   90%  | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
 
