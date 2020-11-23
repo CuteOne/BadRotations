@@ -1358,6 +1358,7 @@ br.lists.spells = {
         -- Arcane
         [62] = {
             abilities                       = {
+                alterTime                   = 342245,
                 arcaneBarrage               = 44425,
                 arcaneBlast                 = 30451,
                 arcaneFamiliar              = 205022,
@@ -1431,16 +1432,21 @@ br.lists.spells = {
 
             },
             talents                         = {
+                arcaneEcho                  = 342231,
                 amplification               = 236628,
                 arcaneFamiliar              = 205022,
                 arcaneOrb                   = 153626,
                 chronoShift                 = 235711,
+                mastersOfTime               = 342249,
                 --erosion                     = 205039,
                 netherTempest               = 114923,
                 overpowered                 = 155147,
                 resonance                   = 205028,
+                reverberate                 = 281482,
+                rulesOfThrees               = 264354,
                 slipstream                  = 236457,
                 supernova                   = 157980,
+                timeAnomaly                 = 210805
                 --temporalFlux                = 234302,
                 --wordsOfPower                = 205035,
             },
@@ -1535,6 +1541,7 @@ br.lists.spells = {
                 frostBomb                   = 112948,
                 frozenOrb                   = 84714,
                 frozenTouch                 = 205030,
+                fireBlast                   = 319836,
                 iceBarrier                  = 11426,
                 iceFloes                    = 108839,
                 iceForm                     = 198144,

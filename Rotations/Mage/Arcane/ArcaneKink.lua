@@ -324,7 +324,7 @@ local function runRotation()
         
         units.get(40)
         enemies.get(10)
-        enemies.get(10, "target")
+        enemies.get(10, "target", true)
         enemies.get(40, nil, nil, nil, spell.arcaneBlast)
 
         local dispelDelay = 1.5
@@ -833,7 +833,7 @@ local function actionList_Extras()
         end
 
         --Prismatic Barrier
-        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") and not buff.prismaticBarrier.exists("player") then
+        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") and not buff.prismaticBarrier.exists("player") and not IsMounted() and not IsFlying() then
             if cast.prismaticBarrier("player") then
                 return true
             end
