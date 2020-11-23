@@ -230,6 +230,7 @@ local function runRotation()
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
         local use                                           = br.player.use
+        local crit                                          = GetSpellCritChance(6)
 
         units.get(6)
         units.get(8)

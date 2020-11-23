@@ -1,4 +1,4 @@
-local rotationName = "Fiskee - 8.0.1"
+local rotationName = "KinkDestruction"
 local dsInterrupt = false
 ---------------
 --- Toggles ---
@@ -214,7 +214,7 @@ local function runRotation()
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = PullTimerRemain()
         local race                                          = br.player.race
-        local shards                                        = (UnitPowerDisplayMod(Enum.PowerType.SoulShards) ~= 0) and (UnitPower("player", Enum.PowerType.SoulShards, true) / UnitPowerDisplayMod(Enum.PowerType.SoulShards)) or 0
+        local shards                                        = br.player.power.soulShards.frac()
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
@@ -224,17 +224,84 @@ local function runRotation()
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
         local use                                           = br.player.use
+        local ttd                                           = getTTD
+        local flashover                                     = talent.flashover and 1 or 0
+        local inferno                                       = talent.inferno and 1 or 0
+        local internalInferno                               = (talent.inferno and talent.internalCombustion) and 1 or 0
+        local lastSpell                                     = lastSpellCast
+        local lucidDreams                                   = buff.memoryOfLucidDreams.exists() and 1 or 0
+        local infernalCast                                  = GetTime()
+        local havocRemain                                   = 0
+        local infernalRemain                                = 0
 
         units.get(40)
+        if range == nil then range = {} end
+        range.dyn40 = getDistance("target") < 40
+
         enemies.get(8,"target")
         enemies.get(10,"target")
+        enemies.get(30)
         enemies.get(40)
+        enemies.get(40,"player",true)
+        enemies.get(40,"player",false,true) 
 
 		    if leftCombat == nil then leftCombat = GetTime() end
 	      if profileStop == nil or not inCombat then profileStop = false end
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
 
+        -- spellqueue ready
+        local function spellQueueReady()
+            --Check if we can queue cast
+            local castingInfo = {UnitCastingInfo("player")}
+            if castingInfo[5] then
+                if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                    return false
+                end
+            end
+            return true
+        end
+
+        --actions+=/variable,name=pool_soul_shards,value=active_enemies>1&cooldown.havoc.remains<=10|cooldown.summon_infernal.remains<=15&talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains<=15|talent.dark_soul_instability.enabled
+        --&cooldown.dark_soul_instability.remains<=15&(cooldown.summon_infernal.remains>target.time_to_die|cooldown.summon_infernal.remains+cooldown.summon_infernal.duration>target.time_to_die)
+        poolShards = #enemies.yards40 > 1 and cd.havoc.remains() <= 10 or cd.summonInfernal.remains() <= 15 
+        and talent.darksoul and cd.darkSoul.remains() <= 15 or talent.darkSoul and cd.darkSoul.remains() <= 15 
+        and (cd.summonInfernal.remains() > ttd("target") or cd.summonInfernal.remains() + cd.summonInfernal.duration() > ttd("target"))
+        
+
+        -- Pet Data
+        if mode.petSummon == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
+        elseif mode.petSummon == 1 then summonId = 416
+        elseif mode.petSummon == 2 and HasAttachedGlyph(spell.summonVoidwalker) then summonId = 58960
+        elseif mode.petSummon == 2 then summonId = 1860
+        elseif mode.petSummon == 3 then summonId = 417
+        elseif mode.petSummon == 4 then summonId = 1863 end
+        if talent.grimoireOfSacrifice then petPadding = 5 end
+
+        infernalRemain = max(0,(infernalCast + 30) - GetTime())
+
+        if #enemies.yards40f > 0 then
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
+            local thisRemain = debuff.havoc.remain(thisUnit)
+            if thisRemain > havocRemain then
+                havocRemain = thisRemain
+            end
+        end
+    end
+
+    ---Target move timer
+    if lastTargetX == nil then lastTargetX, lastTargetY, lastTargetZ = 0,0,0 end
+    targetMoveCheck = targetMoveCheck or false
+    if br.timer:useTimer("targetMove", 0.8) or combatTime < 0.2 then
+        if GetObjectExists("target") then
+            local currentX, currentY, currentZ = GetObjectPosition("target")
+            local targetMoveDistance = math.sqrt(((currentX-lastTargetX)^2)+((currentY-lastTargetY)^2)+((currentZ-lastTargetZ)^2))
+            lastTargetX, lastTargetY, lastTargetZ = GetObjectPosition("target")
+            if targetMoveDistance < 3 then targetMoveCheck = true else targetMoveCheck = false end
+        end
+    end
+        
         --ttd
         local function ttd(unit)
           local ttdSec = getTTD(unit)
@@ -566,7 +633,8 @@ local function runRotation()
       if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
         if cast.soulstone("player") then return end
       end
-		end -- End Action List - Extras
+    end -- End Action List - Extras
+    
 	-- Action List - Defensive
 		local function actionList_Defensive()
 		if useDefensive() then
@@ -628,7 +696,8 @@ local function runRotation()
             if cast.unendingResolve() then return end
         end
     	end -- End Defensive Toggle
-		end -- End Action List - Defensive
+    end -- End Action List - Defensive
+    
 	-- Action List - Interrupts
 		local function actionList_Interrupts()
       if useInterrupts() then
@@ -650,7 +719,8 @@ local function runRotation()
           end
         end
       end -- End useInterrupts check
-		end -- End Action List - Interrupts
+    end -- End Action List - Interrupts
+    
 	-- Action List - Cooldowns
 		local function actionList_Cooldowns()
 			if getDistance(units.dyn40) < 40 then
@@ -691,644 +761,176 @@ local function runRotation()
       end -- End useCDs check
     end -- End Action List - Cooldowns
 
-        local function actionList_cata()
-          -- actions.cata=call_action_list,name=cds
-          if useCDs() and not moving then
-            if actionList_Cooldowns() then return end
-          end
-          -- actions.cata+=/rain_of_fire,if=soul_shard>=4.5
-          if shards >= 4.5 and spellUsable(spell.rainOfFire) then
-            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
-              if cast.rainOfFire("target", "ground") then return true end
-            else
-              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
-            end
-          end
-          if not moving then
-            -- actions.cata+=/cataclysm
-            if mode.cata == 1 and spellUsable(spell.cataclysm) and cataCheck then
-              if getOptionValue("Cataclysm Target") == 1 then
-                if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) then
-                  if isChecked("Predict Movement (Cata)") then
-                    if createCastFunction("target","ground",1,8,spell.cataclysm,nil,true) then return true end
-                  elseif not isMoving("target") or targetMoveCheck then
-                    if cast.cataclysm("target", "ground") then return true end
-                  end
-                end
-              elseif getOptionValue("Cataclysm Target") == 2 then
-                if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
-                  if isChecked("Predict Movement (Cata)") then
-                    if createCastFunction("best",false,1,8,spell.cataclysm,nil,true) then return true end
-                  else
-                    if cast.cataclysm("best",false,1,8) then return true end
-                  end
-                else
-                  if isChecked("Predict Movement (Cata)") then
-                    if createCastFunction("best",false,getOptionValue("Cataclysm Units"),8,spell.cataclysm,nil,true) then return true end
-                  else
-                    if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
-                  end
-                end
-              end
-            end
-            -- actions.cata+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
-            if spellUsable(spell.immolate) and not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
-              if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-            end
-            -- actions.cata+=/channel_demonfire
-            if talent.channelDemonfire and ttd("target") > 5 and debuff.havoc.count() == 0 then
-              if cast.channelDemonfire() then return true end
-            end
-            -- actions.cata+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=8&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-            if spellUsable(spell.havoc) and #enemies.yards8t <= 8 and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].ttd > 10 and enemyTable40[i].havocRemain == 0 and not GetUnitIsUnit(thisUnit, "target") then
-                  if cast.havoc(thisUnit) then return true end
-                end
-              end
-            -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=8&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-              if ttd("target") > 10 and not havocDebuffExist("target") then
-                if cast.havoc("target") then return true end
-              end
-            end
-            -- actions.cata+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&talent.grimoire_of_supremacy.enabled&pet.infernal.remains>execute_time&active_enemies<=8&((108*spell_targets.rain_of_fire%3)<(240*(1+0.08*buff.grimoire_of_supremacy.stack)%2*(1+buff.active_havoc.remains>execute_time)))
-            if spellUsable(spell.chaosBolt) and talent.grimoireOfSupremacy and infernalActive and infernalRemain > cast.time.chaosBolt()+1 and #enemies.yards40 <= 8 and ((108 * #enemies.yards8t % 3) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
-              if not havocDebuffExist() and ttd("target") > 6 then
-                if cast.chaosBolt() then return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].ttd > 6 and enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                  if cast.chaosBolt(thisUnit) then return true end
-                end
-              end
-            end
-            -- actions.cata+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4
-            if #enemies.yards8t <= 4 then
-              if havocCheck and spellUsable(spell.havoc) then
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].ttd > 10 and enemyTable40[i].havocRemain == 0 and not GetUnitIsUnit(thisUnit, "target") then
-                    if cast.havoc(thisUnit) then return true end
-                  end
-                end
-              -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=4
-                if ttd("target") > 10 and not havocDebuffExist("target") then
-                  if cast.havoc("target") then return true end
-                end
-              end
-            -- actions.cata+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&buff.active_havoc.remains>execute_time&spell_targets.rain_of_fire<=4
-              if havocRemain > cast.time.chaosBolt() and spellUsable(spell.chaosBolt) then
-                if not havocDebuffExist() and ttd("target") > 6 then
-                  if cast.chaosBolt() then return true end
-                end
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].ttd > 6 and enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                    if cast.chaosBolt(thisUnit) then return true end
-                  end
-                end
-              end
-            end
-            -- actions.cata+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable&remains<=cooldown.cataclysm.remains
-            if immolateCount < getOptionValue("Multi-Dot Limit") and spellUsable(spell.immolate) then
-              if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and ttd("target") > 4 and (not havocDebuffExist() or facingUnits == 1) then
-                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and enemyTable40[i].ttd > 4 and enemyTable40[i].havocRemain == 0 then
-                    if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-                end
-              end
-            end
-            if spellUsable(spell.immolate) then
-              if not GetUnitIsUnit(lastImmolate, "target") and debuff.immolate.exists() and debuff.immolate.refresh() and ttd("target") > 4 and not havocDebuffExist() and (not useCDs() or debuff.immolate.remain() <= cd.cataclysm.remain()) then
-                if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and not GetUnitIsUnit(thisUnit, lastImmolate) and enemyTable40[i].ttd > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and enemyTable40[i].havocRemain == 0 and (not useCDs() or debuff.immolate.remain(thisUnit) <= cd.cataclysm.remain()) then
-                  if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-                end
-              end
-            end
-            -- actions.cata+=/rain_of_fire
-            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
-              if cast.rainOfFire("target", "ground") then return true end
-            else
-              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
-            end
-            -- actions.cata+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
-            if spellUsable(spell.soulFire) then
-              if not havocDebuffExist() or facingUnits == 1 then
-                if cast.soulFire() then return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                  if cast.soulFire(thisUnit) then return true end
-                end
-              end
-            end
-          end
-          -- actions.cata+=/conflagrate,cycle_targets=1,if=!debuff.havoc.remains
-          if spellUsable(spell.conflagrate) then
-            if (not havocDebuffExist() and not debuff.conflagrate.exists()) or facingUnits == 1 then
-              if cast.conflagrate() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 and (not GetUnitIsUnit(thisUnit, "target") or facingUnits == 1) then
-                if cast.conflagrate(thisUnit) then return true end
-              end
-            end
-          end
-          -- actions.cata+=/shadowburn,cycle_targets=1,if=!debuff.havoc.remains&((charges=2|!buff.backdraft.remains|buff.backdraft.remains>buff.backdraft.stack*action.incinerate.execute_time))
-          if spellUsable(spell.shadowburn) and charges.shadowburn.count() == 2 or not buff.backdraft.exists("player") or (buff.backdraft.remain("player") > (buff.backdraft.stack() * cast.time.incinerate())) then
-            if not havocDebuffExist() or facingUnits == 1 then
-              if cast.shadowburn() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                if cast.shadowburn(thisUnit) then return true end
-              end
-            end
-          end
-          if not moving and spellUsable(spell.incinerate) then
-            -- actions.cata+=/incinerate,cycle_targets=1,if=!debuff.havoc.remains
-            if not havocDebuffExist() or facingUnits == 1 then
-              if cast.incinerate() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                if cast.incinerate(thisUnit) then return true end
-              end
-            end
-          end
-        end
+    local function actionList_ST()
+    
 
-        local function actionList_fnb()
-          -- actions.fnb=call_action_list,name=cds
-          if useCDs() and not moving then
-            if actionList_Cooldowns() then return end
-          end
-          -- actions.fnb+=/rain_of_fire,if=soul_shard>=4.5
-          if shards >= 4.5 and spellUsable(spell.rainOfFire) then
-            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
-              if cast.rainOfFire("target", "ground") then return true end
-            else
-              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
-            end
-          end
-          if not moving then
-            -- actions.fnb+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
-            if spellUsable(spell.immolate) and not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
-              if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-            end
-            -- actions.cata+=/channel_demonfire
-            if talent.channelDemonfire and ttd("target") > 5 and debuff.havoc.count() == 0 then
-              if cast.channelDemonfire() then return true end
-            end
-            -- actions.fnb+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-            if spellUsable(spell.havoc) and #enemies.yards8t <= 4 and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].ttd > 10 and enemyTable40[i].havocRemain == 0 and not GetUnitIsUnit(thisUnit, "target") then
-                  if cast.havoc(thisUnit) then return true end
-                end
-              end
-            -- actions.fnb+=/havoc,if=spell_targets.rain_of_fire<=4&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-              if ttd("target") > 10 and not havocDebuffExist("target") then
-                if cast.havoc("target") then return true end
-              end
-            end
-            -- actions.fnb+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&talent.grimoire_of_supremacy.enabled&pet.infernal.remains>execute_time&active_enemies<=4&((108*spell_targets.rain_of_fire%3)<(240*(1+0.08*buff.grimoire_of_supremacy.stack)%2*(1+buff.active_havoc.remains>execute_time)))
-            if spellUsable(spell.chaosBolt) and talent.grimoireOfSupremacy and infernalActive and infernalRemain > cast.time.chaosBolt()+1 and #enemies.yards40 <= 4 and ((108 * #enemies.yards8t % 3) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
-              if not havocDebuffExist() and ttd("target") > 6 then
-                if cast.chaosBolt() then return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].ttd > 6 and enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                  if cast.chaosBolt(thisUnit) then return true end
-                end
-              end
-            end
-            -- actions.fnb+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4
-            if #enemies.yards8t <= 4 then
-              if havocCheck and spellUsable(spell.havoc) then
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].ttd > 10 and enemyTable40[i].havocRemain == 0 and not GetUnitIsUnit(thisUnit, "target") then
-                    if cast.havoc(thisUnit) then return true end
-                  end
-                end
-              -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=4
-                if ttd("target") > 10 and not havocDebuffExist("target") then
-                  if cast.havoc("target") then return true end
-                end
-              end
-            -- actions.cata+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&buff.active_havoc.remains>execute_time&spell_targets.rain_of_fire<=4
-              if havocRemain > cast.time.chaosBolt() and spellUsable(spell.chaosBolt) then
-                if not havocDebuffExist() and ttd("target") > 6 then
-                  if cast.chaosBolt() then return true end
-                end
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].ttd > 6 and enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                    if cast.chaosBolt(thisUnit) then return true end
-                  end
-                end
-              end
-            end
-            -- actions.fnb+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable&spell_targets.incinerate<=8
-            if #enemies.yards10t <= 8 and spellUsable(spell.immolate) then
-              if immolateCount < getOptionValue("Multi-Dot Limit") then
-                if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and ttd("target") > 4 and (not havocDebuffExist() or facingUnits == 1) then
-                    if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-                end
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].facing and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and enemyTable40[i].ttd > 4 and enemyTable40[i].havocRemain == 0 then
-                      if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-                  end
-                end
-              end
-              if not GetUnitIsUnit(lastImmolate, "target") and debuff.immolate.exists() and debuff.immolate.refresh() and ttd("target") > 4 and (not havocDebuffExist() or facingUnits == 1) then
-                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and not GetUnitIsUnit(thisUnit, lastImmolate) and enemyTable40[i].ttd > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and enemyTable40[i].havocRemain == 0 then
-                  if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-                end
-              end
-            end
-          end
-          if not moving then
-            -- actions.fnb+=/rain_of_fire
-            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
-              if cast.rainOfFire("target", "ground") then return true end
-            else
-              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
-            end
-            -- actions.fnb+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains&spell_targets.incinerate=3
-            if #enemies.yards10t <= 3 and spellUsable(spell.soulFire) then
-              if not havocDebuffExist() or facingUnits == 1 then
-                if cast.soulFire() then return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                  if cast.soulFire(thisUnit) then return true end
-                end
-              end
-            end
-          end
-          -- actions.fnb+=/conflagrate,cycle_targets=1,if=!debuff.havoc.remains&(talent.flashover.enabled&buff.backdraft.stack<=2|spell_targets.incinerate<=7|talent.roaring_blaze.enabled&spell_targets.incinerate<=9)
-          if spellUsable(spell.conflagrate) and (talent.flashover and buff.backdraft.stack() <= 2) or #enemies.yards10t <= 7 or (#enemies.yards10t <= 9 and talent.roaringBlaze) then
-            if (not havocDebuffExist() and not debuff.conflagrate.exists()) or facingUnits == 1 then
-              if cast.conflagrate() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 and (not GetUnitIsUnit(thisUnit, "target") or facingUnits == 1) then
-                if cast.conflagrate(thisUnit) then return true end
-              end
-            end
-          end
-          if not moving and spellUsable(spell.incinerate) then
-          -- actions.fnb+=/incinerate,cycle_targets=1,if=!debuff.havoc.remains
-            if not havocDebuffExist() or facingUnits == 1 then
-              if cast.incinerate() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                if cast.incinerate(thisUnit) then return true end
-              end
-            end
-          end
-        end
+      -- actions=call_action_list,name=havoc,if=havoc_active&active_enemies>1&active_enemies<5-talent.inferno.enabled+(talent.inferno.enabled&talent.internal_combustion.enabled)
 
-        local function actionList_inf()
-          -- actions.inf=call_action_list,name=cds
-          if useCDs() and not moving then
-            if actionList_Cooldowns() then return end
-          end
-          -- actions.inf+=/rain_of_fire,if=soul_shard>=4.5
-          if shards >= 4.5 then
-            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
-              if cast.rainOfFire("target", "ground") then return true end
-            else
-              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
-            end
-          end
-          if not moving then
-            -- actions.inf+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
-            if not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
-              if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-            end
-            -- actions.inf+=/channel_demonfire
-            if talent.channelDemonfire and ttd("target") > 5 and debuff.havoc.count() == 0 then
-              if cast.channelDemonfire() then return true end
-            end
-            -- actions.inf+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4+talent.internal_combustion.enabled&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-            if #enemies.yards8t <= 4 + icValue and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].ttd > 10 and enemyTable40[i].havocRemain == 0 and not GetUnitIsUnit(thisUnit, "target") then
-                  if cast.havoc(thisUnit) then return true end
-                end
-              end
-            -- actions.inf+=/havoc,if=spell_targets.rain_of_fire<=4+talent.internal_combustion.enabled&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-              if ttd("target") > 10 and not havocDebuffExist("target") then
-                if cast.havoc("target") then return true end
-              end
-            end
-            -- actions.inf+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&talent.grimoire_of_supremacy.enabled&pet.infernal.remains>execute_time&spell_targets.rain_of_fire<=4+talent.internal_combustion.enabled&((108*spell_targets.rain_of_fire%(3-0.16*spell_targets.rain_of_fire))<(240*(1+0.08*buff.grimoire_of_supremacy.stack)%2*(1+buff.active_havoc.remains>execute_time)))
-            if talent.grimoireOfSupremacy and infernalActive and infernalRemain > cast.time.chaosBolt()+1 and #enemies.yards8t <= 4 + icValue and ((108 * #enemies.yards8t %(3 - 0.16*#enemies.yards8t)) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
-              if not havocDebuffExist() and ttd("target") > 6 then
-                if cast.chaosBolt() then return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].ttd > 6 and enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                  if cast.chaosBolt(thisUnit) then return true end
-                end
-              end
-            end
-            -- actions.inf+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=3&(talent.eradication.enabled|talent.internal_combustion.enabled)
-            if #enemies.yards8t <= 3 and (talent.eradication or talent.internalCombustion) then
-              if havocCheck then
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].ttd > 10 and enemyTable40[i].havocRemain == 0 and not GetUnitIsUnit(thisUnit, "target") then
-                    if cast.havoc(thisUnit) then return true end
-                  end
-                end
-              -- actions.inf+=/havoc,if=spell_targets.rain_of_fire<=3&(talent.eradication.enabled|talent.internal_combustion.enabled)
-                if ttd("target") > 10 and not havocDebuffExist("target") then
-                  if cast.havoc("target") then return true end
-                end
-              end
-            -- actions.inf+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&buff.active_havoc.remains>execute_time&spell_targets.rain_of_fire<=3&(talent.eradication.enabled|talent.internal_combustion.enabled)
-              if havocRemain > cast.time.chaosBolt() then
-                if not havocDebuffExist() and ttd("target") > 6 then
-                  if cast.chaosBolt() then return true end
-                end
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].ttd > 6 and enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                    if cast.chaosBolt(thisUnit) then return true end
-                  end
-                end
-              end
-            end
-            -- actions.inf+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable
-            if immolateCount < getOptionValue("Multi-Dot Limit") then
-              if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and ttd("target") > 4 and (not havocDebuffExist() or facingUnits == 1) then
-                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-              end
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and enemyTable40[i].ttd > 4 and enemyTable40[i].havocRemain == 0 then
-                    if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-                end
-              end
-            end
-            if not GetUnitIsUnit(lastImmolate, "target") and debuff.immolate.exists() and debuff.immolate.refresh() and ttd("target") > 4 and (not havocDebuffExist() or facingUnits == 1) then
-                if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and not GetUnitIsUnit(thisUnit, lastImmolate) and enemyTable40[i].ttd > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and enemyTable40[i].havocRemain == 0 then
-                if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-              end
-            end
-          end
-          if not moving then
-          -- actions.inf+=/rain_of_fire
-            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
-              if cast.rainOfFire("target", "ground") then return true end
-            else
-              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
-            end
-            -- actions.inf+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
-            if not havocDebuffExist() or facingUnits == 1 then
-              if cast.soulFire() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                if cast.soulFire(thisUnit) then return true end
-              end
-            end
-          end
-          -- actions.inf+=/conflagrate,cycle_targets=1,if=!debuff.havoc.remains
-          if (not havocDebuffExist() and not debuff.conflagrate.exists()) or facingUnits == 1 then
-            if cast.conflagrate() then return true end
-          end
-          for i = 1, #enemyTable40 do
-            local thisUnit = enemyTable40[i].unit
-            if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 and (not GetUnitIsUnit(thisUnit, "target") or facingUnits == 1) then
-              if cast.conflagrate(thisUnit) then return true end
-            end
-          end
-          -- actions.inf+=/shadowburn,cycle_targets=1,if=!debuff.havoc.remains&((charges=2|!buff.backdraft.remains|buff.backdraft.remains>buff.backdraft.stack*action.incinerate.execute_time))
-          if charges.shadowburn.count() == 2 or not buff.backdraft.exists("player") or (buff.backdraft.remain("player") > (buff.backdraft.stack() * cast.time.incinerate())) then
-            if not havocDebuffExist() or facingUnits == 1 then
-              if cast.shadowburn() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                if cast.shadowburn(thisUnit) then return true end
-              end
-            end
-          end
-          if not moving then
-            -- actions.inf+=/incinerate,cycle_targets=1,if=!debuff.havoc.remains
-            if not havocDebuffExist() or facingUnits == 1 then
-              if cast.incinerate() then return true end
-            end
-            for i = 1, #enemyTable40 do
-              local thisUnit = enemyTable40[i].unit
-              if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                if cast.incinerate(thisUnit) then return true end
-              end
-            end
-          end
-        end
 
+
+      -- actions+=/cataclysm,if=!(pet.infernal.active&dot.immolate.remains+1>pet.infernal.remains)|spell_targets.cataclysm>1
+
+
+
+
+      -- actions+=/call_action_list,name=aoe,if=active_enemies>2
+
+
+
+
+
+      -- actions+=/soul_fire,cycle_targets=1,if=refreshable&soul_shard<=4&(!talent.cataclysm.enabled|cooldown.cataclysm.remains>remains)
+
+
+
+
+
+      -- actions+=/immolate,cycle_targets=1,if=refreshable&(!talent.cataclysm.enabled|cooldown.cataclysm.remains>remains)
+
+
+
+
+
+      -- actions+=/immolate,if=talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains<duration*0.5
+
+
+
+
+
+
+      -- actions+=/call_action_list,name=cds
+
+
+
+
+
+      -- actions+=/call_action_list,name=essences
+
+
+
+
+
+      -- actions+=/channel_demonfire
+
+
+
+
+
+
+      -- actions+=/scouring_tithe
+
+
+
+
+
+
+
+      -- actions+=/decimating_bolt
+
+
+
+
+
+      -- actions+=/havoc,cycle_targets=1,if=!(target=self.target)&(dot.immolate.remains>dot.immolate.duration*0.5|!talent.internal_combustion.enabled)
+
+
+
+
+
+      -- actions+=/impending_catastrophe
+
+
+
+
+
+      -- actions+=/soul_rot
+      if cast.able.racial() then if cast.racial() then br.addonDebug("[APL:ST] Havoc [ Racial ]") return true end end 
+
+
+      -- actions+=/havoc,if=runeforge.odr_shawl_of_the_ymirjar.equipped
+      -- Havoc
+      -- havoc,cycle_targets=1,if=!(target=self.target)&(dot.immolate.remains>dot.immolate.duration*0.5|!talent.internal_combustion.enabled)&(!cooldown.summon_infernal.ready|!talent.grimoire_of_supremacy.enabled|talent.grimoire_of_supremacy.enabled&pet.infernal.remains<=10)
+      if cast.able.havoc() then
+          for i = 1, #enemies.yards40f do
+                local thisUnit = enemies.yards40f[i]
+                if ttd(thisUnit) > 10 and (not (GetUnitIsUnit("target",thisUnit))
+                and (debuff.immolate.remain(thisUnit) > debuff.immolate.duration() * 0.5
+                or not talent.internalCombustion) and (cd.summonInfernal.exists()
+                or not talent.grimoireOfSupremacy or talent.grimoireOfSupremacy and infernalRemain <= 10))
+                then
+                  if cast.havoc(thisUnit) then br.addonDebug("[APL:ST] Havoc [Main - Multi]") return true end
+                end
+            end
+      end
+
+
+      -- actions+=/chaos_bolt,if=buff.dark_soul_instability.up
+      if not moving and cast.timeSinceLast.chaosBolt() > gcdMax and buff.darkSoul.exists() then
+          if cast.chaosBolt() then br.addonDebug("[APL:ST] Chaos Bolt [ Dark SOul ]") return true end
+      end 
+
+
+      -- actions+=/chaos_bolt,if=buff.backdraft.up&!variable.pool_soul_shards&!talent.eradication.enabled
+      if not moving and cast.timeSinceLast.chaosBolt() > gcdMax and buff.backdraft.exists() and not poolShards and not talent.eradication then
+          if cast.chaosBolt() then br.addonDebug("[APL:ST] Chaos Bolt [ Backdraft up, not pooling, no eradication ]") return true end 
+      end
+
+
+      -- actions+=/chaos_bolt,if=!variable.pool_soul_shards&talent.eradication.enabled&(debuff.eradication.remains<cast_time|buff.backdraft.up)
+      if not moving  and cast.timeSinceLast.chaosBolt() > gcdMax and not poolShards and not talent.eradication and (debuff.eradication.remains() < cast.time.chaosBolt() or buff.backdraft.exists()) then
+         if cast.chaosBolt() then br.addonDebug("[APL:ST] Chaos Bolt [ not pooling, no eradication ] ") return true end
+      end
+
+
+      -- actions+=/shadowburn,if=!variable.pool_soul_shards|soul_shard>=4.5
+      if not moving and cast.timeSinceLast.chaosBolt() > gcdMax and (not poolShards or shards >= 4.5) then
+         if cast.chaosBolt() then br.addonDebug("[APL:ST] Chaos Bolt [Main - Eradiaction]") return true end
+      end
+
+
+      -- actions+=/chaos_bolt,if=(soul_shard>=4.5-0.2*active_enemies)
+      if not moving  and cast.timeSinceLast.chaosBolt() > gcdMax and ((shards >= 4.5 - 0.2 * #enemies.yards40f)) then
+          if cast.chaosBolt() then br.addonDebug("[APL:ST] Chaos Bolt [ Prevent capping shards ]") return true end
+      end
+
+
+      -- actions+=/conflagrate,if=charges>1
+      if cast.able.conflagrate() and (charges.conflagrate.count() > 1) then
+          if cast.conflagrate() then br.addonDebug("[APL:ST] Conflagrate [ Charges > 1)") return true end
+      end
+
+
+      -- actions+=/incinerate
+      if not moving and cast.able.incinerate() and cast.timeSinceLast.incinerate() > gcdMax then
+          if cast.incinerate() then br.addonDebug("[APL:ST] Incinerate") return true end
+      end
+
+
+
+    end
+
+    
         local function actionList_Rotation()
-          -- actions=run_action_list,name=cata,if=spell_targets.infernal_awakening>=3&talent.cataclysm.enabled
-          if rofUnits >= 3 and mode.rotation ~= 3 then
-            if talent.cataclysm then
-              if actionList_cata() then return end
-          -- actions+=/run_action_list,name=fnb,if=spell_targets.infernal_awakening>=3&talent.fire_and_brimstone.enabled
-            elseif talent.fireAndBrimstone then
-              if actionList_fnb() then return end
-          -- actions+=/run_action_list,name=inf,if=spell_targets.infernal_awakening>=3&talent.inferno.enabled
-            elseif talent.inferno then
-              if actionList_inf() then return end
-            end
-          end
-          if not moving then
-            -- actions+=/cataclysm
-            if mode.cata == 1 and spellUsable(spell.cataclysm) and cataCheck then
-              if getOptionValue("Cataclysm Target") == 1 then
-                if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) then
-                  if isChecked("Predict Movement (Cata)") then
-                    if createCastFunction("target","ground",1,8,spell.cataclysm,nil,true) then return true end
-                  elseif not isMoving("target") or targetMoveCheck then
-                    if cast.cataclysm("target", "ground") then return true end
-                  end
-                end
-              elseif getOptionValue("Cataclysm Target") == 2 then
-                if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
-                  if isChecked("Predict Movement (Cata)") then
-                    if createCastFunction("best",false,1,8,spell.cataclysm,nil,true) then return true end
-                  else
-                    if cast.cataclysm("best",false,1,8) then return true end
-                  end
-                else
-                  if isChecked("Predict Movement (Cata)") then
-                    if createCastFunction("best",false,getOptionValue("Cataclysm Units"),8,spell.cataclysm,nil,true) then return true end
-                  else
-                    if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
-                  end
-                end
-              end
-            end
-            -- actions+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&(refreshable|talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains-action.chaos_bolt.travel_time-5<duration*0.3)
-            if spellUsable(spell.immolate) and immolateCount < getOptionValue("Multi-Dot Limit") then --TODO Add CB thingy
-              if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and ttd("target") > 4 and (not havocDebuffExist() or facingUnits == 1) then
-                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-              end
-              if mode.rotation == 1 or mode.rotation == 2 then
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].facing and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and enemyTable40[i].ttd > 4 and enemyTable40[i].havocRemain == 0 then
-                      if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-                  end
-                end
-              end
-            end
-            if spellUsable(spell.immolate) and not GetUnitIsUnit(lastImmolate, "target") and ttd("target") > 4 and debuff.immolate.exists() and debuff.immolate.refresh() and (not havocDebuffExist() or facingUnits == 1 or mode.rotation == 3) then
-                if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
-            end
-            if spellUsable(spell.immolate) and (mode.rotation == 1 or mode.rotation == 2) then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and enemyTable40[i].ttd > 4 and not GetUnitIsUnit(thisUnit, lastImmolate) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and enemyTable40[i].havocRemain == 0 then
-                  if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
-                end
-              end
-            end
-            -- actions+=/call_action_list,name=cds
-            if useCDs() and not moving then
-              if actionList_Cooldowns() then return true end
-            end
-            -- actions+=/channel_demonfire
-            if talent.channelDemonfire and ttd("target") > 5 and debuff.havoc.count() == 0 then
-              if cast.channelDemonfire() then return true end
-            end
-            -- actions+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10
-            if spellUsable(spell.havoc) and havocCheck and mode.rotation ~= 3 then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].ttd > 10 and enemyTable40[i].havocRemain == 0 and not GetUnitIsUnit(thisUnit, "target") then
-                  if cast.havoc(thisUnit) then return true end
-                end
-              end
-              -- actions+=/havoc,if=active_enemies>1
-              if ttd("target") > 10 and not havocDebuffExist("target") then
-                if cast.havoc("target") then return true end
-              end
-            end
-            -- actions+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
-            if spellUsable(spell.soulFire) then
-              if not havocDebuffExist() or facingUnits == 1 or mode.rotation == 3 then
-                if cast.soulFire() then return true end
-              end
-              if mode.rotation ~= 3 then
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                    if cast.soulFire(thisUnit) then return true end
-                  end
-                end
-              end
-            end
-            -- actions+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&execute_time+travel_time<target.time_to_die&(talent.internal_combustion.enabled|!talent.internal_combustion.enabled&soul_shard>=4|(talent.eradication.enabled&debuff.eradication.remains<=cast_time)|buff.dark_soul_instability.remains>cast_time|pet.infernal.active&talent.grimoire_of_supremacy.enabled)
-            if spellUsable(spell.chaosBolt) then
-              if (not havocDebuffExist() or facingUnits == 1 or mode.rotation == 3) and (cast.time.chaosBolt() + (getDistance("target")/16)) < ttd("target") and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
-              (talent.eradication and debuff.eradication.remain() <= cast.time.chaosBolt()) or (buff.darkSoul.remain("player") > cast.time.chaosBolt()) or (infernal and talent.grimoireOfService)) then
-                if cast.chaosBolt() then return true end
-              end
-              if mode.rotation ~= 3 then
-                for i = 1, #enemyTable40 do
-                  local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 and (cast.time.chaosBolt() + (enemyTable40[i].distance/16)) < enemyTable40[i].ttd and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
-                  (talent.eradication and debuff.eradication.remain(thisUnit) <= cast.time.chaosBolt()) or (buff.darkSoul.remain("player") > cast.time.chaosBolt()) or (infernal and talent.grimoireOfService)) then
-                    if cast.chaosBolt(thisUnit) then return true end
-                  end
-                end
-              end
-            end
-          end
-          -- actions+=/conflagrate,cycle_targets=1,if=!debuff.havoc.remains&((talent.flashover.enabled&buff.backdraft.stack<=2)|(!talent.flashover.enabled&buff.backdraft.stack<2))
-          if spellUsable(spell.conflagrate) and (talent.flashover and buff.backdraft.stack() <= 2) or (not talent.flashover and buff.backdraft.stack() < 2) then
-            if not havocDebuffExist() or facingUnits == 1 or mode.rotation == 3 then
-              if cast.conflagrate() then return true end
-            end
-            if mode.rotation ~= 3 then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 and (not GetUnitIsUnit(thisUnit, "target") or facingUnits == 1) then
-                  if cast.conflagrate(thisUnit) then return true end
-                end
-              end
-            end
-          end
-          -- actions+=/shadowburn,cycle_targets=1,if=!debuff.havoc.remains&((charges=2|!buff.backdraft.remains|buff.backdraft.remains>buff.backdraft.stack*action.incinerate.execute_time))
-          if spellUsable(spell.shadowburn) and charges.shadowburn.count() == 2 or not buff.backdraft.exists("player") or (buff.backdraft.remain("player") > (buff.backdraft.stack() * cast.time.incinerate())) then
-            if not havocDebuffExist() or facingUnits == 1 or mode.rotation == 3 then
-              if cast.shadowburn() then return true end
-            end
-            if mode.rotation ~= 3 then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                  if cast.shadowburn(thisUnit) then return true end
-                end
-              end
-            end
-          end
-          if not moving and spellUsable(spell.incinerate) then
-            -- actions+=/incinerate,cycle_targets=1,if=!debuff.havoc.remains
-            if not havocDebuffExist() or facingUnits == 1 or mode.rotation == 3 then
-              if cast.incinerate() then return true end
-            end
-            if mode.rotation ~= 3 then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 then
-                  if cast.incinerate(thisUnit) then return true end
-                end
-              end
-            end
-          end
-        end
+         
+            if SpellQueueReady() then -- Enables pre-casting at the end of your cast.
 
-        local function actionList_Opener()
-          opener = true
-        end
+
+
+
+
+            if actionList_ST() then return end 
+
+
+
+
+
+
+
+
+            end 
+
+
+        end -- End actionList_Rotation()
 
         local function actionList_PreCombat()
         -- Summon Pet
@@ -1393,7 +995,7 @@ local function runRotation()
                     end
                 end
             end -- End No Combat
-            if actionList_Opener() then return end
+           -- if actionList_Opener() then return end
         end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
