@@ -2420,7 +2420,6 @@ br.lists.spells = {
                 blindside                   = 111240,
                 ambush                      = 8676,
                 crimsonTempest              = 121411,
-                cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
                 envenom                     = 32645,
                 eviscerate                  = 196819,
@@ -2434,15 +2433,12 @@ br.lists.spells = {
                 sinisterStrike              = 1752,
                 toxicBlade                  = 245388,
                 vendetta                    = 79140,
-                woundPoison                 = 8679,
-                shiv                        = 5938,
             },
             artifacts                       = {
 
             },
             buffs                           = {
                 blindside                   = 111240,
-                cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
                 elaboratePlanning           = 193641,
                 envenom                     = 32645,
@@ -2450,14 +2446,11 @@ br.lists.spells = {
                 leechingPoison              = 108211,
                 sharpenedBlades             = 272916,
                 masterAssassin              = 256735,
-                stealth                     = 1784 or 115191,
                 subterfuge                  = 115192,
                 theDreadlordsDeceit         = 208692,
-                woundPoison                 = 8679,
             },
             debuffs                         = {
                 crimsonTempest              = 121411,
-                cripplingPoison             = 3409,
                 deadlyPoison                = 2818,
                 garrote                     = 703,
                 internalBleeding            = 154953,
@@ -2465,8 +2458,6 @@ br.lists.spells = {
                 surgeOfToxins               = 192425,
                 toxicBlade                  = 245389,
                 vendetta                    = 79140,
-                woundPoison                 = 8679,
-                shiv                        = 319504,
             },
             glyphs                          = {
 
@@ -2523,7 +2514,6 @@ br.lists.spells = {
                 riposte                     = 199754,
                 rollTheBones                = 315508,
                 sinisterStrike              = 193315,
-                stealth                     = 1784,
             },
             artifacts                       = {
                 blackPowder                 = 216230,
@@ -2573,10 +2563,8 @@ br.lists.spells = {
                 },
                 sharkInfestedWaters         = 193357,
                 skullAndCrossbones          = 199603,
-                sliceAndDice                = 5171,
                 snakeeeyes                  = 275863, --typo, leaving in not to break stuff
                 snakeeyes                   = 275863,
-                stealth                     = 1784,
                 swordplay                   = 211669,
                 trueBearing                 = 193359,
                 wits                        = 288988,
@@ -2626,15 +2614,18 @@ br.lists.spells = {
                 secretTechnique             = 280719,
                 eviscerate                  = 196819,
                 gloomblade                  = 200758,
-                --nightblade                  = 195452,
                 shadowBlades                = 121471,
                 shadowDance                 = 185313,
                 shadowstep                  = 36554,
                 shadowstrike                = 185438,
+                shadowstrike                = 8676,               
                 shurikenStorm               = 197835,
                 shurikenToss                = 114014,
                 symbolsOfDeath              = 212283,
                 sinisterStrike              = 1752,
+                blackPowder                 = 319175,
+                coldBlood                   = 213981,
+                premeditation               = 343160,
             },
             artifacts                       = {
 
@@ -2655,9 +2646,9 @@ br.lists.spells = {
                 deathlyShadows              = 341202,
                 perforatedVeins             = 341572,
                 masterAssassin              = 256735,
+                coldBlood                   = 213981,
             },
             debuffs                         = {
-                cripplingPoison             = 3409,
                 rupture                     = 1943,
                 findWeakness                = 91021,
                 nightblade                  = 195452,
@@ -2710,7 +2701,6 @@ br.lists.spells = {
             abilities                       = {
                 eviscerate                  = 196819,
                 sinisterStrike              = 1752,
-                sliceAndDice                = 5171,
                 cripplingPoison             = 3408,
                 numbingPoison               = 5761,
                 instantPoison               = 315584,
@@ -2735,6 +2725,10 @@ br.lists.spells = {
                 tricksOfTheTrade            = 57934,
                 vanish                      = 1856,
                 evasion                     = 5277,
+                shroudOfConcealment         = 114018,
+                sliceAndDice                = 315496,
+                stealth                     = 1784,
+                poisons                     = 66,
             },
             artifacts                       = {
 
@@ -2751,14 +2745,16 @@ br.lists.spells = {
                 tricksOfTheTrade            = 57934,
                 masterAssassinsInitiative   = 235027, --235022
                 sprint                      = 2983,
-                stealth                     = 115191,
-                stealthAll                     = 1784,
+                stealth                     = 1784,
                 vanish                      = 11327 or 115193,
+                shroudOfConcealment         = 114018,
             },
             debuffs                         = {
                 instantPoison               = 315584,
                 woundPoison                 = 8679,
                 numbingPoison               = 5761,
+                cripplingPoison             = 3408,
+                shiv                        = 115196,
                 kidneyShot                  = 408,
                 cheapShot                   = 1833,
                 markedForDeath              = 137619,

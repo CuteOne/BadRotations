@@ -741,7 +741,7 @@ local function runRotation()
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus.
         -- actions.cds+=/symbols_of_death,if=variable.snd_condition&!cooldown.shadow_blades.up&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)&(!runeforge.the_rotten.equipped|combo_points<=2)&(!essence.blood_of_the_enemy.major|cooldown.blood_of_the_enemy.remains>2)
         if mode.sod == 1 and sndCondition == 1 and cd.shadowBlades.exists() and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and 
-         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd < getLatency() and --and (not runeforge.theRotten.active or combo <= 2)
+         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd == 0 and --and (not runeforge.theRotten.active or combo <= 2)
          (not essence.bloodOfTheEnemy.active or cd.bloodOfTheEnemy.remain() > 2) and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
         end
@@ -887,7 +887,7 @@ local function runRotation()
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
         if mode.sd == 1 and ttd("target") > 3 and (cdUsage and (isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
          and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and
-         not buff.vanish.exists() and not cast.last.vanish(1) and combo <= (4 + dSEnabled) and gcd < getLatency() then
+         (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo <= (4 + dSEnabled) and gcd == 0 then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -898,6 +898,10 @@ local function runRotation()
     end
 
     local function actionList_Stealthed()
+        -- Cold Blood when off cooldown
+        if cast.able.coldBlood() then
+            if cast.coldBlood("target") then return true end
+        end
         -- # If Stealth/vanish are up, use Shadowstrike to benefit from the passive bonus and Find Weakness, even if we are at max CP (from the precombat MfD).
         -- actions.stealthed=shadowstrike,if=(buff.stealth.up|buff.vanish.up)
         if (stealth or buff.vanish.exists() or buff.shadowmeld.exists()) and targetDistance < 5 then
@@ -994,7 +998,7 @@ local function runRotation()
                 thisUnit = enemyTable10[i].unit
                 local buildersStorm = 0
                 if talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player") then buildersStorm = 1 else buildersStorm = 0 end
-                if enemies10 >= 2 + buildersStorm then
+                if enemies10 >= 2 + buildersStorm and (mode.aoe == 1 or ((not cast.last.vanish(1) or cast.last.shadowstrike(1)) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1))) then
                     if cast.shurikenStorm("player") then return true end
                 end
             end
@@ -1016,7 +1020,7 @@ local function runRotation()
             if cast.shadowstrike("target") then return true end
         end
         -- actions.build+=/backstab
-        if not buff.vanish.exists() and not cast.last.vanish(1) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1) then
+        if not cast.last.vanish(1) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1) then
             if cast.backstab("target") then return true end
         end
         -- Use Shuriken Toss if we can't reach the target
