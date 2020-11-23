@@ -1,5 +1,5 @@
 local rotationName = "KinkDestruction"
-local VerNum = "1.2.5"
+local VerNum = "1.2.6"
 local colorOrange = "|cffFF7C0A"
 ---------------
 --- Toggles ---
@@ -557,6 +557,16 @@ then
 return true
 end
 end
+
+
+    local function isMelee(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+        if (class == "DRUID" or class =="PALADIN" or class =="WARRIOR" or class =="MONK" or class =="SHAMAN" or class =="DEATHKNIGHT" or class =="ROGUE" or class =="DEMONHUNTER" )and UnitPowerMax(unit) < 70000 then
+            return true
+        end
+    end
+
 --------------------------------------------------
 function inRange(t,spellID)
 if UnitExists(t)
@@ -565,6 +575,8 @@ and IsSpellInRange(GetSpellInfo(spellID),t) == 1
 		return true
 	end
 end
+
+
 
 
 
@@ -1325,7 +1337,7 @@ actionList.ST = function()
             -- Curse of Weakness
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if ui.checked("Curse of Weakness") and ttd(thisUnit) >= 6 and not UnitIsDeadOrGhost(thisUnit) and IsMelee(thisUnit)and GetObjectExists(thisUnit) and UnitCanAttackthisUnit(thisUnit,"player") and UnitIsPVP(unit) and UnitIsPlayer(thisUnit) then 
+                    if ui.checked("Curse of Weakness") and ttd(thisUnit) >= 6 and not UnitIsDeadOrGhost(thisUnit) and isMelee(thisUnit)and GetObjectExists(thisUnit) and UnitCanAttackthisUnit(thisUnit,"player") and UnitIsPVP(unit) and UnitIsPlayer(thisUnit) then 
                         if cast.curseOfWeakness(unit) then 
                     --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
                     return true
