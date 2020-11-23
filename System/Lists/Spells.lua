@@ -3281,6 +3281,8 @@ br.lists.spells = {
                 channelDemonfire            = 196447,
                 chaosBolt                   = 116858,
                 conflagrate                 = 17962,
+                corruption                  = 172,
+                commandDemon                = 119898,
                 darkSoul                    = 113858,
                 devourMagic                 = 19505,
                 dimensionalRift             = 196586,
@@ -3326,6 +3328,7 @@ br.lists.spells = {
             talents                         = {
                 cataclysm                   = 152108,
                 channelDemonfire            = 196447,
+                darkFury                    = 264874,
                 darkSoul                    = 113858,
                 darkSoulInstability         = 113858,
                 eradication                 = 196412,
@@ -3333,12 +3336,14 @@ br.lists.spells = {
                 fireAndBrimstone            = 196408,
                 grimoireOfSacrifice         = 108503,
                 grimoireOfSupremacy         = 266086,
+                howlOfTerror                = 5484,
                 inferno                     = 270545,
                 internalCombustion          = 266134,
                 reverseEntropy              = 205148,
                 roaringBlaze                = 205184,
                 shadowburn                  = 17877,
                 soulFire                    = 6353,
+                soulConduit                 = 215941,
             },
             traits =                        {
                 crashingChaos               = 277644
@@ -3371,6 +3376,7 @@ br.lists.spells = {
                 curseOfWeakness             = 702,
                 createHealthstone           = 6201,
                 createSoulwell              = 29893,
+                commandDemon                = 119898,
                 darkPact                    = 108416,
                 demonicGateway              = 111771,
                 demonicCircle               = 48018,
@@ -3439,6 +3445,7 @@ br.lists.spells = {
                 darkPact                    = 108416,
                 demonSkin                   = 219272,
                 mortalCoil                  = 6789,
+            
             },
         },
     },
