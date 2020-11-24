@@ -2531,8 +2531,6 @@ br.lists.spells = {
                 riposte                     = 199754,
                 rollTheBones                = 315508,
                 sinisterStrike              = 193315,
-                echoingReprimand            = 323547,
-                serratedBoneSpike           = 328547,
             },
             artifacts                       = {
                 blackPowder                 = 216230,
@@ -2589,7 +2587,6 @@ br.lists.spells = {
                 wits                        = 288988,
             },
             debuffs                         = {
-                serratedBoneSpikeDot        = 324073,
                 ghostlyStrike               = 196937,
                 gouge                       = 1776,
                 betweenTheEyes              = 199804,
@@ -2749,6 +2746,9 @@ br.lists.spells = {
                 sliceAndDice                = 315496,
                 stealth                     = 1784,
                 poisons                     = 66,
+                echoingReprimand            = 323547,
+                serratedBoneSpike           = 328547,
+                sepsis                      = 328305,
             },
             artifacts                       = {
 
@@ -2779,6 +2779,7 @@ br.lists.spells = {
                 cheapShot                   = 1833,
                 markedForDeath              = 137619,
                 sap                         = 6770,
+                serratedBoneSpikeDot        = 324073,
             },
             glyphs                          = {
                 glyphOfBlackout             = 219693,
