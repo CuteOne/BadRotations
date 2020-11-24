@@ -1862,6 +1862,9 @@ local function runRotation()
                 if timersTable then
                     wipe(timersTable)
                 end
+                if actionList.Extra() then
+                    return true
+                end
                 if actionList.dps() then
                     return true
                 end
