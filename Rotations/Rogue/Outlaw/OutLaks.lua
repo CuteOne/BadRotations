@@ -949,7 +949,7 @@ actionList.dps = function()
 
             --serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
 
-            Print(br.player.charges.serratedBoneSpike.frac())
+        --    Print(br.player.charges.serratedBoneSpike.frac())
 
             if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
                     or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
