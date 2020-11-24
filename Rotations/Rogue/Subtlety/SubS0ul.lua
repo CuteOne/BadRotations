@@ -636,7 +636,7 @@ local function runRotation()
         --     if cast.flagellation("target") then return true end
         -- end
         -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2
-        --if debuff.flagellation.remain("target") < 2 then
+        -- if debuff.flagellation.remain("target") < 2 then
         --     if cast.flagellation("target") then return true end
         -- end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin.equipped&combo_points.deficit<=3|runeforge.deathly_shadows.equipped&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
@@ -735,8 +735,17 @@ local function runRotation()
             if cast.shurikenTornado("player") then return true end
         end
         -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
-        if sndCondition == 1 and not debuff.serratedBoneSpikeDot.exists(enemyTable30.lowestTTDUnit) and ttd("target") >= 21 or ttd("target") <= 5 and enemies10 < 3 and cast.able.serratedBoneSpike(enemyTable30.lowestTTDUnit) then
-            if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
+        if enemies10 < 3 and sndCondition == 1 then
+            local mobsAround = #enemyTable30
+            if mobsAround > 3 then
+                mobsAround = 3
+            end
+            for i = 1, mobsAround do
+                local thisUnit = enemyTable30[i].unit
+                if debuff.serratedBoneSpikeDot.exists(thisUnit) and (ttd(thisUnit) >= 21 or ttd(thisUnit) <= 5) and cast.able.serratedBoneSpike(thisUnit) then
+                    if cast.serratedBoneSpike(thisUnit) then return true end
+                end
+            end
         end
         -- actions.cds+=/sepsis,if=variable.snd_condition&combo_points.deficit>=1
         if sndCondition == 1 and comboDeficit >= 1 and cast.able.sepsis() then
