@@ -951,7 +951,7 @@ actionList.dps = function()
 
 
             if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
-                    or ttd(dynamic_target_melee) <= 5 or charges.serratedBoneSpike.fract() >= 2.75 then
+                    or ttd(dynamic_target_melee) <= 5 or charges.serratedBoneSpike.frac() >= 2.75 then
                 if cast.serratedBoneSpike(dynamic_target_melee) then
                     return true
                 end
