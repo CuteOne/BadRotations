@@ -991,6 +991,13 @@ actionList.dps = function()
         end
     end
 
+    --sepsis,if=!stealthed.all
+    if cast.able.sepsis(dynamic_target_melee) and not stealth then
+        if cast.sepsis(dynamic_target_melee) then
+            return true
+        end
+    end
+
     --pots
     --potion support
     --[[
@@ -1161,26 +1168,28 @@ actionList.Extra = function()
                     badguy = true
                 end
             end
-        end
-        if inCombat or badguy then
-            if br.timer:useTimer("check_for_buffs", 1) then
-                buff_rollTheBones_count = 0
-                for k, v in pairs(br.player.spell.buffs.rollTheBones) do
-                    if UnitBuffID("player", tonumber(v)) then
-                        buff_rollTheBones_remain = tonumber(getBuffRemain("player", tonumber(v)))
-                        buff_rollTheBones_count = buff_rollTheBones_count + 1
+        else
+            if inCombat or badguy then
+                if br.timer:useTimer("check_for_buffs", 1) then
+                    buff_rollTheBones_count = 0
+                    for k, v in pairs(br.player.spell.buffs.rollTheBones) do
+                        if UnitBuffID("player", tonumber(v)) then
+                            buff_rollTheBones_remain = tonumber(getBuffRemain("player", tonumber(v)))
+                            buff_rollTheBones_count = buff_rollTheBones_count + 1
+                        end
                     end
                 end
-            end
-            if (buff_rollTheBones_remain < 3 or buff_rollTheBones_count < 2 and (buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.trueBearing.exists())) then
-                if cast.rollTheBones() then
-                    br.player.ui.debug("rolling bones!")
-                    return true
+
+
+                if (buff_rollTheBones_count == 0 or buff_rollTheBones_remain < 3 or buff_rollTheBones_count < 2 and (buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.trueBearing.exists())) then
+                    if cast.rollTheBones() then
+                        br.player.ui.debug("rolling bones!")
+                        return true
+                    end
                 end
             end
         end
     end
-
 end -- End Action List - Extra
 
 
