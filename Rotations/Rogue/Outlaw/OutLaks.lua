@@ -947,6 +947,16 @@ actionList.dps = function()
                 end
             end
 
+            --serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
+
+
+            if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
+                    or ttd(dynamic_target_melee) <= 5 or charges.serratedBoneSpike.fract() >= 2.75 then
+                if cast.serratedBoneSpike(dynamic_target_melee) then
+                    return true
+                end
+            end
+
             if cast.able.pistolShot() and
                     (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
                             or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")

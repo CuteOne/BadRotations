@@ -2532,6 +2532,7 @@ br.lists.spells = {
                 rollTheBones                = 315508,
                 sinisterStrike              = 193315,
                 echoingReprimand            = 323547,
+                serratedBoneSpike           = 328547,
             },
             artifacts                       = {
                 blackPowder                 = 216230,
@@ -2588,6 +2589,7 @@ br.lists.spells = {
                 wits                        = 288988,
             },
             debuffs                         = {
+                serratedBoneSpikeDot        = 324073,
                 ghostlyStrike               = 196937,
                 gouge                       = 1776,
                 betweenTheEyes              = 199804,
