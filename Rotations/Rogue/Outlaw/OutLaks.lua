@@ -863,7 +863,8 @@ actionList.dps = function()
             end]]
     -- new roll the rollTheBones
     --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
-    if cast.able.rollTheBones() and #enemies.yards25nc > 0 and (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
+
+    if cast.able.rollTheBones() and inCombat and (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
         if cast.rollTheBones() then
             return true
         end
@@ -909,6 +910,7 @@ actionList.dps = function()
     if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
             * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
             * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
+            or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
     then
 
         --    if combo >= real_def or cast.last.markedForDeath(1) and not stealth then
@@ -938,6 +940,12 @@ actionList.dps = function()
         end
     else
         if not stealth and not should_pool then
+
+            if cast.able.echoingReprimand() then
+                if cast.echoingReprimand("target") then
+                    return true
+                end
+            end
 
             if cast.able.pistolShot() and
                     (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
@@ -1126,7 +1134,9 @@ actionList.Extra = function()
         return
     end
     if cast.able.rollTheBones() and
-            (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
+            (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones"))
+            and buff_rollTheBones_remain < 3
+            and (#enemies.yards25nc > 0 or inCombat) then
         if cast.rollTheBones() then
             --  Print(tostring(isChecked("Roll The Bones")))
             br.player.ui.debug("rolling bones!")
@@ -1254,7 +1264,7 @@ actionList.Defensive = function()
                             if cast.evasion() then
                                 return true
                             end
-                        elseif br.player.talent.elusiveness and feintList[interruptID] then
+                        elseif br.player.talent.elusiveness and (feintList[interruptID] or getDebuffStacks("player", 240443) > 3) then
                             if cast.pool.feint() and cd.feint.remain() <= castleft then
                                 should_pool = true
                             end

@@ -2531,6 +2531,7 @@ br.lists.spells = {
                 riposte                     = 199754,
                 rollTheBones                = 315508,
                 sinisterStrike              = 193315,
+                echoingReprimand            = 323547,
             },
             artifacts                       = {
                 blackPowder                 = 216230,
