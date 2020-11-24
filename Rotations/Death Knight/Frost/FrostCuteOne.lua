@@ -50,6 +50,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Dark Command
+            br.ui:createCheckbox(section,"Dark Command")            
             -- Death Grip
             br.ui:createCheckbox(section,"Death Grip")
             -- Glacial Advance
@@ -100,7 +102,7 @@ local function createOptions()
             -- Basic Healing Module
             br.player.module.BasicHealing(section)
             -- Anti-Magic Shell
-            br.ui:createSpinner(section, "Anti-Magic Shell",  45,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createCheckbox(section, "Anti-Magic Shell")
             -- Blinding Sleet
             br.ui:createSpinner(section, "Blinding Sleet",  35,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Death Pact
@@ -119,8 +121,10 @@ local function createOptions()
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            --Asphyxiate
+            -- Asphyxiate
             br.ui:createCheckbox(section, "Asphyxiate")
+            -- Death Grip
+            br.ui:createCheckbox(section, "Death Grip - Interrupt")
             -- Mind Freeze
             br.ui:createCheckbox(section, "Mind Freeze")
             -- Interrupt Percentage
@@ -164,6 +168,7 @@ local runicPower
 local runicPowerDeficit
 local runes
 local runesTTM
+local spell
 local talent
 local trait
 local ui
@@ -204,9 +209,14 @@ actionList.Extras = function()
         end
     end
     -- Death Grip
-    if ui.checked("Death Grip") and cast.able.deathGrip() then
-        if unit.inCombat() and unit.valid(units.dyn30) and unit.distance(units.dyn30) > 8 and not unit.isDummy(units.dyn30) then
-            if cast.deathGrip(units.dyn30) then ui.debug("Casting Death Grip [Out of Melee]") return true end
+    if ui.checked("Death Grip") and cast.able.deathGrip() and unit.inCombat() then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if unit.distance(thisUnit) > 10 and not unit.isDummy(thisUnit)
+                and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))                
+            then
+                if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Out of Melee]") return true end
+            end
         end
     end
 end -- End Action List - Extras
@@ -218,8 +228,15 @@ actionList.Defensive = function()
         -- Basic Healing Module
         module.BasicHealing()
         -- Anti-Magic Shell
-        if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() and unit.hp() < ui.value("Anti-Magic Shell") and unit.inCombat() then
-            if cast.antiMagicShell() then ui.debug("Casting Anti-Magic Shell") return true end
+        if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if unit.isCasting(thisUnit) and unit.isUnit(UnitTarget(thisUnit),"player")
+                    and cast.timeRemain(thisUnit) < unit.gcd(true) * 2
+                then
+                    if cast.antiMagicShell("player") then ui.debug("Casting Anti-Magic Shell") return true end
+                end
+            end
         end
         -- Blinding Sleet
         if ui.checked("Blinding Sleet") and cast.able.blindingSleet() and unit.hp() < ui.value("Blinding Sleet") and unit.inCombat() then
@@ -230,8 +247,8 @@ actionList.Defensive = function()
             if cast.deathPact() then ui.debug("Casting Death Pact") return true end
         end
         -- Death Strike
-        if ui.checked("Death Strike") and cast.able.deathStrike() and unit.inCombat() and (buff.darkSuccor.exists() or unit.hp() < ui.value("Death Strike"))
-            and not var.breathOfSindragosaActive
+        if ui.checked("Death Strike") and cast.able.deathStrike() and unit.inCombat()
+            and unit.hp() < ui.value("Death Strike") and not var.breathOfSindragosaActive
         then
             if cast.deathStrike() then ui.debug("Casting Death Strike") return true end
         end
@@ -263,21 +280,34 @@ end -- End Action List - Defensive
 actionList.Interrupts = function()
     var.profileDebug = "Interrupts"
     if ui.useInterrupt() then
-        -- Mind Freeze
-        if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
-            for i=1, #enemies.yards15 do
-                local thisUnit = enemies.yards15[i]
-                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
-                    if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze") return true end
+        if not buff.antiMagicShell.exists() then
+            -- Death Grip
+            if ui.checked("Death Grip - Interrupt") and cast.able.deathGrip() then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if unit.distance(thisUnit) > 10 and unit.moving(thisUnit)
+                        and unit.interruptable(thisUnit,ui.value("Interrupt At"))
+                    then
+                        if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Interrupt]") return true end
+                    end
                 end
             end
-        end
-        --Asphyxiate
-        if ui.checked("Asphyxiate") and cast.able.asphyxiate() then
-            for i=1, #enemies.yards20 do
-                local thisUnit = enemies.yards20[i]
-                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
-                    if cast.asphyxiate(thisUnit) then ui.debug("Casting Asphixiate") return true end
+            -- Mind Freeze
+            if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
+                for i=1, #enemies.yards15 do
+                    local thisUnit = enemies.yards15[i]
+                    if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                        if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze") return true end
+                    end
+                end
+            end
+            --Asphyxiate
+            if ui.checked("Asphyxiate") and cast.able.asphyxiate() then
+                for i=1, #enemies.yards20 do
+                    local thisUnit = enemies.yards20[i]
+                    if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                        if cast.asphyxiate(thisUnit) then ui.debug("Casting Asphixiate") return true end
+                    end
                 end
             end
         end
@@ -470,7 +500,7 @@ actionList.BoSPooling = function()
     var.profileDebug = "Breath Of Sindragosa - Pooling"
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and (buff.rime.exists()) and #enemies.yards10t > 0 then
+    if cast.able.howlingBlast() and buff.rime.exists() then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast [BoS Pool]") return true end
     end
     -- Remorseless Winter
@@ -518,7 +548,7 @@ actionList.BoSPooling = function()
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=cooldown.pillar_of_frost.remains>rune.time_to_4&runic_power.deficit<40
     if cast.able.frostStrike(var.maxRazorice) and cd.pillarOfFrost.remains() > runesTTM(4) and runicPowerDeficit < 40 then
-        if cast.frostStrike() then ui.debug("Casting Frost Strike [BoS Pool]") return true end
+        if cast.frostStrike(var.maxRazorice) then ui.debug("Casting Frost Strike [BoS Pool]") return true end
     end
 end -- End Action List - Breath of Sindragosa Pooling
 
@@ -537,7 +567,7 @@ actionList.BoSTicking = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and (buff.rime.exists()) then
+    if cast.able.howlingBlast() and buff.rime.exists() then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast [BoS Active]") return true end
     end
     -- Obliterate
@@ -626,7 +656,7 @@ actionList.Obliteration = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and (buff.rime.exists()) and #enemies.yards10t > 0 then
+    if cast.able.howlingBlast() and buff.rime.exists() then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast [Obliteration - Rime]") return true end
     end
     -- Obliterate
@@ -655,7 +685,7 @@ actionList.Aoe = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and (buff.rime.exists() or (runicPower < 25 and unit.level() < 14)) and #enemies.yards10t > 0 then
+    if cast.able.howlingBlast() and buff.rime.exists() then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast [AoE - Rime]") return true end
     end
     -- Frostscythe
@@ -736,7 +766,7 @@ actionList.Standard = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and (buff.rime.exists() or (runicPower < 25 and unit.level() < 14)) and #enemies.yards10t > 0 then
+    if cast.able.howlingBlast() and buff.rime.exists() and #enemies.yards10t > 0 then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast") return true end
     end
     -- Obliterate
@@ -793,17 +823,19 @@ actionList.PreCombat = function()
 
     end -- Pre-Pull
     if unit.valid("target") and not unit.inCombat() then
+        -- -- Death Grip
+        -- if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.moving() and #br.friend == 1 then
+        --     if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
+        -- end
+        -- -- Dark Command
+        -- if ui.checked("Dark Command") and cast.able.darkCommand("target") and #br.friend == 1
+        --     and not cast.last.deathGrip() and (not ui.checked("Death Grip") or cd.deathGrip.exists("target"))
+        -- then
+        --     if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
+        -- end
         -- Howling Blast
         if cast.able.howlingBlast("target") then
             if cast.howlingBlast("target") then ui.debug("Casting Howling Blast [Pull]") return true end
-        end
-        -- Death Grip
-        if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") then --and not cast.able.howlingBlast("target") then
-            if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
-        end
-        -- Dark Command
-        if ui.checked("Dark Command") and cast.able.darkCommand("target") and not (ui.checked("Death Grip") or cast.able.deathGrip("target")) then -- and not cast.able.howlingBlast("target") then
-            if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
         end
         -- Start Attack
         if unit.distance("target") < 5 then
@@ -826,6 +858,7 @@ local function runRotation()
     runicPowerDeficit = br.player.power.runicPower.deficit()
     runes             = br.player.power.runes.amount()
     runesTTM          = br.player.power.runes.ttm
+    spell             = br.player.spell
     talent            = br.player.talent
     trait             = br.player.traits
     ui                = br.player.ui
@@ -846,6 +879,7 @@ local function runRotation()
     enemies.get(15)
     enemies.get(20)
     enemies.get(30)
+    enemies.get(40)
 
     -- Special Enemy Counts
     enemies.yards8f   = getEnemiesInCone(180,8)
@@ -901,7 +935,7 @@ local function runRotation()
     
     -- Path of Frost
     if ui.checked("Path of Frost") and cast.able.pathOfFrost() then
-        if not unit.inCombat() and unit.mounted() and not buff.pathOfFrost.exists() then
+        if not unit.inCombat() and (unit.mounted() or unit.swimming()) and not buff.pathOfFrost.exists() then
             if cast.pathOfFrost() then ui.debug("Casting Path of Frost") return true end
         end
     end
@@ -994,7 +1028,11 @@ local function runRotation()
             then
                 if actionList.BoSPooling() then return true end
             end
-            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then
+            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then               
+                -- Death Strike
+                if ui.checked("Death Strike") and cast.able.deathStrike() and unit.inCombat() and buff.darkSuccor.exists() then
+                    if cast.deathStrike() then ui.debug("Casting Death Strike [Dark Succor]") return true end
+                end
                 -- Action List - Obliteration
                 -- run_action_list,name=obliteration,if=buff.pillar_of_frost.up&talent.obliteration.enabled
                 if buff.pillarOfFrost.exists() and talent.obliteration then
@@ -1009,6 +1047,10 @@ local function runRotation()
                 -- call_action_list,name=standard
                 if ui.useST(8,2) then
                     if actionList.Standard() then return true end
+                end
+                -- Howling Blast
+                if cast.able.howlingBlast() and not spell.known.obliterate() then
+                    if cast.howlingBlast() then ui.debug("Casting Howling Blast [Low Level]") return true end
                 end
             end
         end -- End Combat Check

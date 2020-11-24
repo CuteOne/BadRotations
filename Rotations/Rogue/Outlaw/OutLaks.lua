@@ -487,11 +487,14 @@ local function noDamageCheck(unit)
         -- shields on witches in wm
         return true
     end
-    if GetObjectID(thisUnit) == 128652 then
+    if GetObjectID(unit) == 128652 then
         --https://www.wowhead.com/npc=128652/viqgoth
         return true
     end
-
+    if GetObjectID(unit) == 127019 then
+        --dummies inside of Freehold
+        return true
+    end
     return false --catchall
 end
 
@@ -860,7 +863,8 @@ actionList.dps = function()
             end]]
     -- new roll the rollTheBones
     --roll_the_bones,if=buff.roll_the_bones.remains<=3|variable.rtb_reroll
-    if cast.able.rollTheBones() and (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
+
+    if cast.able.rollTheBones() and inCombat and (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
         if cast.rollTheBones() then
             return true
         end
@@ -906,6 +910,7 @@ actionList.dps = function()
     if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
             * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
             * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
+            or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
     then
 
         --    if combo >= real_def or cast.last.markedForDeath(1) and not stealth then
@@ -936,9 +941,16 @@ actionList.dps = function()
     else
         if not stealth and not should_pool then
 
-            if cast.able.pistolShot() and buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
-                    or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
-                    or buff.opportunity.exists() and (buff.deadShot.exists()) --or buff.greenskinsWickers.exists() or buff.concealedBlunderbuss.exists())
+            if cast.able.echoingReprimand() then
+                if cast.echoingReprimand("target") then
+                    return true
+                end
+            end
+
+            if cast.able.pistolShot() and
+                    (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
+                            or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
+                            or buff.opportunity.exists() and buff.deadShot.exists()) --or buff.greenskinsWickers.exists() or buff.concealedBlunderbuss.exists())
                     and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
                 --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
                 if cast.pistolShot(units.dyn20) then
@@ -1122,7 +1134,9 @@ actionList.Extra = function()
         return
     end
     if cast.able.rollTheBones() and
-            (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones")) and buff_rollTheBones_remain < 3 then
+            (mode.cooldown == 1 and isChecked("Roll The Bones") or not isChecked("Roll The Bones"))
+            and buff_rollTheBones_remain < 3
+            and (#enemies.yards25nc > 0 or inCombat) then
         if cast.rollTheBones() then
             --  Print(tostring(isChecked("Roll The Bones")))
             br.player.ui.debug("rolling bones!")
@@ -1250,7 +1264,7 @@ actionList.Defensive = function()
                             if cast.evasion() then
                                 return true
                             end
-                        elseif br.player.talent.elusiveness and feintList[interruptID] then
+                        elseif br.player.talent.elusiveness and (feintList[interruptID] or getDebuffStacks("player", 240443) > 3) then
                             if cast.pool.feint() and cd.feint.remain() <= castleft then
                                 should_pool = true
                             end
@@ -1409,6 +1423,7 @@ end -- End Action List - Defensive
 
 -- Action List - Interrrupt
 actionList.Interrupt = function()
+    local tanks = getTanksTable()
 
     if mode.interrupt == 1 or mode.interrupt == 3 then
         --   if useInterrupts() then
@@ -1446,42 +1461,44 @@ actionList.Interrupt = function()
 
                 --Print(UnitName(enemies.yards20[i]))
                 distance = getDistance(interrupt_target)
-                if not isBoss(interrupt_target) and StunsBlackList[GetObjectID(interrupt_target)] == nil then
-                    if cd.global.remain() == 0 then
-                        if (getValue("Gouge") == 2 or getValue("Gouge") == 4) and not cd.gouge.exists()
-                                and not cast.last.gouge(1)
-                                and getFacing(interrupt_target, "player", 45)
-                                and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
-                            if cast.gouge(interrupt_target) then
-                                someone_casting = false
-                                br.addonDebug("[int]Gouged " .. UnitName(interrupt_target))
-                                return true
+                if not (inInstance and #tanks > 0 and select(3, UnitClass(tanks[1].unit)) == 1 and hasBuff(23920, tanks[1].unit) and UnitIsUnit(select(3, UnitCastID(interrupt_target)), tanks[1].unit)) then
+                    if not isBoss(interrupt_target) and StunsBlackList[GetObjectID(interrupt_target)] == nil then
+                        if cd.global.remain() == 0 then
+                            if (getValue("Gouge") == 2 or getValue("Gouge") == 4) and not cd.gouge.exists()
+                                    and not cast.last.gouge(1)
+                                    and getFacing(interrupt_target, "player", 45)
+                                    and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
+                                if cast.gouge(interrupt_target) then
+                                    someone_casting = false
+                                    br.addonDebug("[int]Gouged " .. UnitName(interrupt_target))
+                                    return true
+                                end
                             end
-                        end
-                        if mode.blind == 1 and (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cast.able.blind(interrupt_target) and (cd.kick.exists() or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
-                            if cast.blind(interrupt_target) then
-                                br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
-                                someone_casting = false
-                                return true
+                            if mode.blind == 1 and (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cast.able.blind(interrupt_target) and (cd.kick.exists() or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
+                                if cast.blind(interrupt_target) then
+                                    br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
+                                    someone_casting = false
+                                    return true
+                                end
                             end
-                        end
-                        if (getValue("Kidney") == 2 or getValue("Kidney") == 4) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
-                            if cast.kidneyShot(interrupt_target) then
-                                br.addonDebug("[int]Kidney/stunning")
-                                someone_casting = false
-                                return true
+                            if (getValue("Kidney") == 2 or getValue("Kidney") == 4) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
+                                if cast.kidneyShot(interrupt_target) then
+                                    br.addonDebug("[int]Kidney/stunning")
+                                    someone_casting = false
+                                    return true
+                                end
                             end
                         end
                     end
-                end
-                if isChecked("Kick") and not cd.kick.exists() and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
-                    if cast.kick(interrupt_target) then
-                        br.addonDebug("[int]Kicked " .. UnitName(interrupt_target))
-                        someone_casting = false
-                        if mode.interrupt == 3 then
-                            RunMacroText("/br toggle interrupt 2")
+                    if isChecked("Kick") and not cd.kick.exists() and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
+                        if cast.kick(interrupt_target) then
+                            br.addonDebug("[int]Kicked " .. UnitName(interrupt_target))
+                            someone_casting = false
+                            if mode.interrupt == 3 then
+                                RunMacroText("/br toggle interrupt 2")
+                            end
+                            return true
                         end
-                        return true
                     end
                 end
             end
@@ -1556,7 +1573,6 @@ end -- End Action List - PreCombat
 
 local someone_casting = false
 
--- SimC specific variables
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 local function reader()

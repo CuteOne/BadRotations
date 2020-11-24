@@ -1,4 +1,4 @@
-local rotationName = "Kink"
+local rotationName = "Kinkold"
 local rotationVer  = "v1.4.6"
 local dsInterrupt = false
 ----------------------------------------------------
@@ -1006,7 +1006,7 @@ end
 
 actionList.multi = function()
     -- Seed of Corruption
-    if #enemies.yards10t >= 15 then
+    if #enemies.yards10t >= 15   then
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         local thisHP = getHP(thisUnit)

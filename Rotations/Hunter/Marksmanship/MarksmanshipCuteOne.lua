@@ -233,6 +233,7 @@ actionList.Defensive = function()
         -- Concussive Shot
         if ui.checked("Concussive Shot") and unit.distance("target") < ui.value("Concussive Shot")
             and unit.valid("target") and unit.facing("target") and unit.ttd("target") > unit.gcd(true)
+            and unit.moving("target")
         then
             if cast.concussiveShot("target") then ui.debug("Casting Concussive Shot") return true end
         end
@@ -604,7 +605,7 @@ actionList.PreCombat = function()
                 if cast.aimedShot("target") then ui.debug("Casting Aimed Shot [Pre-Pull]") return true end
             end
             -- Auto Shot
-            StartAttack()
+            unit.startAttack("target")
         end
     end
 end -- End Action List - Pre-Pull
@@ -657,19 +658,6 @@ local function runRotation()
     var.role = _G["UnitGroupRolesAssigned"]
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
 
-    -- Explosions Gotta Have More Explosions!
-    if br.player.petInfo ~= nil then
-        for k,v in pairs(br.player.petInfo) do
-            local thisPet = br.player.petInfo[k]
-            if thisPet.id == 11492 and #enemies.get(8,thisPet.unit) > 0 then
-                -- Print("Explosions!!!!")
-                if cast.explosiveShotDetonate("player") then ui.debug("Casting Explosive Shot: Detonate!") return true end
-                -- CastSpellByName(GetSpellInfo(spell.explosiveShotDetonate))
-                break
-            end
-        end
-    end
-
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -710,11 +698,6 @@ local function runRotation()
             ------------------------
             --- In Combat - Main ---
             ------------------------
-            -- Auto Shot
-            -- auto_shot
-            if unit.distance(units.dyn40) < 40 then
-                StartAttack()
-            end
             -- Basic Trinkets Module
             -- use_items,if=buff.trueshot.remains>14|!talent.calling_the_shots.enabled|target.time_to_die<20
             if buff.trueshot.remains() > 14 or not talent.callingTheShots or (unit.ttd(units.dyn40) < 20 and ui.useCDs()) then
