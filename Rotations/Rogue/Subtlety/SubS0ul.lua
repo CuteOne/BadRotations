@@ -735,7 +735,7 @@ local function runRotation()
             if cast.shurikenTornado("player") then return true end
         end
         -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
-        if sndCondition == 1 and not debuff.serratedBoneSpike.exists(enemyTable30.lowestTTDUnit) and ttd("target") >= 21 or ttd("target") <= 5 and enemies10 < 3 and cast.able.serratedBoneSpike() then
+        if sndCondition == 1 and not debuff.serratedBoneSpikeDot.exists(enemyTable30.lowestTTDUnit) and ttd("target") >= 21 or ttd("target") <= 5 and enemies10 < 3 and cast.able.serratedBoneSpike(enemyTable30.lowestTTDUnit) then
             if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
         end
         -- actions.cds+=/sepsis,if=variable.snd_condition&combo_points.deficit>=1
