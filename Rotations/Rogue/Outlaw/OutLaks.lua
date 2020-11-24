@@ -949,9 +949,10 @@ actionList.dps = function()
 
             --serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
 
+            Print(br.player.charges.serratedBoneSpike.frac())
 
             if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
-                    or ttd(dynamic_target_melee) <= 5 or charges.serratedBoneSpike.frac() >= 2.75 then
+                    or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
                 if cast.serratedBoneSpike(dynamic_target_melee) then
                     return true
                 end
@@ -1630,6 +1631,8 @@ local function runRotation()
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam()
     real_def = br.player.power.comboPoints.max() - buff_count()
     dynamic_target_melee = talent.acrobaticStrikes and units.dyn8 or units.dyn5
+
+    local charges = br.player.charges
 
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
