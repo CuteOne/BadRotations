@@ -874,16 +874,28 @@ actionList.dps = function()
             end
         end
     end
-    if talent.killingSpree and cast.able.killingSpree() and ((#enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
-        if cast.killingSpree() then
-            return true
+    if getCombatTime() > 2 and getFacing("player", dynamic_target_melee) then
+        if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee) and ((getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
+            if cast.killingSpree() then
+                return true
+            end
+        end
+        if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
+            if cast.bladeRush(dynamic_target_melee) then
+                return true
+            end
         end
     end
-    if talent.bladeRush and cast.able.bladeRush() and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
-        if cast.bladeRush(dynamic_target_melee) then
-            return true
-        end
-    end
+
+    --flagellation
+    --0.00	flagellation_cleanse,if=debuff.flagellation.remains<2
+
+    --    if cast.able.flagellation(dynamic_target_melee) and not debuff.flagellation.exists(dynamic_target_melee) then
+    --        if cast.flagellation(dynamic_target_melee) then
+    --            return true
+    --        end
+    --    end
+
     if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) then
         if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(20) > 0 then
             if cast.adrenalineRush() then
@@ -1179,7 +1191,6 @@ actionList.Extra = function()
                         end
                     end
                 end
-
 
                 if (buff_rollTheBones_count == 0 or buff_rollTheBones_remain < 3 or buff_rollTheBones_count < 2 and (buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.trueBearing.exists())) then
                     if cast.rollTheBones() then
@@ -1643,7 +1654,7 @@ local function runRotation()
     healPot = getHealthPot()
     profileStop = profileStop or false
     ttd = getTTD
-    haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam()
+    haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists()
     dynamic_target_melee = talent.acrobaticStrikes and units.dyn8 or units.dyn5
 
     local charges = br.player.charges

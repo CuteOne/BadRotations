@@ -2751,6 +2751,7 @@ br.lists.spells = {
                 echoingReprimand            = 323547,
                 serratedBoneSpike           = 328547,
                 sepsis                      = 328305,
+                flagellation                = 313347,
             },
             artifacts                       = {
 
@@ -2782,6 +2783,7 @@ br.lists.spells = {
                 markedForDeath              = 137619,
                 sap                         = 6770,
                 serratedBoneSpikeDot        = 324073,
+                flagellation                = 313347,
             },
             glyphs                          = {
                 glyphOfBlackout             = 219693,
@@ -3817,6 +3819,7 @@ br.lists.spells = {
                 vigilantProtector               = 310592,
                 reapingFlames					= 311202,
                 worldveinResonance              = 313310,
+                soulshape                       = 310143,
             },
             debuffs                             = {
                 bloodOfTheEnemy                 = 297108,
