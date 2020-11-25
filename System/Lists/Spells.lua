@@ -2644,7 +2644,6 @@ br.lists.spells = {
                 sinisterStrike              = 1752,
                 blackPowder                 = 319175,
                 coldBlood                   = 213981,
-                premeditation               = 343160,
             },
             artifacts                       = {
 
@@ -2806,12 +2805,6 @@ br.lists.spells = {
                 invigoratingShadowdust      = 340080,
                 tinyToxicBlades             = 340078,
             },
-            -- covenant                        = {
-            --     echoingReprimand            = 323547,
-            --     serratedBoneSpike           = 328547,
-            --     sepsis                      = 328305,
-            --     slaughter                   = 323654,
-            -- },
         },
     },
  SHAMAN = {
@@ -3819,7 +3812,6 @@ br.lists.spells = {
                 vigilantProtector               = 310592,
                 reapingFlames					= 311202,
                 worldveinResonance              = 313310,
-                soulshape                       = 310143,
             },
             debuffs                             = {
                 bloodOfTheEnemy                 = 297108,

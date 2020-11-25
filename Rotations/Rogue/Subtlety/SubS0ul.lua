@@ -84,8 +84,6 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             br.ui:createCheckbox(section, "Racial", "Will use Racial")
-            br.ui:createCheckbox(section, "Essences", "Will use Essences")
-            br.ui:createSpinnerWithout(section,  "Reaping DMG",  10,  1,  50,  1,  "* 5k Put damage of your Reaping Flames")
             br.ui:createCheckbox(section, "Trinkets", "Will use Trinkets")
             br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "Potion with CDs")
             br.ui:createCheckbox(section, "Shadow Blades", "Will use Shadow Blades")
@@ -187,7 +185,6 @@ local function runRotation()
     local buff                                = br.player.buff
     local talent                              = br.player.talent
     local trait                               = br.player.traits
-    local essence                             = br.player.essence
     local cast                                = br.player.cast
     local php                                 = br.player.health
     local power, powmax, powgen               = br.player.power, br.player.powerMax, br.player.powerRegen
@@ -484,14 +481,11 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(169451)) and php <= getOptionValue("Health Pot / Healthstone") 
-             and inCombat and (hasItem(169451) or has.healthstone()) then
+            if isChecked("Health Pot / Healthstone") and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(171267) or has.healthstone()) then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUseItem(156634) then
-                    useItem(156634)
-                elseif canUseItem(169451) then
-                    useItem(169451)
+                elseif canUseItem(171267) then
+                    useItem(171267)
                 end
             end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
@@ -593,10 +587,6 @@ local function runRotation()
         if isChecked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 and buff.sliceAndDice.remain() < 6+(combo*3) then
             if cast.sliceAndDice("player") then return true end
         end
-        -- -- actions.precombat+=/shadowBlades, if=runeforge.mark_of_the_master_assassin.equipped
-        -- if isChecked("Precombat") and validTarget and cdUsage and targetDistance < 5 then -- and runeforge.markOfTheMasterAssassin.active()
-        --     if cast.shadowBlades("player") then return true end
-        -- end
     end
 
     local function actionList_CooldownsOGCD()
@@ -632,11 +622,11 @@ local function runRotation()
     local function actionList_Cooldowns()
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle"
-        -- if sndCondition == 1 and not buff.masterAssassinsInitiative.exists() then
+        -- if sndCondition == 1 and cast.able.flagellation("target") then -- and not buff.stealthedMantle.exists()
         --     if cast.flagellation("target") then return true end
         -- end
         -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2
-        -- if debuff.flagellation.remain("target") < 2 then
+        -- if debuff.flagellation.remain("target") < 2 and cast.able.flagellation("target") then
         --     if cast.flagellation("target") then return true end
         -- end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin.equipped&combo_points.deficit<=3|runeforge.deathly_shadows.equipped&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
@@ -644,86 +634,6 @@ local function runRotation()
         --     if cast.vanish("player") then return true end
         -- end
 ---------------------------- SHADOWLANDS
-        -- actions.cds+=/call_action_list,name=essences,if=!stealthed.all&variable.snd_condition|essence.breath_of_the_dying.major&time>=2
-        if isChecked("Essences") and not IsMounted() and not stealthedAll and sndCondition == 1 or cast.able.reapingFlames() and combatTime >= 2 then
-            -- actions.essences=concentrated_flame,if=energy.time_to_max>1&!buff.symbols_of_death.up&(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
-            if cast.able.concentratedFlame() and (energyDeficit/energyRegen) > 1 and not buff.symbolsOfDeath.exists() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame() or charges.concentratedFlame.timeTillFull() < gcd) then
-                if cast.concentratedFlame("target") then return true end
-            end
-            -- actions.essences+=/blood_of_the_enemy,if=!cooldown.shadow_blades.up&cooldown.symbols_of_death.up|fight_remains<=10
-            if cast.able.bloodOfTheEnemy() and cd.shadowBlades.exists() and not cd.symbolsOfDeath.exists() or ttd("target") <= 10 then
-                if cast.bloodOfTheEnemy("player") then return true end
-            end
-            -- actions.essences+=/guardian_of_azeroth
-            if cast.able.guardianOfAzeroth() then
-                if cast.guardianOfAzeroth("player") then return true end
-            end
-            -- actions.essences+=/the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10
-            if cast.able.theUnboundForce() and (buff.recklessForce.exists() or buff.recklessForceCounter.stack() < 10)then
-                if cast.theUnboundForce("target") then return true end
-            end
-            -- actions.essences+=/ripple_in_space
-            if cast.able.rippleInSpace() then
-                if cast.rippleInSpace() then return true end
-            end
-            -- actions.essences+=/worldvein_resonance,if=cooldown.symbols_of_death.remains<5|fight_remains<18
-            if cast.able.worldveinResonance() and cd.symbolsOfDeath.remain() < 5 or ttd("target") <= 18 then
-                if cast.worldveinResonance("player") then return true end
-            end
-            -- actions.essences+=/memory_of_lucid_dreams,if=energy<40&buff.symbols_of_death.up
-            if cast.able.memoryOfLucidDreams() and energy < 40 and buff.symbolsOfDeath.exists() then
-                if cast.memoryOfLucidDreams("player") then return true end
-            end
-            -- Essence: Reaping Flames
-            if cast.able.reapingFlames() then
-                local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 5000 * 2 or getValue("Reaping DMG") * 5000
-                local reapingPercentage = 0
-                local thisHP = 0
-                local thisABSHP = 0
-                local thisABSHPmax = 0
-                local reapTarget, thisUnit, reap_execute, reap_hold, reap_fallback = false, false, false, false, false
-                local mob_count = #enemies.yards30
-                if mob_count > 10 then
-                    mob_count = 10
-                end
-
-                if mob_count == 1 then
-                    if ((br.player.essence.reapingFlames.rank >= 2 and getHP(enemies.yards30[1]) > 80) or getHP(enemies.yards30[1]) <= 20 or getTTD(enemies.yards30[1], 20) > 30) then
-                        reapTarget = enemies.yards30[1]
-                    end
-                elseif mob_count > 1 then
-                    for i = 1, mob_count do
-                        thisUnit = enemies.yards30[i]
-                        if getTTD(thisUnit) ~= 999 then
-                            thisHP = getHP(thisUnit)
-                            thisABSHP = UnitHealth(thisUnit)
-                            thisABSHPmax = UnitHealthMax(thisUnit)
-                            reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                            if UnitHealth(thisUnit) <= reapingDamage or getTTD(thisUnit) < 2.5 or getTTD(thisUnit, reapingPercentage) < 2 then
-                                reap_execute = thisUnit
-                                break
-                            elseif getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44) then
-                                reap_hold = true
-                            elseif (thisHP > 80 or thisHP <= 20) or getTTD(thisUnit, 20) > 30 then
-                                reap_fallback = thisUnit
-                            end
-                        end
-                    end
-                end
-
-                if reap_execute then
-                    reapTarget = reap_execute
-                elseif not reap_hold and reap_fallback then
-                    reapTarget = reap_fallback
-                end
-
-                if reapTarget ~= nil and not isExplosive(reapTarget) and getFacing("player",reapTarget) then
-                    if cast.reapingFlames(reapTarget) then
-                        return true
-                    end
-                end
-            end
-        end
         -- # Pool for Tornado pre-SoD with ShD ready when not running SF.
         -- actions.cds+=/pool_resource,for_next=1,if=talent.shuriken_tornado.enabled&!talent.shadow_focus.enabled
         if talent.shurikenTornado and not talent.shadowFocus and cast.able.shurikenTornado() then
@@ -752,10 +662,9 @@ local function runRotation()
             if cast.sepsis("target") then return true end
         end
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus.
-        -- actions.cds+=/symbols_of_death,if=variable.snd_condition&!cooldown.shadow_blades.up&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)&(!runeforge.the_rotten.equipped|combo_points<=2)&(!essence.blood_of_the_enemy.major|cooldown.blood_of_the_enemy.remains>2)
+        -- actions.cds+=/symbols_of_death,if=variable.snd_condition&!cooldown.shadow_blades.up&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)&(!runeforge.the_rotten.equipped|combo_points<=2)
         if mode.sod == 1 and sndCondition == 1 and cd.shadowBlades.exists() and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and 
-         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd == 0 and --and (not runeforge.theRotten.active or combo <= 2)
-         (not essence.bloodOfTheEnemy.active or cd.bloodOfTheEnemy.remain() > 2) and ttd("target") > getOptionValue("CDs TTD Limit") then
+         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd == 0 and ttd("target") > getOptionValue("CDs TTD Limit") then --and (not runeforge.theRotten.active or combo <= 2)
             if cast.symbolsOfDeath("player") then return true end
         end
         -- # If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or not stealthed without any CP.
@@ -1045,7 +954,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
     -- Pause
-    if IsMounted() or IsFlying() or pause() or mode.rotation==3 or cast.current.focusedAzeriteBeam() then
+    if IsMounted() or IsFlying() or pause() or mode.rotation==3 or buff.soulshape.exists() then
         return true
     else
 ---------------------------------
