@@ -2691,6 +2691,7 @@ br.lists.spells = {
                 soothingDarkness            = 200759,
                 subterfuge                  = 108208,
                 weaponmaster                = 193537,
+                premeditation               = 343160,
             },
             traits                          = {
                 bladeInTheShadows           = 275896,
@@ -2770,6 +2771,8 @@ br.lists.spells = {
                 stealth                     = 1784,
                 vanish                      = 11327 or 115193,
                 shroudOfConcealment         = 114018,
+                flagellation                = 345569,
+                soulshape                   = 310143,
             },
             debuffs                         = {
                 instantPoison               = 315584,
@@ -2782,7 +2785,7 @@ br.lists.spells = {
                 markedForDeath              = 137619,
                 sap                         = 6770,
                 serratedBoneSpikeDot        = 324073,
-                flagellation                = 313347,
+                flagellation                = 323654,
             },
             glyphs                          = {
                 glyphOfBlackout             = 219693,
