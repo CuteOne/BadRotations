@@ -2079,6 +2079,7 @@ br.lists.spells = {
                 devotionAura                = 465,
                 divineShield                = 642,
                 divineSteed                 = 190784,
+                divineToll                  = 304971,
                 flashOfLight                = 19750,
                 hammerOfJustice             = 853,
                 hammerOfWrath               = 24275,
