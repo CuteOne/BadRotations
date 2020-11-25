@@ -2092,6 +2092,7 @@ br.lists.spells = {
                 shieldOfTheRighteous        = 53600,
                 turnEvil                    = 10326,
                 wordOfGlory                 = 85673,
+				contemplation               = 121183,
             },
             artifacts                       = {
 

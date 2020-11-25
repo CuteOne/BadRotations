@@ -147,6 +147,8 @@ local function createOptions()
 		--- ROTATION OPTIONS ---
 		------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Rotation Options")
+		-- Divine Toll
+		br.ui:createSpinner(section, "Divine Toll",  3,  1,  5,  1,  "|cffFFBB00Units to use Divine Toll.")
 		-- Avenger's Shield
 		br.ui:createCheckbox(section,"Avenger's Shield")
 		-- Consecration
@@ -719,7 +721,7 @@ local function runRotation()
 	---------------------
 	--- Begin Profile ---
 	---------------------
-	if isChecked("Automatic Aura replacement") then
+	if isChecked("Automatic Aura replacement") and not castingUnit() then
 		if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
 			if CastSpellByName(GetSpellInfo(465)) then return end
 		elseif not buff.crusaderAura.exists() and IsMounted() then
@@ -780,12 +782,16 @@ local function runRotation()
 				if isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 then
 					if cast.avengersShield(units.dyn30) then return end
 				end
+				-- Divine Toll
+				if isChecked("Divine Toll") and cast.able.divineToll() and (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) then
+					if cast.divineToll(units.dyn30) then return end
+				end
 				-- Judgment
 				if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) then
 					if cast.judgment(units.dyn30) then return end
 				end
 				-- Hammer of Wrath
-				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()))then
+				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()) or getBuffRemain("player", 345693) ~= 0)then
 					if cast.hammerOfWrath(units.dyn30) then return end
 				end
 				-- Avenger's Shield
