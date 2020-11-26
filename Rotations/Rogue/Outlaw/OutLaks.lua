@@ -940,16 +940,18 @@ actionList.dps = function()
     else
         if not stealth and not should_pool then
 
-            if cast.able.echoingReprimand() then
-                if cast.echoingReprimand("target") then
+            --sepsis,if=!stealthed.all
+            if cast.able.sepsis(dynamic_target_melee) and not stealth then
+                if cast.sepsis(dynamic_target_melee) then
                     return true
                 end
             end
 
-            --serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
-
-            --    Print(br.player.charges.serratedBoneSpike.frac())
-
+            if cast.able.echoingReprimand(dynamic_target_melee) then
+                if cast.echoingReprimand(dynamic_target_melee) then
+                    return true
+                end
+            end
             if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
                     or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
                 if cast.serratedBoneSpike(dynamic_target_melee) then
@@ -967,6 +969,14 @@ actionList.dps = function()
                     return true
                 end
             end
+
+            --gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1+buff.broadside.up
+            if talent.dirtyTricks and cast.able.gouge(dynamic_target_melee) and getFacing(interrupt_target, "player", 45) and br.player.power.comboPoints.deficit() >= 1 + (int(buff.broadside.exists())) then
+                if cast.gouge(dynamic_target_melee) then
+                    return true
+                end
+            end
+
             if cast.able.sinisterStrike(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) then
                 --Print("Casting Sinister at: " .. combo)
                 if cast.sinisterStrike(dynamic_target_melee) then
@@ -1003,12 +1013,7 @@ actionList.dps = function()
         end
     end
 
-    --sepsis,if=!stealthed.all
-    if cast.able.sepsis(dynamic_target_melee) and not stealth then
-        if cast.sepsis(dynamic_target_melee) then
-            return true
-        end
-    end
+
 
     --pots
     --potion support
@@ -1496,33 +1501,36 @@ actionList.Interrupt = function()
             if canInterrupt(interrupt_target, int_when)
                     or getUnitID(interrupt_target) == 136297 then
 
+
                 --Print(UnitName(enemies.yards20[i]))
                 distance = getDistance(interrupt_target)
                 if not (inInstance and #tanks > 0 and select(3, UnitClass(tanks[1].unit)) == 1 and hasBuff(23920, tanks[1].unit) and UnitIsUnit(select(3, UnitCastID(interrupt_target)), tanks[1].unit)) then
                     if not isBoss(interrupt_target) and StunsBlackList[GetObjectID(interrupt_target)] == nil then
                         if cd.global.remain() == 0 then
-                            if (getValue("Gouge") == 2 or getValue("Gouge") == 4) and not cd.gouge.exists()
-                                    and not cast.last.gouge(1)
-                                    and getFacing(interrupt_target, "player", 45)
-                                    and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
-                                if cast.gouge(interrupt_target) then
-                                    someone_casting = false
-                                    br.addonDebug("[int]Gouged " .. UnitName(interrupt_target))
-                                    return true
+                            if mode.stun == 1 then
+                                if (getValue("Gouge") == 2 or getValue("Gouge") == 4) and not cd.gouge.exists()
+                                        and not cast.last.gouge(1)
+                                        and getFacing(interrupt_target, "player", 45)
+                                        and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
+                                    if cast.gouge(interrupt_target) then
+                                        someone_casting = false
+                                        br.addonDebug("[int]Gouged " .. UnitName(interrupt_target))
+                                        return true
+                                    end
                                 end
-                            end
-                            if mode.blind == 1 and (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cast.able.blind(interrupt_target) and (cd.kick.exists() or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
-                                if cast.blind(interrupt_target) then
-                                    br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
-                                    someone_casting = false
-                                    return true
+                                if (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cast.able.blind(interrupt_target) and (cd.kick.exists() or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
+                                    if cast.blind(interrupt_target) then
+                                        br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
+                                        someone_casting = false
+                                        return true
+                                    end
                                 end
-                            end
-                            if (getValue("Kidney") == 2 or getValue("Kidney") == 4) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
-                                if cast.kidneyShot(interrupt_target) then
-                                    br.addonDebug("[int]Kidney/stunning")
-                                    someone_casting = false
-                                    return true
+                                if (getValue("Kidney") == 2 or getValue("Kidney") == 4) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
+                                    if cast.kidneyShot(interrupt_target) then
+                                        br.addonDebug("[int]Kidney/stunning")
+                                        someone_casting = false
+                                        return true
+                                    end
                                 end
                             end
                         end
