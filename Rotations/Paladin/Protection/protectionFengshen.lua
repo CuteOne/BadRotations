@@ -324,8 +324,8 @@ local function runRotation()
 			if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
 				if cast.handOfReckoning("target") then return end
 			end
-			if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
-				RunMacroText("/cancelAura Blessing of Protection")
+			if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+				CancelUnitBuffID("player", spell.blessingOfProtection)
 			end
 		end
 		-- Auto cancel Divine Shield
@@ -333,8 +333,8 @@ local function runRotation()
 			if buff.divineShield.exists() and cast.able.handOfReckoning() then
 				if cast.handOfReckoning("target") then return end
 			end
-			if buff.divineShield.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
-				RunMacroText("/cancelAura Divine Shield")
+			if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+				CancelUnitBuffID("player", spell.divineShield)
 			end
 		end
 	end -- End Action List - Extras
@@ -354,11 +354,13 @@ local function runRotation()
 		if useDefensive() then
 			-- Pot/Stoned
 			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-				and inCombat and (hasHealthPot() or hasItem(5512))then
+				and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(177278))then
 				if canUseItem(5512) then
 					useItem(5512)
 				elseif canUseItem(healPot) then
 					useItem(healPot)
+				elseif canUseItem(177278) then
+					useItem(177278)
 				end
 			end
 			-- Divine Shield

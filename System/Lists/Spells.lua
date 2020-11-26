@@ -2194,7 +2194,8 @@ br.lists.spells = {
                 blindingLight               = 105421,
                 forbearance                 = 25771,
                 hammerOfJustice             = 853,
-                turnEvil                    = 10326
+                turnEvil                    = 10326,
+                handOfReckoning             = 62124,
             },
             glyphs                          = {
                 glyphOfFireFromHeavens      = 57954,
