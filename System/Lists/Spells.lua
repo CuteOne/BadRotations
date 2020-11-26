@@ -3402,6 +3402,7 @@ br.lists.spells = {
         Shared = {
             abilities                       = {
                 banish                      = 710,
+                burningRush                 = 111400,
                 curseOfExhaustion           = 334275,
                 curseOfTongues              = 1714,
                 curseOfWeakness             = 702,
@@ -3453,6 +3454,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                burningRush                 = 111400,
                 demonicCircle               = 48018,
                 demonicSynergy              = 171982,
                 felDomination               = 333889,
