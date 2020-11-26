@@ -86,6 +86,7 @@ function getNumEnemies(Unit,Radius)
 end
 
 function isIncapacitated(spellID)
+	local event
 	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
 		for i=0,eventIndex do
@@ -99,7 +100,7 @@ function isIncapacitated(spellID)
 					or event.locType == DISORIENT
 					or event.locType == INCAPACITATE
 					or event.locType == GRIP)
-					and not canRegainControl(spellID,"player",event.locType)
+					and not canRegainControl(spellID,event.locType)
 				then
 					return true
 				end
@@ -108,7 +109,7 @@ function isIncapacitated(spellID)
 	end
 	return false
 end
-function canRegainControl(spellID,unit,controlEvent)
+function canRegainControl(spellID,controlEvent)
 	local class = select(3,UnitClass("player"))
 	-- Warrior
 	if class == 1 then
@@ -201,13 +202,13 @@ end
 -- if hasNoControl(12345) == true then
 function hasNoControl(spellID,unit)
 	if unit==nil then unit="player" end
+	local event
 	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
 		for i=0,eventIndex do
 			event = C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				if canRegainControl(spellID,unit,event.locType) then return true end	
-				eventIndex = eventIndex - 1
+				if canRegainControl(spellID,event.locType) then return true end
 			end
 		end
 	end
