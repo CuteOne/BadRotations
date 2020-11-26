@@ -107,7 +107,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.0")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.2")
         -- Battle Shout
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage
@@ -390,12 +390,6 @@ local function runRotation()
     end
 
     local function singlelist()
-        -- Onslaught
-        if (rage <= 85) and buff.enrage.exists("player") then
-            if cast.onslaught() then
-                return
-            end
-        end
 
         -- Rampage
         if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
@@ -419,13 +413,27 @@ local function runRotation()
             end
         end
 
+        -- condemn test
+        if getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)) then
+            if CastSpellByName(GetSpellInfo(330325)) then
+                return
+            end
+        end
+
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
+            if getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) or rage <= 70 then
                 if cast.execute(thisUnit) then
                     return
                 end
+            end
+        end
+
+        -- Onslaught
+        if (rage <= 85) and buff.enrage.exists("player") and talent.onslaught then
+            if cast.onslaught() then
+                return
             end
         end
 
