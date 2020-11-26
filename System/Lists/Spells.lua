@@ -997,6 +997,7 @@ br.lists.spells = {
                 ravenousFrenzy              = 323546,
             },
             debuffs                         = {
+                adaptiveSwarm               = 325733,
                 cyclone                     = 33786,
                 entanglingRoots             = 339,
                 growl                       = 6795,
