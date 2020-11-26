@@ -664,7 +664,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile then
+    elseif var.haltProfile and (not unit.isCasting() or pause(true)) then
         StopAttack()
         if unit.isDummy() then ClearTarget() end
         return true
