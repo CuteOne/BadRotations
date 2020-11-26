@@ -2837,6 +2837,9 @@ br.lists.spells = {
                 shroudOfConcealment         = 114018,
                 flagellation                = 345569,
                 soulshape                   = 310143,
+                echoingReprimand2           = 323558,
+                echoingReprimand3           = 323559,
+                echoingReprimand4           = 323560,
             },
             conduits                        = {
                 echoingReprimand            = 323547,

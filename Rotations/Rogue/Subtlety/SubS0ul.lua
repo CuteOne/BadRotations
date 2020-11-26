@@ -66,7 +66,8 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createDropdown(section, "Poison", {"Instant","Wound",}, 1, "Poison to apply")
+            br.ui:createDropdown(section, "Non-Lethal Poison", {"Crippling","Numbing",}, 1, "Non-Lethal Poison to apply")
+            br.ui:createDropdown(section, "Lethal Poison", {"Instant","Wound",}, 1, "Lethal Poison to apply")
             br.ui:createDropdown(section, "Auto Stealth", {"Always", "25 Yards"},  1, "Auto stealth mode.")
             br.ui:createDropdown(section, "Auto Tricks", {"Focus", "Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "Will auto change to a new target, if current target is dead.")
@@ -405,15 +406,18 @@ local function runRotation()
     local function actionList_Extra()
         if not inCombat then
             -- actions.precombat+=/apply_poison
-            if isChecked("Poison") then
-                if not moving and getOptionValue("Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison(1) then
+            if isChecked("Lethal Poison") and not moving then
+                if getOptionValue("Lethal Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison(1) then
                     if cast.instantPoison("player") then return true end
-                end
-                if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+                elseif getOptionValue("Lethal Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
                     if cast.woundPoison("player") then return true end
                 end
-                if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+            end
+            if isChecked("Non-Lethal Poison") and not moving then
+                if getOptionValue("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
                     if cast.cripplingPoison("player") then return true end
+                elseif getOptionValue("Non-Lethal Poison") == 2 and buff.numbingPoison.remain() < 300 and not cast.last.numbingPoison(1) then
+                    if cast.numbingPoison("player") then return true end
                 end
             end
             -- actions.precombat+=/stealth
@@ -481,9 +485,11 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(171267) or has.healthstone()) then
+            if isChecked("Health Pot / Healthstone") and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(171267) or has.healthstone() or hasItem(176409)) then
                 if use.able.healthstone() then
                     use.healthstone()
+                elseif canUseItem(176409) then
+                    useItem(176409)
                 elseif canUseItem(171267) then
                     useItem(171267)
                 end
@@ -1052,9 +1058,13 @@ local function runRotation()
                     --     if actionList_Finishers() then return true end
                     -- end
                     -- actions+=/call_action_list,name=finish,if=combo_points=animacharged_cp
-                    -- if combo == animachargedCP then
-                    --     if actionList_Finishers() then return true end
-                    -- end
+                    local animachargedCP
+                    if (combo == 2 and buff.echoingReprimand2.exists()) or 
+                       (combo == 3 and buff.echoingReprimand3.exists()) or 
+                       (combo == 4 and buff.echoingReprimand4.exists()) then animachargedCP = true else animachargedCP = false end
+                    if animachargedCP then
+                        if actionList_Finishers() then return true end
+                    end
 ---------------------------- SHADOWLANDS
                     -- # Finish at 4+ without DS, 5+ with DS (outside stealth)
                     -- actions+=/call_action_list,name=finish,if=combo_points.deficit<=1|fight_remains<=1&combo_points>=3
