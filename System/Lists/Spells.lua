@@ -3653,7 +3653,6 @@ br.lists.spells = {
                 recklessness                = 1719,
                 siegebreaker                = 280772,
                 whirlwind                   = 190411,
-                ignorePain                  = 190456,
             },
             artifacts                       = {
 
@@ -3665,7 +3664,6 @@ br.lists.spells = {
                 recklessness                = 1719,
                 suddenDeath                 = 280776,
                 whirlwind                   = 85739,
-                ignorePain                  = 190456,
             },
             debuffs                         = {
                 siegebreaker                = 280773,
@@ -3706,7 +3704,6 @@ br.lists.spells = {
                 demoralizingShout           = 1160,
                 devastate                   = 20243,
                 focusedRage                 = 204488,
-                ignorePain                  = 190456,
                 impendingVictory            = 202168,
                 intercept                   = 198304,
                 lastStand                   = 12975,
@@ -3716,7 +3713,6 @@ br.lists.spells = {
                 shieldSlam                  = 23922,
                 shieldWall                  = 871,
                 shockwave                   = 46968,
-                spellReflection             = 23920,
                 thunderClap                 = 6343,
             },
             artifacts                       = {
@@ -3725,12 +3721,10 @@ br.lists.spells = {
             buffs                           = {
                 avatar                      = 107574,
                 defensiveStance             = 71,
-                ignorePain                  = 190456,
                 lastStand                   = 12975,
                 revenge                     = 5302,
                 shieldBlock                 = 132404,
                 shieldWall                  = 871,
-                spellReflection             = 23920,
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
@@ -3784,6 +3778,11 @@ br.lists.spells = {
                 stormBolt                   = 107570,
                 taunt                       = 355,
                 victoryRush                 = 34428,
+                ignorePain                  = 190456,
+                shatteringThrow             = 64382,
+                spellReflection             = 23920,
+                challengingShout            = 1161,
+                intervene                   = 3411,
                 whirlwind                   = 1680,
             },
             artifacts                       = {
@@ -3791,6 +3790,8 @@ br.lists.spells = {
             },
             buffs                           = {
                 battleShout                 = 6673,
+                ignorePain                  = 190456,
+                spellReflection             = 23920,
                 berserkerRage               = 18499,
                 fujiedasFury                = 207776,
                 victorious                  = 32216,
