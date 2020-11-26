@@ -87,19 +87,23 @@ end
 
 function isIncapacitated(spellID)
 	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
-	while (eventIndex > 0) do
-		local _,_,text = C_LossOfControl.GetActiveLossOfControlData(eventIndex)
-		if (text == LOSS_OF_CONTROL_DISPLAY_FEAR
-			or text == LOSS_OF_CONTROL_DISPLAY_HORROR
-			or text == LOSS_OF_CONTROL_DISPLAY_STUN
-			or text == LOSS_OF_CONTROL_DISPLAY_CHARM
-			or text == LOSS_OF_CONTROL_DISPLAY_SLEEP
-			or text == LOSS_OF_CONTROL_DISPLAY_DISORIENT
-			or text == LOSS_OF_CONTROL_DISPLAY_INCAPACITATE
-			or text == LOSS_OF_CONTROL_DISPLAY_GRIP)
-			and not canRegainControl(spellID,"player",text)
-		then
-			return true
+	if eventIndex > 0 then
+		for i=0,eventIndex do
+			event = C_LossOfControl.GetActiveLossOfControlData(i)
+			if event then
+				if (event.locType == FEAR
+					or event.locType == HORROR
+					or event.locType == STUN
+					or event.locType == CHARM
+					or event.locType == SLEEP
+					or event.locType == DISORIENT
+					or event.locType == INCAPACITATE
+					or event.locType == GRIP)
+					and not canRegainControl(spellID,"player",event.locType)
+				then
+					return true
+				end
+			end
 		end
 	end
 	return false
@@ -110,10 +114,10 @@ function canRegainControl(spellID,unit,controlEvent)
 	if class == 1 then
 		if spellID == 18499
 			-- Fear, Sap and Incapacitate
-			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_FEAR
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_STUN)
+			and (controlEvent ==  FEAR
+			or controlEvent ==  ROOT
+			or controlEvent ==  SNARE
+			or controlEvent ==  STUN)
 		then
 			return true
 		end
@@ -121,14 +125,14 @@ function canRegainControl(spellID,unit,controlEvent)
 	-- Paladin
 	if class == 2 then
 		if spellID == 1044
-			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+			and (controlEvent ==  ROOT or controlEvent ==  SNARE)
 		then
 			return true
 		end
 	end
 	-- Hunter
 	if class == 3 then
-		if controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE then
+		if controlEvent == ROOT or controlEvent == SNARE then
 			return true
 		end
 	end
@@ -141,15 +145,15 @@ function canRegainControl(spellID,unit,controlEvent)
 	-- Death Knight
 	if class == 6 then
 		if spellID == 49039 --Lichborne
-			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_CHARM
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_FEAR
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SLEEP)
+			and (controlEvent == CHARM
+			or controlEvent == FEAR
+			or controlEvent == SLEEP)
 		then
 			return true
 		end
 		if spellID == 108201 --Desecrated Ground
-			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+			and (controlEvent == ROOT
+			or controlEvent == SNARE)
 		then
 			return true
 		end
@@ -157,19 +161,19 @@ function canRegainControl(spellID,unit,controlEvent)
 	-- Shaman
 	if class == 7 then
 		if spellID == 58875 -- Spirit Walk
-			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+			and (controlEvent == ROOT or controlEvent == SNARE)
 		then
 			return true
 		end
 		if spellID == 8143 --Tremor Totem
-			and	(controlEvent == LOSS_OF_CONTROL_DISPLAY_CHARM
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_FEAR
-			or controlEvent == LOSS_OF_CONTROL_DISPLAY_SLEEP)
+			and	(controlEvent == CHARM
+			or controlEvent == FEAR
+			or controlEvent == SLEEP)
 		then
 			return true
 		end
 		if spellID == 108273 --Windwalk Totem
-			and (controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE)
+			and (controlEvent == ROOT or controlEvent == SNARE)
 		then
 			return true
 		end
@@ -182,13 +186,13 @@ function canRegainControl(spellID,unit,controlEvent)
 	end
 	-- Monk
 	if class == 10 then
-		if controlEvent == LOSS_OF_CONTROL_DISPLAY_ROOT or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE then
+		if controlEvent == ROOT or controlEvent == SNARE then
 			return true
 		end
 	end
 	-- Druid
 	if class == 11 then
-		if tostring(controlEvent) == "Rooted" --[[LOSS_OF_CONTROL_DISPLAY_ROOT]] or controlEvent == LOSS_OF_CONTROL_DISPLAY_SNARE then
+		if tostring(controlEvent) == ROOT or controlEvent == SNARE then
 			return true
 		end
 	end
@@ -198,10 +202,14 @@ end
 function hasNoControl(spellID,unit)
 	if unit==nil then unit="player" end
 	local eventIndex = C_LossOfControl.GetActiveLossOfControlDataCount()
-	while (eventIndex > 0) do
-		local _,_,text = C_LossOfControl.GetActiveLossOfControlData(eventIndex)
-		if canRegainControl(spellID,unit,text) then return true end	
-		eventIndex = eventIndex - 1
+	if eventIndex > 0 then
+		for i=0,eventIndex do
+			event = C_LossOfControl.GetActiveLossOfControlData(i)
+			if event then
+				if canRegainControl(spellID,unit,event.locType) then return true end	
+				eventIndex = eventIndex - 1
+			end
+		end
 	end
 	return false
 end
