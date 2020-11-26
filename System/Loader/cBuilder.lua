@@ -320,6 +320,14 @@ function br.loader:new(spec,specName)
             end
         end
 
+        -- Covenant Active
+        if self.covenant == nil then self.covenant = {} end
+        if self.covenant.kyrian == nil then self.covenant.kyrian = {} end
+        if self.covenant.venthyr == nil then self.covenant.venthyr = {} end
+        if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
+        if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
+        br.api.covenant(self.covenant)
+
         -- Update Power
         if not self.power then self.power = {} end
         self.power.list     = {
