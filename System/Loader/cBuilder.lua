@@ -198,7 +198,7 @@ function br.loader:new(spec,specName)
                     self.spell[spellType][spellRef] = spellID
                     -- Assign active spells to Abilities Subtable and base br.player.spell
                     if not IsPassiveSpell(spellID)
-                        and (spellType == 'abilities' or spellType == 'conduits' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
+                        and (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
                     then
                         if self.spell.abilities == nil then self.spell.abilities = {} end
                         self.spell.abilities[spellRef] = spellID
@@ -334,6 +334,11 @@ function br.loader:new(spec,specName)
         if self.covenant.venthyr == nil then self.covenant.venthyr = {} end
         if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
         if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
+        for k,v in pairs(self.spell.covenants) do
+            if self.covenant == nil then self.covenant = {} end
+            if self.covenant[k] == nil then self.covenant[k] = {} end
+            br.api.covenant(self.covenant,k)
+        end
         br.api.covenant(self.covenant)
 
         -- Update Power
