@@ -400,7 +400,7 @@ actionList.AOE = function()
     -- end
     -- Flame Shock
     -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord
-    if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames or covenant.necrolord) then
+    if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames or covenant.necrolord.active) then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
