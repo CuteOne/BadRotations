@@ -1282,8 +1282,8 @@ local function runRotation()
     if var.reapingDelay == 0 then var.reapingDelay = unit.ttd(units.dyn5) end
     -- variable,name=filler,value=0
     filler = 0
-    for i = 1, #enemies.yards5 do
-        local thisUnit = enemies.yards5[i]
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
         if debuff.rake.applied(thisUnit) <= debuff.rake.calc() then
             filler = 1
         end
