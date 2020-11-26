@@ -516,7 +516,7 @@ function isValidUnit(Unit)
 	if playerTarget and br.units[UnitTarget("player")] == nil and not enemyListCheck("target") then return false end
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit)
 		and mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit)
-		and	((not hostileOnly and (reaction < 5 or playerTarget or targeting)) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
+		and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	 then
 		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or isInProvingGround() or hasThreat(Unit)
 	end
@@ -640,7 +640,7 @@ function pause(skipCastingCheck)
 	end
 	-- Pause Hold/Auto
 	if	(pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode")) or profileStop or
-		((IsMounted() or IsFlying() or UnitOnTaxi("player")) and --and (GetObjectExists("target") and GetObjectID("target") ~= 56877)
+		((IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and --and (GetObjectExists("target") and GetObjectID("target") ~= 56877)
 		not (UnitBuffID("player", 190784) or UnitBuffID("player", 164222) or UnitBuffID("player", 165803) or
 		UnitBuffID("player", 157059) or
 		UnitBuffID("player", 157060))) or

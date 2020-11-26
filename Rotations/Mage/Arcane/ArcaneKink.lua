@@ -1,5 +1,6 @@
-local rotationName = "Kink"
-local rotationVer  = "v0.2.1"
+local rotationName = "KinkyArcaneSL"
+local rotationVer  = "v0.2.2"
+local colorBlue      = "|cff3FC7EB"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -66,7 +67,7 @@ local function createOptions()
         ------------------------
         --- GENERAL  OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Arcane .:|:. General ".. ".:|:. ".. rotationVer)
+        section = br.ui:createSection(br.ui.window.profile, colorBlue .. "Arcane" .. ".:|:. " ..colorBlue .. " General")
         -- APL
 
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling"}, 1, "|cffFFBB00Set APL Mode to use.")
@@ -86,7 +87,7 @@ local function createOptions()
         ------------------------
         ---   DPS SETTINGS   ---
         ------------------------
-       section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. DPS Config")
+       section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DPS" .. ".:|:. " ..colorBlue .. " DPS Settings")
         -- Evocation Mana Percent
         br.ui:createSpinnerWithout(section, "Evocation Mana Percent", 25, 1, 100, 1, "|cffFFBB00Min. Mana Percent to use Evocation.")
 
@@ -127,7 +128,7 @@ local function createOptions()
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile, colorBlue .. "CDs" .. ".:|:. " ..colorBlue .. " Cooldowns")
         -- Cooldowns Time to Die limit
         br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
 
@@ -152,7 +153,7 @@ local function createOptions()
         ------------------------
         --- Defensive OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Defensive")
+            section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DEF" .. ".:|:. " ..colorBlue .. " Defensive")
         -- Healthstone
         br.ui:createSpinner(section, "Pot/Stoned", 45, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
@@ -183,7 +184,7 @@ local function createOptions()
         -- ------------------------
         -- ---     ESSENCES     ---
         -- ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Essences")
+               section = br.ui:createSection(br.ui.window.profile, colorBlue .. "AZI" .. ".:|:. " ..colorBlue .. " Essences")
         -- Essences Usage
         br.ui:createDropdownWithout(section, "Use Essences", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use Essences.")
         -- Focused Azerite Beam
@@ -269,7 +270,7 @@ local function runRotation()
         local cl                                            = br.read
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
-        local inCombat                                      = isInCombat("player")
+        local inCombat                                      = br.player.inCombat
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
@@ -326,7 +327,6 @@ local function runRotation()
         enemies.get(10, "target", true)
         enemies.get(40, nil, nil, nil, spell.arcaneBlast)
 
-
         local dispelDelay = 1.5
         if isChecked("Dispel delay") then
             dispelDelay = getValue("Dispel delay")
@@ -337,22 +337,19 @@ local function runRotation()
         end
         if leftCombat == nil then leftCombat = GetTime() end
 
-        local ccMaxStack = 3
-       --variable,name=aoe_totm_charges,op=set,value=2
-        local var_prepull_evo
-        local var_rs_max_delay = 5
-        local var_ap_max_delay = 10
-        local var_rop_max_delay = 20
-        local var_totm_max_delay = 5
-        local var_barrage_mana_pct = 90
-        local var_ap_minimum_mana_pct = 30
-        local var_aoe_totm_charges 
-        local var_init = false
-        local RadiantSparlVulnerabilityMaxStack = 4
-        local ClearCastingMaxStack = 3
-
-        ArcaneOpener = {}
-        local ArcaneOpener = ArcaneOpener
+        local var = {}
+        var.ccMaxStack = 3
+        var.var_prepull_evo = true
+        var.var_rs_max_delay = 5
+        var.var_ap_max_delay = 10
+        var.var_rop_max_delay = 20
+        var.var_totm_max_delay = 5
+        -- (80-(mastery_value*100))
+        var.var_barrage_mana_pct = 100
+        var.var_ap_minimum_mana_pct = 15
+        var.var_aoe_totm_charges = 2
+        var.RadiantSparlVulnerabilityMaxStack = 4
+        var.ClearCastingMaxStack = 3
 
                 
     --blizzard check
@@ -363,47 +360,6 @@ local function runRotation()
             aoeUnits = aoeUnits + 1
         end
     end
-  --varia
-  --variable,name=prepull_evo,op=set,value=0
-  --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&active_enemies>2
-  --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&covenant.necrolord.enabled&active_enemies>1
-  --variable,name=prepull_evo,op=set,value=1,if=runeforge.siphon_storm.equipped&covenant.night_fae.enabled
-  -- NYI legendaries
-  var_prepull_evo = false
-  --variable,name=have_opened,op=set,value=0
-  --variable,name=have_opened,op=set,value=1,if=active_enemies>2
-  --variable,name=have_opened,op=set,value=1,if=variable.prepull_evo=1
-  --variable,name=rs_max_delay,op=set,value=5
-  var_rs_max_delay = 5
-  --variable,name=ap_max_delay,op=set,value=10
-  var_ap_max_delay = 10
-  --variable,name=rop_max_delay,op=set,value=20
-  var_rop_max_delay = 20
-  
-  --variable,name=totm_max_delay,op=set,value=3,if=runeforge.disciplinary_command.equipped
-  --variable,name=totm_max_delay,op=set,value=15,if=conduit.arcane_prodigy.enabled&active_enemies<3
-  --variable,name=totm_max_delay,op=set,value=30,if=essence.vision_of_perfection.minor
-  -- NYI legendaries, conduit, essence
-  --if covenant~= "Night Fae" then
-    --variable,name=totm_max_delay,op=set,value=15,if=covenant.night_fae.enabled
- --   var_totm_max_delay = 15
- -- else
-    --variable,name=totm_max_delay,op=set,value=5
-    var_totm_max_delay = 5
- -- end
-  --variable,name=barrage_mana_pct,op=set,value=90
-  --variable,name=barrage_mana_pct,op=set,value=80,if=covenant.night_fae.enabled
-
-    var_barrage_mana_pct = 90
-  --variable,name=ap_minimum_mana_pct,op=set,value=30
-  --variable,name=ap_minimum_mana_pct,op=set,value=50,if=runeforge.disciplinary_command.equipped
-  --variable,name=ap_minimum_mana_pct,op=set,value=50,if=runeforge.grisly_icicle.equipped
-  -- NYI legendaries
-  var_ap_minimum_mana_pct = 30
-  --variable,name=aoe_totm_charges,op=set,value=2
-  var_aoe_totm_charges = 2
-
-  var_init = true
 
    -- spellqueue ready
     local function spellQueueReady()
@@ -852,9 +808,9 @@ local function actionList_Leveling()
         if cast.able.arcaneExplosion() 
         and getDistance("target") <= 10 
         and manaPercent > 30 
-        and aoeUnits >= getOptionValue("Arcane Explosion Units") 
+        and #enemies.yards10t >= getOptionValue("Arcane Explosion Units") 
         then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion)) return true
+            if cast.arcaneExplosion("player","aoe", 3, 10) then return true end
         end
 
         -- Arcane Blast
@@ -877,7 +833,7 @@ local function actionList_Extras()
         end
 
         --Prismatic Barrier
-        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") and not buff.prismaticBarrier.exists("player") then
+        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") and not buff.prismaticBarrier.exists("player") and not IsMounted() and not IsFlying() then
             if cast.prismaticBarrier("player") then
                 return true
             end
@@ -1105,7 +1061,7 @@ local function actionList_Cooldowns()
     if cast.able.touchOfTheMagi()
     and arcaneCharges <= 2
     and not talent.runeofPower
-    and cd.arcanePower.remain() > var_ap_max_delay
+    and cd.arcanePower.remain() > var.var_ap_max_delay
     then
         if cast.touchOfTheMagi() then return true end 
     end
@@ -1124,10 +1080,10 @@ local function actionList_Cooldowns()
     if cast.able.arcanePower() and not talent.enlightened
     or talent.enlightened
     and manaPercent >= 70
-    and cd.touchOfTheMagi.remain() > var_rop_max_delay
+    and cd.touchOfTheMagi.remain() > var.var_rop_max_delay
     and arcaneCharges > 3
     and not buff.runeofPower.exists()
-    and manaPercent >= var_ap_minimum_mana_pct
+    and manaPercent >= var.var_ap_minimum_mana_pct
     then
         if cast.arcanePower() then return true end
     end
@@ -1138,7 +1094,7 @@ local function actionList_Cooldowns()
     and not moving
     and cast.timeSinceLast.arcanePower() >= 15 or not cast.able.arcanePower() and not buff.runeofPower.exists()
     and not buff.runeofPower.exists()
-    and cd.touchOfTheMagi.remain() > var_rop_max_delay
+    and cd.touchOfTheMagi.remain() > var.var_rop_max_delay
     and arcaneCharges > 3
     and cd.arcanePower.remain() > 15
     or debuff.touchoftheMagi.exists("target")
@@ -1283,11 +1239,11 @@ local function actionList_AoE()
     --|(!talent.rune_of_power.enabled&cooldown.arcane_power.remains>variable.totm_max_delay)|cooldown.arcane_power.remains<=gcd)
     if cast.able.touchOfTheMagi()
     and not moving
-    and (arcaneCharges <= var_aoe_totm_charges
+    and (arcaneCharges <= var.var_aoe_totm_charges
     and talent.runeofPower
     and cd.runeofPower.remain() <= gcdMax 
-    and cd.arcanePower.remain() > var_totm_max_delay)
-    or (talent.runeofPower and cd.arcanePower.remain() > var_totm_max_delay)
+    and cd.arcanePower.remain() > var.var_totm_max_delay)
+    or (talent.runeofPower and cd.arcanePower.remain() > var.var_totm_max_delay)
     or cd.arcanePower.remain() <= gcdMax
     then
         if cast.touchOfTheMagi() then br.addonDebug("[Action:AoE] Touch of the Magi (5)") return true end 
@@ -1295,10 +1251,10 @@ local function actionList_AoE()
 
     --actions.aoe+=/arcane_power,if=((cooldown.touch_of_the_magi.remains>variable.ap_max_delay&buff.arcane_charge.stack=buff.arcane_charge.max_stack)|(cooldown.touch_of_the_magi.remains=0&buff.arcane_charge.stack<=variable.aoe_totm_charges))&buff.rune_of_power.down
     if cast.able.arcanePower()
-    and ((cd.touchOfTheMagi.remain() > var_ap_max_delay
+    and ((cd.touchOfTheMagi.remain() > var.var_ap_max_delay
     and arcaneCharges > 3))
     or ((cd.touchOfTheMagi.remain() == 0 
-    and arcaneCharges <= var_aoe_totm_charges))
+    and arcaneCharges <= var.var_aoe_totm_charges))
     and not buff.arcanePower.exists()
     then
         if cast.arcanePower() then br.addonDebug("[Action:AoE] Arcane Power (6)") return true end 
@@ -1313,7 +1269,7 @@ local function actionList_AoE()
     and ((cd.touchOfTheMagi.remain() > 20 
     and arcaneCharges > 3))
     or ((cd.touchOfTheMagi.remain() == 0
-    and arcaneCharges <= var_aoe_totm_charges
+    and arcaneCharges <= var.var_aoe_totm_charges
     and cd.arcanePower.remain() > 15
     or debuff.touchoftheMagi.exists("target")))
     then
@@ -1386,10 +1342,10 @@ local function actionList_AoE()
     if cast.able.arcaneExplosion()
     and getDistance("target") <= 10
     and arcaneCharges > 3
-    and aoeUnits >= ui.value("Arcane Explosion Units")
+    and #enemies.yards10t >= ui.value("Arcane Explosion Units")
    -- or not ui.checked("Arcane Explosion Units")
     then
-        if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
+        if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
     end
 
     --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&prev_gcd.1.arcane_barrage
@@ -1397,10 +1353,10 @@ local function actionList_AoE()
     and getDistance("target") <= 10
     and arcaneCharges > 3
     and cast.last.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
-    and aoeUnits >= ui.value("Arcane Explosion Units")
+    and #enemies.yards10t >= ui.value("Arcane Explosion Units")
     --or not ui.checked("Arcane Explosion Units")
     then
-        if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
+        if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
     end
 
     --actions.aoe+=/arcane_barrage,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack
@@ -1654,7 +1610,7 @@ local function actionList_Rotation()
     --actions.rotation+=/arcane_missiles,if=buff.clearcasting.react&buff.clearcasting.stack=buff.clearcasting.max_stack,chain=1
     if cast.able.arcaneMissiles() 
     and buff.clearcasting.exists() 
-    and buff.clearcasting.stack() == ccMaxStack 
+    and buff.clearcasting.stack() == var.ccMaxStack 
     then
         if cast.arcaneMissiles() then br.addonDebug("Casting Arcane Missiles (clearcasting max stack)") return true end
     end
@@ -1704,7 +1660,7 @@ local function actionList_Rotation()
     end
 
     -- actions.rotation+=/arcane_barrage,if=mana.pct<variable.barrage_mana_pct&cooldown.evocation.remains>0&buff.arcane_power.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&essence.vision_of_perfection.minor
-    if cast.able.arcaneBarrage() and manaPercent < var_barrage_mana_pct and cd.evocation.remain() <= gcdMax and not buff.arcanePower.exists() and arcaneCharges > 3 then
+    if cast.able.arcaneBarrage() and manaPercent < var.var_barrage_mana_pct and cd.evocation.remain() <= gcdMax and not buff.arcanePower.exists() and arcaneCharges > 3 then
        if cast.arcaneBarrage() then br.addonDebug("[Mode:Rotation] Arcane Barrage 1") return true end 
     end
 
@@ -1714,7 +1670,7 @@ local function actionList_Rotation()
     end
 
     -- actions.rotation+=/arcane_barrage,if=mana.pct<=variable.barrage_mana_pct&buff.arcane_power.down&buff.rune_of_power.down&debuff.touch_of_the_magi.down&buff.arcane_charge.stack=buff.arcane_charge.max_stack&cooldown.evocation.remains>0
-    if cast.able.arcaneBarrage() and manaPercent < var_barrage_mana_pct and not buff.arcanePower.exists() and not buff.arcanePower.exists() 
+    if cast.able.arcaneBarrage() and manaPercent < var.var_barrage_mana_pct and not buff.arcanePower.exists() and not buff.arcanePower.exists() 
     and not debuff.touchoftheMagi.exists("target") and arcaneCharges > 3 and cd.evocation.remain() > 0 then
         if cast.arcaneBarrage() then br.addonDebug("[Mode:Rotation] Arcane Barrage 3") return true end 
     end

@@ -245,11 +245,11 @@ function br:loadUnlockerAPI()
         -- GetKeyState = function() return false end
         unlocked = false
     end
-    -- Set Spell Queue Window to 0
-    if class ~= 8 then
-        if unlocked and br.prevQueueWindow ~= 0 then RunMacroText("/console SpellQueueWindow 0") end
-    else
+    -- Set Spell Queue Window 
+    if class == 8 or class == 9 then
         if unlocked and br.prevQueueWindow ~= 400 then RunMacroText("/console SpellQueueWindow 400") end
+    else
+        if unlocked and br.prevQueueWindow ~= 0 then RunMacroText("/console SpellQueueWindow 0") end
     end
     return unlocked
 end

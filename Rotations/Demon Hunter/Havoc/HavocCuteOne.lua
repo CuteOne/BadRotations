@@ -346,7 +346,7 @@ actionList.Cooldowns = function()
             end
         end
         -- sinful_brand,if=!dot.sinful_brand.ticking
-        -- the_hunt
+        -- the_hunt,if=!talent.demonic.enabled&!variable.waiting_for_momentum|buff.furious_gaze.up
         -- fodder_to_the_flame
         -- elysian_decree
         -- Potion
@@ -416,27 +416,27 @@ actionList.EssenceBreak = function()
     if cast.able.essenceBreak() and fury >= 80 and (cd.bladeDance.ready() or not var.bladeDance) then
         if cast.essenceBreak() then ui.debug("Casting Essence Break") return true end
     end
-    if buff.essenceBreak.exists() then
+    if debuff.essenceBreak.exists(units.dyn5) then
         if var.bladeDance then
             -- Death Sweep
             -- death_sweep,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.deathSweep() and var.onMeta and buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
+            if cast.able.deathSweep() then
                 if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep [Essence Break]") return true end
             end
             -- Blade Dance
             -- blade_dance,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.bladeDance() and not var.onMeta and not buff.metamorphosis.exists() and var.bladeDance and buff.essenceBreak.exists() then
+            if cast.able.bladeDance() then
                 if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance [Essence Break]") return true end
             end
         end
         -- Annihilation
         -- annihilation,if=debuff.essence_break.up
-        if cast.able.annihilation() and var.onMeta and buff.metamorphosis.exists() then
+        if cast.able.annihilation() then
             if cast.annihilation() then ui.debug("Casting Annihilation [Essence Break]") return true end
         end
         -- Chaos Strike
         -- chaos_strike,if=debuff.essence_break.up
-        if cast.able.chaosStrikle() and not buff.metamorphosis.exists() then
+        if cast.able.chaosStrike() then
             if cast.chaosStrike() then ui.debug("Casting Chaos Strike [Essence Break]") return true end
         end
     end
@@ -537,12 +537,12 @@ actionList.Demonic = function()
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and var.bladeDance then
+    if cast.able.deathSweep() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
         if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep") return true end
     end
     -- Glaive Tempest
     -- glaive_tempest,if=active_enemies>desired_targets|raid_event.adds.in>10
-    if cast.able.glaiveTempest() and ((ui.mode.rotation == 1 and #enemeies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
+    if cast.able.glaiveTempest() and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
     -- Throw Glaive
@@ -561,7 +561,7 @@ actionList.Demonic = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-    if cast.able.bladeDance() and not var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
+    if cast.able.bladeDance() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
         and (cd.metamorphosis.remain() > gcd or not ui.useCDs() or not ui.checked("Metamorphosis"))
         and ((cd.eyeBeam.remain() > gcd) or ui.mode.eyeBeam == 2)
     then
@@ -574,7 +574,7 @@ actionList.Demonic = function()
     end
     -- Annihilation
     -- annihilation,if=!variable.pooling_for_blade_dance
-    if cast.able.annihilation() and var.onMeta and buff.metamorphosis.exists() and not var.poolForBladeDance then
+    if cast.able.annihilation() and not var.poolForBladeDance then
         if cast.annihilation() then ui.debug("Casting Annihilation") return true end
     end
     -- Felblade
@@ -584,7 +584,7 @@ actionList.Demonic = function()
     end
     -- Chaos Strike
     -- chaos_strike,if=!variable.pooling_for_blade_dance&!variable.pooling_for_eye_beam
-    if cast.able.chaosStrike() and not var.onMeta and not var.poolForBladeDance and not var.poolForEyeBeam then
+    if cast.able.chaosStrike() and not var.poolForBladeDance and not var.poolForEyeBeam then
         if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end
     end
     -- Fel Rush
@@ -660,7 +660,7 @@ actionList.Normal = function()
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and var.bladeDance then
+    if cast.able.deathSweep() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
         if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep") return true end
     end
     -- Immolation Aura
@@ -671,7 +671,7 @@ actionList.Normal = function()
     -- Glaive Tempest
     -- glaive_tempest,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>10)
     if cast.able.glaiveTempest() and not var.waitingForMomentum
-        and ((ui.mode.rotation == 1 and #enemeies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
+        and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
     then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
@@ -689,7 +689,7 @@ actionList.Normal = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
-    if cast.able.bladeDance() and not var.onMeta and not unit.isExplosive("target") and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and var.bladeDance then
+    if cast.able.bladeDance() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
         if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance") return true end
     end
     -- Felblade
@@ -707,14 +707,14 @@ actionList.Normal = function()
     end
     -- Annihilation
     -- annihilation,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance&!variable.waiting_for_essence_break
-    if cast.able.annihilation() and var.onMeta and buff.metamorphosis.exists() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30 or buff.metamorphosis.remain() < 5)
+    if cast.able.annihilation() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30 or buff.metamorphosis.remain() < 5)
         and not var.poolForBladeDance and not var.waitingForEssenceBreak
     then
         if cast.annihilation() then ui.debug("Casting Annihilation") return true end
     end
     -- Chaos Strike
     -- chaos_strike,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30)&!variable.pooling_for_meta&!variable.pooling_for_blade_dance&!variable.waiting_for_dark_slash
-    if cast.able.chaosStrike() and not var.onMeta and not buff.metamorphosis.exists() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30)
+    if cast.able.chaosStrike() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30)
         and not var.poolForMeta and not var.poolForBladeDance and not var.waitingForEssenceBreak
     then
         if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end
@@ -881,8 +881,6 @@ local function runRotation()
     var.inMythic                                    = select(3,GetInstanceInfo())==23
     var.inRaid                                      = unit.instance=="raid"
     var.solo                                        = #br.friend == 1
-
-    var.onMeta                                      = buff.metamorphosis.exists()
 
     units.get(5)
     units.get(8)

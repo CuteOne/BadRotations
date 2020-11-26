@@ -545,10 +545,12 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
     -- Invalid Spell ID Check
 	if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
     local spellCast = spellID
-	local spellName,_,icon,castTime,minRange,maxRange = GetSpellInfo(spellID)
 	local baseSpellID = FindBaseSpellByID(spellID)
+	local overrideSpellID = FindSpellOverrideByID(spellID)
 	local baseSpellName = GetSpellInfo(baseSpellID)
+	local spellName,_,icon,castTime,minRange,maxRange = GetSpellInfo(spellID)
 	local spellType = getSpellType(baseSpellName)
+	if maxRange == 0 then _,_,_,_,minRange,maxRange = GetSpellInfo(baseSpellID) end
 	-- Quaking helper - M+ Affix
 	if getOptionCheck("Quaking Helper") then
 		--Detect channels
@@ -615,9 +617,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCast.tracker[1] ~= spellID)
 	end
 	-- Base Spell Availablility Check
-	if IsUsableSpell(spellID) --[[not select(2,IsUsableSpell(spellID))]] and getSpellCD(spellID) == 0 and (getSpellCD(61304) == 0 or select(2,GetSpellBaseCooldown(spellID)) == 0)
-		and (isKnown(spellID) or debug == "known") and not IsCurrentSpell(spellID) and not isCastingSpell(spellID,"player")
-		and hasTalent(spellID) and hasEssence() and queensCourtCastCheck(spellID)--and not isIncapacitated(spellID)
+	if (baseSpellID == spellID or overrideSpellID == spellID) and IsUsableSpell(spellID) and not select(2,IsUsableSpell(spellID)) -- Usability Checks
+		and getSpellCD(spellID) == 0 and (getSpellCD(61304) == 0 or select(2,GetSpellBaseCooldown(spellID)) == 0) -- Cooldown Checks
+		and (isKnown(spellID) or debug == "known") and not IsCurrentSpell(spellID) and not isCastingSpell(spellID,"player") -- Known/Current Checks
+		and hasTalent(spellID) and hasEssence() and not isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
 	then
 		local function printReport(debugOnly)
 			if ((isChecked("Display Failcasts") and not debugOnly) or isChecked("Cast Debug")) and debug ~= "debug" and thisUnit ~= "None" then

@@ -1,7 +1,7 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList="87318|122984|128455|129553|129552|129602|130400|133935|134174|134158|137474|137478|137486|137487|134251|134331|137484|134739|137969|135231|138489|134144|136214|134150|136249|134417|136353|136295|136297|129369|129373|128969|138255|138465|135245|134991|139422|136076|134691|139110|136250|139946|130485|136139|136643|134012|133430|133463|133436|133482|131436|133912|138281|130025|131677|135329|131812|131670|135365"
-local StunSpellList="274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
-local HoJPrioList = "131009|134388|129758"
+local StunsBlackList=""
+local StunSpellList=""
+local HoJPrioList = ""
 ---------------
 --- Toggles ---
 ---------------
@@ -61,6 +61,8 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Automatic Aura replacement")
 		-- Taunt
 		br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
+		-- infinite Divine Steed
+		br.ui:createDropdown(section, "infinite Divine Steed key", br.dropOptions.Toggle, 6)
 		br.ui:checkSectionState(section)
 		------------------------
 		--- COOLDOWN OPTIONS ---
@@ -121,12 +123,10 @@ local function createOptions()
 		-- Blessing Of Sacrifice
 		br.ui:createSpinner(section, "Blessing Of Sacrifice", 40, 0, 100, 5, "","Health Percentage to use at")
 		br.ui:createDropdownWithout(section, "Blessing Of Sacrifice Target", {"|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 6, "|cffFFFFFFTarget for Blessing Of Sacrifice")
-		-- Shield of the Righteous
-		-- br.ui:createSpinner(section, "Shield of the Righteous - HP", 60, 0 , 100, 5, "|cffFFBB00Health Percentage to use at")
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
 		-- Unstable Temporal Time Shifter
-		br.ui:createDropdown(section, "Unstable Temporal Time Shifter", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
+		-- br.ui:createDropdown(section, "Unstable Temporal Time Shifter", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -147,6 +147,8 @@ local function createOptions()
 		--- ROTATION OPTIONS ---
 		------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Rotation Options")
+		-- Divine Toll
+		br.ui:createSpinner(section, "Divine Toll",  3,  1,  5,  1,  "|cffFFBB00Units to use Divine Toll.")
 		-- Avenger's Shield
 		br.ui:createCheckbox(section,"Avenger's Shield")
 		-- Consecration
@@ -280,6 +282,25 @@ local function runRotation()
 	for i in string.gmatch(getOptionValue("HoJ Prio Units"), "%d+") do
 		HoJList[tonumber(i)] = true
 	end
+	-- infinite Divine Steed
+	if isChecked("infinite Divine Steed key") and (SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
+		if not IsHackEnabled("talents") then
+			RunMacroText(".talents 1")
+		end
+		if getBuffRemain("player", 254474) <= 0.5 then
+			if not IsAddOnLoaded("Blizzard_TalentUI") and not UnitAffectingCombat("player") then
+				LoadAddOn("Blizzard_TalentUI")
+			end
+			PlayerTalentFrame:Show()
+			PlayerTalentFrame:Hide()
+			RunMacroText("/click PlayerTalentFrameTab2")
+			if IsResting() then
+				RunMacroText("/click PlayerTalentFrameTalentsTalentRow4Talent1")
+			end
+			RunMacroText("/click PlayerTalentFrameTalentsTalentRow4Talent2")
+			if cast.divineSteed() then return end
+		end
+	end
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -318,45 +339,6 @@ local function runRotation()
 		end
 	end -- End Action List - Extras
 	local function BossEncounterCase()
-		local hammerOfJusticeCase = nil
-		local blessingOfFreedomCase = nil
-		local blessingOfProtectionCase = nil
-		local cleanseToxinsCase = nil
-		local cleanseToxinsCase2 = nil
-		for i = 1, #br.friend do
-			if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit,272407) == 0 and getDistance(br.friend[i].unit) <= 10 then
-				hammerOfJusticeCase = br.friend[i].unit
-			end
-			if getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
-				blessingOfFreedomCase = br.friend[i].unit
-			end
-			if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,258875) ~= 0 then
-				blessingOfProtectionCase = br.friend[i].unit
-			end
-			if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 or getDebuffRemain(br.friend[i].unit,278961) ~= 0 then
-				cleanseToxinsCase = br.friend[i].unit
-			end
-			if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,7) < 2 then
-				cleanseToxinsCase2 = br.friend[i].unit
-			end
-		end
-		-- Automatic catch the pig
-		bossHelper()
-		-- Avoid indigestion
-		if UnitCastingInfo("target") == GetSpellInfo(260793) then
-			if not buff.divineSteed.exists() then
-				if CastSpellByName(GetSpellInfo(190784),"player") then return end
-			end
-		end
-		-- Flash of Light
-		if GetObjectID("target") == 133392 and inCombat then
-			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
-				if CastSpellByName(GetSpellInfo(19750),"target") then return end
-			end
-		end
-		if getDebuffRemain("target",260741) ~= 0 then
-			if CastSpellByName(GetSpellInfo(19750),"target") then return end
-		end
 		-- Hammer of Justice
 		if cast.able.hammerOfJustice() then
 			for i = 1, #enemies.yards10 do
@@ -365,68 +347,7 @@ local function runRotation()
 					if cast.hammerOfJustice(thisUnit) then return end
 				end
 			end
-			if hammerOfJusticeCase ~= nil then
-				if cast.hammerOfJustice(hammerOfJusticeCase) then return end
-			end
 		end
-		-- Blessing of Freedom
-		if cast.able.blessingOfFreedom() then
-			if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 or getDebuffRemain("player",257478) ~= 0 then
-				if cast.blessingOfFreedom("player") then return end
-			end
-			if blessingOfFreedomCase ~= nil then
-				if cast.blessingOfFreedom(blessingOfFreedomCase) then return end
-			end
-		end
-		-- Blessing of Protection
-		if blessingOfProtectionCase ~= nil and not talent.blessingOfSpellwarding and cast.able.blessingOfProtection() then
-			if cast.blessingOfProtection(blessingOfProtectionCase) then return end
-		end
-		-- Cleanse Toxins
-		if cast.able.cleanseToxins() then
-			if cleanseToxinsCase ~= nil then
-				if cast.cleanseToxins(cleanseToxinsCase) then return end
-			end
-			if cleanseToxinsCase2 ~= nil then
-				if cast.cleanseToxins(cleanseToxinsCase2) then return end
-			end
-		end
-		-- Shield of the Righteous
-		-- local Debuff={
-		-- -- debuff_id
-		-- {255434},
-		-- {265881},
-		-- {264556},
-		-- {270487},
-		-- {274358},
-		-- {270447},
-		-- }
-		-- for i=1 , #Debuff do
-		-- local debuff_id = Debuff[i]
-		-- if getDebuffRemain("player",debuff_id) > 1 and not buff.shieldOfTheRighteous.exists() then
-		-- if CastSpellByName(GetSpellInfo(53600)) then return end
-		-- end
-		-- end
-		-- local Casting={
-		-- -- spell_id	, spell_name
-		-- {267899, 'Hindering Cleave'}, -- Shrine of the Storm
-		-- {272457, 'Shockwave'}, -- Underrot
-		-- {260508, 'Crush'}, -- Waycrest Manor
-		-- {249919, 'Skewer'}, -- Atal'Dazar
-		-- {265910, 'Tail Thrash'}, -- King's Rest
-		-- {268586, 'Blade Combo'}, -- King's Rest
-		-- {262277, 'Terrible Thrash'}, -- Fetid Devourer
-		-- {265248, 'Shatter'}, -- Zek'voz
-		-- {273316, 'Bloody Cleave'}, -- Zul, Reborn
-		-- {273282, 'Essence Shear'}, -- Mythrax the Unraveler
-		-- }
-		-- for i=1 , #Casting do
-		-- local spell_id = Casting[i][1]
-		-- local spell_name = Casting[i][2]
-		-- if UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists() then
-		-- if CastSpellByName(GetSpellInfo(53600)) then Print("damage reduction in advance..."..spell_name) return end
-		-- end
-		-- end
 	end
 	-- Action List - Defensives
 	local function actionList_Defensive()
@@ -492,7 +413,7 @@ local function runRotation()
 					if getHP("mouseover") <= getValue("Lay On Hands") then
 						if cast.layOnHands("mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and getDebuffRemain(lowestUnit,267037) == 0 and not debuff.forbearance.exists(lowestUnit) then
+				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if getOptionValue("Lay on Hands Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -575,7 +496,7 @@ local function runRotation()
 					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
 						if cast.blessingOfSacrifice("mouseover") then return end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and getDebuffRemain(lowestUnit,267037) == 0 and not cast.last.blessingOfProtection() then
+				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and not cast.last.blessingOfProtection() then
 					-- Tank
 					if getOptionValue("Blessing Of Sacrifice Target") == 3 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -605,7 +526,7 @@ local function runRotation()
 			-- Cleanse Toxins
 			if isChecked("Clease Toxin") and cast.able.cleanseToxins() then
 				if getOptionValue("Clease Toxin")==1 then
-					if canDispel("player",spell.cleanseToxins) and getDebuffRemain("player",261440) == 0 then
+					if canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return end
 					end
 				elseif getOptionValue("Clease Toxin")==2 then
@@ -613,9 +534,9 @@ local function runRotation()
 						if cast.cleanseToxins("target") then return end
 					end
 				elseif getOptionValue("Clease Toxin")==3 then
-					if canDispel("player",spell.cleanseToxins) and getDebuffRemain("player",261440) == 0 then
+					if canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return end
-					elseif canDispel("target",spell.cleanseToxins) and getDebuffRemain("target",261440) == 0 then
+					elseif canDispel("target",spell.cleanseToxins) then
 						if cast.cleanseToxins("target") then return end
 					end
 				elseif getOptionValue("Clease Toxin")==4 then
@@ -624,7 +545,7 @@ local function runRotation()
 					end
 				elseif getOptionValue("Clease Toxin")==5 then
 					for i = 1, #br.friend do
-						if canDispel(br.friend[i].unit,spell.cleanseToxins) and getDebuffRemain(br.friend[i].unit,261440) == 0 then
+						if canDispel(br.friend[i].unit,spell.cleanseToxins) then
 							if cast.cleanseToxins(br.friend[i].unit) then return end
 						end
 					end
@@ -634,13 +555,6 @@ local function runRotation()
 			if isChecked("Blinding Light - HP") and cast.able.blindingLight() and talent.blindingLight and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
 				if cast.blindingLight() then return end
 			end
-			-- Shield of the Righteous
-			-- if isChecked("Shield of the Righteous - HP") and cast.able.shieldOfTheRighteous() then
-			-- if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists() then
-			-- if cast.shieldOfTheRighteous() then return end
-			-- end
-			-- end
-			-- Guardian of Ancient Kings
 			if isChecked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
 				if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
 					if cast.guardianOfAncientKings() then return end
@@ -681,23 +595,23 @@ local function runRotation()
 				end
 			end
 			-- Unstable Temporal Time Shifter
-			if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not isMoving("player") and inCombat then
-				if getOptionValue("Unstable Temporal Time Shifter") == 1
-					and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
-					UseItemByName(158379,"target")
-				end
-				if getOptionValue("Unstable Temporal Time Shifter") == 2
-					and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
-					UseItemByName(158379,"mouseover")
-				end
-				if getOptionValue("Unstable Temporal Time Shifter") == 3 then
-					for i =1, #br.friend do
-						if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
-							UseItemByName(158379,br.friend[i].unit)
-						end
-					end
-				end
-			end
+			-- if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not isMoving("player") and inCombat then
+				-- if getOptionValue("Unstable Temporal Time Shifter") == 1
+					-- and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+					-- UseItemByName(158379,"target")
+				-- end
+				-- if getOptionValue("Unstable Temporal Time Shifter") == 2
+					-- and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+					-- UseItemByName(158379,"mouseover")
+				-- end
+				-- if getOptionValue("Unstable Temporal Time Shifter") == 3 then
+					-- for i =1, #br.friend do
+						-- if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+							-- UseItemByName(158379,br.friend[i].unit)
+						-- end
+					-- end
+				-- end
+			-- end
 		end
 	end -- End Action List - Defensive
 	-- Action List - Cooldowns
@@ -807,7 +721,7 @@ local function runRotation()
 	---------------------
 	--- Begin Profile ---
 	---------------------
-	if isChecked("Automatic Aura replacement") then
+	if isChecked("Automatic Aura replacement") and not castingUnit() then
 		if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
 			if CastSpellByName(GetSpellInfo(465)) then return end
 		elseif not buff.crusaderAura.exists() and IsMounted() then
@@ -868,12 +782,16 @@ local function runRotation()
 				if isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 then
 					if cast.avengersShield(units.dyn30) then return end
 				end
+				-- Divine Toll
+				if isChecked("Divine Toll") and cast.able.divineToll() and (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) then
+					if cast.divineToll(units.dyn30) then return end
+				end
 				-- Judgment
 				if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) then
 					if cast.judgment(units.dyn30) then return end
 				end
 				-- Hammer of Wrath
-				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()))then
+				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()) or getBuffRemain("player", 345693) ~= 0)then
 					if cast.hammerOfWrath(units.dyn30) then return end
 				end
 				-- Avenger's Shield

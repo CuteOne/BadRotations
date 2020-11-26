@@ -88,7 +88,7 @@ local function createOptions()
     return optionTable
 end
 
-----------------
+---------------- -
 --- ROTATION ---
 ----------------
 local function runRotation()

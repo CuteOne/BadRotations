@@ -470,6 +470,8 @@ actionList.Cooldowns = function()
     if ui.alwaysCdNever("Shield of Vengeance - CD") and cast.able.shieldOfVengeance() and unit.ttdGroup(8) > 15 then
         if cast.shieldOfVengeance() then ui.debug("Casting Shield of Vengeance [CD]") return true end
     end
+    -- Blessing of the Seasons
+    -- blessing_of_the_seasons
     -- Trinkets
     module.BasicTrinkets()
     -- -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(buff.avenging_wrath.remains>=20|buff.crusade.stack=10&buff.crusade.remains>15)&(cooldown.guardian_of_azeroth.remains>90|target.time_to_die<30|!essence.condensed_lifeforce.major)                
@@ -588,7 +590,7 @@ actionList.Finisher = function()
         and (not talent.executionSentence or cd.executionSentence.remains() < 10)
         and var.timeToHPG == 0
     then
-        if cast.serphim() then ui.debug("Casting Seraphim") return true end
+        if cast.seraphim() then ui.debug("Casting Seraphim") return true end
     end
     -- Vanquisher's Hammer
     -- vanquishers_hammer,if=(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10|debuff.final_reckoning.up)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10|debuff.execution_sentence.up)|spell_targets.divine_storm>=2
@@ -617,7 +619,7 @@ actionList.Finisher = function()
         if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
             and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) and not var.dsUnits)
             and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Final Reckoning"))
-                or talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() 
+                or talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists()
                 and buff.crusade.stack() < 10)
         then
             if cast.templarsVerdict() then ui.debug("Casting Templar's Verdict") return true end
@@ -668,7 +670,7 @@ actionList.Generator = function()
     end
     -- Call Action List: Finishers
     -- call_action_list,name=finishers,if=(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up|buff.empyrean_power.up)
-    if (unit.hp(units.dyn5) <= 20 or buff.avengingWrath.exists() or buff.crusade.exists() or buff.empyreanPower.exists()) then
+    if (unit.hp(units.dyn5) <= 20 or buff.avengingWrath.exists() or buff.crusade.exists() or buff.empyreanPower.exists() or buff.divinePurpose.exists()) then
         if actionList.Finisher() then return end
     end
     -- Crusader Strike
