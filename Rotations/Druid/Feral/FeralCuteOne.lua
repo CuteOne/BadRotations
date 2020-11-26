@@ -748,7 +748,7 @@ actionList.Cooldowns = function()
         end
         -- Ravenous Frenzy
         -- ravenous_frenzy,if=buff.bs_inc.up|fight_remains<21
-        if cast.able.revenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup() < 21 and ui.useCDs())) then
+        if cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup() < 21 and ui.useCDs())) then
             if cast.ravenousFrenzy() then ui.debug("Casting Ravenous Frenzy [Venthyr]") return true end
         end
         -- Convoke the Spirits

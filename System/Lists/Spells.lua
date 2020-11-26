@@ -994,6 +994,7 @@ br.lists.spells = {
             covenants                       = {
                 adaptiveSwarm               = 325727,
                 convokeTheSpirits           = 323764,
+                kindredSpirits              = 326434,
                 ravenousFrenzy              = 323546,
             },
             debuffs                         = {
