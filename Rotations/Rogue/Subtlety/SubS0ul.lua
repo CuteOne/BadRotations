@@ -622,13 +622,13 @@ local function runRotation()
     local function actionList_Cooldowns()
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle"
-        -- if sndCondition == 1 and cast.able.flagellation("target") then -- and not buff.stealthedMantle.exists()
-        --     if cast.flagellation("target") then return true end
-        -- end
+        if sndCondition == 1 and cast.able.flagellation("target") then -- and not buff.stealthedMantle.exists()
+            if cast.flagellation("target") then return true end
+        end
         -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2
-        -- if debuff.flagellation.remain("target") < 2 and cast.able.flagellation("target") then
-        --     if cast.flagellation("target") then return true end
-        -- end
+        if debuff.flagellation.remain("target") < 2 and cast.able.flagellationCleanse("target") then
+            if cast.flagellationCleanse("target") then return true end
+        end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin.equipped&combo_points.deficit<=3|runeforge.deathly_shadows.equipped&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
         -- if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.active and comboDeficit <= 3 or runeforge.deathlyShadows.active and combo < 1) and buff.symbolsOfDeath.exists() and buff.shadowDance.exists() and not buff.masterAssassin.exists() and not buff.deathlyShadows.exists() then
         --     if cast.vanish("player") then return true end
@@ -926,7 +926,7 @@ local function runRotation()
             end
         end
         -- actions.build+=/serrated_bone_spike,if=cooldown.serrated_bone_spike.charges_fractional>=2.75|soulbind.lead_by_example.enabled&!buff.lead_by_example.up
-        if charges.serratedBoneSpike.frac() >= 2.75 or not buff.leadByExample.exists() then
+        if charges.serratedBoneSpike.frac() >= 2.75 then -- or not buff.leadByExample.exists()
             if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
         end
         -- actions.build+=/gloomblade

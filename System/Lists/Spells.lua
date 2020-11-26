@@ -2841,6 +2841,7 @@ br.lists.spells = {
             conduits                        = {
                 echoingReprimand            = 323547,
                 flagellation                = 323654,
+                flagellationCleanse         = 346975,
                 sepsis                      = 328305,
                 serratedBoneSpike           = 328547,
             },
