@@ -324,7 +324,7 @@ function br.loader:new(spec,specName)
         for k,v in pairs(self.spell.conduits) do
             if self.conduit == nil then self.conduit = {} end
             if self.conduit[k] == nil then self.conduit[k] = {} end
-            br.api.conduit(self.conduit[k],k,v)
+            br.api.conduit(self.conduit,k,v)
         end
 
 
@@ -334,11 +334,13 @@ function br.loader:new(spec,specName)
         if self.covenant.venthyr == nil then self.covenant.venthyr = {} end
         if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
         if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
-        for k,v in pairs(self.spell.covenants) do
-            if self.covenant == nil then self.covenant = {} end
-            if self.covenant[k] == nil then self.covenant[k] = {} end
-            br.api.covenant(self.covenant,k)
-        end
+        -- for k,v in pairs(self.spell.covenants) do
+        --     if self.covenant == nil then self.covenant = {} end
+        --     if self.covenant[k] == nil then self.covenant[k] = {} end
+        --     if k ~= nil then
+        --         br.api.covenant(self.covenant,k,v)
+        --     end
+        -- end
         br.api.covenant(self.covenant)
 
         -- Update Power
