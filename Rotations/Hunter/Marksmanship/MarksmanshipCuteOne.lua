@@ -170,7 +170,7 @@ local actionList = {}
 local function alwaysCdNever(option)
     if option == "Racial" then GetSpellInfo(br.player.spell.racial) end
     local thisOption = ui.value(option)
-    return thisOption == 1 or (thisOption == 2 and ui.ui.useCDs())
+    return thisOption == 1 or (thisOption == 2 and ui.useCDs())
 end
 
 --------------------
@@ -288,7 +288,7 @@ actionList.Cooldowns = function()
     -- Double Tap
     -- double_tap,if=cooldown.rapid_fire.remains<gcd|cooldown.rapid_fire.remains<cooldown.aimed_shot.remains|target.time_to_die<20
     if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
-        and (cd.rapidFire.remain() < unit.gcd(true) or cd.rapidFire.remain() < cd.aimedShot.remain() or (unit.ttd(units.dyn40) < 20 and ui.ui.useCDs()))
+        and (cd.rapidFire.remain() < unit.gcd(true) or cd.rapidFire.remain() < cd.aimedShot.remain() or (unit.ttd(units.dyn40) < 20 and ui.useCDs()))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap") return true end
     end
