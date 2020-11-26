@@ -92,14 +92,17 @@ function isIncapacitated(spellID)
 		for i=0,eventIndex do
 			event = C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				if (event.locType == FEAR
-					or event.locType == HORROR
-					or event.locType == STUN
+				if (event.locType == NONE
 					or event.locType == CHARM
-					or event.locType == SLEEP
 					or event.locType == DISORIENT
+					or event.locType == FEAR
+					or event.locType == GRIP
+					or event.locType == HORROR
 					or event.locType == INCAPACITATE
-					or event.locType == GRIP)
+					or event.locType == ROOT
+					or event.locType == SLEEP
+					or event.locType == SNARE
+					or event.locType == STUN)
 					and not canRegainControl(spellID,event.locType)
 				then
 					return true
@@ -208,6 +211,7 @@ function hasNoControl(spellID,unit)
 		for i=0,eventIndex do
 			event = C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
+				-- Print("Event LocType: "..tostring(event.locType).." - LockoutSchool "..tostring(event.lockoutSchool))
 				if canRegainControl(spellID,event.locType) then return true end
 			end
 		end
