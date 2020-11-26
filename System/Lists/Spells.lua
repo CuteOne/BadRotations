@@ -646,6 +646,9 @@ br.lists.spells = {
                 ravenousFrenzy              = 323546,
                 PrimordialArcanicPulsar     = 338668,
             },
+            conduits                        = {
+                loneEmpowerment             = 338142,
+            },
             debuffs                         = {
                 stellarFlare                = 202347,
                 moonfire                    = 164812,
@@ -720,6 +723,9 @@ br.lists.spells = {
                 survivalInstincts           = 61336,
                 tigersFury                  = 5217,
             },
+            conduits                        = {
+                loneEmpowerment             = 338142,
+            },
             debuffs                         = {
                 feralFrenzy                 = 274838,
                 moonfireFeral               = 155625,
@@ -774,6 +780,9 @@ br.lists.spells = {
                 gore    					= 93622,
                 pulverize                   = 158792,
                 survivalInstincts           = 61336,
+            },
+            conduits                        = {
+                loneProtection              = 338018,
             },
             debuffs                         = {
                 moonfireGuardian            = 164812,
@@ -846,6 +855,9 @@ br.lists.spells = {
                 springblossom               = 207386,
                 symbolOfHope                = 64901,
                 fullbloom                   = 290213,
+            },
+            conduits                        = {
+                loneMeditation              = 338035,
             },
             debuffs                         = {
                 moonfire                    = 164812,
@@ -952,6 +964,11 @@ br.lists.spells = {
                 suddenAmbush                = 340698,
                 travelForm                  = 783,
                 wildGrowth                  = 48438,
+            },
+            conduits                        = {
+                adaptiveSwarm               = 325727,
+                convokeTheSpirits           = 323764,
+                ravenousFrenzy              = 323546,
             },
             debuffs                         = {
                 cyclone                     = 33786,
@@ -3838,6 +3855,12 @@ br.lists.spells = {
                 defiledGround                   = 314565,
                 vileCorruption                  = 314392,
                 cascadingTerror                 = 314478,
+            },
+            conduits                            = {
+                doorOfShadows                   = 300728,
+                fleshcraft                      = 331180,
+                soulshape                       = 310143,
+                summonSteward                   = 324739,
             },
             essences                            = {
                 aegisOfTheDeep                  = 298168,
