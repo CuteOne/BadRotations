@@ -3170,6 +3170,7 @@ br.lists.spells = {
                 astralShift                 = 108271,
                 ghostWolf                   = 2645,
                 lightningShield             = 192106,
+                primordialWave              = 327164,
                 waterWalking                = 546,
             },
             conduits                        = {
