@@ -8,7 +8,7 @@ br.api.covenant = function(covenant,k)
         covenant.nightFae.active = activeID == 3
         covenant.necrolord.active = activeID == 4
     end
-    covenant[k].enabled = function()
-        return self.spells.known[k]
-    end
+    -- covenant[k].enabled = function()
+        -- return self.spells.known[k]
+    -- end
 end
