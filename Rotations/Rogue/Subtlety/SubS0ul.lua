@@ -732,10 +732,10 @@ local function runRotation()
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
         if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or not isChecked("Symbols of Death")) and ttd("target") > getOptionValue("CDs TTD Limit") or ttd("target") < 20 then
-            if canUseItem(13) and not (hasEquiped(169311, 13) or hasEquiped(169314, 13) or hasEquiped(159614, 13)) then
+            if canUseItem(13) and not (hasEquiped(169311, 13) or hasEquiped(169314, 13) or hasEquiped(159614, 13) or hasEquiped(184052, 13)) then
                 useItem(13)
             end
-            if canUseItem(14) and not (hasEquiped(169311, 14) or hasEquiped(169314, 14) or hasEquiped(159614, 13)) then
+            if canUseItem(14) and not (hasEquiped(169311, 14) or hasEquiped(169314, 14) or hasEquiped(159614, 14) or hasEquiped(184052, 13)) then
                 useItem(14)
             end
         end
@@ -743,7 +743,7 @@ local function runRotation()
 
     local function actionList_Finishers()
         -- actions.finish=slice_and_dice,if=spell_targets.shuriken_storm<6&!buff.shadow_dance.up&buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
-        if enemies10 < 6 and not buff.shadowDance.exists() and buff.sliceAndDice.remain() < ttd("target") and buff.sliceAndDice.remain() < (1 + combo)*1.8 then
+        if enemies10 < 6 and not buff.shadowDance.exists() and buff.sliceAndDice.remain() < ttd("target") and buff.sliceAndDice.remain() < (1 + combo)*1.8 and not animachargedCP then
             if cast.sliceAndDice("player") then return true end
         end
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
@@ -994,7 +994,7 @@ local function runRotation()
                 end
             end
             --tricks
-            if tricksUnit ~= nil and validTarget and targetDistance < 5 then 
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") > 0 then 
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
