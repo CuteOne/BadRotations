@@ -385,7 +385,7 @@ actionList.TrickShots = function()
     -- end
     -- Aimed Shot
     -- aimed_shot,target_if=min:(dot.serpent_sting.remains<?action.serpent_sting.in_flight_to_target*dot.serpent_sting.duration),if=buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|full_recharge_time<cast_time+gcd|buff.trueshot.up)
-    if cast.able.aimedShot() and not unit.moving("player") and unit.ttd(units.dyn40) > cast.time.aimedShot() and buff.trickShots.exists() >= cast.time.aimedShot()
+    if cast.able.aimedShot() and not unit.moving("player") and unit.ttd(units.dyn40) > cast.time.aimedShot() and buff.trickShots.remains() >= cast.time.aimedShot()
         and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd(true) or buff.trueshot.exists())
     then
         if cast.aimedShot() then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
