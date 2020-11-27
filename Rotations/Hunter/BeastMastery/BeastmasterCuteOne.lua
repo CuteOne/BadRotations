@@ -804,7 +804,7 @@ local function runRotation()
     cd                                 = br.player.cd
     charges                            = br.player.charges
     covenant                           = br.player.covenant
-    conduit                            = br.palyer.conduit
+    conduit                            = br.player.conduit
     debuff                             = br.player.debuff
     enemies                            = br.player.enemies
     module                             = br.player.module
