@@ -989,7 +989,7 @@ br.lists.spells = {
                 wildGrowth                  = 48438,
             },
             conduits                        = {
-
+                deepAllegiance              = 341378,
             },
             covenants                       = {
                 adaptiveSwarm               = 325727,
