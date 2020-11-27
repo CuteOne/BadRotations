@@ -82,8 +82,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 1, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFSelect target to Misdirect to.")
-            -- Heart Essence
-            br.ui:createCheckbox(section,"Use Essence")
+            -- Covenant Ability
+            br.ui:createSpinnerWithout(section,"Covenant Ability", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             -- Opener
             -- br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
@@ -188,7 +188,9 @@ local lowestBarbedShot
 -----------------
 --- Functions ---
 -----------------
-
+local alwaysCdNever = function(option)
+    return ui.value(option) == 1 or (ui.value(option) == 2 and ui.useCDs())
+end
 --------------------
 --- Action Lists ---
 --------------------
@@ -520,16 +522,16 @@ actionList.St = function()
     if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.1 then
         if cast.barbedShot(br.petTarget) then ui.debug("[ST 1] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end
-    -- Tar Trap
-    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
-    end
-    -- Flare
-    -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
-        if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [Soulforge Embers]") var.tarTrapUnit = nil return true end
-    end
+    -- -- Tar Trap
+    -- -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
+    -- if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    --     if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
+    -- end
+    -- -- Flare
+    -- -- flare,if=tar_trap.up&runeforge.soulforge_embers
+    -- if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
+    --     if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [Soulforge Embers]") var.tarTrapUnit = nil return true end
+    -- end
     -- Bloodshed
     -- bloodshed
     if cast.able.bloodshed() then
@@ -537,12 +539,12 @@ actionList.St = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if cast.able.wildSpirits() then
+    if alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if cast.able.flayedShot() then
+    if alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Kill Shot
@@ -560,7 +562,7 @@ actionList.St = function()
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
     end
     -- Stampede
@@ -577,7 +579,7 @@ actionList.St = function()
     end
     -- Resonating Arrow
     -- resonating_arrow,if=buff.bestial_wrath.up|target.time_to_die<10
-    if cast.able.resonatingArrow() and (buff.bestialWrath.exists() or (unit.ttd(units.dyn40) < 10 and ui.useCDs())) then
+    if alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() and (buff.bestialWrath.exists() or (unit.ttd(units.dyn40) < 10 and ui.useCDs())) then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Bestial Wrath
@@ -644,24 +646,24 @@ actionList.Cleave = function()
     then
         if cast.multishot() then ui.debug("Casting Multishot [AOE]") return true end
     end
-    -- Tar Trap
-    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [AOE Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
-    end
-    -- Flare
-    -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
-        if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [AOE Soulforge Embers]") var.tarTrapUnit = nil return true end
-    end
+    -- -- Tar Trap
+    -- -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
+    -- if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    --     if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [AOE Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
+    -- end
+    -- -- Flare
+    -- -- flare,if=tar_trap.up&runeforge.soulforge_embers
+    -- if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
+    --     if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [AOE Soulforge Embers]") var.tarTrapUnit = nil return true end
+    -- end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [AOE Necrolord]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if cast.able.wildSpirits() then
+    if alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [AOE Night Fae]") return true end
     end
     -- Barbed Shot
@@ -677,7 +679,7 @@ actionList.Cleave = function()
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath [AOE]") return true end
     end
     -- Resonating Arrow
-    if cast.able.resonatingArrow() then
+    if alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Stampede
@@ -689,7 +691,7 @@ actionList.Cleave = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if cast.able.flayedShot() then
+    if alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [AOE Venthhyr]") return true end
     end
     -- Kill Shot
