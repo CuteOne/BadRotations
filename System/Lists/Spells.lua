@@ -1105,6 +1105,7 @@ br.lists.spells = {
             artifacts                       = {
             },
             buffs                           = {
+                deadEye                     = 321461,
                 doubleTap                   = 260402,
                 feignDeath                  = 5384,
                 inTheRhythm                 = 272733,
@@ -1395,6 +1396,8 @@ br.lists.spells = {
                 huntersMark                 = 257284,
                 intimidation                = 24934,
                 mortalWounds                = 115804, -- Pet Ability Debuff
+                resonatingArrow             = 308498, -- Covenant
+                soulforgeEmbers             = 331269, -- Covenant
                 tarTrap                     = 135299,
                 wildMark                    = 328275, -- Covenant
             },

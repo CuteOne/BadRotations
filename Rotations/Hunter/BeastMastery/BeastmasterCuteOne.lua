@@ -538,12 +538,12 @@ actionList.St = function()
     -- Wild Spirits
     -- wild_spirits
     if cast.able.wildSpirits() then
-        if cast.wildSpirits() then ui.debug("Casting Wild Spirits [AOE Night Fae]") return true end
+        if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
     if cast.able.flayedShot() then
-        if cast.flayedShot() then ui.debug("Casting Flayed Shot [AOE Venthhyr]") return true end
+        if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Kill Shot
     -- kill_shot,if=buff.flayers_mark.remains<5|target.health.pct<=20
@@ -561,7 +561,7 @@ actionList.St = function()
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
     if cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
-        if cast.deathChakram() then ui.debug("Casting Death Chakram [AOE Necrolord]") return true end
+        if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
     end
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up|target.time_to_die<15
