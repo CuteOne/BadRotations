@@ -652,7 +652,7 @@ local function runRotation()
 					if cast.seraphim() then return end
 				end
 				-- Avenging Wrath
-				if isChecked("Avenging Wrath") and cast.able.avengingWrath() and (getOptionValue("Avenging Wrath") <= ttd ) then
+				if isChecked("Avenging Wrath") and cast.able.avengingWrath() and getOptionValue("Avenging Wrath") <= ttd and not buff.avengingWrath.exists() then
 					if cast.avengingWrath() then return end
 				end
 				-- Holy Avenger
