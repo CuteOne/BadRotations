@@ -68,6 +68,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Heart Essence
             br.ui:createCheckbox(section,"Use Essence")
+            br.ui:createCheckbox(section, "Do Not Auto Engage if OOC")
         br.ui:checkSectionState(section)
         -- Pet Options
         br.rotations.support["PetCuteOne"].options()
@@ -572,7 +573,7 @@ actionList.PreCombat = function()
         -- Summon Pet
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
-        if unit.valid("target") and unit.distance("target") < 40 then
+        if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage") then
             -- Double Tap
             -- double_tap,precast_time=10
             if cast.able.doubleTap() and ui.pullTimer() <= 10 then
