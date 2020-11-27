@@ -55,6 +55,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Engage")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Fel Devastation
+            br.ui:createCheckbox(section, "Fel Devastation")
             -- Immolation Aura
             br.ui:createCheckbox(section,"Immolation Aura")
             -- Sigil of Flame
@@ -375,7 +377,7 @@ actionList.Normal = function()
     end
     -- Fel Devastation
     -- fel_devastation
-    if cast.able.felDevastation() then
+    if ui.checked("Fel Devastation") and cast.able.felDevastation() then
         if cast.felDevastation() then ui.debug("Casting Fel Devastation") return true end
     end
     -- Soul Cleave
