@@ -760,8 +760,8 @@ actionList.Cooldowns = function()
         end
         -- Kindred Spirits
         -- kindred_spirits,if=buff.tigers_fury.up|(conduit.deep_allegiance.enabled)
-        if cast.able.kindredSpirits() and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled) then
-            if cast.kindredSpirits() then ui.debug("Casting Kindred Spirits [Kyrian]") return true end
+        if cast.able.loneEmpowerment() and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled) then
+            if cast.loneEmpowerment() then ui.debug("Casting Kindred Spirits [Kyrian]") return true end
         end
         -- Adaptive Swarm
         -- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
