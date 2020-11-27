@@ -731,11 +731,11 @@ local function runRotation()
             end
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
-        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or not isChecked("Symbols of Death")) and ttd("target") > getOptionValue("CDs TTD Limit") or ttd("target") < 20 then
-            if canUseItem(13) and not (hasEquiped(169311, 13) or hasEquiped(169314, 13) or hasEquiped(159614, 13) or hasEquiped(184052, 13)) then
+        if cdUsage and isChecked("Trinkets") and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
+            if canUseItem(13) and not hasEquiped(169311, 13) and not hasEquiped(169314, 13) and not hasEquiped(159614, 13) and not hasEquiped(184052, 13) then
                 useItem(13)
             end
-            if canUseItem(14) and not (hasEquiped(169311, 14) or hasEquiped(169314, 14) or hasEquiped(159614, 14) or hasEquiped(184052, 13)) then
+            if canUseItem(14) and not hasEquiped(169311, 14) and not hasEquiped(169314, 14) and not hasEquiped(159614, 14) and not hasEquiped(184052, 14) then
                 useItem(14)
             end
         end
@@ -965,7 +965,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
     -- Pause
-    if IsMounted() or IsFlying() or pause() or mode.rotation==3 or buff.soulshape.exists() then
+    if IsMounted() or IsFlying() or pause() or mode.rotation==3 or ((buff.soulshape.exists() or hasBuff(338659)) and not inCombat) then
         return true
     else
 ---------------------------------
