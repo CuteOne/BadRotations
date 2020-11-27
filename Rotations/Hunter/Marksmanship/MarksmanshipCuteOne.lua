@@ -512,7 +512,7 @@ actionList.SingleTarget = function()
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
     if alwaysCdNever("Trueshot") and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
-        or buff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards40 > 1)
+        or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards40 > 1)
     then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
     end 
