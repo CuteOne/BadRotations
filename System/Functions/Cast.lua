@@ -545,7 +545,6 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
     -- Invalid Spell ID Check
 	if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
     local spellCast = spellID
-	local spellName,_,icon,castTime,minRange,maxRange = GetSpellInfo(spellID)
 	local baseSpellID = FindBaseSpellByID(spellID)
 	local overrideSpellID = FindSpellOverrideByID(spellID)
 	local baseSpellName = GetSpellInfo(baseSpellID)
@@ -672,7 +671,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		-- Other Cast Conditions - Require Target
 		if thisUnit ~= nil and thisUnit ~= "None" and (GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or getLineOfSight(thisUnit)) then
 			-- Determined Target Pet/Normal Cast (Early Exit as Range Checks done to determine target)
-			if unitAssigned and (debug == "norm" or debug == "pet") then
+			if unitAssigned and (debug == "norm" or debug == "pet") and (thisUnit == "player" or getFacing("player",thisUnit)) then
 				if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
 					-- Cast Ability
 					if debug == "pet" then return castingSpell(thisUnit,spellID,spellName,icon) else return castingSpell(thisUnit,spellID,spellName,icon) end
@@ -701,7 +700,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 						if isDummy() or isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
 							if debug == "ground" then--and getLineOfSight(thisUnit) then
 								return castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
-							elseif debug == "aoe" or debug == "cone" or debug == "rect" then
+							elseif debug == "aoe" or ((debug == "cone" or debug == "rect") and (thisUnit == "player" or getFacing("player",thisUnit))) then
 								return castingSpell(thisUnit,spellID,spellName,icon)
 							end
 						elseif isChecked("Display Failcasts") or isChecked("Cast Debug") then
@@ -711,7 +710,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..enemyCount.." enemies in "..maxRange.."yrds, but "..minUnits.." are needed to cast.")
 					end
 				-- Cast Non-AOE
-				elseif (debug == "norm" or debug == "pet") then
+				elseif (debug == "norm" or debug == "pet") and (thisUnit == "player" or getFacing("player",thisUnit)) then
 					if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
 						return castingSpell(thisUnit,spellID,spellName,icon)
 					elseif isChecked("Display Failcasts") or isChecked("Cast Debug") then
