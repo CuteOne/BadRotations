@@ -673,7 +673,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		if thisUnit ~= nil and thisUnit ~= "None" and (GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or getLineOfSight(thisUnit)) then
 			-- Determined Target Pet/Normal Cast (Early Exit as Range Checks done to determine target)
 			if unitAssigned and (debug == "norm" or debug == "pet") then
-				if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
+				if (enemyCount >= minUnits and getFacing("player",thisUnit)) or spellType == "Helpful" or spellType == "Unknown" then
 					-- Cast Ability
 					if debug == "pet" then return castingSpell(thisUnit,spellID,spellName,icon) else return castingSpell(thisUnit,spellID,spellName,icon) end
 				elseif isChecked("Display Failcasts") or isChecked("Cast Debug") then
@@ -693,7 +693,6 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 					end
 				end
 				-- AOE/ST Casts
-				-- if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
 				-- Cast Ground/Cone/Rectangle/Player AOE
 				if (debug == "ground" or debug == "aoe" or debug == "cone" or debug == "rect") then
 					local enemyCount = #getEnemies("player",maxRange) or 0
@@ -701,7 +700,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 						if isDummy() or isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
 							if debug == "ground" then--and getLineOfSight(thisUnit) then
 								return castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
-							elseif debug == "aoe" or debug == "cone" or debug == "rect" then
+							elseif debug == "aoe" or ((debug == "cone" or debug == "rect") and getFacing("player",thisUnit)) then
 								return castingSpell(thisUnit,spellID,spellName,icon)
 							end
 						elseif isChecked("Display Failcasts") or isChecked("Cast Debug") then
@@ -712,7 +711,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 					end
 				-- Cast Non-AOE
 				elseif (debug == "norm" or debug == "pet") then
-					if enemyCount >= minUnits or spellType == "Helpful" or spellType == "Unknown" then
+					if (enemyCount >= minUnits and getFacing("player",thisUnit)) or spellType == "Helpful" or spellType == "Unknown" then
 						return castingSpell(thisUnit,spellID,spellName,icon)
 					elseif isChecked("Display Failcasts") or isChecked("Cast Debug") then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..enemyCount.." enemies in "..maxRange.."yrds, but "..minUnits.." are needed to cast.")
