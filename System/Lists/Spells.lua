@@ -2630,6 +2630,7 @@ br.lists.spells = {
                 riposte                     = 199754,
                 rollTheBones                = 315508,
                 sinisterStrike              = 193315,
+                dreadblades                 = 343142,
             },
             artifacts                       = {
                 blackPowder                 = 216230,
@@ -2707,6 +2708,11 @@ br.lists.spells = {
                 killingSpree                = 51690,
                 weaponmaster                = 200733,
                 quickDraw                   = 196938,
+                blindingPowder              = 256165,
+                loadedDice                  = 256170,
+                alacrity                    = 193539,
+                dancingSteel                = 272026,
+                dreadblades                 = 343142,
             },
              traits                          = {
                 deadshot                    = 272935,
