@@ -400,7 +400,7 @@ actionList.Normal = function()
     end
     -- Fracture
     -- fracture,if=((talent.spirit_bomb.enabled&soul_fragments<=3)|(!talent.spirit_bomb.enabled&((buff.metamorphosis.up&fury<=55)|(buff.metamorphosis.down&fury<=70))))
-    if cast.able.fracture() and talent.fracture and ((talent.spiritBomb and buff.soulFragments.stack() <= 3)
+    if cast.able.fracture() and ((talent.spiritBomb and (fury < 30 or buff.soulFragments.stack() <= 3))
         or (not talent.spiritBomb and ((buff.metamorphosis.exists() and fury <= 55) or (not buff.metamorphosis.exists() and fury <= 70))))
     then
         if cast.fracture() then ui.debug("Casting Fracture") return true end
@@ -414,7 +414,7 @@ actionList.Normal = function()
     end
     -- Shear
     -- shear
-    if cast.able.shear() and not talent.fracture then
+    if cast.able.shear() then
         if cast.shear() then ui.debug("Casting Shear") return true end
     end
     -- Throw Glaive
