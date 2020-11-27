@@ -616,7 +616,7 @@ actionList.St = function()
     end
     -- Barbed Shot
     -- barbed_shot,if=buff.wild_spirits.up
-    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and buff.wildMark.exists() then
+    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and debuff.wildMark.exists(br.petTarget) then
         if cast.barbedShot(br.petTarget) then ui.debug("[Wild Spirits] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end
     -- Arcane Pulse
