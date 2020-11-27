@@ -1371,7 +1371,9 @@ br.lists.spells = {
             buffs                           = {
                 aspectOfTheTurtle           = 186265,
                 feignDeath                  = 5384,
+                flayersMark                 = 324156, -- Covenant
                 mendPet                     = 136,
+                nesingwarysTrappingApparatus= 336744,
                 playDead                    = 209997,
                 prowl                       = 24450,
                 spiritWalk                  = 90328,
@@ -1394,6 +1396,7 @@ br.lists.spells = {
                 intimidation                = 24934,
                 mortalWounds                = 115804, -- Pet Ability Debuff
                 tarTrap                     = 135299,
+                wildMark                    = 328275, -- Covenant
             },
             glyphs                          = {
 
