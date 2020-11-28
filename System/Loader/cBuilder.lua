@@ -351,6 +351,7 @@ function br.loader:new(spec,specName)
         if self.covenant.venthyr == nil then self.covenant.venthyr = {} end
         if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
         if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
+        if self.covenant.none == nil then self.covenant.none = {} end
         -- for k,v in pairs(self.spell.covenants) do
         --     if self.covenant == nil then self.covenant = {} end
         --     if self.covenant[k] == nil then self.covenant[k] = {} end
