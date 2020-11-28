@@ -852,7 +852,7 @@ local function runRotation()
                 end
             end
             --Chain Harvest
-            if isChecked("Chain Harvest") and covenant.venthr.active then
+            if isChecked("Chain Harvest") and covenant.venthyr.active then
                 if getLowAllies(getValue("Chain Harvest")) >= getValue("Chain Harvest Targets") then
                     if cast.chainHarvest(lowest.unit) then br.addonDebug("Casting Chain Harvest") return end
                 end
