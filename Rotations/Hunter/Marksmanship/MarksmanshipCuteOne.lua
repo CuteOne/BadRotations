@@ -460,7 +460,7 @@ actionList.SingleTarget = function()
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&(cooldown.aimed_shot.up|cooldown.rapid_fire.remains>cooldown.aimed_shot.remains)
     if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
         and (covenant.kyrian.active and cd.resonatingArrow.remains() < unit.gcd(true) or not covenant.kyrian.active
-        and (cd.aimedShot.remains() == 0 or cd.rapidFire.remains() > charges.aimedShot.remains()))
+        and (cd.aimedShot.remains() == 0 or cd.rapidFire.remains() > cd.aimedShot.remains()))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap") return true end
     end
