@@ -318,6 +318,12 @@ function isInCombat(Unit)
 		return false
 	end
 end
+function isInBastion()
+	local tContains = tContains
+	local currentMapID = C_Map.GetBestMapForUnit("player")
+	local bastionMapIDs = br.lists.maps.Bastion
+	return tContains(bastionMapIDs, currentMapID)
+end
 -- if isInDraenor() then
 function isInDraenor()
 	local tContains = tContains

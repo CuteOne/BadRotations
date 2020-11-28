@@ -66,7 +66,7 @@ br.api.module = function(self)
                 if cast.racial() then ui.debug("Casting Gift of the Naaru") return true end
             end
             -- Kyrian Bell
-            if ui.checked("Kyrian Bell") and use.able.kyrianBell() and has.kyrianBell() then
+            if ui.checked("Kyrian Bell") and isInBastion() and use.able.kyrianBell() and has.kyrianBell() then
                 if use.kyrianBell() then ui.debug("Using Kyrian Bell") return true end
             end
             -- Phial of Serenity

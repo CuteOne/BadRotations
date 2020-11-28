@@ -27,4 +27,9 @@ br.lists.maps = {
 		1033, -- Suramar
 		1018, -- Val'sharah
 	},
+	Bastion = {
+		1533, -- Bastion
+		1569, -- Bastion
+		1813, -- Bastion
+	}
 }
