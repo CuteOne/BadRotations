@@ -88,7 +88,7 @@ local function createOptions()
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
 		-- Purify Soul
-		br.ui:createSpinner(section, "Purify Soul",  60,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
+		br.ui:createSpinner(section, "Phial of Serenity",  60,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
 		-- Healthstone
 		br.ui:createSpinner(section, "Pot/Stoned",  30,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
 		-- Gift of The Naaru
@@ -363,7 +363,7 @@ local function runRotation()
 				end
 			end
 			-- Purify Soul
-			if isChecked("Purify Soul") and php <= getOptionValue("Purify Soul") and inCombat and hasItem(177278) then
+			if isChecked("Phial of Serenity") and php <= getOptionValue("Phial of Serenity") and inCombat and hasItem(177278) then
 				if canUseItem(177278) then
 					useItem(177278)
 				end
