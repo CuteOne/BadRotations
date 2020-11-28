@@ -3558,6 +3558,10 @@ br.lists.spells = {
                 soulRot                     = 325640,                
             },
             debuffs                         = {
+		decimatingBolt              = 325289,
+                impendingCatastrophe        = 321792,
+                scouringTithe               = 312321,
+                soulRot                     = 325640, 
                 fear                        = 5782,
                 curseOfExhaustion           = 334275,
                 curseOfTongues              = 1714,
