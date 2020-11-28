@@ -419,6 +419,10 @@ actionList.Extras = function()
                 if cast.catForm("player") then ui.debug("Casting Cat Form [Reduce Fall Damage]") return true end
             end
         end
+        -- Kindred Spirits
+        if cast.able.kindredSpirits() and not buff.loneSpirit.exists() then
+            if cast.kindredSpirits("player") then ui.debug("Casting Kindred Spirits [Kyrian]") return true end
+        end
     end -- End Shapeshift Form Management
     -- Perma Fire Cat
     if ui.checked("Perma Fire Cat") and (use.able.fandralsSeedPouch() or use.able.burningSeeds())

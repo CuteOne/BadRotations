@@ -977,6 +977,7 @@ br.lists.spells = {
                 flightForm                  = 165962,
                 frenziedRegeneration        = 22842,
                 ironfur                     = 192081,
+                loneSpirit                  = 338041,
                 moonkinForm                 = 197625,
                 prowl                       = 5215,
                 rejuvenation                = 774,
