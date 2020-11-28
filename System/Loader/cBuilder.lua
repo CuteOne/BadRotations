@@ -165,8 +165,12 @@ function br.loader:new(spec,specName)
                         if GetSpellLevelLearned(id) > 0 and not IsPassiveSpell(id) and not isPvP(subname) then
                             -- Check if spell is listed in the Shared Class Abilities / Shared Class Talents, Specializaiton Abilities / Specilization Talents tables.
                             local spellFound = false
+                            -- Search Global Abilities
+                            if not spellFound and sharedGlobalSpells then spellFound = findSpellInTable(id,sharedGlobalSpells.abilities) end
+                            -- Search Class Abilities and Talents
                             if not spellFound and sharedClassSpells then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
                             if not spellFound and sharedClassSpells then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
+                            -- Search Spec Abilities and Talents
                             if not spellFound and specSpells then spellFound = findSpellInTable(id,specSpells.abilities) end
                             if not spellFound and specSpells then spellFound = findSpellInTable(id,specSpells.talents) end
                             -- If not found in either location, then report it as we need it in one of those 2 locations
