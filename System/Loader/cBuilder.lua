@@ -166,13 +166,22 @@ function br.loader:new(spec,specName)
                             -- Check if spell is listed in the Shared Class Abilities / Shared Class Talents, Specializaiton Abilities / Specilization Talents tables.
                             local spellFound = false
                             -- Search Global Abilities
-                            if not spellFound and sharedGlobalSpells then spellFound = findSpellInTable(id,sharedGlobalSpells.abilities) end
+                            if sharedGlobalSpells then 
+                                if sharedGlobalSpells.abilities and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.abilities) end
+                                if sharedGlobalSpells.covenants and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.covenants) end
+                            end
                             -- Search Class Abilities and Talents
-                            if not spellFound and sharedClassSpells then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
-                            if not spellFound and sharedClassSpells then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
+                            if sharedClassSpells then
+                                if sharedClassSpells.abilities and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
+                                if sharedClassSpells.covenants and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.covenants) end
+                                if sharedClassSpells.talents and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
+                            end
                             -- Search Spec Abilities and Talents
-                            if not spellFound and specSpells then spellFound = findSpellInTable(id,specSpells.abilities) end
-                            if not spellFound and specSpells then spellFound = findSpellInTable(id,specSpells.talents) end
+                            if specSpells then
+                                if specSpells.abilities and not spellFound then spellFound = findSpellInTable(id,specSpells.abilities) end
+                                if specSpells.covenants and not spellFound then spellFound = findSpellInTable(id,specSpells.covenants) end
+                                if specSpells.talents and not spellFound then spellFound = findSpellInTable(id,specSpells.talents) end
+                            end
                             -- If not found in either location, then report it as we need it in one of those 2 locations
                             if not spellFound then
                                 local reportString = "|cffff0000No spell found for: |r"..tostring(id).." ("..tostring(name)..") |cffff0000was not found, please notify dev to add it to the |r"
@@ -214,7 +223,7 @@ function br.loader:new(spec,specName)
                 end
             end
         end
-
+        
         -- Spell Test
         getSpellsTest()
         -- Talent Test
