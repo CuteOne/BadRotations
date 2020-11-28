@@ -2067,6 +2067,7 @@ br.lists.spells = {
                 shiningLight                = 327510,
                 avengersValor               = 197561,
                 divineSteed                 = 254474,
+                royalDecree                 = 340147,
             },
             debuffs                         = {
                 blessedHammer               = 204301,

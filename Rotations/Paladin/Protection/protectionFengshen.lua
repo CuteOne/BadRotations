@@ -1,5 +1,5 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList="167876|169861|168318|165824"
+local StunsBlackList="167876|169861|168318|165824|165919|171799"
 local StunSpellList="332329|332671|326450|328177|336451|331718|331743"
 local HoJPrioList = "164702|164362|170488"
 ---------------
@@ -87,6 +87,8 @@ local function createOptions()
 		--- DEFENSIVE OPTIONS ---
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
+		-- Purify Soul
+		br.ui:createSpinner(section, "Purify Soul",  60,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
 		-- Healthstone
 		br.ui:createSpinner(section, "Pot/Stoned",  30,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
 		-- Gift of The Naaru
@@ -111,11 +113,13 @@ local function createOptions()
 		-- Hammer of Justice
 		br.ui:createSpinner(section, "Hammer of Justice - HP",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
 		-- Word of Glory
-		br.ui:createSpinner(section, "Word of Glory",  60,  0,  100,  5,  "|cffFFBB00Word of Glory to use at.")
+		br.ui:createSpinner(section, "Word of Glory",  50,  0,  100,  5,  "|cffFFBB00Word of Glory to use at.")
+		-- Free Word of Glory
+		br.ui:createSpinnerWithout(section, "Free Word of Glory",  65,  0,  100,  5,  "|cffFFBB00Word of Glory to use at.")
 		-- Hand of the Protector - on others
 		br.ui:createSpinner(section, "Word of Glory - Party",  40,  0,  100,  5,  "|cffFFBB00Teammate Word of Glory to use at.")
 		-- Lay On Hands
-		br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "","Health Percentage to use at")
+		br.ui:createSpinner(section, "Lay On Hands", 15, 0, 100, 5, "","Health Percentage to use at")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
 		-- Blessing of Protection
 		br.ui:createSpinner(section, "Blessing of Protection", 30, 0, 100, 5, "","Health Percentage to use at")
@@ -141,7 +145,7 @@ local function createOptions()
 		-- Avenger's Shield
 		br.ui:createCheckbox(section, "Avenger's Shield - INT")
 		-- Interrupt Percentage
-		br.ui:createSpinner(section,  "Interrupt At",  40,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+		br.ui:createSpinner(section,  "Interrupt At",  60,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
 		br.ui:checkSectionState(section)
 		------------------------
 		--- ROTATION OPTIONS ---
@@ -227,6 +231,7 @@ local function runRotation()
 	local debuff        = br.player.debuff
 	local enemies       = br.player.enemies
 	local gcd           = br.player.gcd
+	local gcdMax        = br.player.gcdMax
 	local hastar        = GetObjectExists("target")
 	local healPot       = getHealthPot()
 	local inCombat      = br.player.inCombat
@@ -306,10 +311,6 @@ local function runRotation()
 	--------------------
 	-- Action List - Extras
 	local function actionList_Extras()
-		-- Blessing of Freedom
-		if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
-			if cast.blessingOfFreedom("player") then return end
-		end
 		-- Taunt
 		if isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
 			for i = 1, #enemies.yards30 do
@@ -319,67 +320,30 @@ local function runRotation()
 				end
 			end
 		end
-		-- Auto cancel Blessing of Protection
-		if isChecked("Auto cancel BoP") then
-			if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
-				if cast.handOfReckoning("target") then return end
+		if inInstance and inRaid then
+			-- Auto cancel Blessing of Protection
+			if isChecked("Auto cancel BoP") then
+				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
+					if cast.handOfReckoning("target") then return end
+				end
+				if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+					CancelUnitBuffID("player", spell.blessingOfProtection)
+				end
 			end
-			if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
-				CancelUnitBuffID("player", spell.blessingOfProtection)
-			end
-		end
-		-- Auto cancel Divine Shield
-		if isChecked("Auto cancel DS") then
-			if buff.divineShield.exists() and cast.able.handOfReckoning() then
-				if cast.handOfReckoning("target") then return end
-			end
-			if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
-				CancelUnitBuffID("player", spell.divineShield)
+			-- Auto cancel Divine Shield
+			if isChecked("Auto cancel DS") then
+				if buff.divineShield.exists() and cast.able.handOfReckoning() and not talent.finalStand then
+					if cast.handOfReckoning("target") then return end
+				end
+				if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+					CancelUnitBuffID("player", spell.divineShield)
+				end
 			end
 		end
 	end -- End Action List - Extras
-	local function BossEncounterCase()
-		-- Hammer of Justice
-		if cast.able.hammerOfJustice() then
-			for i = 1, #enemies.yards10 do
-			local thisUnit = enemies.yards10[i]
-				if HoJList[GetObjectID(thisUnit)] ~= nil then
-					if cast.hammerOfJustice(thisUnit) then return end
-				end
-			end
-		end
-		-- Blessing of Freedom
-		if inInstance then
-			if getDebuffRemain("player",330810) ~= 0 or getDebuffRemain("player",326827) ~= 0 or getDebuffRemain("player",324608) ~= 0 then
-				if cast.blessingOfFreedom("player") then return end
-			end
-			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,320788) ~= 0 and #getAllies(br.friend[i].unit,17) <= 1 then
-					if cast.blessingOfFreedom(br.friend[i].unit) then return end
-				end
-			end
-		end
-	end
 	-- Action List - Defensives
 	local function actionList_Defensive()
 		if useDefensive() then
-			-- Pot/Stoned
-			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-				and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(177278))then
-				if canUseItem(5512) then
-					useItem(5512)
-				elseif canUseItem(healPot) then
-					useItem(healPot)
-				elseif canUseItem(177278) then
-					useItem(177278)
-				end
-			end
-			-- Divine Shield
-			if isChecked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() then
-				if php <= getOptionValue("Divine Shield") and inCombat then
-					if cast.divineShield() then return end
-				end
-			end
 			-- Gift of the Naaru
 			if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
 				if castSpell("player",racial,false,false,false) then return end
@@ -398,15 +362,18 @@ local function runRotation()
 					end
 				end
 			end
-			-- Word of Glory
-			if cast.able.wordOfGlory() and (holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists()) then
-				if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") then
-					if cast.wordOfGlory("player") then return end
-				elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") then
-					if cast.wordOfGlory(lowestUnit) then return end
+			-- Purify Soul
+			if isChecked("Purify Soul") and php <= getOptionValue("Purify Soul") and inCombat and hasItem(177278) then
+				if canUseItem(177278) then
+					useItem(177278)
 				end
-				if buff.shiningLight.exists() and getBuffRemain("player", 327510) <= 1 then
-					if cast.wordOfGlory(lowestUnit) then return end
+			end
+			-- Pot/Stoned
+			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))then
+				if canUseItem(5512) then
+					useItem(5512)
+				elseif canUseItem(healPot) then
+					useItem(healPot)
 				end
 			end
 			-- Lay On Hands
@@ -451,6 +418,26 @@ local function runRotation()
 					elseif  getOptionValue("Lay on Hands Target") == 8 then
 						if cast.layOnHands(lowestUnit) then return end
 					end
+				end
+			end
+			-- Divine Shield
+			if isChecked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() and not buff.guardianOfAncientKings.exists() and not debuff.forbearance.exists() then
+				if php <= getOptionValue("Divine Shield") and inCombat then
+					if cast.divineShield() then return end
+				end
+			end
+			-- Word of Glory
+			if getHP("player") <= getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
+				if cast.wordOfGlory("player") then return 0 end
+			end
+			if holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists() then
+				if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") then
+					if cast.wordOfGlory("player") then return 0 end
+				elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") then
+					if cast.wordOfGlory(lowestUnit) then return 0 end
+				end
+				if (buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcdMax) or (buff.shiningLight.exists() and buff.shiningLight.remain() < gcdMax) or (buff.royalDecree.exists() and buff.royalDecree.remain() < gcdMax) then
+					if cast.wordOfGlory(lowestUnit) then return 0 end
 				end
 			end
 			-- Blessing of Protection
@@ -575,7 +562,7 @@ local function runRotation()
 			end
 			-- Ardent Defender
 			if isChecked("Ardent Defender") and cast.able.ardentDefender() then
-				if (php <= getOptionValue("Ardent Defender") or php <= 10) and inCombat and not buff.guardianOfAncientKings.exists() then
+				if (php <= getOptionValue("Ardent Defender") or php <= 10) and inCombat and not buff.guardianOfAncientKings.exists() and not buff.divineShield.exists() then
 					if cast.ardentDefender() then return end
 				end
 			end
@@ -592,12 +579,6 @@ local function runRotation()
 					end
 				end
 			end
-			-- Flash of Light
-			if isChecked("Flash of Light") then
-				if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
-					if cast.flashOfLight("player") then return end
-				end
-			end
 			-- Redemption
 			if isChecked("Redemption") and not inCombat then
 				if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
@@ -605,6 +586,16 @@ local function runRotation()
 				end
 				if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
 					if cast.redemption("mouseover","dead") then return end
+				end
+			end
+			-- Blessing of Freedom
+			if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
+				if cast.blessingOfFreedom("player") then return end
+			end
+			-- Flash of Light
+			if isChecked("Flash of Light") then
+				if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
+					if cast.flashOfLight("player") then return end
 				end
 			end
 			-- Unstable Temporal Time Shifter
@@ -627,6 +618,28 @@ local function runRotation()
 			-- end
 		end
 	end -- End Action List - Defensive
+	local function BossEncounterCase()
+		-- Hammer of Justice
+		if cast.able.hammerOfJustice() then
+			for i = 1, #enemies.yards10 do
+			local thisUnit = enemies.yards10[i]
+				if HoJList[GetObjectID(thisUnit)] ~= nil then
+					if cast.hammerOfJustice(thisUnit) then return end
+				end
+			end
+		end
+		-- Blessing of Freedom
+		if inInstance then
+			if getDebuffRemain("player",330810) ~= 0 or getDebuffRemain("player",326827) ~= 0 or getDebuffRemain("player",324608) ~= 0 then
+				if cast.blessingOfFreedom("player") then return end
+			end
+			for i = 1, #br.friend do
+				if getDebuffRemain(br.friend[i].unit,320788) ~= 0 and #getAllies(br.friend[i].unit,17) <= 1 then
+					if cast.blessingOfFreedom(br.friend[i].unit) then return end
+				end
+			end
+		end
+	end
 	-- Action List - Cooldowns
 	local function actionList_Cooldowns()
 		if useCDs() or burst then
@@ -734,7 +747,7 @@ local function runRotation()
 	---------------------
 	--- Begin Profile ---
 	---------------------
-	if isChecked("Automatic Aura replacement") and not castingUnit() then
+	if isChecked("Automatic Aura replacement") and not castingUnit() and not inInstance and not inRaid then
 		if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
 			if CastSpellByName(GetSpellInfo(465)) then return end
 		elseif not buff.crusaderAura.exists() and IsMounted() then
@@ -747,47 +760,21 @@ local function runRotation()
 	elseif (inCombat and profileStop == true) or IsFlying() or pause() or mode.rotation == 4 then
 		return true
 	else
-		-----------------------
-		--- Extras Rotation ---
-		-----------------------
 		if actionList_Extras() then return end
-		---------------------------
-		--- Boss Encounter Case ---
-		---------------------------
+		if actionList_Defensive() then return end
 		if br.player.ui.mode.BossCase == 1 then
 			if BossEncounterCase() then return end
 		end
-		--------------------------
-		--- Defensive Rotation ---
-		--------------------------
-		if actionList_Defensive() then return end
-		----------------------------
-		--- Out of Combat Opener ---
-		----------------------------
 		if actionList_Opener() then return end
-		--------------------------
-		--- In Combat Rotation ---
-		--------------------------
 		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false then
-			------------------------------
-			--- In Combat - Interrupts ---
-			------------------------------
 			if actionList_Interrupts() then return end
-			-----------------------------
-			--- In Combat - Cooldowns ---
-			-----------------------------
 			if actionList_Cooldowns() then return end
 			----------------------------------
 			--- In Combat - Begin Rotation ---
 			----------------------------------
-			--------------------------------
-			----- In Combat - Feng APL -----
-			--------------------------------
 			-- Shield of the Righteous
 			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists())
-			and ((isChecked("Word of Glory") and getHP("player") > getOptionValue("Word of Glory")) or not isChecked("Word of Glory"))
-			and ((isChecked("Word of Glory - Party") and getHP(lowestUnit) > getOptionValue("Word of Glory - Party")) or not isChecked("Word of Glory - Party"))
-			and (buff.holyAvenger.remain("player") > gcd or debuff.judgment.exists(units.dyn30) or holyPower == 5) then
+			and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5) then
 				if cast.shieldOfTheRighteous(units.dyn5) then return end
 			end
 			if GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
@@ -827,6 +814,10 @@ local function runRotation()
 			-- Hammer of the Righteous
 			if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and GetUnitExists(units.dyn5) then
 				if cast.hammerOfTheRighteous(units.dyn5) then return end
+			end
+			-- Consecration
+			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and consecrationRemain < 6 then
+				if cast.consecration() then return end
 			end
 		end -- End In Combat
 	end -- End Profile
