@@ -628,11 +628,11 @@ local function runRotation()
     local function actionList_Cooldowns()
 ---------------------------- SHADOWLANDS
         -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle"
-        if sndCondition == 1 and cast.able.flagellation("target") then -- and not buff.stealthedMantle.exists()
+        if sndCondition == 1 and cast.able.flagellation("target") and not debuff.flagellation.exists("target") then -- and not buff.stealthedMantle.exists()
             if cast.flagellation("target") then return true end
         end
         -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2
-        if debuff.flagellation.remain("target") < 2 and cast.able.flagellationCleanse("target") then
+        if debuff.flagellation.remain("target") < 2 and debuff.flagellation.exists("target") and cast.able.flagellationCleanse("target") then
             if cast.flagellationCleanse("target") then return true end
         end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin.equipped&combo_points.deficit<=3|runeforge.deathly_shadows.equipped&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
@@ -731,11 +731,11 @@ local function runRotation()
             end
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
-        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or not isChecked("Symbols of Death")) and ttd("target") > getOptionValue("CDs TTD Limit") or ttd("target") < 20 then
-            if canUseItem(13) and not (hasEquiped(169311, 13) or hasEquiped(169314, 13) or hasEquiped(159614, 13)) then
+        if cdUsage and isChecked("Trinkets") and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
+            if canUseItem(13) and not hasEquiped(169311, 13) and not hasEquiped(169314, 13) and not hasEquiped(159614, 13) and not hasEquiped(184052, 13) then
                 useItem(13)
             end
-            if canUseItem(14) and not (hasEquiped(169311, 14) or hasEquiped(169314, 14) or hasEquiped(159614, 13)) then
+            if canUseItem(14) and not hasEquiped(169311, 14) and not hasEquiped(169314, 14) and not hasEquiped(159614, 14) and not hasEquiped(184052, 14) then
                 useItem(14)
             end
         end
@@ -743,7 +743,7 @@ local function runRotation()
 
     local function actionList_Finishers()
         -- actions.finish=slice_and_dice,if=spell_targets.shuriken_storm<6&!buff.shadow_dance.up&buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
-        if enemies10 < 6 and not buff.shadowDance.exists() and buff.sliceAndDice.remain() < ttd("target") and buff.sliceAndDice.remain() < (1 + combo)*1.8 then
+        if enemies10 < 6 and not buff.shadowDance.exists() and buff.sliceAndDice.remain() < ttd("target") and buff.sliceAndDice.remain() < (1 + combo)*1.8 and not animachargedCP then
             if cast.sliceAndDice("player") then return true end
         end
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
@@ -846,6 +846,11 @@ local function runRotation()
         if (buff.shurikenTornado.exists() and comboDeficit <= 2) or (enemies10 >= 4 and combo >= 4) or (comboDeficit <= (1 - finishThd)) then
             if actionList_Finishers() then return true end
         end
+        -- actions.stealthed+=/shiv,if=talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped&spell_targets.shuriken_storm<5
+        -- if talent.nightstalker and runeforge.tinyToxicBlade.active and (debuff.rupture.exists("target") or not shallWeDot("target")) and (buff.symbolsOfDeath.remain() > 8 
+        --  or buff.shadowBlades.remain() > 9) and (ttd("target") > 3 or isBoss()) then
+        --     if cast.shiv("target") then return true end
+        -- end
         -- # For pre-patch, keep Find Weakness up on the primary target due to no Shadow Vault
         -- actions.stealthed+=/shadowstrike,if=level<52&debuff.find_weakness.remains<1&target.time_to_die-remains>6
         if level < 52 and debuff.findWeakness.remain("target") < 1 and ttd("target") > 6 then
@@ -915,12 +920,12 @@ local function runRotation()
 
     --Builders
     local function actionList_Builders()
-        -- actions.build=shiv,if=!talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped
+        -- actions.build=shiv,if=!talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped&spell_targets.shuriken_storm<5
         -- if talent.nightstalker and runeforge.tinyToxicBlade.active and (debuff.rupture.exists("target") or not shallWeDot("target")) and (buff.symbolsOfDeath.remain() > 8 
         --  or buff.shadowBlades.remain() > 9) and (ttd("target") > 3 or isBoss()) then
         --     if cast.shiv("target") then return true end
         -- end
-        -- actions.build=shuriken_storm,if=spell_targets>=2+(talent.gloomblade.enabled&azerite.perforate.rank>=2&position_back)
+        -- actions.build+=/shuriken_storm,if=spell_targets>=2+(talent.gloomblade.enabled&azerite.perforate.rank>=2&position_back)
         if enemies10 >= 2 then
             for i = 1, #enemyTable10 do
                 thisUnit = enemyTable10[i].unit
@@ -960,7 +965,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
     -- Pause
-    if IsMounted() or IsFlying() or pause() or mode.rotation==3 or buff.soulshape.exists() then
+    if IsMounted() or IsFlying() or pause() or mode.rotation==3 or ((buff.soulshape.exists() or hasBuff(338659)) and not inCombat) then
         return true
     else
 ---------------------------------
@@ -989,7 +994,7 @@ local function runRotation()
                 end
             end
             --tricks
-            if tricksUnit ~= nil and validTarget and targetDistance < 5 then 
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") > 0 then 
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
@@ -1051,12 +1056,7 @@ local function runRotation()
                 if energyDeficit <= stealthThd and validTarget and not stealthedAll and targetDistance < 5 then
                     if actionList_StealthCD() then return true end
                 end
-                if gcd < getLatency() then
----------------------------- SHADOWLANDS               
-                    -- actions+=/call_action_list,name=finish,if=runeforge.deathly_shadows.equipped&dot.sepsis.ticking&dot.sepsis.remains<=2&combo_points>=2
-                    -- if runeforge.deadlyShadows.active and debuff.sepsis.exists("target") and debuff.sepsis.remain("target") <= 2 and combo >= 2 then
-                    --     if actionList_Finishers() then return true end
-                    -- end
+                if gcd < getLatency() then             
                     -- actions+=/call_action_list,name=finish,if=combo_points=animacharged_cp
                     local animachargedCP
                     if (combo == 2 and buff.echoingReprimand2.exists()) or 
@@ -1065,7 +1065,6 @@ local function runRotation()
                     if animachargedCP then
                         if actionList_Finishers() then return true end
                     end
----------------------------- SHADOWLANDS
                     -- # Finish at 4+ without DS, 5+ with DS (outside stealth)
                     -- actions+=/call_action_list,name=finish,if=combo_points.deficit<=1|fight_remains<=1&combo_points>=3
                     if comboDeficit <= 1 or (ttd("target") <= 1 and combo >= 3) then

@@ -1759,34 +1759,35 @@ local function runRotation()
 
         end
     end
-    local function PreCombat()
-        -- Pre-Pull Timer
-        if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-            if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
-                if mode.forms ~= 3 then
-                    if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
-                        if cast.moonkinForm() then
-                            return true
+    local function PreCombat()        
+        if isValidUnit("target") then
+            -- Pre-Pull Timer
+            if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
+                    if mode.forms ~= 3 then
+                        if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
+                            if cast.moonkinForm() then
+                                return true
+                            end
                         end
                     end
+                    if cast.solarWrath() then
+                        return true
+                    end
                 end
-                if cast.solarWrath() then
-                    return true
+            end
+            if isChecked("Auto Engage On Target") then
+                if cast.able.sunfire("target") then
+                    if cast.sunfire("target") then
+                        return true
+                    end
+                elseif cast.able.moonfire("target") then
+                    if cast.moonfire("target") then
+                        return true
+                    end
                 end
             end
         end
-        if isChecked("Auto Engage On Target") then
-            if cast.able.sunfire("target") then
-                if cast.sunfire("target") then
-                    return true
-                end
-            elseif cast.able.moonfire("target") then
-                if cast.moonfire("target") then
-                    return true
-                end
-            end
-        end
-
         if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
             bossHelper()
         end

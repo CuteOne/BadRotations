@@ -1,7 +1,7 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList=""
+local StunsBlackList="167876|169861|168318|165824"
 local StunSpellList=""
-local HoJPrioList = ""
+local HoJPrioList = "164702"
 ---------------
 --- Toggles ---
 ---------------
@@ -324,8 +324,8 @@ local function runRotation()
 			if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
 				if cast.handOfReckoning("target") then return end
 			end
-			if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
-				RunMacroText("/cancelAura Blessing of Protection")
+			if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+				CancelUnitBuffID("player", spell.blessingOfProtection)
 			end
 		end
 		-- Auto cancel Divine Shield
@@ -333,8 +333,8 @@ local function runRotation()
 			if buff.divineShield.exists() and cast.able.handOfReckoning() then
 				if cast.handOfReckoning("target") then return end
 			end
-			if buff.divineShield.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
-				RunMacroText("/cancelAura Divine Shield")
+			if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+				CancelUnitBuffID("player", spell.divineShield)
 			end
 		end
 	end -- End Action List - Extras
@@ -348,17 +348,23 @@ local function runRotation()
 				end
 			end
 		end
+		-- Blessing of Freedom
+		if getDebuffRemain("player",330810) ~= 0 or getDebuffRemain("player",326827) ~= 0 then
+			if cast.blessingOfFreedom("player") then return end
+		end
 	end
 	-- Action List - Defensives
 	local function actionList_Defensive()
 		if useDefensive() then
 			-- Pot/Stoned
 			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-				and inCombat and (hasHealthPot() or hasItem(5512))then
+				and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(177278))then
 				if canUseItem(5512) then
 					useItem(5512)
 				elseif canUseItem(healPot) then
 					useItem(healPot)
+				elseif canUseItem(177278) then
+					useItem(177278)
 				end
 			end
 			-- Divine Shield
@@ -646,11 +652,11 @@ local function runRotation()
 			end
 			if GetUnitExists(units.dyn5) then
 				-- Seraphim
-				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and holyPower > 2 and (getOptionValue("Seraphim") <= ttd ) then
+				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and holyPower > 2 and getOptionValue("Seraphim") <= ttd then
 					if cast.seraphim() then return end
 				end
 				-- Avenging Wrath
-				if isChecked("Avenging Wrath") and cast.able.avengingWrath() and (getOptionValue("Avenging Wrath") <= ttd ) then
+				if isChecked("Avenging Wrath") and cast.able.avengingWrath() and getOptionValue("Avenging Wrath") <= ttd and not buff.avengingWrath.exists() then
 					if cast.avengingWrath() then return end
 				end
 				-- Holy Avenger

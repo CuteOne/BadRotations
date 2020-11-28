@@ -178,7 +178,11 @@ function getLineOfSight(Unit1, Unit2)
 		end
 	end
 	local skipLoSTable = br.lists.los
-	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)] then return true end
+	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)] 
+		or getDebuffRemain(Unit1,308496) > 0 or getDebuffRemain(Unit2,308496) > 0 -- Kyrian Hunter Ability
+	then
+		return true
+	end
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
 		local X1, Y1, Z1 = GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)

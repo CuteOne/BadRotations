@@ -808,7 +808,7 @@ local function actionList_Leveling()
         if cast.able.arcaneExplosion() 
         and getDistance("target") <= 10 
         and manaPercent > 30 
-        and #enemies.yards10t >= getOptionValue("Arcane Explosion Units") 
+        and #enemies.yards10tnc >= getOptionValue("Arcane Explosion Units") 
         then
             if cast.arcaneExplosion("player","aoe", 3, 10) then return true end
         end
@@ -1342,7 +1342,7 @@ local function actionList_AoE()
     if cast.able.arcaneExplosion()
     and getDistance("target") <= 10
     and arcaneCharges > 3
-    and #enemies.yards10t >= ui.value("Arcane Explosion Units")
+    and #enemies.yards10tnc >= ui.value("Arcane Explosion Units")
    -- or not ui.checked("Arcane Explosion Units")
     then
         if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
@@ -1353,7 +1353,7 @@ local function actionList_AoE()
     and getDistance("target") <= 10
     and arcaneCharges > 3
     and cast.last.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
-    and #enemies.yards10t >= ui.value("Arcane Explosion Units")
+    and #enemies.yards10tnc >= ui.value("Arcane Explosion Units")
     --or not ui.checked("Arcane Explosion Units")
     then
         if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 

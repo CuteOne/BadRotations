@@ -101,7 +101,6 @@ function br.loader:new(spec,specName)
         local specSpells = br.lists.spells[playerClass][spec]
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
-
         local function getTalentTest()
             if specName ~= "Initial" then
                 for r = 1, 7 do --search each talent row
@@ -110,15 +109,19 @@ function br.loader:new(spec,specName)
                         local name = GetSpellInfo(id)
                         local spellFound = false
                         -- Check if spell is listed in the Shared Class Talents table.
-                        for _, listId in pairs(sharedClassSpells.talents) do
-                            if listId == id then spellFound = true break end
+                        if sharedClassSpells then
+                            for _, listId in pairs(sharedClassSpells.talents) do
+                                if listId == id then spellFound = true break end
+                            end
                         end
                         -- Check if spell is listed in the Specialization Talents table.
-                        for _, listId in pairs(specSpells.talents) do
-                            if listId == id then spellFound = true break end
+                        if specSpells then
+                            for _, listId in pairs(specSpells.talents) do
+                                if listId == id then spellFound = true break end
+                            end
                         end
                         -- If not found in either location, then report it as we need it in one of those 2 locations
-                        if not spellFound then 
+                        if not spellFound then
                             Print("|cffff0000No spell found for: |r"..tostring(id).." ("..tostring(name)..") |cffff0000was not found, please notify dev to add it to the appropriate Talent table for |r"..playerClass.."|cffff0000.")
                         end
                     end
@@ -162,16 +165,29 @@ function br.loader:new(spec,specName)
                         if GetSpellLevelLearned(id) > 0 and not IsPassiveSpell(id) and not isPvP(subname) then
                             -- Check if spell is listed in the Shared Class Abilities / Shared Class Talents, Specializaiton Abilities / Specilization Talents tables.
                             local spellFound = false
-                            if not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
-                            if not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
-                            if not spellFound then spellFound = findSpellInTable(id,specSpells.abilities) end
-                            if not spellFound then spellFound = findSpellInTable(id,specSpells.talents) end
+                            -- Search Global Abilities
+                            if sharedGlobalSpells then 
+                                if sharedGlobalSpells.abilities and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.abilities) end
+                                if sharedGlobalSpells.covenants and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.covenants) end
+                            end
+                            -- Search Class Abilities and Talents
+                            if sharedClassSpells then
+                                if sharedClassSpells.abilities and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
+                                if sharedClassSpells.covenants and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.covenants) end
+                                if sharedClassSpells.talents and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
+                            end
+                            -- Search Spec Abilities and Talents
+                            if specSpells then
+                                if specSpells.abilities and not spellFound then spellFound = findSpellInTable(id,specSpells.abilities) end
+                                if specSpells.covenants and not spellFound then spellFound = findSpellInTable(id,specSpells.covenants) end
+                                if specSpells.talents and not spellFound then spellFound = findSpellInTable(id,specSpells.talents) end
+                            end
                             -- If not found in either location, then report it as we need it in one of those 2 locations
                             if not spellFound then
                                 local reportString = "|cffff0000No spell found for: |r"..tostring(id).." ("..tostring(name)..") |cffff0000was not found, please notify dev to add it to the |r"
-                                if bookName == UnitClass('player') then reportString = reportString.."Shared" end
-                                if bookName == specName and specName ~= "Initial" then reportString = reportString..specName end
-                                reportString = reportString.." Abilities |cffff0000table for |r"..playerClass.."|cffff0000."
+                                if bookName == UnitClass('player') then reportString = reportString.."|cffffff00Shared" end
+                                if bookName == specName and specName ~= "Initial" then reportString = reportString.."|cffffff00"..specName end
+                                reportString = reportString.."|cffffff00 Abilities |cffff0000table for |r"..br.classColor..playerClass.."|cffff0000."
                                 Print(reportString)
                                 -- Add to ability list, This would be nice but only works properly for enUS Locale
                                 -- local thisSpell = convertName(name)
@@ -198,7 +214,7 @@ function br.loader:new(spec,specName)
                     self.spell[spellType][spellRef] = spellID
                     -- Assign active spells to Abilities Subtable and base br.player.spell
                     if not IsPassiveSpell(spellID)
-                        and (spellType == 'abilities' or spellType == 'conduits' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
+                        and (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
                     then
                         if self.spell.abilities == nil then self.spell.abilities = {} end
                         self.spell.abilities[spellRef] = spellID
@@ -207,7 +223,7 @@ function br.loader:new(spec,specName)
                 end
             end
         end
-
+        
         -- Spell Test
         getSpellsTest()
         -- Talent Test
@@ -293,6 +309,7 @@ function br.loader:new(spec,specName)
     end
 
     local function getFunctions()
+        if not self.spell.abilities then return end
         -- Build Artifact Info
         for k,v in pairs(self.spell.artifacts) do
             if not self.artifact[k] then self.artifact[k] = {} end
@@ -324,7 +341,7 @@ function br.loader:new(spec,specName)
         for k,v in pairs(self.spell.conduits) do
             if self.conduit == nil then self.conduit = {} end
             if self.conduit[k] == nil then self.conduit[k] = {} end
-            br.api.conduit(self.conduit[k],k,v)
+            br.api.conduit(self.conduit,k,v)
         end
 
 
@@ -334,6 +351,13 @@ function br.loader:new(spec,specName)
         if self.covenant.venthyr == nil then self.covenant.venthyr = {} end
         if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
         if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
+        -- for k,v in pairs(self.spell.covenants) do
+        --     if self.covenant == nil then self.covenant = {} end
+        --     if self.covenant[k] == nil then self.covenant[k] = {} end
+        --     if k ~= nil then
+        --         br.api.covenant(self.covenant,k,v)
+        --     end
+        -- end
         br.api.covenant(self.covenant)
 
         -- Update Power

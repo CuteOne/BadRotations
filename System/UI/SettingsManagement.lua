@@ -25,7 +25,8 @@ function br:checkDirectories(folder,class,spec,profile)
 
 	-- Set the Spec Directory
 	if spec == nil then spec = select(2,GetSpecializationInfo(GetSpecialization())) end
-	if spec == nil or spec == "" then spec = br.currentSpec end
+	if spec == nil then spec = br.currentSpec end
+	if spec == '' then spec = "Initial" end
 	local specDir = classDir .. spec .. "\\"
 	if not DirectoryExists(specDir) then CreateDirectory(specDir) end
 
