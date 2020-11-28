@@ -1,7 +1,7 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList="167876|169861|168318|165824|165919|171799"
+local StunsBlackList="167876|169861|168318|165824|165919|171799|168942"
 local StunSpellList="332329|332671|326450|328177|336451|331718|331743"
-local HoJPrioList = "164702|164362|170488"
+local HoJPrioList = "164702|164362|170488|165905"
 ---------------
 --- Toggles ---
 ---------------
@@ -629,8 +629,11 @@ local function runRotation()
 			end
 		end
 		-- Blessing of Freedom
-		if inInstance then
+		if inInstance and cast.able.blessingOfFreedom() then
 			if getDebuffRemain("player",330810) ~= 0 or getDebuffRemain("player",326827) ~= 0 or getDebuffRemain("player",324608) ~= 0 then
+				if cast.blessingOfFreedom("player") then return end
+			end
+			if (UnitCastingInfo("boss1") == GetSpellInfo(317231) or UnitCastingInfo("boss1") == GetSpellInfo(320729)) and getDebuffRemain("player",331606) ~= 0 then
 				if cast.blessingOfFreedom("player") then return end
 			end
 			for i = 1, #br.friend do
@@ -747,11 +750,16 @@ local function runRotation()
 	---------------------
 	--- Begin Profile ---
 	---------------------
-	if isChecked("Automatic Aura replacement") and not castingUnit() and not inInstance and not inRaid then
-		if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
+	if isChecked("Automatic Aura replacement") and not castingUnit() then
+		if not inInstance and not inRaid then
+			if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
+				if CastSpellByName(GetSpellInfo(465)) then return end
+			elseif not buff.crusaderAura.exists() and IsMounted() then
+				if CastSpellByName(GetSpellInfo(32223)) then return end
+			end
+		end
+		if (inInstance or inRaid) and not buff.devotionAura.exists() then
 			if CastSpellByName(GetSpellInfo(465)) then return end
-		elseif not buff.crusaderAura.exists() and IsMounted() then
-			if CastSpellByName(GetSpellInfo(32223)) then return end
 		end
 	end
 	--Profile Stop | Pause
