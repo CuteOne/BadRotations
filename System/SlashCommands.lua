@@ -375,7 +375,7 @@ function handler(message, editbox)
 
 -- Updater
 	elseif msg1 == "update" then
-		br.updater:Update() 
+		br.updater:Update()
 	else
 		Print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
 	end
