@@ -159,6 +159,10 @@ function br.loader:new(spec,specName)
                         -- Print("Book: "..tostring(bookName).." | Class: "..tostring(UnitClass('player').." | Spec: "..tostring(specName)))
                         --local _, id = GetSpellBookItemInfo(spellIdx,"spell")
                         local name, subname, id = GetSpellBookItemName(spellIdx,"spell")
+                        -- Nil Catch
+                        if id == nil then id = select(7,GetSpellInfo(name)) end
+                        -- Additional Nil Catch
+                        if id == nil then id = select(2,GetSpellBookItemInfo(spellIdx,"spell")) end
                         -- local name = GetSpellInfo(id)
                         -- Print("Name: "..tostring(name).." | ID: "..tostring(id))
                         -- Only look at spells that have a level we learn and are not passive
