@@ -179,7 +179,7 @@ function getLineOfSight(Unit1, Unit2)
 	end
 	local skipLoSTable = br.lists.los
 	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)] 
-		or getDebuffRemain(Unit1,308496) > 0 or getDebuffRemain(Unit2,308496) > 0 -- Kyrian Hunter Ability
+		or getDebuffRemain(Unit1,308498) > 0 or getDebuffRemain(Unit2,308498) > 0 -- Kyrian Hunter Ability
 	then
 		return true
 	end
