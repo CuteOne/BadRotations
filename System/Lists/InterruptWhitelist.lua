@@ -4,7 +4,7 @@ end
 -- Interrupt Whitelist - A list of spells we know for sure we want to interrupt (Typically in Dungeons and Raids)
 br.lists.interruptWhitelist = {
 	-- De other side start
-	[333227] = true, -- Undying rage
+	-- [333227] = true, -- Undying rage
 	[332329] = true, -- Devoted Sacrifice
 	[332706] = true, -- Renew
 	[332666] = true, -- Heal
