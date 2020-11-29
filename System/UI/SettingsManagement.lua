@@ -51,8 +51,6 @@ function br:loadSettings(folder,class,spec,profile)
 		if br:findFileInFolder("savedSettings.lua",loadDir) then
 			Print("Loading Settings File From Directory: "..loadDir)
 			brdata = br.tableLoad(loadDir .. "savedSettings.lua")
-			-- br.data = deepcopy(brdata)
-			-- brdata = nil
 			fileFound = true
 		end
 		-- Load Profile
@@ -60,22 +58,13 @@ function br:loadSettings(folder,class,spec,profile)
 			-- Print("Loading Saved Profiles")
 			-- Print("From Directory: "..loadDir)
 			brprofile = br.tableLoad(loadDir .. "savedProfile.lua")
-			-- br.profile = deepcopy(brprofile)
-            -- brprofile = nil
             profileFound = true
         end
         if fileFound then
             br.ui:closeWindow("all")
-            -- mainButton:Hide()
             br.data = deepcopy(brdata)
             if profileFound then br.profile = deepcopy(brprofile) end
             Print("Loaded Settings for Profile "..profile)
-            -- br.ui:loadWindowPositions("config")
-            -- br.ui:loadWindowPositions("profile")
-            -- br.ui.window.config = {}
-		    -- br.ui:createConfigWindow()  
-            -- br.ui:toggleWindow("config")
-            -- ReloadUI()
         end
         if not fileFound then 
             Print("No File Called 'savedSettings.lua' Found In "..loadDir)
@@ -83,10 +72,17 @@ function br:loadSettings(folder,class,spec,profile)
         TogglesFrame()
 		br.ui.window.config = {}
 		br.ui:createConfigWindow()
-		br.ui:toggleWindow("config")
-        -- br.ui:loadWindowPositions("config")
-        -- br.ui:loadWindowPositions("profile")
-        br.currentSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+		if spec == nil then spec = select(2,GetSpecializationInfo(GetSpecialization())) end
+		if spec == nil then spec = br.currentSpec end
+		if spec == '' then spec = "Initial" end
+		local initialLoad = br.data.settings[spec].config.initialLoad or false
+		if initialLoad then
+			br.ui:closeWindow("config")
+		else
+			br.ui:toggleWindow("config")
+			br.data.settings[spec].config.initialLoad = true
+		end
+		br.currentSpec = select(2,GetSpecializationInfo(GetSpecialization()))
         br.data.loadedSettings = true
 	end
 end
@@ -96,7 +92,6 @@ function br:saveSettings(folder,class,spec,profile,wipe)
 	local saveDir = br:checkDirectories(folder,class,spec,profile)
 	local brdata = wipe and {} or deepcopy(br.data)
 	local brprofile = wipe and {} or deepcopy(br.profile)
-	-- br:saveLastProfileTracker()
 	Print("Saving Profiles and Settings to Directory: "..tostring(saveDir))
 	-- -- Reset Files
 	-- br.tableSave({},saveDir .. "savedSettings.lua")
@@ -154,72 +149,3 @@ function br:saveLastProfileTracker()
     -- Print("Saving Tracker to Directory: "..tostring(saveDir))
 	br.tableSave(br.data.tracker,saveDir .. "lastProfileTracker.lua")
 end
-
-
-
-
-
--- br.loader = {}
--- local class = select(2,UnitClass('player'))
--- local level = UnitLevel('player')
--- local function getFolderClassName(class)
---     local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
---     if formatClass == "Deathknight" then formatClass = "Death Knight" end
---     if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
---     return formatClass
--- end
--- local function getFolderSpecName(class,specID)
---     for k, v in pairs(br.lists.spec[class]) do
---         if v == specID then return tostring(k) end
---     end
--- end
--- local function rotationsDirectory()
---     return GetWoWDirectory() .. '\\Interface\\AddOns\\' .. br.addonName .. '\\Rotations\\'
--- end
--- local function settingsDirectory()
---     return GetWoWDirectory() .. '\\Interface\\AddOns\\' .. br.addonName .. '\\Settings\\'
--- end
--- local function loadFile(profile,file,support)
---     local loadProfile = loadstring(profile,file)
---     if loadProfile == nil then
---         Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
---     else
---         if support then Print("Loaded Support Rotation: "..file) end
---         loadProfile()
---     end
--- end
-
--- -- Load Rotation Files
--- function br.loader.loadProfiles()
---     -- Search each Profile in the Spec Folder
---     wipe(br.rotations)
---     local specID = GetSpecializationInfo(GetSpecialization())
---     local folderSpec = getFolderSpecName(class,specID)
---     local path = rotationsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\'
---     local profiles = GetDirectoryFiles(path .. '*.lua')
---     local profileName = ""
---     for _, file in pairs(profiles) do
---         local profile = ReadFile(path..file)
---         local start = string.find(profile,"local id = ",1,true) or 0
---         local profileID = 0
---         if folderSpec == "Initial" then 
---             profileID = tonumber(string.sub(profile,start+10,start+14))
---         else
---             profileID = tonumber(string.sub(profile,start+10,start+13))
---         end
---         if profileID == specID then 
---             loadFile(profile,file,false) 
---             -- Get Rotation Name from File
---             start = string.find(profile,"local rotationName = ",1,true) or 0
---             local endString = string.find(profile,"\n",1,true) or 0
---             profileName = tostring(string.sub(profile,start+20,endString))
---             endString = string.find(profile,"\" -",1,true) or 0
---             if endString > 0 then profileName = tostring(string.sub(profile,start+20,endString)) end
---         end
---     end
---     path = settingsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\' .. profileName .. '\\' 
---     local settings = GetDirectoryFiles(path .. '*.lua')
---     for _, file in pairs(settings) do
---         Print("File: "..tostring(file).." | Profile: "..profileName)
---     end
--- end
