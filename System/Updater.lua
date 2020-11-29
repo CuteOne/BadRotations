@@ -1,212 +1,168 @@
-local addonName
-local addonPath
-local currentCommit
-local latestCommit
+----------------------------------------------------------------------------------------------------
+-- Variables
+----------------------------------------------------------------------------------------------------
 local cdnUrl = "https://cdn.badrotations.org/"
 local apiUrl = "https://www.badrotations.org/"
 
-local f = CreateFrame('frame')
+local br = _G["br"]
+br.updater = {}
+
+local addonPath
+local currentCommit
+local purple = "|cffa330c9"
 local isInitialized = false
 
-local fileList = {}
-local isBusy = false
-local downloadIndex = 0
-local lastUpdateTime
-
-local updateRequested = false
-
-local br = _G["br"]
-
--- Add files here to keep them from being overridden.
-local ignoreFileList = {
-    --["System\\SlashCommands.lua"] = "",
-    --["Updater.lua"] = ""
-}
+----------------------------------------------------------------------------------------------------
+-- Utilities
+----------------------------------------------------------------------------------------------------
+local function IsSettingChecked()
+   return isChecked("Auto Check for Updates")
+end
 
 local function Print(msg)
-	if msg == nil then return end
-	print(br.classColor .. "[BadRotations] |cffFFFFFF" .. msg)
+   if msg == nil then return end
+   print(br.classColor .. "[BadRotations] |cffFFFFFF" .. msg)
 end
 
-local function DownloadFile(filePath)
-    if filePath == nil or addonPath == nil then return end
-    if ignoreFileList[filePath] ~= nil then return end
-
-    isBusy = true
-
-    -- Change slashes and encode spaces
-    local requestUrl = cdnUrl .. latestCommit .. "/" .. filePath:gsub("\\", "/"):gsub(" ", "%%20")
-    
-    -- Rename the .toc file to match a changed addon name
-    if filePath == "BadRotations.toc" then
-        filePath = addonName .. ".toc"
-    end
-        
-    Print("Downloading (" .. downloadIndex .. " / " .. #fileList .. ") " .. string.format("%.1f%%", (downloadIndex / #fileList) * 100) .. "\n    " .. filePath)
-
-    -- Relies on EWT
-    SendHTTPRequest(requestUrl, nil, function(body)        
-        local localPath = addonPath .. "\\" .. filePath
-        localPath = localPath:gsub("/", "\\")
-        WriteFile(localPath, body, false, true)
-        isBusy = false
-    end, nil, 0x2)
+local function PrintError(msg)
+   if msg == nil then return end
+   print(br.classColor .. "[BadRotations] |cffff6666" .. msg)
 end
 
--- Called from /br reinstall
-function br.Reinstall()
-    isBusy = true
-    fileList = {}
-
-    local fileListPath = cdnUrl .. latestCommit .. "/AllFiles.txt"
-    Print("Getting list of files from: " .. fileListPath)
-
-    SendHTTPRequest(fileListPath, nil, function(body)
-        for s in body:gmatch("[^\r\n]+") do
-            table.insert(fileList, s)
-        end
-
-        downloadIndex = 1
-        isBusy = false
-        Print("Finished getting list: " .. #fileList .. " files")
-    end, nil, false)
+local function RaidWarning(message)
+   if isChecked("Overlay Messages") then
+      RaidNotice_AddMessage(RaidWarningFrame, message, {r = 1, g = 0.3, b = 0.1})
+   end
 end
 
--- Called from /br confirm
-function br.Confirm()
-    if not updateRequested then
-        Print("Check for updates with /br update")
-    end
-
-    isBusy = true
-    SendHTTPRequest(apiUrl.."update/diff/"..currentCommit, nil, function(json)          
-        fileList = {}
-        local changedFilesSection = json:match('"ChangedFiles":%[(.-)]')
-        for file in changedFilesSection:gmatch('"(.-)"') do
-            if file ~= "BadRotations.toc" then 
-                table.insert(fileList, file)
-            end
-        end
-        
-        downloadIndex = 1
-        lastUpdateTime = GetTime()
-        isBusy = false
-    end, nil, false)
+local function SendRequestAsync(url, OnComplete)
+   SendHTTPRequest(url, nil, function(body, code, req, res, err)
+      if type(OnComplete) == "function" then
+         OnComplete(body, code, req, res, err)
+      end
+   end, nil, 0)
 end
 
--- Called from /br update
-function br.Update()
-    isBusy = true
-    SendHTTPRequest(apiUrl.."version", nil, function(commitSha)
-        latestCommit = commitSha
-        if latestCommit == currentCommit then
-            Print("Already up to date.")
-            lastUpdateTime = GetTime()
-            isBusy = false
-            return
-        end
-
-        Print("|cffFF0000WARNING TO DEVS: |cffFFFFFFThis does not use Git and will override any pending file changes.\n|cffFFFFFFType |cff008C80/br confirm |cffFFFFFFto continue with in-game update.")
-        updateRequested = true
-        isBusy = false
-    end, nil, false)
+----------------------------------------------------------------------------------------------------
+-- Update
+----------------------------------------------------------------------------------------------------
+function br.updater:Update()
+   if not IsSettingChecked() then
+      Print("Setting is disabled. To enable: Configuration > General > Auto Check for Updates")
+   else
+      Print("In-game updating coming Soon™")
+   end
 end
 
--- Called on timer
-local function CheckForUpdates()
-    isBusy = true
-    SendHTTPRequest(apiUrl .. "version", nil, function(commitSha)
-        latestCommit = commitSha
+----------------------------------------------------------------------------------------------------
+-- Check for Updates
+----------------------------------------------------------------------------------------------------
+local function SetLatestCommitAsync(OnComplete)
+   local url = apiUrl .. "commits/latest"
 
-        if latestCommit ~= currentCommit then
-            SendHTTPRequest(apiUrl .. "update/diff/" .. currentCommit, nil, function(json)
-                local aheadBy = json:match('"AheadBy":(.-),')
-                local commitSection = json:match('"Commits":%[(.-)%]')
-                
-                Print("BadRotations is currently |cff008C80" .. aheadBy .. " |cffFFFFFFversions out of date.\nLocal version: |cff008C80"..currentCommit.." |cffFFFFFFLatest version: |cff008C80"..latestCommit..".")
+   SendRequestAsync(url, function(body, code, req, res, err)
+      latestCommit = body
 
-                for commit in commitSection:gmatch('{(.-)}') do
-                    local sha = commit:match('"Sha":"(.-)",')
-                    local message = commit:match('"Message":"(.-)["\r\n]')                    
-                    print("|cff008C80  "..sha..": |cffFFFFFF ".. message)
-                end
-
-                Print("Please update for best performance via Git or |cff008C80/br update")
-
-                if isChecked("Overlay Messages") then
-                    local outdatedMessage = "BadRotations is currently " .. aheadBy .. " versions out of date.\nPlease update for best performance via Git or |cff008C80/br update"
-                    RaidNotice_AddMessage(RaidWarningFrame, outdatedMessage, {r=1, g=0.3, b=0.1})
-                end
-                
-                lastUpdateTime = GetTime()
-                isBusy = false            
-            end, nil, false)
-        else
-            lastUpdateTime = GetTime()
-            isBusy = false            
-        end
-    end, nil, false)
+      if type(OnComplete) == "function" then
+         OnComplete(body, code, req, res, err)
+      end
+   end)
 end
 
+local function CheckForUpdatesAsync(OnComplete)
+   SetLatestCommitAsync(function()
+      if currentCommit == latestCommit then
+         if type(OnComplete) == "function" then
+            OnComplete()
+         end
+      end
+
+      local url = apiUrl .. "commits/diff/" .. currentCommit
+      SendRequestAsync(url, function(json)
+         local aheadBy = json:match('"AheadBy":(.-),')
+         local commitSection = json:match('"Commits":%[(.-)%]')
+         Print("Local version: "..purple..currentCommit:sub(1, 7).." |cffFFFFFFLatest version: "..purple..latestCommit:sub(1, 7)..".")
+
+         for commit in commitSection:gmatch("{(.-)}") do
+            local author = commit:match('"Author":"(.-)",')
+            local message = commit:match('"Message":"(.-)["\r\n]')
+            print("    "..purple..author..": |cffFFFFFF "..message)
+         end
+
+         --    Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n"..
+         --    "Please update for best performance via Git or "..purple.."/br update")
+         --    RaidWarning("BadRotations is currently " .. aheadBy .. " versions out of date.\nPlease update for best performance via Git or "..purple.."/br update")
+         Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n".."Please update for best performance.")
+         RaidWarning("BadRotations is currently "..aheadBy.." versions out of date.\nPlease update for best performance.")
+
+         if type(OnComplete) == "function" then
+            OnComplete(json)
+         end
+      end)
+   end)
+end
+
+-- Called on timer from System/Unlockers.lua after EWT has been loaded
+function br.updater:CheckOutdated()
+   if not IsSettingChecked() then return end
+
+   br.updater:Initialize()
+   if not isInitialized then return end
+   CheckForUpdatesAsync()
+end
+
+----------------------------------------------------------------------------------------------------
+-- Initialize
+----------------------------------------------------------------------------------------------------
 local function GetAddonName()
-    for i = 1, GetNumAddOns() do
-        local name, title = GetAddOnInfo(i)
-        if title == "|cffa330c9BadRotations" then
-            return name
-        end
-    end
+   for i = 1, GetNumAddOns() do
+      local name, title = GetAddOnInfo(i)
+      if title == purple .. "BadRotations" then
+         return name
+      end
+   end
 end
 
-local function GetCurrentCommit()
-    local fetchHeadFile = addonPath .. ".git\\FETCH_HEAD"
-    local headContent = ReadFile(fetchHeadFile);
+local function InitCurrentCommit(latestCommit)
+   local headFile = addonPath .. ".git\\refs\\heads\\master"
+   local headContent = ReadFile(headFile)
 
-    if headContent == nil then
-        Print("Couldn't get Git commit version. Reinstalling may be needed, from Git or /br reinstall")
-        return ""
-    end
+   if headContent ~= nil then
+      currentCommit = headContent
+      return true
+   end
 
-    return headContent:sub(1, 7)
+   -- Using Git, not GitHub can change the master branch to 'main'
+   headFile = addonPath .. ".git\\refs\\heads\\main"
+   headContent = ReadFile(headFile)
+
+   if headContent ~= nil then
+      currentCommit = headContent
+      return true
+   end
+
+   currentCommit = latestCommit
+   PrintError("Couldn't detect local Git master commit. ASSUMING latest version. Redownload may be needed if problems arise.")
+   Print("Version: " .. purple .. currentCommit:sub(1, 7))
+   WriteFile(headFile, latestCommit, false, true)
+   return false
 end
 
-local function Init()
-    addonName = GetAddonName()
-    addonPath = GetWoWDirectory() .. "\\Interface\\AddOns\\" .. addonName .. "\\"
-    currentCommit = GetCurrentCommit()
+local initRequested = false
+function br.updater:Initialize()
+   if not IsSettingChecked() then return end
 
-    Print("Current version: "..currentCommit)
-    CheckForUpdates()
-    isInitialized = true
+   if initRequested then return end
+   initRequested = true
+   addonPath = GetWoWDirectory() .. "\\Interface\\AddOns\\" .. GetAddonName() .. "\\"
+
+   SetLatestCommitAsync(function()
+      local hadLocalVersion = InitCurrentCommit(latestCommit)
+      if not hadLocalVersion then return end
+      if currentCommit == latestCommit then return end
+
+      CheckForUpdatesAsync(function()
+            isInitialized = true
+      end)
+   end)
 end
-
-f:SetScript("OnUpdate", function()
-    -- ewt isn't loaded or don't need to do anything
-    if GetObjectCount == nil or isBusy then return end
-
-    -- Need to initialize 
-    if not isInitialized then Init() return end
-
-    -- Already downloading or doing something
-    if isBusy then return end
-
-    -- Check for updates every 5 minutes
-    if (GetTime() - lastUpdateTime) > 300 then
-        CheckForUpdates()
-        return
-    end
-
-    -- Nothing to download
-    if #fileList < 1 or downloadIndex == 0 then return end
-
-    -- Done downloading, reset
-    if downloadIndex > #fileList then
-        fileList = {}
-        downloadIndex = 0
-        Print("Finished downloading. /reload to apply updates.")
-        --RunMacroText("/reload")
-    end
-    
-    -- Download the next file in the list
-    DownloadFile(fileList[downloadIndex])
-    downloadIndex = downloadIndex + 1
-end)
