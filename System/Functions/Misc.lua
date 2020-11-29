@@ -318,11 +318,30 @@ function isInCombat(Unit)
 		return false
 	end
 end
+function isInArdenweald()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Ardenweald,mapID)
+end
 function isInBastion()
 	local tContains = tContains
-	local currentMapID = C_Map.GetBestMapForUnit("player")
-	local bastionMapIDs = br.lists.maps.Bastion
-	return tContains(bastionMapIDs, currentMapID)
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Bastion,mapID)
+end
+function isInMaldraxxus()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Maldraxxus,mapID)
+end
+function isInRevendreth()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Revendreth,mapID)
+end
+function isInTheMaw()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.TheMaw,mapID)
 end
 -- if isInDraenor() then
 function isInDraenor()

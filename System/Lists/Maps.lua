@@ -27,9 +27,19 @@ br.lists.maps = {
 		1033, -- Suramar
 		1018, -- Val'sharah
 	},
+	Ardenweald = {
+		1565,
+	},
 	Bastion = {
-		1533, -- Bastion
-		1569, -- Bastion
-		1813, -- Bastion
+		1533,
+	},
+	Maldraxxus = {
+		1536,
+	},
+	Revendreth = {
+		1525,
+	},
+	TheMaw = {
+		1543,
 	}
 }
