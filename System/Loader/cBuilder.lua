@@ -157,8 +157,8 @@ function br.loader:new(spec,specName)
                     -- Print("Book: "..tostring(bookName).." | Start: "..idxStart.." | Total: "..idxTotal)
                     for spellIdx = idxStart, idxStart + idxTotal do
                         -- Print("Book: "..tostring(bookName).." | Class: "..tostring(UnitClass('player').." | Spec: "..tostring(specName)))
-                        local _, id = GetSpellBookItemInfo(spellIdx,"spell")
-                        local name, subname = GetSpellBookItemName(spellIdx,"spell")
+                        --local _, id = GetSpellBookItemInfo(spellIdx,"spell")
+                        local name, subname, id = GetSpellBookItemName(spellIdx,"spell")
                         -- local name = GetSpellInfo(id)
                         -- Print("Name: "..tostring(name).." | ID: "..tostring(id))
                         -- Only look at spells that have a level we learn and are not passive
