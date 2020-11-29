@@ -276,8 +276,8 @@ actionList.Defensive = function()
             if cast.chaosNova() then ui.debug("Casting Chaos Nova [AoE]") return true end
         end
 		if ui.checked("Consume Magic") then
-            for i=1, #enemies.yards10 do
-                local thisUnit = enemies.yards10[i]
+            for i=1, #enemies.yards30 do
+                local thisUnit = enemies.yards30[i]
                 if cast.able.consumeMagic(thisUnit) and cast.dispel.consumeMagic(thisUnit)
                     and not unit.isBoss(thisUnit) and unit.exists(thisUnit)
                 then
@@ -557,7 +557,7 @@ actionList.Demonic = function()
             or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Units To AoE"))
             or ui.mode.rotation == 2) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
-        if cast.eyeBeam(nil,"rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
@@ -685,7 +685,7 @@ actionList.Normal = function()
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam() and enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
         and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
-        if cast.eyeBeam(nil,"rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
+        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
@@ -703,7 +703,7 @@ actionList.Normal = function()
         and enemies.yards20r > 0 and not unit.moving() and not talent.blindFury and not var.waitingForEssenceBreak
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
-        if cast.eyeBeam(nil,"rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
     end
     -- Annihilation
     -- annihilation,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance&!variable.waiting_for_essence_break
@@ -725,7 +725,7 @@ actionList.Normal = function()
         and enemies.yards20r > 0 and not unit.moving() and talent.blindFury
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
-        if cast.eyeBeam(nil,"rect",1,20) then ui.debug("Casting Eye Beam [Blind Fury]") return true end
+        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Blind Fury]") return true end
     end
     -- Demon's Bite
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
