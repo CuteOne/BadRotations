@@ -769,7 +769,7 @@ actionList.Cooldowns = function()
         end
         -- Adaptive Swarm
         -- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
-        if cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adativeSwarm.exists(var.maxTTDUnit) then
+        if cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adaptiveSwarm.exists(var.maxTTDUnit) then
             if cast.adaptiveSwarm(var.maxTTDUnit) then ui.debug("Casting Adaptive Swarm [Necrolord]") return true end
         end
         -- Trinkets
