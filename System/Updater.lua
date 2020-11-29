@@ -80,6 +80,16 @@ local function CheckForUpdatesAsync(OnComplete)
       local url = apiUrl .. "commits/diff/" .. currentCommit
       SendRequestAsync(url, function(json)
          local aheadBy = json:match('"AheadBy":(.-),')
+         if aheadBy == "0" then
+            if not isInitialized then
+               Print("Up to date. Version "..purple..currentCommit:sub(1, 7))
+            end
+            if type(OnComplete) == "function" then
+               OnComplete(json)
+            end
+            return
+         end
+               
          local commitSection = json:match('"Commits":%[(.-)%]')
          Print("Local version: "..purple..currentCommit:sub(1, 7).." |cffFFFFFFLatest version: "..purple..latestCommit:sub(1, 7)..".")
 
