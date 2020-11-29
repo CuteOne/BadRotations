@@ -372,6 +372,10 @@ function handler(message, editbox)
 				"|cFFFF0000 icon |r - Shows/Hides minimap button\n"
 			)
 		end
+
+-- Updater
+	elseif msg1 == "update" then
+		br.updater:Update() 
 	else
 		Print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
 	end

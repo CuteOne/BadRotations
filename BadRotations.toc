@@ -168,4 +168,4 @@ System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
 System\Misc\Zu\MawOfSouls\Helya.lua
 
 ## Updater --------------------------------------------
-#System\Updater.lua
+System\Updater.lua

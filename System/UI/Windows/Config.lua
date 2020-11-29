@@ -21,6 +21,8 @@ function br.ui:createConfigWindow()
         br.ui:createSpinner(section,  "Notify Not Unlocked", 10, 5, 60, 5, "Will alert you at the set interval when Unlocker is not attached.")
         br.ui:createCheckbox(section, "Reset Options", "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset setting on reload!")
         br.ui:createCheckbox(section, "Reset Saved Profiles", "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset saved profiles on reload!")
+
+        br.ui:createCheckbox(section, "Auto Check for Updates", "EWT only. |cffFF0000Experimental!")
         br.ui:checkSectionState(section)
     end
 
