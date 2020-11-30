@@ -67,7 +67,8 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.00")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
+            br.ui:createCheckbox(section, "Disable Auto Ground Cast Circle Cancel")
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -187,7 +188,7 @@ local function createOptions()
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Healing Rain
-            br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets")
             br.ui:createCheckbox(section,"Healing Rain on Melee", "Cast on Melee only")
             br.ui:createCheckbox(section,"Healing Rain on CD", "Requires Healing Rain on Melee to be checked to work")
@@ -205,6 +206,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Wave",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Healing Stream Totem
+            br.ui:createSpinner(section, "Healing Stream Totem",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Chain Heal
             br.ui:createSpinner(section, "Chain Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")  
@@ -283,18 +286,14 @@ local function runRotation()
         local friends                                       = friends or {}
         local burst = nil
 
-        units.get(8)
-        units.get(40)
+        --units.get(8)
+        --units.get(40)
         enemies.get(5)
-        enemies.get(8)
-        enemies.get(8,"target")
         enemies.get(10)
         enemies.get(10,"target")
         enemies.get(20)
         enemies.get(30)
         enemies.get(40)
-        friends.yards8 = getAllies("player",8)
-        friends.yards25 = getAllies("player",25)
         friends.yards40 = getAllies("player",40)
         
         local lowest = {}
@@ -316,6 +315,14 @@ local function runRotation()
                 else 
                     burst = false
                 end
+            end
+        end
+
+        local tankIsNotMoving = nil
+        for i = 1, #tanks do
+            local tank = tanks[i].unit
+            if not isMoving(tank) then
+                tankIsNotMoving = true
             end
         end
 
@@ -578,12 +585,12 @@ local function runRotation()
         -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
                 if debuff.flameShock.exists("target") then
-                    if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return true end
+                    if cast.lavaBurst() then br.addonDebug("Casting Lava Burst (Lava Surge)") return true end
                 else
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if debuff.flameShock.exists(thisUnit) then
-                            if cast.lavaBurst(thisUnit) then br.addonDebug("Casting Lava Burst") return true end
+                            if cast.lavaBurst(thisUnit) then br.addonDebug("Casting Lava Burst (Lava Surge)") return true end
                         end
                     end
                 end
@@ -596,7 +603,7 @@ local function runRotation()
                 end
             end
         -- Lava Burst
-            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) or level < 20 and movingCheck then
+            if (debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) or level < 20) and movingCheck then
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
             end
 		-- Chain Lightning
@@ -811,6 +818,44 @@ local function runRotation()
                     end
                 end
             end
+            if mode.healingR == 1 and movingCheck and cast.timeSinceLast.healingRain() > 0 then
+                if not buff.healingRain.exists() then
+                    -- get melee players
+                    for i=1, #tanks do
+                        -- get the tank's target
+                        local tankTarget = UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil and getDistance(tankTarget,"player") < 40 then
+                            -- get players in melee range of tank's target
+                            local meleeFriends = getAllies(tankTarget,5)
+                            -- get the best ground circle to encompass the most of them
+                            local loc = nil
+                            if isChecked("Healing Rain on CD") and not isMoving(tanks[i].unit) then
+                                -- CastGroundHeal(spell.healingRain, meleeFriends)
+                                -- return
+                                if #meleeFriends < 12 then
+                                    local x, y, z = GetObjectPosition(tanks[i].unit)
+                                    loc = {
+                                        ["x"] = x + math.random(-2,2),
+                                        ["y"] = y + math.random(-2,2),
+                                        ["z"] = z
+                                    }
+                                else
+                                    if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,1,6,true, true) then
+                                        if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                        br.addonDebug("Casting Healing Rain (CD)") return 
+                                    end
+                                end
+                            end
+                            if loc ~= nil then
+                                if castGroundAtLocation(loc, spell.healingRain) then 
+                                    if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                    br.addonDebug("Casting Healing Rain (Cast Ground CD)") return 
+                                end
+                            end
+                        end
+                    end
+                end
+            end	
             -- Chain Heal with Legendary (To do)
             -- Healing Wave with Legendary (To do)            
             -- Cooldowns
@@ -840,7 +885,7 @@ local function runRotation()
                 end
             end
             -- Healing Wave (Necrolord)
-            if covenant.necrolord.active and buff.primordialWave.exists() then
+            if covenant.necrolord.active and buff.primordialWave.exists() and movingCheck then
                 if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave (Primordial Wave buff)") return end
             end
             -- Primordial Wave
@@ -858,8 +903,8 @@ local function runRotation()
                 end
             end
             -- Healing Rain
-            if movingCheck and cd.healingRain.remain() <= gcd and br.timer:useTimer("HR Delay",5) then
-                if isChecked("Healing Rain") and not buff.healingRain.exists() and mode.healingR == 1 then
+            if movingCheck and cd.healingRain.remain() <= gcd and cast.timeSinceLast.healingRain() > 3 then
+                if not buff.healingRain.exists() and mode.healingR == 1 then
                     if isChecked("Healing Rain on Melee") then
                         -- get melee players
                         for i=1, #tanks do
@@ -870,33 +915,27 @@ local function runRotation()
                                 local meleeFriends = getAllies(tankTarget,5)
                                 -- get the best ground circle to encompass the most of them
                                 local loc = nil
-                                if isChecked("Healing Rain on CD") then
-                                    -- CastGroundHeal(spell.healingRain, meleeFriends)
-                                    -- return
-                                    if #meleeFriends >= getValue("Healing Rain Targets") then
-                                        if #meleeFriends < 12 then
-                                            loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
-                                        else
-                                            if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
-                                        end
+                                local meleeHurt = {}
+                                for j=1, #meleeFriends do
+                                    if meleeFriends[j].hp < getValue("Healing Rain") then
+                                        tinsert(meleeHurt,meleeFriends[j])
                                     end
-                                else
-                                    local meleeHurt = {}
-                                    for j=1, #meleeFriends do
-                                        if meleeFriends[j].hp < getValue("Healing Rain") then
-                                            tinsert(meleeHurt,meleeFriends[j])
-                                        end
-                                    end
-                                    if #meleeHurt >= getValue("Healing Rain Targets") then
-                                        if #meleeHurt < 12 then
-                                            loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
-                                        else
-                                            if castWiseAoEHeal(meleeHurt,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
+                                end
+                                if #meleeHurt >= getValue("Healing Rain Targets") then
+                                    if #meleeHurt < 12 then
+                                        loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                    else
+                                        if castWiseAoEHeal(meleeHurt,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then
+                                            if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                            br.addonDebug("Casting Healing Rain") return 
                                         end
                                     end
                                 end
                                 if loc ~= nil then
-                                    if castGroundAtLocation(loc, spell.healingRain) then br.addonDebug("Casting Healing Rain (Cast Ground)") return true end
+                                    if castGroundAtLocation(loc, spell.healingRain) then 
+                                        if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                        br.addonDebug("Casting Healing Rain (Cast Ground)") return 
+                                    end
                                 end
                             end
                         end
@@ -977,16 +1016,25 @@ local function runRotation()
                                     if #meleeHurt < 12 then
                                         loc = getBestGroundCircleLocation(meleeHurt,getValue("Downpour Targets"),6,10)
                                     else
-                                        if castWiseAoEHeal(meleeHurt,spell.downpour,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then br.addonDebug("Casting Downpour") return end
+                                        if castWiseAoEHeal(meleeHurt,spell.downpour,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then 
+                                            if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                            br.addonDebug("Casting Downpour") return 
+                                        end
                                     end            
                                 end
                                 if loc ~= nil then
-                                    if castGroundAtLocation(loc, spell.downpour) then br.addonDebug("Casting Downpour") return true end
+                                    if castGroundAtLocation(loc, spell.downpour) then 
+                                        if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                        br.addonDebug("Casting Downpour") return 
+                                    end
                                 end
                             end
                         end
                     else
-                        if castWiseAoEHeal(br.friend,spell.downpour,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then br.addonDebug("Casting Downpour") return end
+                        if castWiseAoEHeal(br.friend,spell.downpour,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then 
+                            if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                            br.addonDebug("Casting Downpour") return 
+                        end
                     end
                 end 
             end
@@ -1025,10 +1073,10 @@ local function runRotation()
             Print("Detecting Healing Engine is not turned on.  Please activate Healing Engine to use this profile.")
             return
         end
+        if inCombat and not isChecked("Disable Auto Ground Cast Circle Cancel") then
+            if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+         end
         ghostWolf()
-        if inCombat then
-           if IsAoEPending()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
-        end
         -- Pause
         if pause() then
             return true
@@ -1075,15 +1123,17 @@ local function runRotation()
                             end
                         end
                     end
-                    if br.player.ui.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
-                        if isExplosive("target") then
-                            actionList_Explosive()
-                        else
-                            actionList_DPS()
+                    if not isChecked("Healing Rain on CD") or buff.healingRain.exists() or mode.healingR ~= 1 or not tankIsNotMoving then
+                        if br.player.ui.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
+                            if isExplosive("target") then
+                                actionList_Explosive()
+                            else
+                                actionList_DPS()
+                            end
                         end
-                    end
-                    if movingCheck and br.player.ui.mode.dPS == 1 and getFacing("player","target") then
-                        if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
+                        if movingCheck and br.player.ui.mode.dPS == 1 and getFacing("player","target") then
+                            if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
+                        end
                     end
                 end
             end -- End In Combat Rotation
