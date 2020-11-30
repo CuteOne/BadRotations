@@ -604,24 +604,24 @@ local function runRotation()
 
     local function actionList_CooldownsOGCD()
         -- Slice and dice for opener
-        if enemies10 < 6 and ttd("target") > 6 and combo >= 2 and not buff.sliceAndDice.exists("player") and (combatTime < 4 and cd.vanish.remain() < 118.5) then
+        if enemies10 < 6 and ttd("target") > 6 and combo >= 2 and not buff.sliceAndDice.exists("player") and (combatTime < 6 and cd.vanish.remain() < 118) then
             if cast.sliceAndDice("player") then return true end
         end
         -- # Rupture condition for opener with MA
-        if talent.premeditation and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 4 and cd.vanish.remain() < 118.5) then
+        if talent.premeditation and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 4 and cd.vanish.remain() < 118) then
             if cast.rupture("target") then return true end
         end
         -- Kyrian opener
-        if sndCondition == 1 and buff.shadowBlades.exists() and buff.symbolsOfDeath.exists() and (combatTime < 4 and cd.vanish.remain() < 118.5) then
+        if sndCondition == 1 and buff.symbolsOfDeath.exists() and (combatTime < 4 and cd.vanish.remain() < 118) and cast.able.echoingReprimand() then
             if cast.echoingReprimand("target") then return true end
         end
         -- Necro, Fae, Venthyr opener
-        if sndCondition == 1 and not stealthedRogue and (not talent.premeditation or debuff.rupture.exists("target")) and (combatTime < 4 and cd.vanish.remain() < 118.5) then
-            if covenant.necrolord.active then
+        if sndCondition == 1 and not stealthedRogue and (not talent.premeditation or debuff.rupture.exists("target")) and (combatTime < 4 and cd.vanish.remain() < 118) then
+            if covenant.necrolord.active and cast.able.serratedBoneSpike() then
                 if cast.serratedBoneSpike("target") then return true end
-            elseif covenant.nightFae.active then
+            elseif covenant.nightFae.active and cast.able.sepsis() then
                 if cast.sepsis("target") then return true end
-            elseif covenant.venthyr.active then
+            elseif covenant.venthyr.active and cast.able.flagellation() then
                 if cast.flagellation("target") then return true end
             end  
         end
@@ -632,7 +632,7 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
+        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points.deficit>=2
@@ -694,7 +694,7 @@ local function runRotation()
         end
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus.
         -- actions.cds+=/symbols_of_death,if=variable.snd_condition&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)
-        if mode.sod == 1 and sndCondition == 1 and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and 
+        if mode.sod == 1 and sndCondition == 1 and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and (fightRemain > 10 or isBoss()) and
          (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd == 0 and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
         end
@@ -831,7 +831,7 @@ local function runRotation()
         -- Added vanish checks, coming off gcd to prevent casting after finisher and on GCD
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
         if mode.sd == 1 and ttd("target") > 3 and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
-         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target"))
+         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target") or not talent.premeditation)
          and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo < (4 + dSEnabled) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
             if cast.shadowDance("player") then return true end
         end
@@ -949,7 +949,7 @@ local function runRotation()
             end
         end
         -- actions.build+=/serrated_bone_spike,if=cooldown.serrated_bone_spike.charges_fractional>=2.75|soulbind.lead_by_example.enabled&!buff.lead_by_example.up
-        if charges.serratedBoneSpike.frac() >= 2.75 then -- or not buff.leadByExample.exists()
+        if charges.serratedBoneSpike.frac() >= 2.75 and cast.able.serratedBoneSpike() then -- or not buff.leadByExample.exists()
             if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
         end
         -- actions.build+=/gloomblade
@@ -1024,7 +1024,7 @@ local function runRotation()
                 StartAttack("target")
             end
             -- OG Opener
-            if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + getLatency()) then
+            if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + getLatency()) and isBoss() then
                 cast.shadowBlades("player")
                 cast.symbolsOfDeath("player")
                 if not covenant.kyrian.active then
