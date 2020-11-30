@@ -3706,7 +3706,6 @@ br.lists.spells = {
                 warMachine                  = 346002,
                 suddenDeath                 = 280721,
                 freshMeat                   = 215568,
-                doubleTime                  = 103827,
                 impendingVictory            = 202168,
                 stormBolt                   = 107570,
                 massacre                    = 206315,
@@ -3777,6 +3776,7 @@ br.lists.spells = {
             },
             talents                         = {
                 bestServedCold              = 202560,
+                warMachine                  = 316733,
                 bolster                     = 280001,
                 boomingVoice                = 202743,
                 cracklingThunder            = 203201,
@@ -3790,9 +3790,7 @@ br.lists.spells = {
                 punish                      = 275334,
                 ravager                     = 228920,
                 rumblingEarth               = 275339,
-                safeguard                   = 223657,
                 unstoppableForce            = 275336,
-                vengeance                   = 202572,
             },
         },
         -- All
@@ -3849,6 +3847,7 @@ br.lists.spells = {
             },
             talents                         = {
                 angerManagement             = 152278,
+                doubleTime                  = 103827,
                 boundingStride              = 202163,
                 impendingVictory            = 202168,
                 stormBolt                   = 107570,
