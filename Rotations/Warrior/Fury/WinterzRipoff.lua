@@ -107,7 +107,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.2")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.0")
         -- Battle Shout
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage
@@ -221,6 +221,8 @@ local function runRotation()
     local units = br.player.units
 	local ttd = getTTD
     local reapingDamage = getOptionValue("Reaping Flame Damage") * 1000
+    local massacreTalent = talent.massacre and 1.5 or 0
+    local condemnCDdur = (6 - massacreTalent) - ((6 - massacreTalent) * (GetHaste() / 100))
 
 
 
@@ -276,13 +278,15 @@ local function runRotation()
     local function defensivelist()
         if useDefensive() then
             -- Healthstone/Health Potion
-            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(177278) or hasItem(166799)) then
                 if canUseItem(5512) then
                     useItem(5512)
                 elseif canUseItem(healPot) then
                     useItem(healPot)
                 elseif hasItem(166799) and canUseItem(166799) then
                     useItem(166799)
+                elseif canUseItem(177278) then
+                    useItem(177278)
                 end
             end
 
@@ -391,6 +395,24 @@ local function runRotation()
 
     local function singlelist()
 
+            -- condemn test
+        for i = 1, #enemies.yards5 do
+            local thisUnit = enemies.yards5[i]
+            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)))
+                and cast.able.condemn() and cd.condemn.remains() == 0 and br.timer:useTimer("condemnCD",condemnCDdur)
+            then
+                if cast.condemn(thisUnit) then
+                    return
+                end
+            end
+        end
+        -- Onslaught
+        if (rage <= 85) and buff.enrage.exists("player") then
+            if cast.onslaught() then
+                return
+            end
+        end
+
         -- Rampage
         if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
             if cast.rampage() then
@@ -413,27 +435,13 @@ local function runRotation()
             end
         end
 
-        -- condemn test
-        if getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)) then
-            if CastSpellByName(GetSpellInfo(330325)) then
-                return
-            end
-        end
-
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) or rage <= 70 then
+            if getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
                 if cast.execute(thisUnit) then
                     return
                 end
-            end
-        end
-
-        -- Onslaught
-        if (rage <= 85) and buff.enrage.exists("player") and talent.onslaught then
-            if cast.onslaught() then
-                return
             end
         end
 
@@ -477,7 +485,7 @@ local function runRotation()
 
         -- whirlwind filler
         if filler then
-            if cast.whirlwind("player", nil, 1, 5) then
+            if cast.whirlwind(units.dyn5, "aoe", 1, 5) then
                 return
             end
         end
@@ -605,7 +613,7 @@ local function runRotation()
         --end
         --racials
         if isChecked("Racials") and br.player.ui.mode.cooldown ~= 3 then
-            if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
+            if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race=="MagharOrc" then
                 if cast.racial("player") then
                     return
                 end
