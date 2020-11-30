@@ -537,7 +537,7 @@ local function runRotation()
                     if isChecked("Kick") and distance < 5 then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.remain() ~= 0 and distance < 5 then
+                    if cd.kick.remain() ~= 0 and distance < 5 and isCrowdControlCandidates(interrupt_target) then
                         if isChecked("Kidney Shot/Cheap Shot") then
                             if stealthedAll then
                                 if cast.cheapShot(interrupt_target) then return true end
@@ -546,11 +546,11 @@ local function runRotation()
                             end
                         end
                     end
-                    if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
+                    if isChecked("Blind") and isCrowdControlCandidates(interrupt_target) and (cd.kick.remain() ~= 0 or distance >= 5) then
                         if cast.blind(interrupt_target) then return end
                     end
                 end
-                if isChecked("Stuns") and distance < 5 then
+                if isChecked("Stuns") and distance < 5 and isCrowdControlCandidates(interrupt_target) then
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
