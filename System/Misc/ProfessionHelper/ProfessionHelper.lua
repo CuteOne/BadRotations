@@ -37,7 +37,18 @@ function ProfessionHelper()
       ------------------------------------------------------------------------------------------------------
       if isChecked("Mill Herbs") and IsSpellKnown(51005) then
         local millMode = getValue("Mill Herbs")
-        if millMode == 6 or millMode == 1 then
+        if millMode == 7 or millMode == 1 then
+          local tableMillSL = {
+            168586, -- Rising Glory
+            168589, -- Marrowroot
+            170554, -- Vigil's Torch
+            168583, -- Widowbloom
+            169701, -- Death Blossom
+            171315 -- Nightshade
+          }
+          processThatTable(tableMillSL, 51005)
+        end
+        if millMode == 7 or millMode == 2 then
           local tableMillBFA = {
             152505, -- Riverbud
             152511, -- Sea Stalk
@@ -45,11 +56,11 @@ function ProfessionHelper()
             152507, -- Akunda's Bite
             152508, -- Winter's Kiss
             152510, -- Anchor Weed
-            168487, -- Zin'anthid
+            168487 -- Zin'anthid
           }
           processThatTable(tableMillBFA, 51005)
         end
-        if millMode == 6 or millMode == 2 then
+        if millMode == 7 or millMode == 3 then
           local tableMillLegion = {
             124105, -- Starlight Rose
             124104, -- Fjarnskaggl
@@ -59,7 +70,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillLegion, 51005)
         end
-        if millMode == 6 or millMode == 3 then
+        if millMode == 7 or millMode == 4 then
           local tableMillWoD = {
             109124, -- Frostweed
             109125, -- Fireweed
@@ -70,7 +81,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillWoD, 51005)
         end
-        if millMode == 6 or millMode == 4 then
+        if millMode == 7 or millMode == 5 then
           local tableMillMoP = {
             72234, -- Green Tea Leaf
             72237, -- Rain Poppy
@@ -81,7 +92,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillMoP, 51005)
         end
-        if millMode == 6 or millMode == 5 then
+        if millMode == 7 or millMode == 6 then
           tableMillCata = {
             52986, -- Heartblossom
             52984, -- Stormvine
@@ -97,7 +108,18 @@ function ProfessionHelper()
       ------------------------------------------------------------------------------------------------------
       if isChecked("Prospect Ores") and IsSpellKnown(31252) then
         local prospectMode = getValue("Prospect Ores")
-        if prospectMode == 6 or prospectMode == 1 then
+        if prospectMode == 7 or prospectMode == 1 then
+          local tableProspectSL = {
+            171828, -- Laestrite Ore
+            171833, -- Elethium Ore
+            171829, -- Solenium Ore
+			171830, -- Oxxein Ore
+			171831, -- Phaedrum Ore
+			171832 -- Sinvyr Ore
+          }
+          processThatTable(tableProspectSL, 31252)
+        end
+        if prospectMode == 7 or prospectMode == 2 then
           local tableProspectBFA = {
             152512, -- Monelite Ore
             152513, -- Platinum Ore
@@ -105,21 +127,21 @@ function ProfessionHelper()
           }
           processThatTable(tableProspectBFA, 31252)
         end
-        if prospectMode == 6 or prospectMode == 2 then
+        if prospectMode == 7 or prospectMode == 3 then
           local tableProspectLegion = {
             123918, -- Leystone Ore
             123919 -- Felslate Ore
           }
           processThatTable(tableProspectLegion, 31252)
         end
-        if prospectMode == 6 or prospectMode == 3 then
+        if prospectMode == 7 or prospectMode == 4 then
           local tableProspectWoD = {
             109119, -- True Iron Ore
             109118 -- Blackrock Ore
           }
           processThatTable(tableProspectWoD, 31252)
         end
-        if prospectMode == 6 or prospectMode == 4 then
+        if prospectMode == 7 or prospectMode == 5 then
           local tableProspectMoP = {
             72092, -- Ghost Iron Ore
             72093, -- Kyparite
@@ -128,7 +150,7 @@ function ProfessionHelper()
           }
           processThatTable(tableProspectMoP, 31252)
         end
-        if prospectMode == 6 or prospectMode == 5 then
+        if prospectMode == 7 or prospectMode == 6 then
           local tableProspectCata = {
             52183, -- Pyrite Ore
             52185, -- Elementium Ore
