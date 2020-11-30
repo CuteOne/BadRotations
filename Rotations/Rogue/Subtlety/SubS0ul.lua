@@ -616,7 +616,7 @@ local function runRotation()
             if cast.echoingReprimand("target") then return true end
         end
         -- Necro, Fae, Venthyr opener
-        if sndCondition == 1 and (not talent.premeditation or debuff.rupture.exists("target")) and (combatTime < 4 and cd.vanish.remain() < 118.5) then
+        if sndCondition == 1 and not stealthedRogue and (not talent.premeditation or debuff.rupture.exists("target")) and (combatTime < 4 and cd.vanish.remain() < 118.5) then
             if covenant.necrolord.active then
                 if cast.serratedBoneSpike("target") then return true end
             elseif covenant.nightFae.active then
