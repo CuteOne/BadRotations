@@ -87,14 +87,8 @@ local function createOptions()
 		--- DEFENSIVE OPTIONS ---
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
-		-- Purify Soul
-		br.ui:createSpinner(section, "Phial of Serenity",  60,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
-		-- Healthstone
-		br.ui:createSpinner(section, "Pot/Stoned",  30,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
-		-- Gift of The Naaru
-		if br.player.race == "Draenei" then
-			br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
-		end
+		-- Basic Healing Module
+		br.player.module.BasicHealing(section)
 		if br.player.race == "BloodElf" then
 			br.ui:createSpinner (section, "Arcane Torrent Dispel", 1, 0, 20, 1, "","|cffFFFFFFMinimum Torrent Targets")
 		end
@@ -248,6 +242,7 @@ local function runRotation()
 	local ttd           = getTTD("target")
 	local units         = br.player.units
 	local level         = br.player.level
+	local module        = br.player.module
 
 	units.get(5)
 	units.get(10)
@@ -342,10 +337,7 @@ local function runRotation()
 	-- Action List - Defensives
 	local function actionList_Defensive()
 		if useDefensive() then
-			-- Gift of the Naaru
-			if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
-				if castSpell("player",racial,false,false,false) then return end
-			end
+			module.BasicHealing()
 			-- Arcane Torrent
 			if isChecked("Arcane Torrent Dispel") and race == "BloodElf" then
 				local torrentUnit = 0
@@ -358,20 +350,6 @@ local function runRotation()
 							break
 						end
 					end
-				end
-			end
-			-- Purify Soul
-			if isChecked("Phial of Serenity") and php <= getOptionValue("Phial of Serenity") and inCombat and hasItem(177278) then
-				if canUseItem(177278) then
-					useItem(177278)
-				end
-			end
-			-- Pot/Stoned
-			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))then
-				if canUseItem(5512) then
-					useItem(5512)
-				elseif canUseItem(healPot) then
-					useItem(healPot)
 				end
 			end
 			-- Lay On Hands
