@@ -393,7 +393,7 @@ local function runRotation()
     if talent.subterfuge then subterfugeActive = 1 else subterfugeActive = 0 end
     if talent.gloomblade then gloombladeActive = 1 else gloombladeActive = 0 end
     if enemies10 >= 4 then ssThd = 1 else ssThd = 0 end
-    if covenant.necrolord then necroActive = 1 else necroActive = 0 end
+    if covenant.necrolord.active then necroActive = 1 else necroActive = 0 end
     if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() then someone_casting = false end
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
@@ -752,7 +752,7 @@ local function runRotation()
         if not animachargedCP then
             -- # While using Premeditation, avoid casting Slice and Dice when Shadow Dance is soon to be used, except for Kyrian
             -- actions.finish=variable,name=premed_snd_condition,value=talent.premeditation.enabled&spell_targets<(5-covenant.necrolord)&!covenant.kyrian
-            local premedSndCondition = (talent.premeditation and enemies10 < (5 - necroActive) and not covenant.kyrian) or false
+            local premedSndCondition = (talent.premeditation and enemies10 < (5 - necroActive) and not covenant.kyrian.active) or false
             -- actions.finish+=/slice_and_dice,if=!variable.premed_snd_condition&spell_targets.shuriken_storm<6&!buff.shadow_dance.up&buff.slice_and_dice.remains<fight_remains&refreshable
             if not premedSndCondition and enemies10 < 6 and not buff.shadowDance.exists() and buff.sliceAndDice.remain() < fightRemain and buff.sliceAndDice.refresh() then
                 if cast.sliceAndDice("player") then return true end
@@ -826,13 +826,13 @@ local function runRotation()
         -- actions.stealth_cds+=/variable,name=shd_combo_points,value=combo_points.deficit<=1,if=variable.use_priority_rotation&spell_targets.shuriken_storm>=4
         local shdComboPoints, shadowBladesUp
         if buff.shadowBlades.exists() then shadowBladesUp = 1 else shadowBladesUp = 0 end
-        if (comboDeficit >= (2 + shadowBladesUp)) or (comboDeficit >= 3 and covenant.kyrian) or (comboDeficit <= 1 and priorityRotation and enemies10 >= 4) then shdComboPoints = 1 else shdComboPoints = 0 end
+        if (comboDeficit >= (2 + shadowBladesUp)) or (comboDeficit >= 3 and covenant.kyrian.active) or (comboDeficit <= 1 and priorityRotation and enemies10 >= 4) then shdComboPoints = 1 else shdComboPoints = 0 end
         -- # Dance during Symbols or above threshold.
         -- Added vanish checks, coming off gcd to prevent casting after finisher and on GCD
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
         if mode.sd == 1 and ttd("target") > 3 and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
-         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian or combatTime > 6 or debuff.rupture.exists("target"))
-         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo < (4 + dSEnabled) and gcd == 0 and (not covenant.kyrian or cd.echoingReprimand.exists()) then
+         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target"))
+         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo < (4 + dSEnabled) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -1027,7 +1027,7 @@ local function runRotation()
             if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + getLatency()) then
                 cast.shadowBlades("player")
                 cast.symbolsOfDeath("player")
-                if not covenant.kyrian then
+                if not covenant.kyrian.active then
                     cast.shadowDance("player")
                 end
                 if race == "Orc" or race == "Troll" then
