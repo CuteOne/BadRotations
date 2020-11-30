@@ -130,7 +130,7 @@ local function createOptions()
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
 		-- Unstable Temporal Time Shifter
-		-- br.ui:createDropdown(section, "Unstable Temporal Time Shifter", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
+		br.ui:createDropdown(section, "Engineering Revive", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -188,8 +188,6 @@ local function createOptions()
 		br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
 		-- Interrupts Key Toggle
 		br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-		-- Consecration Key Toggle
-		br.ui:createDropdown(section, "Consecration Mode", br.dropOptions.Toggle,  6)
 		-- Pause Toggle
 		br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
 		br.ui:checkSectionState(section)
@@ -598,24 +596,24 @@ local function runRotation()
 					if cast.flashOfLight("player") then return end
 				end
 			end
-			-- Unstable Temporal Time Shifter
-			-- if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not isMoving("player") and inCombat then
-				-- if getOptionValue("Unstable Temporal Time Shifter") == 1
-					-- and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
-					-- UseItemByName(158379,"target")
-				-- end
-				-- if getOptionValue("Unstable Temporal Time Shifter") == 2
-					-- and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
-					-- UseItemByName(158379,"mouseover")
-				-- end
-				-- if getOptionValue("Unstable Temporal Time Shifter") == 3 then
-					-- for i =1, #br.friend do
-						-- if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
-							-- UseItemByName(158379,br.friend[i].unit)
-						-- end
-					-- end
-				-- end
-			-- end
+			-- Engineering Revive
+			if isChecked("Engineering Revive") and canUseItem(184308) and not isMoving("player") and inCombat then
+				if getOptionValue("Engineering Revive") == 1
+					and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+					UseItemByName(184308,"target")
+				end
+				if getOptionValue("Engineering Revive") == 2
+					and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+					UseItemByName(184308,"mouseover")
+				end
+				if getOptionValue("Engineering Revive") == 3 then
+					for i =1, #br.friend do
+						if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+							UseItemByName(184308,br.friend[i].unit)
+						end
+					end
+				end
+			end
 		end
 	end -- End Action List - Defensive
 	local function BossEncounterCase()
