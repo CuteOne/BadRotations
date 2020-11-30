@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.33.3
+## Version: 1.33.4
 
 BadRotations.lua
 bindings.xml
@@ -168,4 +168,4 @@ System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
 System\Misc\Zu\MawOfSouls\Helya.lua
 
 ## Updater --------------------------------------------
-#System\Updater.lua
+System\Updater.lua

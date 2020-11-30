@@ -419,6 +419,10 @@ actionList.Extras = function()
                 if cast.catForm("player") then ui.debug("Casting Cat Form [Reduce Fall Damage]") return true end
             end
         end
+        -- Kindred Spirits
+        if cast.able.kindredSpirits() and not buff.loneSpirit.exists() then
+            if cast.kindredSpirits("player") then ui.debug("Casting Kindred Spirits [Kyrian]") return true end
+        end
     end -- End Shapeshift Form Management
     -- Perma Fire Cat
     if ui.checked("Perma Fire Cat") and (use.able.fandralsSeedPouch() or use.able.burningSeeds())
@@ -765,7 +769,7 @@ actionList.Cooldowns = function()
         end
         -- Adaptive Swarm
         -- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
-        if cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adativeSwarm.exists(var.maxTTDUnit) then
+        if cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adaptiveSwarm.exists(var.maxTTDUnit) then
             if cast.adaptiveSwarm(var.maxTTDUnit) then ui.debug("Casting Adaptive Swarm [Necrolord]") return true end
         end
         -- Trinkets

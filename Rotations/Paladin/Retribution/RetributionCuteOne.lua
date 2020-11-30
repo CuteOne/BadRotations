@@ -472,21 +472,11 @@ actionList.Cooldowns = function()
     end
     -- Blessing of the Seasons
     -- blessing_of_the_seasons
+    if cast.able.blessingOfTheSeasons() then
+        if cast.blessingOfTheSeasons() then ui.debug("Casting Blessing of the Seasons [Night Fae]") return true end
+    end
     -- Trinkets
-    module.BasicTrinkets()
-    -- -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(buff.avenging_wrath.remains>=20|buff.crusade.stack=10&buff.crusade.remains>15)&(cooldown.guardian_of_azeroth.remains>90|target.time_to_die<30|!essence.condensed_lifeforce.major)                
-    -- if ui.checked("Trinkets") and equiped.ashvanesRazorCoral() and (not debuff.razorCoral.exists(units.dyn5)
-    --     or ((not talent.crusade and (not useCDs() or not ui.checked("Avenging Wrath") or buff.avengingWrath.remain() >= 20))
-    --         or (talent.crusade and (not useCDs() or not ui.checked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15))))
-    --     and (cd.guardianOfAzeroth.remain() > 90 or ttd(units.dyn5) < 30 or not essence.condensedLifeForce.active))
-    -- then
-    --     for i = 13, 14 do
-    --         if use.able.slot(i) and equiped.ashvanesRazorCoral(i) then
-    --             use.slot(i)
-    --             ui.debug("Using Ashvanes Razor Coral on Slot "..i)
-    --         end
-    --     end
-    -- end        
+    module.BasicTrinkets()      
     -- Avenging Wrath
     -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
     if ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
@@ -503,8 +493,11 @@ actionList.Cooldowns = function()
     then
         if cast.crusade() then ui.debug("Casting Crusade") return true end
     end
-    -- Ashen Hallow 
+    -- Ashen Hallow
     -- ashen_hallow
+    if cast.able.ashenHallow() then
+        if cast.ashenHallow() then ui.debug("Casting Ashen Hallow [Venthyr]") return true end
+    end
     -- Holy Avenger
     -- holy_avenger,if=time_to_hpg=0&((buff.avenging_wrath.up|buff.crusade.up)|(buff.avenging_wrath.down&cooldown.avenging_wrath.remains>40|buff.crusade.down&cooldown.crusade.remains>40))
     if ui.alwaysCdNever("Holy Avenger") and var.timeToHPG == 0
@@ -520,63 +513,6 @@ actionList.Cooldowns = function()
         and var.timeToHPG == 0 and (not talent.seraphim or buff.seraphim.exists() or not ui.alwaysCdNever("Seraphim"))
     then
         if cast.finalReckoning() then ui.debug("Casting Final Reckoning") return true end
-    end
-    -- Heart Essence
-    if ui.checked("Use Essence") then
-        -- Essence: The Unbound Force
-        -- the_unbound_force,if=time<=2|buff.reckless_force.up
-        if cast.able.theUnboundForce() and (unit.combatTime() <= 2 or buff.recklessForce.exists()) then
-            if cast.theUnboundForce() then ui.debug("Casting Heart Essence: The Unbound Force") return true end
-        end
-        -- Essence: Blood of the Enemy
-        -- blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
-        if cast.able.bloodOfTheEnemy()
-            and ((not talent.crusade and buff.avengingWrath.exists())
-            or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
-        then
-            if cast.bloodOfTheEnemy() then ui.debug("Casting Heart Essence: Blood of the Enemy") return true end
-        end
-        -- Essence: Guardian of Azeroth
-        -- guardian_of_azeroth,if=!talent.crusade.enabled&(cooldown.avenging_wrath.remains<5&holy_power>=3|cooldown.avenging_wrath.remains>=45)|(talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.crusade.remains>=45)
-        if cast.able.guardianOfAzeroth()
-            and ((not talent.crusade and (cd.avengingWrath.remain() < 5 and holyPower >= 3 or cd.avengingWrath.remain() >= 45))
-                or (talent.crusade and cd.crusade.remain() < unit.gcd(true)and holyPower >= 4 or cd.crusade.remain() >= 45))
-        then
-            if cast.guardianOfAzeroth() then ui.debug("Casting Heart Essence: Guardian of Azeroth") return true end
-        end
-        -- Essence: Worldvein Resonance
-        -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
-        if cast.able.worldveinResonance()
-            and ((not talent.crusade and cd.avengingWrath.remain() < unit.gcd(true)and holyPower >= 3)
-                or (talent.crusade and cd.crusade.remain() < unit.gcd(true)and holyPower >= 4)
-                or (not talent.crusade and cd.avengingWrath.remain() >= 45) 
-                or (talent.crusade and cd.crusade.remain() >= 45))
-        then
-            if cast.worldveinResonance() then ui.debug("Casting Heart Essence: Worldvein Resonance") return true end
-        end
-        -- Essence: Focused Azerite Beam
-        -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&!(buff.avenging_wrath.up|buff.crusade.up)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-        if cast.able.focusedAzeriteBeam() and not (buff.avengingWrath.exists() or buff.crusade.exists())
-            and (cd.bladeOfJustice.remain() > unit.gcd(true)* 3 and cd.judgment.remain() > unit.gcd(true)* 3)
-            and (#enemies.yards8f >= 3 or ui.useCDs()) and not unit.moving()
-        then
-            local minCount = ui.useCDs() and 1 or 3
-            if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then ui.debug("Casting Heart Essence: Focused Azerite Beam") return true end
-        end
-        -- Essence: Memory of Lucid Dreams
-        -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
-        if cast.able.memoryOfLucidDreams()
-            and ((not talent.crusade and buff.avengingWrath.exists())
-                    or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
-            and holyPower <= 3
-        then
-            if cast.memoryOfLucidDreams() then ui.debug("Casting Heart Essence: Memory of Lucid Dreams") return true end
-        end
-        -- Essence: Purifying Blast
-        -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
-        if cast.able.purifyingBlast() then
-            if cast.purifyingBlast("best", nil, 1, 8) then ui.debug("Casting Heart Essence: Purifying Blast") return true end
-        end
     end
 end -- End Action List - Cooldowns
 -- Action List - Finisher
@@ -594,6 +530,11 @@ actionList.Finisher = function()
     end
     -- Vanquisher's Hammer
     -- vanquishers_hammer,if=(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10|debuff.final_reckoning.up)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10|debuff.execution_sentence.up)|spell_targets.divine_storm>=2
+    if cast.able.vanquishersHammer() and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10 or debuff.finalReckoning.exists(units.dyn5))
+        and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10 or debuff.executionSentence.exists(units.dyn5) or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits
+    then
+        if cast.vanquishersHammer() then ui.debug("Casting Vanquisher's Hammer [Necrolord]") return true end
+    end
     -- Execution Sentence
     -- execution_sentence,if=spell_targets.divine_storm<=3&((!talent.crusade.enabled|buff.crusade.down&cooldown.crusade.remains>10)|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10|debuff.final_reckoning.up)&time_to_hpg=0
     if ui.alwaysCdNever("Execution Sentence") and cast.able.executionSentence()
@@ -635,7 +576,12 @@ actionList.Generator = function()
     end
     -- Divine Toll
     -- divine_toll,if=!debuff.judgment.up&(!raid_event.adds.exists|raid_event.adds.in>30)&(holy_power<=2|holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10)
-
+    if cast.able.divineToll() and not debuff.judgment.exists(units.dyn5) and not var.dsUnits and (holyPower <= 2 or holyPower <= 4
+        and (cd.bladeOfJustice.remains() > unit.gcd(true) * 2 or debuff.executionSentence.exists(units.dyn5) or debuff.finalReckoning.exists(units.dyn5)))
+        and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10) and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10)
+    then
+        if cast.divineToll() then ui.debug("Casting Divine Toll [Kyrian]") return true end
+    end
     -- Wake of Ashes
     -- wake_of_ashes,if=(holy_power=0|holy_power<=2&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!raid_event.adds.exists|raid_event.adds.in>20)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>15)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>15)
     if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes()

@@ -64,6 +64,9 @@ br.lists.items = {
     greaterFlaskOfTheCurrents       = 168651,
     greaterFlaskOfTheUndertow       = 168654,
     greaterFlaskOfTheVastHorizon    = 168653,
+    -- Healing Items
+    kyrianBell                      = 179982,
+    phialOfSerenity                  = 177278,
     -- Healthstones
     healthstone                     = 5512,
     legionHealthstone               = 129196,
