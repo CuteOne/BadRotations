@@ -395,26 +395,8 @@ local function runRotation()
 
     local function singlelist()
 
-            -- condemn test
-        for i = 1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
-            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)))
-                and cast.able.condemn() and cd.condemn.remains() == 0 and br.timer:useTimer("condemnCD",condemnCDdur)
-            then
-                if cast.condemn(thisUnit) then
-                    return
-                end
-            end
-        end
-        -- Onslaught
-        if (rage <= 85) and buff.enrage.exists("player") then
-            if cast.onslaught() then
-                return
-            end
-        end
-
         -- Rampage
-        if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
+        if buff.recklessness.exists("player") or (rage >= 90) or not buff.enrage.exists("player") then
             if cast.rampage() then
                 return
             end
@@ -435,6 +417,18 @@ local function runRotation()
             end
         end
 
+        -- condemn test
+        for i = 1, #enemies.yards5 do
+            local thisUnit = enemies.yards5[i]
+            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)))
+                and cast.able.condemn() and cd.condemn.remains() == 0 and br.timer:useTimer("condemnCD",condemnCDdur)
+            then
+                if cast.condemn(thisUnit) then
+                    return
+                end
+            end
+        end
+
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
@@ -445,16 +439,23 @@ local function runRotation()
             end
         end
 
-        -- High Prio Bloodthirst
-        if traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player") then
-            if cast.bloodthirst() then
+                -- Onslaught
+        if (rage <= 85) and buff.enrage.exists("player") then
+            if cast.onslaught() then
                 return
             end
         end
 
-        -- Raging Blow
-        if charges.ragingBlow.count() == 2 then
+                -- Raging Blow
+        if charges.ragingBlow.count() == 2 and buff.enrage.exists("player") then
             if cast.ragingBlow() then
+                return
+            end
+        end
+
+        -- High Prio Bloodthirst
+        if traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player") then
+            if cast.bloodthirst() then
                 return
             end
         end
@@ -516,16 +517,12 @@ local function runRotation()
     end
 
     local function multilist()
+
+        -- BT if Fresh Meat and not Enraged   test later
+
         -- Maintain Whirlwind buff
         if not buff.whirlwind.exists("player") then
-            if cast.whirlwind("player", nil, 1, 5) then
-                return
-            end
-        end
-
-        -- Onslaught
-        if (rage <= 85) and buff.enrage.exists("player") then
-            if cast.onslaught() then
+            if cast.whirlwind(units.dyn5, "aoe", 1, 5) then
                 return
             end
         end
@@ -564,6 +561,18 @@ local function runRotation()
             end
         end
 
+                -- condemn test
+        for i = 1, #enemies.yards5 do
+            local thisUnit = enemies.yards5[i]
+            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)))
+                and cast.able.condemn() and cd.condemn.remains() == 0 and br.timer:useTimer("condemnCD",condemnCDdur)
+            then
+                if cast.condemn(thisUnit) then
+                    return
+                end
+            end
+        end
+
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
@@ -574,15 +583,15 @@ local function runRotation()
             end
         end
 
-        -- High Prio Bloodthirst
-        if buff.whirlwind.exists("player") and (traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player")) then
-            if cast.bloodthirst() then
+                -- Onslaught
+        if (rage <= 85) and buff.enrage.exists("player") then
+            if cast.onslaught() then
                 return
             end
         end
 
         -- Raging Blow
-        if buff.whirlwind.exists("player") and charges.ragingBlow.count() == 2 then
+        if buff.whirlwind.exists("player") and charges.ragingBlow.count() == 2 and buff.enrage.exists("player") then
             if cast.ragingBlow() then
                 return
             end
