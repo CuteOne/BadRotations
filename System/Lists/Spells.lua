@@ -567,6 +567,7 @@ br.lists.spells = {
                 immolationAura              = 258920,
                 imprison                    = 217832,
                 spectralSight               = 188501,
+                throwGlaive                 = 185123,
                 torment                     = 185245,
             },
             artifacts                       = {
@@ -713,12 +714,14 @@ br.lists.spells = {
                 moonkinForm                 = 197625, -- Balance Affinity
                 removeCorruption            = 2782,
                 skullBash                   = 106839,
+                stampedingRoar              = 77764,
                 survivalInstincts           = 61336,
                 swipe                       = 213764,
                 thrashBear                  = 106832,
                 tigersFury                  = 5217,
                 typhoon                     = 132469, -- Balance Affinity
                 ursolsVortex                = 102793, -- Restoration Affinity
+                wildCharge                  = 49376,
             },
             artifacts                       = {
 
@@ -1691,6 +1694,7 @@ br.lists.spells = {
                 --shimmer                     = 212653,
                 slowFall                    = 130,
                 spellsteal                  = 30449,
+                teleportExodar              = 32271,
                 timeWarp                    = 80353,
                 waterJet                    = 135029,
             },
@@ -1939,6 +1943,8 @@ br.lists.spells = {
             },
             buffs                           = {                
                 transcendence               = 101643,
+                weaponsOfTheOrder           = 310454,
+                weaponsOfTheOrderWW         = 311054,
             },
             conduits                        = {
 
