@@ -154,7 +154,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Self Shock", 35, 0, 100, 5, "")
         --Word of Glory
         br.ui:createSpinner(section, "Word of Glory", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        --Bestow Faith
+        --[[ --Bestow Faith
         br.ui:createSpinner(section, "Bestow Faith", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createDropdownWithout(section, "Bestow Faith Target", {"|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFSelf+LotM"}, 4, "|cffFFFFFFTarget for BF")
         -- Light of the Martyr
@@ -162,15 +162,15 @@ local function createOptions()
         br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "", "|cffFFFFFFisMoving Health Percent to Cast At")
         br.ui:createSpinner(section, "LoM after FoL", 60, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createDropdownWithout(section, "LoM after FoL Target", {"|cffFFFFFFTanks", "|cffFFFFFFAll"}, 1, "|cffFFFFFFTarget for LoM after FoL")
-        br.ui:createSpinner(section, "LotM player HP limit", 50, 0, 100, 5, "", "|cffFFFFFFLight of the Martyr Self HP limit", true)
+        br.ui:createSpinner(section, "LotM player HP limit", 50, 0, 100, 5, "", "|cffFFFFFFLight of the Martyr Self HP limit", true) ]]
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
         --Trinket?
-        br.ui:createSpinner(section, "Repose Trinket", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Repose Target", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Repose Targets", true)
+        --[[ br.ui:createSpinner(section, "Repose Trinket", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Repose Target", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Repose Targets", true) ]]
         -- Rule of Law
         br.ui:createSpinner(section, "Rule of Law", 70, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "RoL Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum RoL Targets", true)
@@ -178,7 +178,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum LoD Targets", true)
         -- Beacon of Virtue
-        br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        --[[ br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
         -- Holy Prism
         br.ui:createSpinner(section, "Holy Prism", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
@@ -186,7 +186,7 @@ local function createOptions()
         -- Light's Hammer
         br.ui:createSpinner(section, "Light's Hammer", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Light's Hammer Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets", true)
-        br.ui:createDropdown(section, "Light's Hammer Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFLight's Hammer usage.")
+        br.ui:createDropdown(section, "Light's Hammer Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFLight's Hammer usage.") ]]
         br.ui:checkSectionState(section)
         -------------------------
         ---------- DPS ----------
@@ -195,17 +195,17 @@ local function createOptions()
         br.ui:createCheckbox(section, "Auto Focus target")
         -- Consecration
         br.ui:createSpinner(section, "Consecration", 1, 0, 40, 1, "", "|cffFFFFFFMinimum Consecration Targets")
-        -- Holy Prism
+        --[[ -- Holy Prism
         br.ui:createSpinner(section, "Holy Prism Damage", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Holy Prism Targets")
         -- Light's Hammer
-        br.ui:createSpinner(section, "Light's Hammer Damage", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets")
+        br.ui:createSpinner(section, "Light's Hammer Damage", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets") ]]
         -- Judgment
         br.ui:createCheckbox(section, "Judgment - DPS")
         -- Hammer of Wrath
         br.ui:createCheckbox(section, "Hammer of Wrath")
         -- Holy Shock
         br.ui:createCheckbox(section, "Holy Shock Damage")
-        br.ui:createCheckbox(section, "Aggressive Glimmer", "tries to keep one glimmer on target")
+        --br.ui:createCheckbox(section, "Aggressive Glimmer", "tries to keep one glimmer on target")
         -- Shield of the Righteous
         br.ui:createSpinner(section, "Shield of the Righteous", 1, 0, 40, 1, "", "|cffFFFFFFMinimum Shield of the Righteous Targets")
         -- Crusader Strike
@@ -816,6 +816,13 @@ local function runRotation()
             if getLowAllies(getValue "Aura Mastery") >= getValue("Aura Mastery Targets") then
                 if cast.auraMastery() then
                     return true
+                end
+            end
+        end
+        if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
+            if getLowAllies(getValue("Rule of Law")) >= getValue("RoL Targets") then
+                if cast.ruleOfLaw() then
+                    return
                 end
             end
         end
