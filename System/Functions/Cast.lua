@@ -761,7 +761,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 				-- Cast Non-AOE
 				if (debug == "norm" or debug == "pet") then
 					local enemyFacingCount = #getEnemies("player",maxRange,false,true) or 0
-					if (minUnits == 1 and IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits and getFacing("player",thisUnit)) or spellType == "Helpful" or spellType == "Unknown" then
+					if (minUnits == 1 and IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
 						return castingSpell(thisUnit,spellID,spellName,icon)
 					else
 						printReport(false,"Below Min Units Facing",enemyFacingCount)
