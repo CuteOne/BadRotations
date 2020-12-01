@@ -97,8 +97,9 @@ local function createOptions()
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            br.ui:createSpinner(section, "Health Pot / Healthstone",  25,  0,  100,  5,  "Health Percentage to use at.")
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "Health Percentage to use at.")
+            br.player.module.BasicHealing(section)
+            -- br.ui:createSpinner(section, "Health Pot / Healthstone",  25,  0,  100,  5,  "Health Percentage to use at.")
+            -- br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createCheckbox(section, "Cloak of Shadows")
             br.ui:createSpinner(section, "Crimson Vial",  40,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "Health Percentage to use at.")
@@ -185,6 +186,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
+    local module                              = br.player.module
     local buff                                = br.player.buff
     local talent                              = br.player.talent
     local cast                                = br.player.cast
@@ -382,7 +384,7 @@ local function runRotation()
     if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
 
     --Variables
-    local dSEnabled, subterfugeActive, vEnabled, mosEnabled, sfEnabled, aEnabled, sndCondition, ssThd, priorityRotation, necroActive
+    local dSEnabled, subterfugeActive, vEnabled, mosEnabled, sfEnabled, aEnabled, sndCondition, ssThd, priorityRotation, necroActive, animachargedCP
     local ruptureRemain = debuff.rupture.remain("target")
     local enemies10 = #enemyTable10
     if talent.deeperStratagem then dSEnabled = 1 else dSEnabled = 0 end
@@ -401,6 +403,7 @@ local function runRotation()
     -- # Only change rotation if we have priority_rotation set and multiple targets up.
     -- actions+=/variable,name=use_priority_rotation,value=priority_rotation&spell_targets.shuriken_storm>=2
     if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = true else priorityRotation = false end
+    if hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4 then animachargedCP = true else animachargedCP = false end
 
     if isChecked("Ignore Blacklist for SS") then
         enemies10 = #enemies.get(10)
@@ -483,22 +486,25 @@ local function runRotation()
                     if cast.feint("player") then return true end
                 end
             end
-            if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
-                if hasEquiped(122668) then
-                    if GetItemCooldown(122668)==0 then
-                        useItem(122668)
-                    end
-                end
-            end
-            if isChecked("Health Pot / Healthstone") and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(171267) or has.healthstone() or hasItem(176409)) then
-                if use.able.healthstone() then
-                    use.healthstone()
-                elseif canUseItem(176409) then
-                    useItem(176409)
-                elseif canUseItem(171267) then
-                    useItem(171267)
-                end
-            end
+            module.BasicHealing()
+            -- if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
+            --     if hasEquiped(122668) then
+            --         if GetItemCooldown(122668)==0 then
+            --             useItem(122668)
+            --         end
+            --     end
+            -- end
+            -- if isChecked("Health Pot / Healthstone") and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(171267) or hasItem(177278) or has.healthstone() or hasItem(176409)) then
+            --     if use.able.healthstone() then
+            --         use.healthstone()
+            --     elseif canUseItem(177278) then
+            --         useItem(177278)
+            --     elseif canUseItem(176409) then
+            --         useItem(176409)
+            --     elseif canUseItem(171267) then
+            --         useItem(171267)
+            --     end
+            -- end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
                 if cast.cloakOfShadows("player") then return true end
             end
@@ -1017,6 +1023,9 @@ local function runRotation()
             -- # Run fully switches to the Stealthed Rotation (by doing so, it forces pooling if nothing is available).
             -- actions+=/run_action_list,name=stealthed,if=stealthed.all
             if stealthedAll then
+                if animachargedCP then
+                    if actionList_Finishers() then return true end
+                end
                 if actionList_Stealthed() then return true end
             end
             --start aa
@@ -1071,10 +1080,6 @@ local function runRotation()
                     if actionList_StealthCD() then return true end
                 end
                 -- actions+=/call_action_list,name=finish,if=combo_points=animacharged_cp
-                local animachargedCP
-                if (combo == 2 and buff.echoingReprimand2.exists()) or 
-                   (combo == 3 and buff.echoingReprimand3.exists()) or 
-                   (combo == 4 and buff.echoingReprimand4.exists()) then animachargedCP = true else animachargedCP = false end
                 if animachargedCP then
                     if actionList_Finishers() then return true end
                 end
