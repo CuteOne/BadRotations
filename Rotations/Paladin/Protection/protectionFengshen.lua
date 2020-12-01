@@ -761,34 +761,33 @@ local function runRotation()
 			----------------------------------
 			-- Shield of the Righteous
 			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists())
-			and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5) then
+			and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2) then
 				if cast.shieldOfTheRighteous(units.dyn5) then return end
 			end
-			if GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
-				-- Avenger's Shield
-				if isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 then
-					if cast.avengersShield(units.dyn30) then return end
-				end
-				-- Divine Toll
-				if isChecked("Divine Toll") and cast.able.divineToll() and (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) then
-					if cast.divineToll(units.dyn30) then return end
-				end
-				-- Judgment
-				if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) then
-					if cast.judgment(units.dyn30) then return end
-				end
-				-- Hammer of Wrath
-				if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()) or getBuffRemain("player", 345693) ~= 0)then
-					if cast.hammerOfWrath(units.dyn30) then return end
-				end
-				-- Avenger's Shield
-				if isChecked("Avenger's Shield") and cast.able.avengersShield() then
-					if cast.avengersShield(units.dyn30) then return end
-				end
+			local mob30 = GetUnitExists(units.dyn30) and getFacing("player",units.dyn30)
+			-- Avenger's Shield
+			if isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 and mob30 then
+				if cast.avengersShield(units.dyn30) then return end
+			end
+			-- Divine Toll
+			if isChecked("Divine Toll") and cast.able.divineToll() and (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and mob30 then
+				if cast.divineToll(units.dyn30) then return end
 			end
 			-- Consecration
 			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and not buff.consecration.exists() then
 				if cast.consecration() then return end
+			end
+			-- Judgment
+			if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) and mob30 then
+				if cast.judgment(units.dyn30) then return end
+			end
+			-- Hammer of Wrath
+			if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()) or getBuffRemain("player", 345693) ~= 0) and mob30 then
+				if cast.hammerOfWrath(units.dyn30) then return end
+			end
+			-- Avenger's Shield
+			if isChecked("Avenger's Shield") and cast.able.avengersShield() and mob30 then
+				if cast.avengersShield(units.dyn30) then return end
 			end
 			-- Crusader Strike
 			if cast.able.crusaderStrike() and level < 14 and getFacing("player",units.dyn5) and GetUnitExists(units.dyn5) then
