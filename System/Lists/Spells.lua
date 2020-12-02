@@ -658,6 +658,7 @@ br.lists.spells = {
                 onethsClearVision           = 338661,
                 ravenousFrenzy              = 323546,
                 PrimordialArcanicPulsar     = 338668,
+
             },
             conduits                        = {
 
@@ -881,6 +882,7 @@ br.lists.spells = {
                 springblossom               = 207386,
                 symbolOfHope                = 64901,
                 fullbloom                   = 290213,
+                heartOfTheWild              = 108291,
             },
             conduits                        = {
                 loneMeditation              = 338035,
