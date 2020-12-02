@@ -404,10 +404,6 @@ local function runRotation()
 				end
 			end
 			-- Word of Glory
-			if getHP("player") <= getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
-				SotR = false
-				if cast.wordOfGlory("player") then return end
-			end
 			if holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists() then
 				if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") then
 					SotR = false
@@ -420,6 +416,10 @@ local function runRotation()
 					SotR = false
 					if cast.wordOfGlory(lowestUnit) then return end
 				end
+			end
+			if getHP("player") <= getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
+				SotR = false
+				if cast.wordOfGlory("player") then return end
 			end
 			-- Blessing of Protection
 			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss("boss1") then
