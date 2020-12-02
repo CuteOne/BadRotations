@@ -71,10 +71,12 @@ local function createOptions()
 		-- Racial
 		br.ui:createCheckbox(section,"Racial")
 		-- Trinkets
-		br.ui:createSpinner(section, "Trinkets 1",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createDropdown(section,"Use Trinkets 1", {"|cffFFFFFFHealth","|cffFFFF00Cooldowns","|cff00FF00Everything"}, 1, "","|cffFFFFFFWhen to use trinkets.")
 		br.ui:createDropdownWithout(section,"Trinkets 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
-		br.ui:createSpinner(section, "Trinkets 2",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createSpinnerWithout(section, "Trinkets 1",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createDropdown(section,"Use Trinkets 2", {"|cffFFFFFFHealth","|cffFFFF00Cooldowns","|cff00FF00Everything"}, 1, "","|cffFFFFFFWhen to use trinkets.")
 		br.ui:createDropdownWithout(section,"Trinkets 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createSpinnerWithout(section, "Trinkets 2",  70,  0,  100,  5,  "Health Percentage to use at")
 		-- Seraphim
 		br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
 		-- Avenging Wrath
@@ -244,7 +246,7 @@ local function runRotation()
 	local level         = br.player.level
 	local module        = br.player.module
 	local SotR          = true
-	
+
 	units.get(5)
 	units.get(10)
 	units.get(30)
@@ -629,28 +631,32 @@ local function runRotation()
 	end
 	-- Action List - Cooldowns
 	local function actionList_Cooldowns()
-		if useCDs() or burst then
-			-- Trinkets
-			if isChecked("Trinkets 1") and canUseItem(13) then
-				if getOptionValue("Trinkets 1 Mode") == 1 then
-					if php <= getOptionValue("Trinkets 1") then
-						useItem(13)
-						return true
-					end
-				elseif getOptionValue("Trinkets 1 Mode") == 2 then
+		-- Trinkets
+		if isChecked("Use Trinkets 1") and canUseItem(13) then
+			if getOptionValue("Trinkets 1 Mode") == 1 then
+				if (php <= getOptionValue("Trinkets 1") and getOptionValue("Use Trinkets 1") == 1) or (getOptionValue("Use Trinkets 1") == 2 and useCDs()) or getOptionValue("Use Trinkets 1") == 3 then
+					useItem(13)
+					return true
+				end
+			elseif getOptionValue("Trinkets 1 Mode") == 2 then
+				if (php <= getOptionValue("Trinkets 1") and getOptionValue("Use Trinkets 1") == 1) or (getOptionValue("Use Trinkets 1") == 2 and useCDs()) or getOptionValue("Use Trinkets 1") == 3 then
 					if useItemGround("target",13,40,0,nil) then return true end
 				end
 			end
-			if isChecked("Trinkets 2") and canUseItem(14) then
-				if getOptionValue("Trinkets 2 Mode") == 1 then
-					if php <= getOptionValue("Trinkets 2") then
-						useItem(14)
-						return true
-					end
-				elseif getOptionValue("Trinkets 2 Mode") == 2 then
+		end
+		if isChecked("Use Trinkets 2") and canUseItem(14) then
+			if getOptionValue("Trinkets 2 Mode") == 1 then
+				if (php <= getOptionValue("Trinkets 2") and getOptionValue("Use Trinkets 2") == 1) or (getOptionValue("Use Trinkets 2") == 2 and useCDs()) or getOptionValue("Use Trinkets 2") == 3 then
+					useItem(14)
+					return true
+				end
+			elseif getOptionValue("Trinkets 2 Mode") == 2 then
+				if (php <= getOptionValue("Trinkets 2") and getOptionValue("Use Trinkets 2") == 1) or (getOptionValue("Use Trinkets 2") == 2 and useCDs()) or getOptionValue("Use Trinkets 2") == 3 then
 					if useItemGround("target",14,40,0,nil) then return true end
 				end
 			end
+		end
+		if useCDs() or burst then
 			-- Racials
 			if isChecked("Racial") then
 				if race == "Orc" or race == "Troll" and getSpellCD(racial) == 0 then
