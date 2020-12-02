@@ -71,7 +71,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 152812022020")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 175812022020")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -899,46 +899,37 @@ local function runRotation()
                 --dots
                 for i = 1, #enemies.yards45 do
                     thisUnit = enemies.yards45[i]
-                    if UnitAffectingCombat(thisUnit)  then
-                        -- Print((14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)))
-                        if UnitAffectingCombat(thisUnit) then
-                            if cast.able.sunfire() and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
-                                    and debuff.sunfire.refresh(thisUnit)
-                                    and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
-                            then
-                                if cast.sunfire(thisUnit) then
-                                    return true
-                                end
+                    if UnitAffectingCombat(thisUnit) then
+                        if cast.able.sunfire() and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
+                                and debuff.sunfire.refresh(thisUnit)
+                                and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
+                        then
+                            if cast.sunfire(thisUnit) then
+                                return true
                             end
-                            -- moonfire
-                            if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
-                                if ((cd.incarnationChoseOfElune.ready() or cd.celestialAlignment.ready())
-                                        or #enemies.yards45 < 3
-                                        or (buff.eclipse_solar.exists() or (buff.eclipse_solar.exists() and buff.eclipse_lunar.exists())
-                                        or buff.eclipse_lunar.exists() and not talent.soulOfTheForest)
-                                        -- and (#enemies.yards45 < 10 * (1 + talent.twinMoons)) and power > 50 - buff.starfall.remains() * 6)
+                        end
+                        -- moonfire
+                        if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
+                            if (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) and getTTD(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit) then
+                                if ((cd.incarnationChoseOfElune.remain() == 0 or cd.celestialAlignment.remain() == 0)
+                                        or #enemies.yards45 < (4 * (1 + (talent.twinMoons and 0 or 1)))
+                                        or (current_eclipse == "solar" or (current_eclipse == "any" or current_eclipse == "lunar") and not talent.soulOfTheForest)
                                 )
-                                -- and not buff.kindredEmpowerment.exists() and astral_def > 2
                                 then
-                                    --Print(tostring((14 + (#enemies.yards45 * 1.5)) % #enemies.yards45 + debuff.moonfire.remain(thisUnit)))
-                                    if debuff.moonfire.refresh(thisUnit)
-                                            and ttd(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit)
-                                    then
-                                        if cast.moonfire(thisUnit) then
-                                            return true
-                                        end
-                                    end
-                                end
-                            end
-
-                            --stellarFlare
-                            if talent.stellarFlare and debuff.stellarFlare.refresh() and ttd(thisUnit) > 15 then
-                                if #enemies.yards45 < 4
-                                        and astral_def > 8 and (buff.celestialAlignment.remain() > 10 or buff.incarnationChoseOfElune.remain() > 10 or not pewbuff)
-                                then
-                                    if cast.stellarFlare(thisUnit) then
+                                    if cast.moonfire(thisUnit) then
                                         return true
                                     end
+                                end
+                            end
+                        end
+
+                        --stellarFlare
+                        if talent.stellarFlare and debuff.stellarFlare.refresh() and ttd(thisUnit) > 15 then
+                            if #enemies.yards45 < 4
+                                    and astral_def > 8 and (buff.celestialAlignment.remain() > 10 or buff.incarnationChoseOfElune.remain() > 10 or not pewbuff)
+                            then
+                                if cast.stellarFlare(thisUnit) then
+                                    return true
                                 end
                             end
                         end
