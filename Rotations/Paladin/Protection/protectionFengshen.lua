@@ -243,7 +243,8 @@ local function runRotation()
 	local units         = br.player.units
 	local level         = br.player.level
 	local module        = br.player.module
-
+	local SotR          = true
+	
 	units.get(5)
 	units.get(10)
 	units.get(30)
@@ -404,16 +405,20 @@ local function runRotation()
 			end
 			-- Word of Glory
 			if getHP("player") <= getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
-				if cast.wordOfGlory("player") then return 0 end
+				SotR = false
+				if cast.wordOfGlory("player") then return end
 			end
 			if holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists() then
 				if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") then
-					if cast.wordOfGlory("player") then return 0 end
+					SotR = false
+					if cast.wordOfGlory("player") then return end
 				elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") then
-					if cast.wordOfGlory(lowestUnit) then return 0 end
+					SotR = false
+					if cast.wordOfGlory(lowestUnit) then return end
 				end
 				if (buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcdMax) or (buff.shiningLight.exists() and buff.shiningLight.remain() < gcdMax) or (buff.royalDecree.exists() and buff.royalDecree.remain() < gcdMax) then
-					if cast.wordOfGlory(lowestUnit) then return 0 end
+					SotR = false
+					if cast.wordOfGlory(lowestUnit) then return end
 				end
 			end
 			-- Blessing of Protection
@@ -760,7 +765,7 @@ local function runRotation()
 			--- In Combat - Begin Rotation ---
 			----------------------------------
 			-- Shield of the Righteous
-			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists())
+			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists()) and SotR == true
 			and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2) then
 				if cast.shieldOfTheRighteous(units.dyn5) then return end
 			end
