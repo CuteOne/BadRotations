@@ -95,7 +95,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 081411302020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 102612022020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -124,7 +124,6 @@ local function createOptions()
         end
         br.ui:createCheckbox(section, "Auto Sprint")
         br.ui:createCheckbox(section, "Use Trinkets")
-        br.ui:createSpinnerWithout(section, "Reaping DMG", 50, 1, 100, 1, "* 1k Put damage of your Reaping Flames")
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -842,6 +841,18 @@ actionList.dps = function()
                     return true
                 end
             end
+
+            if cast.able.flagellation(dynamic_target_melee) and not debuff.flagellation.exists(dynamic_target_melee) and getTTD(dynamic_target_melee) > 10 then
+                if cast.flagellation(dynamic_target_melee) then
+                    return true
+                end
+            end
+            if debuff.flagellation.remain(dynamic_target_melee) < 2 and debuff.flagellation.exists(dynamic_target_melee) and cast.able.flagellationCleanse(dynamic_target_melee) then
+                if cast.flagellationCleanse(dynamic_target_melee) then
+                    return true
+                end
+            end
+
             if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
                     or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
                 if cast.serratedBoneSpike(dynamic_target_melee) then
@@ -1418,7 +1429,7 @@ actionList.Interrupt = function()
                         end
                     end
 
-                    if isChecked("Kick") and not cd.kick.exists() and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
+                    if isChecked("Kick") and not cd.kick.exists() and distance < dynamic_range and getFacing("player", interrupt_target) then
                         if cast.kick(interrupt_target) then
                             br.addonDebug("[int]Kicked " .. UnitName(interrupt_target))
                             someone_casting = false
@@ -1702,7 +1713,7 @@ local function runRotation()
                     if cast.cripplingPoison("player") then
                         return true
                     end
-                elseif getOptionValue("Non-Lethal Poison") == 2 and buff.numbingPoison.remain() < 500 and not cast.last.numbingPoison(1) then
+                elseif getOptionValue("Non-Lethal Poison") == 2 and buff.numbingPoison.remain() < 500 and not cast.last.numbingPoison(1) and level >= 54 then
                     if cast.numbingPoison("player") then
                         return true
                     end
