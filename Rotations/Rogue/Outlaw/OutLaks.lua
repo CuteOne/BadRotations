@@ -95,7 +95,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 102612022020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 171612032020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
@@ -906,7 +906,7 @@ actionList.dps = function()
                 return true
             end
         end
-        if br.player.race == "NightElf" and isChecked("Racial") and not cast.last.vanish(1) then
+        if br.player.race == "NightElf" and isChecked("Use Racial") and not cast.last.vanish(1) then
             if cast.shadowmeld() then
                 return true
             end
@@ -973,7 +973,7 @@ actionList.dps = function()
     0.00	ancestral_call]]
 
 
-    if isChecked("Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
+    if isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
         if cast.racial() then
             return true
         end
