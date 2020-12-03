@@ -100,6 +100,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
+        br.ui:createSpinner(section, "Auto Soothe", 1, 0, 100, 5, "TTD for soothing")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createDropdown(section, "Non-Lethal Poison", { "Crippling", "Numbing", }, 1, "Non-Lethal Poison to apply")
@@ -206,6 +207,7 @@ local gcdMax
 local has
 local inCombat
 local item
+local covenant
 local level
 local mode
 local php
@@ -1096,6 +1098,21 @@ actionList.Extra = function()
             end
         end
     end
+
+
+    -- Soothe
+    if isChecked("Auto Soothe") and cast.able.shiv() then
+        for i = 1, #enemies.yards5 do
+            local thisUnit = enemies.yards5[i]
+            if canDispel(thisUnit, spell.soothe) and ttd(thisUnit) > getValue("Auto Soothe") then
+                if cast.shiv(thisUnit) then
+                    return true
+                end
+            end
+        end
+    end
+
+
 end -- End Action List - Extra
 
 
@@ -1275,9 +1292,9 @@ actionList.Defensive = function()
         end
 
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
-        if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
-            if canUseItem(166799) then
-                useItem(166799)
+        if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634) or hasItem(177278)) then
+            if canUseItem(177278) then
+                useItem(177278)
             elseif canUseItem(5512) then
                 useItem(5512)
             elseif canUseItem(156634) then
@@ -1290,6 +1307,13 @@ actionList.Defensive = function()
                 useItem(getHealthPot())
             end
         end
+
+        if covenant.kyrian.active and not hasItem(177278) and cast.able.summonSteward() then
+            if cast.summonSteward() then
+                return true
+            end
+        end
+
         -- Crimson Vial
         if cast.able.crimsonVial() and isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
             if cast.crimsonVial() then
@@ -1510,7 +1534,6 @@ end -- End Action List - PreCombat
 ---------------
 
 
-
 local someone_casting = false
 
 local frame = CreateFrame("Frame")
@@ -1540,6 +1563,7 @@ local function runRotation()
     gcd = br.player.gcd
     gcdMax = br.player.gcdMax
     has = br.player.has
+    covenant = br.player.covenant
     inCombat = br.player.inCombat
     item = br.player.items
     level = br.player.level
@@ -1616,8 +1640,6 @@ local function runRotation()
             -- return true
         end
     end
-
-
 
 
     --        br.ui:createDropdown(section, "Draw Range", { "Never", "Blade Flurry", "always" }, 1, "Draw range on screen")
