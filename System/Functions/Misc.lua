@@ -178,7 +178,13 @@ function getLineOfSight(Unit1, Unit2)
 		end
 	end
 	local skipLoSTable = br.lists.los
-	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)] then return true end
+	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)]
+		 -- Kyrian Hunter Ability
+		or (Unit1 and Unit1 ~= "player" and getDebuffRemain(Unit1,308498) > 0)
+		or (Unit2 and Unit2 ~= "player" and getDebuffRemain(Unit2,308498) > 0)
+	then
+		return true
+	end
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
 		local X1, Y1, Z1 = GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)
@@ -313,6 +319,31 @@ function isInCombat(Unit)
 	else
 		return false
 	end
+end
+function isInArdenweald()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Ardenweald,mapID)
+end
+function isInBastion()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Bastion,mapID)
+end
+function isInMaldraxxus()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Maldraxxus,mapID)
+end
+function isInRevendreth()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.Revendreth,mapID)
+end
+function isInTheMaw()
+	local tContains = tContains
+	local mapID = C_Map.GetBestMapForUnit("player")
+	return tContains(br.lists.maps.TheMaw,mapID)
 end
 -- if isInDraenor() then
 function isInDraenor()

@@ -1,4 +1,4 @@
-local rotationName = "Kink v1.0.0"
+local rotationName = "Aura"
 
 ---------------
 --- Toggles ---
@@ -178,7 +178,7 @@ local item
 local level
 local mode
 local opener
-local ui
+local option
 local pet
 local php
 local pullTimer
@@ -236,16 +236,16 @@ local actionList = {}
 -- Action List - Extras
 actionList.Extras = function()
     -- Dummy Test
-    if ui.checked("DPS Testing") then
+    if option.checked("DPS Testing") then
         if GetObjectExists("target") then
-            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and isDummy() then
+            if getCombatTime() >= (tonumber(option.value("DPS Testing"))*60) and isDummy() then
                 StopAttack()
                 ClearTarget()
-                if ui.checked("Pet Management") then
+                if option.checked("Pet Management") then
                     PetStopAttack()
                     PetFollow()
                 end
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                Print(tonumber(option.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 profileStop = true
             end
         end
@@ -258,8 +258,8 @@ end
 actionList.Defensive = function()
     if useDefensive() then
         -- Pot/Stoned
-        if ui.checked("Pot/Stoned") and inCombat and (use.able.healthstone() or canUseItem(healPot))
-            and (hasHealthPot() or has.healthstone()) and php <= ui.value("Pot/Stoned")
+        if option.checked("Pot/Stoned") and inCombat and (use.able.healthstone() or canUseItem(healPot))
+            and (hasHealthPot() or has.healthstone()) and php <= option.value("Pot/Stoned")
         then
             if use.able.healthstone() then
                 if use.healthstone() then debug("Using Healthstone") return true end
@@ -340,7 +340,7 @@ actionList.Defensive = function()
             end
         end
         -- Heirloom Neck
-        if ui.checked("Heirloom Neck") and php <= ui.value("Heirloom Neck") then
+        if option.checked("Heirloom Neck") and php <= option.value("Heirloom Neck") then
             if use.able.heirloomNeck() and item.heirloomNeck ~= 0
                 and item.heirloomNeck ~= item.manariTrainingAmulet
             then
@@ -348,25 +348,25 @@ actionList.Defensive = function()
             end
         end
         -- Gift of the Naaru
-        if ui.checked("Gift of the Naaru") and php <= ui.value("Gift of the Naaru")
+        if option.checked("Gift of the Naaru") and php <= option.value("Gift of the Naaru")
             and php > 0 and race == "Draenei"
         then
             if cast.racial() then debug("Casting Racial: Gift of the Naaru") return true end
         end
         -- Dark Pact
-        if ui.checked("Dark Pact") and php <= ui.value("Dark Pact") then
+        if option.checked("Dark Pact") and php <= option.value("Dark Pact") then
             if cast.darkPact() then debug("Casting Dark Pact") return true end
         end
         -- Drain Life
-        if ui.checked("Drain Life") and php <= ui.value("Drain Life") and isValidTarget("target") and not isCastingSpell(spell.drainLife) then
+        if option.checked("Drain Life") and php <= option.value("Drain Life") and isValidTarget("target") and not isCastingSpell(spell.drainLife) then
             if cast.drainLife() then debug("Casting Drain Life") return true end
         end
         -- Health Funnel
-        if not moving and ui.checked("Health Funnel (Demon)") and getHP("pet") <= ui.value("Health Funnel (Demon)") and getHP("player") >= ui.value("Health Funnel (Player)") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+        if not moving and option.checked("Health Funnel (Demon)") and getHP("pet") <= option.value("Health Funnel (Demon)") and getHP("player") >= option.value("Health Funnel (Player)") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
             if cast.healthFunnel() then debug("Casting Health Funnel") return true end
         end
         -- Unending Resolve
-        if ui.checked("Unending Resolve") and php <= ui.value("Unending Resolve") and inCombat then
+        if option.checked("Unending Resolve") and php <= option.value("Unending Resolve") and inCombat then
             if cast.unendingResolve() then debug("Casting Unending Resolve") return true end
         end
         -- Devour Magic
@@ -391,7 +391,7 @@ actionList.Interrupts = function()
     if useInterrupts() and (pet.active.id() == 417 or pet.active.id() == 78158) then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if canInterrupt(thisUnit,option.value("Interrupt At")) then
                 if pet.active.id() == 417 then
                     if cast.spellLock(thisUnit) then return true end
                 elseif pet.active.id() == 78158 then
@@ -420,14 +420,14 @@ actionList.Cooldowns = function()
         end
         -- Item - Azshara's Font of Power
         -- use_item,name=azsharas_font_of_power,if=cooldown.summon_infernal.up|cooldown.summon_infernal.remains<=4
-        if ui.checked("Trinkets") and equiped.azsharasFontOfPower() and use.able.azsharasFontOfPower()
+        if option.checked("Trinkets") and equiped.azsharasFontOfPower() and use.able.azsharasFontOfPower()
             and (cd.summonInfernal.remain() == 0 or cd.summonInfernal.remain() <= 4)
         then
             if use.azsharasFontOfPower() then debug("Using Azshara's Font of Power [CD]") return true end
         end
         -- Summon Infernal
         -- summon_infernal
-        if br.timer:useTimer("Infernal Delay", 2) and ui.checked("Summon Infernal") and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -453,7 +453,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=target.time_to_die>cooldown.summon_infernal.duration+30
-        if br.timer:useTimer("Infernal Delay", 2) and ui.checked("Summon Infernal") and (ttd("target") > cd.summonInfernal.duration() + 30) and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (ttd("target") > cd.summonInfernal.duration() + 30) and getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - High TTD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -463,7 +463,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains>target.time_to_die
-        if br.timer:useTimer("Infernal Delay", 2) and ui.checked("Summon Infernal") and (talent.darkSoulInstability
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (talent.darkSoulInstability
             and cd.darkSoulInstability.remain() > ttd("target")) and getDistance("target") <= 30
         then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - Dark Soul]") return true end
@@ -489,7 +489,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=target.time_to_die<30
-        if br.timer:useTimer("Infernal Delay", 2) and ui.checked("Summon Infernal") and (ttd("target") < 30) and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (ttd("target") < 30) and getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - Low TTD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -529,7 +529,7 @@ actionList.Cooldowns = function()
         -- end
         -- Racial - Troll
         -- berserking,if=pet.infernal.active&(!talent.grimoire_of_supremacy.enabled|(!essence.memory_of_lucid_dreams.major|buff.memory_of_lucid_dreams.remains)&(!talent.dark_soul_instability.enabled|buff.dark_soul_instability.remains))|target.time_to_die<=15
-        if ui.checked("Racial") and cast.able.racial() and (pet.infernal.active() and (not talent.grimoireOfSupremacy
+        if option.checked("Racial") and cast.able.racial() and (pet.infernal.active() and (not talent.grimoireOfSupremacy
             or (not essence.memoryOfLucidDreams.major or buff.memoryOfLucidDreams.remain())
             and (not talent.darkSoulInstability or buff.darkSoulInstability.remain()))
             or ttd("target") <= 15 and race == "Troll")
@@ -538,7 +538,7 @@ actionList.Cooldowns = function()
         end
         -- Racial - Orc
         -- blood_fury,if=pet.infernal.active&(!talent.grimoire_of_supremacy.enabled|(!essence.memory_of_lucid_dreams.major|buff.memory_of_lucid_dreams.remains)&(!talent.dark_soul_instability.enabled|buff.dark_soul_instability.remains))|target.time_to_die<=15
-        if ui.checked("Racial") and cast.able.racial() and (pet.infernal.active() and (not talent.grimoireOfSupremacy
+        if option.checked("Racial") and cast.able.racial() and (pet.infernal.active() and (not talent.grimoireOfSupremacy
             or (not essence.memoryOfLucidDreams.major or buff.memoryOfLucidDreams.remain())
             and (not talent.darkSoulInstability or buff.darkSoulInstability.remain()))
             or ttd("target") <= 15 and race == "Orc")
@@ -547,7 +547,7 @@ actionList.Cooldowns = function()
         end
         -- Racial - Dark Iron Dwarf
         -- fireblood,if=pet.infernal.active&(!talent.grimoire_of_supremacy.enabled|(!essence.memory_of_lucid_dreams.major|buff.memory_of_lucid_dreams.remains)&(!talent.dark_soul_instability.enabled|buff.dark_soul_instability.remains))|target.time_to_die<=15
-        if ui.checked("Racial") and cast.able.racial() and (pet.infernal.active() and (not talent.grimoireOfSupremacy
+        if option.checked("Racial") and cast.able.racial() and (pet.infernal.active() and (not talent.grimoireOfSupremacy
             or (not essence.memoryOfLucidDreams.major or buff.memoryOfLucidDreams.remain())
             and (not talent.darkSoulInstability or buff.darkSoulInstability.remain()))
             or ttd("target") <= 15 and race == "DarkIronDwarf")
@@ -556,7 +556,7 @@ actionList.Cooldowns = function()
         end
         -- Item - General
         -- use_items,if=pet.infernal.active&(!talent.grimoire_of_supremacy.enabled|pet.infernal.remains<=20)|target.time_to_die<=20
-        if ui.checked("Trinkets") then
+        if option.checked("Trinkets") then
             local mainHand = GetInventorySlotInfo("MAINHANDSLOT")
             if canUseItem(mainHand) and equiped.neuralSynapseEnhancer(mainHand) then
                 use.slot(mainHand)
@@ -574,42 +574,42 @@ actionList.Cooldowns = function()
         end
         -- Item - Pocketsized Computation Device
         -- use_item,name=pocketsized_computation_device,if=dot.immolate.remains>=5&(cooldown.summon_infernal.remains>=20|target.time_to_die<30)
-        if ui.checked("Trinkets") and equiped.pocketSizedComputationDevice() and debuff.immolate.remain() >= 20
+        if option.checked("Trinkets") and equiped.pocketSizedComputationDevice() and debuff.immolate.remain() >= 20
             and (cd.summonInfernal.remain() >= 20 or ttd("target") < 30)
         then
             if use.pocketSizedComputationDevice() then debug("Using Pocket Sized Computation Device: Cyclotronic Blast [CD]") return true end
         end
         -- Item - Rotcrusted Voodoo Doll
         -- use_item,name=rotcrusted_voodoo_doll,if=dot.immolate.remains>=5&(cooldown.summon_infernal.remains>=20|target.time_to_die<30)
-        if ui.checked("Trinkets") and equiped.rotcrustedVoodooDoll() and debuff.immolate.remain() >= 5
+        if option.checked("Trinkets") and equiped.rotcrustedVoodooDoll() and debuff.immolate.remain() >= 5
             and (cd.summonInfernal.remain() >= 20 or ttd("target") < 30)
         then
             if use.rotcrustedVoodooDoll() then debug("Using Rotcrusted Voodoo Doll [CD]") return true end
         end
         -- Item - Shiver Venom Relic
         -- use_item,name=shiver_venom_relic,if=dot.immolate.remains>=5&(cooldown.summon_infernal.remains>=20|target.time_to_die<30)
-        if ui.checked("Trinkets") and equiped.shiverVenomRelic() and debuff.immolate.remain() >= 5
+        if option.checked("Trinkets") and equiped.shiverVenomRelic() and debuff.immolate.remain() >= 5
             and (cd.summonInfernal.remain() >= 20 or ttd("target") < 30)
         then
             if use.shiverVenomRelic() then debug("Using Shiver Venom Relic [CD]") return true end
         end
         -- Item - Aquipotent Nautilus
         -- use_item,name=aquipotent_nautilus,if=dot.immolate.remains>=5&(cooldown.summon_infernal.remains>=20|target.time_to_die<30)
-        if ui.checked("Trinkets") and equiped.aquipotentNautilus() and debuff.immolate.remain() >= 5
+        if option.checked("Trinkets") and equiped.aquipotentNautilus() and debuff.immolate.remain() >= 5
             and (cd.summonInfernal.remain() >= 20 or ttd("target") < 30)
         then
             if use.aquipotentNautilus() then debug("Using Aquipotent Nautilus [CD]") return true end
         end
         -- Item - Tidestorm Codex
         -- use_item,name=tidestorm_codex,if=dot.immolate.remains>=5&(cooldown.summon_infernal.remains>=20|target.time_to_die<30)
-        if ui.checked("Trinkets") and equiped.tidestormCodex() and debuff.immolate.remain() >= 5
+        if option.checked("Trinkets") and equiped.tidestormCodex() and debuff.immolate.remain() >= 5
             and (cd.summonInfernal.remain() >= 20 or ttd("target") < 30)
         then
             if use.tidestormCodex() then debug("Using Tidestorm Codex [CD]") return true end
         end
         -- Item - Vial of Storms
         -- use_item,name=vial_of_storms,if=dot.immolate.remains>=5&(cooldown.summon_infernal.remains>=20|target.time_to_die<30)
-        if ui.checked("Trinkets") and equiped.vialOfStorms() and debuff.immolate.remain() >= 5
+        if option.checked("Trinkets") and equiped.vialOfStorms() and debuff.immolate.remain() >= 5
             and (cd.summonInfernal.remain() >= 20 or ttd("target") < 30)
         then
             if use.vialOfStorms() then debug("Using Vial Of Storms [CD]") return true end
@@ -636,7 +636,7 @@ actionList.Aoe = function()
     if not moving and cast.able.immolate() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) < 6 and (not ui.checked("Cataclysm") or not talent.cataclysm 
+            if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) < 6 and (not option.checked("Cataclysm") or not talent.cataclysm 
             or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit))) 
             then
                 if not GetUnitIsUnit(thisUnit,br.lastImmo) then
@@ -664,7 +664,7 @@ actionList.Aoe = function()
     end
     -- Chaos Bolt
     -- chaos_bolt,if=talent.grimoire_of_supremacy.enabled&pet.infernal.active&(havoc_active|talent.cataclysm.enabled|talent.inferno.enabled&active_enemies<4)
-    if not moving and #enemies.yards8t < ui.value("Rain of Fire")  and cast.timeSinceLast.chaosBolt() > gcdMax
+    if not moving and #enemies.yards8t < option.value("Rain of Fire")  and cast.timeSinceLast.chaosBolt() > gcdMax
         and (talent.grimoireOfSupremacy and (pet.infernal.active() or not useCDs())
         and (debuff.havoc.count() > 0  or talent.cataclysm or talent.inferno and #enemies.yards40 < 4))
     then
@@ -672,7 +672,7 @@ actionList.Aoe = function()
     end
     -- Rain of Fire
     -- rain_of_fire
-    if ui.checked("Rain of Fire") and getDistance("target") <= 40 and #enemies.yards8t >= ui.value("Rain of Fire") then
+    if option.checked("Rain of Fire") and getDistance("target") <= 40 and #enemies.yards8t >= option.value("Rain of Fire") then
         if br.timer:useTimer("RoF Delay", 1) and cast.rainOfFire(nil,"aoe",1,8,true) then debug("Cast Rain Of Fire [AOE]") return true end
     end
     -- Azerite Essence - Focused Azerite Beam
@@ -738,7 +738,7 @@ end
 actionList.GosupInfernal = function()
     -- Rain of Fire
     -- rain_of_fire,if=soul_shard=5&!buff.backdraft.up&buff.memory_of_lucid_dreams.up&buff.grimoire_of_supremacy.stack<=10
-    if ui.checked("Rain of Fire") and #enemies.yards8t >= ui.value("Rain of Fire")
+    if option.checked("Rain of Fire") and #enemies.yards8t >= option.value("Rain of Fire")
         and (shards == 5 and not buff.backdraft.exists() and buff.memoryOfLucidDreams.exists()
         and buff.grimoireOfSupremacy.stack() <= 10) and getDistance("target") <= 40
     then
@@ -846,7 +846,7 @@ end
 actionList.PreCombat = function()
     -- Summon Pet
     -- summon_pet
-    if ui.checked("Pet Management") and not (IsFlying() or IsMounted()) and GetTime() - br.pauseTime > 0.5 and level >= 5
+    if option.checked("Pet Management") and not (IsFlying() or IsMounted()) and GetTime() - br.pauseTime > 0.5 and level >= 5
         and br.timer:useTimer("summonPet", 1)and not moving
     then
         if mode.petSummon == 5 and pet.active.id() ~= 0 then
@@ -927,7 +927,7 @@ local function runRotation()
     level                              = br.player.level
     mode                               = br.player.ui.mode
     opener                             = br.player.opener
-    ui                                 = br.player.ui
+    option                             = br.player.option
     pet                                = br.player.pet
     php                                = br.player.health
     pullTimer                          = PullTimerRemain()
@@ -948,7 +948,7 @@ local function runRotation()
     internalInferno                    = (talent.inferno and talent.internalCombustion) and 1 or 0
     lastSpell                          = lastSpellCast
     lucidDreams                        = buff.memoryOfLucidDreams.exists() and 1 or 0
-    summonPet                          = ui.value("Summon Pet")
+    summonPet                          = option.value("Summon Pet")
     
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -970,7 +970,7 @@ local function runRotation()
     if not inCombat and not UnitExists("target") and profileStop == true then
         profileStop = false
     end
-    okToDoT = debuff.immolate.count() < ui.value("Multi-Dot Limit")
+    okToDoT = debuff.immolate.count() < option.value("Multi-Dot Limit")
     
     -- SimC Variables
     -- Pool Shards
@@ -1062,12 +1062,12 @@ local function runRotation()
             end
             -- Cataclysm
             -- cataclysm,if=!(pet.infernal.active&dot.immolate.remains+1>pet.infernal.remains)|spell_targets.cataclysm>1|!talent.grimoire_of_supremacy.enabled
-            if br.timer:useTimer("Cata Delay", 2) and mode.cataclysm == 1 and ui.checked("Cataclysm") and not moving and cd.cataclysm.remain() <= gcdMax and (not (pet.infernal.active()
-            and debuff.immolate.remain("target") + 1 > infernalRemain) or (#enemies.yards8t >= ui.value("Cataclysm Units")
-            or (useCDs() and ui.checked("Ignore Cataclysm units when using CDs"))) or not talent.grimoireOfSupremacy)
+            if br.timer:useTimer("Cata Delay", 2) and mode.cataclysm == 1 and option.checked("Cataclysm") and not moving and cd.cataclysm.remain() <= gcdMax and (not (pet.infernal.active()
+            and debuff.immolate.remain("target") + 1 > infernalRemain) or (#enemies.yards8t >= option.value("Cataclysm Units")
+            or (useCDs() and option.checked("Ignore Cataclysm units when using CDs"))) or not talent.grimoireOfSupremacy)
             then
-                if ui.value("Cataclysm Target") == 1 then
-                    if ui.checked("Predict Movement (Cata)") then
+                if option.value("Cataclysm Target") == 1 then
+                    if option.checked("Predict Movement (Cata)") then
                         if cast.cataclysm("target","ground",1,8,true) then
                             debug("Cast Catacylsm [Main - Target Predict]") return true
                         end
@@ -1076,9 +1076,9 @@ local function runRotation()
                             debug("Cast Catacylsm [Main - Target]") return true
                         end
                     end
-                elseif ui.value("Cataclysm Target") == 2 then
-                    if useCDs() and ui.checked("Ignore Cataclysm units when using CDs") then
-                        if ui.checked("Predict Movement (Cata)") then
+                elseif option.value("Cataclysm Target") == 2 then
+                    if useCDs() and option.checked("Ignore Cataclysm units when using CDs") then
+                        if option.checked("Predict Movement (Cata)") then
                             if cast.cataclysm("best",false,1,8,true) then
                                 debug("Cast Catacylsm [Main - Best Single Predict]") return true
                             end
@@ -1088,12 +1088,12 @@ local function runRotation()
                             end
                         end
                     else
-                        if ui.checked("Predict Movement (Cata)") then
-                            if cast.cataclysm("best",false,ui.value("Cataclysm Units"),8,true) then
+                        if option.checked("Predict Movement (Cata)") then
+                            if cast.cataclysm("best",false,option.value("Cataclysm Units"),8,true) then
                                 debug("Cast Catacylsm [Main - Best Min Predict]") return true
                             end
                         else
-                            if cast.cataclysm("best",false,ui.value("Cataclysm Units"),8) then
+                            if cast.cataclysm("best",false,option.value("Cataclysm Units"),8) then
                                 debug("Cast Catacylsm [Main - Best Min]") return true
                             end
                         end
@@ -1111,8 +1111,8 @@ local function runRotation()
             if not moving and cast.able.immolate() then
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.immolate.remain(thisUnit) < 6 and (not ui.checked("Cataclysm") or not talent.cataclysm 
-                    or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit) or #enemies.yards8t < ui.value("Cataclysm Units"))) 
+                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.immolate.remain(thisUnit) < 6 and (not option.checked("Cataclysm") or not talent.cataclysm 
+                    or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit) or #enemies.yards8t < option.value("Cataclysm Units"))) 
                     then
                         if not GetUnitIsUnit(thisUnit,br.lastImmo) then
                             if cast.immolate(thisUnit) then debug("Cast Immolate [Main - Multi]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
@@ -1250,7 +1250,7 @@ local function runRotation()
         end -- End Combat
     end -- End Rotation Logic
 end -- End Rotation File
-local id = 267
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

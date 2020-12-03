@@ -1,5 +1,6 @@
 local rotationName = "Kink"
 local rotationVer  = "v1.1.4"
+local colorBlue     = "|cff3FC7EB"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -117,7 +118,7 @@ local function createOptions()
         ------------------------
         --- GENERAL  OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "General | " .. rotationVer)
+        section = br.ui:createSection(br.ui.window.profile,  colorBlue .. "Frost " .. ".:|:. " .. colorBlue .. " General " .. "Ver|" ..colorBlue .. rotationVer .. ".:|:. ")
         -- APL
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
 
@@ -142,7 +143,7 @@ local function createOptions()
         ------------------------
         ---   DPS SETTINGS   ---
         ------------------------
-       section = br.ui:createSection(br.ui.window.profile, "DPS Settings") 
+         section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DPS" .. ".:|:. " ..colorBlue .. " DPS Settings")
         -- Blizzard Units
         br.ui:createSpinnerWithout(section, "Blizzard Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Blizzard will be cast on.")
         
@@ -179,7 +180,7 @@ local function createOptions()
         -- ------------------------
         -- ---     ESSENCES     ---
         -- ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        section = br.ui:createSection(br.ui.window.profile, colorBlue .. "AZI" .. ".:|:. " ..colorBlue .. " Essences")
         -- Essences Usage
         br.ui:createDropdownWithout(section, "Use Essences", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use Essences.")
 
@@ -216,7 +217,7 @@ local function createOptions()
         ------------------------
         ---     UTILITY      ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Utility")
+         section = br.ui:createSection(br.ui.window.profile, colorBlue .. "UTLY" .. ".:|:. " ..colorBlue .. " Utility")
         -- Spellsteal
         br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
 
@@ -237,7 +238,7 @@ local function createOptions()
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        section = br.ui:createSection(br.ui.window.profile, colorBlue .. "CDs" .. ".:|:. " ..colorBlue .. " Cooldowns")
         -- Cooldowns Time to Die limit
         br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
 
@@ -261,7 +262,7 @@ local function createOptions()
         ------------------------
         --- Defensive OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+      section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DEF" .. ".:|:. " ..colorBlue .. " Defensive")
         -- Healthstone
         br.ui:createSpinner(section, "Pot/Stoned", 60, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
@@ -369,7 +370,7 @@ local function runRotation()
     local healPot = getHealthPot()
     local ui = br.player.ui
     local heirloomNeck = 122663 or 122664
-    local inCombat = isInCombat("player")
+    local inCombat = br.player.inCombat
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
     local lastSpell = lastSpellCast
@@ -1536,8 +1537,7 @@ actions.st+=/frostbolt
     local function actionList_ST2()
 
 
-        
-
+    
         -- actions.st+=/glacial_spike,if=buff.brain_freeze.react
         if cast.able.glacialSpike() and buff.brainFreeze.exists() then br.addonDebug("[Action:ST] Glacial Spike (Brain Freeze React)") return true end 
 
@@ -1574,7 +1574,7 @@ actions.st+=/frostbolt
                 if cast.runeofPower() then return true end 
             end
 
-            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and combatTime >= 13.5 then 
+            if mode.rop ~= 2 and cast.able.runeofPower() and not moving and combatTime >= 13.5 and cd.icyVeins.remains() > gcdMax then 
                 if cast.runeofPower() then return true end 
             end
 

@@ -1,5 +1,6 @@
-local rotationName = "Kink"
+local rotationName = "KinkyArcaneSL"
 local rotationVer  = "v0.2.2"
+local colorBlue      = "|cff3FC7EB"
 local targetMoveCheck, opener, finalBurn = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 
@@ -66,7 +67,7 @@ local function createOptions()
         ------------------------
         --- GENERAL  OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Arcane .:|:. General ".. ".:|:. ".. rotationVer)
+        section = br.ui:createSection(br.ui.window.profile, colorBlue .. "Arcane" .. ".:|:. " ..colorBlue .. " General")
         -- APL
 
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling"}, 1, "|cffFFBB00Set APL Mode to use.")
@@ -86,7 +87,7 @@ local function createOptions()
         ------------------------
         ---   DPS SETTINGS   ---
         ------------------------
-       section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. DPS Config")
+       section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DPS" .. ".:|:. " ..colorBlue .. " DPS Settings")
         -- Evocation Mana Percent
         br.ui:createSpinnerWithout(section, "Evocation Mana Percent", 25, 1, 100, 1, "|cffFFBB00Min. Mana Percent to use Evocation.")
 
@@ -127,7 +128,7 @@ local function createOptions()
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile, colorBlue .. "CDs" .. ".:|:. " ..colorBlue .. " Cooldowns")
         -- Cooldowns Time to Die limit
         br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
 
@@ -152,7 +153,7 @@ local function createOptions()
         ------------------------
         --- Defensive OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Defensive")
+            section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DEF" .. ".:|:. " ..colorBlue .. " Defensive")
         -- Healthstone
         br.ui:createSpinner(section, "Pot/Stoned", 45, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
@@ -183,7 +184,7 @@ local function createOptions()
         -- ------------------------
         -- ---     ESSENCES     ---
         -- ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Arcane .:|:. Essences")
+               section = br.ui:createSection(br.ui.window.profile, colorBlue .. "AZI" .. ".:|:. " ..colorBlue .. " Essences")
         -- Essences Usage
         br.ui:createDropdownWithout(section, "Use Essences", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use Essences.")
         -- Focused Azerite Beam
@@ -269,7 +270,7 @@ local function runRotation()
         local cl                                            = br.read
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
-        local inCombat                                      = isInCombat("player")
+        local inCombat                                      = br.player.inCombat
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
@@ -346,7 +347,7 @@ local function runRotation()
         -- (80-(mastery_value*100))
         var.var_barrage_mana_pct = 100
         var.var_ap_minimum_mana_pct = 15
-        var.var_aoe_totm_charges = 0
+        var.var_aoe_totm_charges = 2
         var.RadiantSparlVulnerabilityMaxStack = 4
         var.ClearCastingMaxStack = 3
 
@@ -807,9 +808,9 @@ local function actionList_Leveling()
         if cast.able.arcaneExplosion() 
         and getDistance("target") <= 10 
         and manaPercent > 30 
-        and aoeUnits >= getOptionValue("Arcane Explosion Units") 
+        and #enemies.yards10tnc >= getOptionValue("Arcane Explosion Units") 
         then
-            CastSpellByName(GetSpellInfo(spell.arcaneExplosion)) return true
+            if cast.arcaneExplosion("player","aoe", 3, 10) then return true end
         end
 
         -- Arcane Blast
@@ -832,7 +833,7 @@ local function actionList_Extras()
         end
 
         --Prismatic Barrier
-        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") and not buff.prismaticBarrier.exists("player") then
+        if not IsResting() and not inCombat and not playerCasting and isChecked("Prismatic Barrier OOC") and not buff.prismaticBarrier.exists("player") and not IsMounted() and not IsFlying() then
             if cast.prismaticBarrier("player") then
                 return true
             end
@@ -1341,10 +1342,10 @@ local function actionList_AoE()
     if cast.able.arcaneExplosion()
     and getDistance("target") <= 10
     and arcaneCharges > 3
-    and aoeUnits >= ui.value("Arcane Explosion Units")
+    and #enemies.yards10tnc >= ui.value("Arcane Explosion Units")
    -- or not ui.checked("Arcane Explosion Units")
     then
-        if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
+        if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion (14)") return true end 
     end
 
     --actions.aoe+=/arcane_explosion,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack&prev_gcd.1.arcane_barrage
@@ -1352,10 +1353,10 @@ local function actionList_AoE()
     and getDistance("target") <= 10
     and arcaneCharges > 3
     and cast.last.arcaneBarrage() or cast.timeSinceLast.arcaneBarrage() < gcdMax
-    and aoeUnits >= ui.value("Arcane Explosion Units")
+    and #enemies.yards10tnc >= ui.value("Arcane Explosion Units")
     --or not ui.checked("Arcane Explosion Units")
     then
-        if cast.arcaneExplosion() then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
+        if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion (prev cast Arcane Barrage) (15)") return true end 
     end
 
     --actions.aoe+=/arcane_barrage,if=buff.arcane_charge.stack=buff.arcane_charge.max_stack

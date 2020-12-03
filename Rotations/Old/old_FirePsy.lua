@@ -745,7 +745,7 @@ local function runRotation()
             end
         end --End Rotation Logic
 end -- End runRotation
-local id = 63
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

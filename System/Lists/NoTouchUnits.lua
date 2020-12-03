@@ -67,4 +67,6 @@ br.lists.noTouchUnits = {
     -- Tol Dagor
     { unitID = 133972 }, -- Cannon in Tol Dagor
     {unitID = 160652}, -- Void Tentacle
+
+    {unitID = 162689, buff = 326629}, -- Surgeon Stitchflesh with Noxious Fog buff
 }

@@ -1,5 +1,6 @@
 local rotationName = "KinkDestruction"
-local VerNum = "1.2.4"
+local VerNum = "1.2.6"
+local colorOrange = "|cffFF7C0A"
 ---------------
 --- Toggles ---
 ---------------
@@ -61,7 +62,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General | " .. VerNum)
+            section = br.ui:createSection(br.ui.window.profile,  colorOrange .. "Destruction " .. ".:|:. " .. " General " .. "Ver" ..colorOrange .. VerNum .. ".:|:. ")
             -- Multi-Target Units
             br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffFFBB00Health Percentage to use at.")
 
@@ -126,7 +127,7 @@ local function createOptions()
         --     br.ui:createSpinnerWithout(section, "Chaos Bolt at Shards", 3, 2, 5, 1, "|cffFFFFFFNumber of Shards to use Chaos Bolt At.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+      section = br.ui:createSection(br.ui.window.profile, colorOrange .. "CDs" .. ".:|:. " ..colorOrange .. " Cooldowns")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
 
@@ -138,7 +139,7 @@ local function createOptions()
 
         br.ui:checkSectionState(section)
         -- Defensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+        section = br.ui:createSection(br.ui.window.profile, colorOrange .. "DEF" .. ".:|:. " ..colorOrange .. " Defensive")
             -- Soulstone
 		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover","|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
@@ -277,7 +278,6 @@ local summonId = 0
 local summonPet
 local tanks = getTanksTable()
 local targetMoveCheck = false
-local notallowed = (select(2, IsInInstance()) == "arena" or select(2, IsInInstance()) == "pvp")
 
 if br.lastImmo == nil then br.lastImmo = "player" end
 if br.pauseTime == nil then br.pauseTime = GetTime() end
@@ -294,27 +294,6 @@ end
 -----------------
 --- Functions ---
 -----------------
-
-
-    local function isHealer(unit)
-        if unit == nil then unit = "target" end
-        local class = select(2, UnitClass(unit))
-
-        if (class == "DRUID" or class =="PALADIN" or class =="PRIEST" or class =="MONK" or class =="SHAMAN") then
-            if UnitPowerMax(unit) >= 290000 and not UnitBuffID(unit, 24858) and not UnitBuffID(unit, 15473) and not UnitBuffID(unit, 324) then
-                return true
-            end
-        end
-    end
-
-    local function isMelee(unit)
-        if unit == nil then unit = "target" end
-        local class = select(2, UnitClass(unit))
-        if (class == "DRUID" or class =="PALADIN" or class =="WARRIOR" or class =="MONK" or class =="SHAMAN" or class =="DEATHKNIGHT" or class =="ROGUE" or class =="DEMONHUNTER" )and UnitPowerMax(unit) < 70000 then
-            return true
-        end
-    end
-
     -- spellqueue ready
     local function SpellQueueReady()
         --Check if we can queue cast
@@ -326,6 +305,280 @@ end
         end
         return true
     end
+
+
+local diminishReturns ={} 
+if not DiminishEHTable then DiminishEHTable={} end
+if not DiminishEventHandler then DiminishEventHandler = {} end
+if not DiminishEventHandlerLog then
+    Diminish_DiminishEventHandlerLog = CreateFrame('Frame')
+    Diminish_DiminishEventHandlerLog:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+ function OnSuccessfulCast(self, event, ...)
+  local type, _, sourceGUID, _, _, _,  destGUID, _ = select(2, ...)
+  if (event=="COMBAT_LOG_EVENT_UNFILTERED") then
+  			
+  		local castSpellID= {2139,44572,8122,5484,1499 }
+  			for i=1,#castSpellID do
+  			if castSpellID[i] ==select(12, ...) then
+            if (type=="SPELL_CAST_SUCCESS") then
+            table.insert(DiminishEventHandlerTable,{SpellID=select(12, ...), Time = GetTime(), UnitSource = sourceGUID ,UnitDest = destGUID })
+	     	end
+	     	end
+	     	end
+	     	if (type=="SPELL_CAST_SUCCESS") then
+            table.insert(DiminishEHTable,{SpellID=select(12, ...), Time = GetTime(), UnitSource = sourceGUID ,UnitDest = destGUID })
+	     	end
+	     local auraSpellID = {118,61305,28272,61721,61780,28271,82691,2637,99,1499,19386,113724,115078,20066,9484,1776,6770,51514,6358,115268,58963,107079,
+			96294,339,16689,102359,136634,50245,4167,90327,54706,122,33395,116706,114404,87194,115197,64695,63685,107566,
+			108194,91800,91797,108200,22570,9005,5211,102795,113801,117526,24394,90337,50519,56626,44572,118271,119392,119381,122242,120086,853,119072,105593,1833,408,118905,30283,103131,22703,132168,107570,20549,
+			5782,1513,105421,10326,8122,113792,2094,5484,5246,115268,
+			91644,50541,117368,64044,51722,118093,58960,676,
+			47476,81261,34490,55021,102051,116709,31935,15487,703,24259,115782,112869,6552,129597,
+			33786}
+        	for i=1,#auraSpellID do
+        	if auraSpellID[i]==select(12, ...) then
+	      	if (type=="SPELL_AURA_APPLIED") then
+           	table.insert(DiminishEventHandlerDRTable,{SpellID=select(12, ...), Time = GetTime(), UnitSource = sourceGUID ,UnitDest = destGUID })
+	      	end
+	      	if (type=="SPELL_AURA_REFRESH") then
+           	table.insert(DiminishEventHandlerDRTable,{SpellID=select(12, ...), Time = GetTime(), UnitSource = sourceGUID ,UnitDest = destGUID })
+	      	end
+	      	end
+	      	end
+	      
+
+
+	      
+	
+        			
+  end
+ end
+
+ Diminish_DiminishEventHandlerLog:SetScript('OnEvent', OnSuccessfulCast)
+
+    DiminishEventHandlerLog = true
+end
+
+
+
+
+function clearCEH()
+table.sort(DiminishEHTable,function(x,y) return y.Time<x.Time end)
+for j=1,#DiminishEventHandlerDRTable do
+for i=1,#DiminishEventHandlerDRTable do
+
+	local time=DiminishEventHandlerDRTable[i].Time 
+	if GetTime()- time > 45
+	then
+	table.remove(DiminishEventHandlerDRTable,i)
+	break
+	end
+
+end
+end
+for j=1,#DiminishEHTable do
+for i=1,#DiminishEHTable do
+
+	local time=DiminishEHTable[i].Time 
+	if GetTime()- time > 2
+	then
+	table.remove(DiminishEHTable,i)
+	break
+	end
+
+end
+end
+for j=1,#DiminishEventHandlerTable do
+for i=1,#DiminishEventHandlerTable do
+
+	local time=DiminishEventHandlerTable[i].Time 
+	if GetTime()-time > 60
+	then
+	table.remove(DiminishEventHandlerTable,i)
+	break
+	end
+
+end
+end
+
+end
+
+function whatClass(t)
+local playerClass, englishClass = UnitClass(t)
+return englishClass
+end
+
+
+
+function DiminishDRInfo(Target,DR)
+DiminishDRCount = 0
+ytime = 0
+if DR == nil then return 0 end
+local DiminishDRtrack = {
+			{DR = "poly",SpellID={118,61305,28272,61721,61780,28271,82691,2637,99,1499,19386,113724,115078,20066,9484,1776,6770,51514,6358,115268,58963,107079}},
+			{DR = "root",SpellID={96294,339,16689,102359,136634,50245,4167,90327,54706,122,33395,116706,114404,87194,115197,64695,63685,107566}},
+			{DR = "stun",SpellID={108194,91800,91797,108200,22570,9005,5211,102795,113801,117526,24394,90337,50519,56626,44572,118271,119392,119381,122242,120086,853,119072,105593,1833,408,118905,30283,103131,22703,132168,107570,20549}},
+			{DR = "fear",SpellID={5782,1513,105421,10326,8122,113792,2094,5484,5246,115268}},	
+			{DR = "disarm",SpellID={91644,50541,117368,64044,51722,118093,58960,676}},
+			{DR = "silence",SpellID={47476,81261,34490,55021,102051,116709,31935,15487,703,24259,115782,112869,6552,129597}},				
+			{DR = "cyclone",SpellID={33786}}
+			  }
+	for i=1,#DiminishDRtrack do
+		if DR == DiminishDRtrack[i].DR
+		then
+			for j=1, #DiminishDRtrack[i].SpellID do
+					for y=1, #DiminishEventHandlerDRTable do
+						if DiminishEventHandlerDRTable[y].UnitDest == UnitGUID(Target)
+						and	DiminishDRtrack[i].SpellID[j] == DiminishEventHandlerDRTable[y].SpellID
+						and GetTime() - DiminishEventHandlerDRTable[y].Time < 18.5
+						then
+						ytime = DiminishEventHandlerDRTable[y].Time
+						DiminishDRCount = DiminishDRCount + 1
+						end
+					end
+						for z=1, #DiminishEventHandlerDRTable do
+							if DiminishEventHandlerDRTable[z].UnitDest == UnitGUID(Target)
+							and	DiminishDRtrack[i].SpellID[j] == DiminishEventHandlerDRTable[z].SpellID
+							and ytime - DiminishEventHandlerDRTable[z].Time < 18.5
+							and ytime - DiminishEventHandlerDRTable[z].Time > 0
+							then
+							DiminishDRCount = DiminishDRCount + 1
+							end
+					end
+			end
+		end
+    end
+ return DiminishDRCount
+end
+
+
+function DiminishSpellInfo(Target,SpellIDs)
+local DiminishCDtrack = {
+			{class = "MAGE", SpellID=2139, Timer = 24},
+			{class = "MAGE", SpellID=44572, Timer = 30},
+			{class = "PRIEST", SpellID=8122, Timer = 30},
+			{class = "WARLOCK", SpellID=5484, Timer = 40},
+			{class = "HUNTER", SpellID=1499, Timer = 40}
+			  }
+	for i=1,#DiminishCDtrack do
+		if whatClass(Target) == DiminishCDtrack[i].class
+		and DiminishCDtrack[i].SpellID == SpellIDs
+		then 
+		return true
+		end
+    end
+end
+
+
+function DiminishSpellInfoTime(Target,SpellIDs)
+local DiminishCDtrack = {
+			{class = "MAGE", SpellID=2139, Timer = 24},
+			{class = "MAGE", SpellID=44572, Timer = 30},
+			{class = "PRIEST", SpellID=8122, Timer = 30},
+			{class = "WARLOCK", SpellID=5484, Timer = 40},
+			{class = "HUNTER", SpellID=1499, Timer = 40}
+			  }
+	for i=1,#DiminishCDtrack do
+		if whatClass(Target) == DiminishCDtrack[i].class
+		and DiminishCDtrack[i].SpellID == SpellIDs
+		then return DiminishCDtrack[i].Timer
+		end
+	end
+end
+
+
+function DiminishCDTracker(Target,SpellID)
+if type(SpellID) == "number" then SpellID = { SpellID } end 
+for i=1,#SpellID do 
+ 	for y=1, #DiminishEventHandlerTable do
+	if DiminishSpellInfo(Target,SpellID[i])
+	and 
+	UnitGUID(Target) == DiminishEventHandlerTable[y].UnitSource
+	and SpellID[i] == DiminishEventHandlerTable[y].SpellID
+	and GetTime() - DiminishEventHandlerTable[y].Time < DiminishSpellInfoTime(Target,SpellID[i])
+	then
+	return true
+	end
+	end
+end
+return false
+end
+
+
+function DiminishEHStime(t,s,time)
+	for y=1, #DiminishEHTable do
+	if UnitGUID(t) == DiminishEHTable[y].UnitSource
+	and s == DiminishEHTable[y].SpellID
+	and GetTime() - DiminishEHTable[y].Time < time
+	then
+	return true
+	end
+	end
+end
+
+function DiminishEHDtime(t,s,time)
+	for y=1, #DiminishEHTable do
+	if UnitGUID(t) == DiminishEHTable[y].UnitDest
+	and s == DiminishEHTable[y].SpellID
+	and GetTime() - DiminishEHTable[y].Time < time
+	then
+	return true
+	end
+	end
+end
+
+
+------------------------------------------------------
+
+function GroupInfo()
+ table.sort(members, function(x,y) return CalculateHP(x) < CalculateHP(y) end)
+ end
+
+--------------------------------------------------
+
+function CastClick()
+  if IsMouseButtonDown(1) and MainMenuBar:IsShown() then 
+    local mousefocus = GetMouseFocus() 
+    if mousefocus and mousefocus.feedback_action 
+    then SpellCancelQueuedSpell() PQR_DelayRotation(1) end
+  end
+end
+
+--------------------------------------------------
+
+function IsHealer(t)
+local class = select(2, UnitClass(t))
+if (class == "DRUID" or class =="PALADIN" or class =="PRIEST" or class =="MONK" or class =="SHAMAN")
+and UnitPowerMax(t) >= 290000
+and not UnitBuffID(t, 24858)
+and not UnitBuffID(t, 15473)
+and not UnitBuffID(t, 324)
+then
+return true
+end
+end
+
+
+    local function isMelee(unit)
+        if unit == nil then unit = "target" end
+        local class = select(2, UnitClass(unit))
+        if (class == "DRUID" or class =="PALADIN" or class =="WARRIOR" or class =="MONK" or class =="SHAMAN" or class =="DEATHKNIGHT" or class =="ROGUE" or class =="DEMONHUNTER" )and UnitPowerMax(unit) < 70000 then
+            return true
+        end
+    end
+
+--------------------------------------------------
+function inRange(t,spellID)
+if UnitExists(t)
+and IsSpellInRange(GetSpellInfo(spellID),t) == 1
+	then
+		return true
+	end
+end
+
+
+
+
 
 
 --------------------
@@ -1084,10 +1337,10 @@ actionList.ST = function()
             -- Curse of Weakness
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if ui.checked("Curse of Weakness") and ttd(unit) >= 6 and not UnitIsDeadOrGhost(unit) and isMelee(unit) and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPVP(unit) and UnitIsPlayer("target") then 
-                        if cast.curseOfWeakness(unit) then 
+                    if ui.checked("Curse of Weakness") and ttd(thisUnit) >= 6 and not UnitIsDeadOrGhost(thisUnit) and isMelee(thisUnit) and GetObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and UnitIsPlayer(thisUnit) then 
+                        if cast.curseOfWeakness(thisunit) then 
                     --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
-                        return true
+                    return true
                         end
                     end
                 end
@@ -1095,7 +1348,7 @@ actionList.ST = function()
             -- Curse of Tongues
             for i = 1, #enemies.yards40f do
                 local unit = enemies.yards40f[i]
-                if ui.checked("Curse of Tongues") and ttd(unit) >= 6 and not UnitIsDeadOrGhost(unit) and isHealer(unit) and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPVP(unit) and UnitIsPlayer("target") then
+                if ui.checked("Curse of Tongues") and ttd(unit) >= 6 and not UnitIsDeadOrGhost(unit) and isMelee(thisUnit)and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPlayer(unit) then
                     if cast.curseOfTongues(unit) then 
                     --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
                     return true
@@ -1474,7 +1727,7 @@ local function runRotation()
         SpellStopTargeting()
         br.addonDebug("Canceling Spell")
         return false
-    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 or notallowed then
+    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
         br.pauseTime = GetTime()
         return true
     else

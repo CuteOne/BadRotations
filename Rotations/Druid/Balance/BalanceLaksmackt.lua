@@ -71,7 +71,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 202011151511")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 152812022020")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -770,6 +770,10 @@ local function runRotation()
         --  Print(GetSpellCount(190984)) --wrath
         -- Print(GetSpellCount(194153))   --starfire
 
+        if buff.starlord.exists() and buff.starlord.remains() < 3 and astral_def < 8 then
+            br.addonDebug("[Cancel SL]: Buff Remains: " .. tostring(buff.starlord.remain()) .. "Astral Def: " .. tostring(astral_def))
+            cancelBuff(279709)
+        end
 
         local current_eclipse = "none"
         local eclipse_in = false
@@ -866,6 +870,15 @@ local function runRotation()
                 end
             end
 
+
+            --covenant heregetTTD
+            if useCDs() and cast.able.convokeTheSpirits("target") and getTTD("target") > 10 then
+                if cast.convokeTheSpirits("target") then
+                    return true
+                end
+            end
+
+
             --debug section
             -- Print(getCastTime(spell.wrath))
 
@@ -886,48 +899,51 @@ local function runRotation()
                 --dots
                 for i = 1, #enemies.yards45 do
                     thisUnit = enemies.yards45[i]
-                    -- Print((14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)))
-                    if cast.able.sunfire() and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
-                            and debuff.sunfire.refresh(thisUnit)
-                            and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
-                    then
-                        if cast.sunfire(thisUnit) then
-                            return true
-                        end
-                    end
-                    -- moonfire
-                    if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
-                        if ((cd.incarnationChoseOfElune.ready() or cd.celestialAlignment.ready())
-                                or #enemies.yards45 < 3
-                                or (buff.eclipse_solar.exists() or (buff.eclipse_solar.exists() and buff.eclipse_lunar.exists())
-                                or buff.eclipse_lunar.exists() and not talent.soulOfTheForest)
-                                -- and (#enemies.yards45 < 10 * (1 + talent.twinMoons)) and power > 50 - buff.starfall.remains() * 6)
-                        )
-                        -- and not buff.kindredEmpowerment.exists() and astral_def > 2
-                        then
-                            --Print(tostring((14 + (#enemies.yards45 * 1.5)) % #enemies.yards45 + debuff.moonfire.remain(thisUnit)))
-                            if debuff.moonfire.refresh(thisUnit)
-                                    and ttd(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit)
+                    if UnitAffectingCombat(thisUnit)  then
+                        -- Print((14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)))
+                        if UnitAffectingCombat(thisUnit) then
+                            if cast.able.sunfire() and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
+                                    and debuff.sunfire.refresh(thisUnit)
+                                    and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
                             then
-                                if cast.moonfire(thisUnit) then
+                                if cast.sunfire(thisUnit) then
                                     return true
+                                end
+                            end
+                            -- moonfire
+                            if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
+                                if ((cd.incarnationChoseOfElune.ready() or cd.celestialAlignment.ready())
+                                        or #enemies.yards45 < 3
+                                        or (buff.eclipse_solar.exists() or (buff.eclipse_solar.exists() and buff.eclipse_lunar.exists())
+                                        or buff.eclipse_lunar.exists() and not talent.soulOfTheForest)
+                                        -- and (#enemies.yards45 < 10 * (1 + talent.twinMoons)) and power > 50 - buff.starfall.remains() * 6)
+                                )
+                                -- and not buff.kindredEmpowerment.exists() and astral_def > 2
+                                then
+                                    --Print(tostring((14 + (#enemies.yards45 * 1.5)) % #enemies.yards45 + debuff.moonfire.remain(thisUnit)))
+                                    if debuff.moonfire.refresh(thisUnit)
+                                            and ttd(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit)
+                                    then
+                                        if cast.moonfire(thisUnit) then
+                                            return true
+                                        end
+                                    end
+                                end
+                            end
+
+                            --stellarFlare
+                            if talent.stellarFlare and debuff.stellarFlare.refresh() and ttd(thisUnit) > 15 then
+                                if #enemies.yards45 < 4
+                                        and astral_def > 8 and (buff.celestialAlignment.remain() > 10 or buff.incarnationChoseOfElune.remain() > 10 or not pewbuff)
+                                then
+                                    if cast.stellarFlare(thisUnit) then
+                                        return true
+                                    end
                                 end
                             end
                         end
                     end
-
-                    --stellarFlare
-                    if talent.stellarFlare and debuff.stellarFlare.refresh() and ttd(thisUnit) > 15 then
-                        if #enemies.yards45 < 4
-                                and astral_def > 8 and (buff.celestialAlignment.remain() > 10 or buff.incarnationChoseOfElune.remain() > 10 or not pewbuff)
-                        then
-                            if cast.stellarFlare(thisUnit) then
-                                return true
-                            end
-                        end
-                    end
                 end
-
 
                 -- celestialAlignment
                 if mode.cooldown == 2 or (isBoss("target") and mode.cooldown == 1) and isChecked("Incarnation/Celestial Alignment") then
@@ -1760,33 +1776,34 @@ local function runRotation()
         end
     end
     local function PreCombat()
-        -- Pre-Pull Timer
-        if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-            if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
-                if mode.forms ~= 3 then
-                    if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
-                        if cast.moonkinForm() then
-                            return true
+        if isValidUnit("target") then
+            -- Pre-Pull Timer
+            if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
+                    if mode.forms ~= 3 then
+                        if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
+                            if cast.moonkinForm() then
+                                return true
+                            end
                         end
                     end
+                    if cast.solarWrath() then
+                        return true
+                    end
                 end
-                if cast.solarWrath() then
-                    return true
+            end
+            if isChecked("Auto Engage On Target") then
+                if cast.able.sunfire("target") then
+                    if cast.sunfire("target") then
+                        return true
+                    end
+                elseif cast.able.moonfire("target") then
+                    if cast.moonfire("target") then
+                        return true
+                    end
                 end
             end
         end
-        if isChecked("Auto Engage On Target") then
-            if cast.able.sunfire("target") then
-                if cast.sunfire("target") then
-                    return true
-                end
-            elseif cast.able.moonfire("target") then
-                if cast.moonfire("target") then
-                    return true
-                end
-            end
-        end
-
         if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
             bossHelper()
         end
