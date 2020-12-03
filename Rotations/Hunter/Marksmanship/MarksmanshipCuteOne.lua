@@ -403,13 +403,13 @@ actionList.TrickShots = function()
     -- Multishot
     -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&focus>cost+action.aimed_shot.cost&(!talent.chimaera_shot|active_enemies>3)
     if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists()
-        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards40 > 3))
+        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards40f > 3))
     then
         if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.precise_shots.up&focus>cost+action.aimed_shot.cost&active_enemies<4
-    if cast.able.chimaeraShot() and buff.preciseShots.exists() and power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot() and #enemies.yards40 < 4 then
+    if cast.able.chimaeraShot() and buff.preciseShots.exists() and power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot() and #enemies.yards40f < 4 then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot [Trick Shots]") return true end
     end
     -- Kill Shot
@@ -434,7 +434,7 @@ actionList.TrickShots = function()
     end
     -- Multishot
     -- multishot,if=focus>cost+action.aimed_shot.cost
-    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() then
+    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards40f > 0 then
         if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
     -- Steady Shot
@@ -512,7 +512,7 @@ actionList.SingleTarget = function()
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
     if alwaysCdNever("Trueshot") and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
-        or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards40 > 1)
+        or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards40f > 1)
     then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
     end 
@@ -520,7 +520,7 @@ actionList.SingleTarget = function()
     -- aimed_shot,target_if=min:(dot.serpent_sting.remains<?action.serpent_sting.in_flight_to_target*dot.serpent_sting.duration),if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
     if cast.able.aimedShot() and not unit.moving("player") and (not buff.preciseShots.exists()
         or (buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
-        and (not talent.chimaeraShot or #enemies.yards40 < 2) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40 > 1)
+        and (not talent.chimaeraShot or #enemies.yards40f < 2) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40f > 1)
     then
         if cast.aimedShot() then ui.debug("Casting Aimed Shot") return true end
     end
