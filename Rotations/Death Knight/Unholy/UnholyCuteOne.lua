@@ -431,7 +431,7 @@ actionList.Cooldowns = function()
     -- potion,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned.enabled&(pet.army_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
     -- Army of the Dead
     -- army_of_the_dead,if=cooldown.unholy_blight.remains<5&talent.unholy_blight.enabled|!talent.unholy_blight.enabled
-    if ui.alwaysCdNever("Army of the Dead") and unit.ttdGroup(40) >= ui.value("CDs TTD Limit") and cast.able.armyOfTheDead()
+    if ui.alwaysCdNever("Army of the Dead") and unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") and cast.able.armyOfTheDead()
         and ((cd.unholyBlight.remains() < 5 and talent.unholyBlight) or not talent.unholyBlght or not ui.alwaysCdNever("Unholy Blight"))
     then
         if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead") return true end
@@ -481,11 +481,11 @@ actionList.Cooldowns = function()
     end
     -- Summon Gargoyle
     -- summon_gargoyle,if=runic_power.deficit<14
-    if ui.alwaysCdNever("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and unit.ttdGroup(40) >= ui.value("CDs TTD Limit") then
+    if ui.alwaysCdNever("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") then
         if cast.summonGargoyle() then ui.debug("Casting Summon Gargoyle") return true end
     end
     -- Unholy Assault
-    if ui.alwaysCdNever("Unholy Assault") and cast.able.unholyAssault() and unit.ttdGroup(40) >= ui.value("CDs TTD Limit") then
+    if ui.alwaysCdNever("Unholy Assault") and cast.able.unholyAssault() and unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") then
         -- unholy_assault,if=active_enemies=1&debuff.festering_wound.stack<2&(pet.apoc_ghoul.active|conduit.convocation_of_the_dead.enabled)
         if ui.useST(8,2) and debuff.festeringWound.stack(units.dyn5) < 2 and pet.apocalypseGhoul.active() then
             if cast.unholyAssault() then ui.debug("Casting Unholy Assault [ST]") return true end
