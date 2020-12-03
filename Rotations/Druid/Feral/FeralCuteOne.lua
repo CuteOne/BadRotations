@@ -758,7 +758,7 @@ actionList.Cooldowns = function()
         -- Convoke the Spirits
         -- convoke_the_spirits,if=(dot.rip.remains>4&(buff.tigers_fury.down|buff.tigers_fury.remains<4)&combo_points=0&dot.thrash_cat.ticking&dot.rake.ticking)|fight_remains<5
         if cast.able.convokeTheSpirits() and (debuff.rip.remain(units.dyn5) > 4 and (not buff.tigersFury.exists() or buff.tigersFury.remain() < 4)
-            and comboPoints == 0 and debuff.thrash.exists(units.dyn5) or (unit.ttdGroup() < 5 and ui.useCDs()))
+            and comboPoints == 0 and debuff.thrashCat.exists(units.dyn5) or (unit.ttdGroup() < 5 and ui.useCDs()))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end

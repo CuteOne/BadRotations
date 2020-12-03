@@ -553,9 +553,11 @@ actionList.St = function()
     end
     -- Barbed Shot
     -- barbed_shot,if=(cooldown.wild_spirits.remains>full_recharge_time|!covenant.night_fae)&(cooldown.bestial_wrath.remains<12*charges_fractional+gcd&talent.scent_of_blood|full_recharge_time<gcd&cooldown.bestial_wrath.remains)|target.time_to_die<9
-    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active)
-        and ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true) and talent.scentOfBlood) or (charges.barbedShot.timeTillFull() < unit.gcd(true) and cd.bestialWrath.remains() > 0))
-            or (unit.ttd(br.petTarget) < 9 and ui.useCDs()))
+    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget)
+        and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active or not ui.alwaysCdNever("Covenant Ability"))
+        and ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true) and talent.scentOfBlood)
+            or (charges.barbedShot.timeTillFull() < unit.gcd(true) and (cd.bestialWrath.remains() > 0 or ui.mode.bestialWrath == 2 or not ui.alwaysCdNever("Bestial Wrath")))
+            or (unit.ttd(br.petTarget) < 9 and ui.useCDs())))
     then
         if cast.barbedShot(br.petTarget) then ui.debug("[ST 2] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end

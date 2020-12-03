@@ -229,9 +229,9 @@ function br.loader:new(spec,specName)
         end
         
         -- Spell Test
-        getSpellsTest()
+        -- getSpellsTest()
         -- Talent Test
-        getTalentTest()
+        -- getTalentTest()
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
         -- Shared Class Spells

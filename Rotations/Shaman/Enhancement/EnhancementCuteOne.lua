@@ -108,6 +108,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Instant Behavior", {"|cff00FF00Always","|cffFFFF00Combat Only","|cffFF0000Never"}, 2, "|cffFFFFFFSelect how to use Instant Heal proc.")
             -- Healing Steam Totem
             br.ui:createSpinner(section, "Healing Stream Totem", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createCheckbox(section, "Use HST While Solo")
             br.ui:createSpinnerWithout(section, "Healing Stream Totem - Min Units", 1, 0, 5, 1, "|cffFFFFFFNumber of Units below HP Level to Cast At")
             -- Lightning Surge Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -232,7 +233,7 @@ actionList.Defensive = function()
         -- Basic Healing Module
         module.BasicHealing()
         -- Ancestral Spirit
-        if ui.checked("Ancestral Spirit") then
+        if ui.checked("Ancestral Spirit") and cast.timeSinceLast.ancestralSpirit() > 5 then
             if ui.value("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and unit.player("target") then
                 if cast.ancestralSpirit("target","dead") then ui.debug("Casting Ancestral Spirit [Target]") return true end
             end
@@ -778,6 +779,9 @@ local function runRotation()
     end
 
     var.unitsNeedingHealing = 0
+    if ui.checked("Use HST While Solo") and getHP("player") <= ui.value("Healing Stream Totem") then
+        var.unitsNeedingHealing = var.unitsNeedingHealing + 1
+    end
     if #br.friend > 1 then
         for i = 1, #br.friend do
             local thisFriend = br.friend[i].unit

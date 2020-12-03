@@ -1,9 +1,6 @@
 local rotationName = "OutLaks" -- Change to name of profile listed in options drop down
 
 
--- TODO When aggro, do what?   (auto tricks, vanish, racial)
-
-
 ---------------
 --- Toggles ---
 ---------------
@@ -35,11 +32,27 @@ local function createToggles()
         [3] = { mode = "NXT", value = 3, overlay = "Use once", tip = "Use once.", highlight = 0, icon = br.player.spell.kick }
     };
     CreateButton("Interrupt", 4, 0)
+
+    CloakModes = {
+        [1] = { mode = "On", value = 1, overlay = "Use Cloak logic", tip = "Use Cloak logic", highlight = 0, icon = br.player.spell.cloakOfShadows },
+        [2] = { mode = "Off", value = 2, overlay = "Use Cloak logic", tip = "Won't Use Cloak logic", highlight = 0, icon = br.player.spell.cloakOfShadows }
+    };
+    CreateButton("Cloak", 5, 0)
+
     PotsModes = {
         [1] = { mode = "On", value = 1, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
-        [2] = { mode = "Off", value = 2, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
+        [2] = { mode = "Off", value = 2, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 }
     }
-    CreateButton("Pots", 5, -1)
+    CreateButton("Pots", 6, 0)
+
+    KidneyModes = {
+        [1] = { mode = "INT", value = 1, overlay = "Kidney Logic", tip = "Kidney Logic", highlight = 0, icon = br.player.spell.kidneyShot },
+        [2] = { mode = "STUN", value = 2, overlay = "Kidney Logic", tip = "Kidney Logic", highlight = 0, icon = br.player.spell.kidneyShot },
+        [3] = { mode = "ALL", value = 3, overlay = "Kidney Logic", tip = "Kidney Logic", highlight = 0, icon = br.player.spell.kidneyShot },
+        [4] = { mode = "OFF", value = 4, overlay = "Kidney Logic", tip = "Kidney Logic", highlight = 0, icon = br.player.spell.kidneyShot }
+    };
+    CreateButton("Kidney", 5, -1)
+
     VanishModes = {
         [1] = { mode = "On", value = 1, overlay = "Vanish Enabled", tip = "Will use Vanish.", highlight = 0, icon = br.player.spell.vanish },
         [2] = { mode = "Off", value = 2, overlay = "Vanish Disabled", tip = "Won't use Vanish.", highlight = 0, icon = br.player.spell.vanish }
@@ -51,22 +64,24 @@ local function createToggles()
         [2] = { mode = "Off", value = 2, overlay = "Ambush Disabled", tip = "Won't use Ambush.", highlight = 0, icon = br.player.spell.ambush }
     };
     CreateButton("Ambush", 2, -1)
-    CloakModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Cloak logic", tip = "Use Cloak logic", highlight = 0, icon = br.player.spell.cloakOfShadows },
-        [2] = { mode = "Off", value = 2, overlay = "Use Cloak logic", tip = "Won't Use Cloak logic", highlight = 0, icon = br.player.spell.cloakOfShadows },
-    };
-    CreateButton("Cloak", 3, -1)
-    EssenceModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Essences", tip = "Use Essences", highlight = 0, icon = br.player.spell.reapingFlames },
-        [2] = { mode = "Off", value = 2, overlay = "Use Essences", tip = "Won't Use Essences", highlight = 0, icon = br.player.spell.reapingFlames },
-    };
-    CreateButton("Essence", 4, -1)
 
-    StunModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Stuns", tip = "Use Stuns", highlight = 0, icon = br.player.spell.blind },
-        [2] = { mode = "Off", value = 2, overlay = "Use Stuns", tip = "Won't Use Stuns", highlight = 0, icon = br.player.spell.blind },
+    BlindModes = {
+        [1] = { mode = "INT", value = 1, overlay = "Blind Logic", tip = "Blind Logic", highlight = 0, icon = br.player.spell.blind },
+        [2] = { mode = "STUN", value = 2, overlay = "Blind Logic", tip = "Blind Logic", highlight = 0, icon = br.player.spell.blind },
+        [3] = { mode = "ALL", value = 3, overlay = "Blind Logic", tip = "Blind Logic", highlight = 0, icon = br.player.spell.blind },
+        [4] = { mode = "OFF", value = 4, overlay = "Blind Logic", tip = "Blind Logic", highlight = 0, icon = br.player.spell.blind }
     };
-    CreateButton("Stun", 5, 0)
+    CreateButton("Blind", 3, -1)
+
+    GougeModes = {
+        [1] = { mode = "INT", value = 1, overlay = "Gouge logic", tip = "Gouge logic", highlight = 0, icon = br.player.spell.gouge },
+        [2] = { mode = "STUN", value = 2, overlay = "Gouge logic", tip = "Gouge logic", highlight = 0, icon = br.player.spell.gouge },
+        [3] = { mode = "ALL", value = 3, overlay = "Gouge logic", tip = "Gouge logic", highlight = 0, icon = br.player.spell.gouge },
+        [4] = { mode = "CD", value = 4, overlay = "Gouge logic", tip = "Gouge logic", highlight = 0, icon = br.player.spell.gouge },
+        [5] = { mode = "OFF", value = 5, overlay = "Gouge logic", tip = "Gouge logic", highlight = 0, icon = br.player.spell.gouge }
+    };
+    CreateButton("Gouge", 4, -1)
+
 
 end
 
@@ -80,14 +95,16 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 142211032020")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 102612022020")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
+        br.ui:createSpinner(section, "Auto Soothe", 1, 0, 100, 5, "TTD for soothing")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
-        br.ui:createDropdown(section, "Poison", { "Instant", "Wound", }, 1, "Poison to apply")
+        br.ui:createDropdown(section, "Non-Lethal Poison", { "Crippling", "Numbing", }, 1, "Non-Lethal Poison to apply")
+        br.ui:createDropdown(section, "Lethal Poison", { "Instant", "Wound", }, 1, "Lethal Poison to apply")
         br.ui:createDropdown(section, "Auto Stealth", { "Always", "25 Yards" }, 1, "Auto stealth mode.")
         br.ui:createCheckbox(section, "Cheap Shot", "Will use cheap shot")
         br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
@@ -98,7 +115,7 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
+        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createCheckbox(section, "Use Racial", "Use your racial")
@@ -108,7 +125,6 @@ local function createOptions()
         end
         br.ui:createCheckbox(section, "Auto Sprint")
         br.ui:createCheckbox(section, "Use Trinkets")
-        br.ui:createSpinnerWithout(section, "Reaping DMG", 50, 1, 100, 1, "* 1k Put damage of your Reaping Flames")
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -126,9 +142,6 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupt/stun Options")
         -- Interrupt Percentage
-        br.ui:createDropdownWithout(section, "Gouge", { "None", "Interrupt", "Stun", "Both" }, 4, "", "How do you want to use Gouge?")
-        br.ui:createDropdownWithout(section, "Blind", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Blind?")
-        br.ui:createDropdownWithout(section, "Kidney", { "None", "Interrupt", "Stun", "Both" }, 3, "", "How do you want to use Kidney Shot?")
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
         br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
         br.ui:checkSectionState(section)
@@ -194,6 +207,7 @@ local gcdMax
 local has
 local inCombat
 local item
+local covenant
 local level
 local mode
 local php
@@ -207,7 +221,6 @@ local hastar
 local healPot
 local profileStop
 local ttd
-local essence
 local stealth
 local combo, comboDeficit, comboMax
 local ambush_flag = false
@@ -217,6 +230,7 @@ local should_pool
 local rnd5 -- rand number between 1 and 5
 local rnd10 --random number between 1 and 10
 local dynamic_target_melee
+local dynamic_range
 local buff_rollTheBones_remain = 0
 local buff_rollTheBones_count = 0
 
@@ -697,129 +711,6 @@ actionList.nogcd = function()
     --skills that can be used without waiting for a gcd
 end
 
--- essences
-actionList.essences = function()
-
-
-    if (getCombatTime() > 2 or buff.tricksOfTheTrade.exists() or #br.friend == 1) and not stealth and not IsMounted() then
-        -- Reaping Flames
-        if essence.reapingFlames.major and cast.able.reapingFlames() then
-            local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 2000 or getValue("Reaping DMG") * 1000
-
-            local reapingPercentage = 0
-            local thisHP = 0
-            local thisABSHP = 0
-            local mob_count = #enemies.yards30
-            if mob_count > 10 then
-                mob_count = 10
-            end
-
-            local thisABSHPmax = 0
-            local reap_flag = "foo"
-            local reapTarget, thisUnit, reap_execute, reap_hold, reap_fallback = false, false, false, false, false
-            if mob_count == 1 then
-                if ((br.player.essence.reapingFlames.rank >= 2 and getHP(enemies.yards30[1]) > 80) or getHP(enemies.yards30[1]) <= 20 or getTTD(enemies.yards30[1], 20) > 30) then
-                    reapTarget = enemies.yards30[1]
-                    reap_flag = "single"
-                end
-            elseif mob_count > 1 then
-                for i = 1, mob_count do
-                    thisUnit = enemies.yards30[i]
-                    if getTTD(thisUnit) ~= 999 then
-                        thisHP = getHP(thisUnit)
-                        thisABSHP = UnitHealth(thisUnit)
-                        thisABSHPmax = UnitHealthMax(thisUnit)
-                        reapingPercentage = round2(reapingDamage / UnitHealthMax(thisUnit), 2)
-                        if getTTD(thisUnit, (UnitHealth(thisUnit) - reapingDamage)) < 2.5 then
-                            reap_execute = thisUnit
-                            reap_flag = "snipe2"
-                            break
-                        end
-                    end
-                end
-                if reap_execute == false then
-                    for i = 1, mob_count do
-                        thisUnit = enemies.yards30[i]
-                        if getTTD(thisUnit) ~= 999 then
-                            thisHP = getHP(thisUnit)
-                            thisABSHP = UnitHealth(thisUnit)
-                            thisABSHPmax = UnitHealthMax(thisUnit)
-                            if getTTD(thisUnit) < 2.5 then
-                                reap_execute = thisUnit
-                                reap_flag = "TTD"
-                                break
-                            end
-                        end
-                    end
-                end
-                if reap_execute == false then
-                    for i = 1, mob_count do
-                        thisUnit = enemies.yards30[i]
-                        if getTTD(thisUnit) ~= 999 then
-                            thisHP = getHP(thisUnit)
-                            thisABSHP = UnitHealth(thisUnit)
-                            thisABSHPmax = UnitHealthMax(thisUnit)
-                            if UnitHealth(thisUnit) <= reapingDamage then
-                                reap_execute = thisUnit
-                                reap_flag = "KILL"
-                                break
-                            end
-                        end
-                    end
-                end
-                if reap_execute == false then
-                    for i = 1, mob_count do
-                        thisUnit = enemies.yards30[i]
-                        if getTTD(thisUnit) ~= 999 then
-                            thisHP = getHP(thisUnit)
-                            thisABSHP = UnitHealth(thisUnit)
-                            thisABSHPmax = UnitHealthMax(thisUnit)
-                            if getTTD(thisUnit, reapingPercentage) < 29 or getTTD(thisUnit, 20) > 30 and (getTTD(thisUnit, reapingPercentage) < 44)
-                            then
-                                reap_hold = true
-                            elseif (thisHP > 80 or thisHP <= 20) or getTTD(thisUnit, 20) > 30 then
-                                reap_fallback = thisUnit
-                                reap_flag = "fallback"
-                            end
-                        end
-                    end
-                end
-            end
-            if reap_execute then
-                reapTarget = reap_execute
-            elseif not reap_hold and reap_fallback then
-                reapTarget = reap_fallback
-            end
-
-            if reapTarget ~= nil and not isExplosive(reapTarget) and not noDamageCheck(reapTarget) then
-                if cast.reapingFlames(reapTarget) then
-                    --          Print("REAP: (" .. reap_flag .. ")" .. UnitName(reapTarget) .. "DMG:" .. tostring(reapingDamage) .. "/" .. tostring(UnitHealth(reapTarget)))
-                    return true
-                end
-            end
-        end
-
-
-
-        --  bloodOfTheEnemy
-        if essence.bloodOfTheEnemy.active and cast.able.bloodOfTheEnemy() then
-            if getTTD("target") > 10 and cd.betweenTheEyes.ready() and (cd.bladeFlurry.ready() or buff.bladeFlurry.exists()) then
-                if cast.bloodOfTheEnemy() then
-                    return true
-                end
-            end
-        end
-
-
-        --purification protocol
-        if essence.purifyingBlast.major and cast.able.purifyingBlast() and getOutLaksTTD(8) > 2 or isBoss("target") then
-            if cast.purifyingBlast("best", nil, 1, 8) then
-                return true
-            end
-        end
-    end
-
-end
 
 --dps()
 actionList.dps = function()
@@ -880,7 +771,7 @@ actionList.dps = function()
                 return true
             end
         end
-        if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 then
+        if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 and getDistance(dynamic_target_melee) <= dynamic_range then
             if cast.bladeRush(dynamic_target_melee) then
                 return true
             end
@@ -932,7 +823,7 @@ actionList.dps = function()
             end
         end
 
-        if cast.able.dispatch(dynamic_target_melee) and not isExplosive(dynamic_target_melee) then
+        if cast.able.dispatch(dynamic_target_melee) and not isExplosive(dynamic_target_melee) and getDistance(dynamic_target_melee) <= dynamic_range and getFacing("player", dynamic_target_melee) then
             if cast.dispatch(dynamic_target_melee) then
                 return true
             end
@@ -941,7 +832,7 @@ actionList.dps = function()
         if not stealth and not should_pool then
 
             --sepsis,if=!stealthed.all
-            if cast.able.sepsis(dynamic_target_melee) and not stealth then
+            if cast.able.sepsis(dynamic_target_melee) and not stealth and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
                 if cast.sepsis(dynamic_target_melee) then
                     return true
                 end
@@ -952,6 +843,18 @@ actionList.dps = function()
                     return true
                 end
             end
+
+            if cast.able.flagellation(dynamic_target_melee) and not debuff.flagellation.exists(dynamic_target_melee) and getTTD(dynamic_target_melee) > 10 then
+                if cast.flagellation(dynamic_target_melee) then
+                    return true
+                end
+            end
+            if debuff.flagellation.remain(dynamic_target_melee) < 2 and debuff.flagellation.exists(dynamic_target_melee) and cast.able.flagellationCleanse(dynamic_target_melee) then
+                if cast.flagellationCleanse(dynamic_target_melee) then
+                    return true
+                end
+            end
+
             if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
                     or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
                 if cast.serratedBoneSpike(dynamic_target_melee) then
@@ -970,16 +873,13 @@ actionList.dps = function()
                 end
             end
 
-            --gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1+buff.broadside.up
-            if talent.dirtyTricks and cast.able.gouge(dynamic_target_melee) and getFacing(interrupt_target, "player", 45) and br.player.power.comboPoints.deficit() >= 1 + (int(buff.broadside.exists())) then
-                if cast.gouge(dynamic_target_melee) then
+            if cast.able.sinisterStrike(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
+                if cast.sinisterStrike(dynamic_target_melee) then
                     return true
                 end
             end
-
-            if cast.able.sinisterStrike(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) then
-                --Print("Casting Sinister at: " .. combo)
-                if cast.sinisterStrike(dynamic_target_melee) then
+            if mode.gouge == 4 and talent.dirtyTricks and cast.able.gouge(dynamic_target_melee) and getFacing(dynamic_target_melee, "player", 45) and br.player.power.comboPoints.deficit() >= 1 + (int(buff.broadside.exists())) then
+                if cast.gouge(dynamic_target_melee) then
                     return true
                 end
             end
@@ -1026,6 +926,8 @@ actionList.dps = function()
     6, Empowered Proximity, 168529
     7, Focused Resolve, 168506
     8, Superior Battle, 168489
+    9, unbridal fury
+    10, Phantom Fire
     ]]
 
 
@@ -1057,6 +959,8 @@ actionList.dps = function()
                 useItem(168489)
             elseif auto_pot == 9 and canUseItem(169299) then
                 useItem(169299)
+            elseif auto_pot == 10 and canUseItem(171349) then
+                useItem(169299)
             end
         end
     end -- end pots
@@ -1083,12 +987,6 @@ actionList.dps = function()
 
         local hold13, hold14
         --trinket 13
-        if Trinket13 == 173946 and br.player.essence.bloodOfTheEnemy.active then
-            hold13 = true
-            if buff.seethingRage.exists() and canUseItem(173946) and #enemies.yards5 > 0 then
-                useItem(173946)
-            end
-        end
         if Trinket13 == 169769 and canUseItem(13) then
             useItem(13, getBiggestUnitCluster(30, 8))
         end
@@ -1102,12 +1000,6 @@ actionList.dps = function()
         end
 
         --trinket 14
-        if Trinket14 == 173946 and br.player.essence.bloodOfTheEnemy.active then
-            hold14 = true
-            if buff.seethingRage.exists() and canUseItem(173946) and #enemies.yards5 > 0 then
-                useItem(173946)
-            end
-        end
         if Trinket14 == 169769 and canUseItem(14) then
             useItem(14, getBiggestUnitCluster(30, 8))
         end
@@ -1206,6 +1098,21 @@ actionList.Extra = function()
             end
         end
     end
+
+
+    -- Soothe
+    if isChecked("Auto Soothe") and cast.able.shiv() then
+        for i = 1, #enemies.yards5 do
+            local thisUnit = enemies.yards5[i]
+            if canDispel(thisUnit, spell.soothe) and ttd(thisUnit) > getValue("Auto Soothe") then
+                if cast.shiv(thisUnit) then
+                    return true
+                end
+            end
+        end
+    end
+
+
 end -- End Action List - Extra
 
 
@@ -1385,9 +1292,9 @@ actionList.Defensive = function()
         end
 
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
-        if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
-            if canUseItem(166799) then
-                useItem(166799)
+        if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634) or hasItem(177278)) then
+            if canUseItem(177278) then
+                useItem(177278)
             elseif canUseItem(5512) then
                 useItem(5512)
             elseif canUseItem(156634) then
@@ -1400,6 +1307,13 @@ actionList.Defensive = function()
                 useItem(getHealthPot())
             end
         end
+
+        if covenant.kyrian.active and not hasItem(177278) and cast.able.summonSteward() then
+            if cast.summonSteward() then
+                return true
+            end
+        end
+
         -- Crimson Vial
         if cast.able.crimsonVial() and isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
             if cast.crimsonVial() then
@@ -1464,6 +1378,8 @@ actionList.Defensive = function()
 end -- End Action List - Defensive
 
 -- Action List - Interrrupt
+
+
 actionList.Interrupt = function()
     local tanks = getTanksTable()
 
@@ -1501,31 +1417,32 @@ actionList.Interrupt = function()
             if canInterrupt(interrupt_target, int_when)
                     or getUnitID(interrupt_target) == 136297 then
 
-
+                --   Print(tostring(br.player.cast.timeRemain(interrupt_target)))
+                --    Print(tostring(getTTD(interrupt_target)))
                 --Print(UnitName(enemies.yards20[i]))
                 distance = getDistance(interrupt_target)
                 if not (inInstance and #tanks > 0 and select(3, UnitClass(tanks[1].unit)) == 1 and hasBuff(23920, tanks[1].unit) and UnitIsUnit(select(3, UnitCastID(interrupt_target)), tanks[1].unit)) then
-                    if not isBoss(interrupt_target) and StunsBlackList[GetObjectID(interrupt_target)] == nil then
+                    if StunsBlackList[GetObjectID(interrupt_target)] == nil and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target) then
                         if cd.global.remain() == 0 then
-                            if mode.stun == 1 then
-                                if (getValue("Gouge") == 2 or getValue("Gouge") == 4) and not cd.gouge.exists()
-                                        and not cast.last.gouge(1)
-                                        and getFacing(interrupt_target, "player", 45)
-                                        and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
-                                    if cast.gouge(interrupt_target) then
-                                        someone_casting = false
-                                        br.addonDebug("[int]Gouged " .. UnitName(interrupt_target))
-                                        return true
-                                    end
+                            if mode.gouge ~= 2 and mode.gouge < 5 and not cd.gouge.exists()
+                                    and not cast.last.gouge(1)
+                                    and getFacing(interrupt_target, "player", 45)
+                                    and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
+                                if cast.gouge(interrupt_target) then
+                                    someone_casting = false
+                                    br.addonDebug("[int]Gouged " .. UnitName(interrupt_target))
+                                    return true
                                 end
-                                if (getValue("Blind") == 2 or getValue("Blind") == 4) and distance <= 15 and not cast.able.blind(interrupt_target) and (cd.kick.exists() or (distance > 5 or talent.acrobaticStrikes and distance > 8)) then
-                                    if cast.blind(interrupt_target) then
-                                        br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
-                                        someone_casting = false
-                                        return true
-                                    end
+                            end
+                            if (mode.blind == 1 or mode.blind == 3) and distance <= 15 and cast.able.blind(interrupt_target) then
+                                if cast.blind(interrupt_target) then
+                                    br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
+                                    someone_casting = false
+                                    return true
                                 end
-                                if (getValue("Kidney") == 2 or getValue("Kidney") == 4) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
+                            end
+                            if cast.able.kidneyShot(interrupt_target) and (mode.kidney == 1 or mode.kidney == 3) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
+                                if getDistance(interrupt_target) < 8 and getFacing("player", interrupt_target) then
                                     if cast.kidneyShot(interrupt_target) then
                                         br.addonDebug("[int]Kidney/stunning")
                                         someone_casting = false
@@ -1535,7 +1452,8 @@ actionList.Interrupt = function()
                             end
                         end
                     end
-                    if isChecked("Kick") and not cd.kick.exists() and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
+
+                    if isChecked("Kick") and not cd.kick.exists() and distance < dynamic_range and getFacing("player", interrupt_target) then
                         if cast.kick(interrupt_target) then
                             br.addonDebug("[int]Kicked " .. UnitName(interrupt_target))
                             someone_casting = false
@@ -1544,6 +1462,7 @@ actionList.Interrupt = function()
                             end
                             return true
                         end
+
                     end
                 end
             end
@@ -1552,24 +1471,24 @@ actionList.Interrupt = function()
             if cd.global.remain() == 0 and mode.stun == 1 then
                 if cast.able.blind() or cast.able.cheapShot() or cast.able.kidneyShot() then
                     distance = getDistance(interrupt_target)
-                    if (isCrowdControlCandidates(interrupt_target) or isChecked("Motherload - Stun jockeys") and getUnitID(interrupt_target) == 130488)
+                    if isCrowdControlCandidates(interrupt_target)
                             and not already_stunned(interrupt_target)
                             and GetUnitExists(interrupt_target) and getBuffRemain(interrupt_target, 226510) == 0 and distance <= 20 then
-                        if (getValue("Gouge") == 3 or getValue("Gouge") == 4) and cast.able.gouge() and (distance <= 5 or talent.acrobaticStrikes and distance <= 8) and getFacing(interrupt_target, "player", 45) then
+                        if mode.gouge > 1 and mode.gouge ~= 5 and cast.able.gouge() and (distance <= dynamic_range) and getFacing(interrupt_target, "player", 45) then
                             if cast.gouge(interrupt_target) then
-                                br.addonDebug("Gouge/stunning")
+                                br.addonDebug("[STUN]Gouge on " .. interrupt_target)
                                 someone_casting = false
                                 return true
                             end
-                        elseif (getValue("Blind") == 3 or getValue("Blind") == 4) and cast.able.blind() and (distance <= 15 or talent.blindingPowder and distance <= 30) and not cd.blind.exists() then
+                        elseif (mode.blind == 2 or mode.blind == 3) and distance <= 15 and cast.able.blind(interrupt_target) then
                             if cast.blind(interrupt_target) then
-                                br.addonDebug("Blind/stunning")
+                                br.addonDebug("[STUN]Blind on " .. interrupt_target)
                                 someone_casting = false
                                 return true
                             end
-                        elseif (getValue("Kidney") == 3 or getValue("Kidney") == 4) and cast.able.kidneyShot() and combo > 0 then
+                        elseif (mode.kidney == 1 or mode.kidney == 3) and cast.able.kidneyShot() and combo > 0 then
                             if cast.kidneyShot(interrupt_target) then
-                                br.addonDebug("Kidney/stunning")
+                                br.addonDebug("[STUN]Kidney on " .. interrupt_target)
                                 someone_casting = false
                                 return true
                             end
@@ -1615,7 +1534,6 @@ end -- End Action List - PreCombat
 ---------------
 
 
-
 local someone_casting = false
 
 local frame = CreateFrame("Frame")
@@ -1645,6 +1563,7 @@ local function runRotation()
     gcd = br.player.gcd
     gcdMax = br.player.gcdMax
     has = br.player.has
+    covenant = br.player.covenant
     inCombat = br.player.inCombat
     item = br.player.items
     level = br.player.level
@@ -1654,7 +1573,6 @@ local function runRotation()
     talent = br.player.talent
     combo, comboDeficit, comboMax = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
     units = br.player.units
-    essence = br.player.essence
     use = br.player.use
     stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists()
     -- General Locals
@@ -1664,6 +1582,7 @@ local function runRotation()
     ttd = getTTD
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists()
     dynamic_target_melee = talent.acrobaticStrikes and units.dyn8 or units.dyn5
+    dynamic_range = talent.acrobaticStrikes and 8 or 5
 
     local charges = br.player.charges
 
@@ -1723,8 +1642,6 @@ local function runRotation()
     end
 
 
-
-
     --        br.ui:createDropdown(section, "Draw Range", { "Never", "Blade Flurry", "always" }, 1, "Draw range on screen")
     if inCombat and getOptionValue("Draw Range") == 3 or getOptionValue("Draw Range") == 2 and buff.bladeFlurry.exists() then
         local draw_range = talent.acrobaticStrikes and 8 or 5
@@ -1760,7 +1677,6 @@ local function runRotation()
                         and not isBoss(enemies.yards20[i]) and StunsBlackList[GetObjectID(enemies.yards20[i])] == nil and not already_stunned(enemies.yards20[i]) then
                     if cast.kidneyShot(enemies.yards20[i]) then
                         br.addonDebug("[AM]Kidney/stunning")
-                        someone_casting = false
                         return true
                     end
                 end
@@ -1799,20 +1715,30 @@ local function runRotation()
     elseif haltProfile then
         return true
     else
-        if isChecked("Poison") and not inCombat and not moving then
-            if getOptionValue("Poison") == 1 and buff.instantPoison.remain() < 500 and not cast.last.instantPoison(1) then
-                if cast.instantPoison("player") then
-                    return true
+        if timers.time("poison", not inCombat and not moving) > 1 then
+            if isChecked("Lethal Poison") then
+                --and not inCombat and not moving
+                if getOptionValue("Lethal Poison") == 1 and buff.instantPoison.remain() < 500 and not cast.last.instantPoison(1) then
+                    if cast.instantPoison("player") then
+                        return true
+                    end
+                elseif getOptionValue("Lethal Poison") == 2 and buff.woundPoison.remain() < 500 and not cast.last.woundPoison(1) then
+                    if cast.woundPoison("player") then
+                        return true
+                    end
                 end
             end
-            if getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 500 and not cast.last.woundPoison(1) then
-                if cast.woundPoison("player") then
-                    return true
-                end
-            end
-            if buff.cripplingPoison.remain() < 500 and not cast.last.cripplingPoison(1) then
-                if cast.cripplingPoison("player") then
-                    return true
+
+            if isChecked("Non-Lethal Poison") then
+                --and not inCombat and not moving
+                if getOptionValue("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 500 and not cast.last.cripplingPoison(1) then
+                    if cast.cripplingPoison("player") then
+                        return true
+                    end
+                elseif getOptionValue("Non-Lethal Poison") == 2 and buff.numbingPoison.remain() < 500 and not cast.last.numbingPoison(1) and level >= 54 then
+                    if cast.numbingPoison("player") then
+                        return true
+                    end
                 end
             end
         end
@@ -1820,6 +1746,8 @@ local function runRotation()
         ---------------------------------
         --- Out Of Combat - Rotations ---
         ---------------------------------
+        ---
+
         if stealth then
             if actionList.Stealth() then
                 return true
@@ -1880,11 +1808,6 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         if inCombat then
-            if mode.essence == 1 then
-                if actionList.essences() then
-                    return true
-                end
-            end
             if cd.global.remain() == 0 then
                 -- isValidUnit("target") and
                 if timersTable then

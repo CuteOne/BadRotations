@@ -71,8 +71,8 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 102009202020")
-        br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 182712022020")
+        br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -88,19 +88,7 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createSpinner(section, "Bursting", 3, 0, 10, 4, "", "Burst Targets - also counts as number under critical")
-        br.ui:createCheckbox(section, "Freehold - pig", 0)
-        br.ui:createCheckbox(section, "Dont DPS spotter")
-        br.ui:createSpinnerWithout(section, "Temple of Seth Heal", 40, 0, 100, 5)
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Hot Value (calculated to see how much healing is needed for Griev")
-        br.ui:createCheckbox(section, "Decaying Mind", 0)
-        br.ui:checkSectionState(section)
-
-        section = br.ui:createSection(br.ui.window.profile, "Radar")
-        br.ui:createCheckbox(section, "All - root the thing")
-        br.ui:createCheckbox(section, "FH - root grenadier")
-        br.ui:createCheckbox(section, "AD - root Spirit of Gold")
-        br.ui:createCheckbox(section, "KR - root Minions of Zul")
-        br.ui:createCheckbox(section, "KR - animated gold")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Pots")
@@ -112,11 +100,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
         br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
-        br.ui:checkSectionState(section)
-
-        section = br.ui:createSection(br.ui.window.profile, "Corruption")
-        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
-        br.ui:createSpinnerWithout(section, "Eye Stacks", 3, 1, 10, 1, "How many stacks before using cloak")
+        br.ui:createDropdown(section, "Convoke Spirits", { "DPS", "HEAL", "BOTH", "Manual" }, 3, "How to use Convoke Spirits")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Heals")
@@ -148,23 +132,6 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Flourish Targets", 3, 0, 40, 1, "Minimum Flourish Targets")
         br.ui:createSpinnerWithout(section, "Flourish HOT Targets", 5, 0, 40, 1, "Minimum HOT Targets cast Flourish")
         br.ui:createSpinnerWithout(section, "HOT Time count", 8, 0, 25, 1, "HOT Less than how many seconds to count")
-        br.ui:checkSectionState(section)
-
-        -- Essences
-        --"Memory of Lucid Dreams"
-        section = br.ui:createSection(br.ui.window.profile, "Essences")
-        br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
-        br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
-        br.ui:createSpinner(section, "Memory of Lucid Dreams", 50, 0, 100, 5, "", "mana to pop it at")
-        br.ui:createCheckbox(section, "Lucid Cat")
-        --
-        br.ui:createSpinner(section, "Vitality Conduit", 50, 0, 100, 5, "", "health to heal at")
-        br.ui:createDropdown(section, "Ever Rising Tide", { "Always", "Pair with CDs", "Based on health" }, 1, "When to use this essence")
-        br.ui:createSpinner(section, "Ever Rising Tide - Mana", 30, 0, 100, 5, "", "min mana to use")
-        br.ui:createSpinner(section, "Ever Rising Tide - Health", 30, 0, 100, 5, "", "health threshold to pop at")
-        br.ui:createSpinner(section, "Well of Existence  - Health", 30, 0, 100, 5, "", "health threshold to pop at")
-        br.ui:createSpinner(section, "Seed of Eonar", 80, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Seed of Eonar Targets", 3, 0, 40, 1, "Minimum hurting friends")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Auto Stuff")
@@ -293,8 +260,8 @@ local function noDamageCheck(unit)
     if isCC(unit) then
         return true
     end
-    if isCasting(302415, unit) then
-        -- emmisary teleporting home
+    if GetObjectID(unit) == 127019 then
+        --dummies inside of Freehold
         return true
     end
 
@@ -310,11 +277,14 @@ local function noDamageCheck(unit)
         -- shields on witches in wm
         return true
     end
-
+    --[[if isCasting(302415, unit) then
+        -- emmisary teleporting home
+        return true
+    end
     if GetObjectID(thisUnit) == 155432 then
         --emmisaries to punt, dealt with seperately
         return true
-    end
+    end]]
     return false --catchall
 end
 
@@ -737,13 +707,10 @@ local function runRotation()
     --------------
     --- Locals ---
     --------------
-    -- local artifact                                      = br.player.artifact
     -- local combatTime                                    = getCombatTime()
     local cd = br.player.cd
     -- local charges                                       = br.player.charges
-    -- local perk                                          = br.player.perk
     local gcd = br.player.gcd
-    -- local lastSpell                                     = lastSpellCast
     local lowest = br.friend[1]
     local LastEfflorescenceTime = nil
     local buff = br.player.buff
@@ -759,7 +726,6 @@ local function runRotation()
     local falling, swimming, flying = getFallTime(), IsSwimming(), IsFlying()
     local moving = isMoving("player") ~= false or br.player.moving
     local gcdMax = br.player.gcdMax
-    local essence = br.player.essence
     local healPot = getHealthPot()
     local inCombat = isInCombat("player")
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
@@ -809,6 +775,7 @@ local function runRotation()
     enemies.get(25)
     enemies.get(30)
     enemies.get(40)
+    enemies.get(45)
     friends.yards40 = getAllies("player", 40)
 
     local lowest = br.friend[1]
@@ -904,17 +871,10 @@ local function runRotation()
         return hotCnt
     end
 
-    -- wildGrowth Exist
-    local function wildGrowthExist()
-        for i = 1, #br.friend do
-            if buff.wildGrowth.exists(br.friend[i].unit) then
-                return true
-            end
-        end
-        return false
-    end
-
     local function owl_combat()
+
+        local is_aoe = #enemies.yards45 > 1 or false
+        local current_eclipse = "none"
 
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
 
@@ -928,6 +888,8 @@ local function runRotation()
             end
         end
 
+
+
         --  Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
 
         if not buff.moonkinForm.exists() then
@@ -935,6 +897,8 @@ local function runRotation()
                 return true
             end
         end
+
+
         --dots
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
@@ -948,12 +912,13 @@ local function runRotation()
                                 --need to add, or if tank is dead
                         ) or not isChecked("Safe Dots") then
 
-                    if cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
+                    if debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") and cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
                         if cast.sunfire(thisUnit) then
                             return true
                         end
                     end
-                    if cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) and not cast.last.moonfire(1) then
+                    if debuff.sunfire.count() < getOptionValue("Max Moonfire Targets Targets") and cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) then
+                        --and not cast.last.moonfire(1) then
                         if cast.moonfire(thisUnit) then
                             return true
                         end
@@ -961,6 +926,26 @@ local function runRotation()
                 end
             end
         end
+
+        if useCDs() and buff.moonkinForm.exists() and talent.heartOfTheWild and cast.able.heartOfTheWild() then
+            if cast.heartOfTheWild() then
+                return true
+            end
+        end
+
+        -- Print(tostring(cd.heartOfTheWild.remains()))
+        --covenant here
+
+        if useCDs() and cast.able.convokeTheSpirits() and getTTD("target") > 10
+                and (buff.heartOfTheWild.exists()
+                or cd.heartOfTheWild.remains() > 30
+                or not talent.heartOfTheWild) then
+            if cast.convokeTheSpirits() then
+                return true
+            end
+        end
+
+
         --eclipse
 
         --[[7	69.05	moonfire,target_if=refreshable
@@ -972,21 +957,6 @@ local function runRotation()
         --9	22.86	starsurge
         --A	66.20	wrath,if=buff.eclipse_solar.up|eclipse.lunar_next
         --B	39.13	starfire]]
-        if talent.heartOfTheWild then
-            if cast.heartOfTheWild() then
-                return true
-            end
-        end
-
-        if not buff.prowl.exists() then
-            if cast.able.concentratedFlame() and not buff.prowl.exists() then
-                if isChecked("ConcentratedFlame - DPS") and ttd(units.dyn40) > 8 and not debuff.concentratedFlame.exists(units.dyn40) then
-                    if cast.concentratedFlame(units.dyn40) then
-                        return true
-                    end
-                end
-            end
-        end
 
         if cast.able.starsurge(units.dyn45) and eclipse_in then
             if cast.starsurge(units.dyn45) then
@@ -1013,6 +983,49 @@ local function runRotation()
                 return true
             end
         end
+
+        if cast.able.starsurge(units.dyn45) and eclipse_in then
+            if cast.starsurge(units.dyn45) then
+                return true
+            end
+        end
+
+        if is_aoe then
+            -- AOE
+            if cast.able.wrath()
+                    and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_aoe)
+                    or eclipse_in and buff.eclipse_solar.exists()
+            then
+                if cast.wrath(units.dyn45) then
+                    return true
+                end
+            end
+            if cast.able.starfire() then
+                if cast.starfire(getBiggestUnitCluster(45, 8)) then
+                    return true
+                end
+            end
+        else
+            -- ST
+            if cast.able.starfire() then
+                if (eclipse_in and current_eclipse == "lunar")
+                        or (not eclipse_in and eclipse_next == "solar")
+                        or (not eclipse_in and eclipse_next == "any")
+                then
+                    if cast.starfire(getBiggestUnitCluster(45, 8)) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        --wrath fall back
+        if cast.able.wrath(units.dyn45) then
+            if cast.wrath(units.dyn45) then
+                return true
+            end
+        end
+
         if SpecificToggle("Owl Key") and not GetCurrentKeyBoardFocus()
                 and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
                 and isChecked("Break form for dots") and (not debuff.moonfire.exists("target") or not debuff.sunfire.exists("target")) or not isChecked("Break form for dots")
@@ -1079,6 +1092,11 @@ local function runRotation()
                 if cast.able.swiftmend() and count_hots(lowest.unit) > 0 then
                     if cast.swiftmend(lowest.unit) then
                         br.addonDebug("[CRIT]Swiftmend on: " .. UnitName(lowest.unit))
+                        return true
+                    end
+                end
+                if cast.able.convokeTheSpirits() and (getOptionValue("Convoke Spirits") == 2 or getOptionValue("Convoke Spirits") == 3) then
+                    if cast.convokeTheSpirits() then
                         return true
                     end
                 end
@@ -1385,15 +1403,17 @@ local function runRotation()
     -- Action List - Extras
     local function auto_forms()
         if mode.forms == 1 then
+
+            local standingTime = 0
+            if DontMoveStartTime then
+                standingTime = GetTime() - DontMoveStartTime
+            end            --     local moveTimer = player.movingTime()
+            --     Print(tostring(moveTimer))
+
             --and br.timer:useTimer("debugShapeshift", 0.25) then
             -- Flight Form
-            if not inCombat and canFly() and not swimming and br.fallDist > 90 and level >= 58 and not buff.prowl.exists() then
-                if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                    -- CancelShapeshiftForm()
-                    RunMacroText("/CancelForm")
-                    CastSpellByID(783, "player")
-                    return true
-                else
+            if not inCombat and canFly() and not swimming and (br.fallDist > 90 or 1 == 1) and level >= 24 and not buff.prowl.exists() then
+                if GetShapeshiftForm() ~= 0 and not buff.travelForm.exists() then
                     CastSpellByID(783, "player")
                     return true
                 end
@@ -1405,13 +1425,10 @@ local function runRotation()
                     RunMacroText("/CancelForm")
                     CastSpellByID(783, "player")
                     return true
-                else
-                    CastSpellByID(783, "player")
-                    return true
                 end
             end
             -- Travel Form
-            if not inCombat and not swimming and level >= 58 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) then
+            if not inCombat and not swimming and level >= 24 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) then
                 if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                     RunMacroText("/CancelForm")
                     CastSpellByID(783, "player")
@@ -1430,7 +1447,7 @@ local function runRotation()
                     end
                 end
                 -- Cat Form - Less Fall Damage
-                if (not canFly() or inCombat or level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
+                if (not canFly() or inCombat or level < 24) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
                     --falling > getOptionValue("Fall Timer") then
                     if cast.catForm("player") then
                         return true
@@ -1640,79 +1657,6 @@ local function runRotation()
                     br.addonDebug("Using shroudOfResolve")
                 end
             end
-        end
-        --Essence Support
-        --overchargeMana
-        --[[
-                if isChecked("Vitality Conduit") and cast.able.vitalityConduit() and lowest.hp < getOptionValue("Vitality Conduit") or burst == true then
-                    Print("should cast it now!!!!!")
-                    if cast.vitalityConduit(lowest.unit) then
-                        CastSpellByID(296230, "player")
-                        return true
-                    end
-        ]]
-
-        if getSpellCD(296230) <= gcd and lowest.hp < getOptionValue("Vitality Conduit") then
-            if CastSpellByID(296230, "player") then
-                return true
-            end
-        end
-
-        if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd then
-            if getOptionValue("Ever Rising Tide") == 1 then
-                if cast.overchargeMana() then
-                    return
-                end
-            end
-            if getOptionValue("Ever Rising Tide") == 2 then
-                if cd.ironbark.exists() or cd.incarnationTreeOfLife.exists() or br.player.buff.innervate.exists() or burst == true then
-                    if cast.overchargeMana() then
-                        return
-                    end
-                end
-            end
-            if getOptionValue("Ever Rising Tide") == 3 then
-                if lowest.hp < getOptionValue("Ever Rising Tide - Health") or burst == true then
-                    if cast.overchargeMana() then
-                        return
-                    end
-                end
-            end
-        end
-        --lucid dreams
-        if isChecked("Memory of Lucid Dreams") and getSpellCD(298357) <= gcd
-                and mana <= getValue("Memory of Lucid Dreams") then
-            if cast.memoryOfLucidDreams() then
-                return
-            end
-        end
-
-        --"Well of Existence  - Health"
-        if isChecked("Well of Existence  - Health") and essence.refreshment.active and getSpellCD(296197) <= gcd then
-            if lowest.hp < getOptionValue("Well of Existence  - Health") or burst == true then
-                if cast.refreshment(lowest.unit) then
-                    return true
-                end
-            end
-        end
-        --Seed of Eonar
-        if isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
-            for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) then
-                    local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Seed of Eonar"), #br.friend)
-                    if #lowHealthCandidates >= getValue("Seed of Eonar Targets") and not moving or burst == true then
-                        if cast.lifeBindersInvocation() then
-                            return true
-                        end
-                    end
-                end
-            end
-        end
-
-        --stat gem from crown
-        if hasItem(166801) and canUseItem(166801) and not buff.saphireofBrilliance.exists("player") then
-            useItem(166801)
-            return true
         end
 
 
@@ -1976,7 +1920,7 @@ local function runRotation()
         --dots
 
 
-        local debuffsunfirecount = debuff.sunfire.count()
+        local debuffsunfirecount = debuff.sunfire.count()  -- < getOptionValue("Max Sunfire Targets")
         local debuffmoonfirecount = debuff.moonfire.count()
 
         for i = 1, #enemies.yards40 do
@@ -2359,8 +2303,6 @@ local function runRotation()
         end
 
         if mode.hEALS == 1 then
-
-
             if isChecked("Swiftmend") and cast.able.swiftmend() and count_hots(lowest.unit) > 0
                     and (lowest.hp <= getValue("Swiftmend") or (talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists()))
                     and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
