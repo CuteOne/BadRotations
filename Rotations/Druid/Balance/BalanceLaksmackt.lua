@@ -140,8 +140,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
         br.ui:createCheckbox(section, "Guardian Of Azeroth")
         br.ui:createSpinner(section, "Focused Azerite Beam", 3, 1, 10, 1, "Min. units hit to use Focused Azerite Beam")
-        ----
-        br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
         -------------------------
         ---  TARGET OPTIONS   ---  -- Define Target Options
@@ -403,77 +401,13 @@ local function runRotation()
     end
 
 
-    -- Opener Reset
-    local opener = br.player.opener
 
-    if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then
-
-        opener.count = 0
-        opener.WRA1 = false
-        opener.WRA2 = false
-        opener.DOT1 = false
-        opener.DOT2 = false
-        opener.DOT3 = false
-        opener.PWR = false
-        opener.PEW = false
-        opener.complete = false
-
-
-
-
-
-
-
-        --Clear last cast table ooc to avoid strange casts
-        if #br.lastCast.tracker > 0 then
-            wipe(br.lastCast.tracker)
-        end
+    --Clear last cast table ooc to avoid strange casts
+    if #br.lastCast.tracker > 0 then
+        wipe(br.lastCast.tracker)
     end
 
-    --[134388] = "A Knot of Snakes",
 
-
-    -- track dispells in group
-    --[[ for i = 1, #br.friend do
-       if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance then
-         local healerClass = UnitClassification(br.friend[i].unit)
-         if healerClass == druid then
-           dispell_healer_list = curse, magic, poison
-         elseif healerClass == monk then
-           dispell_healer_list = disease, magic, poison
-         elseif healerClass == priest then
-           dispell_healer_list = disease, magic
-         elseif healerClass == shaman then
-           dispell_healer_list = curse, magic
-         elseif healerClass == paladin then
-           dispell_healer_list = disease, magic, poison
-         end
-       end
-   ]]
-
-    ABOpener = ABOpener or false
-    SW1 = SW1 or false
-    SW2 = SW2 or false
-    MF = MF or false
-    SF = SF or false
-    StF = StF or false
-    CA = CA or false
-
-    if (not inCombat and not GetObjectExists("target")) and ABopener
-    then
-        br.addonDebug("Opener Reset")
-        ABOpener = false
-        SW1 = false
-        SW2 = false
-        MF = false
-        SF = false
-        StF = false
-        CA = false
-        if #br.lastCast.tracker > 0 then
-            wipe(br.lastCast.tracker)
-        end
-
-    end
 
     local astral_max = 0
     local astral_def = 0
@@ -1984,72 +1918,6 @@ local function runRotation()
         end
     end
 
-    local function actionList_Opener()
-        if ABOpener == false then
-            if not SW1 then
-                if cast.solarWrath() then
-                    -- or last cast
-                    SW1 = true
-                    br.addonDebug("Opener: Solar Wrath 1 cast")
-                    return
-                end
-            elseif SW1 and not SW2 then
-                if cast.solarWrath() then
-                    SW2 = true
-                    br.addonDebug("Opener: Solar Wrath 2 cast")
-                    return
-                end
-            elseif MF and not SF then
-                if cast.sunfire() then
-                    SF = true
-                    br.addonDebug("Opener: Sunfire cast")
-                    return
-                end
-            elseif SW2 and not MF then
-                if cast.moonfire() then
-                    MF = true
-                    br.addonDebug("Opener: Moonfire cast")
-                    return
-                end
-            elseif SF and not StF then
-                if talent.stellarFlare then
-                    if cast.stellarFlare() then
-                        StF = true
-                        br.addonDebug("Opener: Stellar Flare cast")
-                        return
-                    end
-                else
-                    StF = true
-                    br.addonDebug("Opener: Stellar Flare not talented, bypassing")
-                    return
-                end
-            elseif StF and not CA and power < 40 then
-                if cast.solarWrath() then
-                    br.addonDebug("Opener: Building Up AP")
-                    return
-                end
-            elseif StF and not CA and power >= 40 then
-                if talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() <= 3 then
-                    if cast.incarnationChoseOfElune("player") then
-                        br.addonDebug("Opener: Inc cast")
-                        CA = true
-                    end
-                elseif not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() <= 3 then
-                    if cast.celestialAlignment("player") then
-                        br.addonDebug("Opener: CA cast")
-                        CA = true
-                    end
-                else
-                    br.addonDebug("Opener: CA/Inc On CD, Bypassing")
-                    CA = true
-                end
-                return
-            elseif CA then
-                ABOpener = true
-                br.addonDebug("Opener Complete")
-            end
-        end
-    end
     -----------------
     --- Rotations ---
     -----------------
@@ -2120,15 +1988,9 @@ local function runRotation()
                         return true
                     end
                 end
-
                 if root_cc() then
                     return true
                 end
-
-                if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
-                    actionList_Opener()
-                end
-
                 if mode.rotation ~= 4 then
                     if dps() then
                         return true
