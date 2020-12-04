@@ -488,7 +488,7 @@ local function runRotation()
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Wind Shear
-                        if isChecked("Wind Shear") and getFacing("player", "target") then
+                        if isChecked("Wind Shear") and getFacing("player", thisUnit) then
                             if cast.windShear(thisUnit) then br.addonDebug("Casting Wind Shear") return end
                         end
         -- Capacitor Totem
@@ -1078,7 +1078,7 @@ local function runRotation()
          end
         ghostWolf()
         -- Pause
-        if pause() then
+        if pause() or cd.global.remains() > 0 then
             return true
         else 
 ---------------------------------
