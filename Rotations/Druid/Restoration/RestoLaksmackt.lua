@@ -107,7 +107,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Smart Hot", 5, 0, 100, 1, "Pre-hot based on DBM or incoming casts - number is max enemies")
         br.ui:createSpinner(section, "Use Bark w/Smart Hot", 30, 0, 100, 5, "Bark based on smart hot - and HP limit to use it at")
         br.ui:createCheckbox(section, "Smart Charge", 1)
-
+        br.ui:createCheckbox(section, "DARK TITAN", 0)
         br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "When to stop what we do, emergency heals!")
         br.ui:createSpinner(section, "Swiftmend", 45, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Nourish", 45, 0, 100, 5, "Health Percent to Cast At")
@@ -2340,7 +2340,7 @@ local function runRotation()
             -- big dots
 
 
-            if not using_lifebloom then
+            if not using_lifebloom and cast.able.lifebloom() then
                 if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat and #tanks == 1 then
                     if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
                         if cast.lifebloom(tank) then
@@ -2348,7 +2348,7 @@ local function runRotation()
                             return true
                         end
                     end
-                elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance then
+                elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and not isChecked("DARK TITAN") then
                     for i = 1, #br.friend do
                         if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Photosynthesis") then
                             lifebloom_count = lifebloom_count + 1
@@ -2365,10 +2365,23 @@ local function runRotation()
                             return true
                         end
                     end
-                elseif talent.photosynthesis and not cast.last.lifebloom(1) and (inRaid or #tanks > 1) and buff.lifebloom.remains() < 2 then
+                elseif talent.photosynthesis and not cast.last.lifebloom(1) and (inRaid or #tanks > 1) and buff.lifebloom.remains() < 2 and not isChecked("DARK TITAN") then
                     if cast.lifebloom("player") then
                         br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                         return true
+                    end
+                elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and isChecked("DARK TITAN") then
+                    if not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5) then
+                        if cast.lifebloom(tank) then
+                            lifebloom_count = lifebloom_count + 1
+                            return true
+                        end
+                    end
+                    if not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
+                        if cast.lifebloom("player") then
+                            lifebloom_count = lifebloom_count + 1
+                            return true
+                        end
                     end
                 end
             else
