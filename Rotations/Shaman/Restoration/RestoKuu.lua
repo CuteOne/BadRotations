@@ -206,8 +206,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Wave",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Healing Stream Totem
-            br.ui:createSpinner(section, "Healing Stream Totem",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Chain Heal
             br.ui:createSpinner(section, "Chain Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")  
