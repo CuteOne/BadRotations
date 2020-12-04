@@ -74,7 +74,7 @@ local function createOptions()
             -- Flask Up Module
             br.player.module.FlaskUp("Agility",section)
             -- Racial
-            br.ui:createCheckbox(section,"Racial")
+            br.ui:createDropdownWithout(section,"Racial", alwaysCdNever, 1, "|cffFFFFFFWhen to use Racial.")
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
             -- Ascendance
@@ -279,7 +279,7 @@ actionList.Defensive = function()
         then
             local thisHP = unit.hp()
             local thisUnit = "player"
-            if ui.value("Auto Heal") == 1 then thisUnit = unit.lowest(40); thisHP = unit.hp(thisUnit) end
+            if ui.value("Heal Target") == 1 then thisUnit = unit.lowest(40); thisHP = unit.hp(thisUnit) end
             if not unit.inCombat() then
                 -- Lowest Party/Raid or Player
                 if (thisHP <= ui.value("Healing Surge OoC") and not unit.moving())
@@ -852,8 +852,8 @@ local function runRotation()
             -- fireblood,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
             -- ancestral_call,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
             -- bag_of_tricks,if=!talent.ascendance.enabled|!buff.ascendance.up
-            if ((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc") and (not talent.ascenance or buff.ascendance.exists() or cd.ascendance.remains() > 50))
-                or (unit.race() == "Troll" and (not talent.ascenance or buff.ascendance.exists()))
+            if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc") and (not talent.ascendance or buff.ascendance.exists() or cd.ascendance.remains() > 50))
+                or (unit.race() == "Troll" and (not talent.ascendance or buff.ascendance.exists())))
             then
                 if cast.racial() then ui.debug("Casting Racial") return true end
             end
