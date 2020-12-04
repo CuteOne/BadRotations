@@ -918,7 +918,7 @@ local function runRotation()
                             return true
                         end
                     end
-                    if debuff.sunfire.count() < getOptionValue("Max Moonfire Targets Targets") and cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) then
+                    if debuff.moonfire.count() < getOptionValue("Max Moonfire Targets Targets") and cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) then
                         --and not cast.last.moonfire(1) then
                         if cast.moonfire(thisUnit) then
                             return true
@@ -2062,20 +2062,6 @@ local function runRotation()
         --auto attack
         StartAttack(units.dyn5)
 
-        --lucid dreams
-        if cat and inCombat and isChecked("Lucid Cat") and getSpellCD(298357) <= gcd and ttd("target") > 12 then
-            if cast.memoryOfLucidDreams() then
-                br.addonDebug("Lucid Kitty Dreams ....")
-                return
-            end
-        end
-
-        if isChecked("ConcentratedFlame - DPS") and ttd("target") > 8 and not debuff.concentratedFlame.exists("target") then
-            if cast.concentratedFlame("target") then
-                return true
-            end
-        end
-
         --pocket size computing device
         if isChecked("Trinket 1") and canUseItem(13) and getOptionValue("Trinket 1 Mode") == 4
                 or isChecked("Trinket 2") and canUseItem(14) and getOptionValue("Trinket 2 Mode") == 4 then
@@ -2315,11 +2301,6 @@ local function runRotation()
                     return true
                 end
             end
-            if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
-                if cast.concentratedFlame(lowest.unit) then
-                    return true
-                end
-            end
 
             if #tanks > 0 and inInstance then
                 tank = tanks[1].unit
@@ -2505,23 +2486,23 @@ local function runRotation()
                 end
             end -- end grievance
 
-
-            --lifeBindersInvocation
-
             -- Wild Growth
-            if isChecked("Wild Growth") and not moving then
-                for i = 1, #br.friend do
-                    if UnitInRange(br.friend[i].unit) then
-                        local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
-                        --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
-                        if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) and not moving then
-                            if cast.wildGrowth(br.friend[i].unit) then
-                                return true
-                            end
+            if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
+                if not freemana or not buff.soulOfTheForest.exists() then
+                    for i = 1, #br.friend do
+                        if UnitInRange(br.friend[i].unit) then
+                            local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
+                            --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
                         end
                     end
                 end
+                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) and not moving then
+                    if cast.wildGrowth(br.friend[i].unit) then
+                        return true
+                    end
+                end
             end
+
 
 
             -- cenarionWard
