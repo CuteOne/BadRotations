@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 182712022020")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 095812042020")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -148,9 +148,10 @@ local function createOptions()
 
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "DPS")
+
         br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 4, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 10, 1, 30, 1, "|cff0070deSet to maximum number of targets to dot with Sunfire. Min: 1 / Max: 30 / Interval: 1")
-
+        br.ui:createCheckbox(section, "Heart of the Wild")
         --"Max Sunfire Targets"
         br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
         br.ui:createSpinnerWithout(section, "DPS Min % health", 40, 0, 100, 5, "Don't DPS if under this health % in group (cat enforced w/key")
@@ -927,7 +928,7 @@ local function runRotation()
             end
         end
 
-        if useCDs() and buff.moonkinForm.exists() and talent.heartOfTheWild and cast.able.heartOfTheWild() then
+        if useCDs() and isChecked("Heart of the Wild") and buff.moonkinForm.exists() and talent.heartOfTheWild and cast.able.heartOfTheWild() and getTTD(units.dyn40) > 10 then
             if cast.heartOfTheWild() then
                 return true
             end
@@ -936,10 +937,8 @@ local function runRotation()
         -- Print(tostring(cd.heartOfTheWild.remains()))
         --covenant here
 
-        if useCDs() and cast.able.convokeTheSpirits() and getTTD("target") > 10
-                and (buff.heartOfTheWild.exists()
-                or cd.heartOfTheWild.remains() > 30
-                or not talent.heartOfTheWild) then
+        if useCDs() and cast.able.convokeTheSpirits() and (getOptionValue("Convoke Spirits") == 1 or getOptionValue("Convoke Spirits") == 3) and getTTD("target") > 10
+                and (buff.heartOfTheWild.exists() or cd.heartOfTheWild.remains() > 30 or not talent.heartOfTheWild) then
             if cast.convokeTheSpirits() then
                 return true
             end
