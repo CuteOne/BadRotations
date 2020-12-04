@@ -755,6 +755,7 @@ local function runRotation()
     local solo = #br.friend == 1
     tanks = getTanksTable()
     local tank = nil
+    local covenant = br.player.covenant
     local critical = nil
     local ttd = getTTD
     local BleedFriend = nil
@@ -918,10 +919,20 @@ local function runRotation()
                             return true
                         end
                     end
-                    if debuff.moonfire.count() < getOptionValue("Max Moonfire Targets Targets") and cast.able.moonfire(thisUnit) and debuff.moonfire.refresh(thisUnit) then
-                        --and not cast.last.moonfire(1) then
-                        if cast.moonfire(thisUnit) then
-                            return true
+
+                    if (debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
+                        if cast.able.moonfire() then
+                            if not debuff.moonfire.exists(thisUnit) then
+                                if cast.moonfire(thisUnit) then
+                                    br.addonDebug("Initial Moonfire")
+                                    return true
+                                end
+                            elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
+                                if cast.moonfire(thisUnit) then
+                                    br.addonDebug("Refreshing moonfire - remain: " .. round(debuff.moonfire.remain(thisUnit), 3))
+                                    return true
+                                end
+                            end
                         end
                     end
                 end
@@ -938,7 +949,7 @@ local function runRotation()
         --covenant here
 
         if useCDs() and cast.able.convokeTheSpirits() and (getOptionValue("Convoke Spirits") == 1 or getOptionValue("Convoke Spirits") == 3) and getTTD("target") > 10
-                and (buff.heartOfTheWild.exists() or cd.heartOfTheWild.remains() > 30 or not talent.heartOfTheWild) then
+                and (buff.heartOfTheWild.exists() or cd.heartOfTheWild.remains() > 30 or not talent.heartOfTheWild or not isChecked("Heart of the Wild")) then
             if cast.convokeTheSpirits() then
                 return true
             end
@@ -1088,13 +1099,13 @@ local function runRotation()
                         return true
                     end
                 end
-                if cast.able.swiftmend() and count_hots(lowest.unit) > 0 then
+                if cast.able.swiftmend(lowest.unit) and count_hots(lowest.unit) > 0 then
                     if cast.swiftmend(lowest.unit) then
                         br.addonDebug("[CRIT]Swiftmend on: " .. UnitName(lowest.unit))
                         return true
                     end
                 end
-                if cast.able.convokeTheSpirits() and (getOptionValue("Convoke Spirits") == 2 or getOptionValue("Convoke Spirits") == 3) then
+                if covenant.nightFae.active and cast.able.convokeTheSpirits() and (getOptionValue("Convoke Spirits") == 2 or getOptionValue("Convoke Spirits") == 3) then
                     if cast.convokeTheSpirits() then
                         return true
                     end
@@ -1112,11 +1123,11 @@ local function runRotation()
                 end
                 if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getOptionCheck("Nourish - hot count") then
                     if cast.nourish(lowest.unit) then
-                        br.addonDebug("[BOSS]nourish on: " .. UnitName(lowest.unit))
+                        br.addonDebug("[CRIT]nourish on: " .. UnitName(lowest.unit))
                         return true
                     end
                 end
-                if cast.able.regrowth() then
+                if cast.able.regrowth(lowest.unit) then
                     if cast.regrowth(lowest.unit) then
                         br.addonDebug("[CRIT]Regrowth on: " .. UnitName(lowest.unit))
                         return true
@@ -1933,16 +1944,13 @@ local function runRotation()
                                 or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
                                 --need to add, or if tank is dead
                         ) or not isChecked("Safe Dots") then
-
                     if cast.able.sunfire() then
                         if debuff.sunfire.count() == 0 then
-
                             if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
                                 br.addonDebug("Initial Sunfire - Cluster")
                                 return true
                             end
                         end
-
                         if (debuffsunfirecount < getOptionValue("Max Sunfire Targets") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
                             if not debuff.sunfire.exists(thisUnit) then
                                 if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
@@ -2320,7 +2328,7 @@ local function runRotation()
             -- big dots
 
 
-            if not using_lifebloom and cast.able.lifebloom() then
+            if not using_lifebloom then
                 if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat and #tanks == 1 then
                     if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
                         if cast.lifebloom(tank) then
@@ -2353,13 +2361,11 @@ local function runRotation()
                 elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and isChecked("DARK TITAN") then
                     if not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5) then
                         if cast.lifebloom(tank) then
-                            lifebloom_count = lifebloom_count + 1
                             return true
                         end
                     end
                     if not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
                         if cast.lifebloom("player") then
-                            lifebloom_count = lifebloom_count + 1
                             return true
                         end
                     end
@@ -2488,16 +2494,17 @@ local function runRotation()
 
             -- Wild Growth
             if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
+                local lowHealthCandidates = getUnitsToHealAround("player", 30, getValue("Wild Growth"), #br.friend)
                 if not freemana or not buff.soulOfTheForest.exists() then
                     for i = 1, #br.friend do
                         if UnitInRange(br.friend[i].unit) then
-                            local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
+                            lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
                             --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
                         end
                     end
                 end
-                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) and not moving then
-                    if cast.wildGrowth(br.friend[i].unit) then
+                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) then
+                    if cast.wildGrowth(lowest.unit) then
                         return true
                     end
                 end
@@ -2547,7 +2554,7 @@ local function runRotation()
                         if cast.regrowth(br.friend[i].unit) then
                             return true
                         end
-                    elseif isChecked("Regrowth Clearcasting") and lowest.hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > gcdMax then
+                    elseif isChecked("Regrowth Clearcasting") and br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > gcdMax then
                         if cast.regrowth(br.friend[i].unit) then
                             return true
                         end
