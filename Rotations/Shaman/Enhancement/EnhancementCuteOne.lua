@@ -74,7 +74,7 @@ local function createOptions()
             -- Flask Up Module
             br.player.module.FlaskUp("Agility",section)
             -- Racial
-            br.ui:createCheckbox(section,"Racial")
+            br.ui:createDropdownWithout(section,"Racial", alwaysCdNever, 1, "|cffFFFFFFWhen to use Racial.")
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
             -- Ascendance
@@ -99,7 +99,7 @@ local function createOptions()
             -- Astral Shift
             br.ui:createSpinner(section, "Astral Shift",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Cleanse Spirit
-            br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            br.ui:createDropdown(section, "Cleanse Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
             -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
@@ -279,7 +279,7 @@ actionList.Defensive = function()
         then
             local thisHP = unit.hp()
             local thisUnit = "player"
-            if ui.value("Auto Heal") == 1 then thisUnit = unit.lowest(40); thisHP = unit.hp(thisUnit) end
+            if ui.value("Heal Target") == 1 then thisUnit = unit.lowest(40); thisHP = unit.hp(thisUnit) end
             if not unit.inCombat() then
                 -- Lowest Party/Raid or Player
                 if (thisHP <= ui.value("Healing Surge OoC") and not unit.moving())
@@ -290,7 +290,7 @@ actionList.Defensive = function()
             elseif unit.inCombat() and (not unit.moving() or buff.maelstromWeapon.stack() >= 5) then
                 -- Lowest Party/Raid or Player
                 if thisHP <= ui.value("Healing Surge") then
-                    if ui.value("Instant Behavior") == 1 or (ui.value("Instant Behavior") == 2 and buff.maelstromWeapon.stack() >= 5) or (ui.value("Isntant Behavior") == 3 and buff.maelstromWeapon.stack() == 0) then
+                    if ui.value("Instant Behavior") == 1 or (ui.value("Instant Behavior") == 2 and buff.maelstromWeapon.stack() >= 5) or (ui.value("Instant Behavior") == 3 and buff.maelstromWeapon.stack() == 0) then
                         if buff.maelstromWeapon.stack() >= 5 then
                             if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(thisUnit)) return true end
                         else
@@ -852,8 +852,8 @@ local function runRotation()
             -- fireblood,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
             -- ancestral_call,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
             -- bag_of_tricks,if=!talent.ascendance.enabled|!buff.ascendance.up
-            if ((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc") and (not talent.ascenance or buff.ascendance.exists() or cd.ascendance.remains() > 50))
-                or (unit.race() == "Troll" and (not talent.ascenance or buff.ascendance.exists()))
+            if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc") and (not talent.ascendance or buff.ascendance.exists() or cd.ascendance.remains() > 50))
+                or (unit.race() == "Troll" and (not talent.ascendance or buff.ascendance.exists())))
             then
                 if cast.racial() then ui.debug("Casting Racial") return true end
             end
