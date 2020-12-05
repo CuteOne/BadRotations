@@ -366,10 +366,12 @@ function br.loader:new(spec,specName)
         br.api.covenant(self.covenant)
 
         -- Runeforge
-        for k,v in pairs(self.spell.runeforges) do
-            if self.runeforge == nil then self.runeforge = {} end
-            if self.runeforge[k] == nil then self.runeforge[k] = {} end
-            br.api.runeforge(self.runeforge,k,v)
+        if self.spell.runeforges ~= nil then
+            for k,v in pairs(self.spell.runeforges) do
+                if self.runeforge == nil then self.runeforge = {} end
+                if self.runeforge[k] == nil then self.runeforge[k] = {} end
+                br.api.runeforge(self.runeforge,k,v)
+            end
         end
 
         -- Update Power
