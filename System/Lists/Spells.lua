@@ -341,7 +341,7 @@ br.lists.spells = {
                 clawingShadows              = 207311,
                 deathsReach                 = 276079,
                 defile                      = 152280,
-                ebonFever                   = 207269,        
+                ebonFever                   = 207269,
                 gripOfTheDead               = 273952,
                 harbingerOfDoom             = 276023,
                 infectedClaws               = 207272,
@@ -353,7 +353,7 @@ br.lists.spells = {
                 unholyAssault               = 207289,
                 unholyBlight                = 115989,
                 unholyPact                  = 319230,
-                wraithWalk                  = 212552              
+                wraithWalk                  = 212552
             },
             traits                          = {
                 magusOfTheDead              = 288417,
@@ -809,7 +809,7 @@ br.lists.spells = {
 
             },
             covenants                       = {
-                loneProtection              = 338018,                
+                loneProtection              = 338018,
             },
             debuffs                         = {
                 moonfireGuardian            = 164812,
@@ -860,7 +860,7 @@ br.lists.spells = {
                 swipeResto                  = 213764,
             },
             artifacts                       = {
-                
+
             },
             buffs                           = {
                 abundance                   = 207640,
@@ -892,7 +892,7 @@ br.lists.spells = {
                 sunfire                     = 164815,
             },
             glyphs                          = {
-                
+
             },
             talents                         = {
                 abundance                   = 207383,
@@ -913,7 +913,7 @@ br.lists.spells = {
                 soulOfTheForest             = 158478,
                 springBlossoms              = 207385,
                 --                stonebark                   = 197061,
-                
+
             },
             traits                          = {
                 dawningSun                  = 276152,
@@ -1342,7 +1342,7 @@ br.lists.spells = {
                 monsterousBite              = 54680, -- Devilsaur - Mortal Wounds Debuff
                 ravage                      = 263857, -- Ravager - Mortal Wounds Debuff
                 savageRend                  = 263854, -- Savage Rend - Mortal Wounds Debuff
-                toxicSting                  = 263858, -- Wasp - Mortal Wounds Debuff                
+                toxicSting                  = 263858, -- Wasp - Mortal Wounds Debuff
                 -- Slow
                 acidSpit                    = 263446, -- Worm - Slow
                 ankleCrack                  = 50433, -- Crocolisk - Slow
@@ -1870,7 +1870,7 @@ br.lists.spells = {
                 touchOfKarma                = 122470,
             },
             artifacts                       = {
-                
+
             },
             buffs                           = {
                 blackoutKick                = 116868,
@@ -1943,7 +1943,7 @@ br.lists.spells = {
             artifacts                       = {
 
             },
-            buffs                           = {                
+            buffs                           = {
                 transcendence               = 101643,
                 weaponsOfTheOrder           = 310454,
                 weaponsOfTheOrderWW         = 311054,
@@ -1958,7 +1958,7 @@ br.lists.spells = {
                 weaponsOfTheOrder           = 310454,
             },
             debuffs                         = {
-                
+
             },
             glyphs                          = {
 
@@ -2183,7 +2183,7 @@ br.lists.spells = {
 				contemplation               = 121183,
             },
             artifacts                       = {
-                
+
             },
             buffs                           = {
                 avengingWrath               = 31884,
@@ -2764,7 +2764,7 @@ br.lists.spells = {
                 shadowBlades                = 121471,
                 shadowDance                 = 185313,
                 shadowstep                  = 36554,
-                shadowstrike                = 185438,            
+                shadowstrike                = 185438,
                 shurikenStorm               = 197835,
                 shurikenToss                = 114014,
                 symbolsOfDeath              = 212283,
@@ -2898,7 +2898,7 @@ br.lists.spells = {
                 vanish                      = 11327 or 115193,
                 shroudOfConcealment         = 114018,
                 flagellation                = 345569,
-                soulshape                   = 310143,
+                sepsis                      = 328305,
                 echoingReprimand2           = 323558,
                 echoingReprimand3           = 323559,
                 echoingReprimand4           = 323560,
@@ -3157,7 +3157,7 @@ br.lists.spells = {
                 bloodlust                   = 2825,
                 capacitorTotem              = 192058,
                 chainHeal                   = 1064,
-                chainLightning              = 188443, 
+                chainLightning              = 188443,
                 earthElemental              = 198103,
                 earthbindTotem              = 2484,
                 farSight                    = 6196,
@@ -3544,19 +3544,19 @@ br.lists.spells = {
                 unendingResolve             = 104773,
             },
             conduits                        = {
-                
+
             },
             covenants                       = {
                 decimatingBolt              = 325289,
                 impendingCatastrophe        = 321792,
                 scouringTithe               = 312321,
-                soulRot                     = 325640,                
+                soulRot                     = 325640,
             },
             debuffs                         = {
 		decimatingBolt              = 325289,
                 impendingCatastrophe        = 321792,
                 scouringTithe               = 312321,
-                soulRot                     = 325640, 
+                soulRot                     = 325640,
                 fear                        = 5782,
                 curseOfExhaustion           = 334275,
                 curseOfTongues              = 1714,
@@ -3570,7 +3570,7 @@ br.lists.spells = {
                 darkPact                    = 108416,
                 demonSkin                   = 219272,
                 mortalCoil                  = 6789,
-            
+
             },
         },
     },
@@ -3678,10 +3678,10 @@ br.lists.spells = {
                 suddenDeath                 = 280776,
                 whirlwind                   = 85739,
             },
-            conduits                        = {                
-                
+            conduits                        = {
+
             },
-            covenants                       = {                
+            covenants                       = {
                 condemn                     = 317349,
             },
             debuffs                         = {
@@ -3748,10 +3748,10 @@ br.lists.spells = {
                 vengeanceRevenge            = 202573,
                 victorious                  = 32216,
             },
-            conduits                        = {                
-                
+            conduits                        = {
+
             },
-            covenants                       = {                
+            covenants                       = {
                 condemn                     = 317349,
             },
             debuffs                         = {
@@ -3934,6 +3934,7 @@ br.lists.spells = {
                 vigilantProtector               = 310592,
                 reapingFlames					= 311202,
                 worldveinResonance              = 313310,
+                soulshape                       = 310143,
             },
             conduits                            = {
 

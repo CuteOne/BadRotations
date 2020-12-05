@@ -126,7 +126,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        br.ui:createCheckbox(section, "Auto Innervate", "Use Innervate if you have Lively Spirit traits for DPS buff")
+        br.ui:createCheckbox(section, "Auto Innervate", "Use Innervate")
         br.ui:createCheckbox(section, "Racial")
         br.ui:createCheckbox(section, "Use Trinkets")
         br.ui:createCheckbox(section, "Warrior Of Elune")
@@ -406,8 +406,6 @@ local function runRotation()
     if #br.lastCast.tracker > 0 then
         wipe(br.lastCast.tracker)
     end
-
-
 
     local astral_max = 0
     local astral_def = 0
@@ -1106,25 +1104,6 @@ local function runRotation()
                 aoeTarget = getValue("Starfall Targets (0 for auto)")
             end
 
-
-            -- Innverate
-            --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
-
-            if isChecked("Auto Innervate") and inCombat and cast.able.innervate() and (getTTD(UnitTarget(tank)) >= 10 or (traits.livelySpirit.active and (cast.able.incarnationChoseOfElune() or cd.incarnationChoseOfElune.remain() < 2 or cast.able.celestialAlignment() or cd.celestialAlignment.remain() < 12))) then
-                for i = 1, #br.friend do
-                    if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and (inInstance or inRaid)
-                            and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not hasBuff(29166, br.friend[i].unit) then
-                        --buff.innervate.exists(br.friend[i].unit) then
-                        --innervate
-                        -- Print("Healer is: " .. br.friend[i].unit)
-                        --Print(traits.livelySpirit.active)
-                        if cast.innervate(br.friend[i].unit) then
-                            return true
-                        end
-                    end
-                end
-            end
-
             local groupTTD = 0
 
             if #enemies.yards45 > 0 then
@@ -1816,6 +1795,17 @@ local function runRotation()
             end
         end
 
+        if isChecked("Auto Innervate") and inCombat and cast.able.innervate() then
+            for i = 1, #br.friend do
+                if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45
+                        and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not hasBuff(29166, br.friend[i].unit) then
+                    if cast.innervate(br.friend[i].unit) then
+                        return true
+                    end
+                end
+            end
+        end
+
         if not inCombat then
             --Resurrection
 
@@ -1924,7 +1914,7 @@ local function runRotation()
     -- Pause
     if not IsMounted() or mode.rotation == 4 then
         -- br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists())
-        if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() then
+        if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists() then
             return true
         else
 
