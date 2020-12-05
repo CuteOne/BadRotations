@@ -748,6 +748,7 @@ br.lists.spells = {
 
             },
             covenants                       = {
+                empowerBond                 = 326446,
                 loneEmpowerment             = 338142,
             },
             debuffs                         = {
@@ -982,6 +983,8 @@ br.lists.spells = {
                 flightForm                  = 165962,
                 frenziedRegeneration        = 22842,
                 ironfur                     = 192081,
+                kindredEmpowerment          = 327139,
+                kindredSpirits              = 326434,
                 loneSpirit                  = 338041,
                 moonkinForm                 = 197625,
                 prowl                       = 5215,
@@ -1023,6 +1026,11 @@ br.lists.spells = {
                 glyphOfTheOrca              = 114333,
                 glyphOfTheSentinel          = 219062,
                 glyphOfTheUrsolChameleon    = 107059,
+            },
+            runeforges                      = {
+                apexPredatorsCraving        = 339139,
+                eyeOfFearfullSymmetry       = 339141,
+                frenzyband                  = 340053,
             },
             talents                         = {
                 massEntanglement            = 102359,
@@ -1949,7 +1957,7 @@ br.lists.spells = {
                 weaponsOfTheOrderWW         = 311054,
             },
             conduits                        = {
-
+                calculatedStrikes           = 336526,                      
             },
             covenants                       = {
                 bonedustBrew                = 325216,

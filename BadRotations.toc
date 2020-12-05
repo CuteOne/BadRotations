@@ -136,6 +136,7 @@ System\API\Item.lua
 System\API\Module.lua
 System\API\Pet.lua
 System\API\Power.lua
+System\API\Runeforge.lua
 System\API\Spell.lua
 System\API\UI.lua
 System\API\Unit.lua
