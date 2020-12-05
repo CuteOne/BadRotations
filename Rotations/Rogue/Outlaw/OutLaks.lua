@@ -162,15 +162,14 @@ local function createOptions()
     local function mplusoptions()
         section = br.ui:createSection(br.ui.window.profile, "M+ Settings")
         -- m+ Rot
-        br.ui:createCheckbox(section, "Freehold - pig", "Enables|Disables Catches pig in Freehold.", 1)
-        br.ui:createCheckbox(section, "Motherload - Stun jockeys", "Enables|Disables Stun jockeys.", 1)
-        br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
-        br.ui:createCheckbox(section, "Shrine - ignore adds last boss", "wont DPS those critters", 1)
+        br.ui:createCheckbox(section, "No m+ settings to see here", 1)
         br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile, "Controlled by CD")
+        section = br.ui:createSection(br.ui.window.profile, "Controlled by CD toggle")
         br.ui:createCheckbox(section, "Adrenaline Rush", "triggerred by CD toggle", 1)
-        br.ui:createCheckbox(section, "Roll The Bones", "triggerred by CD toggle", 1)
-        br.ui:createCheckbox(section, "Slice and Dice", "triggerred by CD toggle", 1)
+        --  br.ui:createCheckbox(section, "Roll The Bones", "triggerred by CD toggle", 1)
+        --  br.ui:createCheckbox(section, "Slice and Dice", "triggerred by CD toggle", 1)
+        br.ui:createCheckbox(section, "Level 90 talent row", "triggerred by CD toggle", 1)
+        br.ui:createCheckbox(section, "Racial", "triggerred by CD toggle", 1)
         br.ui:checkSectionState(section)
 
     end
@@ -486,9 +485,6 @@ local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
         return true
     end
-    if isChecked("Shrine - ignore adds last boss") and GetObjectID(unit) == 135903 then
-        return true
-    end
     if hasBuff(263246, unit) then
         -- shields on first boss in temple
         return true
@@ -765,15 +761,18 @@ actionList.dps = function()
             end
         end
     end
-    if getCombatTime() > 2 and getFacing("player", dynamic_target_melee) then
-        if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee) and ((getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
-            if cast.killingSpree() then
-                return true
+
+    if (mode.cooldown == 1 and isChecked("Level 90 talent row") or not isChecked("Level 90 talent row")) then
+        if getCombatTime() > 2 and getFacing("player", dynamic_target_melee) then
+            if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee) and ((getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
+                if cast.killingSpree() then
+                    return true
+                end
             end
-        end
-        if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 and getDistance(dynamic_target_melee) <= dynamic_range then
-            if cast.bladeRush(dynamic_target_melee) then
-                return true
+            if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 and getDistance(dynamic_target_melee) <= dynamic_range then
+                if cast.bladeRush(dynamic_target_melee) then
+                    return true
+                end
             end
         end
     end
@@ -887,7 +886,7 @@ actionList.dps = function()
     end -- end finishers
 
 
-    stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists()
+    stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists() or buff.sepsis.exists()
 
     --variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
 
@@ -972,10 +971,11 @@ actionList.dps = function()
     0.00	fireblood
     0.00	ancestral_call]]
 
-
-    if isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
-        if cast.racial() then
-            return true
+    if (mode.cooldown == 1 and isChecked("Racial") or not isChecked("Racial")) then
+        if isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
+            if cast.racial() then
+                return true
+            end
         end
     end
     --trinkets
@@ -1574,7 +1574,7 @@ local function runRotation()
     combo, comboDeficit, comboMax = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
     units = br.player.units
     use = br.player.use
-    stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists()
+    stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists() or buff.sepsis.exists()
     -- General Locals
     hastar = GetObjectExists("target")
     healPot = getHealthPot()
