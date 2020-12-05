@@ -291,6 +291,7 @@ local function runRotation()
         enemies.get(10,"target")
         enemies.get(20)
         enemies.get(30)
+        enemies.get(40, nil, nil, true)
         enemies.get(40)
         friends.yards40 = getAllies("player",40)
         
@@ -387,12 +388,12 @@ local function runRotation()
                     -- if no shield found, apply to focus if exists
                     if foundShield == false then
                         if GetUnitExists("focus") == true then
-                            if not buff.earthShield.exists("focus") then
+                            if not buff.earthShield.exists("focus") and not UnitIsDeadOrGhost("focus") then
                                 if cast.earthShield("focus") then br.addonDebug("Casting Earth Shield") return end
                             end
                         else
                             for i = 1, #tanks do
-                                if not buff.earthShield.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
+                                if not buff.earthShield.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 and not UnitIsDeadOrGhost(tanks[i].unit) then
                                     if cast.earthShield(tanks[i].unit) then br.addonDebug("Casting Earth Shield") return end
                                 end
                             end
@@ -582,11 +583,11 @@ local function runRotation()
         local function actionList_DPS()
         -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
-                if debuff.flameShock.exists("target") then
+                if debuff.flameShock.exists("target") and getFacing("player", "target") then
                     if cast.lavaBurst() then br.addonDebug("Casting Lava Burst (Lava Surge)") return true end
                 else
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
+                    for i = 1, #enemies.yards40f do
+                        local thisUnit = enemies.yards40f[i]
                         if debuff.flameShock.exists(thisUnit) then
                             if cast.lavaBurst(thisUnit) then br.addonDebug("Casting Lava Burst (Lava Surge)") return true end
                         end
@@ -594,32 +595,32 @@ local function runRotation()
                 end
             end
         -- Flameshock
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
+            for i = 1, #enemies.yards40f do
+                local thisUnit = enemies.yards40f[i]
                 if not debuff.flameShock.exists(thisUnit) then
                     if cast.flameShock(thisUnit) then br.addonDebug("Casting Flame Shock") return end
                 end
             end
         -- Lava Burst
-            if (debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) or level < 20) and movingCheck then
+            if (debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) or level < 20) and movingCheck and getFacing("player", "target") then
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
             end
 		-- Chain Lightning
-			if #enemies.yards10t >= 2 and movingCheck then 		
+			if #enemies.yards10t >= 2 and movingCheck and getFacing("player", "target") then 		
                 if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return end		
 			end			
         -- Lightning Bolt
-            if movingCheck then
+            if movingCheck and getFacing("player", "target") then
                 if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
             end
         end -- End Action List - DPS
         local function actionList_Explosive()
             --Flameshock
-            if not debuff.flameShock.exists("target") then
+            if not debuff.flameShock.exists("target") and getFacing("player", "target") then
                 if cast.flameShock() then br.addonDebug("Casting Flame Shock") return end
             end
             --Lavaburst (Lava Surge Buff)
-            if buff.lavaSurge.exists() and debuff.flameShock.exists("target") then
+            if buff.lavaSurge.exists() and debuff.flameShock.exists("target") and getFacing("player", "target") then
                 if cast.Lavaburst then br.addonDebug("Casting Lava Burst") return end
             end
         end
