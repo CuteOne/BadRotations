@@ -92,11 +92,12 @@ local function CheckForUpdatesAsync(OnComplete)
                
          local commitSection = json:match('"Commits":%[(.-)%]')
          Print("Local version: "..purple..currentCommit:sub(1, 7).." |cffFFFFFFLatest version: "..purple..latestCommit:sub(1, 7)..".")
-
-         for commit in commitSection:gmatch("{(.-)}") do
-            local author = commit:match('"Author":"(.-)",')
-            local message = commit:match('"Message":"(.-)["\r\n]')
-            print("    "..purple..author..": |cffFFFFFF "..message)
+         if commitSection then 
+            for commit in commitSection:gmatch("{(.-)}") do
+               local author = commit:match('"Author":"(.-)",')
+               local message = commit:match('"Message":"(.-)["\r\n]')
+               print("    "..purple..author..": |cffFFFFFF "..message)
+            end
          end
 
          --    Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n"..
