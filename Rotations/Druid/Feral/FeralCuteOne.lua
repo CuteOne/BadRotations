@@ -198,11 +198,11 @@ local module
 local power
 local spell
 local talent
-local traits
 local unit
 local units
 local use
 local ui
+local var = {}
 
 -- General Locals
 local btGen = {}
@@ -211,7 +211,6 @@ local opener
 local race
 local range
 local ticksGain = {}
-local var = {}
 
 -- Variables
 var.clearcasting = 0
@@ -342,7 +341,7 @@ local function ferociousBiteFinish(thisUnit)
 end
 -- Primal Wrath Usable
 local function usePrimalWrath()
-    if talent.primalWrath and cast.able.primalWrath(nil,"aoe",1,8) and cast.safe.primalWrath("player",8,1)
+    if talent.primalWrath and cast.able.primalWrath("player","aoe",1,8) and cast.safe.primalWrath("player","aoe",1,8)
         and ((ui.mode.rotation == 1 and #enemies.yards8 > 1) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
         and not unit.isExplosive("target")
     then
@@ -369,6 +368,29 @@ local function razorTarget()
         end
     end
     return razorUnit
+end
+
+local function findKindredSpirit()
+    local kindredSpirit
+    for i = 1, #br.friend do
+        local thisUnit = br.friend[i].unit
+        local thisRole = UnitGroupRolesAssigned(thisUnit)
+        if not UnitIsUnit(thisUnit,"player") and (kindredSpirit == nil or (not UnitExists(kindredSpirit) and not UnitIsDeadOrGhost(kindredSpirit))) then
+            if thisRole == "DAMAGER" then
+                kindredSpirit = thisUnit
+                break
+            end
+            if kindredSpirit == nil and thisRole == "TANK" then
+                kindredSpirit = thisUnit
+                break
+            end
+            if kindredSpirit == nil and thisRole == "HEALER" then
+                kindredSpirit = thisUnit
+                break
+            end
+        end
+    end
+    return kindredSpirit
 end
 
 --------------------
@@ -420,8 +442,10 @@ actionList.Extras = function()
             end
         end
         -- Kindred Spirits
-        if cast.able.kindredSpirits() and not buff.loneSpirit.exists() then
-            if cast.kindredSpirits("player") then ui.debug("Casting Kindred Spirits [Kyrian]") return true end
+        if cast.able.kindredSpirits(var.kindresSpirit) then
+            if (#br.friend > 1 and var.kindredSpirit ~= nil and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then            
+                if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..UnitName(var.kindredSpirit).." [Kyrian]") return true end
+            end
         end
     end -- End Shapeshift Form Management
     -- Perma Fire Cat
@@ -722,7 +746,7 @@ actionList.Cooldowns = function()
         end
         -- Shadowmeld
         -- shadowmeld,if=buff.tigers_fury.up&buff.bs_inc.down&combo_points<4&dot.rake.pmultiplier<1.6&energy>40
-        if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs()
+        if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs() and not unit.moving()
             and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange --findFriends() > 0
         then
             if buff.tigersFury.exists() and not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()
@@ -764,8 +788,16 @@ actionList.Cooldowns = function()
         end
         -- Kindred Spirits
         -- kindred_spirits,if=buff.tigers_fury.up|(conduit.deep_allegiance.enabled)
-        if cast.able.loneEmpowerment() and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled) then
-            if cast.loneEmpowerment() then ui.debug("Casting Kindred Spirits [Kyrian]") return true end
+        if cast.able.kindredSpirits() then
+            if ((var.kindredSpirit ~= nil and buff.kindredSpirits.exists(var.kindredSpirit)) or buff.loneSpirit.exists())
+                and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled)
+            then
+                if #br.friend == 1 then 
+                    if cast.loneEmpowerment() then ui.debug("Casting Lone Empowerment [Kyrian]") return true end
+                else
+                    if cast.empowerBond("player") then ui.debug("Casting Empower Bond [Kyrian]") return true end
+                end
+            end
         end
         -- Adaptive Swarm
         -- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
@@ -925,9 +957,9 @@ actionList.Filler = function()
     -- Swipe
     -- swipe,if=variable.filler=4
     if cast.able.swipeCat() and filler == 4 and not talent.brutalSlash
-        and not unit.isExplosive("target") and range.dyn8AOE
-    then
-        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
+        and not unit.isExplosive("target") and range.dyn8AOE and cast.safe.swipeCat("player","aoe",1,8)
+    then       
+        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
     end
     -- Shred
     -- shred
@@ -975,10 +1007,10 @@ actionList.Bloodtalons = function()
             local thisUnit = enemies.yards5f[i]
             if (not debuff.rake.exists(thisUnit) or (debuff.rake.refresh(thisUnit) and debuff.rake.calc() > debuff.rake.applied(thisUnit))) and ticksGain.rake >= 2 then
                 if cast.rake(thisUnit) then 
-                    ui.debug("Casting Rake [BT - Ticks Gain]") 
-                    btGen.rake = true 
+                    ui.debug("Casting Rake [BT - Ticks Gain]")
+                    btGen.rake = true
                     if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-                    return true 
+                    return true
                 end
             end
         end
@@ -990,11 +1022,11 @@ actionList.Bloodtalons = function()
             local thisUnit = enemies.yards40[i]
             if (multidot or (unit.isUnit(thisUnit,units.dyn5) and not multidot)) then
                 if debuff.moonfireFeral.refresh(thisUnit) then
-                    if cast.moonfireFeral(thisUnit) then 
-                        ui.debug("Casting Moonfire [BT]") 
-                        btGen.moonfireFeral = true 
+                    if cast.moonfireFeral(thisUnit) then
+                        ui.debug("Casting Moonfire [BT]")
+                        btGen.moonfireFeral = true
                         if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-                        return true 
+                        return true
                     end
                 end
             end
@@ -1002,67 +1034,67 @@ actionList.Bloodtalons = function()
     end
     -- Thrash
     -- thrash_cat,target_if=refreshable&buff.bt_thrash.down&druid.thrash_cat.ticks_gained_on_refresh>8
-    if cast.able.thrashCat() and not btGen.thrash then
+    if cast.able.thrashCat() and not btGen.thrash and cast.safe.thrashCat("player","aoe",1,8) then
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
             if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > 8 then
-                if cast.thrashCat(thisUnit,"aoe",1,8) then 
-                    ui.debug("Casting Thrash [BT - Ticks Gain]") 
-                    btGen.thrash = true 
+                if cast.thrashCat("player","aoe",1,8) then
+                    ui.debug("Casting Thrash [BT - Ticks Gain]")
+                    btGen.thrash = true
                     if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-                    return true 
+                    return true
                 end
             end
         end
     end
     -- Brutal Slash
     -- brutal_slash,if=buff.bt_brutal_slash.down
-    if cast.able.brutalSlash() and not btGen.brutalSlash then
-        if cast.brutalSlash(units.dyn8AOE,"aoe",1,8) then 
-            ui.debug("Casting Brutal Slash [BT]") 
-            btGen.brutalSlash = true 
+    if cast.able.brutalSlash() and not btGen.brutalSlash and cast.safe.brutalSlash("player","aoe",1,8) then
+        if cast.brutalSlash("player","aoe",1,8) then
+            ui.debug("Casting Brutal Slash [BT]")
+            btGen.brutalSlash = true
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-            return true 
+            return true
         end
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down&spell_targets.swipe_cat>1
-    if cast.able.swipeCat() and not btGen.swipe and #enemies.yards8 > 1 then
-        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then 
-            ui.debug("Casting Swipe [BT - Multi]") 
-            btGen.swipe = true 
+    if cast.able.swipeCat() and not btGen.swipe and (#enemies.yards8 > 1 and cast.safe.swipeCat("player","aoe",1,8)) then
+        if cast.swipeCat("player","aoe",1,8) then
+            ui.debug("Casting Swipe [BT - Multi]")
+            btGen.swipe = true
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-            return true 
+            return true
         end
     end
     -- Shred
     -- shred,if=buff.bt_shred.down
     if cast.able.shred() and not btGen.shred then
-        if cast.shred() then 
-            ui.debug("Casting Shred [BT]") 
-            btGen.shred = true 
+        if cast.shred() then
+            ui.debug("Casting Shred [BT]")
+            btGen.shred = true
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-            return true 
+            return true
         end
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down
-    if cast.able.swipeCat() and not btGen.swipe then
-        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then 
-            ui.debug("Casting Swipe [BT]") 
-            btGen.swipe = true 
+    if cast.able.swipeCat() and not btGen.swipe and cast.safe.swipeCat("player","aoe",1,8) then
+        if cast.swipeCat("player","aoe",1,8) then
+            ui.debug("Casting Swipe [BT]")
+            btGen.swipe = true
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-            return true 
+            return true
         end
     end
     -- Thrash
     -- thrash_cat,if=buff.bt_thrash.down
-    if cast.able.thrashCat() and not btGen.thrash then
-        if cast.thrashCat(units.dyn8AOE,"aoe",1,8) then 
-            ui.debug("Casting Thrash [BT - No Buff]") 
-            btGen.thrash = true 
+    if cast.able.thrashCat() and not btGen.thrash and cast.safe.thrashCat("player","aoe",1,8) then
+        if cast.thrashCat("player","aoe",1,8) then
+            ui.debug("Casting Thrash [BT - No Buff]")
+            btGen.thrash = true
             if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
-            return true 
+            return true
         end
     end
 end -- End Action List - Bloodtalons
@@ -1182,34 +1214,34 @@ local function runRotation()
     --------------
     -- BR API
     if comboPoints == nil then
-        buff        = br.player.buff
-        cast        = br.player.cast
-        cd          = br.player.cd
-        charges     = br.player.charges
-        conduit     = br.player.conduit
-        debuff      = br.player.debuff
-        enemies     = br.player.enemies
-        equiped     = br.player.equiped
-        essence     = br.player.essence
-        module      = br.player.module
-        opener      = br.player.opener
-        race        = br.player.race
-        power       = br.player.power
-        spell       = br.player.spell
-        talent      = br.player.talent
-        traits      = br.player.traits
-        ui          = br.player.ui
-        unit        = br.player.unit
-        units       = br.player.units
-        use         = br.player.use
+        buff            = br.player.buff
+        cast            = br.player.cast
+        cd              = br.player.cd
+        charges         = br.player.charges
+        conduit         = br.player.conduit
+        debuff          = br.player.debuff
+        enemies         = br.player.enemies
+        equiped         = br.player.equiped
+        essence         = br.player.essence
+        module          = br.player.module
+        opener          = br.player.opener
+        race            = br.player.race
+        power           = br.player.power
+        spell           = br.player.spell
+        talent          = br.player.talent
+        ui              = br.player.ui
+        unit            = br.player.unit
+        units           = br.player.units
+        use             = br.player.use
     end
-    comboPoints     = power.comboPoints.amount()
-    energy          = power.energy.amount()
-    energyRegen     = power.energy.regen()
-    energyDeficit   = power.energy.deficit()
-    multidot        = ui.mode.cleave == 1 and ui.mode.rotation < 3
-    var.lootDelay   = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
-    var.minCount    = ui.useCDs() and 1 or 3
+    comboPoints         = power.comboPoints.amount()
+    energy              = power.energy.amount()
+    energyRegen         = power.energy.regen()
+    energyDeficit       = power.energy.deficit()
+    multidot            = ui.mode.cleave == 1 and ui.mode.rotation < 3
+    var.kindredSpirit   = findKindredSpirit()
+    var.lootDelay       = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
+    var.minCount        = ui.useCDs() and 1 or 3
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1505,22 +1537,22 @@ local function runRotation()
                     -- Thrash
                     -- pool_resource,for_next=1
                     -- thrash_cat,if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>variable.thrash_ticks
-                    if (cast.able.thrashCat() and cast.pool.thrashCat()) and (debuff.thrashCat.refresh(units.dyn8AoE) and ticksGain.thrash > thrashTicks) then
+                    if (cast.able.thrashCat() and cast.pool.thrashCat()) and (debuff.thrashCat.refresh(units.dyn8AoE) and ticksGain.thrash > thrashTicks) and cast.safe.thrashCat("player","aoe",1,8) then
                         if cast.pool.thrashCat() then return true end
-                        if cast.thrashCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Thrash") return true end
+                        if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash") return true end
                     end
                     -- Brutal Slash
                     -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
                     if cast.able.brutalSlash() and talent.brutalSlash and (buff.tigersFury.exists() and charges.brutalSlash.timeTillFull() < unit.gcd(true))
                         and (#enemies.yards8 < ui.value("Brutal Slash Targets") or (ui.mode.rotation == 3 and #enemies.yards8 > 0))
-                        and range.dyn8AOE 
+                        and range.dyn8AOE and cast.safe.brutalSlash("player","aoe",1,8)
                     then
-                        if cast.brutalSlash(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
+                        if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
                     end
                     -- Swipe
                     -- swipe_cat,if=spell_targets.swipe_cat>1
-                    if cast.able.swipeCat() and not talent.brutalSlash and (#enemies.yards8 > 1) then
-                        if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe") return true end
+                    if cast.able.swipeCat() and not talent.brutalSlash and (#enemies.yards8 > 1) and cast.safe.swipeCat("player","aoe",1,8) then
+                        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe") return true end
                     end
                     -- Shred
                     -- shred,if=buff.clearcasting.up
