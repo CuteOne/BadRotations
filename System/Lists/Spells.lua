@@ -3307,6 +3307,7 @@ br.lists.spells = {
         -- Demonology
         [266] = {
             abilities                       = {
+		axeToss                     = 89766,
                 bilescourgeBombers          = 267211,
                 callDreadstalkers           = 104316,
                 commandDemon                = 119898,
