@@ -98,13 +98,17 @@ local function CheckForUpdatesAsync(OnComplete)
                local message = commit:match('"Message":"(.-)["\r\n]')
                print("    "..purple..author..": |cffFFFFFF "..message)
             end
+         else
+            print("     No commits were returned! Blame Shell!")
          end
 
          --    Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n"..
          --    "Please update for best performance via Git or "..purple.."/br update")
          --    RaidWarning("BadRotations is currently " .. aheadBy .. " versions out of date.\nPlease update for best performance via Git or "..purple.."/br update")
-         Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n".."Please update for best performance.")
-         RaidWarning("BadRotations is currently "..aheadBy.." versions out of date.\nPlease update for best performance.")
+         if aheadBy then
+            Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n".."Please update for best performance.")
+            RaidWarning("BadRotations is currently "..aheadBy.." versions out of date.\nPlease update for best performance.")
+         end
 
          if type(OnComplete) == "function" then
             OnComplete(json)
@@ -161,7 +165,6 @@ end
 
 local initRequested = false
 function br.updater:Initialize()
-   if not IsSettingChecked() then return end
 
    if initRequested then return end
    initRequested = true
