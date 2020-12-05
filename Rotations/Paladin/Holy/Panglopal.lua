@@ -71,9 +71,6 @@ local function createOptions()
         -- Critical
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Critical Heals")
         br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
-        br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
-        
-
         br.ui:checkSectionState(section)
         -- Raid
 --[[         section = br.ui:createSection(br.ui.window.profile, "Raid")
@@ -90,7 +87,6 @@ local function createOptions()
         if br.player.race == "Draenei" then
             br.ui:createSpinner(section, "Gift of The Naaru", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         end
-        br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -------------------------
         ------ Keys -------
@@ -122,20 +118,6 @@ local function createOptions()
         -- Blessing of Sacrifice
         br.ui:createSpinner(section, "Blessing of Sacrifice", 40, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createDropdownWithout(section, "BoS Target", {"|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFDamage"}, 2, "|cffFFFFFFTarget for BoS")
---[[         -- Avenging Wrath/Crusader
-        br.ui:createSpinner(section, "Avenging Crusader", 50, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Avenging Crusader Targets", 4, 0, 40, 1, "", "|cffFFFFFFMinimum Avenging Wrath Targets", true)
-        br.ui:createSpinner(section, "Avenging Crusader Targets", 4, 0, 40, 1, "", "|cffFFFFFFMinimum Avenging Wrath Targets", true)
-        br.ui:createSpinner(section, "Avenging Wrath", 50, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Avenging Wrath Targets", 4, 0, 40, 1, "", "|cffFFFFFFMinimum Avenging Wrath Targets", true)
-
-        -- Holy Avenger
-        br.ui:createSpinner(section, "Holy Avenger", 60, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Holy Avenger Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Holy Avenger Targets", true)
-        
-        -- Aura Mastery
-        br.ui:createSpinner(section, "Aura Mastery", 50, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Aura Mastery Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Aura Mastery Targets", true) ]]
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -157,20 +139,17 @@ local function createOptions()
         --[[ --Bestow Faith
         br.ui:createSpinner(section, "Bestow Faith", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createDropdownWithout(section, "Bestow Faith Target", {"|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFSelf+LotM"}, 4, "|cffFFFFFFTarget for BF")
-        -- Light of the Martyr
+        ]]---- Light of the Martyr
         br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "", "|cffFFFFFFisMoving Health Percent to Cast At")
         br.ui:createSpinner(section, "LoM after FoL", 60, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createDropdownWithout(section, "LoM after FoL Target", {"|cffFFFFFFTanks", "|cffFFFFFFAll"}, 1, "|cffFFFFFFTarget for LoM after FoL")
-        br.ui:createSpinner(section, "LotM player HP limit", 50, 0, 100, 5, "", "|cffFFFFFFLight of the Martyr Self HP limit", true) ]]
+        br.ui:createSpinner(section, "LotM player HP limit", 50, 0, 100, 5, "", "|cffFFFFFFLight of the Martyr Self HP limit", true)
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
         --Trinket?
-        --[[ br.ui:createSpinner(section, "Repose Trinket", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Repose Target", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Repose Targets", true) ]]
         -- Rule of Law
         br.ui:createSpinner(section, "Rule of Law", 70, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "RoL Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum RoL Targets", true)
@@ -203,6 +182,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Judgment - DPS")
         -- Hammer of Wrath
         br.ui:createCheckbox(section, "Hammer of Wrath")
+        br.ui:createCheckbox(section, "Hammer of Wrath - High Prio")
         -- Holy Shock
         br.ui:createCheckbox(section, "Holy Shock Damage")
         --br.ui:createCheckbox(section, "Aggressive Glimmer", "tries to keep one glimmer on target")
@@ -212,10 +192,19 @@ local function createOptions()
         br.ui:createCheckbox(section, "Crusader Strike")
         br.ui:checkSectionState(section)
     end
+    local function OtherStuff()
+        section = br.ui:createSection(br.ui.window.profile, "Devstuff")
+        br.ui:createCheckbox(section, "Dev Stuff Leave off")
+        br.ui:checkSectionState(section)
+    end
     optionTable = {
         {
             [1] = "Rotation Options",
-            [2] = rotationOptions
+            [2] = rotationOptions  
+        },
+        {
+            [1] = "Other Options",
+            [2] = OtherStuff
         }
     }
     return optionTable
@@ -224,7 +213,7 @@ local setwindow = false
 local function runRotation()
 
     if setwindow == false then
-        RunMacroText("/console SpellQueueWindow "..math.floor(getLatency()*1750))
+        RunMacroText("/console SpellQueueWindow 0")
         Print("Set SQW")
         setwindow = true
     end
@@ -283,15 +272,15 @@ local function runRotation()
         master_coff = 1.0
     end
 
-    local lowest = br.friend[1]--[[ = {}
+    local lowest = {}
     lowest.unit = "player"
     lowest.hp = 100
 
     for i = 1, #br.friend do
-        if br.friend[i].hp < lowest.hp then
+        if br.friend[i].hp < lowest.hp and getLineOfSight(br.friend[i].unit, "player") then
             lowest = br.friend[i]
         end
-    end ]]
+    end
 
 
     for i = 1, #br.friend do
@@ -385,112 +374,41 @@ local function runRotation()
         return false
     end
 
-    --[[     local function bestConeItem(item, minUnits, health, angle, rangeInfront, rangeAround)
-        if not equiped.darkMoonDeckRepose() or cd.darkMoonDeckRepose.exists() then
-            return false
-        end
-        local curFacing = ObjectFacing("player")
-        local playerX, playerY, playerZ = ObjectPosition("player")
-        local coneTable = {}
+    --[[ local function dumpers()
 
-        local unitsAround = 0
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
-            if br.friend[i].hp < health then
-                if br.friend[i].distance < rangeAround then
-                    unitsAround = unitsAround + 1
-                elseif br.friend[i].distance < rangeInfront then
-                    local unitX, unitY, unitZ = ObjectPosition(thisUnit)
-                    if playerX and unitX then
-                        local angleToUnit = rad(atan2(unitY - playerY, unitX - playerX))
-                        if angleToUnit < 0 then
-                            angleToUnit = rad(360 + atan2(unitY - playerY, unitX - playerX))
-                        end
-                        tinsert(coneTable, angleToUnit)
-                    end
-                end
-            end
-        end
-        local facing, bestAngle, bestAngleUnitsHit = 0.1, 0, 0
-        while facing <= 6.2 do
-            local unitsHit = unitsAround
-            for i = 1, #coneTable do
-                local angleToUnit = coneTable[i]
-                local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-                --local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
-                local finalAngle = angleDifference / math.pi * 180
-                if finalAngle < angle then
-                    unitsHit = unitsHit + 1
-                end
-            end
-            if unitsHit > bestAngleUnitsHit then
-                bestAngleUnitsHit = unitsHit
-                bestAngle = facing
-            end
-            facing = facing + 0.05
-        end
-        if bestAngleUnitsHit >= minUnits then
-            local mouselookActive = false
-            if IsMouselooking() then
-                mouselookActive = true
-                MouselookStop()
-                TurnOrActionStop()
-                MoveAndSteerStop()
-            end
-            FaceDirection(bestAngle, true)
-            useItem(item)
-            FaceDirection(curFacing)
-            if mouselookActive then
-                MouselookStart()
-            end
-            lodFaced = true
-            return true
-        end
-        return false
     end ]]
-
     local function spendies()
-        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and (holyPower >=3 or buff.divinePurpose.exists()) and inCombat then
-            if not br.unlocked then --EasyWoWToolbox == nil then
-                if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
-                    if cast.lightOfDawn() then
-                        return true
-                    end
-                end
-            else
-                if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
-                    return true
-                end
-            end
-        end
-
-        if isChecked("Word of Glory") and (holyPower >=3 or buff.divinePurpose.exists()) and inCombat then
+        if isChecked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) and inCombat then
             --Critical first
             if php <= getValue("Critical HP") then
                 if cast.wordOfGlory("player") then
                     return true
                 end
             end
-            if (lowest.hp <= getValue("Word of Glory")) and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
+            if (lowest.hp <= getValue("Word of Glory") or (holyPower == holyPowerMax and getLowAllies(99) < 2)) then
                 if cast.wordOfGlory(lowest.unit) then 
                     return true
                 end
             end
         end
 
-        --[[ if isChecked("Repose Trinket") then
-            if not br.unlocked then
-                if healConeAround(getValue("Repose Target"), getValue("Repose Trinket"), 45, 50, 5) then
-                    if useItem(173078) then
+        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and (holyPower >= 3 or buff.divinePurpose.exists()) and inCombat then
+            local LoDHealth = getValue("Light of Dawn")
+            if holyPower == holyPowerMax then
+                LoDHealth = 100
+            end
+            if not br.unlocked then --EasyWoWToolbox == nil then
+                if healConeAround(getValue("LoD Targets"), LoDHealth, 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
+                    if cast.lightOfDawn() then
                         return true
                     end
                 end
             else
-                if bestConeItem(item.darkMoonDeckRepose, getValue("Repose Target"), getValue("Repose Trinket"), 45, 50, 5) then
+                if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), LoDHealth, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
                     return true
                 end
             end
-        end ]]
+        end
     end
 
     local function defensiveTime()
@@ -739,18 +657,18 @@ local function runRotation()
             for i = 1, #br.friend do
                 if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
                     if getOptionValue("Lay on Hands Target") == 1 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance)) then
                             layOnHandsTarget = br.friend[i].unit
                         end
                     elseif getOptionValue("Lay on Hands Target") == 2 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance)) then
                             layOnHandsTarget = br.friend[i].unit
                         end
                     elseif getOptionValue("Lay on Hands Target") == 3 and getDebuffRemain("player", 267037) == 0 and php <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) then
                         layOnHandsTarget = "player"
                     elseif getOptionValue("Lay on Hands Target") == 4 then
                         if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-                            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance)) then
                                 layOnHandsTarget = br.friend[i].unit
                             end
                         end
@@ -830,30 +748,46 @@ local function runRotation()
 
     local function damageTime()
         if mode.damage == 1 then
-            if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= getValue("Shield of the Righteous") and (holyPower >=3 or buff.divinePurpose.exists()) then
-                if cast.shieldOfTheRighteous(thisUnit) then
+            if isChecked("Shield of the Righteous") and lowest.hp >= getValue("Word of Glory") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= getValue("Shield of the Righteous") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+                if cast.shieldOfTheRighteous(units.dyn5) then
                     return true
                 end
             end
-            if isChecked("Holy Shock Damage") and lowest.hp > getOptionValue("Holy Shock") then
+            if isChecked("Holy Shock Damage") and lowest.hp > getOptionValue("Holy Shock") and cast.able.holyShock() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
+                    if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and not debuff.glimmerOfLight.exists(thisUnit, "player") and not UnitIsDeadOrGhost(thisUnit) and getLineOfSight(thisUnit, "player") then
                         if cast.holyShock(thisUnit) then
-                            return true
+                            --Print("Holy Shock 11: on " .. thisUnit)
+                            return
                         end
                     end
                 end
-                if cast.holyShock("target") then
-                    return true
+                if cast.able.holyShock() then
+                    if cast.holyShock("target") then
+                        --Print("Holy Shock 12")
+                        return
+                    end
                 end
             end
+
             
             --Consecration
             if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2) then
                 if cast.consecration() then
                     cX, cY, cZ = GetObjectPosition("player")
                     return
+                end
+            end
+
+            for i = 1, #enemies.yards30 do
+                thisUnit = enemies.yards30[i]
+                if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and isChecked("Hammer of Wrath") and holyPower < 5 then
+                    if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
+                        if cast.hammerOfWrath(thisUnit) then
+                            return true
+                        end
+                    end
                 end
             end
 
@@ -866,7 +800,7 @@ local function runRotation()
 
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if not UnitIsDeadOrGhost(thisUnit) then
+                if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and not UnitIsDeadOrGhost(thisUnit) then
                     if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
                         TargetUnit("focustarget")
                     end
@@ -887,7 +821,7 @@ local function runRotation()
                         end
                     end
                     -- Judgment
-                    if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player",thisUnit) then
+                    if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player",thisUnit) and getLineOfSight(thisUnit, "player") then
                         if cast.judgment(thisUnit) then
                             return true
                         end
@@ -904,7 +838,14 @@ local function runRotation()
                 local thisUnit = tanks[i].unit
                 if not UnitBuffID(thisUnit, 287280, "PLAYER") and not UnitBuffID(thisUnit, 115191) and getLineOfSight(thisUnit, "player") then
                     if cast.holyShock(thisUnit) then
+                        --Print("Holy Shock tank")
+                        return true
                     end
+                end
+            end
+            if talent.crusadersMight and lowest.hp > getValue("Critical HP") and (getSpellCD(20473) > (gcd)) then
+                if cast.crusaderStrike(units.dyn5) then
+                    return true
                 end
             end
         end
@@ -913,20 +854,25 @@ local function runRotation()
             if getSpellCD(20473) < gcd then
                 -- Check here to see if shock is not ready, but dawn is - then use dawn
                 --critical first
-                if #tanks > 0 then
-                    if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
-                        if cast.holyShock(tanks[1].unit) then
+                for i = 1, #tanks do
+                    local thisUnit = tanks[i].unit
+                    local thisHP = tanks[i].hp
+                    if thisHP <= getValue("Critical HP") and getLineOfSight(tanks[i].unit, "player") then
+                        if cast.holyShock(thisUnit) then
+                            --Print("Holy Shock 1")
                             return true
                         end
                     end
                 end
                 if isChecked("Self Shock") and php <= getValue("Self Shock") and not UnitBuffID("player", 287280, "PLAYER") then
                     if cast.holyShock("player") then
+                        --Print("Holy Shock 2")
                         return true
                     end
                 end
-                if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
+                if lowest.hp <= getValue("Critical HP") then
                     if cast.holyShock(lowest.unit) then
+                        --Print("Holy Shock 3")
                         return true
                     end
                 end
@@ -935,6 +881,7 @@ local function runRotation()
                     if getLineOfSight(br.friend[i].unit, "player") then
                         if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
                             if cast.holyShock(br.friend[i].unit) then
+                                --Print("Holy Shock 4")
                                 --Print(br.friend[i].unit)
                                 return true
                             end
@@ -957,19 +904,22 @@ local function runRotation()
                 end
                 if glimmerCount ~= nil and glimmerCount >= 8 then
                     if cast.holyShock(lowest.unit) then
+                        --Print("Holy Shock 5")
                         --Print("Glimmer cap glimmer")
                         return
                     end
                 end
                 if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.glimmer == 1 then
                     if cast.holyShock(glimmerTable[1].unit) then
+                        --Print("Holy Shock 6")
                         --Print("Just glimmered: " .. glimmerTable[1].unit)
                         return true
                     end
                 end
                 if glimmerTable ~= nil and #glimmerTable == 0 and (not isChecked("Holy Shock Damage") or (isChecked("Holy Shock Damage") and lowest.hp <= getValue("Holy Shock"))) then
                     if cast.holyShock(lowest.unit) then
-                        return
+                        --Print("Holy Shock 7")
+                        return true
                     end
                 end
             end
@@ -983,20 +933,47 @@ local function runRotation()
         if isChecked("Holy Shock") and getSpellCD(20473) < gcd and mode.glimmer ~= 1 then
             --critical first
             if #tanks > 0 then
-                if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
+                if tanks[1].hp <= getValue("Critical HP") then
                     if cast.holyShock(tanks[1].unit) then
+                        --Print("Holy Shock 8")
                         return true
                     end
                 end
             end
             if php <= getValue("Critical HP") or getBuffRemain("player", 265773) ~= 0 then
                 if cast.holyShock("player") then
+                    --Print("Holy Shock 9")
                     return true
                 end
             end
-            if lowest.hp <= getValue("Holy Shock") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
+            if lowest.hp <= getValue("Holy Shock") then
                 if cast.holyShock(lowest.unit) then
+                    --("Holy Shock 10")
                     return true
+                end
+            end
+        end
+
+        if php >= getValue("LotM player HP limit") then
+            for i = 1, #br.friend do
+                local thisUnit = br.friend[i].unit
+                local thisHP = br.friend[i].hp
+                if not GetUnitIsUnit(thisUnit, "player") then
+                    if isChecked("Moving LotM") and thisHP <= getValue("Moving LotM") and moving then
+                        if cast.lightOfTheMartyr(thisUnit) then
+                            return true
+                        end
+                    end
+                    if isChecked("LoM after FoL") and thisHP <= getValue("LoM after FoL") and cast.last.flashOfLight() then
+                        if cast.lightOfTheMartyr(thisUnit) then
+                            return true
+                        end
+                    end
+                    if isChecked("Light of the Martyr") and thisHP <= getValue("Light of the Martyr") then
+                        if cast.lightOfTheMartyr(thisUnit) then
+                            return true
+                        end
+                    end
                 end
             end
         end
@@ -1081,7 +1058,7 @@ local function runRotation()
 
                 for i = 1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if isChecked("Hammer of Wrath") and holyPower < 5 then
+                    if isChecked("Hammer of Wrath - High Prio") and holyPower < 5 and lowest.hp >= getValue("Critical HP") then
                         if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
                             if cast.hammerOfWrath(thisUnit) then
                                 return true
@@ -1089,6 +1066,7 @@ local function runRotation()
                         end
                     end
                 end
+
                 if defensiveTime() then
                     return
                 end
