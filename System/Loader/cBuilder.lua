@@ -91,9 +91,6 @@ function br.loader:new(spec,specName)
 
     -- Mandatory !
     self.rotation = br.rotations[spec][br.selectedProfile]
-    -- Print("Loader - Loading Settings for Rotation: "..self.rotation.name)
-    br.data.loadedSettings = false
-    br:loadSettings(nil,nil,nil,self.rotation.name)
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)

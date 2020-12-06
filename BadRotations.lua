@@ -2,7 +2,6 @@
 br = {}
 br.addonName = "BadRotations"
 br.commandHelp = {}
-br.currentSpec = ""
 br.data = {}
 br.data.ui = {}
 br.deadPet = false
@@ -56,7 +55,7 @@ end
 -- Run
 function br:Run()		
 	if br.selectedSpec == nil then 
-		br.selectedSpec =  select(2,GetSpecializationInfo(GetSpecialization()))
+		br.selectedSpec =  select(2, GetSpecializationInfo(GetSpecialization()))
     	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 	end
 	-- rc = LibStub("LibRangeCheck-2.0")
@@ -90,8 +89,10 @@ function br:Run()
 	}
 	-- load common used stuff on first load
 	br:defaultSettings()
-
-	-- br:loadSettings()
+	-- add minimap fire icon
+	br:MinimapButton()
+	-- build up UI
+	TogglesFrame()
 	-- Build up pulse frame (hearth)
 	if not br.loadedIn then
 		-- Start Logs
@@ -105,8 +106,6 @@ function br:Run()
 		-- Complete Loadin
 		ChatOverlay("-= BadRotations Loaded =-")
 		Print("Loaded")
-		-- Initialize Minimap Button
-		br:MinimapButton()
 		br.loadedIn = true
 	end
 end
@@ -129,11 +128,14 @@ function br:defaultSettings()
 			wiped = true,
 		}
 	end
+	br.ui.window.config = {}
+	br.ui:createConfigWindow()
+	br.ui:toggleWindow("config")
 	-- Settings Per Spec
 	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
 	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
 	if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-		-- if br.data.tracker.lastProfile ~= nil then br.selectedProfile = br.data.tracker.lastProfile else br.selectedProfile = 1 end
+		br.selectedProfile = 1
 	else
 		br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
 	end
@@ -153,7 +155,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "LOADING_SCREEN_DISABLED" then
 		br.disablePulse = false
 	end
-	if event == "PLAYER_LOGOUT" then --or event == "PLAYER_LEAVING_WORLD" then
+	if event == "PLAYER_LOGOUT" then
 		if br.unlocked then
 			-- Return queue window to previous setting
 			if GetCVar("SpellQueueWindow") =="0" then 
@@ -162,17 +164,22 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			br.ui:saveWindowPosition()
 			if getOptionCheck("Reset Options") then
 				-- Reset Settings
-				br:saveSettings(nil,nil,br.currentSpec,br.selectedProfileName,true)
-			else
-				-- Save Settings
-				br:saveLastProfileTracker()
-				br:saveSettings(nil,nil,br.currentSpec,br.selectedProfileName)
+				br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName, true)
+			else	
+			-- Save Settings
+				br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 			end
+			br.saveLastProfileTracker()		
+			
 		end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
+		if not br.unlocked then
+			br.initalizeSettings = true
+			print("Please wait for settings to load!")
+		end
 		-- Update Selected Spec
-		br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+		br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
     	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 		br.activeSpecGroup = GetActiveSpecGroup()
 		br.equipHasChanged = true
