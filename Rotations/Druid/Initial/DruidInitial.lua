@@ -184,7 +184,7 @@ actionList.PreCombat = function()
     if not unit.inCombat() then
         if unit.valid("target") then
             local thisDistance = unit.distance("target") or 99
-            if not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
+            if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
                 if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or not unit.inCombat()) then
                     if cast.wrath("target") then ui.debug("Casting Wrath [Pre-Pull]") return true end
                 end
@@ -309,7 +309,7 @@ local function runRotation()
                     if cast.moonfire() then ui.debug("Casting Moonfire") return true end
                 end
                 -- Wrath
-                if cast.able.wrath() and (unit.level() < 2 or not cast.last.wrath() or not debuff.moonfire.refresh(units.dyn40)) then
+                if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or not cast.last.wrath() or not debuff.moonfire.refresh(units.dyn40)) then
                     if cast.wrath() then ui.debug("Casting Wrath") return true end
                 end
             end
