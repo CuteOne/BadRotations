@@ -91,6 +91,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Sundering", alwaysCdNever, 1, "|cffFFFFFFWhen to use Sundering.")
             -- Covenant Ability
             br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdNever, 1, "|cffFFFFFFWhen to use Covenant Ability.")
+            -- Chain Harvest Min Units
+            br.ui:createSpinnerWithout(section,"Chain Harvest Min Units", 1, 1, 5, 1, "cffFFFFFFMinimal Units in 8yrds to cast at.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -407,7 +409,7 @@ actionList.AOE = function()
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
+    if ui.alwaysCdNever("Covenant Ability") and (ui.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
         if cast.chainHarvest() then ui.debug("Casting Chain Harvest [AOE]") return true end
     end
     -- Elemental Blast
@@ -573,7 +575,7 @@ actionList.Single = function()
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
+    if ui.alwaysCdNever("Covenant Ability") and (ui.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
         if cast.chainHarvest() then ui.debug("Casting Chain Harvest [ST]") return true end
     end
     -- Lightning Bolt
