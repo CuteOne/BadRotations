@@ -44,6 +44,12 @@ local function createToggles()
         [4] = {mode = "Off", value = 4, overlay = "Off", tip = "Off", highlight = 0, icon = br.player.spell.beaconOfLight}
     }
     CreateButton("Beacon", 7, 0)
+    WrathModes = {
+        [1] = {mode = "High", value = 1, overlay = "High Prio HoW", tip = "High Prio HoW", highlight = 1, icon = br.player.spell.hammerOfWrath},
+        [2] = {mode = "Low", value = 2, overlay = "Low Prio HoW", tip = "Low Prio HoW", highlight = 0, icon = br.player.spell.hammerOfWrath},
+        [3] = {mode = "Off", value = 3, overlay = "HoW Enabled", tip = "HoW Disabled", highlight = 0, icon = br.player.spell.repentance},
+    }
+    CreateButton("Wrath", 0, 1)
 end
 
 local function createOptions()
@@ -70,6 +76,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Automatic Aura replacement")
         -- Critical
         br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Critical Heals")
+        br.ui:createCheckbox(section,"Hard Lock Crit Heal")
         br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
         br.ui:checkSectionState(section)
         -- Raid
@@ -180,9 +187,6 @@ local function createOptions()
         br.ui:createSpinner(section, "Light's Hammer Damage", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets") ]]
         -- Judgment
         br.ui:createCheckbox(section, "Judgment - DPS")
-        -- Hammer of Wrath
-        br.ui:createCheckbox(section, "Hammer of Wrath")
-        br.ui:createCheckbox(section, "Hammer of Wrath - High Prio")
         -- Holy Shock
         br.ui:createCheckbox(section, "Holy Shock Damage")
         --br.ui:createCheckbox(section, "Aggressive Glimmer", "tries to keep one glimmer on target")
@@ -394,17 +398,19 @@ local function runRotation()
 
         if isChecked("Light of Dawn") and cast.able.lightOfDawn() and (holyPower >= 3 or buff.divinePurpose.exists()) and inCombat then
             local LoDHealth = getValue("Light of Dawn")
+            local LoDUnits = getValue("LoD Targets")
             if holyPower == holyPowerMax then
                 LoDHealth = 100
+                LoDUnits = 1
             end
             if not br.unlocked then --EasyWoWToolbox == nil then
-                if healConeAround(getValue("LoD Targets"), LoDHealth, 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
+                if healConeAround(LoDUnits, LoDHealth, 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                     if cast.lightOfDawn() then
                         return true
                     end
                 end
             else
-                if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), LoDHealth, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+                if bestConeHeal(spell.lightOfDawn, LoDUnits, LoDHealth, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
                     return true
                 end
             end
@@ -456,9 +462,14 @@ local function runRotation()
                 end
             end
 
-            if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom)) then
-                if cast.blessingOfFreedom("player") then
-                    return true
+            if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
+                if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
+                    if cast.blessingOfFreedom("boss1target") then return end
+                end
+                if hasNoControl(spell.blessingOfFreedom) then
+                    if cast.blessingOfFreedom("player") then
+                        return true
+                    end
                 end
             end
         end
@@ -779,18 +790,18 @@ local function runRotation()
                     return
                 end
             end
-
-            for i = 1, #enemies.yards30 do
-                thisUnit = enemies.yards30[i]
-                if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and isChecked("Hammer of Wrath") and holyPower < 5 then
-                    if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
-                        if cast.hammerOfWrath(thisUnit) then
-                            return true
+            if mode.wrath == 2 then
+                for i = 1, #enemies.yards30 do
+                    thisUnit = enemies.yards30[i]
+                    if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and holyPower < 5 then
+                        if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
+                            if cast.hammerOfWrath(thisUnit) then
+                                return true
+                            end
                         end
                     end
                 end
             end
-
             if isChecked("Crusader Strike") then
                 if cast.crusaderStrike(units.dyn5) then
                     return true
@@ -1056,12 +1067,20 @@ local function runRotation()
                     return
                 end
 
-                for i = 1, #enemies.yards30 do
-                    thisUnit = enemies.yards30[i]
-                    if isChecked("Hammer of Wrath - High Prio") and holyPower < 5 and lowest.hp >= getValue("Critical HP") then
-                        if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
-                            if cast.hammerOfWrath(thisUnit) then
-                                return true
+                if useCDs() then
+                    if Coolies() then
+                        return
+                    end
+                end
+
+                if mode.wrath == 1 then
+                    for i = 1, #enemies.yards30 do
+                        thisUnit = enemies.yards30[i]
+                        if holyPower < 5 and lowest.hp >= getValue("Critical HP") then
+                            if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
+                                if cast.hammerOfWrath(thisUnit) then
+                                    return true
+                                end
                             end
                         end
                     end
@@ -1081,18 +1100,14 @@ local function runRotation()
                     end
                 end
 
-                if useCDs() then
-                    if Coolies() then
-                        return
-                    end
-                end
-
                 if healingTime() then
                     return
                 end
 
-                if damageTime() then
-                    return
+                if not isChecked("Hard Lock Crit Heal") or lowest.hp > getValue("Critical HP") then
+                    if damageTime() then
+                        return
+                    end
                 end
             end
         end
