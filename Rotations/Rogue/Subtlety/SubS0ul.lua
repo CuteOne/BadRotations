@@ -971,7 +971,7 @@ local function runRotation()
             if cast.shadowstrike("target") then return true end
         end
         -- actions.build+=/backstab
-        if (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1) then
+        if (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1 or mode.sd == 2) then
             if cast.backstab("target") then return true end
         end
         -- Use Shuriken Toss if we can't reach the target
