@@ -1952,6 +1952,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                theEmperorsCapacitor        = 235054,
                 transcendence               = 101643,
                 weaponsOfTheOrder           = 310454,
                 weaponsOfTheOrderWW         = 311054,
@@ -1966,7 +1967,7 @@ br.lists.spells = {
                 weaponsOfTheOrder           = 310454,
             },
             debuffs                         = {
-
+                bonedustBrew                = 325216,
             },
             glyphs                          = {
 
