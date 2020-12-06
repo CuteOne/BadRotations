@@ -859,6 +859,7 @@ br.lists.spells = {
                 tranquility                 = 740,
                 yserasGift                  = 145108,
                 swipeResto                  = 213764,
+                naturesSwiftness            = 132158,
             },
             artifacts                       = {
 
@@ -2430,6 +2431,7 @@ br.lists.spells = {
                 vampiricEmbrace             = 15286,
                 vampiricTouch               = 34914,
                 voidBolt                    = 205448,
+                devoidBolt                  = 343355,
                 voidEruption                = 228260,
                 voidForm                    = 228264,
             },
@@ -2447,6 +2449,7 @@ br.lists.spells = {
                 chorusOfInsanity            = 279572,
                 darkThoughts                = 341207,
                 dispersion                  = 47585,
+                dissonantEchoes             = 343144,
                 harvestedThoughts           = 288343,
                 lingeringInsanity           = 199849,
                 powerWordShield             = 17,
@@ -2515,6 +2518,7 @@ br.lists.spells = {
                 massResurrection            = 212036,
                 mindBlast                   = 8092,
                 mindControl                 = 605,
+                mindgames                   = 323673,
                 mindSoothe                  = 453,
                 mindVision                  = 2096,
                 powerInfusion               = 10060,
@@ -2533,13 +2537,14 @@ br.lists.spells = {
             },
             buffs                           = {
                 classHallSpeed              = 224098,
+                faeGuardians                = 327661,
                 levitate                    = 111759,
                 powerWordFortitude          = 21562,
                 powerWordShield             = 17,
 
             },
             conduits                        = {
-
+                dissonantEchoes             = 338342,
             },
             covenants                       = {
                 boonOfTheAscended           = 325013,
@@ -2553,6 +2558,7 @@ br.lists.spells = {
             debuffs                         = {
                 shadowWordPain              = 589,
                 weakenedSoul                = 6788,
+                wrathfulFaerie              = 327703,
 
             },
             glyphs                          = {

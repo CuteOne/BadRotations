@@ -619,6 +619,36 @@ function cl:Monk(...)
 end
 function cl:Priest(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    if GetSpecialization() == 3 then
+        -- Periodic Damage Events
+        if param == "SPELL_PERIODIC_DAMAGE" then
+            if br.mfTicks == nil then br.mfTicks = 0 end
+            -- Mindflay Ticks
+            if source == br.guid and spellName == GetSpellInfo(15407) then br.mfTicks = br.mfTicks + 1 br.addonDebug("Mindflay + 1 tick" .. "Total Ticks: " .. br.mfTicks) end
+        end
+        -- Corruption was removed.
+        if param == "SPELL_AURA_REMOVED" then
+            if source == br.guid then
+                -- Mindflay
+                if spellName == GetSpellInfo(15407) then br.mfTicks = 0 br.maxmfTicks = 6 br.addonDebug("Mindflay ticks reset") end
+            end
+        end
+
+        -- Periodic Damage Events
+        if param == "SPELL_DAMAGE" then
+            if br.msTicks == nil then br.msTicks = 0 end
+            -- Mind Sear Ticks
+            if source == br.guid and spellName == GetSpellInfo(48045) and destination == UnitGUID('target') then br.msTicks = br.msTicks + 1 br.addonDebug("Mind Sear + 1 tick" .. "Total Ticks: " .. br.msTicks) end
+        end
+        -- Corruption was removed.
+        if param == "SPELL_AURA_REMOVED" then
+            if source == br.guid then
+                -- Mindflay
+                if spellName == GetSpellInfo(48045) then br.msTicks = 0 br.maxmsTicks = 6 br.addonDebug("Mind Sear ticks reset") end
+            end
+        end
+    end
+
     -- last VT
     if lastVTTime == nil then
         lastVTTime = -999999999
@@ -799,21 +829,21 @@ end
 function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     if GetSpecialization() == 1 then
-    if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
-	    -- Drain Soul counter
-		if UnitChannelInfo("player") == GetSpellInfo(198590) then br.dsTicks = 1 end
-	end
+        if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
+            -- Drain Soul counter
+            if UnitChannelInfo("player") == GetSpellInfo(198590) then br.dsTicks = 1 end
+	    end
 
-    -- We stopped a channel, reset counters.
-    if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_STOP" then br.dsTicks = 1 end
-    
-    -- CLear dot table after each death/individual combat scenarios. 
-    if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then  end
+        -- We stopped a channel, reset counters.
+        if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_STOP" then br.dsTicks = 1 end
+        
+        -- CLear dot table after each death/individual combat scenarios. 
+        if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then  end
 
-    if param == "UNIT_DIED" then     end--if]] #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true --]]end end end 
+        if param == "UNIT_DIED" then     end--if]] #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true --]]end end end 
 
-    -- Corruption was refreshed. 
-	if param == "SPELL_AURA_REFRESH" then
+        -- Corruption was refreshed. 
+        if param == "SPELL_AURA_REFRESH" then
         -- Drain Soul
 		if source == br.guid and spellName == GetSpellInfo(198590) then br.dsTicks = 1 br.maxdsTicks = 5 end
     end

@@ -66,6 +66,8 @@ local function createOptions()
             -- Weapon Imbues
             br.ui:createCheckbox(section,"Windfury Weapon")
             br.ui:createCheckbox(section,"Flametongue Weapon")
+            -- Manual Windfury totem
+            br.ui:createDropdown(section,"Windfury Totem Key", br.dropOptions.Toggle, 6,"|cff0070deSet key to hold down for Windfury Totem")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -349,7 +351,7 @@ actionList.AOE = function()
     -- Windfury Totem
     -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
     if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0
-        and runeforge.doomWinds.equiped and not buff.doomWinds.exists()
+        and runeforge.doomWinds.equiped and not buff.doomWinds.exists() and not ui.checked("Windfury Totem Key")
     then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE Doom Winds]") return true end
     end
@@ -505,7 +507,7 @@ actionList.AOE = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE]") return true end
     end
     -- Primal Strike
@@ -530,7 +532,7 @@ actionList.Single = function()
     -- Windfury Totem
     -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
     if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
-        and runeforge.doomWinds.equiped and not buff.doomWinds.exists()
+        and runeforge.doomWinds.equiped and not buff.doomWinds.exists() and not ui.checked("Windfury Totem Key")
     then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST Doom Winds]") return true end
     end
@@ -651,7 +653,7 @@ actionList.Single = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST]") return true end
     end
     -- Primal Strike
@@ -707,7 +709,7 @@ actionList.PreCombat = function()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
+            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Pull]") return true end
             end
             -- Lightning Bolt
@@ -837,7 +839,11 @@ local function runRotation()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
+            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
+            end
+            -- manual windury totem
+            if ui.toggle("Windfury Totem Key") and ui.checked("Windfury Totem Key") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- Windstrike
