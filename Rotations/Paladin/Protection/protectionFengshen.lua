@@ -359,17 +359,17 @@ local function runRotation()
 			if isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat and not buff.ardentDefender.exists() then
 				-- Player
 				if getOptionValue("Lay on Hands Target") == 1 then
-					if php <= getValue("Lay On Hands") then
+					if php <= getValue("Lay On Hands") and not debuff.forbearance.exists("player") then
 						if cast.layOnHands("player") then return end
 					end
 					-- Target
 				elseif getOptionValue("Lay on Hands Target") == 2 then
-					if getHP("target") <= getValue("Lay On Hands") then
+					if getHP("target") <= getValue("Lay On Hands") and not debuff.forbearance.exists("target") then
 						if cast.layOnHands("target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Lay on Hands Target") == 3 then
-					if getHP("mouseover") <= getValue("Lay On Hands") then
+					if getHP("mouseover") <= getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") then
 						if cast.layOnHands("mouseover") then return end
 					end
 				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
@@ -427,17 +427,17 @@ local function runRotation()
 			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss("boss1") then
 				-- Player
 				if getOptionValue("Blessing of Protection Target") == 1 then
-					if php <= getValue("Blessing of Protection") then
+					if php <= getValue("Blessing of Protection") and not debuff.forbearance.exists("player") then
 						if cast.blessingOfProtection("player") then return end
 					end
 					-- Target
 				elseif getOptionValue("Blessing of Protection Target") == 2 then
-					if getHP("target") <= getValue("Blessing of Protection") then
+					if getHP("target") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("target") then
 						if cast.blessingOfProtection("target") then return end
 					end
 					-- Mouseover
 				elseif getOptionValue("Blessing of Protection Target") == 3 then
-					if getHP("mouseover") <= getValue("Blessing of Protection") then
+					if getHP("mouseover") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") then
 						if cast.blessingOfProtection("mouseover") then return end
 					end
 				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
@@ -621,11 +621,6 @@ local function runRotation()
 			end
 			if (UnitCastingInfo("boss1") == GetSpellInfo(317231) or UnitCastingInfo("boss1") == GetSpellInfo(320729)) and getDebuffRemain("player",331606) ~= 0 then
 				if cast.blessingOfFreedom("player") then return end
-			end
-			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,320788) ~= 0 and #getAllies(br.friend[i].unit,17) <= 1 then
-					if cast.blessingOfFreedom(br.friend[i].unit) then return end
-				end
 			end
 		end
 	end
