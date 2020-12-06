@@ -1952,6 +1952,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                theEmperorsCapacitor        = 235054,
                 transcendence               = 101643,
                 weaponsOfTheOrder           = 310454,
                 weaponsOfTheOrderWW         = 311054,
@@ -1966,7 +1967,7 @@ br.lists.spells = {
                 weaponsOfTheOrder           = 310454,
             },
             debuffs                         = {
-
+                bonedustBrew                = 325216,
             },
             glyphs                          = {
 
@@ -3190,9 +3191,11 @@ br.lists.spells = {
             },
             buffs                           = {
                 astralShift                 = 108271,
+                doomWinds                   = 335903,
                 faeTransfusionRecast        = 328933,
                 ghostWolf                   = 2645,
                 lightningShield             = 192106,
+                primalLavaActuators         = 347819,
                 primordialWave              = 327164,
                 waterWalking                = 546,
             },
@@ -3212,6 +3215,10 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            runeforges                      = {
+                doomWinds                   = 335902,
+                primalLavaActuators         = 335895,
             },
             talents                         = {
                 naturesGuardian             = 30884,

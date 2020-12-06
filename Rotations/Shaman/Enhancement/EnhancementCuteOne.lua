@@ -159,9 +159,8 @@ local conduit
 local covenant
 local debuff
 local enemies
-local essence
 local module
-local spell
+local runeforge
 local talent
 local ui
 local unit
@@ -337,6 +336,11 @@ actionList.Interrupts = function()
 end -- End Action List - Interrupts
 -- Action List - AOE
 actionList.AOE = function()
+    -- Fae Transfusion
+    -- fae_transfusion,if=soulbind.grove_invigoration|soulbind.field_of_blossoms
+    -- if ui.alwaysCdNever("Covenant Abiity") and cast.able.faeTransfusion() and (soulbind.groveInvigoration or soulbind.fieldOfBlossoms) then
+    --     if cast.faeTransfusion() then ui.debug("Casting Fae Transfusion") return true end
+    -- end
     -- Frost Shock
     -- frost_shock,if=buff.hailstorm.up
     if cast.able.frostShock() and buff.hailstorm.exists() then
@@ -344,11 +348,11 @@ actionList.AOE = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    -- if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
-    --     and runeforge.doomWinds.equiped() and not buff.doomWinds.exists()
-    -- then
-    --     if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE Doom Winds]") return true end
-    -- end
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0
+        and runeforge.doomWinds.equiped and not buff.doomWinds.exists()
+    then
+        if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE Doom Winds]") return true end
+    end
     -- Flame Shock
     -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord
     if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames or covenant.necrolord.active) then
@@ -436,9 +440,9 @@ actionList.AOE = function()
     end
     -- Lava lash
     -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6
-    -- if cast.able.lavaLash(var.lowestLashingFlames) and runeforge.primalLava.equiped() and buff.primalLavaActuators.stack() > 6 then
-    --     if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lava Lash [AOE Primal Lava Actuators]") return true end
-    -- end
+    if cast.able.lavaLash(var.lowestLashingFlames) and runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6 then
+        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lava Lash [AOE Primal Lava Actuators]") return true end
+    end
     -- Stormstrike
     -- stormstrike
     if cast.able.stormstrike() and unit.level() >= 20 then
@@ -501,7 +505,7 @@ actionList.AOE = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE]") return true end
     end
     -- Primal Strike
@@ -525,11 +529,11 @@ actionList.Single = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    -- if cast.able.windfuryTotem() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
-    --     and runeforge.doomWinds.equiped() and not buff.doomWinds.exists()
-    -- then
-    --     if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST Doom Winds]") return true end
-    -- end
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
+        and runeforge.doomWinds.equiped and not buff.doomWinds.exists()
+    then
+        if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST Doom Winds]") return true end
+    end
     -- Flame Shock
     -- flame_shock,if=!ticking
     if cast.able.flameShock() and not debuff.flameShock.exists(units.dyn40) then
@@ -703,8 +707,8 @@ actionList.PreCombat = function()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
-                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
+            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
+                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Pull]") return true end
             end
             -- Lightning Bolt
             if ui.checked("Lightning Bolt Out of Combat") and cast.able.lightningBolt() and not unit.moving()
@@ -737,9 +741,8 @@ local function runRotation()
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
-    essence                                       = br.player.essence
     module                                        = br.player.module
-    spell                                         = br.player.spell
+    runeforge                                     = br.player.runeforge
     talent                                        = br.player.talent
     ui                                            = br.player.ui
     unit                                          = br.player.unit
@@ -834,7 +837,7 @@ local function runRotation()
             end
             -- Windfury Totem
             -- windfury_totem
-            if cast.able.windfuryTotem() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
+            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- Windstrike
@@ -852,10 +855,11 @@ local function runRotation()
             -- fireblood,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
             -- ancestral_call,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
             -- bag_of_tricks,if=!talent.ascendance.enabled|!buff.ascendance.up
-            if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc") and (not talent.ascendance or buff.ascendance.exists() or cd.ascendance.remains() > 50))
-                or (unit.race() == "Troll" and (not talent.ascendance or buff.ascendance.exists())))
+            if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc")
+                and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or cd.ascendance.remains() > 50 or (not ui.useCDS() and ui.alwaysCdNever("Racial"))))
+                or (unit.race() == "Troll" and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or (ui.useCDs() and ui.alwaysCdNever("Racial")))))
             then
-                if cast.racial() then ui.debug("Casting Racial") return true end
+                if cast.racial("player") then ui.debug("Casting Racial") return true end
             end
             -- Feral Spirit
             -- feral_spirit

@@ -32,17 +32,16 @@ br.api.runeforge = function(runeforge,k,v)
         end
         return false
     end
-    --if UnitLevel("player") >= 50 then
-        for i = 1, #itemLeggoSlots do
-            if GetInventoryItemID("player",i) ~= nil then
-                item = ItemLocation:CreateFromEquipmentSlot(itemLeggoSlots[i])
-                isLeggo = C_LegendaryCrafting.IsRuneforgeLegendary(item)
-                if isLeggo then
-                    slotPowers = C_LegendaryCrafting.GetRuneforgePowers(item,1)
-                    runeforge[k].equiped = findPowerBySlot(1) or findPowerBySlot(2)
-                end
+    
+    for i = 1, #itemLeggoSlots do
+        if GetInventoryItemID("player",i) ~= nil then
+            item = ItemLocation:CreateFromEquipmentSlot(itemLeggoSlots[i])
+            isLeggo = C_LegendaryCrafting.IsRuneforgeLegendary(item)
+            if isLeggo then
+                slotPowers = C_LegendaryCrafting.GetRuneforgePowers(item,1)
+                runeforge[k].equiped = findPowerBySlot(1) or findPowerBySlot(2)
             end
-            if runeforge[k].equiped then break end
         end
-    --end
+        if runeforge[k].equiped then break end
+    end
 end

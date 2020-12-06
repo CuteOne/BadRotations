@@ -91,8 +91,6 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
         -- Mana Pot
             br.ui:createSpinner(section, "Mana Pot", 30, 0, 100, 5, "|cffFFFFFFWill use mana pot if mana below this value. Default: 30")
-
-            br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
         br.ui:checkSectionState(section)
     -- -- Burst Damage Options
         section = br.ui:createSection(br.ui.window.profile, "Raid Burst Damage Options")
