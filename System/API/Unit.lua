@@ -170,6 +170,7 @@ br.api.unit = function(self)
     -- Is Boss
     unit.isBoss = function(thisUnit)
         local isBoss = _G["isBoss"]
+        if thisUnit == nil then thisUnit = "target" end
         return isBoss(thisUnit)
     end
     -- Is Casting
