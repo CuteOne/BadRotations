@@ -859,6 +859,7 @@ br.lists.spells = {
                 tranquility                 = 740,
                 yserasGift                  = 145108,
                 swipeResto                  = 213764,
+                naturesSwiftness            = 132158,
             },
             artifacts                       = {
 

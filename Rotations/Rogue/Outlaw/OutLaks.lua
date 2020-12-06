@@ -797,9 +797,14 @@ actionList.dps = function()
 
 
     -- dps regular damage
-    if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
-            * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
-            * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
+    --[[
+      if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
+              * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
+              * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
+              or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
+      then
+  ]]
+    if combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw))
             or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
     then
 
@@ -911,7 +916,6 @@ actionList.dps = function()
             end
         end
     end
-
 
 
     --pots
@@ -1163,7 +1167,7 @@ actionList.Defensive = function()
         }
 
         local cloakList = {
-            [256106] = true, -- FH 1st boss
+            [320788] = true, -- Frozen Binds, last boss Necrotic wave
             [261439] = true, -- Virulent Pathogen WM
             [261440] = true, -- Virulent Pathogen WM
             [265773] = true -- Spit Gold KR
