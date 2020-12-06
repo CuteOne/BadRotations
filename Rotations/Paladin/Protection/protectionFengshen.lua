@@ -45,7 +45,7 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-
+	
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
@@ -164,9 +164,9 @@ local function createOptions()
 		-- Hammer of Wrath
 		br.ui:createCheckbox(section,"Hammer of Wrath")
 		br.ui:checkSectionState(section)
-        ----------------------
-        -------- LISTS -------
-        ----------------------
+		----------------------
+		-------- LISTS -------
+		----------------------
 		section = br.ui:createSection(br.ui.window.profile,  "Lists")
 		br.ui:createScrollingEditBoxWithout(section,"Stuns Black Units", StunsBlackList, "List of units to blacklist when Hammer of Justice", 240, 50)
 		br.ui:createScrollingEditBoxWithout(section,"Stun Spells", StunSpellList, "List of spells to stun with auto stun function", 240, 50)
@@ -210,7 +210,7 @@ local function runRotation()
 	UpdateToggle("BossCase",0.25)
 	br.player.ui.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
 	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
-
+	
 	--------------
 	--- Locals ---
 	--------------
@@ -246,7 +246,7 @@ local function runRotation()
 	local level         = br.player.level
 	local module        = br.player.module
 	local SotR          = true
-
+	
 	units.get(5)
 	units.get(10)
 	units.get(30)
@@ -254,7 +254,7 @@ local function runRotation()
 	enemies.get(8)
 	enemies.get(10)
 	enemies.get(30)
-
+	
 	if profileStop == nil then profileStop = false end
 	if consecrationCastTime == nil then consecrationCastTime = 0 end
 	if consecrationRemain == nil then consecrationRemain = 0 end
@@ -356,7 +356,7 @@ local function runRotation()
 				end
 			end
 			-- Lay On Hands
-			if isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat then
+			if isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat and not buff.ardentDefender.exists() then
 				-- Player
 				if getOptionValue("Lay on Hands Target") == 1 then
 					if php <= getValue("Lay On Hands") then
@@ -605,7 +605,7 @@ local function runRotation()
 		-- Hammer of Justice
 		if cast.able.hammerOfJustice() then
 			for i = 1, #enemies.yards10 do
-			local thisUnit = enemies.yards10[i]
+				local thisUnit = enemies.yards10[i]
 				if HoJList[GetObjectID(thisUnit)] ~= nil then
 					if cast.hammerOfJustice(thisUnit) then return end
 				end
@@ -674,7 +674,7 @@ local function runRotation()
 				end
 				-- Holy Avenger
 				if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and
-				((not isChecked("Holy Avenger with Wings") and getOptionValue("Holy Avenger") <= ttd ) or (isChecked("Holy Avenger with Wings") and getSpellCD(31884) == 0))then
+					((not isChecked("Holy Avenger with Wings") and getOptionValue("Holy Avenger") <= ttd ) or (isChecked("Holy Avenger with Wings") and getSpellCD(31884) == 0))then
 					if cast.holyAvenger() then return end
 				end
 			end
@@ -688,7 +688,6 @@ local function runRotation()
 					local thisUnit = enemies.yards30[i]
 					if canInterrupt(thisUnit,100) and getFacing("player",thisUnit) then
 						if cast.avengersShield(thisUnit) then return end
-						InterruptTime = GetTime()
 					end
 				end
 			end
@@ -697,7 +696,7 @@ local function runRotation()
 				local distance = getDistance(thisUnit)
 				-- Hammer of Justice
 				if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
-				local interruptID
+					local interruptID
 					if UnitCastingInfo(thisUnit) then
 						interruptID = select(9,UnitCastingInfo(thisUnit))
 					elseif UnitChannelInfo(thisUnit) then
@@ -772,7 +771,7 @@ local function runRotation()
 			----------------------------------
 			-- Shield of the Righteous
 			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists()) and SotR == true
-			and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2) then
+				and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2) then
 				if cast.shieldOfTheRighteous(units.dyn5) then return end
 			end
 			local mob30 = GetUnitExists(units.dyn30) and getFacing("player",units.dyn30)
@@ -813,7 +812,7 @@ local function runRotation()
 				if cast.hammerOfTheRighteous(units.dyn5) then return end
 			end
 			-- Consecration
-			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and consecrationRemain < 6 then
+			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and consecrationRemain < 5 then
 				if cast.consecration() then return end
 			end
 		end -- End In Combat
