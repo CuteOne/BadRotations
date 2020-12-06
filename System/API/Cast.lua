@@ -237,7 +237,7 @@ br.api.cast = function(self,spell,id)
                 "aoe" - BR will cast if enemies are in the defined AoE (and if all units are safe to be attacked with option Safe Damage Check) given minUnits, effectRng parameters.
     ]]
     if cast.safe == nil then cast.safe = {} end
-    cast.safe[spell] = function(thisUnit,effectRng,minUnits,aoeType)
+    cast.safe[spell] = function(thisUnit,aoeType,minUnits,effectRng)
         return isSafeToAoE(id,thisUnit,effectRng,minUnits,aoeType)
     end
 

@@ -518,7 +518,8 @@ function br.loader:new(spec,specName)
             -- Build Spell Charges
             br.api.spells(self.charges,spell,id,"charges")
             -- Build Spell Cooldown
-            br.api.spells(self.cd,spell,id,"cd")
+            br.api.cd(self,spell,id)
+            --br.api.spells(self.cd,spell,id,"cd")
             -- build Spell Known
             br.api.spells(self.spell,spell,id,"known")
         end
