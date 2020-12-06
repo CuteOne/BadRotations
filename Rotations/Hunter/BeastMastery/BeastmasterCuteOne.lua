@@ -139,17 +139,6 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
-        -- corruption
-        section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
-            br.ui:createCheckbox(section,"Enable Corruption")
-            br.ui:createCheckbox(section,"Ice Trap")
-            br.ui:createCheckbox(section,"Binding Shot")
-            br.ui:createCheckbox(section,"Intimidation")
-            br.ui:createCheckbox(section,"Conc Shot")
-            br.ui:createCheckbox(section,"Tar Trap")
-            --br.ui:createCheckbox(section,"Disengage?")
-            br.ui:createCheckbox(section,"Feign Thing")
-        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -196,7 +185,6 @@ local actionList = {}
 local minCount
 -- Profile Specific Locals
 local lowestBarbedShot
-local feignTime
 
 -----------------
 --- Functions ---

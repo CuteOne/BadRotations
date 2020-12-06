@@ -132,13 +132,6 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
-        -- Corruption Management
-        section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
-            br.ui:createCheckbox(section,"Corruption Management On")
-            br.ui:createCheckbox(section,"Use Fel Eruption on TFB")
-            br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
-            br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
-        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -290,35 +283,6 @@ actionList.Defensive = function()
                 then
                     if cast.consumeMagic(thisUnit) then ui.debug("Casting Consume Magic") return true end
                 end
-            end
-        end
-        --Shroud
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    return
-                end
-            end
-        end
-        if isChecked("Corruption Management On") then
-            local stun = "Fel Eruption"
-
-            for i = 1, GetObjectCountBR() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if isChecked("Use Fel Eruption on TFB") then
-                    if ID == 161895 then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if distance <= 20 and isChecked("Use Fel Eruption on TFB") and cd.felEruption.remains() <= gcd and talent.felEruption then
-                            CastSpellByName(stun, object)
-                            return true
-                        end
-                    end
-                end -- end the thing
             end
         end
     end -- End Defensive Toggle
@@ -853,9 +817,6 @@ actionList.PreCombat = function()
             -- Metamorphosis
             if ui.checked("Metamorphosis") and cast.able.metamorphosis() then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Pre-Pull]") return true end
-            end
-            if cast.able.eyeBeam() then
-                cast.eyeBeam()
             end
         end -- End M+ Pre-Pull
         if unit.exists("target") and unit.valid("target") and unit.facing("target") and unit.distance("target") < 30 then
