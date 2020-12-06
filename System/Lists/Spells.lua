@@ -250,6 +250,7 @@ br.lists.spells = {
                 coldHeart                   = 281210,
                 darkSuccor                  = 101568,
                 empowerRuneWeapon           = 47568,
+                eradicatingBlow             = 337936,
                 frozenPulse                 = 195750,
                 icyCitadel                  = 272723,
                 icyTalons                   = 194879,
@@ -257,6 +258,12 @@ br.lists.spells = {
                 pillarOfFrost               = 51271,
                 remorselessWinter           = 196770,
                 rime                        = 59052,
+                unleashedFrenzy             = 338501,
+            },
+            conduits                        = {
+                eradicatingBlow             = 337934,
+                everfrost                   = 337988,
+                unleashedFrenzy             = 338492,
             },
             debuffs                         = {
                 breathOfSindragosa          = 155166,
@@ -323,6 +330,9 @@ br.lists.spells = {
                 suddenDoom                  = 49530,
                 unholyAssault               = 207289,
 		        unholyBlight 		        = 115989,
+            },
+            conduits                        = {
+                convocationOfTheDead        = 338553,
             },
             debuffs                         = {
                 festeringWound              = 194310,
@@ -391,6 +401,7 @@ br.lists.spells = {
             buffs                           = {
                 antiMagicShell              = 48707,
                 coldHeartItem               = 235599,
+                deathsDue                   = 324164,
                 iceboundFortitude           = 48792,
                 pathOfFrost                 = 3714,
                 unholyStrength              = 53365,
@@ -413,6 +424,12 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            runeforges                      = {
+                bitingCold                  = 334678,
+                deadliestCoil               = 334949,
+                phearomones                 = 335177,
+                superstrain                 = 334974,
             },
             talents                         = {
                 deathPact                   = 48743,
