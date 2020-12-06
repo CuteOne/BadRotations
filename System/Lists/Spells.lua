@@ -3191,9 +3191,11 @@ br.lists.spells = {
             },
             buffs                           = {
                 astralShift                 = 108271,
+                doomWinds                   = 335903,
                 faeTransfusionRecast        = 328933,
                 ghostWolf                   = 2645,
                 lightningShield             = 192106,
+                primalLavaActuators         = 347819,
                 primordialWave              = 327164,
                 waterWalking                = 546,
             },
@@ -3213,6 +3215,10 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            runeforges                      = {
+                doomWinds                   = 335902,
+                primalLavaActuators         = 335895,
             },
             talents                         = {
                 naturesGuardian             = 30884,
