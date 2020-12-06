@@ -598,7 +598,7 @@ actionList.WeaponsOfTheOrder = function()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=(!talent.hit_combo.enabled&conduit.calculated_strikes.enabled|combo_strike)&buff.dance_of_chiji.up
     if cast.able.spinningCraneKick() and (not talent.hitCombo and conduit.calculatedStrikes.enabled or not wasLastCombo(spell.spinningCraneKick)) and buff.danceOfChiJi.exists() then
-        if cast.spinningCranceKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of the Order - Chi-Ji]") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of the Order - Chi-Ji]") return true end
     end
     -- Fists of Fury
     -- fists_of_fury,if=active_enemies>=2&buff.weapons_of_order_ww.remains<1
@@ -614,10 +614,10 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=(!talent.hit_combo.enabled&conduit.calculated_strikes.enabled|combo_strike)&active_enemies>=3&buff.weapons_of_order_ww.up
-    if cast.able.spinningCranceKick() and (not talent.hitCombo and conduit.calculatedStrikes.enabled or not wasLastCombo(spell.spinningCraneKick))
+    if cast.able.spinningCraneKick() and (not talent.hitCombo and conduit.calculatedStrikes.enabled or not wasLastCombo(spell.spinningCraneKick))
         and ui.useAOE(8,3) and buff.weaponsOfTheOrderWW.exists()
     then
-        if cast.spinningCranceKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of the Order - WW Buff]") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of the Order - WW Buff]") return true end
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&active_enemies<=2
@@ -636,8 +636,8 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=buff.chi_energy.stack>30-5*active_enemies
-    if cast.able.spinningCranceKick() and buff.chiEnergy.stack() > 30 - 5 * #enemies.yards8 then
-        if cast.spinningCranceKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of the Order - Chi Energy]") return true end
+    if cast.able.spinningCraneKick() and buff.chiEnergy.stack() > 30 - 5 * #enemies.yards8 then
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of the Order - Chi Energy]") return true end
     end
     -- Fist of the White Tiger
     -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi<3
