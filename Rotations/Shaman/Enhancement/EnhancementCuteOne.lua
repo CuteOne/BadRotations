@@ -844,7 +844,7 @@ local function runRotation()
             end
             -- manual windury totem
             if ui.toggle("Windfury Totem Key") and ui.checked("Windfury Totem Key") then
-                if cast.windfuryTotem() then br.debug("Casting Windfury Totem") return true end
+                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- Windstrike
             -- windstrike
