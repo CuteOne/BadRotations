@@ -616,7 +616,7 @@ local function runRotation()
 			if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
 				if cast.blessingOfFreedom("boss1target") then return end
 			end
-			if getDebuffRemain("player",330810) ~= 0 or getDebuffRemain("player",326827) ~= 0 or getDebuffRemain("player",324608) ~= 0 then
+			if getDebuffRemain("player",330810) ~= 0 or getDebuffRemain("player",326827) ~= 0 or getDebuffRemain("player",324608) ~= 0 or getDebuffRemain("player",334926) ~= 0 then
 				if cast.blessingOfFreedom("player") then return end
 			end
 			if (UnitCastingInfo("boss1") == GetSpellInfo(317231) or UnitCastingInfo("boss1") == GetSpellInfo(320729)) and getDebuffRemain("player",331606) ~= 0 then
