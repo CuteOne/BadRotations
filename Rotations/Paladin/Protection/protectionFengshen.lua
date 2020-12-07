@@ -1,5 +1,5 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612"
+local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893"
 local StunSpellList="332329|332671|326450|328177|336451|331718|331743"
 local HoJPrioList = "164702|164362|170488|165905|165251"
 ---------------
@@ -45,7 +45,7 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-	
+
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
@@ -133,7 +133,7 @@ local function createOptions()
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Interrupts")
 		-- Blinding Light
-		br.ui:createCheckbox(section, "Blinding Light - INT")
+		br.ui:createSpinner(section,  "Blinding Light - INT",  2,  1,  5,  1,  "|cffFFBB00Units to use Blinding Light.")
 		-- Hammer of Justice
 		br.ui:createCheckbox(section, "Hammer of Justice - INT")
 		-- Rebuke
@@ -210,7 +210,7 @@ local function runRotation()
 	UpdateToggle("BossCase",0.25)
 	br.player.ui.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
 	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
-	
+
 	--------------
 	--- Locals ---
 	--------------
@@ -246,7 +246,7 @@ local function runRotation()
 	local level         = br.player.level
 	local module        = br.player.module
 	local SotR          = true
-	
+
 	units.get(5)
 	units.get(10)
 	units.get(30)
@@ -254,7 +254,7 @@ local function runRotation()
 	enemies.get(8)
 	enemies.get(10)
 	enemies.get(30)
-	
+
 	if profileStop == nil then profileStop = false end
 	if consecrationCastTime == nil then consecrationCastTime = 0 end
 	if consecrationRemain == nil then consecrationRemain = 0 end
@@ -686,11 +686,12 @@ local function runRotation()
 					end
 				end
 			end
+			local BL_Unit = 0
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
 				local distance = getDistance(thisUnit)
 				-- Hammer of Justice
-				if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
+				if getBuffRemain(thisUnit,226510) == 0 then
 					local interruptID
 					if UnitCastingInfo(thisUnit) then
 						interruptID = select(9,UnitCastingInfo(thisUnit))
@@ -698,10 +699,24 @@ local function runRotation()
 						interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
 					end
 					if interruptID ~=nil and StunSpellsList[interruptID] then
-						if cast.hammerOfJustice(thisUnit) then return end
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
+							if cast.hammerOfJustice(thisUnit) then return end
+						end
+						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
+							if cast.blindingLight() then return end
+						end
 					end
 				end
 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+					-- Blinding Light
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
+						if not isBoss(thisUnit) and noStunsUnits[GetObjectID(thisUnit)] == nil then
+							BL_Unit = BL_Unit + 1
+							if BL_Unit >= getOptionValue("Blinding Light - INT") then
+								if cast.blindingLight() then return end
+							end
+						end
+					end
 					-- Hammer of Justice
 					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
 						if cast.hammerOfJustice(thisUnit) then return end
@@ -710,10 +725,6 @@ local function runRotation()
 					-- Rebuke
 					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and (not InterruptTime or GetTime() - InterruptTime > 0.5) then
 						if cast.rebuke(thisUnit) then return end
-					end
-					-- Blinding Light
-					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and not isBoss(thisUnit) and noStunsUnits[GetObjectID(thisUnit)] == nil then
-						if cast.blindingLight() then return end
 					end
 				end
 			end
