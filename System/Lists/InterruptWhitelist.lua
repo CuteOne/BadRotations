@@ -3,7 +3,61 @@ if br.lists == nil then
 end
 -- Interrupt Whitelist - A list of spells we know for sure we want to interrupt (Typically in Dungeons and Raids)
 br.lists.interruptWhitelist = {
-	-- Horrific visions start
+	-- De other side start
+	-- [333227] = true, -- Undying rage
+	[332329] = true, -- Devoted Sacrifice
+	[332706] = true, -- Renew
+	[332666] = true, -- Heal
+	[332612] = true, -- Healing Wave
+	[332084] = true, -- Self Cleaning Cycle
+	-- De other side end
+	-- Sanguine Depths start
+	[319654] = true, -- hungering-drain
+	[321038] = true, -- wrack-soul
+	-- Sanguine Depths end
+	-- Halls of Atonement start
+	[325700] = true, -- collect-sins
+	[326607] = true, -- turn-to-stone
+	[328322] = true, -- villainous-bolt
+	[332666] = true, -- bolt-of-power
+	[323552] = true, -- volley-of-power
+	-- Halls of Atonemen end
+	-- Mists of Tirna Scithe start
+	[322938] = true, -- harvest-essence
+	[324914] = true, -- nourish-the-forest
+	[324776] = true, -- bramblethorn-coat
+	[321828] = true, -- patty-cake
+	[326046] = true, -- stimulate-resistance
+	[337235] = true, -- parasitic-pacification
+	[322450] = true, -- consumption
+	[340544] = true, -- stimulate-regeneration
+	[337251] = true, -- parasitic-incapacitation
+	[337253] = true, -- Parasitic Domination
+	-- Mists of Tirna Scithe end
+	-- Spires of Ascension start
+	[317936] = true, -- forsworn-doctrine
+	[317963] = true, -- burden-of-knowledge
+	[327413] = true, -- rebellious-fist
+	[328295] = true, -- greater-mending
+	[328137] = true, -- dark-pulse
+	[328331] = true, -- forced-confession
+	-- Spires of Ascension end
+	-- Theater of Pain start
+	[341902] = true, -- unholy-fervor
+	[341969] = true, -- withering-discharge
+	[342139] = true, -- battle-trance
+	[330562] = true, -- demoralizing-shout
+	[330868] = true, -- Necrotic Bolt Volley
+	[330784] = true, -- Necrotic Bolt
+	-- Theater of Pain end
+	-- Necrotic Wake start
+	[334748] = true, -- drain-fluids
+	[320462] = true, -- necrotic-bolt
+	[324293] = true, -- rasping-scream
+	[320170] = true, -- necrotic-bolt
+	[338353] = true, -- goresplatter
+	-- Necrotic Wake end
+	-- Old Content start
 	[309648] = true, -- Tainted Polymorph
 	[308375] = true, -- Psychic Scream
 	[297315] = true, -- Void Buffet
@@ -12,8 +66,6 @@ br.lists.interruptWhitelist = {
 	[304251] = true, -- Void Quills
 	[298033] = true, -- Touch of the Abyss
 	[288915] = true, -- Horrifying
-	-- Horrific visions end
-	-- Atal'Dazar start
 	[255824] = true, -- fanatic rage
 	[253583] = true, -- Fiery Enchant
 	[253544] = true, -- bwonsamdismantle
@@ -24,11 +76,8 @@ br.lists.interruptWhitelist = {
     [255041] = true, -- terrifying-screech
     [279118] = true, -- unstable-hex
 	[252923] = true, -- Venom Blast
-	-- Atal'Dazar end
-	-- Shrine of Storm start
 	[268030] = true, -- mending-rapids
 	[274438] = true, -- tempest
-	-- [267818] = true, -- slicing-blast
 	[268309] = true, -- unending-darkness
 	[268317] = true, -- rip-mind
 	[276767] = true, -- consuming-void
@@ -36,8 +85,6 @@ br.lists.interruptWhitelist = {
 	[267809] = true, -- consume-essence
 	[268322] = true, -- drowned kick
 	[267977] = true, -- tidal surge
-	-- Shrine of Storm end
-	-- Motherload! start
 	[268129] = true, -- kajacola-refresher
 	[268709] = true, -- earth-shield
 	[268702] = true, -- furious-quake
@@ -49,8 +96,6 @@ br.lists.interruptWhitelist = {
 	[268797] = true, -- EnemyToGoo
 	[262092] = true, -- InhaleVapors
 	[280604] = true, -- ice-spritzer
-	-- Motherload! end
-	-- Underrot start
 	[265089] = true, -- dark-reconstitution
 	[278755] = true, -- harrowing-despair
 	[260879] = true, -- blood-bolt
@@ -62,16 +107,12 @@ br.lists.interruptWhitelist = {
 	[266106] = true, -- sonic screech
 	[265523] = true, -- spiritdraintotem
 	[265091] = true, -- gift of ghuun
-	-- Underrot end
-	-- Freehold start
 	[257397] = true, -- healing-balm
 	[258777] = true, -- sea-spout
 	[257732] = true, -- shattering-bellow
 	[257736] = true, -- thundering-squall
 	[256060] = true, -- revitalizing-brew
 	[257784] = true, -- Frostblast
-	-- Freehold end
-	-- Waycrest Manor start
 	[265368] = true, -- spirited-defense
 	[263891] = true, -- grasping-thorns
 	[266035] = true, -- bone-splinter
@@ -87,8 +128,6 @@ br.lists.interruptWhitelist = {
 	[263959] = true, -- soul-volley
 	[268278] = true, -- wracking-chord
 	[266225] = true, -- darkened-lightning
-	-- Waycrest Manor end
-	-- Temple of Sethraliss start
 	[265968] = true, -- healing-surge
 	[263318] = true, -- jolt
 	[261635] = true, -- stoneshield-potion
@@ -96,8 +135,6 @@ br.lists.interruptWhitelist = {
 	[265912] = true, -- accumulate-charge
 	[272820] = true, -- shock
 	[268061] = true, -- chain-lightning
-	-- Temple of Sethraliss end
-	-- Kings Rest start
 	[270901] = true, -- induce-regeneration
 	[267763] = true, -- wretched-discharge
 	[270492] = true, -- hex
@@ -105,21 +142,15 @@ br.lists.interruptWhitelist = {
 	[269972] = true, -- shadow-bolt-volley
 	[270923] = true, -- shadow-bolt
 	[269973] = true, -- deathlychill
-	-- Kings Rest end
-	-- Tol Dagor start
 	[258128] = true, -- debilitating-shout
 	[258153] = true, -- watery-dome
 	[257791] = true, -- howling-fear
 	[258313] = true, -- handcuff
 	[258634] = true, -- fuselighter
 	[258935] = true, -- inner-flames
-	-- Tol Dagor end
-	-- Siege of Boralus start
 	[274569] = true, -- revitalizing-mist
 	[272571] = true, -- choking-waters
 	[256957] = true, -- watertight-shell
-	-- Siege of Boralus end
-	-- Battle of Dazarlor start
 	[283628] = true, -- Heal of the forces of the crusade, champion of the light encounter
 	[282243] = true, -- Apetagonize, Grong encounter
 	[289596] = true, -- For the King, 7th Legion Cavalier
@@ -128,8 +159,6 @@ br.lists.interruptWhitelist = {
 	[287887] = true, -- Storm's Empowerment, Sister Katherine , Stormwall Blockade encounter
 	[289861] = true, -- Howling Winds, Lady Jaina Proudmoore
 	[287419] = true, -- Angelic Renewal, Disciples Boss-Heal on Mythic Champions of Light.
-	-- Battle of Dazarlor end
-	-- Mechagon Start
 	[300650] = true, -- Suffocating Smog, Toxic Lurkers
 	[300414] = true, -- Enrage, Scrapbone Grinders
 	[300171] = true, -- Repair Protocol, Heavy Scrapbot
@@ -144,15 +173,11 @@ br.lists.interruptWhitelist = {
 	[301088] = true, -- Detonate, Bomb Tonk
 	[293930] = true, -- Overclock, Mechagon Mechanic
 	[293729] = true, -- Tune Up, Mechagon Mechanic
-	-- Mechagon End
-	-- Eternal Palace Start
 	[296673] = true, -- Chain Lightning, Stormling
 	[295822] = true, -- Conductive Pulse, Azsh'ari Witch
 	[297972] = true, -- Chain Lightning, Aethanel, Tidemistress
 	[300491] = true, -- Drain Ancient Ward, Tidemistress
 	[300490] = true, -- Energize Ward of Power, Tidemistress
-	-- Eternal Palace End
-	-- Ny'alotha, the Waking City Start
 	[316211] = true, -- Terror Wave, Awakened Terror
 	[307177] = true, -- Void Bolt, Spellbound Ritualist
 	[313652] = true, -- Mind-Numbing Nova, Hivemind
@@ -162,8 +187,6 @@ br.lists.interruptWhitelist = {
 	[313400] = true, -- Corrupted Mind, Corruptor Tentacle
 	[316711] = true, -- Mindwrack, Psychus
 	[310842] = true, -- Shadow Heal, Occult Shadowmender
-	-- Ny'alotha, the Waking City End
-	-- Old Content start
 	[191823] = true, -- Furious Blast
 	[191848] = true, -- Rampage
 	[192003] = true, -- Blazing Nova

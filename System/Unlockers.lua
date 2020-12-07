@@ -260,11 +260,15 @@ local brcurrVersion
 local brUpdateTimer
 function br:checkBrOutOfDate()
     brlocVersion = GetAddOnMetadata(br.addonName,"Version")
-    if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) then --and EasyWoWToolbox ~= nil then
+    if (not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) and br.player ~= nil then --and EasyWoWToolbox ~= nil then
         local startTime = debugprofilestop()
         -- Request Current Version from GitHub
         if EasyWoWToolbox ~= nil then -- EWT
-            SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+            --SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+            
+            -- Check for commit updates from System/Updater.lua, which relies on EWT
+            br.updater:CheckOutdated()
+            brUpdateTimer = GetTime()
         elseif wmbapi ~= nil then -- MB
             local info = {
             Url = 'https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc',
@@ -278,18 +282,18 @@ function br:checkBrOutOfDate()
                     brcurrVersion = string.match(brlocVersionResponce.Body, "(%d+%p%d+%p%d+)")
                 end
             end
-        end
-        -- Check against current version installed
-        if brlocVersion and brcurrVersion then
-            -- Print("Local: "..tostring(brlocVersion).." | Remote: "..tostring(brcurrVersion))
-            brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-            brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-            if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
-                local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
-                if isChecked("Overlay Messages") then
-                    RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
-                else
-                    Print(msg)
+            -- Check against current version installed
+            if brlocVersion and brcurrVersion then
+                -- Print("Local: "..tostring(brlocVersion).." | Remote: "..tostring(brcurrVersion))
+                brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+                brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+                if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+                    local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
+                    if isChecked("Overlay Messages") then
+                        RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
+                    else
+                        Print(msg)
+                    end
                 end
             end
             brUpdateTimer = GetTime()

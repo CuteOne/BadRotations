@@ -64,6 +64,9 @@ br.lists.items = {
     greaterFlaskOfTheCurrents       = 168651,
     greaterFlaskOfTheUndertow       = 168654,
     greaterFlaskOfTheVastHorizon    = 168653,
+    -- Healing Items
+    kyrianBell                      = 179982,
+    phialOfSerenity                  = 177278,
     -- Healthstones
     healthstone                     = 5512,
     legionHealthstone               = 129196,
@@ -106,6 +109,7 @@ br.lists.items = {
     azsharasFontOfPower             = 169314,
     bygoneBeeAlmanac                = 163936,
     convergenceOfFates              = 140806,
+    darkmoonDeckPutrescence         = 173069,
     deceiversGrandDesign            = 147007,
     draughtOfSouls                  = 140808,
     dribblingInkpod                 = 169319,

@@ -90,6 +90,8 @@ function BadRotationsUpdate(self)
 		br:checkBrOutOfDate()		
 		-- Get Current Addon Name
 		br:setAddonName()
+		-- Load Saved Settings
+		br:loadSavedSettings()
 		-- Continue Load
 		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 			-- BR Main Toggle Off
@@ -114,16 +116,20 @@ function BadRotationsUpdate(self)
 						RunMacroText("/stopcasting")
 					end
 				end
-				-- Automatic catch the pig
+				if isCastingSpell(318763) then
+					return true
+				end
+				--Quaking helper
 				if getOptionCheck("Pig Catcher") then
-					if select(8, GetInstanceInfo()) == 1754 then
+					-- Automatic catch the pig
+					if select(8, GetInstanceInfo()) == 1754  then
 						for i = 1, GetObjectCountBR() do
 							local ID = ObjectID(GetObjectWithIndex(i))
 							local object = GetObjectWithIndex(i)
 							local x1, y1, z1 = ObjectPosition("player")
 							local x2, y2, z2 = ObjectPosition(object)
 							local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-							if ID == 130099 and distance < 10 then
+							if ID == 130099 and distance < 10 and br.timer:useTimer("Pig Delay", 0.5) then
 								InteractUnit(object)
 							end
 						end
@@ -135,27 +141,25 @@ function BadRotationsUpdate(self)
 					CastSpellByID(botSpell, botUnit)
 					br.castID = false
 				end
-				-- -- Load Spec Profiles - Load Last Profile Tracker
-				-- if br.data.tracker == nil then br.data.tracker = {} end 
-				-- br:loadLastProfileTracker()
-				-- br.selectedProfile = br.data.tracker.lastProfile or br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
-
 				local playerSpec = GetSpecializationInfo(GetSpecialization())
 				if playerSpec == "" then playerSpec = "Initial" end
 				-- Initialize Player
 				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
 					-- Load Last Profile Tracker
-					br:loadLastProfileTracker()
+					--br:loadLastProfileTracker()
 					br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"] or 1
 					-- Load Profile
-					br.loaded = false
+					-- br.loaded = false
 					br.player = br.loader:new(playerSpec, br.selectedSpec)
 					setmetatable(br.player, {__index = br.loader})
 					br.ui:closeWindow("profile")
 					br.player:createOptions()
 					br.player:createToggles()
 					br.player:update()
-					br:saveLastProfileTracker()
+					if br.player ~= nil and br.rotationChanged then
+						br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
+					 	br:saveLastProfileTracker()
+					end
 					collectGarbage = true
 					br.rotationChanged = false
 				end
@@ -201,13 +205,12 @@ function BadRotationsUpdate(self)
 				-- Close windows and swap br.selectedSpec on Spec Change
 				local thisSpec = select(2, GetSpecializationInfo(GetSpecialization()))
 				if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
-					-- Save settings
-					br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 					-- Closing the windows will save the position
 					br.ui:closeWindow("all")
 					-- Update Selected Spec/Profile
-					br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-    				if br.selectedSpec == "" then br.selectedSpec = "Initial" end
+					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+					br.loader.loadProfiles()
+					br.loadLastProfileTracker()
 					br.activeSpecGroup = GetActiveSpecGroup()
 					br.data.loadedSettings = false
 					-- Load Default Settings
@@ -226,7 +229,7 @@ function BadRotationsUpdate(self)
 				-- Display Distance on Main Icon
 				local targetDistance = getDistance("target") or 0
 				local displayDistance = math.ceil(targetDistance)
-				mainText:SetText(displayDistance)
+				if mainButton ~= nil then mainText:SetText(displayDistance) end
 				-- LoS Line Draw
 				if isChecked("Healer Line of Sight Indicator") then
 					inLoSHealer()

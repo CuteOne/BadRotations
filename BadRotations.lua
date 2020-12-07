@@ -2,7 +2,6 @@
 br = {}
 br.addonName = "BadRotations"
 br.commandHelp = {}
-br.currentSpec = ""
 br.data = {}
 br.data.ui = {}
 br.deadPet = false
@@ -24,6 +23,29 @@ br.selectedProfile = 1
 br.selectedProfileName = "None"
 br.settingsDir = "\\"
 br.settingsFile = "None.lua"
+
+-- The colors Duke, the colors!
+br.classColors = {
+	[1]				= {class = "Warrior", 		B=0.43,	G=0.61,	R=0.78,	hex="c79c6e"},
+	[2]				= {class = "Paladin", 		B=0.73,	G=0.55,	R=0.96,	hex="f58cba"},
+	[3]				= {class = "Hunter",		B=0.45,	G=0.83,	R=0.67,	hex="abd473"},
+	[4]				= {class = "Rogue",			B=0.41,	G=0.96,	R=1,	hex="fff569"},
+	[5]				= {class = "Priest",		B=1,	G=1,	R=1,	hex="ffffff"},
+	[6]				= {class = "Deathknight",	B=0.23,	G=0.12,	R=0.77,	hex="c41f3b"},
+	[7]				= {class = "Shaman",		B=0.87,	G=0.44,	R=0,	hex="0070de"},
+	[8]				= {class = "Mage",			B=0.94,	G=0.8,	R=0.41,	hex="69ccf0"},
+	[9]				= {class = "Warlock", 		B=0.79,	G=0.51,	R=0.58,	hex="9482c9"},
+	[10]			= {class = "Monk",			B=0.59,	G=1,	R=0,	hex="00ff96"},
+	[11]			= {class = "Druid", 		B=0.04,	G=0.49,	R=1,	hex="ff7d0a"},
+	[12] 			= {class = "Demonhunter", 	B=0.79, G=0.19, R=0.64, hex="a330c9"},
+}
+br.classColor = tostring("|cff"..br.classColors[select(3,UnitClass("player"))].hex)
+br.qualityColors = {
+	blue = "0070dd",
+	green = "1eff00",
+	white = "ffffff",
+	grey = "9d9d9d"
+}
 
 local nameSet = false
 function br:setAddonName()
@@ -56,7 +78,7 @@ end
 -- Run
 function br:Run()		
 	if br.selectedSpec == nil then 
-		br.selectedSpec =  select(2,GetSpecializationInfo(GetSpecialization()))
+		br.selectedSpec =  select(2, GetSpecializationInfo(GetSpecialization()))
     	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 	end
 	-- rc = LibStub("LibRangeCheck-2.0")
@@ -66,32 +88,10 @@ function br:Run()
 	-- br.read.combatLog()
 	-- -- other readers
 	-- br.read.commonReaders()
-	-- The colors Duke, the colors!
-	br.classColors = {
-		[1]				= {class = "Warrior", 		B=0.43,	G=0.61,	R=0.78,	hex="c79c6e"},
-		[2]				= {class = "Paladin", 		B=0.73,	G=0.55,	R=0.96,	hex="f58cba"},
-		[3]				= {class = "Hunter",		B=0.45,	G=0.83,	R=0.67,	hex="abd473"},
-		[4]				= {class = "Rogue",			B=0.41,	G=0.96,	R=1,	hex="fff569"},
-		[5]				= {class = "Priest",		B=1,	G=1,	R=1,	hex="ffffff"},
-		[6]				= {class = "Deathknight",	B=0.23,	G=0.12,	R=0.77,	hex="c41f3b"},
-		[7]				= {class = "Shaman",		B=0.87,	G=0.44,	R=0,	hex="0070de"},
-		[8]				= {class = "Mage",			B=0.94,	G=0.8,	R=0.41,	hex="69ccf0"},
-		[9]				= {class = "Warlock", 		B=0.79,	G=0.51,	R=0.58,	hex="9482c9"},
-		[10]			= {class = "Monk",			B=0.59,	G=1,	R=0,	hex="00ff96"},
-		[11]			= {class = "Druid", 		B=0.04,	G=0.49,	R=1,	hex="ff7d0a"},
-		[12] 			= {class = "Demonhunter", 	B=0.79, G=0.19, R=0.64, hex="a330c9"},
-	}
-	br.classColor = tostring("|cff"..br.classColors[select(3,UnitClass("player"))].hex)
-	br.qualityColors = {
-		blue = "0070dd",
-		green = "1eff00",
-		white = "ffffff",
-		grey = "9d9d9d"
-	}
 	-- load common used stuff on first load
 	br:defaultSettings()
-
-	-- br:loadSettings()
+	-- add minimap fire icon
+	br:MinimapButton()
 	-- Build up pulse frame (hearth)
 	if not br.loadedIn then
 		-- Start Logs
@@ -105,8 +105,6 @@ function br:Run()
 		-- Complete Loadin
 		ChatOverlay("-= BadRotations Loaded =-")
 		Print("Loaded")
-		-- Initialize Minimap Button
-		br:MinimapButton()
 		br.loadedIn = true
 	end
 end
@@ -114,30 +112,44 @@ end
 function br:defaultSettings()
 	if br.data == nil then br.data = {} end	
 	if br.data.tracker == nil then br.data.tracker = {} end
-	if br.data.settings == nil then
-		br.data.settings = {
-			mainButton = {
-				pos = {
-					anchor = "CENTER",
-					x = -75,
-					y = -200
-				}
-			},
-			buttonSize = 32,
-			font = "Fonts/arialn.ttf",
-			fontsize = 16,
-			wiped = true,
-		}
-	end
+	if br.data.settings == nil then br.data.settings = {} end
+	br.ui.window.config = {}
+	br.ui:createConfigWindow()
+	br.ui:toggleWindow("config")
 	-- Settings Per Spec
-	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {}	end
 	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
 	if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-		-- if br.data.tracker.lastProfile ~= nil then br.selectedProfile = br.data.tracker.lastProfile else br.selectedProfile = 1 end
+		br.selectedProfile = 1
 	else
 		br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
 	end
 	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+end
+-- Load Saved Settings
+function br:loadSavedSettings()
+	if br.initalizeSettings then
+		br.loader.loadProfiles()
+		br:loadLastProfileTracker()
+		br:loadSettings(nil,nil,nil, br.data.settings[br.selectedSpec]['RotationDropValue'])			
+		-- Define Main Button if no settings exist
+		if (br.data.settings and br.data.settings.mainButton == nil) then
+            br.data.settings.mainButton = {
+                pos = {
+                    anchor = "CENTER",
+                    x = -75,
+                    y = -200
+                }
+            }
+            br.data.settings.buttonSize = 32
+            br.data.settings.font = "Fonts/arialn.ttf"
+            br.data.settings.fontsize = 16
+            br.data.settings.wiped = true
+        end
+		-- Build the Toggles
+		TogglesFrame()
+		br.initalizeSettings = false
+	end
 end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
@@ -153,7 +165,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "LOADING_SCREEN_DISABLED" then
 		br.disablePulse = false
 	end
-	if event == "PLAYER_LOGOUT" then --or event == "PLAYER_LEAVING_WORLD" then
+	if event == "PLAYER_LOGOUT" then
 		if br.unlocked then
 			-- Return queue window to previous setting
 			if GetCVar("SpellQueueWindow") =="0" then 
@@ -162,17 +174,22 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			br.ui:saveWindowPosition()
 			if getOptionCheck("Reset Options") then
 				-- Reset Settings
-				br:saveSettings(nil,nil,br.currentSpec,br.selectedProfileName,true)
-			else
-				-- Save Settings
-				br:saveLastProfileTracker()
-				br:saveSettings(nil,nil,br.currentSpec,br.selectedProfileName)
+				br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName, true)
+			else	
+			-- Save Settings
+				br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 			end
+			br.saveLastProfileTracker()		
+			
 		end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
+		if not br.unlocked then
+			br.initalizeSettings = true
+			print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
+		end
 		-- Update Selected Spec
-		br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+		br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
     	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 		br.activeSpecGroup = GetActiveSpecGroup()
 		br.equipHasChanged = true

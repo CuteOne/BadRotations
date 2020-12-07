@@ -81,19 +81,16 @@ function br.loader:new(spec,specName)
     local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
     -- Print("Spec: "..spec.." | Spec Name: "..specName)
-    if not br.loaded then
-        -- Print("Loader - Loading Profiles")
-        br.loader.loadProfiles()
-        br.loaded = true
-    end
+    -- if not br.loaded then
+    --     -- Print("Loader - Loading Profiles")
+    --     br.loader.loadProfiles()
+    --     br.loaded = true
+    -- end
 
     self.profile = specName
 
     -- Mandatory !
     self.rotation = br.rotations[spec][br.selectedProfile]
-    -- Print("Loader - Loading Settings for Rotation: "..self.rotation.name)
-    br.data.loadedSettings = false
-    br:loadSettings(nil,nil,nil,self.rotation.name)
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
@@ -101,7 +98,6 @@ function br.loader:new(spec,specName)
         local specSpells = br.lists.spells[playerClass][spec]
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
-
         local function getTalentTest()
             if specName ~= "Initial" then
                 for r = 1, 7 do --search each talent row
@@ -110,15 +106,19 @@ function br.loader:new(spec,specName)
                         local name = GetSpellInfo(id)
                         local spellFound = false
                         -- Check if spell is listed in the Shared Class Talents table.
-                        for _, listId in pairs(sharedClassSpells.talents) do
-                            if listId == id then spellFound = true break end
+                        if sharedClassSpells then
+                            for _, listId in pairs(sharedClassSpells.talents) do
+                                if listId == id then spellFound = true break end
+                            end
                         end
                         -- Check if spell is listed in the Specialization Talents table.
-                        for _, listId in pairs(specSpells.talents) do
-                            if listId == id then spellFound = true break end
+                        if specSpells then
+                            for _, listId in pairs(specSpells.talents) do
+                                if listId == id then spellFound = true break end
+                            end
                         end
                         -- If not found in either location, then report it as we need it in one of those 2 locations
-                        if not spellFound then 
+                        if not spellFound then
                             Print("|cffff0000No spell found for: |r"..tostring(id).." ("..tostring(name)..") |cffff0000was not found, please notify dev to add it to the appropriate Talent table for |r"..playerClass.."|cffff0000.")
                         end
                     end
@@ -154,24 +154,41 @@ function br.loader:new(spec,specName)
                     -- Print("Book: "..tostring(bookName).." | Start: "..idxStart.." | Total: "..idxTotal)
                     for spellIdx = idxStart, idxStart + idxTotal do
                         -- Print("Book: "..tostring(bookName).." | Class: "..tostring(UnitClass('player').." | Spec: "..tostring(specName)))
-                        local _, id = GetSpellBookItemInfo(spellIdx,"spell")
-                        local name, subname = GetSpellBookItemName(spellIdx,"spell")
+                        --local _, id = GetSpellBookItemInfo(spellIdx,"spell")
+                        local name, subname, id = GetSpellBookItemName(spellIdx,"spell")
+                        -- Nil Catch
+                        if id == nil then id = select(7,GetSpellInfo(name)) end
+                        -- Additional Nil Catch
+                        if id == nil then id = select(2,GetSpellBookItemInfo(spellIdx,"spell")) end
                         -- local name = GetSpellInfo(id)
                         -- Print("Name: "..tostring(name).." | ID: "..tostring(id))
                         -- Only look at spells that have a level we learn and are not passive
                         if GetSpellLevelLearned(id) > 0 and not IsPassiveSpell(id) and not isPvP(subname) then
                             -- Check if spell is listed in the Shared Class Abilities / Shared Class Talents, Specializaiton Abilities / Specilization Talents tables.
                             local spellFound = false
-                            if not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
-                            if not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
-                            if not spellFound then spellFound = findSpellInTable(id,specSpells.abilities) end
-                            if not spellFound then spellFound = findSpellInTable(id,specSpells.talents) end
+                            -- Search Global Abilities
+                            if sharedGlobalSpells then 
+                                if sharedGlobalSpells.abilities and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.abilities) end
+                                if sharedGlobalSpells.covenants and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.covenants) end
+                            end
+                            -- Search Class Abilities and Talents
+                            if sharedClassSpells then
+                                if sharedClassSpells.abilities and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.abilities) end
+                                if sharedClassSpells.covenants and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.covenants) end
+                                if sharedClassSpells.talents and not spellFound then spellFound = findSpellInTable(id,sharedClassSpells.talents) end
+                            end
+                            -- Search Spec Abilities and Talents
+                            if specSpells then
+                                if specSpells.abilities and not spellFound then spellFound = findSpellInTable(id,specSpells.abilities) end
+                                if specSpells.covenants and not spellFound then spellFound = findSpellInTable(id,specSpells.covenants) end
+                                if specSpells.talents and not spellFound then spellFound = findSpellInTable(id,specSpells.talents) end
+                            end
                             -- If not found in either location, then report it as we need it in one of those 2 locations
                             if not spellFound then
                                 local reportString = "|cffff0000No spell found for: |r"..tostring(id).." ("..tostring(name)..") |cffff0000was not found, please notify dev to add it to the |r"
-                                if bookName == UnitClass('player') then reportString = reportString.."Shared" end
-                                if bookName == specName and specName ~= "Initial" then reportString = reportString..specName end
-                                reportString = reportString.." Abilities |cffff0000table for |r"..playerClass.."|cffff0000."
+                                if bookName == UnitClass('player') then reportString = reportString.."|cffffff00Shared" end
+                                if bookName == specName and specName ~= "Initial" then reportString = reportString.."|cffffff00"..specName end
+                                reportString = reportString.."|cffffff00 Abilities |cffff0000table for |r"..br.classColor..playerClass.."|cffff0000."
                                 Print(reportString)
                                 -- Add to ability list, This would be nice but only works properly for enUS Locale
                                 -- local thisSpell = convertName(name)
@@ -198,7 +215,7 @@ function br.loader:new(spec,specName)
                     self.spell[spellType][spellRef] = spellID
                     -- Assign active spells to Abilities Subtable and base br.player.spell
                     if not IsPassiveSpell(spellID)
-                        and (spellType == 'abilities' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
+                        and (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
                     then
                         if self.spell.abilities == nil then self.spell.abilities = {} end
                         self.spell.abilities[spellRef] = spellID
@@ -207,11 +224,11 @@ function br.loader:new(spec,specName)
                 end
             end
         end
-
+        
         -- Spell Test
-        getSpellsTest()
+        -- getSpellsTest()
         -- Talent Test
-        getTalentTest()
+        -- getTalentTest()
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
         -- Shared Class Spells
@@ -293,6 +310,7 @@ function br.loader:new(spec,specName)
     end
 
     local function getFunctions()
+        if not self.spell.abilities then return end
         -- Build Artifact Info
         for k,v in pairs(self.spell.artifacts) do
             if not self.artifact[k] then self.artifact[k] = {} end
@@ -317,6 +335,39 @@ function br.loader:new(spec,specName)
                     self.spell[k] = select(7,GetSpellInfo(GetSpellInfo(v))) or v--heartEssence
                 end
                 br.api.essences(essence,k,v)
+            end
+        end
+
+        -- Conduits
+        for k,v in pairs(self.spell.conduits) do
+            if self.conduit == nil then self.conduit = {} end
+            if self.conduit[k] == nil then self.conduit[k] = {} end
+            br.api.conduit(self.conduit,k,v)
+        end
+
+
+        -- Covenant
+        if self.covenant == nil then self.covenant = {} end
+        if self.covenant.kyrian == nil then self.covenant.kyrian = {} end
+        if self.covenant.venthyr == nil then self.covenant.venthyr = {} end
+        if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
+        if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
+        if self.covenant.none == nil then self.covenant.none = {} end
+        -- for k,v in pairs(self.spell.covenants) do
+        --     if self.covenant == nil then self.covenant = {} end
+        --     if self.covenant[k] == nil then self.covenant[k] = {} end
+        --     if k ~= nil then
+        --         br.api.covenant(self.covenant,k,v)
+        --     end
+        -- end
+        br.api.covenant(self.covenant)
+
+        -- Runeforge
+        if self.spell.runeforges ~= nil then
+            for k,v in pairs(self.spell.runeforges) do
+                if self.runeforge == nil then self.runeforge = {} end
+                if self.runeforge[k] == nil then self.runeforge[k] = {} end
+                br.api.runeforge(self.runeforge,k,v)
             end
         end
 
@@ -464,7 +515,8 @@ function br.loader:new(spec,specName)
             -- Build Spell Charges
             br.api.spells(self.charges,spell,id,"charges")
             -- Build Spell Cooldown
-            br.api.spells(self.cd,spell,id,"cd")
+            br.api.cd(self,spell,id)
+            --br.api.spells(self.cd,spell,id,"cd")
             -- build Spell Known
             br.api.spells(self.spell,spell,id,"known")
         end

@@ -55,6 +55,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Engage")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Fel Devastation
+            br.ui:createCheckbox(section, "Fel Devastation")
             -- Immolation Aura
             br.ui:createCheckbox(section,"Immolation Aura")
             -- Sigil of Flame
@@ -375,7 +377,7 @@ actionList.Normal = function()
     end
     -- Fel Devastation
     -- fel_devastation
-    if cast.able.felDevastation() then
+    if ui.checked("Fel Devastation") and cast.able.felDevastation() then
         if cast.felDevastation() then ui.debug("Casting Fel Devastation") return true end
     end
     -- Soul Cleave
@@ -398,7 +400,7 @@ actionList.Normal = function()
     end
     -- Fracture
     -- fracture,if=((talent.spirit_bomb.enabled&soul_fragments<=3)|(!talent.spirit_bomb.enabled&((buff.metamorphosis.up&fury<=55)|(buff.metamorphosis.down&fury<=70))))
-    if cast.able.fracture() and talent.fracture and ((talent.spiritBomb and buff.soulFragments.stack() <= 3)
+    if cast.able.fracture() and ((talent.spiritBomb and (fury < 30 or buff.soulFragments.stack() <= 3))
         or (not talent.spiritBomb and ((buff.metamorphosis.exists() and fury <= 55) or (not buff.metamorphosis.exists() and fury <= 70))))
     then
         if cast.fracture() then ui.debug("Casting Fracture") return true end
@@ -412,7 +414,7 @@ actionList.Normal = function()
     end
     -- Shear
     -- shear
-    if cast.able.shear() and not talent.fracture then
+    if cast.able.shear() then
         if cast.shear() then ui.debug("Casting Shear") return true end
     end
     -- Throw Glaive

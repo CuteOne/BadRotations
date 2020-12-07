@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local rotationVer  = "1.5.8"
+local VerNum  = "1.6.5"
 local colorPurple = "|cff8788EE"
 local dsInterrupt = false
 ----------------------------------------------------
@@ -26,9 +26,8 @@ local function createToggles() -- Define custom toggles
     -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.agony},
-        -- [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-        -- [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
-        [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healthFunnel}
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
     };
     CreateButton("Rotation",1,0)
 
@@ -64,14 +63,28 @@ local function createToggles() -- Define custom toggles
     };
     CreateButton("PetSummon",5,0)
 
-    -- Single Target Focus
-    SingleModes = {
-        [1] = { mode = "Single", value = 1, overlay = "Single Target Focus", tip = "Single Target Focus", highlight = 1, icon = br.player.spell.drainSoul},
-        [2] = { mode = "Multi", value = 2, overlay = "Multi Target Focus", tip = "Multi Target Focus", highlight = 1, icon = br.player.spell.agony},
-        [3] = { mode = "Spam", value = 3, overlay = "SoC Spam", tip = "Spam SoC Focus", highlight = 1, icon = br.player.spell.seedOfCorruption}
+    -- -- Single Target Focus
+    -- SingleModes = {
+    --     [1] = { mode = "Single", value = 1, overlay = "Single Target Focus", tip = "Single Target Focus", highlight = 1, icon = br.player.spell.drainSoul},
+    --     [2] = { mode = "Multi", value = 2, overlay = "Multi Target Focus", tip = "Multi Target Focus", highlight = 1, icon = br.player.spell.agony},
+    --     [3] = { mode = "Spam", value = 3, overlay = "SoC Spam", tip = "Spam SoC Focus", highlight = 1, icon = br.player.spell.seedOfCorruption}
 
+    -- };
+    -- CreateButton("Single",6,0)
+
+    -- Burning Rush button
+    BurningRushModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Burning Rush Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.burningRush},
+        [2] = { mode = "Off", value = 2 , overlay = "Burning Rush Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.burningRush}
     };
-    CreateButton("Single",6,0)
+    CreateButton("BurningRush",1,1)
+
+    -- Seed of Corruption button
+    SeedOfCorruptionModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Seed of Corruption Enabled", tip = "Will cast Seed of Corruption.", highlight = 1, icon = br.player.spell.seedOfCorruption},
+        [2] = { mode = "Off", value = 2 , overlay = "Seed of Corruption Disabled", tip = "Will not cast Seed of Corruption.", highlight = 0, icon = br.player.spell.seedOfCorruption}
+    };
+    CreateButton("SeedOfCorruption",6,0)
 end
 
 -- function br.ui:createCDOption(parent, text, tooltip, hideCheckbox)
@@ -93,9 +106,15 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-        section = br.ui:createSection(br.ui.window.profile, colorPurple ..  "Affliction .:|:. General ".. "Ver|" .. rotationVer .. ".:|:. ")
-            -- Multi-Target Units
+        section = br.ui:createSection(br.ui.window.profile,  colorPurple .. "Destruction " .. ".:|:. " .. " General " .. "Ver" ..colorPurple .. VerNum .. ".:|:. ")
+        -- Multi-Target Units
             br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffFFBB00Health Percentage to use at.")
+
+            -- Burning Rush Health Cancel Percent
+            br.ui:createSpinnerWithout(section, "Burning Rush Health", 79, 1, 100, 1, "|cffFFBB00Health Percentage to cancel at.")
+
+            -- Burning Rush Health Cancel Percent
+            br.ui:createSpinnerWithout(section, "Burning Rush Delay", 6, 1, 10, 0.1, "|cffFFBB00Delay between casting Burning Rush")
 
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling"}, 1, "|cffFFBB00Set APL Mode to use.")
@@ -103,8 +122,6 @@ local function createOptions ()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
-            -- Pig Catcher
-            br.ui:createCheckbox(section, "Pig Catcher")
 
             -- Auto Engage
             br.ui:createCheckbox(section,"Auto Engage")
@@ -118,23 +135,11 @@ local function createOptions ()
             -- Unending Breath
             br.ui:createCheckbox(section, "Unending Breath", "|cffFFFFFF Toggle the auto casting of Unending Breath on party if swimming or submerged")
 
-            -- Use Essence
-            br.ui:createCheckbox(section, "Use Essence")
-
-            -- Use Essence
+            -- Curse of Tongues
             br.ui:createCheckbox(section, "Curse of Tongues")
             
-            -- Use Essence
+            -- Curse of Weakness
             br.ui:createCheckbox(section, "Curse of Weakness")
-
-            -- Concentrated Flame
-            br.ui:createSpinnerWithout(section, "Concentrated Flame", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-
-            -- Azerite Beam Units
-            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
-
-            -- Flask
-            br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of Endless Fathoms","Flask of Endless Fathoms","None"}, 1, "|cffFFFFFFSet Elixir to use.")
 
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer", 2, 0, 10, 0.1, "Set desired time offset to opener (DBM Required). Min: 0 / Max: 10 / Interval: 0.1")
@@ -153,12 +158,15 @@ local function createOptions ()
 		--- TOGGLE OPTIONS ---
 		----------------------
 		section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-        -- Single/Multi Toggle
+            -- Single/Multi Toggle
             br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  6)
+          
             --Cooldown Key Toggle
             br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle,  6)
+         
             --Defensive Key Toggle
             br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
+          
             -- Interrupts Key Toggle
             br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)  
         br.ui:checkSectionState(section)
@@ -169,34 +177,34 @@ local function createOptions ()
         section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. DoTs")
             -- Seed of Corruption TTD
             br.ui:createSpinnerWithout(section, "Seed of Corruption TTD", 6, 1, 25, 1, "|cffFFBB00Minimum Time to Die of a unit to cast Seed of Corruption on.")
-            -- Pre-Pull Timer
+            
+            -- Seef of Corruption
+            br.ui:createCheckbox(section, "Spam Seed of Corruption", "Check to spam SoC if SoC is talented")
             br.ui:createSpinner(section, "SoC Spam Delay", 0.1, 0, 10, 0.1, "Set desired delqy between SoC casts during SoC Spam. Min: 0 / Max: 10 / Interval: 0.1")
-
+           
             -- Unstable Affliction Mouseover
             br.ui:createCheckbox(section, "Mousever UA", "Toggles casting unstable Affliction to your mouseover target")
-
+         
             -- Max Dots
             br.ui:createSpinner(section, "Agony Count", 8, 1, 25, 1, "The maximum amount of running Agony. Standard is 8")   
             br.ui:createSpinner(section, "Corruption Count", 8, 1, 25, 1, "The maximum amount of running Corruption. Standard is 8")
             br.ui:createSpinner(section, "Siphon Life Count", 8, 1, 25, 1, "The maximum amount of running Siphon Life. Standard is 8")
-            
-			-- No Dot units
+        
+            -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
-
+         
             -- Darkglare dots
             br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.")
-
-			-- Spread agony on single target
+        
+            -- Spread agony on single target
             br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3")
         br.ui:checkSectionState(section)
+
 
 		-------------------------
         --- OFFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. Offensive")
-
-           -- Chaos Bolt Hotkey
-            br.ui:createDropdown(section, "Chaos Bolt Hotkey", br.dropOptions.Toggle, 6)
 
             -- Darkglare
             br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare")
@@ -212,9 +220,6 @@ local function createOptions ()
             
 			-- Trinkets
             br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
-
-            -- Blood oF The Enemy
-            br.ui:createCheckbox(section, "Blood oF The Enemy", "Use Blood of the enemy, line it up with darkglare")
 
             -- Malefic Rapture
             br.ui:createSpinner(section, "Malefic Rapture TTD", 20, 1, 100, 1, "The TTD to be <= to inside a raid/instance to start casting MR to burn")
@@ -249,7 +254,7 @@ local function createOptions ()
             1, "|cffFFFFFFTarget to cast on")
             
             --Fear Solo Farming
-            br.ui:createSpinner(section, "Fear Bonus Mobs", "|cffFFFFFFToggle the use of auto casting fear when solo farming.")
+            br.ui:createSpinner(section, "Fear Bonus Mobs",   7,  0,  15,  1,  "|cffFFFFFFToggle the use of auto casting fear when solo farming.")
 
             --- Healthstone Creation
             br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more")
@@ -284,9 +289,9 @@ local function createOptions ()
             br.ui:createSpinner(section, "Drain Life", 48, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
 
             -- Health Funnel
-            br.ui:createSpinner(section, "Health Funnel (Demon)", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Demon to Cast At")
+            br.ui:createSpinner(section, "Health Funnel", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Demon to Cast At")
 
-            br.ui:createSpinnerWithout(section, "Health Funnel (Player)", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Player to Cast At")
+            br.ui:createSpinnerWithout(section, "Health Funnel", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Player to Cast At")
 
             -- Unending Resolve
             br.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -297,7 +302,10 @@ local function createOptions ()
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Affliction .:|:. Interrupts")
-            br.ui:createDropdown(section, "Shadowfury Key", br.dropOptions.Toggle, 6)
+            br.ui:createDropdown(section, "Shadowfury Hotkey (hold)", br.dropOptions.Toggle, 6)
+           
+            -- Shadowfury Target
+            br.ui:createDropdownWithout(section, "Shadowfury Target", {"Best", "Target", "Cursor"}, 1, "|cffFFFFFFShadowfury target")
 
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
@@ -325,6 +333,8 @@ local function runRotation()
 
     br.player.ui.mode.pc = br.data.settings[br.selectedSpec].toggles["PetCommand"]
     br.player.ui.mode.ss = br.data.settings[br.selectedSpec].toggles["Single"]
+    br.player.ui.mode.br = br.data.settings[br.selectedSpec].toggles["BurningRush"]
+    br.player.ui.mode.soc = br.data.settings[br.selectedSpec].toggles["SeedOfCorruption"]
 
     --------------
     --- Locals ---
@@ -385,12 +395,17 @@ local function runRotation()
     local units = br.player.units
     local use = br.player.use
     local tanks = getTanksTable()
+    local covenant = br.player.covenant
+
     actionList = {}
 
     units.get(40)
     enemies.get(10)
-    enemies.get(10, "target", true)
+    enemies.get(10, "target", true) -- makes enemeis.yards10tnc
+    enemies.get(10,"target") -- makes enemies.yards10t
     enemies.get(40, nil, nil, nil, spell.drainSoul)
+    enemies.get(40,"player",false,true) -- makes enemies.yards40f
+
 
     -- Profile Specific Locals
     if actionList_PetManagement == nil then
@@ -412,6 +427,16 @@ local function runRotation()
     if summonTime == nil then
         summonTime = 0
     end
+
+    
+    -- Pet Data
+    if mode.petSummon == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
+    elseif mode.petSummon == 1 then summonId = 416
+    elseif mode.petSummon == 2 and HasAttachedGlyph(spell.summonVoidwalker) then summonId = 58960
+    elseif mode.petSummon == 2 then summonId = 1860
+    elseif mode.petSummon == 3 then summonId = 417
+    elseif mode.petSummon == 4 then summonId = 1863 end
+    if talent.grimoireOfSacrifice then petPadding = 5 end
 
     -- spellqueue ready
     local function spellQueueReady()
@@ -825,7 +850,7 @@ end
             end
         end -- End Dummy Test
 
-        if isChecked("Shadowfury Hotkey (hold)") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
+        if SpecificToggle("Shadowfury Hotkey (hold)") and isChecked("Shadowfury Hotkey (hold)") and not GetCurrentKeyBoardFocus() then
             if getOptionValue("Shadowfury Target") == 1 then
                 if cast.shadowfury("best", false, 1, 8) then
                     return
@@ -834,7 +859,7 @@ end
                 if cast.shadowfury("target", "ground") then
                     return
                 end
-            elseif getOptionValue("Shadowfury Target") == 3 and isKnown(spell.shadowfury) and getSpellCD(spell.shadowfury) == 0 then
+            elseif getOptionValue("Shadowfury Target") == 3 and getSpellCD(spell.shadowfury) == 0 then
                 CastSpellByName(GetSpellInfo(spell.shadowfury), "cursor")
                 return
             end
@@ -888,6 +913,16 @@ end
                 end
             end
         end
+
+        -- Burning Rush
+        if mode.br ~= 2 and not (IsSwimming() or IsFlying() or IsFalling())then
+            if buff.burningRush.exists() and not moving or buff.burningRush.exists() and php <= ui.value("Burning Rush Health") then RunMacroText("/cancelaura Burning Rush") br.addonDebug("Canceling Burning Rush") return true end 
+    
+            if mode.burningRush ~= 2 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and moving and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
+    
+            if mode.burningRush == 3 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
+        end  
+    
     end -- End Action List - Extras
 
     -- Action List - Defensive
@@ -1060,35 +1095,25 @@ end
         end -- End Defensive Toggle
     end -- End Action List - Defensive
     -- Action List - Interrupts
-    local function actionList_Interrupts()
-        if useInterrupts() then
-            if talent.grimoireOfSacrifice then
-                for i = 1, #enemyTable40 do
-                    local thisUnit = enemyTable40[i].unit
-                    if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
-                        if cast.spellLockgrimoire(thisUnit) then
-                            return
-                        end
-                    end
-                end
-            elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
-                for i = 1, #enemyTable40 do
-                    local thisUnit = enemyTable40[i].unit
-                    if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
-                        if activePetId == 417 then
-                            if cast.spellLock(thisUnit) then
-                                return
-                            end
-                        end
+
+    -- Action List - Interrupts
+    local function actionList_Interrupts() 
+        if useInterrupts() and (pet.active.id() == 417) then
+            for i=1, #enemies.yards30 do
+                local thisUnit = enemies.yards30[i]
+                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                    if pet.active.id() == 417 then
+                        if CastSpellByName(GetSpellInfo(119910),thisUnit) then return true end
                     end
                 end
             end
         end -- End useInterrupts check
-    end -- End Action List - Interrupts
+    end -- End Interrupts ActionList
+
 
     -- Action List - Cooldowns
     local function actionList_Cooldowns()
-        if getDistance("target") < 40 then
+        if getDistance("target") < 40 and useCDs() then
 
             if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() or ttd("target") < 30 then
                 use.battlePotionOfIntellect()
@@ -1117,27 +1142,10 @@ end
                     end
                 end
             end
+
+
         end -- End useCDs check
     end -- End Action List - Cooldowns
-
-    local function actionList_SE()
-        --actions.se+=/haunt
-        if not moving and cast.able.haunt() then 
-            if cast.haunt() then br.addonDebug("[Action:SE] Haunt (Shadow Embrace APL)") return true end 
-        end
-
-        --actions.se+=/drain_soul,interrupt_if=debuff.shadow_embrace.stack>=3
-        if not moving and cast.able.drainSoul()
-        then
-        
-        end
-
-        --actions.se+=/shadow_bolt
-        if not moving and cast.able.shadowBolt() then
-            if cast.shadowBolt() then br.addonDebug("[Action:SE] Haunt (Shadow Embrace APL)") return true end
-        end
-    end -- End Action List: Shadow Embrace
-
     
     local function actionList_DarkGlarePrep()
         ------------------------------------------------
@@ -1145,65 +1153,64 @@ end
         ------------------------------------------------
         -- actions.aoe+=/vile_taint
         if not moving and talent.vileTaint then
-            if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("[Action:Rotation] Vile Taint") return true end
+            if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("[Action:Darkglare Prep] Vile Taint") return true end
         end
 
         -- actions.darkglare_prep+=/dark_soul
+        if cast.able.darkSoul() then if cast.darkSoul() then br.addonDebug("[Action:Darkglare Prep] Dark Soul") return true end end  
 
         -- actions.darkglare_prep+=/potion
-
         -- actions.darkglare_prep+=/fireblood
         -- actions.darkglare_prep+=/blood_fury
         -- actions.darkglare_prep+=/berserking
+        if isChecked("Racial") and not moving then
+            if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
+                if race == "LightforgedDraenei" then
+                    if cast.racial("target", "ground") then
+                        return true
+                    end
+                else
+                    if cast.racial("player") then
+                        br.addonDebug("[Action:Darkglare Prep] Racial")
+                        return true
+                    end
+                end
+            end
+        end
 
         -- actions.darkglare_prep+=/summon_darkglare
+      if cast.summonDarkglare() then br.addonDebug("[Action:Darkglare Prep] Summon Darkglare") return true end 
 
     end -- End Action List: DarkGlare prep
 
     local function actionList_AoE()
         ------------------------------------------------
-        -- Phantom Singularity -------------------------
+        -- Seed of Corruption, No STS Talent -----------
         ------------------------------------------------
-        -- actions.aoe=phantom_singularity
-        if talent.phantomSingularity and cast.able.phantomSingularity() then 
-            if cast.phantomSingularity() then br.addonDebug("[Action:AoE] Phantom Singularity") return true end 
-        end
-
-        ------------------------------------------------
-        -- Haunt ---------------------------------------
-        ------------------------------------------------
-        -- actions.aoe+=/haunt
-        if talent.haunt and not moving and cast.able.haunt() then 
-            if cast.haunt() then br.addonDebug("[Action:AoE] Haunt") return true end 
-        end
-
+        -- actions.aoe+=/seed_of_corruption,if=!talent.sow_the_seeds.enabled&!dot.seed_of_corruption.ticking&!in_flight&dot.corruption.refreshable
+        -- if mode.soc ~= 2 and not talent.sowTheSeeds and not moving and (not lcast or GetTime() - lcast >= 3) and not debuff.seedOfCorruption.exists("target") and not cast.inFlight.seedOfCorruption() then
+        --     for i = 1, #enemies.yards40 do
+        --         local thisUnit = enemies.yards40[i]
+        --         if not noDotCheck(thisUnit) and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) and br.timer:useTimer("SoC Delay", 3) then
+        --             if cast.seedOfCorruption(thisUnit) then br.addonDebug("[Action:AoE] Seed of Corruption, not Talent Sow The Seeds [Multi]") lcast = GetTime() return true end
+        --         end
+        --     end
+        -- end
+        if mode.soc ~= 2 and #enemies.yards10t >= ui.value("Multi-Target Units") then
+            if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption(1) and not cast.last.seedOfCorruption(2) then
+                if cast.seedOfCorruption(seedTarget) then return true end
+            end
+    end
         ------------------------------------------------
         -- Seed of Corruption, Sow The Seeds -----------
         ------------------------------------------------
         -- actions.aoe+=/seed_of_corruption,if=talent.sow_the_seeds.enabled&can_seed
-        if talent.sowTheSeeds and not moving and not cast.inFlight.seedOfCorruption() then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                local thisHP = getHP(thisUnit)
-                if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.corruption.exists(thisUnit) and not debuff.seedOfCorruption.exists(thisUnit) and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= ui.value("Seed of Corruption TTD") then
-                    if cast.seedOfCorruption(thisUnit) then br.addonDebug("Casting Seed of Corruption") return true end
+        if mode.soc ~= 2 and isChecked("Spam Seed of Corruption") and talent.sowTheSeeds and #enemies.yards10t >= ui.value("Multi-Target Units") and not moving and not cast.inFlight.seedOfCorruption() then
+                if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.corruption.exists(thisUnit) and not debuff.seedOfCorruption.exists(thisUnit) and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= ui.value("Seed of Corruption TTD")
+                and br.timer:useTimer("SoC Spam", ui.value("SoC Spam Delay")) then
+                    if cast.seedOfCorruption(thisUnit) then br.addonDebug("[Action:AoE] Spamming Seed of Corruption") return true end
                 end
-            end
         end
-
-        ------------------------------------------------
-        -- Seed of Corruption, No STS Talent -----------
-        ------------------------------------------------
-        -- actions.aoe+=/seed_of_corruption,if=!talent.sow_the_seeds.enabled&!dot.seed_of_corruption.ticking&!in_flight&dot.corruption.refreshable
-        if not talent.sowTheSeeds and not moving and not debuff.seedOfCorruption.exists("target") and not cast.inFlight.seedOfCorruption() then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not noDotCheck(thisUnit) and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) then
-                    if cast.seedOfCorruption(thisUnit) then br.addonDebug("[Action:AoE] Seed of Corruption, not Talent Sow The Seeds [Multi]") return true end
-                end
-            end
-        end
-
         ------------------------------------------------
         -- Cycle Agony  --------------------------------
         ------------------------------------------------
@@ -1217,25 +1224,104 @@ end
                 end
             end
         end
-  
         ------------------------------------------------
-        -- Unstable Affliction -------------------------
+        -- Cycle Siphon Life  --------------------------
         ------------------------------------------------
-        -- actions.aoe+=/unstable_affliction,if=dot.unstable_affliction.refreshable
-        if not moving and debuff.unstableAffliction.remains("target") <= 8.2 + cast.time.unstableAffliction() and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
-            if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") return true end
+        -- actions.aoe+=/siphon_life,cycle_targets=1,if=active_dot.siphon_life<=3,target_if=!dot.siphon_life.ticking
+        if siphonLifeCount < ui.value("Siphon Life Count") then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if not noDotCheck(thisUnit) and debuff.siphonLife.remains(thisUnit) <= 7 and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste)  then
+                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:AoE] Siphon Life [Multi-Cycle]") return true end
+                end
+            end
         end
-        
+        ------------------------------------------------
+        -- Soul Rot ------------------------------------
+        ------------------------------------------------
+        if covenant.nightFae.active and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+            if cast.soulRot() then br.addonDebug("[Action:AOE] Soul Rot") return true end
+        end
+        ------------------------------------------------
+        -- Impending Catastrophe : Venthyr -------------
+        ------------------------------------------------
+        --321792
+        if covenant.venthyr.active and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+            if cast.impendingCatastrophe() then br.addonDebug("[Action:AOE] Impending Catastrophe") return true end
+        end
         ------------------------------------------------
         -- Vile Taint ----------------------------------
         ------------------------------------------------
         -- actions.aoe+=/vile_taint,if=soul_shard>1
         if not moving and talent.vileTaint and shards > 1 then
-            if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("[Action:Rotation] Vile Taint") return true end
+            if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("[Action:AOE] Vile Taint") return true end
         end
-
-        -- actions.aoe+=/call_action_list,name=darkglare_prep,if=cooldown.summon_darkglare.ready&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
-
+        ------------------------------------------------
+        -- Phantom Singularity -------------------------
+        ------------------------------------------------
+        -- actions.aoe=phantom_singularity
+        if talent.phantomSingularity and cast.able.phantomSingularity() then 
+            if cast.phantomSingularity() then br.addonDebug("[Action:AoE] Phantom Singularity") return true end 
+        end
+        ------------------------------------------------
+        -- Malefic Rapture, Vile Taint Ticking ---------
+        ------------------------------------------------
+        -- actions.aoe+=/malefic_rapture,if=dot.vile_taint.ticking
+        if not moving and cast.able.maleficRapture() and debuff.vileTaint.exists("target") and shards > 0 then
+            if cast.maleficRapture() then br.addonDebug("[Action:AoE] Malefic Rapture, Vile Taint Ticking") return true end
+        end
+        ------------------------------------------------
+        -- Malefic Rapture, No Vile Taint --------------
+        ------------------------------------------------
+        -- actions.aoe+=/malefic_rapture,if=!talent.vile_taint.enabled
+        if not moving and cast.able.maleficRapture() and not talent.vileTaint and shards > 4 then
+            if cast.maleficRapture() then br.addonDebug("[Action:AoE] Malefic Rapture, Max Shards (nVT)") return true end 
+        end
+        ------------------------------------------------
+        --- Malefic Rapture, Phantom of Singularity ----
+        ------------------------------------------------
+        -- actions.aoe+=/malefic_rapture,if=!talent.vile_taint.enabled
+        if not moving and cast.able.maleficRapture() and debuff.phantomSingularity.exists("target") and shards > 0 then
+            if cast.maleficRapture() then br.addonDebug("[Action:AoE] Malefic Rapture, Phantom of Singularity") return true end 
+        end
+        ------------------------------------------------
+        -- Malefic Rapture, No Phantom of Singularity --
+        ------------------------------------------------
+        -- actions.aoe+=/malefic_rapture,if=!talent.vile_taint.enabled
+        if not moving and cast.able.maleficRapture() and not talent.phantomSingularity and shards > 4 then
+            if cast.maleficRapture() then br.addonDebug("[Action:AoE] Malefic Rapture, Max Shards (nPoS)") return true end 
+        end
+        ------------------------------------------------
+        -- Drain Soul Shards Generation ----------------
+        ------------------------------------------------
+        -- actions.aoe+=/drain_soul
+        if not moving and cast.able.drainSoul() and ttd("target") < 5 and shards < 1 then
+            if cast.drainSoul("target") then br.addonDebug("[Action:AoE] Drain Soul - Shards Generation") return true end
+        end
+        ------------------------------------------------
+        -- Drain Soul Filler----------------------------
+        ------------------------------------------------
+        -- actions.aoe+=/drain_soul
+        if not moving and cast.able.drainSoul() and debuff.unstableAffliction.exists("target") and debuff.agony.exists("target") and debuff.corruption.exists("target") 
+        and (talent.siphonLife and debuff.siphonLife.exists("target") or not talent.siphonLife) and (talent.phantomSingularity  and not debuff.phantomSingularity.exists("target") or (debuff.phantomSingularity.exists("target") and shards < 1) or not talent.phantomSingularity)
+        and (talent.vileTaint and not debuff.vileTaint.exists("target") or (debuff.vileTaint.exists("target") and shards < 1) or not talent.vileTaint) then
+            if cast.drainSoul() then br.addonDebug("[Action:AoE] Drain Soul - Filler") return true end
+        end
+        ------------------------------------------------
+        -- Unstable Affliction -------------------------
+        ------------------------------------------------
+        -- actions.aoe+=/unstable_affliction,if=dot.unstable_affliction.refreshable
+        if not moving and (not lcast or GetTime() - lcast >= 3) and debuff.unstableAffliction.remains("target") <= 8.5 and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 then
+            if cast.unstableAffliction("target") then br.addonDebug("[Action:AOE] Unstable Affliction [Refresh]") lcast = GetTime() return true end
+         end
+        -- ------------------------------------------------
+        -- -- Haunt ---------------------------------------
+        -- ------------------------------------------------
+        -- -- actions.aoe+=/haunt
+        -- if talent.haunt and not moving and cast.able.haunt() then 
+        --     if cast.haunt() then br.addonDebug("[Action:AoE] Haunt") return true end 
+        -- end
+        -- -- actions.aoe+=/call_action_list,name=darkglare_prep,if=cooldown.summon_darkglare.ready&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
         ------------------------------------------------
         -- Dark Soul -----------------------------------
         ------------------------------------------------
@@ -1246,47 +1332,21 @@ end
         if talent.darkSoul and useCDs() and not moving and pet.darkglare.active() then
             if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end
         end 
-
         -- actions.aoe+=/drain_life,if=buff.inevitable_demise.stack>=50|buff.inevitable_demise.up&time_to_die<5
-
         ------------------------------------------------
         -- Cooldowns -----------------------------------
         ------------------------------------------------
         -- actions.aoe+=/call_action_list,name=cooldowns
         if actionList_Cooldowns() then return end 
-
-
         -- actions.aoe+=/call_action_list,name=item
 
         ------------------------------------------------
-        -- Malefic Rapture, Vile Taint Ticking ---------
+        -- Summon Darkglare ----------------------------
         ------------------------------------------------
-        -- actions.aoe+=/malefic_rapture,if=dot.vile_taint.ticking
-        if not moving and cast.able.maleficRapture() and debuff.vileTaint.exists("target") and shards > 0 then
-            if cast.maleficRapture() then br.addonDebug("[Action:AoE] Malefic Rapture, Vile Taint Ticking") return true end
+        if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.exists() or shards == 5) then
+            CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+            return true
         end
-
-        ------------------------------------------------
-        -- Malefic Rapture, No Vile Taint --------------
-        ------------------------------------------------
-        -- actions.aoe+=/malefic_rapture,if=!talent.vile_taint.enabled
-        if not moving and cast.able.maleficRapture() and not talent.vileTaint and shards > 0 then
-            if cast.maleficRapture() then br.addonDebug("[Action:AoE] Malefic Rapture, No Vile Taint Talent") return true end 
-        end
-        
-        ------------------------------------------------
-        -- Cycle Siphon Life  --------------------------
-        ------------------------------------------------
-        -- actions.aoe+=/siphon_life,cycle_targets=1,if=active_dot.siphon_life<=3,target_if=!dot.siphon_life.ticking
-        if siphonLifeCount < ui.value("Siphon Life Count") then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not noDotCheck(thisUnit) and debuff.siphonLife.remains(thisUnit) <= 6.5 and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste)  then
-                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:AoE] Siphon Life [Multi-Cycle]") return true end
-                end
-            end
-        end
-
         ------------------------------------------------
         -- Drain Life, Inevitable Demise > 50, TTD < 5 -
         ------------------------------------------------
@@ -1294,22 +1354,28 @@ end
         if not moving and talent.inevitableDemise and buff.inevitableDemise.stack() >= 50 or buff.inevitableDemise.exists() and ttd("target") < 5 and br.timer:useTimer("ID Delay", 5) then
             if cast.drainLife() then br.addonDebug("[Action:Rotation] Drain Life (ID and TTD < 5)") return true end
         end
-
-
+        -- ------------------------------------------------
+        -- -- Drain Soul ----------------------------------
+        -- ------------------------------------------------
+        -- -- actions.aoe+=/drain_soul
+        -- if not moving and cast.able.drainSoul() then
+        --     if cast.drainSoul() then br.addonDebug("[Action:AoE] Drain Soul") return true end
+        -- end
+        -- ------------------------------------------------
+        -- -- Shadow Bolt ---------------------------------
+        -- ------------------------------------------------
+        -- --actions.se+=/shadow_bolt
+        -- if not moving and cast.able.shadowBolt() then
+        --     if cast.shadowBolt() then br.addonDebug("[Action:AoE] Shadow Bolt") return true end
+        -- end
         ------------------------------------------------
-        -- Drain Soul ----------------------------------
-        ------------------------------------------------
-        -- actions.aoe+=/drain_soul
-        if not moving and cast.able.drainSoul() then
-            if cast.drainSoul() then br.addonDebug("[Action:AoE] Haunt (Shadow Embrace APL)") return true end
-        end
-
-        ------------------------------------------------
-        -- Shadow Bolt ---------------------------------
+        -- Shadow Bolt Filler --------------------------
         ------------------------------------------------
         --actions.se+=/shadow_bolt
-        if not moving and cast.able.shadowBolt() then
-            if cast.shadowBolt() then br.addonDebug("[Action:AoE] Haunt (Shadow Embrace APL)") return true end
+        if not moving and cast.able.shadowBolt() and debuff.unstableAffliction.exists("target") and debuff.agony.exists("target") and debuff.corruption.exists("target") 
+        and (talent.siphonLife and debuff.siphonLife.exists("target") or not talent.siphonLife) and (talent.phantomSingularity and cd.phantomSingularity.remains() >= gcdMax or not talent.phantomSingularity)
+        and (talent.vileTaint and cd.vileTaint.remains() >= gcdMax or not talent.vileTaint) then
+            if cast.shadowBolt() then br.addonDebug("[Action:AoE] Shadow Bolt - Filler") return true end
         end
 
     end -- End Action List: AoE
@@ -1345,25 +1411,115 @@ actions+=/drain_soul
 actions+=/shadow_bolt
 
     ]]
-
     local function actionList_Rotation()
         ------------------------------------------------
         --SpellQueueReady ------------------------------
         ------------------------------------------------
         if spellQueueReady() then
-            if dsTarget ~= nil and (not cast.current.drainSoul() or (cast.current.drainSoul() and dsInterrupt)) and not moving and shards < 5 then
-                if cast.drainSoul(dsTarget) then
-                    dsInterrupt = false
-                    return true
-                end
+
+            -- Kyrian: Scouring Tithe
+          --  if spellUsable(312321) and select(2,GetSpellCooldown(313347)) <= gcdMax  and not moving and ttd("target") < 15 and shards < 2 then if CastSpellByName(GetSpellInfo(313347)) then return true end end 
+--[[
+        ------------------------------------------------
+        -- Summon Darkglare : Venthyr ------------------
+        ------------------------------------------------
+        --actions+=/call_action_list,name=darkglare_prep,if=covenant.venthyr&dot.impending_catastrophe_dot.ticking&cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
+        if covenant.venthyr.active and debuff.impendingCatastrophe.exists() and cd.summonDarkglare.remains() < 2 and (debuff.phantomSingularity.exists() and debuff.phantomSingularity.remains() > 2 or not talent.phantomSingularity) then 
+            if actionList_DarkGlarePrep() then return end 
+        end
+
+        ------------------------------------------------
+        -- Summon Darkglare : Night Fae  ---------------
+        ------------------------------------------------
+        --actions+=/call_action_list,name=darkglare_prep,if=covenant.night_fae&dot.soul_rot.ticking&cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
+        if covenant.nightFae.active and debuff.soulRot.exists() and cd.summonDarkglare.remains() < 2 and (debuff.phantomSingularity.remains > 2 or not talent.phantomSingularity) then
+            if actionList_DarkGlarePrep() then return end 
+        end
+
+        ------------------------------------------------
+        -- Summon Darkglare : Night Fae  ---------------
+        ------------------------------------------------
+        --actions+=/call_action_list,name=darkglare_prep,if=(covenant.necrolord|covenant.kyrian|covenant.none)&dot.phantom_singularity.ticking&dot.phantom_singularity.remains<2
+        if (covenant.necrolord.active or covenant.kyrian.active or covenant.none.active) and debuff.phantomSingularity.exists() and debuff.phantomSingularity.remains() < 2 then
+            if actionList_DarkGlarePrep() then return end 
+        end]]
+        
+
+          
+        if level == 60 and not moving 
+        and debuff.agony.exists("target") 
+        --and getTTD("target") >= gcdMax + cast.time.maleficRapture()
+        and debuff.unstableAffliction.exists("target") 
+        and debuff.corruption.exists("target")
+        and (talent.siphonLife and debuff.siphonLife.exists("target") or not talent.siphonLife) then
+            --actions.covenant=impending_catastrophe,if=cooldown.summon_darkglare.remains<10|cooldown.summon_darkglare.remains>50
+            ------------------------------------------------
+            -- Impending Catastrophe : Venthyr -------------
+            ------------------------------------------------
+            --321792
+            if useCDs() and covenant.venthyr.active and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax and (cd.summonDarkglare.remains() < 10 or cd.summonDarkglare.remains() > 50) then
+                if cast.impendingCatastrophe() then br.addonDebug("[Action:Rotation] Impending Catastrophe") return true end
             end
 
-            if not moving and seedTargetsHit <= 2 then
-                if cast.haunt() then return true end
+
+            --actions.covenant+=/decimating_bolt,if=cooldown.summon_darkglare.remains>5&(debuff.haunt.remains>4|!talent.haunt.enabled)
+            ------------------------------------------------
+            -- Decimating Bolt : Necrolord -----------------
+            ------------------------------------------------
+            if useCDs() and covenant.necrolord.active and spellUsable(325289) and select(2,GetSpellCooldown(325289)) <= gcdMax and (cd.summonDarkglare.remains() > 5 and debuff.haunt.remains() > 4 or not talent.haunt) then
+                if cast.decimatingBolt() then br.addonDebug("[Action:Rotation] Decimating Bolt") return true end
             end
 
 
+            --actions.covenant+=/soul_rot,if=cooldown.summon_darkglare.remains<5|cooldown.summon_darkglare.remains>50|cooldown.summon_darkglare.remains>25&conduit.corrupting_leer.enabled
+            ------------------------------------------------
+            -- Soul Rot : Night Fae ------------------------
+            ------------------------------------------------
+            if useCDs() and covenant.nightFae.active and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax or cd.summonDarkglare.remains() > 50 or cd.summonDarkglare.remains() > 25 and IsSpellKnown(339455) then
+                if cast.soulRot() then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end
+
+            ------------------------------------------------
+            -- Scouring Tithe : Kyrian ---------------------
+            ------------------------------------------------
+            if useCDs() and covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax then
+                if cast.scouringTithe() then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
+            end
+        end
             
+        -- Malefic Rapture
+        if not moving and shards > 0
+        and debuff.agony.exists("target") 
+        --and getTTD("target") >= gcdMax + cast.time.maleficRapture()
+        and debuff.unstableAffliction.exists("target") 
+        and debuff.corruption.exists("target")
+        and (debuff.shadowEmbrace.exists("target") and getDebuffStacks("target", 32390) == 3) 
+        and (talent.siphonLife and debuff.siphonLife.exists("target") or not talent.siphonLife)
+        then
+            if shards > 4 then if cast.maleficRapture() then br.addonDebug("Casting MNalefic Rapture (Max Shards)") return true end end
+
+            -- Malefic Rapture Vile Taint
+            if talent.vileTaint and debuff.vileTaint.exists("target")
+            then
+                if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Vile Taint) 1") return true end 
+            end
+            
+            --actions.aoe+=/malefic_rapture,if=dot.soul_rot.ticking&!talent.sow_the_seeds.enabled
+            if UnitBuffID("target", 325640) and not talent.sowTheSeeds then
+                if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Soul Rot)") return true end 
+            end
+
+            -- Phantom Singularity
+            -- actions+=/malefic_rapture,if=talent.phantom_singularity.enabled&(dot.phantom_singularity.ticking||cooldown.phantom_singularity.remains>12||soul_shard>3)
+            if talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (debuff.phantomSingularity.remains("target") >= gcdMax + cast.time.phantomSingularity()
+            or (cd.phantomSingularity.remain() > 12) 
+            or shards > 0)
+            then
+                if cast.maleficRapture() then br.addonDebug("Casting Malefic Rapture (Phantom Singularity)") return true end 
+            end
+    end
+
+
 
         if ui.checked("Fear Bonus Mobs") and not cast.last.fear() and debuff.fear.count() < 1 then
             for i = 1, #enemies.yards40 do
@@ -1400,15 +1556,7 @@ actions+=/shadow_bolt
                 end
             end]]
 
-            if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.exists() or shards == 5) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or aoeUnits < getOptionValue("PS Units") or mode.ps ~= 1))) then
-                CastSpellByName(GetSpellInfo(spell.summonDarkglare))
-                return true
-            end
 
-            ------------------------------------------------
-            -- AoE Rotation --------------------------------
-            ------------------------------------------------
-            if aoeUnits >= ui.value("Multi-Target Units") and mode.single ~= 1 then if actionList_AoE() then return end end
        --[[ if ui.checked("Curse of Tongues") then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
@@ -1424,7 +1572,7 @@ actions+=/shadow_bolt
             if agonyCount < ui.value("Spread Agony on ST") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 6.5 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
+                    if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= 7 and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) then
                         if cast.agony(thisUnit) then br.addonDebug("Casting Agony [Refresh]") return true end
                     end
                 end
@@ -1437,10 +1585,9 @@ actions+=/shadow_bolt
           --  if not moving and debuff.unstableAffliction.remains("target") <= 9 and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 and br.timer:useTimer("UA", 1.5) then
          --      if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") return true end
         --    end
-        if not moving and (not lcast or GetTime() - lcast >= 1.5) and debuff.unstableAffliction.remains("target") <= 8.5 then
+            if not moving and (not lcast or GetTime() - lcast >= 3) and debuff.unstableAffliction.remains("target") <= 8.5 and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 then
                if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end
-            end
-   
+            end   
             ------------------------------------------------
             -- Corruption ----------------------------------
             ------------------------------------------------
@@ -1448,7 +1595,7 @@ actions+=/shadow_bolt
                 if corruptionCount < 2 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.corruption.remains(thisUnit) <= 6.5 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) and not debuff.seedOfCorruption.exists(thisUnit) then
+                        if not noDotCheck(thisUnit) and debuff.corruption.remains(thisUnit) <= 7 and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) and not debuff.seedOfCorruption.exists(thisUnit) then
                            if cast.corruption(thisUnit) then br.addonDebug("[Action:Rotation] Corruption [Refresh]") return true end
                         end
                     end
@@ -1463,32 +1610,60 @@ actions+=/shadow_bolt
                     end
                 end
             end
+
             
+        if level < 60 and not moving and not GetRealZoneText() == "The Maw" then
+            -- Decimating Bolt
+            if IsSpellKnown(313347) and spellUsable(313347) and select(2,GetSpellCooldown(313347)) <= gcdMax and not moving and getTTD("target") > 7 or aoeUnits >= 3 then if CastSpellByName(GetSpellInfo(313347)) then return true end end 
+
+            ------------------------------------------------
+            -- Soul Rot : Night Fae ------------------------
+            ------------------------------------------------
+            if useCDs() and not moving and spellUsable(325640) and IsSpellKnown(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+                if CastSpellByName(GetSpellInfo(325640)) then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end 
+        end
+            
+            ------------------------------------------------
+            -- Siphon Life ---------------------------------
+            ------------------------------------------------
+
+            if not debuff.siphonLife.exists("target") then if cast.siphonLife() then br.addonDebug("[Action:Rotation] Siphon Life Apply") return true end end 
+
+            if talent.siphonLife then
+                if siphonLifeCount < 2 then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if not noDotCheck(thisUnit) and debuff.siphonLife.remain(thisUnit) <= 8 and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste) then
+                            if cast.siphonLife(thisUnit) then br.addonDebug("Casting Siphon Life [Refresh]") return true end
+                        end
+                    end
+                end
+            end
 
             -- actions+=/call_action_list,name=darkglare_prep,if=active_enemies>2&cooldown.summon_darkglare.ready&(dot.phantom_singularity.ticking|!talent.phantom_singularity.enabled)
 
-            ------------------------------------------------
-            -- Seed of Corruption, ST ----------------------
-            ------------------------------------------------
+            -- ------------------------------------------------
+            -- -- Seed of Corruption, ST ----------------------
+            -- ------------------------------------------------
+            -- if mode.soc ~= 2 and #enemies.yards40 >= ui.value("Multi-Target Units") then
+            --     if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption(1) and not cast.last.seedOfCorruption(2) then
+            --         if cast.seedOfCorruption(seedTarget) then return true end
+            --     end
 
-            ------------------------------------------------
-            -- Seed of Corruption, ST ----------------------
-            ------------------------------------------------
-        if #enemies.yards40 >= ui.value("Multi-Target Units") then
-            if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption(1) and not cast.last.seedOfCorruption(2) then
-                if cast.seedOfCorruption(seedTarget) then return true end
-            end
-            -- actions+=/seed_of_corruption,if=variable.spammable_seed
-            if mode.ss == 3 and not moving and br.timer:useTimer("SoC Spam", ui.value("SoC Spam Delay")) then
-               if cast.seedOfCorruption(seedTarget) then return true end
-            end
-        end
+            --     -- actions+=/seed_of_corruption,if=variable.spammable_seed
+            --     if mode.ss == 3 and not moving and br.timer:useTimer("SoC Spam", ui.value("SoC Spam Delay")) then
+            --        if cast.seedOfCorruption(seedTarget) then return true end
+            --     end
+            -- end
+
             ------------------------------------------------
             -- Agony on seed if missing --------------------
             ------------------------------------------------
             if not debuff.agony.exists(seedTarget) and debuff.seedOfCorruption.exists(seedTarget) then
                 if cast.agony(seedTarget) then br.addonDebug("Agony Seed of Corruption") return true end
             end
+
             -- actions+=/seed_of_corruption,if=active_enemies>2&!talent.vile_taint.enabled&(!talent.writhe_in_agony.enabled|talent.sow_the_seeds.enabled)&!dot.seed_of_corruption.ticking&!in_flight&dot.corruption.refreshable
             --[[if not moving and aoeUnits > 2 and not talent.vileTaint and (not talent.writheInAgony or talent.sowTheSeeds) and not debuff.seedOfCorruption.exists("target") and not cast.inFlight.seedOfCorruption() then
                 for i = 1, #enemies.yards40 do
@@ -1503,31 +1678,18 @@ actions+=/shadow_bolt
             --cast.timeSinceLast.unstableAffliction() >= 3 
 
             ------------------------------------------------
-            -- Siphon Life ---------------------------------
-            ------------------------------------------------
-
-            if not debuff.siphonLife.exists("target") then if cast.siphonLife() then br.addonDebug("[Action:Rotation] Siphon Life Apply") return true end end 
-
-            if talent.siphonLife then
-                if siphonLifeCount < 2 then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not noDotCheck(thisUnit) and debuff.siphonLife.remain(thisUnit) <= 7.5 and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste) then
-                            if cast.siphonLife(thisUnit) then br.addonDebug("Casting Siphon Life [Refresh]") return true end
-                        end
-                    end
-                end
-            end
-
-            ------------------------------------------------
             -- Summon Darkglare ----------------------------
             ------------------------------------------------
+            if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.exists() or shards == 5) and ((talent.phantomSingularity and cd.phantomSingularity.remain() > 0 ) or not talent.phantomSingularity) then
+                CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+                return true
+            end
             --actions+=/call_action_list,name=darkglare_prep,if=cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
 
-            --actions+=/dark_soul,if=cooldown.summon_darkglare.remains>time_to_die
             ------------------------------------------------
             -- Dark Soul -----------------------------------
             ------------------------------------------------
+                        --actions+=/dark_soul,if=cooldown.summon_darkglare.remains>time_to_die
             -- Dark Soul
             if talent.darkSoul and useCDs() or isChecked("Cooldowns Hotkey") and SpecificToggle("Cooldowns Hotkey") and not moving and cd.summonDarkglare.remain() > ttd then
                 if cast.darkSoul() then br.addonDebug("Casting Dark Soul") return true end
@@ -1536,6 +1698,13 @@ actions+=/shadow_bolt
             if talent.darkSoul and useCDs() and not moving and pet.darkglare.active() then
                 if cast.darkSoul() then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end
             end 
+
+            ------------------------------------------------
+            -- Haunt ---------------------------------------
+            ------------------------------------------------
+            if not moving and talent.haunt and not debuff.haunt.exists("target") and getTTD("target") >= ui.value("Haunt TTD") then
+                if cast.haunt("target") then br.addonDebug("[Action:Rotation] Haunt") return true end
+            end
 
             ------------------------------------------------
             -- Phantom Singularity -------------------------
@@ -1547,7 +1716,7 @@ actions+=/shadow_bolt
             ------------------------------------------------
             -- Vile Taint ----------------------------------
             ------------------------------------------------
-            if not moving and talent.vileTaint and shards > 1 or #enemies.yards40 > 2 then
+            if not moving and talent.vileTaint and shards > 1 or aoeUnits > 2 then
                 if cast.vileTaint("target") then br.addonDebug("[Action:Rotation] Vile Taint") return true end
             end
 
@@ -1563,20 +1732,61 @@ actions+=/shadow_bolt
             ------------------------------------------------
             -- Malefic Rapture, Max Shards -----------------
             ------------------------------------------------
-            if not moving and shards > 0 and getDistance("target") <= 40 then
+            if not moving and shards > 0 then
                 if shards > 4 then 
                     if cast.maleficRapture() then br.addonDebug("[Action:Rotation] Malefic Rapture (Max Shards)") return true end 
                 end 
             end
 
+            --[[
             ------------------------------------------------
-            -- Haunt ---------------------------------------
+            -- Summon Darkglare : Venthyr ------------------
             ------------------------------------------------
-            if not moving and talent.haunt and not debuff.haunt.exists("target") and getTTD("target") >= ui.value("Haunt TTD") then
-                if cast.haunt("target") then br.addonDebug("[Action:Rotation] Haunt") return true end
+            -- actions+=/call_action_list,name=darkglare_prep,if=active_enemies>2&covenant.venthyr&(cooldown.impending_catastrophe.ready|dot.impending_catastrophe_dot.ticking)&(dot.phantom_singularity.ticking|!talent.phantom_singularity.enabled)
+            if aoeUnits > 2 and covenent.venthyr.active and (cooldown.impendingCatastrophe.remains() <= gcdMax or debuff.impendingCatastrophie.exists()) and (debuff.phantomSingularity.exists() or not talent.phantomSingularity) then
+                if actionList_DarkGlarePrep() then return end 
             end
 
-            -- actions+=/call_action_list,name=darkglare_prep,if=cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
+            ------------------------------------------------
+            -- Summon Darkglare : Necrolord/Kyrian/None ----
+            ------------------------------------------------
+            -- actions+=/call_action_list,name=darkglare_prep,if=active_enemies>2&(covenant.necrolord|covenant.kyrian|covenant.none)&(dot.phantom_singularity.ticking|!talent.phantom_singularity.enabled)
+            if aoeUnits > 2 and (covenant.necrolord.active or covenant.kyrian.active or covenant.none.active) and (debuff.phantomSingularity.exists() or not talent.phantomSingularity) then
+                if actionList_DarkGlarePrep() then return end 
+            end
+
+            ------------------------------------------------
+            -- Summon Darkglare : Night Fae ----------------
+            ------------------------------------------------
+            -- actions+=/call_action_list,name=darkglare_prep,if=active_enemies>2&covenant.night_fae&(cooldown.soul_rot.ready|dot.soul_rot.ticking)&(dot.phantom_singularity.ticking|!talent.phantom_singularity.enabled)\
+            if aoeUnits > 2 and covenant.nightFae.active and (cd.soulRot.remains() <= gcdMax or debuff.soulRot.exists()) and (debuff.phantomSingularity.exists() or not talent.phantomSingularity) then
+                if actionList_DarkGlarePrep() then return end 
+            end]]            
+--[[
+            ------------------------------------------------
+            -- Summon Darkglare : Venthyr ------------------
+            ------------------------------------------------
+            -- actions+=/call_action_list,name=darkglare_prep,if=covenant.venthyr&(cooldown.impending_catastrophe.ready|dot.impending_catastrophe_dot.ticking)&cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
+            if covenant.venthyr.active and (cd.impendingCatastrophe.remains <= gcdMax or debuff.impendingCatastrophe.exists()) and cd.summonDarkglare.remains() < 2 and (debuff.phantomSingularity.remains() > 2 or not talent.phantomSingularity) then
+                if actionList_DarkGlarePrep() then return end 
+            end
+
+            ------------------------------------------------
+            -- Summon Darkglare : Necrolord/Kyrian/None ----
+            ------------------------------------------------
+            -- actions+=/call_action_list,name=darkglare_prep,if=(covenant.necrolord|covenant.kyrian|covenant.none)&cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
+            if (covenant.necrolord.active or covenant.kyrian.active or covenant.none) and cd.summonDarkglare.remains() < 2 and (debuff.phantomSingularity.remains() > 2 or not talent.phantomSingularity) then
+                if actionList_DarkGlarePrep() then return end 
+            end
+
+            
+            ------------------------------------------------
+            -- Summon Darkglare : Night Fae ----------------
+            ------------------------------------------------
+            -- actions+=/call_action_list,name=darkglare_prep,if=covenant.night_fae&(cooldown.soul_rot.ready|dot.soul_rot.ticking)&cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
+            if covenant.nightFae.active and (cd.soulRot.remains() <= gcdMax or debuff.soulRot.exists()) and cd.summonDarkglare.remains() < 2 and (debuff.phantomSingularity.remains() > 2 or not talent.phantomSingularity) then
+                if actionList_DarkGlarePrep() then return end 
+            end]]
 
             ------------------------------------------------
             -- Drain Life, Inevitable Demise > 30, TTD < 5 -
@@ -1612,37 +1822,36 @@ actions+=/shadow_bolt
                 end
             end
         end-- End Spell Queue Ready
-    end-- End Action List: Rotation
+end-- End Action List: Rotation
 
     local function actionList_PreCombat()
-        local petPadding = 2
          -- Fel Domination
-        if ui.checked("Fel Domination") and inCombat
-        and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet")
-        and cd.felDomination.remain() <= gcdMax
-        then
+        if ui.checked("Fel Domination") and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax then
             if cast.felDomination() then br.addonDebug("Fel Domination") return true end
         end
  
         --actions.precombat+=/summon_pet
         if ui.checked("Pet Management") 
-        and  not IsFlying() or IsMounted()
+        and not (IsFlying() or IsMounted()) 
         and (not inCombat or buff.felDomination.exists())
         and (not moving or buff.felDomination.exists())
-        and level >= 5 and GetTime() - br.pauseTime > 0.5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + 5) 
+        and GetTime() - br.pauseTime > 0.5 and level >= 5
+        and br.timer:useTimer("summonPet", 1)and not moving
         then
             if mode.petSummon == 5 and pet.active.id() ~= 0 then
                 PetDismiss()
             end
-            if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId or pet.active.id() ~= summonId or activePetId == 0) then
-                if mode.petSummon == 1 and (lastSpell ~= spell.summonImp and (not lcast or GetTime() - lcast >= 5) or activePetId == 0) then
-                    if cast.summonImp("player") then castSummonId = spell.summonImp lcast = GetTime() return end
-                elseif mode.petSummon == 2 and (lastSpell ~= spell.summonVoidwalker or pet.active.id() == 0)  then
-                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return end
-                elseif mode.petSummon == 3 and (lastSpell ~= spell.summonFelhunter or pet.active.id() == 0) then
-                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return end
-                elseif mode.petSummon == 4 and (lastSpell ~= spell.summonSuccubus or pet.active.id() == 0) then
-                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return end
+            if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId
+                or pet.active.id() ~= summonId or pet.active.id() == 0)
+            then
+                if mode.petSummon == 1 then
+                    if cast.summonImp("player") then castSummonId = spell.summonImp return true end
+                elseif mode.petSummon == 2 then
+                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return true end
+                elseif mode.petSummon == 3 then
+                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return true end
+                elseif mode.petSummon == 4  then
+                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
                 end
             end
         end
@@ -1682,8 +1891,10 @@ actions+=/shadow_bolt
             end
 
             -- Create Healthstone
-            if not moving and not inCombat and ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < 2 and br.timer:useTimer("CH", 5) and not cast.la then
-                if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
+            if not moving and not inCombat and ui.checked("Create Healthstone") then
+                if GetItemCount(5512) < 1 and br.timer:useTimer("CH", 5) then
+                     if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
+                end
             end
 
             -- Auto Engage
@@ -1691,7 +1902,7 @@ actions+=/shadow_bolt
                 if cast.agony() then br.addonDebug("Casting Agony [Auto Engage]") return true end
 
             -- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3&!equipped.169314
-            if not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and aoeUnits >= ui.value("Pre-Pull SoC Count") and ui.checked("Pre-Pull SoC") then
+            if mode.soc ~= 2 and not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and aoeUnits >= ui.value("Pre-Pull SoC Count") and ui.checked("Pre-Pull SoC") then
                 CastSpellByName(GetSpellInfo(spell.seedOfCorruption)) br.addonDebug("Casting Seed of Corruption [Pre-Pull]") return
             elseif pullTimer <= 2 and br.timer:useTimer("Haunt Delay", 2) and GetUnitExists("target") then
                 if talent.haunt and ui.value("Pre-Pull Spell") ~= 2 and ui.value("Pre-Pull Spell") ~= 3 then    
@@ -1703,7 +1914,7 @@ actions+=/shadow_bolt
             end
             end
         end -- End No Combat
-    end -- End Action List - PreCombat
+end -- End Action List - PreCombat
 
     ---------------------
     --- Begin Profile ---
@@ -1711,7 +1922,7 @@ actions+=/shadow_bolt
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
-    elseif inCombat and profileStop==true or IsMounted() or IsFlying() or pause(true) or mode.rotation==4 then
+    elseif inCombat and profileStop==true or IsMounted() or IsFlying() or pause(true) or mode.rotation==4  then
         return true
     else
 
@@ -1725,11 +1936,14 @@ actions+=/shadow_bolt
         -----------------------
         --- Extras Rotation ---
         -----------------------
-        if useCDs() and actionList_Extras() then return end
+        if actionList_Extras() then return end
+
         --------------------------
         --- Defensive Rotation ---
         --------------------------
+    if (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
         if actionList_Defensive() then return end
+    end
         -----------------------
         --- Opener Rotation ---
         -----------------------
@@ -1738,21 +1952,34 @@ actions+=/shadow_bolt
         ---------------------------
         if actionList_PreCombat() then return end
 
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and debuff.unstableAffliction.remains("target") <= 6.8 then
-         --  SpellStopCasting()
+
+
+        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and (debuff.unstableAffliction.remains("target") <= math.random(6.8,7.4)/100) then
+            --  SpellStopCasting()
             if not moving and (not lcast or GetTime() - lcast >= 1) and debuff.unstableAffliction.remains("target") <= 6.8 then
            -- and not cast.current.unstableAffliction()
             --and br.timer:useTimer("UA", 1.5) 
            -- and cast.timeSinceLast.unstableAffliction() >= 3
            -- and not cast.last.unstableAffliction(2)
-               if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction, Clipped DS [Refresh]") lcast = GetTime() return true end
+               if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction (ST:Refresh),, Clipped DS [Refresh]") lcast = GetTime() return true end
+            end
+        elseif UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and (debuff.agony.remains("target") <= math.random(6.8,7.4)/100) then
+            --  SpellStopCasting()
+            if not moving and (not lcast or GetTime() - lcast >= 1) and debuff.agony.remains("target") <= 6.8 then
+           -- and not cast.current.unstableAffliction()
+            --and br.timer:useTimer("UA", 1.5) 
+           -- and cast.timeSinceLast.unstableAffliction() >= 3
+           -- and not cast.last.unstableAffliction(2)
+               if cast.agony("target") then br.addonDebug("[Action:Rotation] Agony (ST:Refresh), Clipped DS [Refresh]") lcast = GetTime() return true end
             end
         end
 
         if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 0
         --and debuff.unstableAffliction.remains("target") >= 9
-        and debuff.phantomSingularity.remains("target") >= cast.time.maleficRapture() + gcd 
-        or debuff.vileTaint.remains("target") >= cast.time.maleficRapture() + gcdMax  
+        and (debuff.phantomSingularity.remains("target") >= cast.time.maleficRapture() + gcd 
+        or debuff.vileTaint.remains("target") >= cast.time.maleficRapture() + gcdMax)  
+        and (debuff.shadowEmbrace.exists("target") and getDebuffStacks("target", 32390) == 3)
+
         then
               --SpellStopCasting()
             if not moving and cast.able.maleficRapture()
@@ -1781,6 +2008,7 @@ actions+=/shadow_bolt
                if cast.haunt("target") then br.addonDebug("[Action:Rotation] Haunt, Clipped DS") return true end
             end
         end
+
         --------------------------
         --- In Combat Rotation ---
         --------------------------
@@ -1795,27 +2023,59 @@ actions+=/shadow_bolt
                 return true 
             end
         
-            ---------------------------
-            --- SimulationCraft APL ---
-            ---------------------------
             if getOptionValue("APL Mode") == 1 and not pause() then
-                -- rotation
-                if actionList_Rotation() then return end
-      if spellQueueReady() then
                 ------------------------------------------------
-                -- Drain Soul ----------------------------------
+                -- AoE Rotation --------------------------------
                 ------------------------------------------------
-                if not moving and not cast.current.drainSoul() then
-                    if cast.drainSoul() then br.addonDebug("[Action:Rotation] Drain Soul") return true end
-                end
-
+                    if ((mode.rotation == 1 and #enemies.yards40f >= ui.value("Multi-Target Units")) or (mode.rotation == 2 and #enemies.yards40f > 0)) then
+                        if actionList_AoE() then return end
+                    end
                 ------------------------------------------------
-                -- Shadow Bolt ---------------------------------
+                -- ST Rotation ---------------------------------
                 ------------------------------------------------
-                if not talent.drainSoul and not moving then
-                    if cast.shadowBolt("target") then return true end
-                end
+                    if ((mode.rotation == 1 and #enemies.yards40f < ui.value("Multi-Target Units")) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
+                       if actionList_Rotation() then return end
+                        ------------------------------------------------
+                        -- Drain Soul ----------------------------------
+                        ------------------------------------------------
+                        if spellQueueReady then
+                            -- actions.fillers+=/drain_soul,interrupt_global=1,chain=1
+                        if (not debuff.shadowEmbrace.exists("target") or (debuff.shadowEmbrace.exists("target") and getDebuffStacks("target", 32390) < 3)) then
+                            if cast.drainSoul() then br.addonDebug("[Action:DS] Applying 3x Shadow Embrace - Drain Soul")
+                                dsInterrupt = true
+                                return true 
+                            end
+                        elseif (getDebuffStacks("target", 32390) == 3 and debuff.shadowEmbrace.remains("target") <= 5) then
+                            if cast.drainSoul() then br.addonDebug("[Action:DS] Maintaining 3x Shadow Embrace - Drain Soul")
+                                dsInterrupt = true
+                                return true 
+                            end
+                        elseif (talent.phantomSingularity and not debuff.phantomSingularity.exists("target")) and debuff.shadowEmbrace.remains("target") <= 5 then
+                            if cast.drainSoul() then br.addonDebug("[Action:DS] Drain Soul - Phantom Singularity")
+                                dsInterrupt = true
+                                return true 
+                            end
+                        elseif talent.vileTaint and (not debuff.vileTaint.exists("target") and shards < 1) and debuff.shadowEmbrace.remains("target") <= 5 then
+                            if cast.drainSoul() then br.addonDebug("[Action:DS] Drain Soul - Vile Taint")
+                                dsInterrupt = true
+                                return true 
+                            end
+                        elseif debuff.agony.exists("target") and debuff.unstableAffliction.exists("target") and debuff.corruption.exists("target") and debuff.shadowEmbrace.exists("target") 
+                        and (debuff.soulRot.exists("target") or not debuff.soulRot.exists("target")) and 
+                        ((talent.phantomSingularity and (not debuff.phantomSingularity.exists("target") or (debuff.phantomSingularity.exists("target") and shards < 1)) or (talent.vileTaint and (not debuff.vileTaint.exists("target") or (debuff.vileTaint.exists("target") and shards < 1))))) then
+                            if cast.drainSoul() then br.addonDebug("[Action:DS] Drain Soul - Shards Generation")
+                                dsInterrupt = true
+                                return true 
+                            end    
+                        end
+                    end
+            ------------------------------------------------
+            -- Shadow Bolt ---------------------------------
+            ------------------------------------------------
+            if not talent.drainSoul and not moving then
+                if cast.shadowBolt("target") then return true end
             end
+        end
 
             end -- End SimC APL
         end --End In Combat

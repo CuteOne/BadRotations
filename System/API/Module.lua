@@ -27,6 +27,10 @@ br.api.module = function(self)
             br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Kyrian Bell
+            br.ui:createCheckbox(section, "Kyrian Bell","|cffFFFFFFCheck to use.")
+            -- Phial of Serenity
+            br.ui:createSpinner(section, "Phial of Serenity", 30, 0, 80, 5, "|cffFFFFFFHealth Percent to Cast At")
         end
 
         -- Abilities - Call, module.BasicHealing(), in your rotation to use these
@@ -60,6 +64,21 @@ br.api.module = function(self)
                 and unit.inCombat() and unit.hp() <= ui.value("Gift of the Naaru")
             then
                 if cast.racial() then ui.debug("Casting Gift of the Naaru") return true end
+            end
+            -- Kyrian Bell
+            if ui.checked("Kyrian Bell") and (isInArdenweald() or isInBastion() or isInMaldraxxus() or isInRevendreth())-- or isInTheMaw())
+                and use.able.kyrianBell() and has.kyrianBell()
+            then
+                if use.kyrianBell() then ui.debug("Using Kyrian Bell") return true end
+            end
+            -- Phial of Serenity
+            if ui.checked("Phial of Serenity") then
+                if not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
+                    if cast.summonSteward() then ui.debug("Casting Call Steward") return true end
+                end
+                if unit.inCombat() and use.able.phialOfSerenity() and unit.hp() < ui.value("Phial of Serenity") then
+                    if use.phialOfSerenity() then ui.debug("Using Phial of Serenity") return true end
+                end
             end
             return true
         end
