@@ -328,6 +328,7 @@ br.lists.spells = {
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
                 suddenDoom                  = 49530,
+                runicCorruption             = 51460,
                 unholyAssault               = 207289,
 		        unholyBlight 		        = 115989,
             },
@@ -3981,7 +3982,7 @@ br.lists.spells = {
             covenants                           = {
                 covenantAbility                 = 313347,
                 doorOfShadows                   = 300728,
-                fleshcraft                      = 331180,
+                fleshcraft                      = 324631,
                 soulshape                       = 310143,
                 summonSteward                   = 324739,
             },
