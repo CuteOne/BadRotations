@@ -71,5 +71,7 @@ br.lists.noTouchUnits = {
     { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
     --Hall of Atonement
     { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
+    --de other side
+    { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
 
 }
