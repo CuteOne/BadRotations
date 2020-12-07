@@ -328,7 +328,7 @@ actionList.ColdHeart = function()
     -- chains_of_ice,if=talent.obliteration&!buff.pillar_of_frost.up&(buff.cold_heart.stack>=16&buff.unholy_strength.up|buff.cold_heart.stack>=19|cooldown.pillar_of_frost.remains<3&buff.cold_heart.stack>=14)
     if cast.able.chainsOfIce() and talent.obliteration and not buff.pillarOfFrost.exists()
         and (buff.coldHeart.stack() >= 16 and buff.unholyStrength.exists() or buff.coldHeart.stack() >= 19
-            or (cd.pillarOfFrost.remains() < 3 and buff.coldHearth.stack() >= 14))
+            or (cd.pillarOfFrost.remains() < 3 and buff.coldHeart.stack() >= 14))
     then
         if cast.chainsOfIce() then ui.debug("Casting Chains of Ice [Obliteration]") return true end
     end
