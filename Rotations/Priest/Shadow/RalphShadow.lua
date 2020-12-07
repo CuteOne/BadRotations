@@ -88,8 +88,8 @@ local function createOptions()
             -- br.ui:createCheckbox(section, "Fade")
             -- -- Vampiric Embrace
             -- br.ui:createSpinner(section, "Vampiric Embrace",  25,  0,  100,  5,  "Health Percentage to use at.")
-            -- -- Power Word: Shield
-            -- br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "Health Percentage to use at.")
+            -- Power Word: Shield
+            br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "Health Percentage to use at.")
             -- -- Shadow Mend
             -- br.ui:createSpinner(section, "Shadow Mend",  60,  0,  100,  5,  "Health Percentage to use at.")
             -- -- Psychic Scream / Mind Bomb
@@ -316,10 +316,8 @@ actionList.Extra = function()
         if cast.dispelMagic() then return end
     end
     --PowerWord: Shield
-    if moving and not IsFalling() then
-        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and not debuff.weakenedSoul.exists('player') then
-             if cast.powerWordShield("player") then return end
-        end
+    if not debuff.weakenedSoul.exists('player') and (isChecked("PWS: Body and Soul") and talent.bodyAndSoul and moving and not IsFalling() or inCombat and php <= getOptionValue('Power Word: Shield')) then
+        if cast.powerWordShield("player") then return end
     end
     if isChecked("Power Word: Fortitude") then
         for i = 1, #br.friend do
@@ -522,12 +520,12 @@ actionList.ST = function()
     
     -- # Use Shadow Word: Death if the target is about to die or you have Shadowflame Prism equipped with Mindbender or Shadowfiend active.
     -- actions.main+=/shadow_word_death,target_if=(target.health.pct<20&spell_targets.mind_sear<4)|(pet.fiend.active&runeforge.shadowflame_prism.equipped)
-    if (thp < 20 and #searEnemies < 4) then
+    if not talent.deathAndMadness and thp < 20 and #searEnemies < 4 or talent.deathAndMadness and ttd('target') < 7 then
         if cast.shadowWordDeath('target') then return end
     end
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if getHP(thisUnit) < 20 and #searEnemies < 4 then
+        if not talent.deathAndMadness and getHP(thisUnit) < 20 and #searEnemies < 4 or talent.deathAndMadness and ttd(thisUnit) < 7 then
             if cast.shadowWordDeath(thisUnit) then return end
         end
     end
@@ -564,7 +562,7 @@ actionList.ST = function()
     
     -- # Use Shadow Crash on CD unless there are adds incoming.
     -- actions.main+=/shadow_crash,if=raid_event.adds.in>10
-    if talent.shadowCrash and cd.shadowCrash.ready() and isChecked('Shadow Crash') then
+    if talent.shadowCrash and cd.shadowCrash.ready() and isChecked('Shadow Crash') and not isMoving('best') then
         if cast.shadowCrash("best",nil,1,8) then
             SpellStopTargeting() return 
         end
@@ -631,8 +629,13 @@ actionList.ST = function()
   
     -- # Use SW:D as last resort if on the move
     -- actions.main+=/shadow_word_death
-    if moving and cd.shadowWordDeath.ready() and getHP(units.dyn40) then
-        if cast.shadowWordDeath(units.dyn40) then return end
+    if moving and cd.shadowWordDeath.ready() then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
+                if cast.shadowWordDeath(thisUnit) then return end
+            end
+        end
     end
     
     -- # Use SW:P as last resort if on the move and SW:D is on CD
