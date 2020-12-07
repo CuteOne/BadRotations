@@ -113,9 +113,9 @@ function br:defaultSettings()
 	if br.data == nil then br.data = {} end	
 	if br.data.tracker == nil then br.data.tracker = {} end
 	if br.data.settings == nil then br.data.settings = {} end
-	br.ui.window.config = {}
-	br.ui:createConfigWindow()
-	br.ui:toggleWindow("config")
+-- 	br.ui.window.config = {}
+-- 	br.ui:createConfigWindow()
+-- 	br.ui:toggleWindow("config")
 	-- Settings Per Spec
 	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {}	end
 	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
@@ -126,6 +126,17 @@ function br:defaultSettings()
 	end
 	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
 end
+
+-- Delay calling createConfigWindow
+-- If calling this in a PLAYER_ENTERING_WORLD event, Chinese cannot shown correctly.
+-- This isn't a good way, we will fix this after find a better way.
+-- You can find more info here: https://github.com/CuteOne/BadRotations/commit/2eec9f64838a1b6c93dbaaf2c6da948735fb4fbc
+C_Timer.After(2, function()
+	br.ui.window.config = {}
+	br.ui:createConfigWindow()
+	br.ui:toggleWindow("config")
+end)
+
 -- Load Saved Settings
 function br:loadSavedSettings()
 	if br.initalizeSettings then
