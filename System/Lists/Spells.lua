@@ -2526,6 +2526,9 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                ascendedBlast               = 325283,
+                ascendedNova                = 325013,
+                boonOfTheAscended           = 325013,
                 desperatePrayer             = 19236,
                 dispelMagic                 = 528,
                 fade                        = 586,
@@ -2555,6 +2558,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 classHallSpeed              = 224098,
+                boonOfTheAscended           = 325013,
                 faeGuardians                = 327661,
                 levitate                    = 111759,
                 powerWordFortitude          = 21562,
