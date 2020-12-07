@@ -529,7 +529,7 @@ actionList.Covenants = function()
         if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy") return true end
     end
     -- shackle_the_unworthy,if=active_enemies>=2&(death_and_decay.ticking|raid_event.adds.remains<=14)
-    if cast.able.shackleTheUnworthy() and ui.useAOE(30,2) and buff.deathAndDecay.exist() then
+    if cast.able.shackleTheUnworthy() and ui.useAOE(30,2) and buff.deathAndDecay.exists() then
         if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy [AOE]") return true end
     end
 end -- End Action List - Covenants
