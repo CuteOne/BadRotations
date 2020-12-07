@@ -279,9 +279,15 @@ actionList.PetManagement = function()
     if ui.checked("Huddle") and cast.able.huddle() and (unit.inCombat() or petCombat) and unit.hp("pet") <= ui.value("Huddle") then
         if cast.huddle() then ui.debug("Casting Huddle [Pet]") return true end
     end
-    -- Claw
-    if ui.checked("Claw") and cast.able.claw("pettarget") and not buff.huddle.exists("pet") and validTarget and unit.distance("pettarget","pet") < 5 then
-        if cast.claw("pettarget") then ui.debug("Casting Claw [Pet]") return true end
+    if unit.valid("pettarget") then
+        -- Claw
+        if ui.checked("Claw") and cast.able.claw("pettarget") and not buff.huddle.exists("pet") and validTarget and unit.distance("pettarget","pet") < 5 then
+            if cast.claw("pettarget") then ui.debug("Casting Claw [Pet]") return true end
+        end
+        -- Leap
+        if ui.checked("Leap") and cast.able.leap("pettarget") and not buff.huddle.exists("pet") and validTarget and unit.distance("pettarget","pet") > 8 then
+            if cast.leap("pettarget") then ui.debug("Casting Leap [Pet]") return true end
+        end
     end
     -- Gnaw
     if ui.checked("Gnaw") and cast.able.gnaw() and not buff.huddle.exists("pet") then
@@ -291,10 +297,6 @@ actionList.PetManagement = function()
                 if cast.gnaw(thisUnit) then ui.debug("Casting Gnaw [Pet]") return true end
             end
         end
-    end
-    -- Leap
-    if ui.checked("Leap") and cast.able.leap("pettarget") and not buff.huddle.exists("pet") and validTarget and unit.distance("pettarget","pet") > 8 then
-        if cast.leap("pettarget") then ui.debug("Casting Leap [Pet]") return true end
     end
 end -- End Action List - Pet Management
 
