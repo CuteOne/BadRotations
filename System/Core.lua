@@ -90,12 +90,8 @@ function BadRotationsUpdate(self)
 		br:checkBrOutOfDate()		
 		-- Get Current Addon Name
 		br:setAddonName()
-		if br.initalizeSettings then
-			br.loader.loadProfiles()
-			br:loadLastProfileTracker()
-			br:loadSettings(nil,nil,nil, br.data.settings[br.selectedSpec]['RotationDropValue'])
-			br.initalizeSettings = false
-		end
+		-- Load Saved Settings
+		br:loadSavedSettings()
 		-- Continue Load
 		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 			-- BR Main Toggle Off
@@ -232,7 +228,7 @@ function BadRotationsUpdate(self)
 				-- Display Distance on Main Icon
 				local targetDistance = getDistance("target") or 0
 				local displayDistance = math.ceil(targetDistance)
-				mainText:SetText(displayDistance)
+				if mainButton ~= nil then mainText:SetText(displayDistance) end
 				-- LoS Line Draw
 				if isChecked("Healer Line of Sight Indicator") then
 					inLoSHealer()
