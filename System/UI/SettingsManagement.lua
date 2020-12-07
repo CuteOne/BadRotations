@@ -126,7 +126,7 @@ function br:loadLastProfileTracker()
 		Print("Tracker Load - Last Profile: "..tostring(br.data.settings[selectedProfile]['RotationDrop']))
         if br.data.tracker[selectedProfile]['RotationDropValue'] ~= nil then
 			br.data.settings[selectedProfile]['RotationDropValue'] = br.data.tracker[selectedProfile]['RotationDropValue']            
-		elseif br.rotations[specID] ~= nil then
+		else
 			br.data.settings[selectedProfile]['RotationDropValue'] = br.rotations[specID][1].name
 			br.data.tracker[selectedProfile]['RotationDropValue'] = br.rotations[specID][1].name
 		end
@@ -142,8 +142,13 @@ function br:saveLastProfileTracker()
 	local specID = GetSpecializationInfo(GetSpecialization())
     if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil then
         if br.data.tracker ~= nil then
-            if br.data.tracker[br.selectedSpec] == nil then br.data.tracker[br.selectedSpec] = {} end
-			br.data.tracker[br.selectedSpec]['RotationDrop'] = br.data.settings[br.selectedSpec]['RotationDrop']            
+			if br.data.tracker[br.selectedSpec] == nil then br.data.tracker[br.selectedSpec] = {} end
+			if br.data.settings[br.selectedSpec]['RotationDrop'] then
+				br.data.tracker[br.selectedSpec]['RotationDrop'] = br.data.settings[br.selectedSpec]['RotationDrop']
+			else
+				br.data.settings[br.selectedSpec]['RotationDrop'] = 1
+				br.data.tracker[br.selectedSpec]['RotationDrop'] = 1
+			end          
 			if br.data.settings[br.selectedSpec]['RotationDropValue'] then
 				br.data.tracker[br.selectedSpec]['RotationDropValue'] = br.data.settings[br.selectedSpec]['RotationDropValue']
 			else

@@ -117,7 +117,7 @@ function br:defaultSettings()
 	br.ui:createConfigWindow()
 	br.ui:toggleWindow("config")
 	-- Settings Per Spec
-	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {}	end
 	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
 	if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
 		br.selectedProfile = 1
@@ -134,20 +134,18 @@ function br:loadSavedSettings()
 		br:loadSettings(nil,nil,nil, br.data.settings[br.selectedSpec]['RotationDropValue'])			
 		-- Define Main Button if no settings exist
 		if (br.data.settings and br.data.settings.mainButton == nil) then
-			br.data.settings = {
-				mainButton = {
-					pos = {
-						anchor = "CENTER",
-						x = -75,
-						y = -200
-					}
-				},
-				buttonSize = 32,
-				font = "Fonts/arialn.ttf",
-				fontsize = 16,
-				wiped = true,
-			}
-		end
+            br.data.settings.mainButton = {
+                pos = {
+                    anchor = "CENTER",
+                    x = -75,
+                    y = -200
+                }
+            }
+            br.data.settings.buttonSize = 32
+            br.data.settings.font = "Fonts/arialn.ttf"
+            br.data.settings.fontsize = 16
+            br.data.settings.wiped = true
+        end
 		-- Build the Toggles
 		TogglesFrame()
 		br.initalizeSettings = false

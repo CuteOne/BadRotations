@@ -81,11 +81,11 @@ function br.loader:new(spec,specName)
     local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
     -- Print("Spec: "..spec.." | Spec Name: "..specName)
-    if not br.loaded then
-        -- Print("Loader - Loading Profiles")
-        br.loader.loadProfiles()
-        br.loaded = true
-    end
+    -- if not br.loaded then
+    --     -- Print("Loader - Loading Profiles")
+    --     br.loader.loadProfiles()
+    --     br.loaded = true
+    -- end
 
     self.profile = specName
 

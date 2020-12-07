@@ -149,7 +149,7 @@ function BadRotationsUpdate(self)
 					--br:loadLastProfileTracker()
 					br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"] or 1
 					-- Load Profile
-					br.loaded = false
+					-- br.loaded = false
 					br.player = br.loader:new(playerSpec, br.selectedSpec)
 					setmetatable(br.player, {__index = br.loader})
 					br.ui:closeWindow("profile")
@@ -209,6 +209,7 @@ function BadRotationsUpdate(self)
 					br.ui:closeWindow("all")
 					-- Update Selected Spec/Profile
 					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+					br.loader.loadProfiles()
 					br.loadLastProfileTracker()
 					br.activeSpecGroup = GetActiveSpecGroup()
 					br.data.loadedSettings = false
