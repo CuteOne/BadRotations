@@ -126,7 +126,7 @@ function br:loadLastProfileTracker()
 		Print("Tracker Load - Last Profile: "..tostring(br.data.settings[selectedProfile]['RotationDrop']))
         if br.data.tracker[selectedProfile]['RotationDropValue'] ~= nil then
 			br.data.settings[selectedProfile]['RotationDropValue'] = br.data.tracker[selectedProfile]['RotationDropValue']            
-		else
+		elseif br.rotations[specID] ~= nil then
 			br.data.settings[selectedProfile]['RotationDropValue'] = br.rotations[specID][1].name
 			br.data.tracker[selectedProfile]['RotationDropValue'] = br.rotations[specID][1].name
 		end

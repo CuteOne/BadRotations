@@ -665,7 +665,7 @@ function pause(skipCastingCheck)
 		end
 	end
 	-- Pause Toggle
-	if br.data.settings[br.selectedSpec].toggles["Pause"] == 1 then
+	if br.data.settings[br.selectedSpec].toggles ~= nil and br.data.settings[br.selectedSpec].toggles["Pause"] == 1 then
 		ChatOverlay("\124cFFED0000 -- Paused -- ")
 		return true
 	end
