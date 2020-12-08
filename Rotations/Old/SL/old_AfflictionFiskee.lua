@@ -1,279 +1,414 @@
-local rotationName = "Fiskee - 8.0.1"
+local rotationName = "AfflictionFiskee"
+local rotationVer  = "v1.4.8"
 local dsInterrupt = false
+----------------------------------------------------
+-- Credit to Aura for this rotation's base.
+----------------------------------------------------
+
+----------------------------------------------------
+-- Credit and huge thanks to:
+----------------------------------------------------
+--[[
+
+Damply#3489
+
+.G.#1338 
+
+Netpunk | Ben#7486 
+
+
+--]]
+
+----------------------------------------------------
+-- on Discord!
+----------------------------------------------------
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
--- Rotation Button
+local function createToggles() -- Define custom toggles
+    -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.agony},
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.seedOfCorruption},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shadowBolt},
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healthFunnel}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.agony},
+        -- [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
+        -- [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
+        [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healthFunnel}
     };
     CreateButton("Rotation",1,0)
--- Cooldown Button
+    -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.summonDarkglare},
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.summonDarkglare},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.summonDarkglare},
-        [4] = { mode = "Lust", value = 4 , overlay = "Cooldowns With Bloodlust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.summonDarkglare}
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.summonDarkglare}
     };
-   	CreateButton("Cooldown",2,0)
--- Defensive Button
+    CreateButton("Cooldown",2,0)
+    -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.unendingResolve},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.unendingResolve}
     };
     CreateButton("Defensive",3,0)
--- Interrupt Button
+    -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.spellLock},
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.spellLock}
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.fear},
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.fear}
     };
     CreateButton("Interrupt",4,0)
--- UA Mode
-    UAModes = {
-        [1] = { mode = "On", value = 1 , overlay = "UA spam enabled", tip = "UA spam enabled, default option for raids and dungeons", highlight = 1, icon = br.player.spell.unstableAffliction},
-        [2] = { mode = "Off", value = 2 , overlay = "UA spam diabled", tip = "Will not spam UA, usefull for questing ect.", highlight = 0, icon = br.player.spell.unstableAffliction}
+    --Pet summon
+    PetSummonModes = {
+        [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spell.summonImp },
+        [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spell.summonVoidwalker },
+        [3] = { mode = "3", value = 3 , overlay = "Felhunter", tip = "Summon Felhunter", highlight = 1, icon = br.player.spell.summonFelhunter },
+        [4] = { mode = "4", value = 4 , overlay = "Succubus", tip = "Summon Succubus", highlight = 1, icon = br.player.spell.summonSuccubus },
+        [5] = { mode = "None", value = 5 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.conflagrate }
     };
-    CreateButton("UA",5,0)
--- Phantom Singularity Button
-    PSModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Phantom Singularity enabled", tip = "Rotation will use Phantom Singularity.", highlight = 1, icon = br.player.spell.phantomSingularity},
-        [2] = { mode = "Off", value = 2 , overlay = "Phantom Singularity diabled", tip = "Phantom Singularity diabled.", highlight = 0, icon = br.player.spell.phantomSingularity}
+    CreateButton("PetSummon",5,0)
+    -- Single Target Focus
+    SingleModes = {
+        [1] = { mode = "On", value = 1, overlay = "Single Target Focus", tip = "Single Target Focus", highlight = 1, icon = br.player.spell.shadowBolt},
+        [2] = { mode = "Off", value = 2, overlay = "Multi Target Focus", tip = "Multi Target Focus", highlight = 1, icon = br.player.spell.agony}
     };
-    CreateButton("PS",6,0)
--- Seed of Corruption Button
-    SeedModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Seed of Corruption enabled", tip = "Rotation will use Seed of Corruption.", highlight = 1, icon = br.player.spell.seedOfCorruption},
-        [2] = { mode = "Off", value = 2 , overlay = "Seed of Corruption diabled", tip = "Seed of Corruption diabled.", highlight = 0, icon = br.player.spell.seedOfCorruption}
-    };
-    CreateButton("Seed",7,0)
+    CreateButton("Single",6,0)
 end
+
+-- function br.ui:createCDOption(parent, text, tooltip, hideCheckbox)
+-- 	local cooldownModes = {"Always", "Always Boss", "OnCooldown", "OnCooldown Boss"}
+-- 	local tooltipDrop = cPurple.."Always"..cWhite..": Will only use the ability even if the Cooldown Toggle is "..cRed.."Disabled"..cWhite..[[. 
+-- ]]..cPurple.."Always Boss"..cWhite..": Will only use the ability even if the Cooldown Toggle is "..cRed.."Disabled"..cWhite.." as long as the current target is a Boss"..[[. 
+-- ]]..cPurple.."OnCooldown"..cWhite..": Will only use the ability if the Cooldown Toggle is "..cGreen.."Enabled"..cWhite..[[. 
+-- ]]..cPurple.."OnCooldown Boss"..cWhite..": Will only use the ability if the Cooldown Toggle is "..cGreen.."Enabled"..cWhite.." and Target is a Boss."
+-- 	br.ui:createDropdown(parent, text, cooldownModes, 3, tooltip, tooltipDrop, hideCheckbox)
+-- end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
+local function createOptions ()
+	local optionTable
 
-    local function rotationOptions()
-        local rotationKeys = {"None", GetBindingKey("Rotation Function 1"), GetBindingKey("Rotation Function 2"), GetBindingKey("Rotation Function 3"), GetBindingKey("Rotation Function 4"), GetBindingKey("Rotation Function 5")}
-        local section
-    -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
-        -- Dummy DPS Test
+	local function rotationOptions ()
+		-----------------------
+		--- GENERAL OPTIONS ---
+		-----------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. General ".. ".:|:. ".. rotationVer)
+            -- Multi-Target Units
+            br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffFFBB00Health Percentage to use at.")
+
+            -- APL
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling"}, 1, "|cffFFBB00Set APL Mode to use.")
+
+            -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  2,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Opener
-            --br.ui:createCheckbox(section,"Opener")
-        -- Pet Management
+
+            -- Pig Catcher
+            br.ui:createCheckbox(section, "Pig Catcher")
+
+            -- Auto Engage
+            br.ui:createCheckbox(section,"Auto Engage")
+
+            -- Pet Management
             br.ui:createCheckbox(section, "Pet Management", "|cffFFFFFF Select to enable/disable auto pet management")
-        -- Summon Pet
-            br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus", "None"}, 1, "|cffFFFFFFSelect default pet to summon.")
-        -- Mana Tap
-            br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
-        -- Multi-Dot Limit
-            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
-        -- Phantom Singularity
-            br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
-        -- Phantom Singularity
-            br.ui:createDropdownWithout(section, "Phantom Singularity Target", {"Target", "Best"}, 1, "|cffFFFFFFPhantom Singularity target")
-        -- Burst target key
-            br.ui:createDropdown(section,"Burst Target Key (hold)", rotationKeys, 1, "","|cffFFFFFFKey for bursting current target.")
-        -- CDs with Burst target key
-            br.ui:createCheckbox(section, "CDs With Burst Key", "|cffFFFFFF Pop CDs with burst key, ignoring CD setting")
-        -- Shadowfury Hotkey
-            br.ui:createDropdown(section,"Shadowfury Hotkey (hold)", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
-        -- Shadowfury Target
-            br.ui:createDropdownWithout(section, "Shadowfury Target", {"Best", "Target", "Cursor"}, 1, "|cffFFFFFFShadowfury target")
-        -- No Dot units
-            br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
-        -- Spread agony on single target
-            br.ui:createCheckbox(section, "Spread Agony on ST", "|cffFFFFFF Check to spread agony when running in single target")
-        -- Auto target
-            br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
-        -- Dot everything
-            br.ui:createCheckbox(section, "Dot Everything (WARNING)", "|cffFFFFFF Will dot ALL units around, don't use in raids/dungeons")
+
+            -- Fel Domination
+            br.ui:createCheckbox(section, "Fel Domination", "|cffFFFFFF Toggle the auto casting of Fel Donmination")
+
+            -- Pet - Auto Attack/Passive
+            br.ui:createCheckbox(section, "Pet - Auto Attack/Passive")
+
+            -- Use Essence
+            br.ui:createCheckbox(section, "Use Essence")
+
+            -- Concentrated Flame
+            br.ui:createSpinnerWithout(section, "Concentrated Flame", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+
+            -- Azerite Beam Units
+            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
+
+            -- Flask
+            br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of Endless Fathoms","Flask of Endless Fathoms","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+
+            -- Pre-Pull Timer
+            br.ui:createSpinner(section, "Pre-Pull Timer", 2, 0, 10, 0.1, "Set desired time offset to opener (DBM Required). Min: 0 / Max: 10 / Interval: 0.1")
+            
         br.ui:checkSectionState(section)
-    -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Racial
-            br.ui:createCheckbox(section,"Racial")
-        -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
-        -- PS with CDs
-            br.ui:createCheckbox(section,"Ignore PS units when using CDs")
+
+        ----------------------
+		--- TOGGLE OPTIONS ---
+		----------------------
+		section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
+        -- Single/Multi Toggle
+            br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  6)
+            --Cooldown Key Toggle
+            br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle,  6)
+            --Defensive Key Toggle
+            br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
+            -- Interrupts Key Toggle
+            br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)  
         br.ui:checkSectionState(section)
-    -- Defensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Healthstone
-            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Gift of The Naaru
+
+        -------------------------
+        --- Damage Over Time  ---
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. DoTs")
+            -- Unstable Affliction Mouseover
+            -- No Dot units
+            br.ui:createCheckbox(section, "Mousever UA", "Toggles casting unstable Affliction to your mouseover target")
+
+            -- Max Dots
+            br.ui:createSpinner(section, "Agony Count", 8, 1, 25, 1, "The maximum amount of running Agony. Standard is 8")   
+            br.ui:createSpinner(section, "Corruption Count", 8, 1, 25, 1, "The maximum amount of running Corruption. Standard is 8")
+            br.ui:createSpinner(section, "Siphon Life Count", 8, 1, 25, 1, "The maximum amount of running Siphon Life. Standard is 8")
+            
+			-- No Dot units
+            br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
+
+            -- Darkglare dots
+            br.ui:createSpinner(section, "Darkglare Dots", 3, 0, 4, 1, "Total number of dots needed on target to cast Darkglare (excluding UA). Standard is 3. Uncheck for auto use.")
+
+			-- Spread agony on single target
+            br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amount of additionally running Agony. Standard is 3")
+        br.ui:checkSectionState(section)
+
+		-------------------------
+        --- OFFENSIVE OPTIONS ---
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Affliction .:|:. Offensive")
+            -- Darkglare
+            br.ui:createDropdown(section, "Darkglare", {"|cffFFFFFFAuto", "|cffFFFFFFMax-Dot Duration",	"|cffFFFFFFOn Cooldown"}, 1, "|cffFFFFFFWhen to cast Darkglare")
+
+			-- Agi Pot
+            br.ui:createCheckbox(section, "Potion", "Use Potion")
+
+            -- Augment
+            br.ui:createCheckbox(section, "Augment", "Use Augment")
+
+            -- Racial
+            br.ui:createCheckbox(section, "Racial", "Use Racial")
+            
+			-- Trinkets
+            br.ui:createCheckbox(section, "Trinkets", "Use Trinkets")
+
+            -- Blood oF The Enemy
+            br.ui:createCheckbox(section, "Blood oF The Enemy", "Use Blood of the enemy, line it up with darkglare")
+
+            -- Malefic Rapture
+            br.ui:createSpinner(section, "Malefic Rapture TTD", 20, 1, 100, 1, "The TTD to be <= to inside a raid/instance to start casting MR to burn")
+
+            -- Malefic Rapture
+            br.ui:createSpinner(section, "Malefic Rapture BloodLust", "Cast Malefic Rapture during bloodlust if you have at least 1 shard")
+
+            -- Haunt TTD
+            br.ui:createSpinner(section, "Haunt TTD", 6, 1, 15, 1, "The TTD before casting Haunt")
+
+            -- Drain Soul Canceling
+            --br.ui:createSpinner(section, "Drain Soul Clipping", 4, 1, 5, 1, "The tick of Drain Soul to cancel the cast at (5-6 ticks total)", true)
+
+            -- Unstable Affliction Priority Mark
+            --br.ui:createDropdown(section, "Priority Unit", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize",true)
+
+
+
+            -- Seed of Corruption
+            --br.ui:createSpinner(section, "Seed of Corruption Unit", 4, 1, 15, 1, nil, "Unit count to cast Seed of Corruption at", true)
+
+            
+			-- UA Shards
+			--br.ui:createSpinner(section, "UA Shards", 5, 1, 5, 1, nil, "Use UA on Shards", true)
+        br.ui:checkSectionState(section)
+		-------------------------
+		--- DEFENSIVE OPTIONS ---
+		-------------------------
+		section = br.ui:createSection(br.ui.window.profile, "Affliction .:|:. Defensive")
+            -- Soulstone
+		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover","|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
+            1, "|cffFFFFFFTarget to cast on")
+            
+            --- Healthstone Creation
+            br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFFFFFToggle creating healthstones, and how many in bag before creating more")
+
+            -- Healthstone
+            br.ui:createSpinner(section, "Pot/Stoned",  45,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+
+            -- Demonic Gateway
+            br.ui:createDropdown(section, "Demonic Gateway", br.dropOptions.Toggle, 6)
+
+            -- Heirloom Neck
+            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            -- Gift of The Naaru
             if br.player.race == "Draenei" then
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             end
-        -- Dark Pact
+
+            -- Dark Pact
             br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Drain Life
-            br.ui:createSpinner(section, "Drain Life", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Health Funnel
-            br.ui:createSpinner(section, "Health Funnel", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Unending Resolve
+
+            -- Mortal Coil 
+            br.ui:createSpinner(section, "Mortal Coil",  23,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+
+            -- Drain Life
+            br.ui:createSpinner(section, "Drain Life", 48, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+
+            -- Health Funnel
+            br.ui:createSpinner(section, "Health Funnel (Demon)", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Demon to Cast At")
+
+            br.ui:createSpinnerWithout(section, "Health Funnel (Player)", 50, 0, 100, 5, "|cffFFFFFFHealth Percent of Player to Cast At")
+
+            -- Unending Resolve
             br.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        --Soulstone
-            br.ui:createCheckbox(section,"Auto Soulstone Player", "|cffFFFFFF Will put soulstone on player outside raids and dungeons")
-        --Soulstone mouseover
-            br.ui:createCheckbox(section,"Auto Soulstone Mouseover", "|cffFFFFFF Auto soulstone your mouseover if dead")
-        --Dispel
-            br.ui:createCheckbox(section,"Auto Dispel/Purge", "|cffFFFFFF Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
+
+            -- Devour Magic
+            br.ui:createDropdown(section,"Devour Magic", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
+
         br.ui:checkSectionState(section)
-    -- Interrupt Options
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-    -- Interrupt Percentage
+        -- Interrupt Options
+        section = br.ui:createSection(br.ui.window.profile, "Affliction .:|:. Interrupts")
+            br.ui:createDropdown(section, "Shadowfury Key", br.dropOptions.Toggle, 6)
+
+            -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+
         br.ui:checkSectionState(section)
-    -- Toggle Key Options
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
-        -- Cooldown Key Toggle
-            br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
-        -- Defensive Key Toggle
-            br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
-        -- Interrupts Key Toggle
-            br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-        -- Pause Toggle
-            br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions}}
-    return optionTable
+	end
+	optionTable = {{
+		[1] = "Rotation Options",
+		[2] = rotationOptions,
+	}}
+	return optionTable
 end
+
 ----------------
 --- ROTATION ---
-----------------
 local function runRotation()
-    -- if br.timer:useTimer("debugAffliction", math.random(0.15,0.3)) then
-        --Print("Running: "..rotationName)
----------------
---- Toggles ---
----------------
-    UpdateToggle("Rotation",0.25)
-    UpdateToggle("Cooldown",0.25)
-    UpdateToggle("Defensive",0.25)
-    UpdateToggle("Interrupt",0.25)
-    br.player.ui.mode.ua = br.data.settings[br.selectedSpec].toggles["UA"]
-    br.player.ui.mode.ps = br.data.settings[br.selectedSpec].toggles["PS"]
-    br.player.ui.mode.seed = br.data.settings[br.selectedSpec].toggles["Seed"]
+    ---------------
+    --- Toggles ---
+    ---------------
+    UpdateToggle("Rotation", 0.25)
+    UpdateToggle("Cooldown", 0.25)
+    UpdateToggle("Defensive", 0.25)
+    UpdateToggle("Interrupt", 0.25)
 
---------------
---- Locals ---
---------------
-    local activePet                                     = br.player.pet
-    local activePetId                                   = br.player.petId
-    local agonyCount                                    = br.player.debuff.agony.count()
-    local buff                                          = br.player.buff
-    local cast                                          = br.player.cast
-    local castable                                      = br.player.cast.debug
-    local combatTime                                    = getCombatTime()
-    local cd                                            = br.player.cd
-    local charges                                       = br.player.charges
-    local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
-    local debuff                                        = br.player.debuff
-    local enemies                                       = br.player.enemies
-    local equiped                                       = br.player.equiped
-    local falling, swimming, flying                     = getFallTime(), IsSwimming(), IsFlying()
-    local friendly                                      = friendly or GetUnitIsFriend("target", "player")
-    local gcd                                           = br.player.gcdMax
-    local hasMouse                                      = GetObjectExists("mouseover")
-    local hasteAmount                                   = GetHaste()/100
-    local hasPet                                        = IsPetActive()
-    local healPot                                       = getHealthPot()
-    local heirloomNeck                                  = 122663 or 122664
-    local inCombat                                      = isInCombat("player")
-    local inInstance                                    = br.player.instance=="party"
-    local inRaid                                        = br.player.instance=="raid"
-    local lastSpell                                     = lastSpellCast
-    local level                                         = br.player.level
-    local manaPercent                                   = br.player.power.mana.percent()
-    local mode                                          = br.player.ui.mode
-    local moving                                        = isMoving("player") ~= false or br.player.moving
-    local pet                                           = br.player.pet.list
-    local php                                           = br.player.health
-    local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
-    local pullTimer                                     = br.DBM:getPulltimer()
-    local race                                          = br.player.race
-    local shards                                        = br.player.power.soulShards.amount()
-    local siphonCount                                   = br.player.debuff.siphonLife.count()
-    local summonPet                                     = getOptionValue("Summon Pet")
-    local solo                                          = br.player.instance=="none"
-    local spell                                         = br.player.spell
-    local talent                                        = br.player.talent
-    local thp                                           = getHP("target")
-    local traits                                        = br.player.traits
-    local travelTime                                    = getDistance("target")/16
-    local ttm                                           = br.player.power.mana.ttm()
-    local units                                         = br.player.units
-    local use                                           = br.player.use
+    --------------
+    --- Locals ---
+    --------------
+    local activePet = br.player.pet
+    local activePetId = br.player.petId
+    local artifact = br.player.artifact
+    local agonyCount = br.player.debuff.agony.count()
+    local buff = br.player.buff
+    local cast = br.player.cast
+    local castable = br.player.cast.debug
+    local combatTime = getCombatTime()
+    local corruptionCount = br.player.debuff.corruption.count()
+    local cd = br.player.cd
+    local charges = br.player.charges
+    local deadMouse = UnitIsDeadOrGhost("mouseover")
+    local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+    local debuff = br.player.debuff
+    local enemies = br.player.enemies
+    local equiped = br.player.equiped
+    local falling, swimming, flying = getFallTime(), IsSwimming(), IsFlying()
+    local friendly = friendly or GetUnitIsFriend("target", "player")
+    local gcd = br.player.gcdMax
+    local gcdMax = br.player.gcdMax
+    local hasMouse = GetObjectExists("mouseover")
+    local hasteAmount = GetHaste() / 100
+    local hasPet = IsPetActive()
+    local healPot = getHealthPot()
+    local heirloomNeck = 122663 or 122664
+    local inCombat = isInCombat("player")
+    local inInstance = br.player.instance == "party"
+    local inRaid = br.player.instance == "raid"
+    local lastSpell = lastSpellCast
+    local level = br.player.level
+    local ui = br.player.ui
+    local cl = br.read
+    local lootDelay = getOptionValue("LootDelay")
+    local manaPercent = br.player.power.mana.percent()
+    local mode = br.player.ui.mode
+    local moving = isMoving("player") ~= false or br.player.moving
+    local pet = br.player.pet
+    local php = br.player.health
+    local playerMouse = UnitIsPlayer("mouseover")
+    local power, powmax, powgen, powerDeficit = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
+    local pullTimer = PullTimerRemain()
+    local race = br.player.race
+    local shards = UnitPower("player", Enum.PowerType.SoulShards)
+    local summonPet = getOptionValue("Summon Pet")
+    local solo = br.player.instance == "none"
+    local siphonLifeCount = br.player.debuff.siphonLife.count()
+    local spell = br.player.spell
+    local spellHaste = (1 + (GetHaste()/100))
+    local talent = br.player.talent
+    local thp = getHP("target")
+    local trait = br.player.traits
+    local travelTime = getDistance("target") / 16
+    local ttm = br.player.power.mana.ttm()
+    local units = br.player.units
+    local use = br.player.use
+    actionList = {}
 
     units.get(40)
-    enemies.get(15,"target")
-    if not isChecked("Dot Everything (WARNING)") then
-        enemies.get(40)
-    else
-        enemies.yards40 = enemies.get(40, "player", true)
+    enemies.get(10)
+    enemies.get(10, "target", true)
+    enemies.get(40, nil, nil, nil, spell.drainSoul)
+
+    -- Profile Specific Locals
+    if actionList_PetManagement == nil then
+        loadSupport("PetCuteOne")
+        actionList_PetManagement = br.rotations.support["PetCuteOne"]
     end
 
-    if leftCombat == nil then leftCombat = GetTime() end
-    if profileStop == nil or not inCombat then profileStop = false end
-    if castSummonId == nil then castSummonId = 0 end
-    if summonTime == nil then summonTime = 0 end
+    if leftCombat == nil then
+        leftCombat = GetTime()
+    end
+    if profileStop == nil or not inCombat then
+        profileStop = false
+    end
+    if castSummonId == nil then
+        castSummonId = 0
+    end
+    if summonTime == nil then
+        summonTime = 0
+    end
 
+    -- spellqueue ready
+    local function spellQueueReady()
+        --Check if we can queue cast
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[5] then
+            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                return false
+            end
+        end
+        return true
+    end
+
+    --ttd
     local function ttd(unit)
-        if UnitIsPlayer(unit) then return 999 end
         local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
-        if ttdSec == -1 then return 999 end
+        if getOptionCheck("Enhanced Time to Die") then
+            return ttdSec
+        end
+        if ttdSec == -1 then
+            return 999
+        end
         return ttdSec
     end
-    ---
-    local function isCC(unit)
-        if getOptionCheck("Don't break CCs") then return isLongTimeCCed(Unit) end
-        return false
+
+    -- AoE Units
+    local aoeUnits = 0
+    for i = 1, #enemies.yards10tnc do
+        local thisUnit = enemies.yards10tnc[i]
+        if ttd(thisUnit) > 4 then
+            aoeUnits = aoeUnits + 1
+        end
     end
 
-    --Keybindings
-    local shadowfuryKey = false
-    local burstKey = false
-    if getOptionValue("Shadowfury Hotkey (hold)") ~= 1 then
-        shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey (hold)")-1)]
-        if shadowfuryKey == nil then shadowfuryKey = false end
-    end
-    if getOptionValue("Burst Target Key (hold)") ~= 1 then
-        burstKey = _G["rotationFunction"..(getOptionValue("Burst Target Key (hold)")-1)]
-        if burstKey == nil then burstKey = false end
-    end
-    --if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
-
-    if hasEquiped(132394) then agonyTick = 2 * 0.9 else agonyTick = 2 / (1 + (GetHaste()/100)) end
-    local corruptionTick = 2 / (1 + (GetHaste()/100))
-    local siphonTick = 3 / (1 + (GetHaste()/100))
-
-    if debuff.unstableAffliction == nil then debuff.unstableAffliction = {} end
-
+    -- Blacklist enemies
     local function isTotem(unit)
-        local eliteTotems = { -- totems we can dot
+        local eliteTotems = {
+            -- totems we can dot
             [125977] = "Reanimate Totem",
             [127315] = "Reanimate Totem",
             [146731] = "Zombie Dust Totem"
@@ -281,146 +416,125 @@ local function runRotation()
         local creatureType = UnitCreatureType(unit)
         local objectID = GetObjectID(unit)
         if creatureType ~= nil and eliteTotems[objectID] == nil then
-            if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+            if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then
+                return true
+            end
         end
         return false
     end
 
-    function debuff.unstableAffliction.stack(unit)
-        local uaStack = 0
-        if unit == nil then
-            if GetUnitExists("target") then unit = "target"
-            else unit = units.dyn40
-            end
-        end
-        for i=1,40 do
-            local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
-            if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
-            buffSpellID == 233498 or buffSpellID == 233499) and GetUnitIsUnit(buffCaster, "player") then uaStack = uaStack + 1 end
-        end
-        return uaStack
-    end
-
-    function debuff.unstableAffliction.remain(unit)
-        local remain = 0
-        if unit == nil then
-            if GetUnitExists("target") then unit = "target"
-            else unit = units.dyn40
-            end
-        end
-        for i=1,40 do
-            local _,_,_,_,_,buffExpire,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
-            if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
-            buffSpellID == 233498 or buffSpellID == 233499) and GetUnitIsUnit(buffCaster, "player") then
-                if (buffExpire - GetTime()) > remain then remain = (buffExpire - GetTime()) end
-            end
-        end
-        return remain
-    end
-    -- Blacklist dots
     local noDotUnits = {
-        [135824]=true, -- Nerubian Voidweaver
-        [139057]=true, -- Nazmani Bloodhexer
-        [129359]=true, -- Sawtooth Shark
-        [129448]=true, -- Hammer Shark
-        [134503]=true, -- Silithid Warrior
-        [137458]=true, -- Rotting Spore
-        [139185]=true, -- Minion of Zul
-        [120651]=true -- Explosive
+        [135824] = true, -- Nerubian Voidweaver
+        [139057] = true, -- Nazmani Bloodhexer
+        [129359] = true, -- Sawtooth Shark
+        [129448] = true, -- Hammer Shark
+        [134503] = true, -- Silithid Warrior
+        [137458] = true, -- Rotting Spore
+        [139185] = true, -- Minion of Zul
+        [120651] = true -- Explosive
     }
+
     local function noDotCheck(unit)
-        if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
-        if isTotem(unit) then return true end
-        unitCreator = UnitCreator(unit)
-        if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
-        if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
+        if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then
+            return true
+        end
+        if isTotem(unit) then
+            return true
+        end
+        local unitCreator = UnitCreator(unit)
+        if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then
+            return true
+        end
+        if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then
+            return true
+        end
         return false
     end
+
     --Defensive dispel whitelist, value is for range to allies on the unit you are dispelling
     local dDispelList = {
-        [255584]=0, -- Molten Gold
-        [255041]=0, -- terrifying-screech
-        [257908]=0, -- Oiled Blade
-        [270920]=0, -- seduction
-        [268233]=0, -- Electrifying Shock
-        [268896]=0, -- Mind Rend
-        [272571]=0, -- choking-waters
-        [275014]=5, -- putrid-waters
-        [268008]=0, -- snake-charm
-        [280605]=0, -- brain-freeze
-        [275102]=0, -- shocking-claw
-        [268797]=0, -- transmute-enemy-to-goo
-        [268846]=0, -- echo-blade
-        [263891]=0, -- grasping-thorns
+        [255584] = 0, -- Molten Gold
+        [255041] = 0, -- terrifying-screech
+        [257908] = 0, -- Oiled Blade
+        [270920] = 0, -- seduction
+        [268233] = 0, -- Electrifying Shock
+        [268896] = 0, -- Mind Rend
+        [272571] = 0, -- choking-waters
+        [275014] = 5, -- putrid-waters
+        [268008] = 0, -- snake-charm
+        [280605] = 0, -- brain-freeze
+        [275102] = 0, -- shocking-claw
+        [268797] = 0, -- transmute-enemy-to-goo
+        [268846] = 0, -- echo-blade
+        [263891] = 0 -- grasping-thorns
     }
 
     --Offensive dispel whitelist, value is for range to allies on the unit you are dispelling
     local oDispelList = {
-        [255579]=0, -- Gilded Claws
-        [257397]=0, -- Healing Balm
-        [273432]=0, -- Bound by Shadow
-        [270901]=0, -- Induce Regeneration
-        [267977]=0, -- tidal-surge
-        [268030]=0, -- mending-rapids
-        [276767]=0, -- Consuming Void
-        [272659]=0, -- electrified-scales
-        [269896]=0, -- embryonic-vigor
-        [269129]=0, -- accumulated-charge
-        [268709]=0, -- earth-shield
-        [263215]=0, -- tectonic-barrier
-        [262947]=0, -- azerite-injection
-        [262540]=0, -- overcharge
-        [265091]=0, -- gift-of-ghuun
-        [266201]=0, -- bone-shield
-        [258133]=0, -- darkstep
-        [258153]=0, -- watery-dome
-        [278567]=0, -- soul-fetish
+        [255579] = 0, -- Gilded Claws
+        [257397] = 0, -- Healing Balm
+        [273432] = 0, -- Bound by Shadow
+        [270901] = 0, -- Induce Regeneration
+        [267977] = 0, -- tidal-surge
+        [268030] = 0, -- mending-rapids
+        [276767] = 0, -- Consuming Void
+        [272659] = 0, -- electrified-scales
+        [269896] = 0, -- embryonic-vigor
+        [269129] = 0, -- accumulated-charge
+        [268709] = 0, -- earth-shield
+        [263215] = 0, -- tectonic-barrier
+        [262947] = 0, -- azerite-injection
+        [262540] = 0, -- overcharge
+        [265091] = 0, -- gift-of-ghuun
+        [266201] = 0, -- bone-shield
+        [258133] = 0, -- darkstep
+        [258153] = 0, -- watery-dome
+        [278567] = 0 -- soul-fetish
     }
 
     local function dispelUnit(unit)
-    local i = 1
-    local remain
-    local validDispel = false
-    local dispelDuration = 0
-    if UnitInPhase(unit) then
-        if GetUnitIsFriend("player",unit)then
-            while UnitDebuff(unit,i) do
-                local _,_,_,dispelType,debuffDuration,expire,_,_,_,dispelId = UnitDebuff(unit,i)
-                if ((dispelType and dispelType == "Magic")) and dDispelList[dispelId] ~= nil and (dDispelList[dispelId] == 0 or (dDispelList[dispelId] > 0 and #getAllies(unit, dDispelList[dispelId]) == 1)) then
-                    dispelDuration = debuffDuration
-                    remain = expire - GetTime()
-                    validDispel = true
-                    break
+        local i = 1
+        local remain
+        local validDispel = false
+        local dispelDuration = 0
+        if UnitInPhase(unit) then
+            if GetUnitIsFriend("player", unit) then
+                while UnitDebuff(unit, i) do
+                    local _, _, _, dispelType, debuffDuration, expire, _, _, _, dispelId = UnitDebuff(unit, i)
+                    if (dispelType and dispelType == "Magic") and dDispelList[dispelId] ~= nil and (dDispelList[dispelId] == 0 or (dDispelList[dispelId] > 0 and #getAllies(unit, dDispelList[dispelId]) == 1)) then
+                        dispelDuration = debuffDuration
+                        remain = expire - GetTime()
+                        validDispel = true
+                        break
+                    end
+                    i = i + 1
                 end
-                i = i + 1
-            end
-        else
-            while UnitBuff(unit,i) do
-                local _,_,_,dispelType,buffDuration,expire,_,_,_,dispelId = UnitBuff(unit,i)
-                if ((dispelType and dispelType == "Magic")) and oDispelList[dispelId] ~= nil and (oDispelList[dispelId] == 0 or (oDispelList[dispelId] > 0 and #getAllies(unit, oDispelList[dispelId]) == 0)) then
-                    dispelDuration = buffDuration
-                    remain = expire - GetTime()
-                    validDispel = true
-                    break
+            else
+                while UnitBuff(unit, i) do
+                    local _, _, _, dispelType, buffDuration, expire, _, _, _, dispelId = UnitBuff(unit, i)
+                    if (dispelType and dispelType == "Magic") and oDispelList[dispelId] ~= nil and (oDispelList[dispelId] == 0 or (oDispelList[dispelId] > 0 and #getAllies(unit, oDispelList[dispelId]) == 0)) then
+                        dispelDuration = buffDuration
+                        remain = expire - GetTime()
+                        validDispel = true
+                        break
+                    end
+                    i = i + 1
                 end
-                i = i + 1
             end
         end
-    end
-    local dispelDelay = 1.5
-    if isChecked("Dispel delay") then dispelDelay = getValue("Dispel delay") end
-    if validDispel and (dispelDuration - remain) > (dispelDelay-0.3 + math.random() * 0.6) then
-        return true
-    end
-    return false
-    end
-    -- spell usable check
-    local function spellUsable(spellID)
-        if isKnown(spellID) and not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 then return true end
+        local dispelDelay = 1.5
+        if isChecked("Dispel delay") then
+            dispelDelay = getValue("Dispel delay")
+        end
+        if validDispel and (dispelDuration - remain) > (dispelDelay - 0.3 + math.random() * 0.6) then
+            return true
+        end
         return false
     end
+
     --local enemies table with extra data
-    local enemyTable40 = { }
+    local facingUnits = 0
+    local enemyTable40 = {}
     if #enemies.yards40 > 0 then
         local highestHP
         local lowestHP
@@ -428,74 +542,78 @@ local function runRotation()
         local distance20Min
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (not isChecked("Dot Everything (WARNING)") or (isChecked("Dot Everything (WARNING)") and not isCC(thisUnit))) then
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
                 enemyUnit.distance = getDistance(thisUnit)
-                enemyUnit.distance20 = math.abs(getDistance(thisUnit)-20)
+                enemyUnit.distance20 = math.abs(getDistance(thisUnit) - 20)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
-                enemyUnit.facing = getFacing("player",thisUnit)
+                enemyUnit.facing = getFacing("player", thisUnit)
+                if enemyUnit.facing then
+                    facingUnits = facingUnits + 1
+                end
                 tinsert(enemyTable40, enemyUnit)
-                if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
-                if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
-                if distance20Max == nil or distance20Max < enemyUnit.distance20 then distance20Max = enemyUnit.distance20 end
-                if distance20Min == nil or distance20Min > enemyUnit.distance20 then distance20Min = enemyUnit.distance20 end
+                if highestHP == nil or highestHP < enemyUnit.hpabs then
+                    highestHP = enemyUnit.hpabs
+                end
+                if lowestHP == nil or lowestHP > enemyUnit.hpabs then
+                    lowestHP = enemyUnit.hpabs
+                end
+                if distance20Max == nil or distance20Max < enemyUnit.distance20 then
+                    distance20Max = enemyUnit.distance20
+                end
+                if distance20Min == nil or distance20Min > enemyUnit.distance20 then
+                    distance20Min = enemyUnit.distance20
+                end
             end
         end
         if #enemyTable40 > 1 then
             for i = 1, #enemyTable40 do
-                local hpNorm = (5-1)/(highestHP-lowestHP)*(enemyTable40[i].hpabs-highestHP)+5 -- normalization of HP value, high is good
-                if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
-                local distance20Norm = (3-1)/(distance20Max-distance20Min)*(enemyTable40[i].distance20-distance20Min)+1 -- normalization of distance 20, low is good
-                if distance20Norm ~= distance20Norm or tostring(distance20Norm) == tostring(0/0) then distance20Norm = 0 end -- NaN check
+                local hpNorm = (5 - 1) / (highestHP - lowestHP) * (enemyTable40[i].hpabs - highestHP) + 5 -- normalization of HP value, high is good
+                if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0 / 0) then
+                    hpNorm = 0
+                end -- NaN check
+                local distance20Norm = (3 - 1) / (distance20Max - distance20Min) * (enemyTable40[i].distance20 - distance20Min) + 1 -- normalization of distance 20, low is good
+                if distance20Norm ~= distance20Norm or tostring(distance20Norm) == tostring(0 / 0) then
+                    distance20Norm = 0
+                end -- NaN check
                 local enemyScore = hpNorm + distance20Norm
-                if enemyTable40[i].facing then enemyScore = enemyScore + 10 end
-                if enemyTable40[i].ttd > 1.5 then enemyScore = enemyScore + 10 end
+                if enemyTable40[i].facing then
+                    enemyScore = enemyScore + 10
+                end
+                if enemyTable40[i].ttd > 1.5 then
+                    enemyScore = enemyScore + 10
+                end
                 enemyTable40[i].enemyScore = enemyScore
             end
-            table.sort(enemyTable40, function(x,y)
-                return x.enemyScore > y.enemyScore
-            end)
+            table.sort(
+                enemyTable40,
+                function(x, y)
+                    return x.enemyScore > y.enemyScore
+                end
+            )
         end
-        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
+        if isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable40[1].unit)
         end
     end
 
-    --azerite.cascading_calamity.enabled&(talent.drain_soul.enabled|talent.deathbolt.enabled&cooldown.deathbolt.remains<=gcd)
-    local cascadingValue = 0
-    if traits.cascadingCalamity.active and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = cast.time.shadowBolt() end
-
-    -- Opener Variables
-    if not inCombat and not GetObjectExists("target") then
-        -- openerCount = 0
-        -- OPN1 = false
-        -- AGN1 = false
-        -- COR1 = false
-        -- SIL1 = false
-        -- PHS1 = false
-        -- UAF1 = false
-        -- UAF2 = false
-        -- RES1 = false
-        -- UAF3 = false
-        -- SOH1 = false
-        -- DRN1 = false
-        -- opener = false
+    --Keybindings
+    local shadowfuryKey = false
+    if getOptionValue("Shadowfury Hotkey (hold)") ~= 1 then
+        shadowfuryKey = _G["rotationFunction" .. (getOptionValue("Shadowfury Hotkey (hold)") - 1)]
+        if shadowfuryKey == nil then
+            shadowfuryKey = false
+        end
     end
-
-    -- Pet Data
-    if summonPet == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
-    elseif summonPet == 1 then summonId = 416
-    elseif summonPet == 2 and HasAttachedGlyph(spell.summonVoidwalker) then summonId = 58960
-    elseif summonPet == 2 then summonId = 1860
-    elseif summonPet == 3 then summonId = 417
-    elseif summonPet == 4 then summonId = 1863 end
-
-    local creepingDeathValue = 0
-    if talent.creepingDeath then creepingDeathValue = 1 end
-    local writheInAgonyValue = 0
-    if talent.writheInAgony then writheInAgonyValue = 1 end
+    -- spell usable check
+    local function spellUsable(spellID)
+        if isKnown(spellID) and not select(2, IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 then
+            return true
+        end
+        return false
+    end
 
     local seedTarget = seedTarget or "target"
     local dsTarget
@@ -504,6 +622,7 @@ local function runRotation()
     local seedTargetCorruptionExist = 0
     local seedTargetsHit = 1
     local lowestShadowEmbrace = lowestShadowEmbrace or "target"
+    local enemyTable40 = enemies.get(40, "player", true)
 
     local inBossFight = false
     for i = 1, #enemyTable40 do
@@ -539,16 +658,6 @@ local function runRotation()
         if getFacing("player",thisUnit) and ttd(thisUnit) <= gcd and getHP(thisUnit) < 80 then
             dsTarget = thisUnit
         end
-    end
-    -- actions=variable,name=spammable_seed,value=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>=3|talent.siphon_life.enabled&spell_targets.seed_of_corruption>=5|spell_targets.seed_of_corruption>=8
-    local spammableSeed = false
-    if (talent.sowTheSeeds and seedTargetsHit >= 3) or (talent.siphonLife and seedTargetsHit >= 5) or (seedTargetsHit >= 8) then
-        spammableSeed = true
-    end
-    -- average = 1.0 / ( 0.184 * std::pow( active_agonies, -2.0 / 3.0 ) ) * dot_tick_time.total_seconds() / active_agonies;
-    local timeToShard = 10
-    if(agonyCount > 0) then
-        timeToShard = 1.0 / (0.184 * math.pow(agonyCount, -2.0 / 3.0)) * agonyTick / agonyCount
     end
 
 --------------------
@@ -1165,5 +1274,5 @@ tinsert(br.rotations[id],{
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-    shadowFury = false
+    shadowFruy = false
 })

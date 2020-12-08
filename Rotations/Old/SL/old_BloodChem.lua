@@ -1,4 +1,4 @@
-local rotationName = "Vilt"
+local rotationName = "Chem - 8.0.1"
 
 ---------------
 --- Toggles ---
@@ -64,16 +64,16 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createSpinnerWithout(section, "APL Mode", 2, 1, 2, 1, "|cffFFBB00APL Mode")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5")
-        -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Artifact
-        --    br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Dark Command
             br.ui:createCheckbox(section,"Dark Command","|cffFFFFFFAuto Dark Command usage.")
+        -- Active Mitigation
+            br.ui:createCheckbox(section,"Active Mitigation","|cffFFFFFF to use Active Mitigation for select spells.")
+        -- Active Mitigation
             br.ui:createCheckbox(section,"Blooddrinker")
+        -- Death's Advance whenever available outside of combat
+          br.ui:createCheckbox(section, "Death's Advance (OOC)", "Death's Advance whenever available outside of combat")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -87,38 +87,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Trinkets")
         -- Dancing Rune Weapon
             br.ui:createCheckbox(section, "Dancing Rune Weapon")
+            br.ui:createCheckbox(section, "Tombstone")
         br.ui:checkSectionState(section)
-    -- Vilt Rotation Options
-    section = br.ui:createSection(br.ui.window.profile, "Vilt Rotation Options")
-        -- Death and Decay Target Amount
-            br.ui:createSpinnerWithout(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD.")
-        -- Use Bonestorm
-            --br.ui:createCheckbox(section,"Use Bonestorm")
-            --RP Hold Toggle
-            br.ui:createDropdown(section,"Hold RP", br.dropOptions.Toggle, 6, "Hold Key to prevent RP spending")
-        -- Bonestorm Target Amount
-            br.ui:createSpinnerWithout(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm")
-        -- Bonestorm RP Amount
-            br.ui:createSpinnerWithout(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm")
-        -- DS High prio
-            br.ui:createSpinnerWithout(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike")
-        -- DS Low prio
-            br.ui:createSpinnerWithout(section, "Death Strike Low Prio", 75, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
-        -- Consumption with Vampiric Blood up
-            br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as filler.")
-        -- high prio blood boil for more dps
-            br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
-        br.ui:checkSectionState(section)
-    -- Essence Options
-        section = br.ui:createSection(br.ui.window.profile, "Essences")
-        -- Lucid Dreams
-            br.ui:createSpinner(section, "Lucid Dreams", 1.5, 0, 6, 0.1,"Runes left to use Lucid Dreams")
-        --Concentrated flame
-            br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
-            br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
-        -- Anima of death
-            br.ui:createSpinner(section,"Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-		br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
@@ -193,6 +163,7 @@ local function runRotation()
 --------------
         local addsExist                                     = false
         local addsIn                                        = 999
+        --local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local canFlask                                      = canUseItem(br.player.flask.wod.staminaBig)
         local cast                                          = br.player.cast
@@ -206,8 +177,9 @@ local function runRotation()
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.staminaBig)
-        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
+        local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -251,6 +223,14 @@ local function runRotation()
         if MRCastTime == nil then MRCastTime = GetTime() end
         if DSCastTime == nil then DSCastTime = GetTime() end
 
+        local function HasMitigationUp()
+            if MRCastTime + 2.5 <= GetTime() or DSCastTime + 2.5 <= GetTime() then
+                return true
+            else 
+                return false
+            end
+        end
+
         UnitsWithoutBloodPlague = 0;
         for _, CycleUnit in pairs(enemies.yards10) do
             if not debuff.bloodPlague.exists(CycleUnit) then
@@ -258,9 +238,78 @@ local function runRotation()
             end
         end
 
+        -- list stolen from AR
+        local ActiveMitigationSpells = {
+            Buff = {
+                -- PR Legion
+                191941, -- Darkstrikes (VotW - 1st)
+                204151, -- Darkstrikes (VotW - 1st)
+                -- T20 ToS
+                239932 -- Felclaws (KJ)
+            },
+            Debuff = {
+
+            },
+            Cast = {
+                -- PR Legion
+                197810, -- Wicked Slam (ARC - 3rd)
+                197418, -- Vengeful Shear (BRH - 2nd)
+                198079, -- Hateful Gaze (BRH - 3rd)
+                214003, -- Coup de Grace (BRH - Trash)
+                235751, -- Timber Smash (CotEN - 1st)
+                193092, -- Bloodletting Sweep (HoV - 1st)
+                193668, -- Savage Blade (HoV - 4th)
+                227493, -- Mortal Strike (LOWR - 4th)
+                228852, -- Shared Suffering (LOWR - 4th)
+                193211, -- Dark Slash (MoS - 1st)
+                200732, -- Molten Crash (NL - 4th)
+                -- T20 ToS
+                241635, -- Hammer of Creation (Maiden)
+                241636, -- Hammer of Obliteration (Maiden)
+                236494, -- Desolate (Avatar)
+                239932, -- Felclaws (KJ)
+                -- T21 Antorus
+                254919, -- Forging Strike (Kin'garoth)
+                244899, -- Fiery Strike (Coven)
+                245458, -- Foe Breaker (Aggramar)
+                248499, -- Sweeping Scythe (Argus)
+                258039 -- Deadly Scythe (Argus)
+            }
+        }
+        -- 193092, -- Bloodletting Sweep (HoV - 1st)
+
+        local function ShouldMitigate()
+            if HasMitigationUp() == true then
+                return false
+            else
+                if UnitThreatSituation("player", "target") == 3 then
+                    if isCasting("target", ActiveMitigationSpells.Cast) then
+                        return true
+                    end
+                    for _, Buff in pairs(ActiveMitigationSpells.Buff) do
+                        if isBuffed("target", Buff) then
+                            return true
+                        end
+                    end
+                end
+            end
+            return false
+        end
+
 --------------------
 --- Action Lists ---
 --------------------
+    -- Action List - Active Mitigation
+        local function actionList_ActiveMitigation()
+            if ShouldMitigate() then
+                if isCastingSpell(spell.blooddrinker) then StopCasting() end
+                if buff.boneShield.stack >= 7 then
+                    if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS"); return end
+                end
+                if cast.marrowrend() then MRCastTime = GetTime(); Print("AM: MR"); return end
+                if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS2"); return end
+            end
+        end
     -- Action List - Extras
         local function actionList_Extras()
         -- Dummy Test
@@ -283,6 +332,20 @@ local function runRotation()
                     end
                 end
             end
+
+            if isChecked("Death's Advance (OOC)") then
+              if cast.able.deathsAdvance then
+                if cast.deathsAdvance() then return end
+              end
+            end
+
+            -- for i = 1, #enemies.yards30 do
+            --   local thisUnit = enemies.yards30[i]
+            --   if UnitCreatureTypes(thisUnit) == "Undead" then
+            --     if cast.controlUndead(thisUnit) then return end
+            --   end
+            -- end
+
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
@@ -328,12 +391,12 @@ local function runRotation()
         -- Raise Ally
                 if isChecked("Raise Ally") then
                     if getOptionValue("Raise Ally - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                     then
                         if cast.raiseAlly("target","dead") then return end
                     end
                     if getOptionValue("Raise Ally - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                     then
                         if cast.raiseAlly("mouseover","dead") then return end
                     end
@@ -374,14 +437,27 @@ local function runRotation()
                         useItem(14)
                     end
                 end
-        -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
-                    if castSpell("player",racial,false,false,false) then return end
+                if isChecked("Racial") then
+                  -- blood_fury,if=cooldown.dancing_rune_weapon.ready&(!cooldown.blooddrinker.ready|!talent.blooddrinker.enabled)
+                  if br.player.race == "Orc" and cast.able.racial() and (not cd.dancingRuneWeapon.exists() and (cd.blooddrinker.exists())) then
+                    return cast.racial()
+                  end
+                  -- arcane_torrent,if=runic_power.deficit>20
+                  if br.player.race == "BloodElf" and cast.able.racial() and (runicPowerDeficit > 20) then
+                    return cast.racial()
+                  end
                 end
-        -- Dancing Rune Weapon
                 if isChecked("Dancing Rune Weapon") then
-                    if cast.dancingRuneWeapon() then return end
+                  -- dancing_rune_weapon,if=!talent.blooddrinker.enabled|!cooldown.blooddrinker.ready
+                  if cast.able.dancingRuneWeapon() and (not talent.blooddrinker or cd.blooddrinker.exists()) then
+                    return cast.dancingRuneWeapon()
+                  end
+                end
+                if isChecked("Tombstone") then
+                  -- tombstone,if=buff.bone_shield.stack>=7
+                  if cast.able.tombstone() and (buff.boneShield.stack() >= 7) then
+                    return cast.tombstone()
+                  end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -441,6 +517,12 @@ local function runRotation()
                     StartAttack()
                 end
     ------------------------------
+    ------ Active Mitigation -----
+    ------------------------------
+                if isChecked("Active Mitigation") then
+                    if actionList_ActiveMitigation() then return end
+                end
+    ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
@@ -448,173 +530,80 @@ local function runRotation()
     --- In Combat - Cooldowns ---
     -----------------------------
                 if actionList_Cooldowns() then return end
+                local bloodDrinkerCheck = not cd.blooddrinker.exists() and 1 or 0
+    --------------------------
+    ---- Chem (SimC 8.0) APL --
     ---------------------------
-    --------- Vilt APL --------
-    ---------------------------
-                if getOptionValue("APL Mode") == 1 then
-                    --[[if ((buff.crimsonScourge.exists() and talent.rapidDecomposition) or not moving and #enemies.yards8 >= getOptionValue("Death and Decay") and isChecked("Death and Decay") then
-                        if cast.deathAndDecay("player","ground",getOptionValue("Death and Decay"),8) then return end
-                    end]]
-                    if mode.DND == 1 and not isMoving("player") and not isMoving("target") and ((#enemies.yards8 >= 1 and buff.crimsonScourge.exists() and talent.rapidDecomposition) or (#enemies.yards8 > 1 and buff.crimsonScourge.exists())) then
-                        if cast.deathAndDecay("player") then return end
-                    end
-                    --#high prio heal
-                    --I'll just use flat hp numbers defined by the user for simplicity and tends to work a little bit better anyway
-                    if php < getOptionValue("Death Strike High Prio") then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    if talent.bonestorm and mode.BoneStorm == 1 and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
-                        if cast.bonestorm("player") then return end
-                    end
-                    if isChecked("Anima of Death") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= 3 or isBoss()) and php <= getOptionValue("Anima of Death") then
-                        if cast.animaOfDeath("player") then return end
-                    end    
-                    --dump rp with deathstrike
-                    if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or mode.BoneStorm == 2)) and runicPowerDeficit <= 20 and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    if (talent.ossuary and buff.boneShield.stack() <= 4) or (not talent.ossuary and buff.boneShield.stack() <= 2) or buff.boneShield.remain() < gcd*2 or not buff.boneShield.exists() then
-                        if cast.marrowrend() then MRCastTime = GetTime(); return end
-                    end
-                    if isChecked("Lucid Dreams") and runes <= getOptionValue("Lucid Dreams") then
-                        if cast.memoryOfLucidDreams("player") then return end
-                    end
-                    if getOptionValue("Use Concentrated Flame") ~= 1 and getOptionValue("Use Concentrated Flame") ~= 4 and php <= getValue("Concentrated Flame Heal") then
-                        if cast.concentratedFlame("player") then
-                            return
-                        end
-                    end
-                    if not talent.soulgorge and #enemies.yards8 > 0 and UnitsWithoutBloodPlague >= 1 then                        
-                        if cast.bloodBoil("player") then return end                        
-                    end
-
-                    if isChecked("Blooddrinker") and not buff.dancingRuneWeapon.exists("player") and buff.boneShield.exists("player") and runicPowerDeficit >= 15 then
-                        if cast.blooddrinker("target") then return end
-                    end
-
-                    if isChecked("Blood Boil High Prio") and charges.bloodBoil.frac() >= 1.75 and #enemies.yards8 > 0 then
-                        if cast.bloodBoil("player") then return end
-                    end
-                    if talent.bloodTap and runes < 3 then
-                        if cast.bloodTap() then return end
-                    end
-                    if talent.consumption and useCDs() and isChecked("Consumption VB") then
-                        if buff.vampiricBlood.exists() and php < getOptionValue("Consumption VB") and getEnemiesInCone(105,5) >= 1 then
-                            if cast.consumption() then return end
-                        end
-                    end
-                    --#low prio heal
-                    if php < getOptionValue("Death Strike Low Prio") and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    if runeTimeTill(3) <= gcd and talent.ossuary and buff.boneShield.stack() <= 6 then
-                        if cast.marrowrend() then MRCastTime = GetTime(); return end
-                    end
-                    if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php >= getValue("Concentrated Flame Heal")) then
-                        if cast.concentratedFlame("target") then
-                            return
-                        end
-                    end	
-                    if mode.DND == 1 and not isMoving("target") and not isMoving("player") and runicPowerDeficit >= 10 and ((#enemies.yards8 == 1 and runes >= 3 and talent.rapidDecomposition) or #enemies.yards8 >= 3) then
-                        if cast.deathAndDecay("player") then return end
-                    end
-                    if runeTimeTill(3) <= gcd and buff.boneShield.stack() >= 5 then
-                        if cast.heartStrike() then return end
-                    end
-                    if mode.DND == 1 and not isMoving("player") and not isMoving("target") and #enemies.yards8 >= 1 and buff.crimsonScourge.exists() and not talent.rapidDecomposition then
-                        if cast.deathAndDecay("player") then return end
-                    end
-                    if talent.consumption and useCDs() then
-                        if getEnemiesInCone(105,5) >= 1 then
-                            if cast.consumption() then return end
-                        end
-                    end
-                    if getDistance("target") <= 8 and #enemies.yards8 > 0 then
-                        if cast.bloodBoil("player") then return end
-                    end
-                --end -- End Vilt APL
-    ---------------------------
-    -------- Aethys APL -------
-    ---------------------------
-                elseif getOptionValue("APL Mode") == 2 then
-                    -- Bone Shield
-                    shouldMR = (buff.boneShield.remain("player") <= 6 or (ttd("target") < 5 and buff.boneShield.remain() < 10 and #enemies.yards8 == 1)) and true or false
-                    if (buff.boneShield.remain("player") <= 6 or (ttd("target") < 5 and buff.boneShield.remain() < 10 and #enemies.yards8 == 1)) then
-                        if cast.marrowrend() then MRCastTime = GetTime(); return end
-                    end
-                    -- Healing
-                    if php <= 50 + (runicPower > 90 and 20 or 0) and not buff.bloodShield.exists() and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-
-                    -- APL
-                    -- refresh blood plague
-                    if #enemies.yards10 >= 1 and UnitsWithoutBloodPlague >= 1 then
-                        if cast.bloodBoil() then return end
-                    end
-                    -- bonestorm
-                    if talent.bonestorm and mode.DND == 1 and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
-                        if cast.bonestorm() then return end
-                    end
-                    -- DnD Crimson Scourge
-                    if not isMoving("player") and not isMoving("target") and mode.DND == 1 and ((#enemies.yards8 == 1 and buff.crimsonScourge.exists() and talent.rapidDecomposition) or (#enemies.yards8 > 1 and buff.crimsonScourge.exists)) then
-                        if cast.deathAndDecay("player") then return end
-                    end
-                    -- Blooddrinker
-                    if isChecked("Blooddrinker") and not buff.dancingRuneWeapon.exists() and buff.boneShield.remain() > 3 and runicPowerDeficit >= 15 then
-                        if cast.blooddrinker() then return end
-                    end
-                    -- Death Strike
-                    if ((talent.blooddrinker or cd.blooddrinker.remain() <= gcd) and isChecked("Blooddrinker")) and not buff.dancingRuneWeapon.exists() and (runeTimeTill(1) <= gcd or runes >= 1) and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    -- Marrowrend
-                    if buff.boneShield.stack() <= 6 and runicPowerDeficit >= 20 then
-                        if cast.marrowrend() then MRCastTime = GetTime(); return end
-                    end
-                    -- Death Strike
-                    if buff.boneShield.stack() <= 6 and runicPowerDeficit <= 20 and runes >= 2 and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    -- DND ST Rapid Decomp / AoE
-                    if mode.DND == 1 and not isMoving("target") and not isMoving("player") and runicPowerDeficit >= 10 and ((#enemies.yards8 == 1 and runes >= 3 and talent.rapidDecomposition) or #enemies.yards8 >= 3) then
-                        if cast.deathAndDecay("player") then return end
-                    end
-                    -- Heart Strike
-                    if ((runeTimeTill(3) <= gcd or runes >= 3) and runicPowerDeficit >= 15) or (talent.heartbreaker and buff.deathAndDecay.exists() and runicPowerDeficit >= (15 + (math.min(#br.player.enemies(5), 5) * 2))) then
-                        if cast.heartStrike() then return end
-                    end
-                    -- Death Strike RP Dump
-                    if runeTimeTill(3) <= gcd or runes >= 3 or runicPowerDeficit <= 15 then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    -- DnD ST
-                    if mode.DND == 1 and not isMoving("target") and not isMoving("player") and buff.crimsonScourge.exists() and not talent.rapidDecomposition then
-                        if cast.deathAndDecay("player") then return end
-                    end
-                    -- Consumption
-                    if talent.consumption and useCDs() then
-                        if getEnemiesInCone(105,5) >= 1 then
-                            if cast.consumption() then return end
-                        end
-                    end
-                    -- Death's Caress
-                    if getDistance("target") <= 30 and getDistance("target") > 10 and not debuff.bloodPlague.exists() then 
-                        if cast.deathsCaress("target") then return end
-                    end
-                    -- Blood Boil filler
-                    if #enemies.yards10 >= 1 then
-                        if cast.bloodBoil() then return end
-                    end
-
-
-                end -- End Aethys APL
+                -- death_strike,if=runic_power.deficit<=10
+                if cast.able.deathStrike() and (runicPowerDeficit <= 10) then
+                  return cast.deathStrike("target")
+                end
+                -- blooddrinker,if=!buff.dancing_rune_weapon.up
+                if cast.able.blooddrinker() and (not buff.dancingRuneWeapon.exists()) then
+                  return cast.blooddrinker("target")
+                end
+                -- marrowrend,if=(buff.bone_shield.remains<=rune.time_to_3|buff.bone_shield.remains<=(gcd+cooldown.blooddrinker.ready*talent.blooddrinker.enabled*2)|buff.bone_shield.stack<3)&runic_power.deficit>=20
+                if cast.able.marrowrend() and ((buff.boneShield.remain() <= runeTimeTill(3) or buff.boneShield.remain() <= (gcdMax + bloodDrinkerCheck * (talent.blooddrinker and 1 or 0) * 2) or buff.boneShield.stack() < 3) and runicPowerDeficit >= 20) then
+                  return cast.marrowrend("target")
+                end
+                -- blood_boil,if=charges_fractional>=1.8&(buff.hemostasis.stack<=(5-spell_targets.blood_boil)|spell_targets.blood_boil>2)
+                if cast.able.bloodBoil() and (charges.bloodBoil.frac() >= 1.8 and (buff.hemostasis.stack() <= (5 - #enemies.yards10) or #enemies.yards10 > 2)) then
+                  return cast.bloodBoil()
+                end
+                -- marrowrend,if=buff.bone_shield.stack<5&talent.ossuary.enabled&runic_power.deficit>=15
+                if cast.able.marrowrend() and (buff.boneShield.stack() < 5 and talent.ossuary and runicPowerDeficit >= 15) then
+                  return cast.marrowrend("target")
+                end
+                -- bonestorm,if=runic_power>=100&!buff.dancing_rune_weapon.up
+                if cast.able.bonestorm() and (runicPower >= 100 and not buff.dancingRuneWeapon.exists()) then
+                  return cast.bonestorm("player")
+                end
+                -- death_strike,if=runic_power.deficit<=(15+buff.dancing_rune_weapon.up*5+spell_targets.heart_strike*talent.heartbreaker.enabled*2)|target.time_to_die<10
+                if cast.able.deathStrike() and (runicPowerDeficit <= (15 + (buff.dancingRuneWeapon.exists() and 1 or 0) * 5 + #enemies.yards8 * (talent.heartbreaker and 1 or 0) * 2) or ttd("target") < 10) then
+                  return cast.deathStrike("target")
+                end
+                -- death_and_decay,if=spell_targets.death_and_decay>=3
+                if cast.able.deathAndDecay() and (#enemies.yards8 >= 3) then
+                  return cast.deathAndDecay("player")
+                end
+                -- rune_strike,if=(charges_fractional>=1.8|buff.dancing_rune_weapon.up)&rune.time_to_3>=gcd
+                if talent.runeStrike and cast.able.runeStrike() and ((charges.runeStrike.frac() >= 1.8 or buff.dancingRuneWeapon.exists()) and runeTimeTill(3) >= gcdMax) then
+                  return cast.runeStrike("target")
+                end
+                -- heart_strike,if=buff.dancing_rune_weapon.up|rune.time_to_4<gcd
+                if cast.able.heartStrike() and (buff.dancingRuneWeapon.exists() or runeTimeTill(4) < gcdMax) then
+                  return cast.heartStrike("target")
+                end
+                -- blood_boil,if=buff.dancing_rune_weapon.up
+                if cast.able.bloodBoil() and (buff.dancingRuneWeapon.exists()) then
+                  return cast.bloodBoil()
+                end
+                -- death_and_decay,if=buff.crimson_scourge.up|talent.rapid_decomposition.enabled|spell_targets.death_and_decay>=2
+                if cast.able.deathAndDecay() and (buff.crimsonScourge.exists() or talent.rapidDecomposition or #enemies.yards8 >= 2) then
+                  return cast.deathAndDecay("player")
+                end
+                -- consumption
+                if cast.able.consumption() then
+                  return cast.consumption()
+                end
+                -- blood_boil
+                if cast.able.bloodBoil() then
+                  return cast.bloodBoil()
+                end
+                -- heart_strike,if=rune.time_to_3<gcd|buff.bone_shield.stack>6
+                if cast.able.heartStrike() and (runeTimeTill(3) < gcdMax or buff.boneShield.stack() > 6) then
+                  return cast.heartStrike("target")
+                end
+                -- rune_strike
+                if talent.runeStrike and cast.able.runeStrike() then
+                  return cast.runeStrike("target")
+                end
                 --end
             end --End In Combat
         end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
-local id = 250
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

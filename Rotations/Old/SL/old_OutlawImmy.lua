@@ -1510,7 +1510,7 @@ local function runRotation()
         profile.averageTime = profile.elapsedTime / profile.totalIterations
     end
 end
-local id = 260
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

@@ -1818,7 +1818,7 @@ local function runRotation()
 end
 
 -- End runRotation
-local id = 65
+local id = 0
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
