@@ -44,14 +44,16 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-             -- Dummy DPS Test
-             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-             -- Pre-Pull Timer
-             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-             -- Body and Soul
-             br.ui:createCheckbox(section,"PWS: Body and Soul")
-             -- Auto Buff Fortitude
-             br.ui:createCheckbox(section,"Power Word: Fortitude", "Check to auto buff Fortitude on party.")
+            -- Dummy DPS Test
+            br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Pre-Pull Timer
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Mind Blast OOC
+            br.ui:createCheckbox(section,"Mind Blast OOC")
+            -- Body and Soul
+            br.ui:createCheckbox(section,"PWS: Body and Soul")
+            -- Auto Buff Fortitude
+            br.ui:createCheckbox(section,"Power Word: Fortitude", "Check to auto buff Fortitude on party.")
         br.ui:checkSectionState(section)
         -----------------
         ---AOE OPTIONS---
@@ -82,16 +84,17 @@ local function createOptions()
             -- br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "Health Percentage to use at.")
             -- Dispel Magic
             br.ui:createCheckbox(section,"Dispel Magic")
-            -- -- Dispersion
-            -- br.ui:createSpinner(section, "Dispersion",  20,  0,  100,  5,  "Health Percentage to use at.")
+            -- Dispersion
+            br.ui:createSpinner(section, "Dispersion",  10,  0,  100,  5,  "Health Percentage to use at.")
             -- -- Fade
-            -- br.ui:createCheckbox(section, "Fade")
+            br.ui:createCheckbox(section, "Fade")
             -- -- Vampiric Embrace
             -- br.ui:createSpinner(section, "Vampiric Embrace",  25,  0,  100,  5,  "Health Percentage to use at.")
             -- Power Word: Shield
             br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "Health Percentage to use at.")
-            -- -- Shadow Mend
-            -- br.ui:createSpinner(section, "Shadow Mend",  60,  0,  100,  5,  "Health Percentage to use at.")
+            -- Shadow Mend
+            br.ui:createSpinner(section, "Shadow Mend",  40,  0,  100,  5,  "Health Percentage to cast at.")
+            br.ui:createSpinner(section, "Shadow Mend OOC", 80, 0, 100, 5, "Health Percentage to cast at OOC.")
             -- -- Psychic Scream / Mind Bomb
             -- br.ui:createSpinner(section, "Psychic Scream / Mind Bomb",  40,  0,  100,  5,  "Health Percentage to use at.")
         br.ui:checkSectionState(section)
@@ -158,9 +161,12 @@ local moving
 local mrdm
 local php
 local power
+local solo
 local spell
 local talent
 local thp
+local ui
+local unit
 local units
 local use
 local voidform
@@ -197,21 +203,19 @@ local function CwC()
         if cast.devouringPlague('target') then return end
     end
     if (voidform or buff.dissonantEchoes.exists()) and mfTicks >= 2 and cast.current.mindFlay() and cd.voidBolt.ready() then
-        RunMacroText('/stopcasting')
-        br.addonDebug("void bolt stopcast")
+        SpellStopCasting()
+        ui.debug("void bolt stopcast")
     end
-    -- if cast.current.mindFlay() and cd.mindBlast.ready() then
-    --     RunMacroText('/stopcasting')
-    --     br.addonDebug("mind blast stopcast")
-    -- end
+    if cast.current.mindFlay() and buff.boonOfTheAscended.exists() and cd.ascendedBlast.ready() then
+        SpellStopCasting()
+    end
     -- if cast.current.mindFlay() and cd.voidTorrent.ready() then
-    --     RunMacroText('/stopcasting')
-    --     br.addonDebug("void torrent stopcast")
+    --     SpellStopCasting()
+    --     ui.debug("void torrent stopcast")
     -- end
-    -- if cast.current.mindSear() and msTicks >= 3 and cd.voidEruption.ready() then
-    --     RunMacroText('/stopcasting')
-    --     br.addonDebug('sear ticks >= 2 stopcast')
-    -- end
+    if cast.current.mindSear() and buff.boonOfTheAscended.exists() and cd.ascendedBlast.ready() then
+        SpellStopCasting()
+    end
     -- if talent.searingNightmare and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) then
     --     if power > 35 then
     --         if cast.searingNightmare() then
@@ -233,7 +237,7 @@ local function CwC()
     if talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) then
         if power > 30 then
             if cast.searingNightmare() then 
-            br.addonDebug('SNM to refresh SW:P') return end
+            ui.debug('SNM to refresh SW:P') return end
         end
     end    
     
@@ -311,15 +315,8 @@ actionList.Extra = function()
             if cast.shadowform() then return end
         end
     end
-    -- Dispel Magic
-    if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
-        if cast.dispelMagic() then return end
-    end
-    --PowerWord: Shield
-    if not debuff.weakenedSoul.exists('player') and (isChecked("PWS: Body and Soul") and talent.bodyAndSoul and moving and not IsFalling() or inCombat and php <= getOptionValue('Power Word: Shield')) then
-        if cast.powerWordShield("player") then return end
-    end
-    if isChecked("Power Word: Fortitude") then
+    -- PowerWord: Fort
+    if ui.checked("Power Word: Fortitude") then
         for i = 1, #br.friend do
             if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                 if cast.powerWordFortitude() then return end
@@ -327,12 +324,12 @@ actionList.Extra = function()
         end
     end
     -- Dummy Test
-    if isChecked("DPS Testing") then
+    if ui.checked("DPS Testing") then
         if GetObjectExists("target") then
-            if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and isDummy() then
                 StopAttack()
                 ClearTarget()
-                Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 profileStop = true
             end
         end
@@ -341,44 +338,68 @@ end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
-
+    -- Fade
+    if isChecked("Fade") then
+        if not solo and UnitThreatSituation("player") ~= nil and UnitThreatSituation("player") > 1 then
+            if cast.fade("player") then
+                return
+            end
+        end
+    end
+    -- Dispersion
+    if ui.checked("Dispersion") and inCombat and php <= ui.value("Dispersion") then
+        if cast.dispersion() then return end
+    end
+    -- Dispel Magic
+    if ui.checked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
+        if cast.dispelMagic() then return end
+    end
+    -- PowerWord: Shield
+    if not debuff.weakenedSoul.exists('player') and (ui.checked("PWS: Body and Soul") and talent.bodyAndSoul and moving and not IsFalling() or inCombat and php <= ui.value('Power Word: Shield')) then
+        if cast.powerWordShield("player") then return end
+    end
+    -- Shadowmend
+    if cast.able.shadowMend() and (php <= ui.value("Shadow Mend OOC") or php <= ui.value("Shadow Mend") and inCombat) then
+        if cast.shadowMend('player') then return end
+    end
 end -- End Action List - Defensive
 
 -- Action List - Interrrupt
 actionList.Interrupt = function()
     if useInterrupts() then
         -- Silence
-        if isChecked("Silence") then
+        --unit.interruptable(thisUnit,ui.value("Interrupt At"))
+        if ui.checked("Silence") then
             for i=1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                     if cast.silence(thisUnit) then return end
                 end
             end
         end
         -- Psychic Horror
-            if talent.psychicHorror and isChecked("Psychic Horror") and (cd.silence.exists() or not isChecked("Silence")) then
+            if talent.psychicHorror and ui.checked("Psychic Horror") and (cd.silence.exists() or not ui.checked("Silence")) then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                         if cast.psychicHorror(thisUnit) then return end --Print("pH on any") return end
                     end
                 end
             end
         -- Psychic Scream
-            if isChecked("Psychic Scream") then
+            if ui.checked("Psychic Scream") then
                 for i=1, #enemies.yards8 do
                     thisUnit = enemies.yards8[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                         if cast.psychicScream("player") then return end
                     end
                 end
             end
         -- Mind Bomb
-            if talent.mindBomb and isChecked("Mind Bomb") then
+            if talent.mindBomb and ui.checked("Mind Bomb") then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,99) then
+                    if unit.interruptable(thisUnit,99) then
                         if cast.mindBomb(thisUnit) then return end
                     end
                 end
@@ -405,11 +426,11 @@ actionList.Cooldown = function()
             end
         end
     -- actions.cds+=/call_action_list,name=trinkets
-        if isChecked("Trinket 1") and canUseItem(13) then
+        if ui.checked("Trinket 1") and canUseItem(13) then
             useItem(13)
             return true
         end
-        if isChecked("Trinket 2") and canUseItem(14) then
+        if ui.checked("Trinket 2") and canUseItem(14) then
             useItem(14)
             return true
         end
@@ -418,21 +439,27 @@ end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    -- # Executed before combat begins. Accepts non-harmful actions only.
-    -- actions.precombat=flask
-    -- actions.precombat+=/food
-    -- actions.precombat+=/augmentation
-    -- # Snapshot raid buffed stats before combat begins and pre-potting is done.
-    -- actions.precombat+=/snapshot_stats
-    -- actions.precombat+=/shadowform,if=!buff.shadowform.up
-    -- actions.precombat+=/arcane_torrent
-    -- actions.precombat+=/use_item,name=azsharas_font_of_power
-    -- actions.precombat+=/variable,name=mind_sear_cutoff,op=set,value=2
-    -- actions.precombat+=/vampiric_touch
-    if not moving and isValidUnit("target") then
-        if not debuff.vampiricTouch.exists() and not cast.current.vampiricTouch() then
-            if cast.vampiricTouch("target") then return end 
+    if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
+        -- # Executed before combat begins. Accepts non-harmful actions only.
+        -- actions.precombat=flask
+        -- actions.precombat+=/food
+        -- actions.precombat+=/augmentation
+        -- # Snapshot raid buffed stats before combat begins and pre-potting is done.
+        -- actions.precombat+=/snapshot_stats
+        -- actions.precombat+=/shadowform,if=!buff.shadowform.up
+        -- actions.precombat+=/arcane_torrent
+        -- actions.precombat+=/use_item,name=azsharas_font_of_power
+        -- actions.precombat+=/variable,name=mind_sear_cutoff,op=set,value=2
+        -- actions.precombat+=/vampiric_touch
+        -- Mind Blast OOC
+        if ui.checked("Mind Blast OOC") and unit.valid("target") and not unit.isDummy() then
+            if cast.mindBlast("target") then ui.debug("Mind Blast OOC") return end
         end
+        -- Pre-Pull
+        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+            if cast.vampiricTouch("target") then ui.debug("Casting Vampiric Touch [Pre-Combat]") return end 
+        end
+
     end
 end -- End Action List - PreCombat
 
@@ -442,11 +469,11 @@ actionList.ST = function()
     if buff.boonOfTheAscended.exists() then
         -- actions.boon=ascended_blast,if=spell_targets.mind_sear<=3
         if #searEnemies <= 3 then
-            if cast.ascendedBlast() then return end
+            if createCastFunction("target",nil,1,nil,325283) then ui.debug("Ascended Blast - "..#searEnemies.." sear enemies") return end
         end
         -- actions.boon+=/ascended_nova,if=spell_targets.ascended_nova>1&spell_targets.mind_sear>1+talent.searing_nightmare.enabled
         if #novaEnemies > 1 and #searEnemies > 1 + snmEnabled() then
-            if cast.ascendedNova() then return end
+            if createCastFunction("target",nil,1,nil,325020) then return end
         end
     end
    
@@ -465,7 +492,7 @@ actionList.ST = function()
     if debuff.shadowWordPain.remainCount(3) < SWPmaxTargets then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.shadowWordPain.refresh(thisUnit) and ttd(thisUnit) > 4 and not talent.misery and not (talent.searingNightmare and #searEnemies > getOptionValue("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and #searEnemies <= 2)) then
+            if debuff.shadowWordPain.refresh(thisUnit) and ttd(thisUnit) > 4 and not talent.misery and not (talent.searingNightmare and #searEnemies > ui.value("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and #searEnemies <= 2)) then
                 cast.shadowWordPain(thisUnit)
             end
         end
@@ -477,7 +504,7 @@ actionList.ST = function()
     
     -- # High Priority Mind Sear action to refresh DoTs with Searing Nightmare
     -- actions.main+=/mind_sear,target_if=talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff&!dot.shadow_word_pain.ticking&!cooldown.fiend.up
-    if not moving and talent.searingNightmare and power > 30 and #searEnemies > getOptionValue("Mind Sear Targets") and not swpCheck and cd.shadowfiend.exists() then
+    if not moving and talent.searingNightmare and power > 30 and #searEnemies > ui.value("Mind Sear Targets") and not swpCheck and cd.shadowfiend.exists() then
         if cast.mindSear('target') then return end
     end
     
@@ -543,7 +570,7 @@ actionList.ST = function()
     end
     
     -- actions.main+=/mindbender,if=dot.vampiric_touch.ticking&(talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff|dot.shadow_word_pain.ticking)
-    if useCDs() and debuff.vampiricTouch.exists('target') and (talent.searingNightmare and #searEnemies > getOptionValue("Mind Sear Targets") or debuff.shadowWordPain.exists('target')) then
+    if useCDs() and debuff.vampiricTouch.exists('target') and (talent.searingNightmare and #searEnemies > ui.value("Mind Sear Targets") or debuff.shadowWordPain.exists('target')) then
         if talent.mindBender then
             if cast.mindBender('target') then return end
         else
@@ -562,7 +589,7 @@ actionList.ST = function()
     
     -- # Use Shadow Crash on CD unless there are adds incoming.
     -- actions.main+=/shadow_crash,if=raid_event.adds.in>10
-    if talent.shadowCrash and cd.shadowCrash.ready() and isChecked('Shadow Crash') and not isMoving('best') then
+    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and not isMoving('best') then
         if cast.shadowCrash("best",nil,1,8) then
             SpellStopTargeting() return 
         end
@@ -604,21 +631,21 @@ actionList.ST = function()
     
     -- # Keep SW:P up on as many targets as possible, except when fighting 3 or more stacked mobs with Psychic Link.
     -- actions.main+=/shadow_word_pain,target_if=refreshable&target.time_to_die>4&!talent.misery.enabled&!(talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff)&(!talent.psychic_link.enabled|(talent.psychic_link.enabled&spell_targets.mind_sear<=2))
-    if debuff.shadowWordPain.refresh(units.dyn40) and ttd(units.dyn40) > 4 and not talent.misery and not (talent.searingNightmare and #searEnemies > getOptionValue("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and #searEnemies <= 2)) then
+    if debuff.shadowWordPain.refresh(units.dyn40) and ttd(units.dyn40) > 4 and not talent.misery and not (talent.searingNightmare and #searEnemies > ui.value("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and #searEnemies <= 2)) then
         if cast.shadowWordPain(units.dyn40) then return end
     end
 
     if debuff.shadowWordPain.remainCount(3) < SWPmaxTargets then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.shadowWordPain.refresh(thisUnit) and ttd(thisUnit) > 4 and not talent.misery and not (talent.searingNightmare and #searEnemies > getOptionValue("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and #searEnemies <= 2)) then
+            if debuff.shadowWordPain.refresh(thisUnit) and ttd(thisUnit) > 4 and not talent.misery and not (talent.searingNightmare and #searEnemies > ui.value("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and #searEnemies <= 2)) then
                 cast.shadowWordPain(thisUnit)
             end
         end
     end
     
     -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-    if #searEnemies > getOptionValue("Mind Sear Targets") and not moving then
+    if #searEnemies > ui.value("Mind Sear Targets") and not moving then
         if cast.mindSear('target') then return end
     end
     
@@ -686,10 +713,13 @@ local function runRotation()
     mrdm                                            = math.random
     power                                           = br.player.power.insanity.amount()
     php                                             = br.player.health
+    solo                                            = #br.friend < 2
     spell                                           = br.player.spell
     talent                                          = br.player.talent
     thp                                             = getHP("target")
+    unit                                            = br.player.unit
     units                                           = br.player.units
+    ui                                              = br.player.ui
     use                                             = br.player.use
     voidform                                        = buff.voidForm.exists()
     -- General Locals   
@@ -722,8 +752,8 @@ local function runRotation()
     --# Start using Searing Nightmare at 3+ targets or 4+ if you are in Voidform
     --actions+=/variable,name=searing_nightmare_cutoff,op=set,value=spell_targets.mind_sear>2+buff.voidform.up
     snmCutoff                                       = #searEnemies > 2 + buff.voidForm.count()
-    SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
-    VTmaxTargets                                  = getOptionValue("VT Max Targets")
+    SWPmaxTargets                                 = ui.value("SWP Max Targets")
+    VTmaxTargets                                  = ui.value("VT Max Targets")
 
     -- biggestGroup = 0
     -- for i = 1, #enemies.yards20 do
