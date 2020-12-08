@@ -939,16 +939,17 @@ local function runRotation()
             end
         end
 
-        if useCDs() and isChecked("Heart of the Wild") and buff.moonkinForm.exists() and talent.heartOfTheWild and cast.able.heartOfTheWild() and getTTD(units.dyn40) > 10 then
+        if isChecked("Heart of the Wild") and buff.moonkinForm.exists() and talent.heartOfTheWild and cast.able.heartOfTheWild() then
             if cast.heartOfTheWild() then
                 return true
             end
         end
 
-        -- Print(tostring(cd.heartOfTheWild.remains()))
         --covenant here
 
-        if useCDs() and cast.able.convokeTheSpirits() and (getOptionValue("Convoke Spirits") == 1 or getOptionValue("Convoke Spirits") == 3) and getTTD("target") > 10
+        if useCDs() and cast.able.convokeTheSpirits()
+                and (getOptionValue("Convoke Spirits") == 1 or getOptionValue("Convoke Spirits") == 3)
+                and getTTD("target") > 10
                 and (buff.heartOfTheWild.exists() or cd.heartOfTheWild.remains() > 30 or not talent.heartOfTheWild or not isChecked("Heart of the Wild")) then
             if cast.convokeTheSpirits() then
                 return true
@@ -1091,6 +1092,8 @@ local function runRotation()
         end
 
         if mode.hEALS == 1 then
+
+
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
                 if cast.able.cenarionWard() then
@@ -1107,6 +1110,7 @@ local function runRotation()
                 end
                 if covenant.nightFae.active and cast.able.convokeTheSpirits() and (getOptionValue("Convoke Spirits") == 2 or getOptionValue("Convoke Spirits") == 3) then
                     if cast.convokeTheSpirits() then
+                        br.addonDebug("[CRIT] Convoke The Spirits!")
                         return true
                     end
                 end
@@ -2807,7 +2811,7 @@ local function runRotation()
     -- Print(tostring(mode.forms))
 
     -- Pause
-    if pause() or IsMounted() or flying or drinking or isCasting(spell.focusedAzeriteBeam) or isCastingSpell(spell.tranquility) or isCasting(spell.replicaOfKnowledge) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) then
+    if pause() or IsMounted() or flying or drinking or isCasting(spell.focusedAzeriteBeam) or isCastingSpell(spell.tranquility) or isCasting(spell.replicaOfKnowledge) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) or buff.soulshape.exists() then
         --or stealthed (travel and not inCombat) or
         return true
     else
