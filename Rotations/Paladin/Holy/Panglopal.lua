@@ -157,6 +157,11 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
         --Trinket?
+        --Divine Toll
+        br.ui:createDropdown(section,"Divine Toll", {"At 0 Holy Power","As a Heal"}, 1)
+        br.ui:createSpinnerWithout(section,"Divine Toll Units", 3, 1, 5, 1)
+        br.ui:createSpinnerWithout(section,"Divine Toll Health", 70, 0, 100, 1)
+        br.ui:createSpinnerWithout(section,"Max Holy Power", 2, 0, 5, 1, "Only use Divine Toll when at or below this value")
         -- Rule of Law
         br.ui:createSpinner(section, "Rule of Law", 70, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "RoL Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum RoL Targets", true)
@@ -165,11 +170,11 @@ local function createOptions()
         br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum LoD Targets", true)
         -- Beacon of Virtue
         --[[ br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
+        br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)]]
         -- Holy Prism
         br.ui:createSpinner(section, "Holy Prism", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Holy Prism Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Holy Prism Targets", true)
-        -- Light's Hammer
+        br.ui:createSpinner(section, "Holy Prism Targets", 3, 0, 5, 1, "", "|cffFFFFFFMinimum Holy Prism Targets", true)
+        --[[-- Light's Hammer
         br.ui:createSpinner(section, "Light's Hammer", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Light's Hammer Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets", true)
         br.ui:createDropdown(section, "Light's Hammer Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFLight's Hammer usage.") ]]
@@ -805,12 +810,6 @@ local function runRotation()
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and isValidUnit("target") and getDistance("target") <= 5 then
                         StartAttack(units.dyn5)
                     end
-                    -- Holy Prism
-                    if isChecked("Holy Prism Damage") and talent.holyPrism and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
-                        if cast.holyPrism(thisUnit) then
-                            return true
-                        end
-                    end
                     -- Light's Hammer
                     if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
                         if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
@@ -829,6 +828,20 @@ local function runRotation()
     end-- end of dps
 
     local function healingTime()
+        --Divine Toll Implementation
+        if isChecked("Divine Toll") and cast.able.divineToll() and holyPower <= getValue("Max Holy Power") and inCombat then
+            if getOptionValue("Divine Toll") == 1 and holyPower == 0 then
+                --Print("trying to cast")
+                CastSpellByName(GetSpellInfo(spell.divineToll),lowest.unit)
+            end
+            if getOptionValue("Divine Toll") == 2 then
+                if getLowAllies(getValue("Divine Toll Health")) >= getValue("Divine Toll Units") then
+                    --Print("trying to cast")
+                    CastSpellByName(GetSpellInfo(spell.divineToll),lowest.unit)
+                end
+            end
+        end
+
         -- Glimmer support
         if mode.glimmer == 3 and (inInstance or inRaid) and #tanks > 0 then
             for i = 1, #tanks do
@@ -1004,6 +1017,18 @@ local function runRotation()
             if #tanks > 0 then
                 if tanks[1].hp <= getValue("FoL Tanks") then
                     if cast.flashOfLight(tanks[1].unit) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        if isChecked("Holy Prism") and talent.holyPrism and cast.able.holyPrism() and inCombat then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                local lowHealthCandidates = getUnitsToHealAround(thisUnit, 15, getValue("Holy Prism"), #br.friend)
+                if #lowHealthCandidates >= getValue("Holy Prism Targets") then
+                    if cast.holyPrism(thisUnit) then
                         return true
                     end
                 end
