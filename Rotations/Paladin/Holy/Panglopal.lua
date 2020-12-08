@@ -86,8 +86,8 @@ local function createOptions()
         ------ DEFENSIVES -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Pot/Stone
-        br.ui:createSpinner(section, "Pot/Stoned", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        -- Basic Healing Module
+	br.player.module.BasicHealing(section)
         br.ui:createSpinner(section, "Divine Protection", 60, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Divine Shield", 20, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         -- Gift of The Naaru
@@ -419,23 +419,8 @@ local function runRotation()
 
     local function defensiveTime()
         if useDefensive() then
-            --HS
-            if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
-                if canUseItem(166799) then
-                    useItem(166799)
-                elseif canUseItem(5512) then
-                    useItem(5512)
-                elseif canUseItem(156634) then
-                    useItem(156634)
-                elseif canUseItem(169451) then
-                    useItem(169451)
-                elseif canUseItem(getHealthPot()) then
-                    useItem(getHealthPot())
-                elseif canUseItem(getHealthPot()) then
-                    useItem(getHealthPot())
-                end
-            end
-
+             module.BasicHealing()
+			
             if isChecked("Gift of The Naaru") and php <= getOptionValue("Gift of The Naaru") and php > 0 and race == "Draenei" then
                 if castSpell("player", racial, false, false, false) then
                     return true
