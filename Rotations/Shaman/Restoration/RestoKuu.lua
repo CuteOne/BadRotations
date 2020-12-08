@@ -543,7 +543,7 @@ local function runRotation()
                 end
             end
         -- Healing Stream Totem
-           if isChecked("Healing Stream Totem") and cd.healingStreamTotem.remain() <= gcd and not talent.cloudburstTotem then                   
+           if isChecked("Healing Stream Totem") and movingCheck and cd.healingStreamTotem.remain() <= gcd and not talent.cloudburstTotem then                   
                 if lowest.hp <= getValue("Healing Stream Totem") then
                 if cast.healingStreamTotem(lowest.unit) then br.addonDebug("Casting Healing Stream Totem") return end     
                 end
