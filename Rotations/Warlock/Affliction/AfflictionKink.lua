@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "1.6.9"
+local VerNum  = "1.7.0"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffFFBB00"
 local dsInterrupt = false
@@ -91,9 +91,12 @@ local function createOptions ()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
-        section = br.ui:createSection(br.ui.window.profile,  colorPurple .. "Destruction " .. ".:|:. " .. " General " .. "Ver " ..colorOrange .. VerNum .. colorPurple .." .:|:. ")
+        section = br.ui:createSection(br.ui.window.profile,  colorPurple .. "Affliction " .. ".:|:. " .. " General " .. "Ver " ..colorOrange .. VerNum .. colorPurple .." .:|:. ")
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling"}, 1, "|cffFFBB00Set APL Mode to use.")
+
+            -- Auto target
+            br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
 
             -- Multi-Target Units
             br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffFFBB00Health Percentage to use at.")
@@ -112,6 +115,9 @@ local function createOptions ()
 
             -- Pet Management
             br.ui:createCheckbox(section, "Pet Management", "|cffFFBB00 Select to enable/disable auto pet management")
+
+            -- Pet Summon Delay
+            br.ui:createSpinnerWithout(section, "Summon Pet Delay", 1, 1, 10, 0.1, "|cffFFBB00Delay between Pet Summons")
 
             -- Fel Domination
             br.ui:createCheckbox(section, "Fel Domination", "|cffFFBB00 Toggle the auto casting of Fel Donmination")
@@ -329,6 +335,8 @@ local function runRotation()
     br.player.ui.mode.ss = br.data.settings[br.selectedSpec].toggles["Single"]
     br.player.ui.mode.br = br.data.settings[br.selectedSpec].toggles["BurningRush"]
     br.player.ui.mode.soc = br.data.settings[br.selectedSpec].toggles["SeedOfCorruption"]
+    br.player.ui.mode.summonPet = br.data.settings[br.selectedSpec].toggles["PetSummon"]
+    
 
     --------------
     --- Locals ---
@@ -431,7 +439,6 @@ local function runRotation()
     elseif mode.petSummon == 2 then summonId = 1860
     elseif mode.petSummon == 3 then summonId = 417
     elseif mode.petSummon == 4 then summonId = 1863 end
-    if talent.grimoireOfSacrifice then petPadding = 5 end
 
     -- spellqueue ready
     local function spellQueueReady()
@@ -729,32 +736,6 @@ end
                 end
             end
         end
-        if #enemyTable40 > 1 then
-            for i = 1, #enemyTable40 do
-                local hpNorm = (5 - 1) / (highestHP - lowestHP) * (enemyTable40[i].hpabs - highestHP) + 5 -- normalization of HP value, high is good
-                if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0 / 0) then
-                    hpNorm = 0
-                end -- NaN check
-                local distance20Norm = (3 - 1) / (distance20Max - distance20Min) * (enemyTable40[i].distance20 - distance20Min) + 1 -- normalization of distance 20, low is good
-                if distance20Norm ~= distance20Norm or tostring(distance20Norm) == tostring(0 / 0) then
-                    distance20Norm = 0
-                end -- NaN check
-                local enemyScore = hpNorm + distance20Norm
-                if enemyTable40[i].facing then
-                    enemyScore = enemyScore + 10
-                end
-                if enemyTable40[i].ttd > 1.5 then
-                    enemyScore = enemyScore + 10
-                end
-                enemyTable40[i].enemyScore = enemyScore
-            end
-            table.sort(
-                enemyTable40,
-                function(x, y)
-                    return x.enemyScore > y.enemyScore
-                end
-            )
-        end
         if isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable40[1].unit)
         end
@@ -887,18 +868,18 @@ end
         if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
         end
 
-        --Soulstone
-        if isChecked("Auto Soulstone Mouseover") and not moving and not inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
-            if cast.soulstone("mouseover", "dead") then
-                return true
-            end
-        end
+        -- --Soulstone
+        -- if isChecked("Auto Soulstone Mouseover") and not moving and not inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+        --     if cast.soulstone("mouseover", "dead") then
+        --         return true
+        --     end
+        -- end
 
-        if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
-            if cast.soulstone("player") then
-                return
-            end
-        end
+        -- if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
+        --     if cast.soulstone("player") then
+        --         return
+        --     end
+        -- end
 
         -- Unending Breath
         if isChecked("Unending Breath") and br.timer:useTimer("UB Delay", math.random(1, 10)) then
@@ -918,6 +899,13 @@ end
             if mode.burningRush == 3 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
         end  
 
+        -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
+        if talent.grimoireOfSacrifice and not buff.grimoireOfSacrifice.exists() and isChecked("Pet Management") and GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet") then
+            if CastSpellByID(108503, "player") then ui.debug("Casting Grimoire of Sacrifice")
+                return
+            end
+        end
+        
         -- Fear Bonus Mobs
         if ui.checked("Fear Bonus Mobs") and not cast.last.fear() and debuff.fear.count() < 1 and inCombat then
             for i = 1, #enemies.yards40 do
@@ -1258,13 +1246,13 @@ end
         if not moving and cast.able.maleficRapture() and not talent.phantomSingularity and shards > 4 and anydots then
             if cast.maleficRapture() then br.addonDebug("[Action:AoE] Malefic Rapture, Max Shards (Not Phantom Talent)") return true end 
         end
-        ------------------------------------------------
-        -- Drain Soul Shards Generation ----------------
-        ------------------------------------------------
-        -- actions.aoe+=/drain_soul
-        if not moving and cast.able.drainSoul() and ttd("target") < 2 and shards < 1 then
-            if cast.drainSoul("target") then br.addonDebug("[Action:AoE] Drain Soul - Shards Generation") return true end
-        end
+        -- ------------------------------------------------
+        -- -- Drain Soul Shards Generation ----------------
+        -- ------------------------------------------------
+        -- -- actions.aoe+=/drain_soul
+        -- if not moving and cast.able.drainSoul() and ttd("target") < 2 and shards < 1 then
+        --     if cast.drainSoul() then br.addonDebug("[Action:AoE] Drain Soul - Shards Generation") return true end
+        -- end
         ------------------------------------------------
         -- Drain Soul Filler----------------------------
         ------------------------------------------------
@@ -1289,7 +1277,12 @@ end
                 if cast.drainSoul() then br.addonDebug("[Action:AoE] Drain Soul Filler - Shards <= 1 (Phantom)")
                     dsInterrupt = true
                     return true 
-                end                                    
+                end
+            elseif talent.seedOfCorruption and shards < 5 then   
+                if cast.drainSoul() then br.addonDebug("[Action:AoE] Drain Soul Filler - (SoC)")
+                    dsInterrupt = true
+                    return true 
+                end                            
             end
         end
         ------------------------------------------------
@@ -1321,7 +1314,7 @@ end
             if cast.darkSoul("player") then br.addonDebug("[Action:AoE] Dark Soul + Darkglare Hotkey (Dark Soul)") return true end
             if getSpellCD(spell.summonDarkglare) == 0 then CastSpellByName(GetSpellInfo(spell.summonDarkglare)) br.addonDebug("[Action:Rotation] Dark Soul + Darkglare Hotkey (Darkglare)") return true end
         end
--- actions.aoe+=/drain_life,if=buff.inevitable_demise.stack>=50|buff.inevitable_demise.up&time_to_die<5
+        -- actions.aoe+=/drain_life,if=buff.inevitable_demise.stack>=50|buff.inevitable_demise.up&time_to_die<5
         ------------------------------------------------
         -- Cooldowns -----------------------------------
         ------------------------------------------------
@@ -1459,6 +1452,19 @@ local function actionList_Rotation()
             end
             -- actions+=/call_action_list,name=darkglare_prep,if=active_enemies>2&cooldown.summon_darkglare.ready&(dot.phantom_singularity.ticking|!talent.phantom_singularity.enabled)
             ------------------------------------------------
+            -- Seed of Corruption, ST ----------------------
+            ------------------------------------------------
+            if mode.soc ~= 2 and getDistance("target") < 40 and talent.seedOfCorruption then
+                if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption(1) and not cast.last.seedOfCorruption(2) then
+                    if cast.seedOfCorruption(seedTarget) then return true end
+                end
+
+                -- actions+=/seed_of_corruption,if=variable.spammable_seed
+                if  isChecked("Spam Seed of Corruption") and not moving and br.timer:useTimer("SoC Spam", ui.value("SoC Spam Delay")) then
+                    if cast.seedOfCorruption(seedTarget) then return true end
+                end
+            end
+            ------------------------------------------------
             -- Covenants (Level 60) ------------------------
             ------------------------------------------------
             if level == 60 and not moving 
@@ -1559,6 +1565,11 @@ local function actionList_Rotation()
                         dsInterrupt = true
                         return true 
                     end
+                elseif talent.seedOfCorruption and shards < 5 then   
+                    if cast.drainSoul() then br.addonDebug("[Action:Rotation] Drain Soul Filler - (SoC)")
+                        dsInterrupt = true
+                        return true 
+                    end                                
                 elseif talent.vileTaint and not debuff.vileTaint.exists("target") and (not cd.vileTaint.ready() and shards < 5 or cd.vileTaint.ready() and shards <= 1) then   
                     if cast.drainSoul() then br.addonDebug("[Action:Rotation] Drain Soul Filler (Vile Taint)")
                         dsInterrupt = true
@@ -1578,7 +1589,7 @@ local function actionList_Rotation()
                     if cast.drainSoul() then br.addonDebug("[Action:Rotation] Drain Soul Filler - Shards <= 1 (Phantom)")
                         dsInterrupt = true
                         return true 
-                    end                                    
+                    end 
                 end
             end
             ------------------------------------------------
@@ -1637,37 +1648,22 @@ local function actionList_PreCombat()
         end
  
         --actions.precombat+=/summon_pet
-        if ui.checked("Pet Management") 
-        and not (IsFlying() or IsMounted()) 
-        and (not inCombat or buff.felDomination.exists())
-        and (not moving or buff.felDomination.exists())
-        and GetTime() - br.pauseTime > 0.5 and level >= 5
-        and br.timer:useTimer("summonPet", 1)and not moving
-        then
-            if mode.petSummon == 5 and pet.active.id() ~= 0 then
-                PetDismiss()
-            end
-            if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId
-                or pet.active.id() ~= summonId or pet.active.id() == 0)
-            then
-                if mode.petSummon == 1 then
-                    if cast.summonImp("player") then castSummonId = spell.summonImp return true end
-                elseif mode.petSummon == 2 then
-                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return true end
-                elseif mode.petSummon == 3 then
-                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return true end
-                elseif mode.petSummon == 4  then
-                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
+        if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and ((not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) or talent.grimoireOfSacrifice and not buff.grimoireOfSacrifice.exists("player")) and level >= 5 and br.timer:useTimer("Summon Pet Delay", getOptionValue("Summon Pet Delay")) and not moving then
+            if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
+                if mode.summonPet == 1 and (lastSpell ~= spell.summonImp or activePetId == 0) then
+                    if cast.summonImp("player") then castSummonId = spell.summonImp return end
+                elseif mode.summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
+                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return end
+                elseif mode.summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
+                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return end
+                elseif mode.summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
+                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return end
+                elseif mode.summonPet == 5 then
+                    RunMacroText("/petdismiss") ui.debug("Dismiss Pet")
                 end
             end
         end
         
-        -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
-        if talent.grimoireOfSacrifice and isChecked("Pet Management") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
-            if cast.grimoireOfSacrifice() then
-                return
-            end
-        end
         if not inCombat and not (IsFlying() or IsMounted()) then
             -- Flask
             -- flask,type=whispered_pact
