@@ -254,6 +254,7 @@ local function runRotation()
     local tanks = getTanksTable()
     local lowest = br.friend[1]
     local friends = friends or {}
+    local module = br.player.module
     local glimmerCount = 0
     local enemies = br.player.enemies
     local lastSpell = lastSpellCast
