@@ -682,7 +682,7 @@ local function runRotation()
             if cast.shurikenTornado("player") then return true end
         end
         -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
-        if enemies10 < 3 and sndCondition == 1 then
+        if enemies10 < 3 and sndCondition == 1 and not stealthedRogue then
             local mobsAround = #enemyTable30
             if mobsAround > 3 then
                 mobsAround = 3
@@ -853,6 +853,10 @@ local function runRotation()
         if cast.able.coldBlood() then
             if cast.coldBlood("target") then return true end
         end
+        -- Extra echoing reprimand while in SD window
+        if sndCondition == 1 and comboDeficit >= 2 and (priorityRotation or enemies10 <= 4) and cast.able.echoingReprimand() then
+            if cast.echoingReprimand("target") then return true end
+        end
         -- # If Stealth/vanish are up, use Shadowstrike to benefit from the passive bonus and Find Weakness, even if we are at max CP (from the precombat MfD).
         -- actions.stealthed=shadowstrike,if=(buff.stealth.up|buff.vanish.up)
         if (stealth or buff.vanish.exists() or buff.shadowmeld.exists()) and targetDistance < 5 then
@@ -955,7 +959,7 @@ local function runRotation()
             end
         end
         -- actions.build+=/serrated_bone_spike,if=cooldown.serrated_bone_spike.charges_fractional>=2.75|soulbind.lead_by_example.enabled&!buff.lead_by_example.up
-        if charges.serratedBoneSpike.frac() >= 2.75 and cast.able.serratedBoneSpike() then -- or not buff.leadByExample.exists()
+        if charges.serratedBoneSpike.frac() >= 2.75 and cast.able.serratedBoneSpike() and not stealthedRogue then -- or not buff.leadByExample.exists()
             if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
         end
         -- actions.build+=/gloomblade
