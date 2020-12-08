@@ -71,7 +71,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 175812022020")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012080959")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -103,17 +103,7 @@ local function createOptions()
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "M+")
-        br.ui:createCheckbox(section, "Freehold - pig")
-        br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 0)
-        br.ui:checkSectionState(section)
 
-        section = br.ui:createSection(br.ui.window.profile, "Radar")
-        br.ui:createCheckbox(section, "FH - root grenadier")
-        br.ui:createCheckbox(section, "AD - root Spirit of Gold")
-        br.ui:createCheckbox(section, "KR - root Minions of Zul")
-        br.ui:createCheckbox(section, "KR - animated gold")
-        br.ui:checkSectionState(section)
 
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -136,10 +126,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Incarnation/Celestial Alignment")
         br.ui:createSpinnerWithout(section, "Treant Targets", 3, 1, 10, 1, "How many baddies before using Treant?")
         br.ui:createCheckbox(section, "Group treants with CD")
-        br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
-        br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
-        br.ui:createCheckbox(section, "Guardian Of Azeroth")
-        br.ui:createSpinner(section, "Focused Azerite Beam", 3, 1, 10, 1, "Min. units hit to use Focused Azerite Beam")
         br.ui:checkSectionState(section)
         -------------------------
         ---  TARGET OPTIONS   ---  -- Define Target Options
@@ -627,69 +613,6 @@ local function runRotation()
         if race == "Troll" and isChecked("Racial") and useCDs() and ttd("target") >= 12 and ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13)) then
             cast.racial("player")
         end
-        -- item support
-        --Wraps of wrapsOfElectrostaticPotential
-        if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
-            if br.player.use.wrapsOfElectrostaticPotential() then
-                br.addonDebug("Using HBracers")
-            end
-        end
-        --staff of neural
-        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
-                and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
-        then
-            if br.player.use.neuralSynapseEnhancer() then
-                br.addonDebug("Using neuralSynapseEnhancer ")
-            end
-        end
-
-
-        --Essence Support
-
-        if useCDs() and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() then
-            if not pewbuff and (power < 25 or (cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)) then
-                if debuff.sunfire.remain("target") > 10 and debuff.sunfire.remain("target") > 10 and (debuff.stellarFlare.remain("target") > 10 or not talent.stellarFlare) then
-                    if cast.memoryOfLucidDreams() then
-                        return true
-                    end
-                end
-            end
-        end
-
-        if useCDs() and isChecked("ConcentratedFlame - DPS") then
-            if cast.concentratedFlame("target") then
-                return true
-            end
-        end
-
-        --and ((essence.focusedAzeriteBeam.rank < 3 and not moving)
-        --                    or essence.focusedAzeriteBeam.rank >= 3)
-
-        if useCDs() and ((essence.focusedAzeriteBeam.rank < 3 and standingTime > 1 or essence.focusedAzeriteBeam.rank >= 3)) and isChecked("Focused Azerite Beam") and (aoe_count >= getValue("Focused Azerite Beam") or isBoss("target"))
-                and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare) then
-            if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then
-                return true
-            end
-        end
-
-        -- https://www.wowhead.com/spell=295840/guardian-of-azeroth
-        if isChecked("Guardian Of Azeroth") and useCDs() and cast.able.guardianOfAzeroth()
-                and (debuff.moonfire.exists("target")
-                and debuff.sunfire.exists("target")
-                and (not talent.stellarFlare or debuff.stellarFlare.exists "target"))
-                and (not talent.starlord or buff.starLord.exists("player"))
-        then
-            if cast.guardianOfAzeroth() then
-                br.addonDebug("Essence: Casting Guardian of Azeroth")
-                return
-            end
-        end
-
-
-        -- new prepatch variables
-        --variable,name=is_aoe,value=spell_targets.starfall>1 and (!talent.starlord.enabled or talent.stellar_drift.enabled) or spell_targets.starfall>2
-        --variable,name=is_cleave,value=spell_targets.starfire>1
-        -- Local var = bool and true_value or false_value
 
         local is_aoe = (#enemies.yards45 > 1 and (not talent.starlord or talent.stellarDrift) or #enemies.yards45 > 2) or false
         local is_cleave = #enemies.yards45 > 1 or false
@@ -832,7 +755,8 @@ local function runRotation()
                 for i = 1, #enemies.yards45 do
                     thisUnit = enemies.yards45[i]
                     if UnitAffectingCombat(thisUnit) then
-                        if cast.able.sunfire() and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
+                        if cast.able.sunfire()
+                                and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
                                 and debuff.sunfire.refresh(thisUnit)
                                 and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
                         then
@@ -846,7 +770,7 @@ local function runRotation()
                                 if ((cd.incarnationChoseOfElune.remain() == 0 or cd.celestialAlignment.remain() == 0)
                                         or #enemies.yards45 < (4 * (1 + (talent.twinMoons and 0 or 1)))
                                         or (current_eclipse == "solar" or (current_eclipse == "any" or current_eclipse == "lunar") and not talent.soulOfTheForest)
-                                )
+                                ) or isMoving("player") and (talent.soulOfTheForest and not buff.starfall.exists() or not talent.soulOfTheForest)
                                 then
                                     if cast.moonfire(thisUnit) then
                                         return true
