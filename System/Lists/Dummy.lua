@@ -116,6 +116,21 @@ br.lists.dummies = {
 	[144078] = "Dungeoneer's Training Dummy", -- Lvl 113 - 122 (Dazar'alor) - Tanking
 -- Level 114 - 120
 	[144075] = "Training Dummy", 			  -- Lvl 114 - 120 (Dazar'alor) - Healing
+-- Level 60 
+	[174569] = "Training Dummy",			  -- Lvl 60 (Ardenweald)
+	[174570] = "Swarm Training Dummy",		  -- Lvl 60 (Ardenweald)
+	[174571] = "Cleave Training Dummy",		  -- Lvl 60 (Ardenweald)
+	[174487] = "Competent Veteran", 		  -- Lvl 60 (Location Unknown)
+	[173942] = "Training Dummy",			  -- Lvl 60 (Revendreth)
+	[175456] = "Swarm Training Dummy",		  -- Lvl 60 (Revendreth)
+	[175455] = "Cleave Training Dummy",		  -- Lvl 60 (Revendreth)
+-- Level 62
+	[174484] = "Immovable Champion", 		  -- Lvl 62 (Location Unknown)
+	[175449] = "Dungeoneer's Training Dummy", -- Lvl 62 (Revendreth)
+	[173957] = "Necrolord's Resolve",		  -- Lvl 62 (Oribos)
+	[173955] = "Pride's Resolve",		 	  -- Lvl 62 (Oribos)
+	[173954] = "Nature's Resolve",		 	  -- Lvl 62 (Oribos)
+	[173919] = "Valiant's Resolve",		 	  -- Lvl 62 (Oribos)
 -- Level ??
 	[24792]  = "Advanced Training Dummy",     -- Lvl ?? Boss (Location Unknown)
 	[30527]  = "Training Dummy", 		      -- Lvl ?? Boss (Location Unknown)
@@ -137,4 +152,17 @@ br.lists.dummies = {
 	[113964] = "Raider's Training Dummy",     -- Lvl ?? (The Dreamgrove) - Tanking
 	[131983] = "Raider's Training Dummy",     -- Lvl ?? (Boralus) - Damage
 	[144086] = "Raider's Training Dummy",     -- Lvl ?? (Dazal'alor) - Damage
+	[174565] = "Raider's Training Dummy",	  -- Lvl ?? (Ardenweald) 
+	[174566] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Ardenweald) 
+	[174567] = "Raider's Training Dummy",	  -- Lvl ?? (Ardenweald) 
+	[174568] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Ardenweald) 
+	[174491] = "Iron Tester", 				  -- Lvl ?? (Location Unknown)
+	[174488] = "Unbreakable Defender", 		  -- Lvl ?? (Location Unknown)
+	[174489] = "Necromantic Guide", 		  -- Lvl ?? (Location Unknown)
+	[174489] = "Raider's Training Dummy",	  -- Lvl ?? (Revendreth)
+	[175452] = "Raider's Training Dummy",	  -- Lvl ?? (Location Unknown)
+	[175451] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Revendreth)
+	
+
+
 }
