@@ -91,6 +91,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
         -- Mana Pot
             br.ui:createSpinner(section, "Mana Pot", 30, 0, 100, 5, "|cffFFFFFFWill use mana pot if mana below this value. Default: 30")
+        -- Mana Tide Totem
+            br.ui:createSpinner(section, "Mana Tide Totem", 30, 0, 100, 5, "|cffFFFFFFWill use mana tide if mana below this value. Default: 75")
         br.ui:checkSectionState(section)
     -- -- Burst Damage Options
         section = br.ui:createSection(br.ui.window.profile, "Raid Burst Damage Options")
@@ -808,14 +810,14 @@ local function runRotation()
                 if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
             end
             -- Purify Spirit
-            if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+            if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd and lowest.hp > 30 then
                 for i = 1, #friends.yards40 do
                     if canDispel(br.friend[i].unit,spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
                     end
                 end
             end
-            if mode.healingR == 1 and movingCheck and cast.timeSinceLast.healingRain() > 0 then
+            if mode.healingR == 1 and movingCheck and cast.timeSinceLast.healingRain() > 0 and lowest.hp > 50  then
                 if not buff.healingRain.exists() then
                     -- get melee players
                     for i=1, #tanks do
@@ -826,7 +828,7 @@ local function runRotation()
                             local meleeFriends = getAllies(tankTarget,5)
                             -- get the best ground circle to encompass the most of them
                             local loc = nil
-                            if isChecked("Healing Rain on CD") and not isMoving(tanks[i].unit) then
+                            if (isChecked("Healing Rain on CD") or buff.heavyRainfall.exists()) and not isMoving(tanks[i].unit) then
                                 -- CastGroundHeal(spell.healingRain, meleeFriends)
                                 -- return
                                 if #meleeFriends < 12 then
@@ -868,7 +870,7 @@ local function runRotation()
             -- Unleash Life
             if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) and cd.unleashLife.remain() <= gcd then
                 if lowest.hp <= getValue("Unleash Life") then
-                    if cast.unleashLife() then br.addonDebug("Casting Unleash Life") return end     
+                    if cast.unleashLife(lowest.unit) then br.addonDebug("Casting Unleash Life") return end     
                 end
             end
             -- Cloud Burst Totem
@@ -954,6 +956,19 @@ local function runRotation()
                     end
                 end
             end
+            -- Chain Heal
+            if isChecked("Chain Heal") and movingCheck then
+                if talent.unleashLife and talent.highTide then
+                    if cast.unleashLife(lowest.unit) then return end
+                    if buff.unleashLife.remain() > 2 then
+                        if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
+                    end
+                elseif talent.highTide then
+                    if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
+                else
+                    if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
+                end
+            end
              -- Healing Surge (2 stacks)
              if isChecked("Healing Surge") and movingCheck then
                 if lowest.hp <= getValue("Healing Surge") and buff.tidalWaves.stack() == 2 then
@@ -976,19 +991,6 @@ local function runRotation()
                         if cast.riptide(br.friend[i].unit) then br.addonDebug("Casting Riptide") return end     
                     end
                end
-            end
-            -- Chain Heal
-            if isChecked("Chain Heal") and movingCheck then
-                if talent.unleashLife and talent.highTide then
-                    if cast.unleashLife(lowest.unit) then return end
-                    if buff.unleashLife.remain() > 2 then
-                        if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
-                    end
-                elseif talent.highTide then
-                    if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
-                else
-                    if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
-                end
             end
              -- Downpour
              if cd.downpour.remain() <= gcd and movingCheck then
