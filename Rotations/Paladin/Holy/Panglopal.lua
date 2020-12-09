@@ -1087,7 +1087,7 @@ local function runRotation()
                 if mode.wrath == 1 then
                     for i = 1, #enemies.yards30 do
                         thisUnit = enemies.yards30[i]
-                        if holyPower < 5 and lowest.hp >= getValue("Critical HP") then
+                        if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and holyPower < 5 and lowest.hp >= getValue("Critical HP") then
                             if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
                                 if cast.hammerOfWrath(thisUnit) then
                                     return true
