@@ -2072,6 +2072,9 @@ br.lists.spells = {
                 graceoftheJusticar          = 278593,
                 indomitableJustice          = 275496,
             },
+            runeforges                      = {
+                shadowbreaker               = 337812,
+            }
         },
         -- Protection
         [66] = {

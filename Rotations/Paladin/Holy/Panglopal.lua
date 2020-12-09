@@ -269,17 +269,15 @@ local function runRotation()
     local LightCount = 0
     local FaithCount = 0
 
-    if traits.breakingDawn.active then
+    if br.player.runeforge.shadowbreaker.equiped then
         lightOfDawn_distance = 40
     else
         lightOfDawn_distance = 15
     end
     if buff.ruleOfLaw.exists("player") then
         lightOfDawn_distance_coff = 1.5
-        master_coff = 1.5
     else
         lightOfDawn_distance_coff = 1
-        master_coff = 1.0
     end
 
     local lowest = {}
@@ -448,17 +446,6 @@ local function runRotation()
                     end
                 elseif buff.blessingOfSacrifice.exists("player") then
                     if cast.divineProtection() then
-                        return true
-                    end
-                end
-            end
-
-            if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
-                if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
-                    if cast.blessingOfFreedom("boss1target") then return end
-                end
-                if hasNoControl(spell.blessingOfFreedom) then
-                    if cast.blessingOfFreedom("player") then
                         return true
                     end
                 end
@@ -912,7 +899,7 @@ local function runRotation()
                         end
                     )
                 end
-                if glimmerCount ~= nil and glimmerCount >= 8 then
+                if glimmerCount ~= nil and glimmerCount >= 8 and getLineOfSight(lowest.unit, "player") then
                     if cast.holyShock(lowest.unit) then
                         --Print("Holy Shock 5")
                         --Print("Glimmer cap glimmer")
@@ -1074,6 +1061,16 @@ local function runRotation()
                 end
             end
             if inCombat and not UnitBuffID("player", 115834) then
+                if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
+                    if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
+                        if cast.blessingOfFreedom("boss1target") then return true end
+                    end
+                    if hasNoControl(spell.blessingOfFreedom) then
+                        if cast.blessingOfFreedom("player") then
+                            return true
+                        end
+                    end
+                end
                 if spendies() then
                     return
                 end
