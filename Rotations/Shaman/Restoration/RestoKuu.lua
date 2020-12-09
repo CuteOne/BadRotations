@@ -828,7 +828,7 @@ local function runRotation()
                             local meleeFriends = getAllies(tankTarget,5)
                             -- get the best ground circle to encompass the most of them
                             local loc = nil
-                            if (isChecked("Healing Rain on CD") or buff.heavyRainfall.exists()) and not isMoving(tanks[i].unit) then
+                            if isChecked("Healing Rain on CD") and not isMoving(tanks[i].unit) then
                                 -- CastGroundHeal(spell.healingRain, meleeFriends)
                                 -- return
                                 if #meleeFriends < 12 then
