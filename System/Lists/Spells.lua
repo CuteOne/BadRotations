@@ -3152,6 +3152,7 @@ br.lists.spells = {
                 earthShield                 = 974,
 		        waterShield                 = 52127,
                 healingRain                 = 73920,
+                heavyRainfall               = 338344,
                 jonatsFocus                 = 210607,
                 lavaSurge                   = 77762,
                 riptide                     = 61295,
@@ -3159,6 +3160,9 @@ br.lists.spells = {
                 unleashLife                 = 73685,
                 undulation                  = 216251,
                 spiritwalkersGrace          = 79206,
+            },
+            conduits                        = {
+                heavyRainfall               = 338343,
             },
             debuffs                         = {
                 flameShock                  = 188389,
