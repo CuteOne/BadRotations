@@ -113,9 +113,11 @@ function br:defaultSettings()
 	if br.data == nil then br.data = {} end	
 	if br.data.tracker == nil then br.data.tracker = {} end
 	if br.data.settings == nil then br.data.settings = {} end
-	br.ui.window.config = {}
-	br.ui:createConfigWindow()
-	br.ui:toggleWindow("config")
+	C_Timer.After(2, function()
+		br.ui.window.config = {}
+		br.ui:createConfigWindow()
+		br.ui:toggleWindow("config")
+	end)
 	-- Settings Per Spec
 	if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {}	end
 	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
