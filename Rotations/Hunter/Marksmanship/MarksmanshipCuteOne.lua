@@ -448,7 +448,7 @@ end -- End Action List - Trick Shots
 actionList.SingleTarget = function()
     -- Steady Shot
     -- steady_shot,if=talent.steady_focus&(prev_gcd.1.steady_shot&buff.steady_focus.remains<5|buff.steady_focus.down)
-    if cast.able.steadyShot() and talent.steadFocus and (cast.last.steadyShot() and buff.steadyFocus.remain() < 5 or not buff.steadyFocus.exists()) then
+    if cast.able.steadyShot() and talent.steadyFocus and (cast.last.steadyShot() and buff.steadyFocus.remain() < 5 or not buff.steadyFocus.exists()) then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Steady Focus]") return true end
     end
     -- Kill Shot
