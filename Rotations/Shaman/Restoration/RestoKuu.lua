@@ -1,4 +1,9 @@
-local rotationName = "Kuu" 
+local rotationName = "Kuu"
+if br.shaman == nil then br.shaman = {} end
+if br.shaman.resto == nil then br.shaman.resto = {} end
+if br.shaman.resto['Healing Rain'] == nil then
+    br.shaman.resto['Healing Rain'] = 0
+end
 
 ---------------
 --- Toggles ---
@@ -184,6 +189,8 @@ local function createOptions()
             br.ui:createDropdown(section,"Healing Tide Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Healing Tide Totem manual usage.")
         -- Tremor Totem
             br.ui:createDropdown(section,"Tremor Totem Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Tremor Totem manual usage.")
+        -- DPS Key
+            br.ui:createDropdown(section,"DPS Key", br.dropOptions.Toggle, 6, "|cffFFFFFFHold down key to ONLY do DPS."..colorRed.." WARNING: "..colorWhite.."Will keep Healing Rain and Riptide up but will not do any other healing while key is held down!")
         br.ui:checkSectionState(section)
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -255,7 +262,6 @@ local function runRotation()
         local cd                                            = br.player.cd
         local debuff                                        = br.player.debuff
         local drinking                                      = UnitBuff("player",192001) ~= nil or UnitBuff("player",225737) ~= nil
-        local essence                                       = br.player.essence
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
         local healPot                                       = getHealthPot()
@@ -266,8 +272,7 @@ local function runRotation()
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local mana                                          = br.player.power.mana.percent()
-        local mode                                          = br.player.ui.mode
-        local perk                                          = br.player.perk        
+        local mode                                          = br.player.ui.mode  
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -279,6 +284,7 @@ local function runRotation()
         local wolf                                          = br.player.buff.ghostWolf.exists()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
+        local ui                                            = br.player.ui
         local units                                         = br.player.units
         local enemies                                       = br.player.enemies
         local friends                                       = friends or {}
@@ -308,7 +314,7 @@ local function runRotation()
             for i = 1, #tanks do
                 local ourtank = tanks[i].unit
                 local Burststack = getDebuffStacks(ourtank, 240443)
-                if Burststack >= getOptionValue("Bursting") then
+                if Burststack >= ui.value("Bursting") then
                     burst = true
                     break
                 else 
@@ -325,20 +331,20 @@ local function runRotation()
             end
         end
 
-        local dpsSpells = {spell.lightningBolt, spell.chainLightning, spell.lavaBurst,spell.flameShock}
         local movingCheck = not isMoving("player") and not IsFalling() or (isMoving and buff.spiritwalkersGrace.exists("player"))
+        
 --------------------
 --- Action Lists ---
 --------------------
     -- Action List - Extras
         local function actionList_Extras()
         -- Dummy Test
-            if isChecked("DPS Testing") then
+            if ui.checked("DPS Testing") then
                 if GetObjectExists("target") then
-                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                    if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
-                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
                 end
@@ -347,18 +353,18 @@ local function runRotation()
             if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
             end
-            if isChecked("Water Walking") and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
+            if ui.checked("Water Walking") and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
                 if cast.waterWalking() then br.addonDebug("Casting Waterwalking") return end
             end
             -- Ancestral Spirit
-            if isChecked("Ancestral Spirit") and not inCombat and movingCheck and br.timer:useTimer("Resurrect", 4) then
-                if getOptionValue("Ancestral Spirit")==1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+            if ui.checked("Ancestral Spirit") and not inCombat and movingCheck and br.timer:useTimer("Resurrect", 4) then
+                if ui.value("Ancestral Spirit")==1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
                     if cast.ancestralSpirit("target","dead") then br.addonDebug("Casting Ancestral Spirit") return true end
                 end
-                if getOptionValue("Ancestral Spirit")==2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+                if ui.value("Ancestral Spirit")==2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
                     if cast.ancestralSpirit("mouseover","dead") then br.addonDebug("Casting Ancestral Spirit") return true end
                 end
-                if getOptionValue("Ancestral Spirit") == 3 then
+                if ui.value("Ancestral Spirit") == 3 then
                     local deadPlayers = {}
                     for i =1, #br.friend do
                         if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
@@ -379,7 +385,7 @@ local function runRotation()
             if cast.able.earthShield() then
                 -- check if shield already exists
                 local foundShield = false
-                if isChecked("Earth Shield") then
+                if ui.checked("Earth Shield") then
                     for i = 1, #br.friend do
                         if buff.earthShield.exists(br.friend[i].unit) then
                             foundShield = true
@@ -402,17 +408,17 @@ local function runRotation()
                 end
             end
             -- Water Shield
-            if isChecked("Water Shield") and not buff.waterShield.exists() then
+            if ui.checked("Water Shield") and not buff.waterShield.exists() then
                 if cast.waterShield() then
                 end    
             end
             -- Temple of Seth
-            if inCombat and isChecked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
+            if inCombat and ui.checked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
                 for i = 1, GetObjectCountBR() do
                     local thisUnit = GetObjectWithIndex(i)
                     if GetObjectID(thisUnit) == 133392 then
                         sethObject = thisUnit
-                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and lowest.hp >= getValue("Temple of Seth") then
+                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and lowest.hp >= ui.value("Temple of Seth") then
                             if not buff.riptide.exists(sethObject) then
                                 CastSpellByName(GetSpellInfo(61295),sethObject)
                                 br.addonDebug("Casting Riptide")
@@ -438,7 +444,7 @@ local function runRotation()
             end
             if useDefensive() then
             -- Healthstone
-			if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+			if ui.checked("Healthstone") and php <= ui.value("Healthstone") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
 				if canUseItem(5512) then
 					br.addonDebug("Using Healthstone")
 					useItem(5512)
@@ -448,7 +454,7 @@ local function runRotation()
 				end
 			end
             -- Heirloom Neck
-                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                if ui.checked("Heirloom Neck") and php <= ui.value("Heirloom Neck") then
                     if hasEquiped(122668) then
                         if GetItemCooldown(122668)==0 then
                             useItem(122668)
@@ -458,23 +464,23 @@ local function runRotation()
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+                if ui.checked("Gift of the Naaru") and php <= ui.value("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if castSpell("player",racial,false,false,false) then br.addonDebug("Casting Gift of the Naaru") return end
                 end
             -- Astral Shift
-                if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") and inCombat then
+                if ui.checked("Astral Shift") and php <= ui.value("Astral Shift") and inCombat then
                     if cast.astralShift() then br.addonDebug("Casting Astral Shift") return end
                 end
                 -- Earthen Wall Totem
-                if isChecked("Earthen Wall Totem") and talent.earthenWallTotem then
-                    if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
+                if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem then
+                    if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,ui.value("Earthen Wall Totem"),ui.value("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
                 end
                     -- Capacitor Totem
                 if cd.capacitorTotem.remain() <= gcd then
-                    if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat and lastSpell ~= spell.capacitorTotem and #enemies.yards5 > 0 then
+                    if ui.checked("Capacitor Totem - HP") and php <= ui.value("Capacitor Totem - HP") and inCombat and lastSpell ~= spell.capacitorTotem and #enemies.yards5 > 0 then
                         if cast.capacitorTotem("player") then br.addonDebug("Casting Capacitor Totem") return end
                     end
-                    if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat and lastSpell ~= spell.capacitorTotem then
+                    if ui.checked("Capacitor Totem - AoE") and #enemies.yards5 >= ui.value("Capacitor Totem - AoE") and inCombat and lastSpell ~= spell.capacitorTotem then
                         if cast.capacitorTotem("player") then br.addonDebug("Casting Capacitor Totem") return end
                     end
                 end
@@ -485,13 +491,13 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if canInterrupt(thisUnit,ui.value("Interrupt At")) then
         -- Wind Shear
-                        if isChecked("Wind Shear") and getFacing("player", thisUnit) then
+                        if ui.checked("Wind Shear") and getFacing("player", thisUnit) then
                             if cast.windShear(thisUnit) then br.addonDebug("Casting Wind Shear") return end
                         end
         -- Capacitor Totem
-                        if isChecked("Capacitor Totem") then
+                        if ui.checked("Capacitor Totem") then
                             if cast.capacitorTotem(thisUnit) then br.addonDebug("Casting Capacitor Totem") return end
                         end
                     end
@@ -500,7 +506,7 @@ local function runRotation()
         end -- End Action List - Interrupts
         local function ghostWolf()
             -- Ghost Wolf
-            if not (IsMounted() or IsFlying()) and isChecked("Auto Ghost Wolf") then
+            if not (IsMounted() or IsFlying()) and ui.checked("Auto Ghost Wolf") then
                if mode.ghostWolf == 1 then
                    if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() and not buff.spiritwalkersGrace.exists() then
                        if cast.ghostWolf() then br.addonDebug("Casting Ghost Wolf") end
@@ -509,11 +515,11 @@ local function runRotation()
                    end
                elseif mode.ghostWolf == 2 then
                    if not buff.ghostWolf.exists() and isMoving("player") then 
-                       if SpecificToggle("Ghost Wolf Key")  and not GetCurrentKeyBoardFocus() then
+                       if SpecificToggle("Ghost Wolf Key") and not GetCurrentKeyBoardFocus() then
                            if cast.ghostWolf() then br.addonDebug("Casting Ghost Wolf") end
                        end
                    elseif buff.ghostWolf.exists() then
-                       if SpecificToggle("Ghost Wolf Key") then
+                       if SpecificToggle("Ghost Wolf Key") and not GetCurrentKeyBoardFocus() then
                            return
                        else
                            if br.timer:useTimer("Delay",0.25) then
@@ -525,55 +531,55 @@ local function runRotation()
            end
        end
         -- Action List - Pre-Combat
-        function actionList_PreCombat()
-            if isChecked("Pig Catcher") then
+        local function actionList_PreCombat()
+            if ui.checked("Pig Catcher") then
                 bossHelper()
             end
-            prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") 
+            prepullOpener = inRaid and ui.checked("Pre-pull Opener") and pullTimer <= ui.value("Pre-pull Opener") 
             -- Healing Rain
             if movingCheck and cd.healingRain.remain() <= gcd then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
                 end
             end
         -- Riptide
-            if isChecked("Riptide") then
+            if ui.checked("Riptide") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
+                    if br.friend[i].hp <= ui.value("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
                         if cast.riptide(br.friend[i].unit) then br.addonDebug("Casting Riptide") return end     
                     end
                 end
             end
         -- Healing Stream Totem
-           if isChecked("Healing Stream Totem") and movingCheck and cd.healingStreamTotem.remain() <= gcd and not talent.cloudburstTotem then                   
-                if lowest.hp <= getValue("Healing Stream Totem") then
+           if ui.checked("Healing Stream Totem") and movingCheck and cd.healingStreamTotem.remain() <= gcd and not talent.cloudburstTotem then                   
+                if lowest.hp <= ui.value("Healing Stream Totem") then
                 if cast.healingStreamTotem(lowest.unit) then br.addonDebug("Casting Healing Stream Totem") return end     
                 end
             end
         -- Healing Surge
-            if isChecked("Healing Surge") and movingCheck then                    
-                if lowest.hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 34) then
+            if ui.checked("Healing Surge") and movingCheck then                    
+                if lowest.hp <= ui.value("Healing Surge") and (buff.tidalWaves.exists() or level < 34) then
                     if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
                 end
             end
         -- Healing Wave
-            if isChecked("Healing Wave") and movingCheck then        
-                if lowest.hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 34) then
+            if ui.checked("Healing Wave") and movingCheck then        
+                if lowest.hp <= ui.value("Healing Wave") and (buff.tidalWaves.exists() or level < 34) then
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
             end
         -- Chain Heal
-            if isChecked("Chain Heal") and movingCheck then
-                if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
+            if ui.checked("Chain Heal") and movingCheck then
+                if chainHealUnits(spell.chainHeal,15,ui.value("Chain Heal"),ui.value("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
             end
             -- Healing Surge
-            if isChecked("Healing Surge") and movingCheck then
+            if ui.checked("Healing Surge") and movingCheck then
                 if lowest.hp <= 50 then
                     if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
                 end
             end
             -- Healing Wave below 65
-            if isChecked("Healing Wave") and movingCheck and not burst then
+            if ui.checked("Healing Wave") and movingCheck and not burst then
                 if lowest.hp <= 65 then
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
@@ -625,30 +631,125 @@ local function runRotation()
             end
         end
 
+        local function actionList_dpsKey()
+            --Healing Rain
+            if mode.healingR == 1 and movingCheck and GetTime() - br.shaman.resto['Healing Rain'] >= 2 then
+                if not buff.healingRain.exists() then
+                    if isChecked("Healing Rain on Melee") then
+                        -- get melee players
+                        for i=1, #tanks do
+                            -- get the tank's target
+                            local tankTarget = UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil and getDistance(tankTarget,"player") < 40 then
+                                -- get players in melee range of tank's target
+                                local meleeFriends = getAllies(tankTarget,5)
+                                -- get the best ground circle to encompass the most of them
+                                local loc = nil
+                                if isChecked("Healing Rain on CD") then
+                                    -- return
+                                    if #meleeFriends >= getValue("Healing Rain Targets") then
+                                        if #meleeFriends < 12 then
+                                            loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                                        else
+                                            if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,getValue("Healing Rain Targets"),6,true, true) then
+                                                if SpellIsTargeting() then 
+                                                    br.shaman.resto['Healing Rain'] = GetTime()
+                                                    SpellStopTargeting() 
+                                                    br.addonDebug(colorRed.."Canceling Spell") 
+                                                end 
+                                                br.addonDebug("Casting Healing Rain") return 
+                                            end
+                                        end
+                                    end
+                                else
+                                    local meleeHurt = {}
+                                    for j=1, #meleeFriends do
+                                        if meleeFriends[j].hp < getValue("Healing Rain") then
+                                            tinsert(meleeHurt,meleeFriends[j])
+                                        end
+                                    end
+                                    if #meleeHurt >= getValue("Healing Rain Targets") then
+                                        if #meleeHurt < 12 then
+                                            loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                        else
+                                            if castWiseAoEHeal(meleeHurt,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then
+                                                if SpellIsTargeting() then 
+                                                    br.shaman.resto['Healing Rain'] = GetTime()
+                                                    SpellStopTargeting() 
+                                                    br.addonDebug(colorRed.."Canceling Spell") 
+                                                end
+                                                br.addonDebug("Casting Healing Rain") return 
+                                            end
+                                        end
+                                    end
+                                end
+                                if loc ~= nil then
+                                    if castGroundAtLocation(loc, spell.healingRain) then 
+                                        if SpellIsTargeting() then 
+                                            br.shaman.resto['Healing Rain'] = GetTime()
+                                            SpellStopTargeting() 
+                                            br.addonDebug(colorRed.."Canceling Spell") 
+                                        end
+                                        br.addonDebug("Casting Healing Rain (Cast Ground)") return
+                                    end
+                                end
+                            end
+                        end
+                    else
+                        if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then 
+                            if SpellIsTargeting() then 
+                                br.shaman.resto['Healing Rain'] = GetTime()
+                                SpellStopTargeting() 
+                                br.addonDebug(colorRed.."Canceling Spell") 
+                            end
+                            br.addonDebug("Casting Healing Rain (Wise AoE)") return 
+                        end
+                    end
+                end
+            end
+            --Riptide	
+            if ui.checked("Riptide") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= ui.value("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
+                        if cast.riptide(br.friend[i].unit) then br.addonDebug("Casting Riptide") return end     
+                    end
+                end
+            end
+            -- Flametongue Weapon
+            if not br.player.unit.weaponImbue.exists(5400) then
+                if cast.flametongueWeapon("player") then br.addonDebug("Casting Flametongue Weapon") return end
+            end
+            if isExplosive("target") then
+                actionList_Explosive()
+            else
+                actionList_DPS()
+            end
+        end
+
         local function actionList_Cooldowns()
             if useCDs() then
                 -- Spirit Link Totem
-                if isChecked("Spirit Link Totem") and not moving and cd.spiritLinkTotem.remain() <= gcd then
-                    if raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count"))) then
+                if ui.checked("Spirit Link Totem") and not moving and cd.spiritLinkTotem.remain() <= gcd then
+                    if raidBurstInc and (not ui.checked("Burst Count") or (ui.checked("Burst Count") and burstCount == ui.value("Burst Count"))) then
                         local nearHealer = getAllies("player",10)
                         -- get the best ground circle to encompass the most of them
                         local loc = nil
-                        if #nearHealer >= getValue("Spirit Link Totem Targets") then
+                        if #nearHealer >= ui.value("Spirit Link Totem Targets") then
                             if #nearHealer < 12 then
-                                loc = getBestGroundCircleLocation(nearHealer,getValue("Spirit Link Totem Targets"),40,10)
+                                loc = getBestGroundCircleLocation(nearHealer,ui.value("Spirit Link Totem Targets"),40,10)
                                 if loc ~= nil then
                                     if castGroundAtLocation(loc, spell.spiritLinkTotem) then br.addonDebug("Casting Spirit Link Totem") return true end
                                 end
                             else
-                                if castWiseAoEHeal(nearHealer,spell.spiritLinkTotem,10,100,getValue("Spirit Link Targets"),40,true, true) then br.addonDebug("Casting Spirit Link Totem") return end
+                                if castWiseAoEHeal(nearHealer,spell.spiritLinkTotem,10,100,ui.value("Spirit Link Targets"),40,true, true) then br.addonDebug("Casting Spirit Link Totem") return end
                             end
                         end
                     else
-                        if castWiseAoEHeal(br.friend,spell.spiritLinkTotem,12,getValue("Spirit Link Totem"),getValue("Spirit Link Totem Targets"),40,false,true) then br.addonDebug("Casting Spirit Link Totem") return end
+                        if castWiseAoEHeal(br.friend,spell.spiritLinkTotem,12,ui.value("Spirit Link Totem"),ui.value("Spirit Link Totem Targets"),40,false,true) then br.addonDebug("Casting Spirit Link Totem") return end
                     end
                 end
                 -- Spiritual Mana Potion
-                if isChecked("Mana Pot") and power <= getOptionValue("Mana Pot")
+                if ui.checked("Mana Pot") and power <= ui.value("Mana Pot")
                     and inCombat and  hasItem(171268)
                 then
                     if canUseItem(171268) then
@@ -666,20 +767,20 @@ local function runRotation()
                     end
                 end
                 -- Trinkets
-                if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) and not hasEquiped(169314,13) then
-                    if getOptionValue("Trinket 1 Mode") == 1 then
-                        if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+                if ui.checked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) and not hasEquiped(169314,13) then
+                    if ui.value("Trinket 1 Mode") == 1 then
+                        if getLowAllies(ui.value("Trinket 1")) >= ui.value("Min Trinket 1 Targets") or burst == true then
                             useItem(13)
                             br.addonDebug("Using Trinket 1")
                             return true
                         end
-                        elseif getOptionValue("Trinket 1 Mode") == 2 then
-                            if (lowest.hp <= getValue("Trinket 1") or burst == true) and lowest.hp ~= 250 then
+                        elseif ui.value("Trinket 1 Mode") == 2 then
+                            if (lowest.hp <= ui.value("Trinket 1") or burst == true) and lowest.hp ~= 250 then
                             UseItemByName(GetInventoryItemID("player", 13), lowest.unit)
                             br.addonDebug("Using Trinket 1 (Target)")
                             return true
                             end
-                        elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
+                        elseif ui.value("Trinket 1 Mode") == 3 and #tanks > 0 then
                             for i = 1, #tanks do
                                 -- get the tank's target
                                 local tankTarget = UnitTarget(tanks[i].unit)
@@ -693,11 +794,11 @@ local function runRotation()
                                 else
                                     local meleeHurt = {}
                                     for j = 1, #meleeFriends do
-                                    if meleeFriends[j].hp < getValue("Trinket 1") then
+                                    if meleeFriends[j].hp < ui.value("Trinket 1") then
                                         tinsert(meleeHurt, meleeFriends[j])
                                     end
                                     end
-                                    if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
+                                    if #meleeHurt >= ui.value("Min Trinket 1 Targets") or burst == true then
                                     loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                                     end
                                 end
@@ -715,20 +816,20 @@ local function runRotation()
                         end
                     end
                 end
-                if isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) and not hasEquiped(169314,13) then
-                    if getOptionValue("Trinket 2 Mode") == 1 then
-                        if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+                if ui.checked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) and not hasEquiped(169314,13) then
+                    if ui.value("Trinket 2 Mode") == 1 then
+                        if getLowAllies(ui.value("Trinket 2")) >= ui.value("Min Trinket 2 Targets") or burst == true then
                             useItem(14)
                             br.addonDebug("Using Trinket 2")
                             return true
                         end
-                        elseif getOptionValue("Trinket 2 Mode") == 2 then
-                            if (lowest.hp <= getValue("Trinket 2") or burst == true) and lowest.hp ~= 250 then
+                        elseif ui.value("Trinket 2 Mode") == 2 then
+                            if (lowest.hp <= ui.value("Trinket 2") or burst == true) and lowest.hp ~= 250 then
                             UseItemByName(GetInventoryItemID("player", 14), lowest.unit)
                             br.addonDebug("Using Trinket 2 (Target)")
                             return true
                             end
-                        elseif getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
+                        elseif ui.value("Trinket 2 Mode") == 3 and #tanks > 0 then
                             for i = 1, #tanks do
                                 -- get the tank's target
                                 local tankTarget = UnitTarget(tanks[i].unit)
@@ -742,11 +843,11 @@ local function runRotation()
                                 else
                                     local meleeHurt = {}
                                     for j = 1, #meleeFriends do
-                                    if meleeFriends[j].hp < getValue("Trinket 2") then
+                                    if meleeFriends[j].hp < ui.value("Trinket 2") then
                                         tinsert(meleeHurt, meleeFriends[j])
                                     end
                                     end
-                                    if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
+                                    if #meleeHurt >= ui.value("Min Trinket 2 Targets") or burst == true then
                                     loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                                     end
                                 end
@@ -761,63 +862,65 @@ local function runRotation()
                     end
                 end
                  -- Healing Tide Totem
-                if isChecked("Healing Tide Totem") and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
-                    if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") or burst == true or (raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count")))) then    
+                if ui.checked("Healing Tide Totem") and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
+                    if getLowAllies(ui.value("Healing Tide Totem")) >= ui.value("Healing Tide Totem Targets") or burst == true or (raidBurstInc and (not ui.checked("Burst Count") or (ui.checked("Burst Count") and burstCount == ui.value("Burst Count")))) then    
                         if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") HTTimer = GetTime() return end    
                     end
                 end
                 -- Ascendance
-                if isChecked("Ascendance") and talent.ascendance and cd.ascendance.remain() <= gcd and (not HTTimer or GetTime() - HTTimer > 10) then
-                    if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") or burst == true or (raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count")))) then    
+                if ui.checked("Ascendance") and talent.ascendance and cd.ascendance.remain() <= gcd and (not HTTimer or GetTime() - HTTimer > 10) then
+                    if getLowAllies(ui.value("Ascendance")) >= ui.value("Ascendance Targets") or burst == true or (raidBurstInc and (not ui.checked("Burst Count") or (ui.checked("Burst Count") and burstCount == ui.value("Burst Count")))) then    
                         if cast.ascendance() then br.addonDebug("Casting Ascendance") return end    
                     end
                 end
                 -- Mana Tide Totem
-                if isChecked("Mana Tide Totem") and power < ui.value("Mana Tide Totem") then
+                if ui.checked("Mana Tide Totem") and power < ui.value("Mana Tide Totem") then
                     if cast.manaTideTotem() then br.addonDebug("Casting Mana Tide Totem") return end
                 end
                 -- Ancestral Protection Totem
-                if isChecked("Ancestral Protection Totem") and cd.ancestralProtectionTotem.remain() <= gcd then
-                    if castWiseAoEHeal(br.friend,spell.ancestralProtectionTotem,20,getValue("Ancestral Protection Totem"),getValue("Ancestral Protection Totem Targets"),10,false,false) then br.addonDebug("casting Ancestral Protection Totem") return end
+                if ui.checked("Ancestral Protection Totem") and cd.ancestralProtectionTotem.remain() <= gcd then
+                    if castWiseAoEHeal(br.friend,spell.ancestralProtectionTotem,20,ui.value("Ancestral Protection Totem"),ui.value("Ancestral Protection Totem Targets"),10,false,false) then br.addonDebug("casting Ancestral Protection Totem") return end
                 end
             end
         end
         local function actionList_AMR()
             -- Healing Rain Key
             if movingCheck and cd.healingRain.remain() <= gcd then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
                 end
             end
             --Spirit Link Key
-            if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
+            if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Spirit Link Totem Key") then
                 if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then br.addonDebug("Casting Spirit Link Totem") return end 
             end
             -- Ascendance Key
-            if (SpecificToggle("Ascendance Key") and not GetCurrentKeyBoardFocus()) and isChecked("Ascendance Key") then
+            if (SpecificToggle("Ascendance Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Ascendance Key") then
                 if cast.ascendance() then br.addonDebug("Casting Ascendance") return end
             end
             -- Tremor Totem Key
-            if (SpecificToggle("Tremor Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Tremor Totem Key") then
+            if (SpecificToggle("Tremor Totem Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Tremor Totem Key") then
                 if cast.tremorTotem("player") then br.addonDebug("Casting Tremor Totem") return end
             end
             -- Healing Tide Key
-            if (SpecificToggle("Healing Tide Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Tide Key") then
+            if (SpecificToggle("Healing Tide Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Healing Tide Key") then
                 if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") return end
             end     
             -- Earthen Wall Totem
-            if isChecked("Earthen Wall Totem") and talent.earthenWallTotem and cd.earthenWallTotem.remain() <= gcd then
-                if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
+            if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem and cd.earthenWallTotem.remain() <= gcd then
+                if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,ui.value("Earthen Wall Totem"),ui.value("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
             end
             -- Purify Spirit
-            if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd and lowest.hp > 30 then
+            if mode.decurse == 1 and cd.purifySpirit.remain() <= gcd and lowest.hp > 30 then
                 for i = 1, #friends.yards40 do
                     if canDispel(br.friend[i].unit,spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
                     end
                 end
             end
-            if mode.healingR == 1 and movingCheck and cast.timeSinceLast.healingRain() > 0 and lowest.hp > 50  then
+            if mode.healingR == 1 and movingCheck and (ui.checked("Healing Rain on CD") or buff.heavyRainfall.exists()) 
+                and GetTime() - br.shaman.resto['Healing Rain'] >= 2 and lowest.hp > 50   
+            then
                 if not buff.healingRain.exists() then
                     -- get melee players
                     for i=1, #tanks do
@@ -828,7 +931,7 @@ local function runRotation()
                             local meleeFriends = getAllies(tankTarget,5)
                             -- get the best ground circle to encompass the most of them
                             local loc = nil
-                            if isChecked("Healing Rain on CD") and not isMoving(tanks[i].unit) then
+                            if not isMoving(tanks[i].unit) then
                                 -- CastGroundHeal(spell.healingRain, meleeFriends)
                                 -- return
                                 if #meleeFriends < 12 then
@@ -840,14 +943,22 @@ local function runRotation()
                                     }
                                 else
                                     if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,1,6,true, true) then
-                                        if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                        if SpellIsTargeting() then 
+                                            br.shaman.resto['Healing Rain'] = GetTime()
+                                            SpellStopTargeting() 
+                                            br.addonDebug(colorRed.."Canceling Spell") 
+                                        end
                                         br.addonDebug("Casting Healing Rain (CD)") return 
                                     end
                                 end
                             end
                             if loc ~= nil then
                                 if castGroundAtLocation(loc, spell.healingRain) then 
-                                    if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                    if SpellIsTargeting() then 
+                                        br.shaman.resto['Healing Rain'] = GetTime()
+                                        SpellStopTargeting() 
+                                        br.addonDebug(colorRed.."Canceling Spell") 
+                                    end
                                     br.addonDebug("Casting Healing Rain (Cast Ground CD)") return 
                                 end
                             end
@@ -860,22 +971,22 @@ local function runRotation()
             -- Cooldowns
             if actionList_Cooldowns() then return end
             -- Fae Transfusion Heal
-            if covenant.nightFae.active and ((getLowAllies(getValue("Fae Transfusion")) >= getValue("Fae Transfusion Targets")) or buff.faeTransfusionRecast.remain() < 3) then
-                if castWiseAoEHeal(br.friend,spell.faeTransfusion,10,getValue("Fae Transfusion"),getValue("Fae Transfusion Targets"),4,false, true) then br.addonDebug("Casting Fae Transfusion (Wise AoE)") return end
+            if covenant.nightFae.active and ((getLowAllies(ui.value("Fae Transfusion")) >= ui.value("Fae Transfusion Targets")) or buff.faeTransfusionRecast.remain() < 3) then
+                if castWiseAoEHeal(br.friend,spell.faeTransfusion,10,ui.value("Fae Transfusion"),ui.value("Fae Transfusion Targets"),4,false, true) then br.addonDebug("Casting Fae Transfusion (Wise AoE)") return end
             end
             -- Vesper Totem
-            if covenant.kyrian.active and getLowAllies(getValue("Vesper Totem")) >= getValue("Vesper Totem Targets") then
-                if castWiseAoEHeal(br.friend,spell.vesperTotem,10,getValue("Vesper Totem"),getValue("Vesper Totem Targets"),6,false, true) then br.addonDebug("Casting Vesper Totem (Wise AoE)") return end
+            if covenant.kyrian.active and getLowAllies(ui.value("Vesper Totem")) >= ui.value("Vesper Totem Targets") then
+                if castWiseAoEHeal(br.friend,spell.vesperTotem,10,ui.value("Vesper Totem"),ui.value("Vesper Totem Targets"),6,false, true) then br.addonDebug("Casting Vesper Totem (Wise AoE)") return end
             end
             -- Unleash Life
-            if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) and cd.unleashLife.remain() <= gcd then
-                if lowest.hp <= getValue("Unleash Life") then
+            if ui.checked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) and cd.unleashLife.remain() <= gcd then
+                if lowest.hp <= ui.value("Unleash Life") then
                     if cast.unleashLife(lowest.unit) then br.addonDebug("Casting Unleash Life") return end     
                 end
             end
             -- Cloud Burst Totem
-            if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() and cd.cloudburstTotem.remain() <= gcd and #enemies.yards40 > 0 then
-                if getLowAllies(getValue("Cloudburst Totem")) >= getValue("Cloudburst Totem Targets") then
+            if ui.checked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() and cd.cloudburstTotem.remain() <= gcd and #enemies.yards40 > 0 then
+                if getLowAllies(ui.value("Cloudburst Totem")) >= ui.value("Cloudburst Totem Targets") then
                     if cast.cloudburstTotem("player") then
                         br.addonDebug("Casting Cloud Burst Totem")
                         ChatOverlay(colorGreen.."Cloudburst Totem!")
@@ -888,23 +999,23 @@ local function runRotation()
                 if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave (Primordial Wave buff)") return end
             end
             -- Primordial Wave
-            if isChecked("Primordial Wave") and covenant.necrolord.active then
+            if ui.checked("Primordial Wave") and covenant.necrolord.active then
                 for i = 1, #br.friend do
-                    if buff.riptide.refresh(br.friend[i].unit) and br.friend[i].hp < (getValue("Primordial Wave")) then
+                    if buff.riptide.refresh(br.friend[i].unit) and br.friend[i].hp < (ui.value("Primordial Wave")) then
                         if cast.primordialWave(br.friend[i].unit) then br.addonDebug("Casting Primordial Wave") return end
                     end
                 end
             end
             --Chain Harvest
-            if isChecked("Chain Harvest") and covenant.venthyr.active then
-                if getLowAllies(getValue("Chain Harvest")) >= getValue("Chain Harvest Targets") then
+            if ui.checked("Chain Harvest") and covenant.venthyr.active then
+                if getLowAllies(ui.value("Chain Harvest")) >= ui.value("Chain Harvest Targets") then
                     if cast.chainHarvest(lowest.unit) then br.addonDebug("Casting Chain Harvest") return end
                 end
             end
             -- Healing Rain
-            if movingCheck and cd.healingRain.remain() <= gcd and cast.timeSinceLast.healingRain() > 3 then
+            if movingCheck and cd.healingRain.remain() <= gcd and GetTime() - br.shaman.resto['Healing Rain'] >= 2 then
                 if not buff.healingRain.exists() and mode.healingR == 1 then
-                    if isChecked("Healing Rain on Melee") then
+                    if ui.checked("Healing Rain on Melee") then
                         -- get melee players
                         for i=1, #tanks do
                             -- get the tank's target
@@ -916,86 +1027,100 @@ local function runRotation()
                                 local loc = nil
                                 local meleeHurt = {}
                                 for j=1, #meleeFriends do
-                                    if meleeFriends[j].hp < getValue("Healing Rain") then
+                                    if meleeFriends[j].hp < ui.value("Healing Rain") then
                                         tinsert(meleeHurt,meleeFriends[j])
                                     end
                                 end
-                                if #meleeHurt >= getValue("Healing Rain Targets") then
+                                if #meleeHurt >= ui.value("Healing Rain Targets") then
                                     if #meleeHurt < 12 then
-                                        loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                        loc = getBestGroundCircleLocation(meleeHurt,ui.value("Healing Rain Targets"),6,10)
                                     else
-                                        if castWiseAoEHeal(meleeHurt,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then
-                                            if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                        if castWiseAoEHeal(meleeHurt,spell.healingRain,10,ui.value("Healing Rain"),ui.value("Healing Rain Targets"),6,true, true) then
+                                            if SpellIsTargeting() then 
+                                                br.shaman.resto['Healing Rain'] = GetTime()
+                                                SpellStopTargeting() 
+                                                br.addonDebug(colorRed.."Canceling Spell") 
+                                            end
                                             br.addonDebug("Casting Healing Rain") return 
                                         end
                                     end
                                 end
                                 if loc ~= nil then
                                     if castGroundAtLocation(loc, spell.healingRain) then 
-                                        if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+                                        if SpellIsTargeting() then 
+                                            br.shaman.resto['Healing Rain'] = GetTime()
+                                            SpellStopTargeting() 
+                                            br.addonDebug(colorRed.."Canceling Spell") 
+                                        end
                                         br.addonDebug("Casting Healing Rain (Cast Ground)") return 
                                     end
                                 end
                             end
                         end
                     else
-                        if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain (Wise AoE)") return end
+                        if castWiseAoEHeal(br.friend,spell.healingRain,10,ui.value("Healing Rain"),ui.value("Healing Rain Targets"),6,true, true) then 
+                            if SpellIsTargeting() then 
+                                br.shaman.resto['Healing Rain'] = GetTime()
+                                SpellStopTargeting() 
+                                br.addonDebug(colorRed.."Canceling Spell") 
+                            end
+                            br.addonDebug("Casting Healing Rain (Wise AoE)") return end
                     end
                 end
             end	
             -- Wellspring
-            if isChecked("Wellspring") and talent.wellspring and cd.wellspring.remain() <= gcd and movingCheck then
-                if healConeAround(getValue("Wellspring Targets"), getValue("Wellspring"), 90, 30, 0) then br.addonDebug("Casting Wellspring") return end
+            if ui.checked("Wellspring") and talent.wellspring and cd.wellspring.remain() <= gcd and movingCheck then
+                if healConeAround(ui.value("Wellspring Targets"), ui.value("Wellspring"), 90, 30, 0) then br.addonDebug("Casting Wellspring") return end
             end
             -- Surge of Earth
-            if isChecked("Surge of Earth") and talent.surgeOfEarth then
+            if ui.checked("Surge of Earth") and talent.surgeOfEarth then
                 for i = 1, #tanks do
                     local unitsAroundTank = getAllies(tanks[i].unit, 8)
-                    if #unitsAroundTank > 0 and getLowAlliesInTable(getValue("Surge of Earth"),unitsAroundTank) >= 3 and buff.earthShield.stacks(tanks[i].unit) >= 3 then
+                    if #unitsAroundTank > 0 and getLowAlliesInTable(ui.value("Surge of Earth"),unitsAroundTank) >= 3 and buff.earthShield.stacks(tanks[i].unit) >= 3 then
                         if cast.surgeOfEarth() then br.addonDebug("Casting Surge Of Earth")  return end
                     end
                 end
             end
             -- Chain Heal
-            if isChecked("Chain Heal") and movingCheck then
+            if ui.checked("Chain Heal") and movingCheck then
                 if talent.unleashLife and talent.highTide then
                     if cast.unleashLife(lowest.unit) then return end
                     if buff.unleashLife.remain() > 2 then
-                        if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
+                        if chainHealUnits(spell.chainHeal,15,ui.value("Chain Heal"),ui.value("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
                     end
                 elseif talent.highTide then
-                    if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
+                    if chainHealUnits(spell.chainHeal,15,ui.value("Chain Heal"),ui.value("Chain Heal Targets")+1) then br.addonDebug("Casting Chain Heal") return true end
                 else
-                    if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
+                    if chainHealUnits(spell.chainHeal,15,ui.value("Chain Heal"),ui.value("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
                 end
             end
              -- Healing Surge (2 stacks)
-             if isChecked("Healing Surge") and movingCheck then
-                if lowest.hp <= getValue("Healing Surge") and buff.tidalWaves.stack() == 2 then
+             if ui.checked("Healing Surge") and movingCheck then
+                if lowest.hp <= ui.value("Healing Surge") and buff.tidalWaves.stack() == 2 then
                     if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
                 end
             end
             -- Healing Wave
-            if isChecked("Healing Wave") and movingCheck and not burst then
-                if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.stack() == 2 then
+            if ui.checked("Healing Wave") and movingCheck and not burst then
+                if lowest.hp <= ui.value("Healing Wave") and buff.tidalWaves.stack() == 2 then
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
             end
             -- Riptide
-            if isChecked("Riptide") then
+            if ui.checked("Riptide") then
                 if not buff.tidalWaves.stack() == 2 and level >= 34 then
                     if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
                 end
                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
+                    if br.friend[i].hp <= ui.value("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
                         if cast.riptide(br.friend[i].unit) then br.addonDebug("Casting Riptide") return end     
                     end
                end
             end
              -- Downpour
              if cd.downpour.remain() <= gcd and movingCheck then
-                if isChecked("Downpour") then
-                    if isChecked("Downpour on Melee") then
+                if ui.checked("Downpour") then
+                    if ui.checked("Downpour on Melee") then
                         -- get melee players
                         for i=1, #tanks do
                             -- get the tank's target
@@ -1007,15 +1132,15 @@ local function runRotation()
                                 local loc = nil
                                 local meleeHurt = {}
                                 for j=1, #meleeFriends do
-                                    if meleeFriends[j].hp < getValue("Downpour") then
+                                    if meleeFriends[j].hp < ui.value("Downpour") then
                                         tinsert(meleeHurt,meleeFriends[j])
                                     end
                                 end
-                                if #meleeHurt >= getValue("Downpour Targets") then
+                                if #meleeHurt >= ui.value("Downpour Targets") then
                                     if #meleeHurt < 12 then
-                                        loc = getBestGroundCircleLocation(meleeHurt,getValue("Downpour Targets"),6,10)
+                                        loc = getBestGroundCircleLocation(meleeHurt,ui.value("Downpour Targets"),6,10)
                                     else
-                                        if castWiseAoEHeal(meleeHurt,spell.downpour,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then 
+                                        if castWiseAoEHeal(meleeHurt,spell.downpour,10,ui.value("Downpour"),ui.value("Downpour Targets"),6,true, true) then 
                                             if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
                                             br.addonDebug("Casting Downpour") return 
                                         end
@@ -1030,7 +1155,7 @@ local function runRotation()
                             end
                         end
                     else
-                        if castWiseAoEHeal(br.friend,spell.downpour,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then 
+                        if castWiseAoEHeal(br.friend,spell.downpour,10,ui.value("Downpour"),ui.value("Downpour Targets"),6,true, true) then 
                             if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
                             br.addonDebug("Casting Downpour") return 
                         end
@@ -1038,8 +1163,8 @@ local function runRotation()
                 end 
             end
             -- Healing Stream Totem
-            if isChecked("Healing Stream Totem") and cd.healingStreamTotem.remain() <= gcd and movingCheck and not talent.cloudburstTotem then                        
-                if lowest.hp <= getValue("Healing Stream Totem") then
+            if ui.checked("Healing Stream Totem") and cd.healingStreamTotem.remain() <= gcd and movingCheck and not talent.cloudburstTotem then                        
+                if lowest.hp <= ui.value("Healing Stream Totem") then
                     if not talent.echoOfTheElements then
                         if cast.healingStreamTotem(lowest.unit) then br.addonDebug("Casting Healing Stream Totem") return end
                     elseif talent.echoOfTheElements and (not HSTime or GetTime() - HSTime > 15) then
@@ -1052,14 +1177,14 @@ local function runRotation()
                 end
             end
             -- Healing Surge
-            if isChecked("Healing Surge") and movingCheck then
+            if ui.checked("Healing Surge") and movingCheck then
                 if lowest.hp <= 50 then
                     if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
                 end
             end
             -- Healing Wave
-            if isChecked("Healing Wave") and movingCheck and not burst then
-                if lowest.hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
+            if ui.checked("Healing Wave") and movingCheck and not burst then
+                if lowest.hp <= ui.value("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
             end
@@ -1068,12 +1193,12 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-        if not isChecked("HE Active") and br.timer:useTimer("Error delay",0.5) then
+        if not ui.checked("HE Active") and br.timer:useTimer("Error delay",0.5) then
             Print("Detecting Healing Engine is not turned on.  Please activate Healing Engine to use this profile.")
             return
         end
-        if inCombat and not isChecked("Disable Auto Ground Cast Circle Cancel") then
-            if SpellIsTargeting()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+        if inCombat and not ui.checked("Disable Auto Ground Cast Circle Cancel") then
+            if SpellIsTargeting() then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
          end
         ghostWolf()
         -- Pause
@@ -1086,11 +1211,11 @@ local function runRotation()
             if not inCombat and not IsMounted() and not drinking then
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                     actionList_Extras()
-                    if isChecked("OOC Healing") then
+                    if ui.checked("OOC Healing") then
                         actionList_PreCombat()
                     end
                     -- Purify Spirit
-                    if br.player.ui.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+                    if mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                         for i = 1, #friends.yards40 do
                             if canDispel(br.friend[i].unit,spell.purifySpirit) then
                                 if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
@@ -1106,14 +1231,13 @@ local function runRotation()
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                     actionList_Defensive()
                     actionList_Interrupts()
-                    actionList_AMR()
                     -- Purge
-                    if isChecked("Purge") and lowest.hp > getOptionValue("DPS Threshold") and power >= getOptionValue("Purge Min Mana") then
-                        if getOptionValue("Purge") == 1 then
+                    if ui.checked("Purge") and lowest.hp > ui.value("DPS Threshold") and power >= ui.value("Purge Min Mana") then
+                        if ui.value("Purge") == 1 then
                             if canDispel("target",spell.purge) and GetObjectExists("target") then
                                 if cast.purge("target") then br.addonDebug("Casting Purge") return true end
                             end
-                        elseif getOptionValue("Purge") == 2 then
+                        elseif ui.value("Purge") == 2 then
                             for i = 1, #enemies.yards30 do
                                 local thisUnit = enemies.yards30[i]
                                 if canDispel(thisUnit,spell.purge) then
@@ -1122,17 +1246,21 @@ local function runRotation()
                             end
                         end
                     end
-                    if not isChecked("Healing Rain on CD") or buff.healingRain.exists() or mode.healingR ~= 1 or not tankIsNotMoving then
-                        if br.player.ui.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
+                    if ui.checked("DPS Key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+                        actionList_dpsKey()
+                    end
+                    actionList_AMR()
+                    --if not ui.checked("Healing Rain on CD") or buff.healingRain.exists() or mode.healingR ~= 1 or not tankIsNotMoving then
+                        if mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > ui.value("DPS Threshold") then
                             if isExplosive("target") then
                                 actionList_Explosive()
                             else
                                 actionList_DPS()
                             end
                         end
-                        if movingCheck and br.player.ui.mode.dPS == 1 and getFacing("player","target") then
-                            if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
-                        end
+                    --end
+                    if movingCheck and mode.dPS == 1 and getFacing("player","target") then
+                        if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
                     end
                 end
             end -- End In Combat Rotation
