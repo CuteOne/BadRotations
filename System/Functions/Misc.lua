@@ -189,7 +189,7 @@ function getLineOfSight(Unit1, Unit2)
 		local X1, Y1, Z1 = GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)
 		local pX, pY, pZ = GetObjectPosition("player")
-		if TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil then
+		if TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x100111) == nil then
 			--Print("Past Traceline")
             if br.player and br.player.eID and br.player.eID == 2141 then
                 if pX < -108 and X2 < -108 then
@@ -521,8 +521,9 @@ function enemyListCheck(Unit)
 	if targetBuff ~= playerBuff then return false end
 	local phaseReason = UnitPhaseReason(Unit)
 	local distance = getDistance(Unit, "player")
-	local mcCheck =	(isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit) or UnitDebuffID("player", 320102))) or not GetUnitIsFriend(Unit, "player")
+	local mcCheck =	(isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or not GetUnitIsFriend(Unit, "player")
 	local inPhase = not phaseReason or phaseReason == 2 or phaseReason == 3
+	if playerTarget and UnitDebuffID("player", 320102) and UnitIsPlayer(Unit) then return true end
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and inPhase and UnitCanAttack("player", Unit) and UnitHealth(Unit) > 0 and
 		distance < 50 and
 		not isCritter(Unit) and
@@ -544,6 +545,7 @@ function isValidUnit(Unit)
 	local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and	(not GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not GetUnitIsFriend(Unit, "player")
+	if playerTarget and UnitDebuffID("player", 320102) and UnitIsPlayer(Unit) then return true end
 	if playerTarget and br.units[UnitTarget("player")] == nil and not enemyListCheck("target") then return false end
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit)
 		and mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit)
