@@ -18,6 +18,7 @@ local function checkKeys(self, key)
 		pressedKey = pressedKey .. key
 		local spell = br.player.spell.bindings[pressedKey]
 		if spell ~= nil then
+			if GetSpecializationInfo(GetSpecialization()) == 258 and spell == 2061 then spell = 186263 end
 			local cd = getSpellCD(spell)
 			if GetSpellInfo(GetSpellInfo(spell)) and cd <= getOptionValue("Smart Queue") and isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false or UnitCastingInfo("player")) then
 				br.queueSpell = spell
