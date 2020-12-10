@@ -278,6 +278,7 @@ local function runRotation()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
+        local runeforge                                     = br.player.runeforge
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local tanks                                         = getTanksTable()
@@ -966,8 +967,16 @@ local function runRotation()
                     end
                 end
             end	
-            -- Chain Heal with Legendary (To do)
-            -- Healing Wave with Legendary (To do)            
+            -- Chain Heal with Legendary
+            if ui.checked("Chain Heal") and movingCheck and runeforge.spiritwalkersTidalTotem.equiped and buff.spiritwalkersTidalTotem.exists() then
+                if chainHealUnits(spell.chainHeal,15,ui.value("Chain Heal"),ui.value("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
+            end
+            -- Healing Wave with Legendary (To do) 
+            if ui.checked("Healing Wave") and movingCheck and runeforge.spiritwalkersTidalTotem.equiped and buff.spiritwalkersTidalTotem.exists() then
+                if lowest.hp <= ui.value("Healing Wave") then
+                    if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
+                end
+            end           
             -- Cooldowns
             if actionList_Cooldowns() then return end
             -- Fae Transfusion Heal
@@ -1189,6 +1198,9 @@ local function runRotation()
                 end
             end
             -- Chain Lightning with legendaries (To Do)
+            if runeforge.chainsOfDevastation.equiped and not buff.chainsOfDevastationHeal.exists() then
+                if cast.chainLightning() then br.addonDebug("Casting Chain Lightning (Chains of Devastation)") end
+            end
         end
 -----------------
 --- Rotations ---
