@@ -32,7 +32,7 @@ br.api.runeforge = function(runeforge,k,v)
         end
         return false
     end
-    if UnitLevel("player") >= 50 then
+    if isChecked("Legendary Support") then
         for i = 1, #itemLeggoSlots do
             if GetInventoryItemID("player",i) ~= nil then
                 item = ItemLocation:CreateFromEquipmentSlot(itemLeggoSlots[i])
