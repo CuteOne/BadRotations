@@ -458,7 +458,7 @@ actionList.SingleTarget = function()
     end
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&(cooldown.aimed_shot.up|cooldown.rapid_fire.remains>cooldown.aimed_shot.remains)
-    if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
+    if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
         and (covenant.kyrian.active and cd.resonatingArrow.remains() < unit.gcd(true) or not covenant.kyrian.active
         and (cd.aimedShot.remains() == 0 or cd.rapidFire.remains() > cd.aimedShot.remains()))
     then
@@ -518,7 +518,7 @@ actionList.SingleTarget = function()
     end 
     -- Aimed Shot
     -- aimed_shot,target_if=min:(dot.serpent_sting.remains<?action.serpent_sting.in_flight_to_target*dot.serpent_sting.duration),if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
-    if cast.able.aimedShot() and not unit.moving("player") and (not buff.preciseShots.exists()
+    if (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus) and cast.able.aimedShot() and not unit.moving("player") and (not buff.preciseShots.exists()
         or (buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
         and (not talent.chimaeraShot or #enemies.yards40f < 2) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40f > 1)
     then
@@ -539,7 +539,7 @@ actionList.SingleTarget = function()
     end
     -- Arcane Shot
     -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>55)|focus>75|target.time_to_die<5)
-    if cast.able.arcaneShot() and (buff.preciseShots.exists() or power.focus.amount() > cast.cost.aimedShot()) then
+    if cast.able.arcaneShot() and (buff.preciseShots.exists() or power.focus.amount() > cast.cost.aimedShot()) and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus) then
         if cast.arcaneShot() then ui.debug("Casting Arcane Shot") return true end
     end
     -- Serpent Sting
