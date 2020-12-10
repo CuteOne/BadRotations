@@ -72,7 +72,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1")
             br.ui:createCheckbox(section, "Disable Auto Ground Cast Circle Cancel")
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
