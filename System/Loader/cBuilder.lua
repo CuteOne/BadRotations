@@ -90,7 +90,13 @@ function br.loader:new(spec,specName)
     self.profile = specName
 
     -- Mandatory !
-    self.rotation = br.rotations[spec][br.selectedProfile]
+    if br.rotations[spec] == nil then br.loader.loadProfiles() end
+    if br.rotations[spec][br.selectedProfile] then
+        self.rotation = br.rotations[spec][br.selectedProfile]
+    else
+        self.rotation = br.rotations[spec][1]
+    end
+
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
