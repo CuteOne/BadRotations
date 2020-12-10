@@ -70,6 +70,7 @@ function br:loadSettings(folder,class,spec,profile)
         end
 		if spec == nil then spec = br.selectedSpec end
 		if spec == '' then spec = "Initial" end
+		if br.data.settings[spec].config == nil then br.data.settings[spec].config = {} end
 		local initialLoad = br.data.settings[spec].config.initialLoad or false
 		if initialLoad then
 			br.ui:closeWindow("config")
@@ -155,8 +156,12 @@ function br:saveLastProfileTracker()
 				br.data.settings[br.selectedSpec]['RotationDropValue'] = br.rotations[specID][1].name
 				br.data.tracker[br.selectedSpec]['RotationDropValue'] = br.rotations[specID][1].name	
 			end
-        end
-    end
+		end
+	else
+		br.data.tracker = {
+
+		}
+	end
     Print("Saving Tracker to Directory: "..tostring(saveDir))
 	br.tableSave(br.data.tracker,saveDir .. "lastProfileTracker.lua")
 end
