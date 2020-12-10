@@ -87,7 +87,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             br.ui:createCheckbox(section, "Racial", "Will use Racial")
             br.ui:createCheckbox(section, "Trinkets", "Will use Trinkets")
-            br.ui:createDropdown(section, "Potion", {"Phantom Fire", "Empowered Exorcisms"}, 1, "Potion with CDs")
+            br.ui:createDropdown(section, "Potion", {"Phantom Fire", "Empowered Exorcisms", "Spectral Agi"}, 1, "Potion with CDs")
             br.ui:createCheckbox(section, "Shadow Blades", "Will use Shadow Blades")
             br.ui:createCheckbox(section, "Precombat", "Will use items/pots on pulltimer")
             br.ui:createCheckbox(section, "Opener", "Cast all cooldowns during opener with bosses")
@@ -323,7 +323,8 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) then
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
+             and (mode.rotation ~= 2 or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -552,7 +553,7 @@ local function runRotation()
                     if isChecked("Kick") and distance < 5 then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.remain() ~= 0 and distance < 5 and isCrowdControlCandidates(interrupt_target) and noStunList[GetObjectID(thisUnit)] == nil then
+                    if cd.kick.remain() ~= 0 and distance < 5 and isCrowdControlCandidates(interrupt_target) and noStunList[GetObjectID(interrupt_target)] == nil then
                         if isChecked("Kidney Shot/Cheap Shot") then
                             if stealthedAll then
                                 if cast.cheapShot(interrupt_target) then return true end
@@ -561,7 +562,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if isChecked("Blind") and isCrowdControlCandidates(interrupt_target) and (cd.kick.remain() ~= 0 or distance >= 5)  and noStunList[GetObjectID(thisUnit)] == nil then
+                    if isChecked("Blind") and isCrowdControlCandidates(interrupt_target) and (cd.kick.remain() ~= 0 or distance >= 5)  and noStunList[GetObjectID(interrupt_target)] == nil then
                         if cast.blind(interrupt_target) then return end
                     end
                 end
@@ -589,12 +590,15 @@ local function runRotation()
 
     local function actionList_PreCombat()
         -- actions.precombat+=/potion
-        if isChecked("Precombat") and pullTimer <= 1.5 then
+        if isChecked("Precombat") and pullTimer <= 0.5 then
             if getOptionValue("Potion") == 1 and canUseItem(171349) then
                 useItem(171349)
                 return true
             elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
                 useItem(171352)
+                return true
+            elseif getOptionValue("Potion") == 3 and canUseItem(171270) then
+                useItem(171270)
                 return true
             end
         end
@@ -740,6 +744,9 @@ local function runRotation()
                 return true
             elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
                 useItem(171352)
+                return true
+            elseif getOptionValue("Potion") == 3 and canUseItem(171270) then
+                useItem(171270)
                 return true
             end
         end
