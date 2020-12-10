@@ -89,7 +89,9 @@ function br:Run()
 	-- -- other readers
 	-- br.read.commonReaders()
 	-- load common used stuff on first load
-	br:defaultSettings()
+	if not br.initalizeSettings then
+		br:defaultSettings()
+	end
 	-- add minimap fire icon
 	br:MinimapButton()
 	-- Build up pulse frame (hearth)
@@ -134,6 +136,7 @@ function br:loadSavedSettings()
 		br.loader.loadProfiles()
 		br:loadLastProfileTracker()
 		br:loadSettings(nil,nil,nil, br.data.settings[br.selectedSpec]['RotationDropValue'])			
+		br:defaultSettings()
 		-- Define Main Button if no settings exist
 		if (br.data.settings and br.data.settings.mainButton == nil) then
             br.data.settings.mainButton = {
