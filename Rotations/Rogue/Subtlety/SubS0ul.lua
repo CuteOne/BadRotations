@@ -593,13 +593,10 @@ local function runRotation()
         if isChecked("Precombat") and pullTimer <= 0.5 then
             if getOptionValue("Potion") == 1 and canUseItem(171349) then
                 useItem(171349)
-                return true
             elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
                 useItem(171352)
-                return true
             elseif getOptionValue("Potion") == 3 and canUseItem(171270) then
                 useItem(171270)
-                return true
             end
         end
         -- actions.precombat+=/marked_for_death,precombat_seconds=15
@@ -699,7 +696,7 @@ local function runRotation()
             end
         end
         -- actions.cds+=/sepsis,if=variable.snd_condition&combo_points.deficit>=1
-        if sndCondition == 1 and comboDeficit >= 1 and cast.able.sepsis() then
+        if sndCondition == 1 and comboDeficit >= 1 and cast.able.sepsis() and ttd("target") > 10  then
             if cast.sepsis("target") then return true end
         end
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus.
@@ -741,17 +738,14 @@ local function runRotation()
         if cdUsage and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or (buff.symbolsOfDeath.exists("target") and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10))) then
             if getOptionValue("Potion") == 1 and canUseItem(171349) then
                 useItem(171349)
-                return true
             elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
                 useItem(171352)
-                return true
             elseif getOptionValue("Potion") == 3 and canUseItem(171270) then
                 useItem(171270)
-                return true
             end
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
-        if cdUsage and isChecked("Trinkets") and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
             if canUseItem(13) and not hasEquiped(184052, 13) then
                 useItem(13)
             end
@@ -959,7 +953,7 @@ local function runRotation()
             for i = 1, #enemyTable10 do
                 thisUnit = enemyTable10[i].unit
                 local buildersStorm = 0
-                if talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player") then buildersStorm = 1 else buildersStorm = 0 end
+                if (talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player")) or isBoss() then buildersStorm = 1 else buildersStorm = 0 end
                 if enemies10 >= (2 + buildersStorm) and ((not cast.last.vanish(1) or cast.last.shadowstrike(1)) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1)) then
                     if cast.shurikenStorm("player") then return true end
                 end
