@@ -2044,7 +2044,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 judgement                   = 214222,
-                judgmentoflight             = 196941,
+                judgmentOfLight             = 196941,
                 glimmerOfLight              = 287280,
                 consecration                = 204242,
 
