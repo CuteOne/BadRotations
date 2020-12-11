@@ -96,7 +96,6 @@ local function createOptions()
         ---  TARGET OPTIONS   ---  -- Define Target Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Targets")
-            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cff0070deSet to maximum number of targets to use Azerite Beam in AoE. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Maximum FlameShock Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to use FlameShock in AoE. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Maximum LB Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to use Lava Burst in AoE. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Maximum EB Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to use Elemental Blast in AoE. Min: 1 / Max: 10 / Interval: 1" )
