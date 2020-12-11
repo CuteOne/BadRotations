@@ -32,5 +32,6 @@ br.lists.dispell = {
 	[129016] = "Enrage",[129874] = "Enrage",[130196] = "Enrage",[130202] = "Enrage",[131150] = "Enrage",
 	[135524] = "Enrage",[135548] = "Enrage",[142760] = "Enrage",[148295] = "Enrage",[151553] = "Enrage",
 	[154017] = "Enrage",[155620] = "Enrage",[164324] = "Enrage",[164835] = "Enrage",[175743] = "Enrage",
-	[144351] = "Magic",
+	[144351] = "Magic",[333227] = "Undying Rage",[326450] = "Loyal Beasts",[320012] = "Unholy Frenzy",
+	[333241] = "Raging Tantrum"
 }

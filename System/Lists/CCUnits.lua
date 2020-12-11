@@ -4,6 +4,9 @@ end
 -- Crowd Control Units = list of units to stun, either always or under certain condition such as having a buff or whirlwind etc
 -- example
 br.lists.ccUnits = {
+    -- Raid
+    [167566] = { name = "Return to Stone", spell = 333145 }, -- Sun King's Salvation
+    [165762] = { name = "Soul Infuser" }, -- Sun King's Salvation
     -- SL Dungeons
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
@@ -12,6 +15,7 @@ br.lists.ccUnits = {
     [164362] = { name = "Slimy Morsel" }, -- Plaguefall Dungeon
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Plaguefall Dungeon
     [164737] = { name = "Enveloping Webbing", spell = 328475 }, -- Plaguefall Dungeon
+    [150959] = { name = "Critical Shot", spell = 294171}, -- Torghast Mawsworn Interceptor
     -- Test unit outside Boralus
     [123231] = { name = "Sharptail Beaver" },
     -- Visions of Ogrimmar
