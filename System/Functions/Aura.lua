@@ -159,6 +159,7 @@ function canDispel(Unit, spellID)
 	if ClassNum == 4 then --Rogue
 		-- Cloak of Shadows
 		if spellID == 31224 then typesList = {"Poison", "Curse", "Disease", "Magic"} end
+		if spellID == 5938 then typesList = {""} end 
 	end
 	if ClassNum == 5 then --Priest
 		-- Purify
