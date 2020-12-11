@@ -49,5 +49,5 @@ br.lists.los = {
 	[157602] = true, -- Drest'agath - Ny'alotha
 	[158343] = true, -- Organ of Corruption - Ny'alotha
 	[166608] = true, -- Mueh'zala - De Other Side
-	[174733] = true, -- Sludgefist -- Castle Nathria
+	[164407] = true, -- Sludgefist - Castle Nathria
 }
