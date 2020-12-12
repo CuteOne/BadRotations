@@ -175,6 +175,7 @@ local enemies
 local module
 local opener
 local power
+local runeforge
 local talent
 local unit
 local units
@@ -813,6 +814,7 @@ local function runRotation()
     module                             = br.player.module
     opener                             = br.player.opener
     power                              = br.player.power
+    runeforge                          = br.player.runeforge
     unit                               = br.player.unit
     talent                             = br.player.talent
     ui                                 = br.player.ui
