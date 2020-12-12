@@ -79,7 +79,7 @@ local function createOptions()
             -- Basic Trinkets
             br.player.module.BasicTrinkets(nil,section)
             -- Covenant Ability
-            br.ui:createDropdownWithout("Covenant Ability", {"|cff0000FFAlways","|cffFFFF00CD Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Covenant Ability")
+            br.ui:createDropdownWithout(section, "Covenant Ability", {"|cff0000FFAlways","|cffFFFF00CD Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Covenant Ability")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
