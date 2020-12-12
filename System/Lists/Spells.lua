@@ -617,6 +617,9 @@ br.lists.spells = {
                 glyphOfShadowEnemies        = 220244,
                 glyphOfTatteredWings        = 220226,
             },
+            runeforges                      = {
+                razelikhsDefilement         = 337544,
+            }
             talents                         = {
                 felblade                    = 232893,
             },
@@ -1018,6 +1021,7 @@ br.lists.spells = {
             },
             conduits                        = {
                 deepAllegiance              = 341378,
+                tasteForBlood               = 340682,
             },
             covenants                       = {
                 adaptiveSwarm               = 325727,
