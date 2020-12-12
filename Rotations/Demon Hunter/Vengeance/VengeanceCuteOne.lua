@@ -385,7 +385,7 @@ end -- End Action List - Normal
 actionList.PreCombat = function()
     if not unit.inCombat() then
         -- Flask / Crystal
-        module.BasicFlasks("Strength")
+        module.FlaskUp("Strength")
         -- Battle Scarred Augment Rune
         -- augmentation
         if ui.checked("Augment Rune") and var.inRaid and not buff.battleScarredAugmentation.exists()
