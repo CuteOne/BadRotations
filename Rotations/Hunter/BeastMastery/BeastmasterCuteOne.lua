@@ -529,8 +529,8 @@ actionList.St = function()
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if unit.exists() and cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare() then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
     end
     -- Bloodshed
     -- bloodshed
@@ -655,8 +655,8 @@ actionList.Cleave = function()
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if unit.exists() and cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare() then ui.debug("Casting Flare [Soulforge Embers AOE]") return true end
+    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
