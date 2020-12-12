@@ -658,7 +658,7 @@ local function runRotation()
     
     var.lowestAimedRemain = 99
     for i = 1, #enemies.yards40f do
-        local thisUnit = enemies.yards404[i]
+        local thisUnit = enemies.yards40f[i]
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
         if serpentStingRemain < var.lowestAimedRemain then
             var.lowestAimedRemain = serpentStingRemain
