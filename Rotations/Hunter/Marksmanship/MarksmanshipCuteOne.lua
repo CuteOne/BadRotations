@@ -507,7 +507,7 @@ actionList.SingleTarget = function()
     -- Volley
     -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
     if cast.able.volley() and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) then
-        if cast.volley("best",nil,3,8) then ui.debug("Casting Volley") return true end
+        if cast.volley("best",nil,1,8) then ui.debug("Casting Volley") return true end
     end
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
@@ -534,12 +534,16 @@ actionList.SingleTarget = function()
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
-    if cast.able.chimaeraShot() and (buff.preciseShots.exists() or power.focus.amount() > cast.cost.aimedShot()) then
+    if cast.able.chimaeraShot() and (buff.preciseShots.exists()
+        or power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot())
+    then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot") return true end
     end
     -- Arcane Shot
     -- arcane_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
-    if cast.able.arcaneShot() and (buff.preciseShots.exists() or power.focus.amount() > cast.cost.aimedShot()) then
+    if cast.able.arcaneShot() and (buff.preciseShots.exists()
+        or power.focus.amount() > cast.cost.arcaneShot() + cast.cost.aimedShot())
+    then
         if cast.arcaneShot() then ui.debug("Casting Arcane Shot") return true end
     end
     -- Serpent Sting
