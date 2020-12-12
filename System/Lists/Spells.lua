@@ -2891,7 +2891,6 @@ br.lists.spells = {
                 perforatedVeins             = 341567,
                 plannedExecution            = 341556,
                 stilettoStaccato            = 341559,
-                deeperDaggers               = 341549,
             },
         },
         -- All
@@ -2997,7 +2996,7 @@ br.lists.spells = {
                 markOfTheMasterAssassin     = 340076,
                 essenceOfBloodfang          = 340079,
                 invigoratingShadowdust      = 340080,
-                tinyToxicBlades             = 340078,
+                tinyToxicBlade              = 340078,
             },
         },
     },
