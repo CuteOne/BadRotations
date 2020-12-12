@@ -12,7 +12,6 @@ br.lists.ccUnits = {
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
     [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
     [171887] = { name = "Slimy Smorgasbord" }, -- Plaguefall Dungeon
-    [164362] = { name = "Slimy Morsel" }, -- Plaguefall Dungeon
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Plaguefall Dungeon
     [164737] = { name = "Enveloping Webbing", spell = 328475 }, -- Plaguefall Dungeon
     [150959] = { name = "Critical Shot", spell = 294171}, -- Torghast Mawsworn Interceptor
