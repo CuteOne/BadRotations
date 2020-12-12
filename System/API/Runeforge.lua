@@ -2,9 +2,7 @@ local br = _G["br"]
 if br.api == nil then br.api = {} end
 br.api.runeforge = function(runeforge,k,v)
     runeforge[k].equiped = false
-    
-    local item
-    local isLeggo = false
+
     local itemLeggoSlots = {
         [1] = 1, -- Head
         [2] = 2, -- Neck
@@ -26,24 +24,29 @@ br.api.runeforge = function(runeforge,k,v)
         if (powers ~= nil) then
             local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(powers)
             local spellID = powerInfo.descriptionSpellID
-            if spellID == v and powerInfo.state == 1 then
+            local spellName = GetSpellInfo(spellID)
+            local vName = GetSpellInfo(v)
+            --if spellName == "Soulforge Embers" then Print("SpellID: "..spellID..", List ID: "..v.." - Name Match: "..tostring(spellName == vName) end
+            if spellID == v and spellName == vName then
+                Print("Found Legendary: "..spellName.." with ID: "..spellID.." for List ID: "..v.." called "..vName)
                 return true
             end
         end
         return false
     end
     for i = 1, #itemLeggoSlots do
-        if GetInventoryItemID("player",i) ~= nil then
+        local thisSlot = itemLeggoSlots[i]
+        local itemID = GetInventoryItemID("player",thisSlot)
+        if GetInventoryItemID("player",thisSlot) ~= nil then
             -- From: https://wow.gamepedia.com/ItemLocationMixin
-            item = ItemLocation:CreateFromEquipmentSlot(itemLeggoSlots[i])
+            local item = ItemLocation:CreateFromEquipmentSlot(thisSlot)
             if item:IsValid() then
-                isLeggo = C_LegendaryCrafting.IsRuneforgeLegendary(item)
-                if isLeggo then
+                if C_LegendaryCrafting.IsRuneforgeLegendary(item) then
                     slotPowers = C_LegendaryCrafting.GetRuneforgePowers(item,1)
                     runeforge[k].equiped = findPowerBySlot(1) or findPowerBySlot(2)
                 end
             end
         end
-        if runeforge[k].equiped then break end
+        --if runeforge[k].equiped then break end
     end
 end
