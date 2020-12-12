@@ -92,7 +92,7 @@ function isIncapacitated(spellID)
 		for i=0,eventIndex do
 			event = C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				if not canRegainControl(spellID,event.locType) and (event.locType ~= "ROOT" or event.locType == "SNARE")
+				if not canRegainControl(spellID,event.locType) and (event.locType ~= "DISARM" and event.locType ~= "ROOT" or event.locType == "SNARE")
 				-- (event.locType == "NONE"
 				-- 	or event.locType == ""CHARM""
 				-- 	or event.locType == "DISORIENT"
