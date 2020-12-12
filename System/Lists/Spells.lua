@@ -2895,7 +2895,7 @@ br.lists.spells = {
                 theRotten                   = 340091,
                 deathlyShadows              = 340092,
             },
-            conduit                           = {
+            conduits                        = {
                 deeperDaggers               = 341549,
                 perforatedVeins             = 341567,
                 plannedExecution            = 341556,
