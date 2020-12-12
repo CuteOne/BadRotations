@@ -68,6 +68,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Do Not Auto Engage if OOC")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            -- Volly Units
+            br.ui:createSpinnerWithout(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             -- Covenant Ability
             br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
@@ -359,8 +361,8 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley
-    if cast.able.volley() then
-        if cast.volley("best",nil,3,8) then ui.debug("Casting Volley [Trick Shots]") return true end
+    if cast.able.volley() and (#enemies.yards8t >= ui.value("Volley Units")) then
+        if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
     -- barrage
@@ -506,8 +508,8 @@ actionList.SingleTarget = function()
     end
     -- Volley
     -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
-    if cast.able.volley() and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) then
-        if cast.volley("best",nil,1,8) then ui.debug("Casting Volley") return true end
+    if cast.able.volley() and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
+        if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end
     end
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
@@ -586,21 +588,24 @@ actionList.PreCombat = function()
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
         if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage") then
+            -- Tar Trap
+            -- tar_trap,if=runeforge.soulforge_embers
+            if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
+                if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+            end
             -- Double Tap
-            -- double_tap,precast_time=10,if=!covenant.kyrian&(!talent.volley|active_enemies<2)
-            if cast.able.doubleTap() and ui.pullTimer() <= 10 and not covenant.kyrian.active and (not talent.volley) then
+            -- double_tap,precast_time=10,if=active_enemies>1|!covenant.kyrian&!talent.volley
+            if cast.able.doubleTap() and ui.pullTimer() <= 10 and (#enemies.yards40f > 1 or (not covenant.kyrian.active and not talent.volley)) then
                 if cast.doubleTap() then ui.debug("Casting Double Tap [Pre-Pull]") return true end
             end
-            -- Potion
-            -- potion,dynamic_prepot=1
             -- Aimed Shot
-            -- aimed_shot,if=active_enemies<3
-            if cast.able.aimedShot() and not unit.moving("player") and ui.pullTimer() <= 2 and unit.ttd("target") > cast.time.aimedShot() then --and ((ui.mode.rotation == 1 and #enemies.yards40f < 3) or (ui.mode.rotation == 3 and #enemies.yards40f > 0)) then
+            -- aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
+            if cast.able.aimedShot() and not unit.moving("player") and #enemies.yards40f < 3 and (#enemies.yards40f < 2 or (not covenant.kyrian.active and not talent.volley)) then
                 if cast.aimedShot("target") then ui.debug("Casting Aimed Shot [Pre-Pull]") return true end
             end
             -- Arcane Shot
-            -- steady_shot,if=active_enemies>2
-            if cast.able.arcaneShot() and ui.pullTimer() <= 2 then
+            -- steady_shot,if=active_enemies>2|(covenant.kyrian|talent.volley)&active_enemies=2
+            if cast.able.arcaneShot() and (#enemies.yards40f > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards40f == 2)) then
                 if cast.arcaneShot("target") then ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
             end
             -- Auto Shot
