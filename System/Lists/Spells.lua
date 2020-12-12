@@ -619,7 +619,7 @@ br.lists.spells = {
             },
             runeforges                      = {
                 razelikhsDefilement         = 337544,
-            }
+            },
             talents                         = {
                 felblade                    = 232893,
             },
