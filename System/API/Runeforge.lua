@@ -26,7 +26,7 @@ br.api.runeforge = function(runeforge,k,v)
         if (powers ~= nil) then
             local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(powers)
             local spellID = powerInfo.descriptionSpellID
-            if spellID == v then
+            if spellID == v and powerInfo.state == 1 then
                 return true
             end
         end
