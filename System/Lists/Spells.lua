@@ -2838,6 +2838,7 @@ br.lists.spells = {
                 perforatedVeins             = 341572,
                 masterAssassin              = 256735,
                 coldBlood                   = 213981,
+                perforatedVeins             = 341572,
             },
             debuffs                         = {
                 rupture                     = 1943,
@@ -2875,7 +2876,7 @@ br.lists.spells = {
                 perforate                   = 277720,
                 inevitability               = 278683,
             },
-            runeforge                         = {
+            runeforges                      = {
                 finality                    = 340089,
                 akaarisSoulFragment         = 340090,
                 theRotten                   = 340091,
@@ -2886,6 +2887,7 @@ br.lists.spells = {
                 perforatedVeins             = 341567,
                 plannedExecution            = 341556,
                 stilettoStaccato            = 341559,
+                deeperDaggers               = 341549,
             },
         },
         -- All
@@ -2944,9 +2946,7 @@ br.lists.spells = {
                 shroudOfConcealment         = 114018,
                 flagellation                = 345569,
                 sepsis                      = 328305,
-                echoingReprimand2           = 323558,
-                echoingReprimand3           = 323559,
-                echoingReprimand4           = 323560,
+                theRotten                   = 341134,
             },
             conduits                        = {
                 lashingScars                = 341310,
@@ -2989,7 +2989,7 @@ br.lists.spells = {
                 vigor                       = 14983,
               --  blindingPowder              = 256165,   commented it out as it created errors
             },
-            runeforge                         = {
+            runeforges                      = {
                 markOfTheMasterAssassin     = 340076,
                 essenceOfBloodfang          = 340079,
                 invigoratingShadowdust      = 340080,
