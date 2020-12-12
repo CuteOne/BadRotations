@@ -313,11 +313,6 @@ actionList.Cooldowns = function()
     --         useItem(142117)
     --     end
     -- end
-    -- -- Trueshot
-    -- -- trueshot,if=buff.trueshot.down&cooldown.rapid_fire.remains|target.time_to_die<15
-    -- if alwaysCdNever("Trueshot") and cast.able.trueshot() and (not buff.trueshot.exists() and cd.rapidFire.exists() or (unit.ttd(units.dyn40) < 15 and ui.useCDs())) then
-    --     if cast.trueshot("player") then ui.debug("Casting Trueshot") return true end
-    -- end
 end -- End Action List - Cooldowns
 
 -- Action List - Trick Shots
@@ -328,25 +323,24 @@ actionList.TrickShots = function()
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots Steady Focus]") return true end
     end
     -- Double Tap
-    -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|cooldown.rapid_fire.remains<cooldown.aimed_shot.full_recharge_time|!(talent.streamline&runeforge.surging_shots)|!covenant.kyrian
+    -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<10
     if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
-        and (covenant.kyrian.active and cd.resonatingArrow.remains() < unit.gcd(true)
-            or cd.rapidFire.remain() < charges.aimedShot.timeTillFull()
-            -- or not (talent.streamline and runeforge.surgingShots)
-            or not covenant.kyrian.active)
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
+        or (ui.isBoss("target") and unit.ttd("target") < 10))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap [Trick Shots]") return true end
     end
-    -- -- Tar Trap
-    -- -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    -- if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-    --     if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
-    -- end
-    -- -- Flare
-    -- -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    -- if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
-    --     if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") var.tarTrapUnit = nil return true end
-    -- end
+    -- Tar Trap
+    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
+    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
+    end
+    -- Flare
+    -- flare,if=tar_trap.up&runeforge.soulforge_embers
+    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") return true end
+    end
     -- Explosive Shot
     -- explosive_shot
     if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
@@ -377,18 +371,19 @@ actionList.TrickShots = function()
     if alwaysCdNever("Trueshot") and cast.able.trueshot() then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
     end 
-    -- -- Rapid Fire
-    -- -- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down
-    -- if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire() and runeforge.surgingShots.equiped() and not buff.doubleTap.exists()
-    -- then
-    --     if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots Surging Shots]") return true end
-    -- end
+    -- Rapid Fire
+    -- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down
+    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire()
+        and runeforge.surgingShots.equiped and not buff.doubleTap.exists()
+    then
+        if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots Surging Shots]") return true end
+    end
     -- Aimed Shot
-    -- aimed_shot,target_if=min:(dot.serpent_sting.remains<?action.serpent_sting.in_flight_to_target*dot.serpent_sting.duration),if=buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|full_recharge_time<cast_time+gcd|buff.trueshot.up)
-    if cast.able.aimedShot() and not unit.moving("player") and unit.ttd(units.dyn40) > cast.time.aimedShot() and buff.trickShots.remains() >= cast.time.aimedShot()
+    -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|full_recharge_time<cast_time+gcd|buff.trueshot.up)
+    if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and unit.ttd(units.dyn40) > cast.time.aimedShot() and buff.trickShots.remains() >= cast.time.aimedShot()
         and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd(true) or buff.trueshot.exists())
     then
-        if cast.aimedShot() then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
+        if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
@@ -404,6 +399,7 @@ actionList.TrickShots = function()
     -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&focus>cost+action.aimed_shot.cost&(!talent.chimaera_shot|active_enemies>3)
     if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists()
         and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards40f > 3))
+        and #enemies.yards40f > 0
     then
         if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
@@ -448,7 +444,7 @@ end -- End Action List - Trick Shots
 actionList.SingleTarget = function()
     -- Steady Shot
     -- steady_shot,if=talent.steady_focus&(prev_gcd.1.steady_shot&buff.steady_focus.remains<5|buff.steady_focus.down)
-    if cast.able.steadyShot() and talent.steadyFocus and (cast.last.steadyShot() and buff.steadyFocus.remain() < 5 or not buff.steadyFocus.exists()) then
+    if cast.able.steadyShot() and talent.steadyFocus and ((cast.last.steadyShot() and buff.steadyFocus.remain() < 5) or not buff.steadyFocus.exists()) then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Steady Focus]") return true end
     end
     -- Kill Shot
@@ -457,23 +453,26 @@ actionList.SingleTarget = function()
         if cast.killShot("target") then ui.debug("Casting Kill Shot") return true end
     end
     -- Double Tap
-    -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&(cooldown.aimed_shot.up|cooldown.rapid_fire.remains>cooldown.aimed_shot.remains)
+    -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<15
     if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
-        and (covenant.kyrian.active and cd.resonatingArrow.remains() < unit.gcd(true) or not covenant.kyrian.active
-        and (cd.aimedShot.remains() == 0 or cd.rapidFire.remains() > cd.aimedShot.remains()))
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
+        or (unit.isBoss("target") or unit.ttd("target") < 15))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap") return true end
     end
-    -- -- Flare
-    -- -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    -- if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
-    --     if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [ Soulforge Embers]") var.tarTrapUnit = nil return true end
-    -- end
-    -- -- Tar Trap
-    -- -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    -- if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-    --     if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
-    -- end
+    -- Flare
+    -- flare,if=tar_trap.up&runeforge.soulforge_embers
+    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    end
+    -- Tar Trap
+    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
+    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped
+        and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
+    then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+    end
     -- Explosive Shot
     -- explosive_shot
     if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
@@ -494,11 +493,6 @@ actionList.SingleTarget = function()
     if alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
     end
-    -- Volley
-    -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
-    if cast.able.volley() and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) then
-        if cast.volley("best",nil,3,8) then ui.debug("Casting Volley") return true end
-    end
     -- A Murder of Crows
     -- a_murder_of_crows
     if alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
@@ -509,6 +503,11 @@ actionList.SingleTarget = function()
     if alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
+    -- Volley
+    -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
+    if cast.able.volley() and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) then
+        if cast.volley("best",nil,3,8) then ui.debug("Casting Volley") return true end
+    end
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
     if alwaysCdNever("Trueshot") and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
@@ -517,34 +516,36 @@ actionList.SingleTarget = function()
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
     end 
     -- Aimed Shot
-    -- aimed_shot,target_if=min:(dot.serpent_sting.remains<?action.serpent_sting.in_flight_to_target*dot.serpent_sting.duration),if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
-    if (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus) and cast.able.aimedShot() and not unit.moving("player") and (not buff.preciseShots.exists()
+    -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
+    if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and (not buff.preciseShots.exists()
         or (buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
         and (not talent.chimaeraShot or #enemies.yards40f < 2) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40f > 1)
     then
-        if cast.aimedShot() then ui.debug("Casting Aimed Shot") return true end
+        if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot") return true end
     end
-    -- -- Rapid Fire
-    -- -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
-    -- if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
-    --     and (not buff.trueshot.exists() or not runeforged.eagletalonsTrueFocus.equiped())
-    --     and (not buff.doubleTap.exists() or talent.streamline))
-    -- then
-    --     if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
-    -- end
+    -- Rapid Fire
+    -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
+    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
+        and (not buff.trueshot.exists() or not runeforged.eagletalonsTrueFocus.equiped)
+        and (not buff.doubleTap.exists() or talent.streamline))
+    then
+        if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
+    end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
     if cast.able.chimaeraShot() and (buff.preciseShots.exists() or power.focus.amount() > cast.cost.aimedShot()) then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot") return true end
     end
     -- Arcane Shot
-    -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>55)|focus>75|target.time_to_die<5)
-    if cast.able.arcaneShot() and (buff.preciseShots.exists() or power.focus.amount() > cast.cost.aimedShot()) and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus) then
+    -- arcane_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
+    if cast.able.arcaneShot() and (buff.preciseShots.exists() or power.focus.amount() > cast.cost.aimedShot()) then
         if cast.arcaneShot() then ui.debug("Casting Arcane Shot") return true end
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting)
+        and unit.ttd(var.lowestSerpentSting) > debuff.serpentSting.duration(var.lowestSerpentSting)
+    then
         if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting") return true end
     end
     -- Barrage
@@ -555,7 +556,7 @@ actionList.SingleTarget = function()
         if cast.barrage() then ui.debug("Casting Barrage") return true end
     end
     -- Rapid Fire
-    -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
+    -- rapid_fire,if=focus+cast_regen<focus.max&(buff.double_tap.down|talent.streamline)
     if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
         and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.doubleTap.exists() or talent.streamline))
@@ -652,6 +653,18 @@ local function runRotation()
     var.role = _G["UnitGroupRolesAssigned"]
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
+    var.lowestAimedSerpentSting = "target"
+    var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
+    
+    var.lowestAimedRemain = 99
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards404[i]
+        local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
+        if serpentStingRemain < var.lowestAimedRemain then
+            var.lowestAimedRemain = serpentStingRemain
+            var.lowestAimedSerpentSting = thisUnit
+        end
+    end
 
     ---------------------
     --- Begin Profile ---
