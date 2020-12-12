@@ -686,7 +686,7 @@ local function runRotation()
         end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin.equipped&combo_points.deficit<=1-talent.deeper_strategem.enabled|runeforge.deathly_shadows.equipped&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
         if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.equiped and comboDeficit <= (1 - dSEnabled) or runeforge.deathlyShadows.equiped and combo < 1) 
-         and buff.symbolsOfDeath.exists() and buff.shadowDance.exists() and not buff.masterAssassinsInitiative.exists() and not buff.deathlyShadows.exists() then
+         and buff.symbolsOfDeath.exists() and buff.shadowDance.exists() and not buff.masterAssassinsMark.exists() and not buff.deathlyShadows.exists() then
             if cast.vanish("player") then return true end
         end
         -- # Pool for Tornado pre-SoD with ShD ready when not running SF.
@@ -788,7 +788,7 @@ local function runRotation()
         end
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
         -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=5
-        local skipRupture = ((not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false -- buff.masterAssassin.exists() or 
+        local skipRupture = (buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
         -- # Keep up Rupture if it is about to run out.
         -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
         if not skipRupture and ttd("target") > 6 and debuff.rupture.refresh("target") and shallWeDot("target") then
@@ -878,7 +878,7 @@ local function runRotation()
         end
         -- # If Stealth/vanish are up, use Shadowstrike to benefit from the passive bonus and Find Weakness, even if we are at max CP (unless using Master Assassin)
         -- actions.stealthed=shadowstrike,if=(buff.stealth.up|buff.vanish.up)&master_assassin_remains=0
-        if (stealth or buff.vanish.exists() or buff.shadowmeld.exists()) and targetDistance < 5 then -- and buff.masterAssassin.remain() == 0
+        if (stealth or buff.vanish.exists() or buff.shadowmeld.exists()) and targetDistance < 5 and not buff.masterAssassinsMark.exists() then
             if cast.shadowstrike("target") then return true end
         end
         -- # Finish at 3+ CP without DS / 4+ with DS with Shuriken Tornado buff up to avoid some CP waste situations.
