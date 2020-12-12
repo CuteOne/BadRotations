@@ -26,9 +26,7 @@ br.api.runeforge = function(runeforge,k,v)
             local spellID = powerInfo.descriptionSpellID
             local spellName = GetSpellInfo(spellID)
             local vName = GetSpellInfo(v)
-            --if spellName == "Soulforge Embers" then Print("SpellID: "..spellID..", List ID: "..v.." - Name Match: "..tostring(spellName == vName) end
             if spellID == v and spellName == vName then
-                Print("Found Legendary: "..spellName.." with ID: "..spellID.." for List ID: "..v.." called "..vName)
                 return true
             end
         end
@@ -47,6 +45,5 @@ br.api.runeforge = function(runeforge,k,v)
                 end
             end
         end
-        --if runeforge[k].equiped then break end
     end
 end
