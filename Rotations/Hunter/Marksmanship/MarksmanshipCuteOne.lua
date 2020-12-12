@@ -519,15 +519,15 @@ actionList.SingleTarget = function()
     -- Aimed Shot
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
     if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and (not buff.preciseShots.exists()
-        or (buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
-        and (not talent.chimaeraShot or #enemies.yards40f < 2) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40f > 1)
+        or ((buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
+        and (not talent.chimaeraShot or #enemies.yards40f < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40f > 1)
     then
         if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot") return true end
     end
     -- Rapid Fire
     -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
     if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
-        and (not buff.trueshot.exists() or not runeforged.eagletalonsTrueFocus.equiped)
+        and (not buff.trueshot.exists() or not runeforge.eagletalonsTrueFocus.equiped)
         and (not buff.doubleTap.exists() or talent.streamline))
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
@@ -699,7 +699,7 @@ local function runRotation()
         --- In Combat Rotation ---
         --------------------------
         if unit.inCombat() and var.profileStop == false and unit.valid(units.dyn40) and unit.distance(units.dyn40) < 40
-            and not cast.current.barrage() and not cast.current.rapidFire()
+            and not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot()
         then
             ------------------------------
             --- In Combat - Interrupts ---

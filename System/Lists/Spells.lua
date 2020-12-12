@@ -1438,6 +1438,11 @@ br.lists.spells = {
             glyphs                          = {
 
             },
+            runeforges                      = {
+                eagletalonsTrueFocus        = 336849,
+                soulforgeEmbers             = 336745,
+                surgingShots                = 336867,
+            },
             talents                         = {
                 aMurderOfCrows              = 131894,
                 bornToBeWild                = 266921,

@@ -143,7 +143,7 @@ br.rotations.support["PetCuteOne"] = {
 
         -- Pet Target Modes
         if br.petTarget == nil then br.petTarget = "player" end
-        if br.petTarget ~= "player" and (not unit.exists(br.petTarget) or unit.deadOrGhost(br.petTarget)) then br.petTarget = "player" end
+        if br.petTarget ~= "player" and (not unit.exists(br.petTarget) or unit.deadOrGhost(br.petTarget) or not UnitIsUnit("pettarget",br.petTarget)) then br.petTarget = "player" end
         if br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget) and not unit.deadOrGhost(br.petTarget)) then
             -- Dynamic
             if ui.value("Pet Target") == 1 and units.dyn40 ~= nil
