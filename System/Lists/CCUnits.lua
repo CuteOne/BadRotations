@@ -15,6 +15,7 @@ br.lists.ccUnits = {
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Plaguefall Dungeon
     [164737] = { name = "Enveloping Webbing", spell = 328475 }, -- Plaguefall Dungeon
     [150959] = { name = "Critical Shot", spell = 294171}, -- Torghast Mawsworn Interceptor
+    [168107] = { name = "Critical Shot", spell = 164737 }, -- Critical shot, Thorghast
     -- Test unit outside Boralus
     [123231] = { name = "Sharptail Beaver" },
     -- Visions of Ogrimmar
