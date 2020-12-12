@@ -328,7 +328,7 @@ actionList.TrickShots = function()
     if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
-        or (ui.isBoss("target") and unit.ttd("target") < 10))
+        or (unit.isBoss("target") and unit.ttd("target") < 10))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap [Trick Shots]") return true end
     end
