@@ -140,6 +140,7 @@ local buff
 local cast
 local cd
 local charges
+local conduit
 local covenant
 local debuff
 local enemies
@@ -274,25 +275,28 @@ actionList.Cooldowns = function()
     if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
         -- Trinkets
         module.BasicTrinkets()
-        -- Sinful Brand
-        -- sinful_brand,if=!dot.sinful_brand.ticking
-        if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists() then
-            if cast.sinfulBrand() then ui.debug("Casting Sinful Brand") return true end
-        end
-        -- The Hunt
-        -- the_hunt
-        if cast.able.theHunt() then
-            if cast.theHunt() then ui.debug("Casting The Hunt") return true end
-        end
-        -- Fodder to the Flame
-        -- fodder_to_the_flame
-        if cast.able.fodderToTheFlame() then
-            if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
-        end
-        -- Elysian Decree
-        -- elysian_decree
-        if cast.able.elysianDecree() then
-            if cast.elysianDecree() then ui.debug("Casting Elysian Decree") return true end
+        -- Covenant Abilities
+        if ui.alwaysCdNever("Covenant Ability") then
+            -- Sinful Brand
+            -- sinful_brand,if=!dot.sinful_brand.ticking
+            if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists(units.dyn5) then
+                if cast.sinfulBrand() then ui.debug("Casting Sinful Brand") return true end
+            end
+            -- The Hunt
+            -- the_hunt
+            if cast.able.theHunt() then
+                if cast.theHunt() then ui.debug("Casting The Hunt") return true end
+            end
+            -- Fodder to the Flame
+            -- fodder_to_the_flame
+            if cast.able.fodderToTheFlame() then
+                if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
+            end
+            -- Elysian Decree
+            -- elysian_decree
+            if cast.able.elysianDecree() then
+                if cast.elysianDecree() then ui.debug("Casting Elysian Decree") return true end
+            end
         end
     end
 end -- End Action List - Cooldowns
@@ -448,6 +452,7 @@ local function runRotation()
     cast                                          = br.player.cast
     cd                                            = br.player.cd
     charges                                       = br.player.charges
+    conduit                                       = br.player.conduit
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies

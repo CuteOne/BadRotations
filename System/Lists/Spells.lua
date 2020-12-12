@@ -467,8 +467,12 @@ br.lists.spells = {
                 prepared                    = 203650,
                 unboundChaos                = 234059,
             },
+            conduits                        = {
+                serratedGlaive              = 339230,
+            },
             debuffs                         = {
                 essenceBreak                = 320338,
+                exposedWound                = 339229,
             },
             glyphs                          = {
 
@@ -592,6 +596,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                felBombardment              = 337849,
                 felCrystalInfusion          = 193547,
                 gazeOfTheLegion             = 193456,
                 glide                       = 131347,
@@ -604,7 +609,8 @@ br.lists.spells = {
                 theHunt                     = 323639,
             },
             debuffs                         = {
-
+                burningWound                = 346278,
+                sinfulBrand                 = 317009,
             },
             glyphs                          = {
                 glyphOfCracklingFlames      = 219831,
@@ -618,6 +624,9 @@ br.lists.spells = {
                 glyphOfTatteredWings        = 220226,
             },
             runeforges                      = {
+                burningWound                = 346279,
+                chaosTheory                 = 337551,
+                felBombardment              = 337775,
                 razelikhsDefilement         = 337544,
             },
             talents                         = {
