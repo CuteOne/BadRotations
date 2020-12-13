@@ -67,13 +67,15 @@ br.lists.noTouchUnits = {
     -- Tol Dagor
     { unitID = 133972 }, -- Cannon in Tol Dagor
     { unitID = 160652 }, -- Void Tentacle
+    -- Shadowlands
+    -- Dungeons
     --The Necrotic Wake
     { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
     --Hall of Atonement
     { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
     --de other side
     { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
-    -- Castle Nathria
-    { unitID = 164406, buff = 328921 }, -- https://www.wowhead.com/npc=164406/shriekwing
-
+	-- Raid
+	-- Castle Nathria
+    { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
 }
