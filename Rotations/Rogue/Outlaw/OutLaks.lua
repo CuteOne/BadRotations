@@ -95,7 +95,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 2012121029")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 2012131210")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
@@ -1110,15 +1110,12 @@ actionList.Extra = function()
         end
     end
 
-    --weird ooc trinket
-
-
-    --Print(tostring(hasBuff(330067)))
-    -- Print(tostring(hasBuff(5161)))
-    if (GetInventoryItemID("player", 13) == 178715 or GetInventoryItemID("player", 14) == 178715)
-            and not hasBuff(330067) and canUseItem(178715) and isChecked("Use Trinkets") and not inCombat
-            and not isMoving("player") then
+    --OOC trinket usage
+    --Mistcaller Ocarina
+    if isChecked("Use Trinkets") and not inCombat and (GetInventoryItemID("player", 13) == 178715 or GetInventoryItemID("player", 14) == 178715)
+            and buff.mistcallerOcarina.remain() < 60 and not isMoving("player") then
         useItem(178715)
+        return true
     end
 
 

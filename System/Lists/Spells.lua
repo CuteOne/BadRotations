@@ -3979,6 +3979,7 @@ br.lists.spells = {
                 flaskOfTheVastHorizon           = 251838,
                 flaskOfTheUndertow              = 251839,
                 fruitfulMachinatins             = 242623, -- Absorb Shield from Deceiver's Grand Design
+                mistcallerOcarina               = 330067, -- SL Trinket with group buff
                 greaterFlaskOfEndlessFathoms    = 298837,
                 greaterFlaskOfTheCurrents       = 298836,
                 greaterFlaskOfTheUndertow       = 298841,
