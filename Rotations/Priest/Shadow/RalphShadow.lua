@@ -54,8 +54,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"PWS: Body and Soul")
             -- Auto Buff Fortitude
             br.ui:createCheckbox(section,"Power Word: Fortitude", "Check to auto buff Fortitude on party.")
-            -- Mindgames
-            br.ui:createCheckbox(section,"Surrender to Madness")
         br.ui:checkSectionState(section)
         -----------------
         ---AOE OPTIONS---
@@ -74,6 +72,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+            -- Surrender to Madness
+            br.ui:createCheckbox(section,"Surrender to Madness")
             -- Pots
             br.ui:createDropdown(section, "Auto use Pots", { "Always", "Groups", "Raids", "solo", "never" }, 5, "", "when to use pots")
             -- Trinkets
@@ -169,6 +169,7 @@ local power
 local solo
 local spell
 local talent
+local tankMoving
 local thp
 local ui
 local unit
@@ -407,7 +408,7 @@ actionList.Defensive = function()
         if cast.powerWordShield("player") then ui.debug("BnS or low health PW:S [Defensive]") return end
     end
     -- Shadow Mend
-    if cast.able.shadowMend() and not moving and (php <= ui.value("Shadow Mend OOC") and not inCombat or php <= ui.value("Shadow Mend") and inCombat) then
+    if cast.able.shadowMend() and not moving and (ui.checked("Shadow Mend OOC") and php <= ui.value("Shadow Mend OOC") and not inCombat or ui.checked("Shadow Mend") and php <= ui.value("Shadow Mend") and inCombat) then
         if cast.shadowMend('player') then return end
     end
 end -- End Action List - Defensive
@@ -614,12 +615,12 @@ actionList.Main = function()
 
     -- # Use SW:D as last resort if on the move
     -- actions.main+=/shadow_word_death
-    if moving and cd.shadowWordDeath.ready() then
+    if cd.shadowWordDeath.ready() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
                 if not noDotCheck(thisUnit) then
-                    if cast.shadowWordDeath(thisUnit) then ui.debug("Moving SW:D on low enemies [Main]") return end
+                    if cast.shadowWordDeath(thisUnit) then ui.debug("SW:D on low enemies [Main]") return end
                 end
             end
         end
@@ -655,7 +656,7 @@ actionList.Main = function()
 
     -- # Use Shadow Crash on CD unless there are adds incoming.
     -- actions.main+=/shadow_crash,if=raid_event.adds.in>10
-    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and not isMoving("best") then
+    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and ((not tankMoving and (inRaid or inInstance)) or (not inInstance and not inRaid and not isMoving("target"))) then
         if cast.shadowCrash("best",nil,1,8) then ui.debug("Casting Shadow Crash [Main]") SpellStopTargeting() return end
     end
     
@@ -669,7 +670,7 @@ actionList.Main = function()
         if cast.mindSear('target') then ui.debug("Casting Mind Sear to refresh SW:P [Main]") return end
     end
     
-    if debuff.vampiricTouch.count() < VTmaxTargets then
+    if debuff.vampiricTouch.count() < VTmaxTargets and not cast.last.vampiricTouch() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
@@ -902,6 +903,16 @@ local function runRotation()
     trinket13 = GetInventoryItemID("player", 13)
     trinket14 = GetInventoryItemID("player", 14)
     VTmaxTargets                                    = ui.value("VT Max Targets")
+
+    --Tank move check for aoe
+    tankMoving = false
+    if inInstance then
+        for i = 1, #br.friend do
+            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and isMoving(br.friend[i].unit) then
+                tankMoving = true
+            end
+        end
+    end
 
     -- SimC specific variables
     
