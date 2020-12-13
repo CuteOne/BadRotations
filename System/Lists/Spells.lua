@@ -596,6 +596,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                chaosTheory                 = 337567,
                 felBombardment              = 337849,
                 felCrystalInfusion          = 193547,
                 gazeOfTheLegion             = 193456,
