@@ -244,7 +244,8 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.time.spell() - Return cast time of player's spell, spell is the name of the spell from the spell list.
     if cast.time == nil then cast.time = {} end
     cast.time[spell] = function()
-        return getCastTime(id)
+        local castTime = getCastTime(id)
+        return castTime > 0 and castTime or getGlobalCD(true)
     end
 
     -- br.player.cast.timeRemain() -- Return cast time remain on player's cast or supplied target, spell is the name of the spell from spell list.

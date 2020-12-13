@@ -1995,17 +1995,17 @@ br.lists.spells = {
             buffs                           = {
                 theEmperorsCapacitor        = 235054,
                 transcendence               = 101643,
-                weaponsOfTheOrder           = 310454,
-                weaponsOfTheOrderWW         = 311054,
+                weaponsOfOrder              = 328908, --310454,
+                weaponsOfOrderWW            = 310454, --311054,
             },
             conduits                        = {
-                calculatedStrikes           = 336526,                      
+                calculatedStrikes           = 336526,                    
             },
             covenants                       = {
                 bonedustBrew                = 325216,
                 faelineStomp                = 327104,
                 fallenOrder                 = 326860,
-                weaponsOfTheOrder           = 310454,
+                weaponsOfOrder              = 310454,
             },
             debuffs                         = {
                 bonedustBrew                = 325216,
@@ -3979,6 +3979,7 @@ br.lists.spells = {
                 flaskOfTheVastHorizon           = 251838,
                 flaskOfTheUndertow              = 251839,
                 fruitfulMachinatins             = 242623, -- Absorb Shield from Deceiver's Grand Design
+                mistcallerOcarina               = 330067, -- SL Trinket with group buff
                 greaterFlaskOfEndlessFathoms    = 298837,
                 greaterFlaskOfTheCurrents       = 298836,
                 greaterFlaskOfTheUndertow       = 298841,

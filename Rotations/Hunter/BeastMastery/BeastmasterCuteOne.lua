@@ -549,8 +549,8 @@ actionList.St = function()
     end
     -- Kill Shot
     -- kill_shot,if=buff.flayers_mark.remains<5|target.health.pct<=20
-    if cast.able.killShot() and (buff.flayersMark.remains() < 5 or unit.hp("target") < 20) then
-        if cast.killShot("target") then ui.debug("Casting Kill Shot") return true end
+    if cast.able.killShot(var.lowestHPUnit) and (buff.flayersMark.remains() < 5 or unit.hp(var.lowestHPUnit) < 20) then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot") return true end
     end
     -- Barbed Shot
     -- barbed_shot,if=(cooldown.wild_spirits.remains>full_recharge_time|!covenant.night_fae)&(cooldown.bestial_wrath.remains<12*charges_fractional+gcd&talent.scent_of_blood|full_recharge_time<gcd&cooldown.bestial_wrath.remains)|target.time_to_die<9
@@ -705,8 +705,8 @@ actionList.Cleave = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp("target") < 20 then
-        if cast.killShot("target") then ui.debug("Casting Kill Shot [AOE]") return true end
+    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [AOE]") return true end
     end
     -- Chimaera Shot
     -- chimaera_shot
@@ -870,6 +870,17 @@ local function runRotation()
         var.profileStop = false
     end
     minCount = ui.useCDs() and 1 or 3
+
+    var.lowestHPUnit = "target"
+    var.lowestHP = 100
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        local thisHP = unit.hp(thisUnit)
+        if thisHP < var.lowestHP then
+            var.lowestHP = thisHP
+            var.lowestHPUnit = thisUnit
+        end
+    end
 
     -- Profile Specific Vars
     lowestBarbedShot = debuff.barbedShot.lowest(8,"remain","pet") or "target"

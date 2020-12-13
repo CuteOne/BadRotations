@@ -73,5 +73,7 @@ br.lists.noTouchUnits = {
     { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
     --de other side
     { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
+    -- Castle Nathria
+    { unitID = 164406, buff = 328921 }, -- https://www.wowhead.com/npc=164406/shriekwing
 
 }
