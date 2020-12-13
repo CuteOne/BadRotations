@@ -1454,9 +1454,11 @@ br.lists.spells = {
             },
             runeforges                      = {
                 eagletalonsTrueFocus        = 336849,
+                nesingwarysTrappingApparatus= 336743,
                 serpentstalkersTrickery     = 336870,
                 soulforgeEmbers             = 336745,
                 surgingShots                = 336867,
+                qaplaEredunWarOrder         = 336830,
             },
             talents                         = {
                 aMurderOfCrows              = 131894,
