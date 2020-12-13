@@ -496,7 +496,7 @@ actionList.Demonic = function()
     end
     -- Demon's Bite
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
-    if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWound.remain(units.dyn5) < 4 then
+    if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWould.remain(units.dyn5) < 4 then
         if cast.demonsBite(var.lowestBurningWound) then ui.debug("Casting Demon's Bite [Burning Wound]") return true end
     end
     -- demons_bite
@@ -618,7 +618,7 @@ actionList.Normal = function()
     end
     -- Demon's Bite
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
-    if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWound.remain(units.dyn5) < 4 then
+    if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWould.remain(units.dyn5) < 4 then
         if cast.demonsBite(var.lowestBurningWound) then ui.debug("Casting Demon's Bite [Burning Wound]") return true end
     end
     -- demons_bite
