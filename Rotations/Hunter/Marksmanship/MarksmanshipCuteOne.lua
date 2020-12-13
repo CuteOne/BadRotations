@@ -69,7 +69,7 @@ local function createOptions()
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Volly Units
-            br.ui:createSpinnerWithout(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
+            br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             -- Covenant Ability
             br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
@@ -361,7 +361,7 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley
-    if cast.able.volley() and (#enemies.yards8t >= ui.value("Volley Units")) then
+    if cast.able.volley() and ui.checked("Volley Units") and (#enemies.yards8t >= ui.value("Volley Units")) then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
@@ -508,7 +508,7 @@ actionList.SingleTarget = function()
     end
     -- Volley
     -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
-    if cast.able.volley() and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
+    if cast.able.volley() and ui.checked("Volley Units") and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end
     end
     -- Trueshot
