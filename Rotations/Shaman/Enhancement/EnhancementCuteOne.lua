@@ -390,7 +390,7 @@ actionList.AOE = function()
     -- Crash Lightning
     -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
     if cast.able.crashLightning() and (talent.crashingStorm or not buff.crashLightning.exists()) then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
+        if cast.crashLightning() then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
     end
     -- Lava Lash
     -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
@@ -400,7 +400,7 @@ actionList.AOE = function()
     -- Crash Lightning
     -- crash_lightning
     if cast.able.crashLightning() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
+        if cast.crashLightning() then ui.debug("Casting Crash Lightning [AOE]") return true end
     end
     -- Chain Lightning
     -- chain_lightning,if=buff.stormkeeper.up
@@ -606,7 +606,7 @@ actionList.Single = function()
     -- Crash Lightning
     -- crash_lightning
     if cast.able.crashLightning() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [ST]") return true end
+        if cast.crashLightning() then ui.debug("Casting Crash Lightning [ST]") return true end
     end
     -- Flame Shock
     -- flame_shock,target_if=refreshable
