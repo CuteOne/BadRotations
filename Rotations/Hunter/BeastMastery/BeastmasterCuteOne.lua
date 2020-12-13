@@ -524,7 +524,7 @@ actionList.St = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(unit.dyn40) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
     end
     -- Flare
@@ -611,7 +611,7 @@ actionList.St = function()
     -- Cobra Shot
     -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)|(buff.bestial_wrath.up|buff.nesingwarys_trapping_apparatus.up)&!runeforge.qapla_eredun_war_order|target.time_to_die<3
     if cast.able.cobraShot() and ((power.focus.amount() - cast.cost.cobraShot() + power.focus.regen() * (cd.killCommand.remain() - 1) > cast.cost.killCommand() or cd.killCommand.remain() > 1 + unit.gcd(true))
-        --or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped()
+        or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped()
         or unit.ttd(units.dyn40) < 3 and ui.useCDs())
     then
         if cast.cobraShot() then ui.debug("Casting Cobra Shot") return true end
@@ -625,8 +625,14 @@ actionList.St = function()
     -- arcane_pulse,if=buff.bestial_wrath.down|target.time_to_die<5
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
+    if cast.able.tarTrap() and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap() then ui.debug("Casting Tar Trap [Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    end
     -- Freezing Trap
-    -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus    
+    -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
+    if cast.able.freezingTrap() and runeforge.nesingwarysTrappingApparatus.equiped then
+        if cast.freezingTrap() then ui.debug("Casting Freezing Trap [Nesingwary's Trapping Apparatus]") return true end
+    end  
 end -- End Action List - Single Target
 
 -- Action List - Cleave
@@ -650,7 +656,7 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(unit.dyn40) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") return true end
     end
     -- Flare
@@ -681,6 +687,7 @@ actionList.Cleave = function()
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath [AOE]") return true end
     end
     -- Resonating Arrow
+    -- resonating_arrow
     if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
@@ -743,10 +750,14 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-
+    if cast.able.tarTrap() and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap() then ui.debug("Casting Tar Trap [AOE Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    end
     -- Freezing Trap
     -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
-
+    if cast.able.freezingTrap() and runeforge.nesingwarysTrappingApparatus.equiped then
+        if cast.freezingTrap() then ui.debug("Casting Freezing Trap [AOE Nesingwary's Trapping Apparatus]") return true end
+    end
 end -- End Action List - Cleave
 
 -- Action List - PreCombat
