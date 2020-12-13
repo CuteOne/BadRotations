@@ -1453,6 +1453,7 @@ br.lists.spells = {
             },
             runeforges                      = {
                 eagletalonsTrueFocus        = 336849,
+                serpentstalkersTrickery     = 336870,
                 soulforgeEmbers             = 336745,
                 surgingShots                = 336867,
             },
