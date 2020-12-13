@@ -60,7 +60,7 @@ local function createOptions()
 
     local function rotationOptions()
         local section
-        local alwaysCdNever = {"|cff0000FFAlways","|cffFFFF00CD Only","|cffFF0000Never"}
+        local alwaysCdNever = {"|cff0000FFAlways","|cffFFFFFFCD Only","|cffFF0000Never"}
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- APL
@@ -74,7 +74,7 @@ local function createOptions()
             -- Auto Engage
             br.ui:createCheckbox(section, "Auto Engage")
             -- Eye Beam Targets
-            br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFF00AoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
+            br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFFFFAoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
             br.ui:createSpinnerWithout(section, "Units To AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use AoE spells on.")
             -- Fel Rush Charge Hold
             br.ui:createSpinnerWithout(section, "Hold Fel Rush Charge", 1, 0, 2, 1, "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use.");
