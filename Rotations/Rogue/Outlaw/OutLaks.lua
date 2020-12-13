@@ -1103,7 +1103,7 @@ actionList.Extra = function()
             local thisUnit = enemies.yards5[i]
             if canDispel(thisUnit, spell.shiv) and ttd(thisUnit) > getValue("Auto Soothe") then
                 if cast.shiv(thisUnit) then
-                    br.player.ui.debug("Soothing " .. thisUnit)
+                    br.player.ui.debug("Soothing " .. UnitName(thisUnit))
                     return true
                 end
             end
@@ -1112,10 +1112,11 @@ actionList.Extra = function()
 
     --weird ooc trinket
 
-    -- Print(tostring(GetInventoryItemID("player", 14)))
-    -- Print(tostring(GetInventoryItemID("player", 14)))
+
+    --Print(tostring(hasBuff(330067)))
+    -- Print(tostring(hasBuff(5161)))
     if (GetInventoryItemID("player", 13) == 178715 or GetInventoryItemID("player", 14) == 178715)
-            and canUseItem(178715) and isChecked("Use Trinkets") and not inCombat and not hasBuff(330067)
+            and not hasBuff(330067) and canUseItem(178715) and isChecked("Use Trinkets") and not inCombat
             and not isMoving("player") then
         useItem(178715)
     end
@@ -1341,7 +1342,6 @@ actionList.Interrupt = function()
                 castorchan = "channel"
             end
             if spellname ~= nil then
-                Print(spellname)
                 local castleft = castEndTime - GetTime()
                 if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5 then
                     if cloakList[interruptID] then
