@@ -601,7 +601,17 @@ local function dps_key()
           end
       end
   ]]
-
+    --trinkets w/CD
+    if isChecked("Trinket 1") and getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+        if canUseItem(13) then
+            useItem(13)
+        end
+    end
+    if isChecked("Trinket 2") and getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+        if canUseItem(14) then
+            useItem(14)
+        end
+    end
 end
 
 --[[
@@ -982,25 +992,27 @@ actionList.dps = function()
 
         local hold13, hold14
         --trinket 13
-        if canUseItem(13) then
-            if Trinket13 == 169769 then
-                useItem(13, getBiggestUnitCluster(30, 8))
-            else
-                if not hold13 and Trinket13 ~= 178715 then
-                    if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
-                        useItem(13)
-                    end
+        if Trinket13 == 169769 and canUseItem(13) then
+            useItem(13, getBiggestUnitCluster(30, 8))
+        end
+        if not hold13 then
+            if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
+                --or comboDeficit <= 2
+                if canUseItem(13) then
+                    useItem(13)
                 end
             end
         end
-        if canUseItem(14) then
-            if Trinket14 == 169769 then
-                useItem(13, getBiggestUnitCluster(30, 8))
-            else
-                if not hold13 and Trinket13 ~= 178715 then
-                    if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
-                        useItem(13)
-                    end
+
+        --trinket 14
+        if Trinket14 == 169769 and canUseItem(14) then
+            useItem(14, getBiggestUnitCluster(30, 8))
+        end
+        if not hold14 then
+            if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
+                --or comboDeficit <= 2
+                if canUseItem(14) then
+                    useItem(14)
                 end
             end
         end
@@ -1110,16 +1122,6 @@ actionList.Extra = function()
         end
     end
 
-    --weird ooc trinket
-
-    -- Print(tostring(GetInventoryItemID("player", 14)))
-    -- Print(tostring(GetInventoryItemID("player", 14)))
-    if (GetInventoryItemID("player", 13) == 178715 or GetInventoryItemID("player", 14) == 178715)
-            and canUseItem(178715) and isChecked("Use Trinkets") and not inCombat and not hasBuff(330067)
-            and not isMoving("player") then
-        useItem(178715)
-    end
-
 
 end -- End Action List - Extra
 
@@ -1134,12 +1136,14 @@ actionList.Defensive = function()
 
 
 
+
     --just testing stuff
     --[[
        Print("Cloak mode: " .. tostring(mode.cloak))
        Print("Stun mode: " .. tostring(mode.stun))
     ]]
     if useDefensive() then
+
         -- dwarf racial
         if (br.player.race == "Dwarf" or br.player.race == "DarkIronDwarf") and isChecked("Use Racial") and cast.able.racial() then
             if php < 30
@@ -1157,8 +1161,105 @@ actionList.Defensive = function()
             end
         end
 
-        --   Print(tostring(someone_casting))
 
+        --vanish logic
+        local vanishList = {
+            [260551] = true, -- Soul Thorns WM
+            [261440] = true, -- Virulent Pathogen WM
+            [266231] = true, --Severing Axe KR
+            [263371] = true, --conduction
+            [260741] = true, --nettles wm
+            [291973] = true, --Explosive Leap
+        }
+
+        local cloakList = {
+            [320788] = true, -- Frozen Binds, last boss Necrotic wave
+            [261439] = true, -- Virulent Pathogen WM
+            [261440] = true, -- Virulent Pathogen WM
+            [265773] = true -- Spit Gold KR
+        }
+        local dodgeList = {
+            [266231] = true -- Severing Axe KR
+        }
+
+        local feintList = {
+            [256979] = true -- Powder shot FH 2nd
+        }
+
+
+        -- vanish/cloak/evasion logic
+        if someone_casting and (cast.able.vanish() or cast.able.cloakOfShadows() or cast.able.evasion() or cast.able.feint()) then
+            local bosscount = 0 -- counting bosses
+            for i = 1, 5 do
+                if GetUnitExists("boss" .. i) then
+                    bosscount = bosscount + 1
+                end
+            end
+            for i = 1, bosscount do
+                local spellname, castEndTime, interruptID, spellnamechannel, castorchan, spellID
+                thisUnit = tostring("boss" .. i)
+                if UnitCastingInfo(thisUnit) then
+                    spellname = UnitCastingInfo(thisUnit)
+                    -- castStartTime = select(4,UnitCastingInfo(thisUnit)) / 1000
+                    castEndTime = select(5, UnitCastingInfo(thisUnit)) / 1000
+                    interruptID = select(9, UnitCastingInfo(thisUnit))
+                    castorchan = "cast"
+                elseif UnitChannelInfo(thisUnit) then
+                    spellname = UnitChannelInfo(thisUnit)
+                    -- castStartTime = select(4,UnitChannelInfo(thisUnit)) / 1000
+                    castEndTime = select(5, UnitChannelInfo(thisUnit)) / 1000
+                    interruptID = select(9, UnitChannelInfo(thisUnit))
+                    castorchan = "channel"
+                end
+                if spellname ~= nil then
+                    print(spellname)
+                    local castleft = castEndTime - GetTime()
+                    if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5 then
+                        if cloakList[interruptID] then
+                            if cast.cloakOfShadows() then
+                                return true
+                            end
+                        elseif dodgeList[interruptID] then
+                            if cast.evasion() then
+                                return true
+                            end
+                        elseif br.player.talent.elusiveness and (feintList[interruptID] or getDebuffStacks("player", 240443) > 3) then
+                            if cast.pool.feint() and cd.feint.remain() <= castleft then
+                                should_pool = true
+                            end
+                            if cast.feint() then
+                                should_pool = false
+                                return true
+                            end
+                        elseif vanishList[interruptID] then
+                            if cast.vanish() then
+                                return true
+                            end
+                        end
+                    else
+                        if cloakList[interruptID] then
+                            if cast.cloakOfShadows() then
+                                return true
+                            end
+                        elseif dodgeList[interruptID] then
+                            if cast.evasion() then
+                                return true
+                            end
+                        elseif feintList[interruptID] then
+                            if cast.pool.feint() and cd.feint.remain() <= castleft then
+                                should_pool = true
+                            end
+                            if cast.feint() then
+
+                                should_pool = false
+                                return true
+                            end
+                        end
+                    end
+                    -- end
+                end
+            end
+        end
         -- Feint
         if isChecked("Feint") and cast.able.feint() and not buff.feint.exists() and inCombat then
             for k, v in pairs(debuff_list) do
@@ -1291,104 +1392,6 @@ end -- End Action List - Defensive
 
 actionList.Interrupt = function()
     local tanks = getTanksTable()
-
-
-    --vanish logic
-    local vanishList = {
-        [260551] = true, -- Soul Thorns WM
-        [261440] = true, -- Virulent Pathogen WM
-        [266231] = true, --Severing Axe KR
-        [263371] = true, --conduction
-        [260741] = true, --nettles wm
-        [291973] = true, --Explosive Leap
-    }
-
-    local cloakList = {
-        [320788] = true, -- Frozen Binds, last boss Necrotic wave
-        [261439] = true, -- Virulent Pathogen WM
-        [261440] = true, -- Virulent Pathogen WM
-        [265773] = true -- Spit Gold KR
-    }
-    local dodgeList = {
-        [266231] = true -- Severing Axe KR
-    }
-
-    local feintList = {
-        [256979] = true -- Powder shot FH 2nd
-    }
-
-    if useDefensive() and (cast.able.vanish() or cast.able.cloakOfShadows() or cast.able.evasion() or cast.able.feint()) then
-        local bosscount = 0 -- counting bosses
-        for i = 1, 5 do
-            if GetUnitExists("boss" .. i) then
-                bosscount = bosscount + 1
-            end
-        end
-        for i = 1, bosscount do
-            local spellname, castEndTime, interruptID, spellnamechannel, castorchan, spellID
-            thisUnit = tostring("boss" .. i)
-            if UnitCastingInfo(thisUnit) then
-                spellname = UnitCastingInfo(thisUnit)
-                -- castStartTime = select(4,UnitCastingInfo(thisUnit)) / 1000
-                castEndTime = select(5, UnitCastingInfo(thisUnit)) / 1000
-                interruptID = select(9, UnitCastingInfo(thisUnit))
-                castorchan = "cast"
-            elseif UnitChannelInfo(thisUnit) then
-                spellname = UnitChannelInfo(thisUnit)
-                -- castStartTime = select(4,UnitChannelInfo(thisUnit)) / 1000
-                castEndTime = select(5, UnitChannelInfo(thisUnit)) / 1000
-                interruptID = select(9, UnitChannelInfo(thisUnit))
-                castorchan = "channel"
-            end
-            if spellname ~= nil then
-                Print(spellname)
-                local castleft = castEndTime - GetTime()
-                if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5 then
-                    if cloakList[interruptID] then
-                        if cast.cloakOfShadows() then
-                            return true
-                        end
-                    elseif dodgeList[interruptID] then
-                        if cast.evasion() then
-                            return true
-                        end
-                    elseif br.player.talent.elusiveness and (feintList[interruptID] or getDebuffStacks("player", 240443) > 3) then
-                        if cast.pool.feint() and cd.feint.remain() <= castleft then
-                            should_pool = true
-                        end
-                        if cast.feint() then
-                            should_pool = false
-                            return true
-                        end
-                    elseif vanishList[interruptID] then
-                        if cast.vanish() then
-                            return true
-                        end
-                    end
-                else
-                    if cloakList[interruptID] then
-                        if cast.cloakOfShadows() then
-                            return true
-                        end
-                    elseif dodgeList[interruptID] then
-                        if cast.evasion() then
-                            return true
-                        end
-                    elseif feintList[interruptID] then
-                        if cast.pool.feint() and cd.feint.remain() <= castleft then
-                            should_pool = true
-                        end
-                        if cast.feint() then
-
-                            should_pool = false
-                            return true
-                        end
-                    end
-                end
-                -- end
-            end
-        end
-    end
 
     if mode.interrupt == 1 or mode.interrupt == 3 then
         --   if useInterrupts() then
@@ -1608,18 +1611,17 @@ local function runRotation()
     enemies.get(8, "target") -- enemies.yards8t
     enemies.get(20)
     enemies.get(25, "player", true) -- makes enemies.yards25nc
-    enemies.get(30) -- Makes a variable called, enemies.yards40
-    enemies.get(40) -- Makes a variable called, enemies.yards40
+    enemies.get(30) -- Makes a varaible called, enemies.yards40
+    enemies.get(40) -- Makes a varaible called, enemies.yards40
 
 
     -- Profile Specific Locals
 
     -- executed outside of gcd
     --We will check for interrupt whenever someone is casting (based on log)
-    if someone_casting == true and inCombat then
-        -- if actionList.Defensive() then
-        --end
+    if someone_casting == true then
         if actionList.Interrupt() then
+            --  return true
         end
     end
 
@@ -1804,7 +1806,9 @@ local function runRotation()
         -----------------
         --- Defensive ---
         -----------------
-
+        if actionList.Defensive() then
+            return true
+        end
         ------------------
         --- Pre-Combat ---
         ------------------
@@ -1820,9 +1824,6 @@ local function runRotation()
                 -- isValidUnit("target") and
                 if timersTable then
                     wipe(timersTable)
-                end
-                if actionList.Defensive() then
-                    return true
                 end
                 if actionList.Extra() then
                     return true
