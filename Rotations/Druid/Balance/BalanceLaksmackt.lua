@@ -756,9 +756,10 @@ local function runRotation()
                     thisUnit = enemies.yards45[i]
                     if UnitAffectingCombat(thisUnit) then
                         if cast.able.sunfire()
-                                and not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
+                                and (not cast.last.sunfire(1) and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets")
                                 and debuff.sunfire.refresh(thisUnit)
-                                and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in
+                                and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and eclipse_in)
+                                or isMoving("player") and not cast.last.sunfire(1)
                         then
                             if cast.sunfire(thisUnit) then
                                 return true
@@ -766,11 +767,11 @@ local function runRotation()
                         end
                         -- moonfire
                         if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
-                            if (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) and getTTD(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit) then
+                            if (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) and getTTD(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit) or isMoving("player") then
                                 if ((cd.incarnationChoseOfElune.remain() == 0 or cd.celestialAlignment.remain() == 0)
                                         or #enemies.yards45 < (4 * (1 + (talent.twinMoons and 0 or 1)))
                                         or (current_eclipse == "solar" or (current_eclipse == "any" or current_eclipse == "lunar") and not talent.soulOfTheForest)
-                                ) or isMoving("player") and (talent.soulOfTheForest and not buff.starfall.exists() or not talent.soulOfTheForest)
+                                ) or isMoving("player")
                                 then
                                     if cast.moonfire(thisUnit) then
                                         return true

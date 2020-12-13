@@ -74,19 +74,17 @@ local function createOptions()
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
             br.ui:createCheckbox(section,"Potion")
-            -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Greater Currents","Repurposed Fel Focuser","Inquisitor's Menacing Eye","None"}, 1, "|cffFFFFFFSet Elixir to use.")
-            -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
-            -- Variable Intensity Gigavolt Oscillating Reactor
-            br.ui:createCheckbox(section,"Power Reactor", "|cffFFBB00Check to use the Gigavolt Oscillating Reactor Trinket.")
+            -- Basic Flask Module
+            br.player.module.FlaskUp("Strength",section)
+            -- Basic Trinkets
+            br.player.module.BasicTrinkets(nil,section)
+            -- Covenant Ability
+            br.ui:createDropdownWithout(section, "Covenant Ability", {"|cff0000FFAlways","|cffFFFF00CD Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Covenant Ability")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Healthstone
-            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            -- Basic Healing Module
+            br.player.module.BasicHealing(section)
 		    -- Fiery Brand
             br.ui:createSpinner(section, "Fiery Brand",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Demon Spikes
@@ -142,12 +140,13 @@ local buff
 local cast
 local cd
 local charges
+local conduit
+local covenant
 local debuff
 local enemies
-local equiped
 local fury
-local has
-local item
+local module
+local runeforge
 local talent
 local ui
 local unit
@@ -230,29 +229,8 @@ actionList.Defensive = function()
                 if cast.fieryBrand() then ui.debug("Casting Fiery Brand") return true end
             end
         end
-        -- Pot/Stoned
-        if ui.checked("Pot/Stoned") and unit.hp() <= ui.value("Pot/Stoned") then
-            -- Lock Candy
-            if has.healthstone() then
-                if use.healthstone() then ui.debug("Using Healthstone") return true end
-            -- Legion Healthstone (From Starter Zone)
-            elseif has.legionHealthstone() then
-                if use.legionHealthstone() then ui.debug("Using Legion Healthstone") return true end
-            -- Health Potion (Grabs the Highest usable from bags)
-            elseif has.item(var.getHealPot) then
-                use.item(var.getHealPot)
-                ui.debug("Using "..var.getItemInfo(var.getHealPot))
-                return true
-            end
-        end
-        -- Heirloom Neck
-        if ui.checked("Heirloom Neck") and unit.hp()<= ui.value("Heirloom Neck") then
-            if use.able.heirloomNeck() and item.heirloomNeck ~= 0
-                and item.heirloomNeck ~= item.manariTrainingAmulet
-            then
-                if use.heirloomNeck() then ui.debug("Using Heirloom Neck") return true end
-            end
-        end
+        -- Basic Healing Module
+        module.BasicHealing()
         -- Sigil of Misery
         if ui.checked("Sigil of Misery - HP") and cast.able.sigilOfMisery()
             and unit.hp() <= ui.value("Sigil of Misery - HP") and unit.inCombat() and #enemies.yards8 > 0
@@ -294,67 +272,46 @@ end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if ui.useCDs() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
         -- Trinkets
-        if ui.checked("Trinkets") and not ui.checked("Power Reactor") and unit.exists("target") and unit.distance("target") < 5 then
-            for i = 13, 14 do
-                if use.able.slot(i) then
-                    use.slot(i)
-                    ui.debug("Using Trinket in slot "..i)
-                end
+        module.BasicTrinkets()
+        -- Covenant Abilities
+        if ui.alwaysCdNever("Covenant Ability") then
+            -- Sinful Brand
+            -- sinful_brand,if=!dot.sinful_brand.ticking
+            if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists(units.dyn5) then
+                if cast.sinfulBrand() then ui.debug("Casting Sinful Brand") return true end
+            end
+            -- The Hunt
+            -- the_hunt
+            if cast.able.theHunt() then
+                if cast.theHunt() then ui.debug("Casting The Hunt") return true end
+            end
+            -- Fodder to the Flame
+            -- fodder_to_the_flame
+            if cast.able.fodderToTheFlame() then
+                if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
+            end
+            -- Elysian Decree
+            -- elysian_decree
+            if cast.able.elysianDecree() then
+                if cast.elysianDecree() then ui.debug("Casting Elysian Decree") return true end
             end
         end
     end
-    -- Variable Intensity Gigavolt Oscillating Reactor
-    if ui.useCDs() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 or #enemies.yards5 >= 4 then
-        if ui.checked("Power Reactor") and equiped.vigorTrinket() then
-            if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
-                if use.vigorTrinket() then ui.debug("Using Vigor Tricket") return true end
-            end
-        end
-    end -- End ui.useCDs check
-    -- sinful_brand,if=!dot.sinful_brand.ticking
-    -- the_hunt
-    -- fodder_to_the_flame
-    -- elysian_decree
 end -- End Action List - Cooldowns
 
 -- Action List - FieryBrand
 actionList.FieryBrand = function()
-    -- -- Sigil of Flame
-    -- -- sigil_of_flame,if=cooldown.fiery_brand.remains<2
-    -- if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5)
-    --     and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 and cd.fieryBrand.remain() < 2
-    -- then
-    --     if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand Soon") return true end
-    -- end
-    -- -- Infernal Strike
-    -- -- infernal_strike,if=cooldown.fiery_brand.remains=0
-    -- if ui.mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
-    --     if cast.infernalStrike("player","ground",1,6) then ui.debug("Casting Infernal Strike [Fiery Brand Soon]") return true end
-    -- end
     -- Fiery Brand
     -- fiery_brand (ignore if checked for defensive use)
     if cast.able.fieryBrand() then
         if cast.fieryBrand() then ui.debug("Casting Fiery Brand") return true end
     end
-    -- Fiery Brand Exists
-    if debuff.fieryBrand.exists(units.dyn5) then
-        -- Immolation Aura
-        -- immolation_aura,if=dot.fiery_brand.ticking
-        if ui.checked("Immolation Aura") and cast.able.immolationAura() and #enemies.yards5 > 0 then
-            if cast.immolationAura() then ui.debug("Casting Immolation Aura [Fiery Brand]") return true end
-        end
-        -- -- Infernal Strike
-        -- -- infernal_strike,if=dot.fiery_brand.ticking
-        -- if ui.mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
-        --     if cast.infernalStrike("player","ground",1,6) then ui.debug("Casting Infernal Strike [Fiery Brand]") return true end
-        -- end
-        -- -- Sigil of Flame
-        -- -- sigil_of_flame,if=dot.fiery_brand.ticking
-        -- if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and #enemies.yards5 > 0 then
-        --     if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame [Fiery Brand]") return true end
-        -- end
+    -- Immolation Aura
+    -- immolation_aura,if=dot.fiery_brand.ticking
+    if ui.checked("Immolation Aura") and cast.able.immolationAura() and debuff.fieryBrand.exists(units.dyn5) and #enemies.yards5 > 0 then
+        if cast.immolationAura() then ui.debug("Casting Immolation Aura [Fiery Brand]") return true end
     end
 end -- End Action List - PreCombat
 
@@ -408,7 +365,7 @@ actionList.Normal = function()
     -- Sigil of Flame
     -- sigil_of_flame,if=!(covenant.kyrian.enabled&runeforge.razelikhs_defilement.equipped)
     if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and #enemies.yards5 > 0
-        -- and not (covenant.kyrian.enabled() and runeforge.razelikhsDefilement.equiped())
+        and not (covenant.kyrian.enabled and runeforge.razelikhsDefilement.equiped)
     then
         if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame") return true end
     end
@@ -428,21 +385,7 @@ end -- End Action List - Normal
 actionList.PreCombat = function()
     if not unit.inCombat() then
         -- Flask / Crystal
-        -- flask
-        if ui.value("Elixir") == 1 and var.inRaid and not buff.greaterFlaskOfTheCurrents.exists() and use.able.greaterFlaskOfTheCurrents() then
-            if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if use.greaterFlaskOfTheCurrents() then ui.debug("Using Greater Flask of the Currents") return true end
-        end
-        if ui.value("Elixir") == 2 and not buff.felFocus.exists() and use.able.repurposedFelFocuser() then
-            if not buff.greaterFlaskOfTheCurrents.exists() then
-                if use.repurposedFelFocuser() then ui.debug("Using Repurposed Fel Focuser") return true end
-            end
-        end
-        if ui.value("Elixir") == 3 and not buff.gazeOfTheLegion.exists() and use.able.inquisitorsMenacingEye() then
-            if not buff.greaterFlaskOfTheCurrents.exists() then
-                if use.inquisitorsMenacingEye() then ui.debug("Using Inquisitor's Menacing Eye") return true end
-            end
-        end
+        module.FlaskUp("Strength")
         -- Battle Scarred Augment Rune
         -- augmentation
         if ui.checked("Augment Rune") and var.inRaid and not buff.battleScarredAugmentation.exists()
@@ -458,19 +401,6 @@ actionList.PreCombat = function()
                 if ui.value("Potion") == 1 and use.able.potionOfUnbridledFury() then
                     use.potionOfUnbridledFury()
                     ui.debug("Using Potion of Unbridled Fury")
-                end
-            end
-            -- Azshara's Font of Power
-            -- use_item,name=azsharas_font_of_power
-            for i = 13, 14 do
-                local opValue = ui.value("Trinkets")
-                local iValue = i - 12
-                if (opValue == iValue or opValue == 3) and use.able.slot(i) then
-                    if use.able.azsharasFontOfPower(i) and equiped.azsharasFontOfPower(i) and ui.pullTimer() <= 5 then
-                        use.slot(i)
-                        ui.debug("Using Azshara's Font of Power [Pre-Pull]")
-                        return
-                    end
                 end
             end
         end -- End Pre-Pull
@@ -508,12 +438,13 @@ local function runRotation()
     cast                                          = br.player.cast
     cd                                            = br.player.cd
     charges                                       = br.player.charges
+    conduit                                       = br.player.conduit
+    covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
-    equiped                                       = br.player.equiped
     fury                                          = br.player.power.fury.amount()
-    has                                           = br.player.has
-    item                                          = br.player.items
+    module                                        = br.player.module
+    runeforge                                     = br.player.runeforge
     talent                                        = br.player.talent
     ui                                            = br.player.ui
     unit                                          = br.player.unit

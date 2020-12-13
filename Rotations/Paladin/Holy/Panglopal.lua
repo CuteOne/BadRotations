@@ -169,8 +169,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum LoD Targets", true)
         -- Beacon of Virtue
-        --[[ br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)]]
+        br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
         -- Holy Prism
         br.ui:createSpinner(section, "Holy Prism", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Holy Prism Targets", 3, 0, 5, 1, "", "|cffFFFFFFMinimum Holy Prism Targets", true)
@@ -220,7 +220,9 @@ local function createOptions()
 end
 local setwindow = false
 local function runRotation()
-
+    if UnitDebuffID("player", 307161) then
+        return true
+    end
     if setwindow == false then
         RunMacroText("/console SpellQueueWindow 0")
         Print("Set SQW")
@@ -382,6 +384,14 @@ local function runRotation()
         return false
     end
 
+
+    if inCombat and isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue() and getSpellCD(200025) == 0 and not IsMounted() then
+        if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
+            if cast.beaconOfVirtue(lowest.unit) then
+                return true
+            end
+        end
+    end
     --[[ local function dumpers()
 
     end ]]
@@ -804,6 +814,9 @@ local function runRotation()
                         end
                     end
                     -- Judgment
+                    if not debuff.judgmentOfLight.exists("target") and talent.judgmentOfLight then
+                        thisUnit = "target"
+                    end
                     if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player",thisUnit) and getLineOfSight(thisUnit, "player") then
                         if cast.judgment(thisUnit) then
                             return true

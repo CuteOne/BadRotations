@@ -2496,26 +2496,6 @@ local function runRotation()
                 end
             end -- end grievance
 
-            -- Wild Growth
-            if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
-                local lowHealthCandidates = getUnitsToHealAround("player", 30, getValue("Wild Growth"), #br.friend)
-                if not freemana or not buff.soulOfTheForest.exists() then
-                    for i = 1, #br.friend do
-                        if UnitInRange(br.friend[i].unit) then
-                            lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
-                            --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
-                        end
-                    end
-                end
-                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) then
-                    if cast.wildGrowth(lowest.unit) then
-                        return true
-                    end
-                end
-            end
-
-
-
             -- cenarionWard
             if not isChecked("Smart Hot") and isChecked("Cenarion Ward") and talent.cenarionWard and not buff.cenarionWard.exists(tank) and cast.able.cenarionWard(tank) and inCombat then
                 if cast.cenarionWard(tank) then
@@ -2541,26 +2521,6 @@ local function runRotation()
                                     return true
                                 end
                             end
-                        end
-                    end
-                end
-            end
-            -- Regrowth
-            if not moving or buff.incarnationTreeOfLife.exists() then
-                for i = 1, #br.friend do
-                    if isChecked("Regrowth Tank") and br.friend[i].hp <= getValue("Regrowth Tank")
-                            and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
-                            and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
-                        if cast.regrowth(br.friend[i].unit) then
-                            return true
-                        end
-                    elseif isChecked("Regrowth") and br.friend[i].hp <= getValue("Regrowth") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
-                        if cast.regrowth(br.friend[i].unit) then
-                            return true
-                        end
-                    elseif isChecked("Regrowth Clearcasting") and br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > gcdMax then
-                        if cast.regrowth(br.friend[i].unit) then
-                            return true
                         end
                     end
                 end
@@ -2598,6 +2558,48 @@ local function runRotation()
                     end
                 end
             end
+
+
+            -- Regrowth
+            if not moving or buff.incarnationTreeOfLife.exists() then
+                for i = 1, #br.friend do
+                    if isChecked("Regrowth Tank") and br.friend[i].hp <= getValue("Regrowth Tank")
+                            and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
+                            and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if cast.regrowth(br.friend[i].unit) then
+                            return true
+                        end
+                    elseif isChecked("Regrowth") and br.friend[i].hp <= getValue("Regrowth") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if cast.regrowth(br.friend[i].unit) then
+                            return true
+                        end
+                    elseif isChecked("Regrowth Clearcasting") and br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > gcdMax then
+                        if cast.regrowth(br.friend[i].unit) then
+                            return true
+                        end
+                    end
+                end
+            end
+
+
+            -- Wild Growth
+            if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
+                local lowHealthCandidates = getUnitsToHealAround("player", 30, getValue("Wild Growth"), #br.friend)
+                if not freemana or not buff.soulOfTheForest.exists() then
+                    for i = 1, #br.friend do
+                        if UnitInRange(br.friend[i].unit) then
+                            lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
+                            --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
+                        end
+                    end
+                end
+                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) then
+                    if cast.wildGrowth(lowest.unit) then
+                        return true
+                    end
+                end
+            end
+
         end
     end -- end heal
 
@@ -2865,23 +2867,22 @@ local function runRotation()
                 item=163784/seafoam-coconut-water  (horde bfa)
                 item=113509/conjured-mana-bun
                 item=126936/sugar-crusted-fish-feast ff
+                item=177040/SL water
+                item=173859/water from Kyrian steward
                 ]]
 
                 if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) and not hasBuff(185710) then
                     if hasItem(65499) and canUseItem(65499) then
                         useItem(65499)
                     end
-                    if hasItem(80610) and canUseItem(80610) then
-                        useItem(80610)
-                    end
                     if hasItem(113509) and canUseItem(113509) then
                         useItem(113509)
                     end
-                    if hasItem(159867) and canUseItem(159867) then
-                        useItem(159867)
+                    if hasItem(177040) and canUseItem(177040) then
+                        useItem(177040)
                     end
-                    if hasItem(163784) and canUseItem(163784) then
-                        useItem(163784)
+                    if hasItem(173859) and canUseItem(173859) then
+                        useItem(173859)
                     end
                 elseif isChecked("Sugar Crusted Fish Feast") and hasItem(126936) then
                     local x1, y1, z1 = ObjectPosition("player")
