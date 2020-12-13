@@ -19,29 +19,34 @@ br.api.runeforge = function(runeforge,k,v)
     }
     local slotPowers = {}
 
-    local function findPowerBySlot(slotID)
-        local powers = slotPowers[slotID]
-        if (powers ~= nil) then
-            local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(powers)
-            local spellID = powerInfo.descriptionSpellID
-            local spellName = GetSpellInfo(spellID)
-            local vName = GetSpellInfo(v)
-            if spellID == v and spellName == vName then
-                return true
+    local function findPower()
+        for i = 1, 2 do
+            local powers = slotPowers[i]
+            if (powers ~= nil) then
+                local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(powers)
+                local spellID = powerInfo.descriptionSpellID
+                local spellName = GetSpellInfo(spellID)
+                local vName = GetSpellInfo(v)
+                if spellID == v and spellName == vName then
+                    return true
+                end
             end
         end
         return false
     end
     for i = 1, #itemLeggoSlots do
         local thisSlot = itemLeggoSlots[i]
-        local itemID = GetInventoryItemID("player",thisSlot)
         if GetInventoryItemID("player",thisSlot) ~= nil then
             -- From: https://wow.gamepedia.com/ItemLocationMixin
             local item = ItemLocation:CreateFromEquipmentSlot(thisSlot)
             if item:IsValid() then
                 if C_LegendaryCrafting.IsRuneforgeLegendary(item) then
                     slotPowers = C_LegendaryCrafting.GetRuneforgePowers(item,1)
-                    runeforge[k].equiped = findPowerBySlot(1) or findPowerBySlot(2)
+                    local foundPower = findPower() or false
+                    if foundPower then
+                        runeforge[k].equiped = true
+                        break
+                    end
                 end
             end
         end
