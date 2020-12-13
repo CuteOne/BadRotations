@@ -413,8 +413,8 @@ actionList.TrickShots = function()
     end
     -- Kill Shot
     -- kill_shot,if=buff.dead_eye.down
-    if cast.able.killShot() and unit.hp("target") < 20 and not buff.deadEye.exists() then
-        if cast.killShot("target") then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
+    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 and not buff.deadEye.exists() then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
     end
     -- A Murder of Crows
     -- a_murder_of_crows
@@ -452,8 +452,8 @@ actionList.SingleTarget = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp("target") < 20 then
-        if cast.killShot("target") then ui.debug("Casting Kill Shot") return true end
+    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot") return true end
     end
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<15
@@ -665,15 +665,22 @@ local function runRotation()
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
     var.lowestAimedSerpentSting = "target"
+    var.lowestHPUnit = "target"
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
     
     var.lowestAimedRemain = 99
+    var.lowestHP = 100
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
+        local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
         if serpentStingRemain < var.lowestAimedRemain then
             var.lowestAimedRemain = serpentStingRemain
             var.lowestAimedSerpentSting = thisUnit
+        end
+        if thisHP < var.lowestHP then
+            var.lowestHP = thisHP
+            var.lowestHPUnit = thisUnit
         end
     end
 
