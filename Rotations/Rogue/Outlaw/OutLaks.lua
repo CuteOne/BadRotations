@@ -53,6 +53,12 @@ local function createToggles()
     };
     CreateButton("Kidney", 5, -1)
 
+    CovModes = {
+        [1] = { mode = "On", value = 1, overlay = "Use Covenant", tip = "Use Pots", highlight = 0, icon = br.player.spell.summonSteward },
+        [2] = { mode = "Off", value = 2, overlay = "Use Covenant", tip = "Use Pots", highlight = 0, icon = br.player.spell.summonSteward }
+    };
+    CreateButton("Cov", 6, -1)
+
     VanishModes = {
         [1] = { mode = "On", value = 1, overlay = "Vanish Enabled", tip = "Will use Vanish.", highlight = 0, icon = br.player.spell.vanish },
         [2] = { mode = "Off", value = 2, overlay = "Vanish Disabled", tip = "Won't use Vanish.", highlight = 0, icon = br.player.spell.vanish }
@@ -95,7 +101,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 2012131210")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 2012141107 ")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
@@ -572,13 +578,20 @@ end
 local function dps_key()
 
     -- popping CD's with DPS Key
-    if (mode.cooldown == 1 and isChecked("Adrenaline Rush")) then
-        if cast.adrenalineRush() then
+    if mode.rotation == 1 then
+        if (mode.cooldown == 1 and isChecked("Adrenaline Rush")) then
+            if cast.adrenalineRush() then
+                return true
+            end
+        end
+        if cast.bladeFlurry() then
             return true
         end
-        if mode.rotation == 1 then
-            if cast.bladeFlurry() then
-                return true
+        if (mode.cooldown == 1 and isChecked("Racial") or not isChecked("Racial")) then
+            if isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
+                if cast.racial() then
+                    return true
+                end
             end
         end
     end
@@ -600,7 +613,7 @@ local function dps_key()
               return true
           end
       end
-  ]]
+    ]]
 
 end
 
@@ -786,7 +799,6 @@ actionList.dps = function()
     end
 
 
-
     -- dps regular damage
     --[[
       if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
@@ -794,7 +806,7 @@ actionList.dps = function()
               * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
               or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
       then
-  ]]
+    ]]
     if combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw))
             or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
     then
@@ -826,34 +838,35 @@ actionList.dps = function()
     else
         if not stealth and not should_pool then
 
-            --sepsis,if=!stealthed.all
-            if cast.able.sepsis(dynamic_target_melee) and not stealth and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
-                if cast.sepsis(dynamic_target_melee) then
-                    return true
+            if mode.cov == 1 then
+                --sepsis,if=!stealthed.all
+                if cast.able.sepsis(dynamic_target_melee) and not stealth and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
+                    if cast.sepsis(dynamic_target_melee) then
+                        return true
+                    end
                 end
-            end
-
-            if cast.able.echoingReprimand(dynamic_target_melee) then
-                if cast.echoingReprimand(dynamic_target_melee) then
-                    return true
+                if cast.able.echoingReprimand(dynamic_target_melee) then
+                    if cast.echoingReprimand(dynamic_target_melee) then
+                        return true
+                    end
                 end
-            end
-
-            if cast.able.flagellation(dynamic_target_melee) and not debuff.flagellation.exists(dynamic_target_melee) and getTTD(dynamic_target_melee) > 10 then
-                if cast.flagellation(dynamic_target_melee) then
-                    return true
+                if cast.able.flagellation(dynamic_target_melee) then
+                    if not debuff.flagellation.exists(dynamic_target_melee) and getTTD(dynamic_target_melee) > 10 then
+                        if cast.flagellation(dynamic_target_melee) then
+                            return true
+                        end
+                    end
+                    if debuff.flagellation.remain(dynamic_target_melee) < 2 and debuff.flagellation.exists(dynamic_target_melee) and cast.able.flagellationCleanse(dynamic_target_melee) then
+                        if cast.flagellationCleanse(dynamic_target_melee) then
+                            return true
+                        end
+                    end
                 end
-            end
-            if debuff.flagellation.remain(dynamic_target_melee) < 2 and debuff.flagellation.exists(dynamic_target_melee) and cast.able.flagellationCleanse(dynamic_target_melee) then
-                if cast.flagellationCleanse(dynamic_target_melee) then
-                    return true
-                end
-            end
-
-            if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
-                    or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
-                if cast.serratedBoneSpike(dynamic_target_melee) then
-                    return true
+                if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
+                        or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
+                    if cast.serratedBoneSpike(dynamic_target_melee) then
+                        return true
+                    end
                 end
             end
 
@@ -973,6 +986,8 @@ actionList.dps = function()
             end
         end
     end
+
+
     --trinkets
 
     if isChecked("Use Trinkets") then
@@ -1011,11 +1026,11 @@ actionList.Stealth = function()
     -- stealth()
 
     if stealth and #br.friend > 1 and (ambush_flag or do_stun ~= nil) then
-        if isChecked("Cheap Shot") and cast.able.cheapShot() and
-                (talent.preyOnTheWeak and not isBoss(units.dyn5) and not debuff.preyOnTheWeak.exists(units.dyn5) or do_stun ~= nil)
+        if isChecked("Cheap Shot") and cast.able.cheapShot() and not isBoss(dynamic_target_melee) and
+                (talent.preyOnTheWeak and not debuff.preyOnTheWeak.exists(dynamic_target_melee) or not talent.preyOnTheWeak) or do_stun ~= nil
         then
             if do_stun == nil then
-                do_stun = units.dyn5
+                do_stun = dynamic_target_melee
             end
             if StunsBlackList[GetObjectID(do_stun)] == nil then
                 if cast.cheapShot(do_stun) then
@@ -1027,7 +1042,7 @@ actionList.Stealth = function()
         end
     end
     if mode.ambush == 1 then
-        if cast.ambush(units.dyn5) then
+        if cast.ambush(dynamic_target_melee) then
             return true
         end
     end
@@ -1214,10 +1229,11 @@ actionList.Defensive = function()
                 useItem(getHealthPot())
             end
         end
-
-        if covenant.kyrian.active and not hasItem(177278) and cast.able.summonSteward() then
-            if cast.summonSteward() then
-                return true
+        if mode.cov == 1 then
+            if covenant.kyrian.active and not hasItem(177278) and cast.able.summonSteward() then
+                if cast.summonSteward() then
+                    return true
+                end
             end
         end
 
