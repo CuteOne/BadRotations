@@ -188,9 +188,14 @@ function getLineOfSight(Unit1, Unit2)
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
 		local X1, Y1, Z1 = GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)
-		local tX, tY, tZ = GetObjectPosition("target")
 		local pX, pY, pZ = GetObjectPosition("player")
-		if (br.player.eID and br.player.eID == 2398 and TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2,  0x100111) == nil) or TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil then
+		local trace
+		if br.player.eID and br.player.eID == 2398 then 
+			trace = TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2,  0x100111) 
+		else
+			trace = TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10)
+		end
+		if trace == nil then
 			--Print("Past Traceline")
             if br.player and br.player.eID and br.player.eID == 2141 then
                 if pX < -108 and X2 < -108 then
