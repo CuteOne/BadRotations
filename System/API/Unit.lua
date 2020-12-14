@@ -42,6 +42,10 @@ br.api.unit = function(self)
         local getCombatTime = _G["getCombatTime"]
         return getCombatTime()
     end
+    unit.ooCombatTime = function()
+        local getOoCTime = _G["getOoCTime()"]
+        return getOoCTime()
+    end
     -- Charmed
     unit.charmed = function(thisUnit)
         local UnitIsCharmed = _G["UnitIsCharmed"]
