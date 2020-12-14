@@ -60,6 +60,18 @@ function getCombatTime()
 	br.data.settings[br.selectedSpec]["Combat Time"] = combatTime
 	return (math.floor(combatTime*1000)/1000)
 end
+function getOoCTime()
+	local combatStarted = br.data.settings[br.selectedSpec]["Combat Started"]
+	if combatStarted ~= nil then
+		return GetTime()
+	end
+	if UnitAffectingCombat("player") == false then
+		combatTime = (GetTime() - combatStarted)
+	else
+		combatTime = 0
+	end
+	return (math.floor(combatTime*1000)/1000)
+end
 -- if getLowAllies(60) > 3 then
 function getLowAllies(Value)
 	local lowAllies = 0
