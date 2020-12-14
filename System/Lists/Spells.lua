@@ -927,6 +927,10 @@ br.lists.spells = {
             glyphs                          = {
 
             },
+            runeforges                      = {
+                theDarkTitansLesson         = 338831,
+
+            },
             talents                         = {
                 abundance                   = 207383,
                 balanceAffinity             = 197632,

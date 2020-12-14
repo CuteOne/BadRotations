@@ -10,14 +10,23 @@ br.lists.ccUnits = {
     -- SL Dungeons
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
+
+    -- Necrotic Wake
     [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
+    --Theater of Pain
+    [164510] = { name = "Shambling Arbalest" }, -- Nasty dot - needs to be cc'ed
+
+    -- Plaguefall
     [171887] = { name = "Slimy Smorgasbord" }, -- Plaguefall Dungeon
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Plaguefall Dungeon
     [164737] = { name = "Enveloping Webbing", spell = 328475 }, -- Plaguefall Dungeon
-    [150959] = { name = "Critical Shot", spell = 294171}, -- Torghast Mawsworn Interceptor
+
+    -- Thorghast
+    [150959] = { name = "Critical Shot", spell = 294171 }, -- Torghast Mawsworn Interceptor
     [168107] = { name = "Critical Shot", spell = 164737 }, -- Critical shot, Thorghast
+
     -- Test unit outside Boralus
-    [123231] = { name = "Sharptail Beaver" },
+    --[123231] = { name = "Sharptail Beaver" },
     -- Visions of Ogrimmar
     [155657] = { name = "Huffer" }, -- Rexxar's pets
     [155952] = { name = "Suffer" }, -- Rexxar's pets
