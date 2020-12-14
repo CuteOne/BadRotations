@@ -107,9 +107,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Smart Hot", 5, 0, 100, 1, "Pre-hot based on DBM or incoming casts - number is max enemies")
         br.ui:createSpinner(section, "Use Bark w/Smart Hot", 30, 0, 100, 5, "Bark based on smart hot - and HP limit to use it at")
         br.ui:createCheckbox(section, "Smart Charge", 1)
-        br.ui:createCheckbox(section, "DARK TITAN", 0)
         br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "When to stop what we do, emergency heals!")
-        br.ui:createSpinner(section, "Swiftmend", 45, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Swiftmend", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Nourish", 45, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Nourish - hot count", 3, 0, 5, 1, "Hot count where we like this option")
         br.ui:createSpinner(section, "Rejuvenation", 85, 0, 100, 5, "Health Percent to Cast At")
@@ -119,8 +118,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Efflorescence", "green circle - automated")
         br.ui:createCheckbox(section, "Cenarion Ward", "Cenarion Ward - wont use setting if smart hot is enabled")
         br.ui:createSpinner(section, "Regrowth Clearcasting", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Regrowth Tank", 65, 0, 100, 5, "|cffFFFFFFTank Health Percent priority Cast At")
-        br.ui:createSpinner(section, "Regrowth", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Regrowth Tank", 80, 0, 100, 5, "|cffFFFFFFTank Health Percent priority Cast At")
+        br.ui:createSpinner(section, "Regrowth", 65, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Wild Growth", 80, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Wild Growth Targets", 3, 0, 40, 1, "Minimum Wild Growth Targets")
         br.ui:createSpinner(section, "Photosynthesis", 70, 0, 100, 5, "Health % for switching to healer")
@@ -186,7 +185,7 @@ local function createOptions()
         -- Barkskin
         br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 5, "|cffFFBB00Health Percent to Cast At.");
         -- Renewal
-        br.ui:createSpinner(section, "Renewal", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at");
+        br.ui:createSpinner(section, "Renewal", 40, 0, 100, 5, "|cffFFBB00Health Percentage to use at");
         br.ui:checkSectionState(section)
         -- Interrupts Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -715,6 +714,7 @@ local function runRotation()
     local lowest = br.friend[1]
     local LastEfflorescenceTime = nil
     local buff = br.player.buff
+    local runeforge = br.player.runeforge
     local cast = br.player.cast
     local combo = br.player.power.comboPoints.amount()
     local debuff = br.player.debuff
@@ -2333,50 +2333,88 @@ local function runRotation()
 
 
             if not using_lifebloom then
-                if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat and #tanks == 1 then
-                    if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
-                        if cast.lifebloom(tank) then
-                            br.addonDebug("Lifebloom on tank")
-                            return true
+                if not inRaid then
+                    if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat and #tanks == 1 then
+                        if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
+                            if cast.lifebloom(tank) then
+                                br.addonDebug("Lifebloom on tank")
+                                return true
+                            end
                         end
-                    end
-                elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and not isChecked("DARK TITAN") then
-                    for i = 1, #br.friend do
-                        if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Photosynthesis") then
-                            lifebloom_count = lifebloom_count + 1
+                    elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and not runeforge.theDarkTitansLesson.equiped then
+                        for i = 1, #br.friend do
+                            if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Photosynthesis") then
+                                lifebloom_count = lifebloom_count + 1
+                            end
                         end
-                    end
-                    if (lifebloom_count >= getValue("Photosynthesis Count") or bursting) and (not buff.lifebloom.exists("Player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5 and php < 80)) then
+                        if (lifebloom_count >= getValue("Photosynthesis Count") or bursting) and (not buff.lifebloom.exists("Player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5 and php < 80)) then
+                            if cast.lifebloom("player") then
+                                br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                                return true
+                            end
+                        elseif lifebloom_count < getValue("Photosynthesis Count") and (not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and getHP(tank) < 80)) then
+                            if cast.lifebloom(tank) then
+                                br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                                return true
+                            end
+                        end
+                    elseif talent.photosynthesis and not cast.last.lifebloom(1) and (inRaid or #tanks > 1) and buff.lifebloom.remains() < 2 and not runeforge.theDarkTitansLesson.equiped then
                         if cast.lifebloom("player") then
                             br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                             return true
                         end
-                    elseif lifebloom_count < getValue("Photosynthesis Count") and (not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and getHP(tank) < 80)) then
-                        if cast.lifebloom(tank) then
-                            br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
-                            return true
+                    elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and runeforge.theDarkTitansLesson.equiped then
+                        if not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5) then
+                            if cast.lifebloom(tank) then
+                                return true
+                            end
+                        end
+                        if not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
+                            if cast.lifebloom("player") then
+                                return true
+                            end
                         end
                     end
-                elseif talent.photosynthesis and not cast.last.lifebloom(1) and (inRaid or #tanks > 1) and buff.lifebloom.remains() < 2 and not isChecked("DARK TITAN") then
+                else
+                    br.addonDebug("Lifebloom in use for boss mechanics - skipping")
+                    return true
+                end
+            else
+                --raid shit here
+                local raid_bloom_target = "none"
+                if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
                     if cast.lifebloom("player") then
-                        br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                         return true
                     end
-                elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and isChecked("DARK TITAN") then
-                    if not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5) then
-                        if cast.lifebloom(tank) then
-                            return true
+                end
+                -- keep it on focus
+                if UnitExists("focustarget") and not UnitIsDeadOrGhost("focustarget")
+                        and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
+                    raid_bloom_target = "focustarget"
+                end
+                if raid_bloom_target == "none" then
+                    for i = 1, #tanks do
+                        tank = tanks[i].unit
+                        --if not focus, check critical health on tanks
+                        if isChecked("Critical HP") and getHP(tank) < getValue("Critical HP") then
+                            raid_bloom_target = tank
+                            break
+                        else
+                            --stick it on the tank that has aggro
+                            if UnitThreatSituation(tank, "boss1target") > 1 and getLineOfSight("player", tank) then
+                                raid_bloom_target = tank
+                                break
+                            end
                         end
                     end
-                    if not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
-                        if cast.lifebloom("player") then
+                end
+                if raid_bloom_target ~= "none" then
+                    if (buff.lifebloom.remain(raid_bloom_target) < 4.5 or not buff.lifebloom.exists(raid_bloom_target)) then
+                        if cast.lifebloom(raid_bloom_target) then
                             return true
                         end
                     end
                 end
-            else
-                br.addonDebug("Lifebloom in use for boss mechanics - skipping")
-                return true
             end
 
             if isChecked("Grievous Wounds") then
@@ -2765,13 +2803,18 @@ local function runRotation()
                     end
                 end
 
-                if not buff.lifebloom.exists(tank_unit) and not buff.lifebloom.exists("player") then
+                if not buff.lifebloom.exists(tank_unit) and not buff.lifebloom.exists(tank_unit) then
                     if cast.lifebloom(tank_unit) then
                         br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName(tank_unit))
                         return true
                     end
                 end
-
+                if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") then
+                    if cast.lifebloom("player") then
+                        br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName("player"))
+                        return true
+                    end
+                end
                 if talent.germination and not buff.rejuvenationGermination.exists(tank_unit) then
                     if cast.rejuvenation(tank_unit) then
                         br.addonDebug("[PRE-HOT]Germination on: " .. UnitName(tank_unit))
