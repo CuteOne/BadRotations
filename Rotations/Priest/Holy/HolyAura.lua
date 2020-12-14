@@ -906,7 +906,7 @@ local function runRotation()
 				return
 			end
 			-- Circle of Healing
-			if isChecked("Circle of Healing") and talent.circleOfHealing and not moving then
+			if isChecked("Circle of Healing") and not moving then
 				if getLowAllies(getValue("Circle of Healing")) >= getValue("Circle of Healing Targets") then
 					if cast.circleOfHealing() then br.addonDebug("Casting Circle Of Healing") return end
 				end
