@@ -424,7 +424,7 @@ actionList.Extras = function()
         -- Cat Form
         if cast.able.catForm() and not buff.catForm.exists() and not unit.mounted() and not unit.flying() then
             -- Cat Form when not swimming or flying or stag and not in combat
-            if unit.moving() and not unit.swimming() and not unit.flying() and not buff.travelForm.exists() then
+            if unit.moving() and not unit.swimming() and not unit.flying() and not buff.travelForm.exists() and not buff.soulshape.exists() then
                 if cast.catForm("player") then ui.debug("Casting Cat Form [No Swim / Travel / Combat]") return true end
             end
             -- Cat Form when not in combat and target selected and within 20yrds
@@ -532,7 +532,7 @@ actionList.Defensive = function()
                 thisUnit = "mouseover"
             end
             if cast.able.revive(thisUnit,"dead") and unit.deadOrGhost(thisUnit)
-                and (unit.friend(thisUnit) or unit.player(thisUnit))
+                and (unit.friend(thisUnit) and unit.player(thisUnit))
             then
                 if cast.revive(thisUnit,"dead") then ui.debug("Casting Revive on "..unit.name(thisUnit)) return true end
             end
@@ -683,7 +683,7 @@ actionList.Defensive = function()
             if cast.survivalInstincts() then ui.debug("Casting Survival Instincts") return true end
         end
         -- Fleshcraft
-        if cast.able.fleshcraft() and unit.exists("target") and unit.deadOrGhost("taret") and not unit.moving() then
+        if cast.able.fleshcraft() and unit.exists("target") and unit.deadOrGhost("target") and not unit.moving() and unit.ooCombatTime() > 2 then
             if cast.fleshcraft("player") then ui.debug("Casting Fleshcraft") return true end
         end
     end -- End Defensive Toggle
@@ -779,13 +779,13 @@ actionList.Cooldowns = function()
         end
         -- Ravenous Frenzy
         -- ravenous_frenzy,if=buff.bs_inc.up|fight_remains<21
-        if ui.checked("Covenant Ability") and cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup() < 21 and ui.useCDs())) then
+        if ui.checked("Covenant Ability") and cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup(5) < 21 and ui.useCDs())) then
             if cast.ravenousFrenzy() then ui.debug("Casting Ravenous Frenzy [Venthyr]") return true end
         end
         -- Convoke the Spirits
         -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<3&dot.rake.ticking)|fight_remains<5
         if ui.checked("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
-            and comboPoints < 3 and debuff.rake.exists(units.dyn5)) or (unit.ttdGroup() < 5 and ui.useCDs()))
+            and comboPoints < 3 and debuff.rake.exists(units.dyn5) and unit.ttdGroup(5) > 10) or (unit.ttdGroup(5) < 5 and unit.isBoss()))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end
@@ -960,7 +960,7 @@ actionList.Filler = function()
     -- Swipe
     -- swipe,if=variable.filler=4
     if cast.able.swipeCat() and filler == 4 and not talent.brutalSlash
-        and not unit.isExplosive("target") and range.dyn8AOE and cast.safe.swipeCat("player","aoe",1,8)
+        and not unit.isExplosive("target") and range.dyn8AOE
     then       
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
     end
@@ -1044,7 +1044,7 @@ actionList.Bloodtalons = function()
     end
     -- Thrash
     -- thrash_cat,target_if=refreshable&buff.bt_thrash.down&druid.thrash_cat.ticks_gained_on_refresh>8
-    if cast.able.thrashCat() and not btGen.thrash and cast.safe.thrashCat("player","aoe",1,8) then
+    if cast.able.thrashCat() and not btGen.thrash then
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
             if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > 8 then
@@ -1059,7 +1059,7 @@ actionList.Bloodtalons = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=buff.bt_brutal_slash.down
-    if cast.able.brutalSlash() and not btGen.brutalSlash and cast.safe.brutalSlash("player","aoe",1,8) then
+    if cast.able.brutalSlash() and not btGen.brutalSlash then
         if cast.brutalSlash("player","aoe",1,8) then
             ui.debug("Casting Brutal Slash [BT]")
             btGen.brutalSlash = true
@@ -1069,7 +1069,7 @@ actionList.Bloodtalons = function()
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down&spell_targets.swipe_cat>1
-    if cast.able.swipeCat() and not btGen.swipe and (#enemies.yards8 > 1 and cast.safe.swipeCat("player","aoe",1,8)) then
+    if cast.able.swipeCat() and not btGen.swipe and (#enemies.yards8 > 1) then
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT - Multi]")
             btGen.swipe = true
@@ -1089,7 +1089,7 @@ actionList.Bloodtalons = function()
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down
-    if cast.able.swipeCat() and not btGen.swipe and cast.safe.swipeCat("player","aoe",1,8) then
+    if cast.able.swipeCat() and not btGen.swipe then
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT]")
             btGen.swipe = true
@@ -1099,7 +1099,7 @@ actionList.Bloodtalons = function()
     end
     -- Thrash
     -- thrash_cat,if=buff.bt_thrash.down
-    if cast.able.thrashCat() and not btGen.thrash and cast.safe.thrashCat("player","aoe",1,8) then
+    if cast.able.thrashCat() and not btGen.thrash then
         if cast.thrashCat("player","aoe",1,8) then
             ui.debug("Casting Thrash [BT - No Buff]")
             btGen.thrash = true
@@ -1199,6 +1199,9 @@ actionList.PreCombat = function()
         end -- End Pre-Pull
         -- Pull
         if unit.valid("target") and opener.complete and unit.exists("target") and unit.distance("target") < 5 then
+            if comboPoints == 5 then
+                if actionList.Finisher() then return true end
+            end
             -- Run Action List - Stealth
             -- run_action_list,name=(buff.prowl.exists() or buff.shadowmeld.exists()),if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
@@ -1558,13 +1561,13 @@ local function runRotation()
                     -- brutal_slash,if=(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time)&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
                     if cast.able.brutalSlash() and talent.brutalSlash and charges.brutalSlash.timeTillFull() < unit.gcd(true)
                         and (#enemies.yards8 < ui.value("Brutal Slash Targets") or (ui.mode.rotation == 3 and #enemies.yards8 > 0))
-                        and range.dyn8AOE and cast.safe.brutalSlash("player","aoe",1,8)
+                        and range.dyn8AOE
                     then
                         if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
                     end
                     -- Swipe
                     -- swipe_cat,if=spell_targets.swipe_cat>1+buff.bs_inc.up*2
-                    if cast.able.swipeCat() and not talent.brutalSlash and #enemies.yards8 > 1 + (var.bsInc * 2) and cast.safe.swipeCat("player","aoe",1,8) then
+                    if cast.able.swipeCat() and not talent.brutalSlash and #enemies.yards8 > 1 + (var.bsInc * 2) then
                         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe") return true end
                     end
                     -- Shred

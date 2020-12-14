@@ -611,7 +611,7 @@ actionList.St = function()
     -- Cobra Shot
     -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)|(buff.bestial_wrath.up|buff.nesingwarys_trapping_apparatus.up)&!runeforge.qapla_eredun_war_order|target.time_to_die<3
     if cast.able.cobraShot() and ((power.focus.amount() - cast.cost.cobraShot() + power.focus.regen() * (cd.killCommand.remain() - 1) > cast.cost.killCommand() or cd.killCommand.remain() > 1 + unit.gcd(true))
-        or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped()
+        or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped
         or unit.ttd(units.dyn40) < 3 and ui.useCDs())
     then
         if cast.cobraShot() then ui.debug("Casting Cobra Shot") return true end
@@ -771,25 +771,6 @@ actionList.PreCombat = function()
                 TargetUnit(v)
             end
         end
-        -- -- Pre-Pull
-        -- if true then -- Need to Code Pre-Pull Section
-        --     -- Aspect of the Wild
-        --     -- aspect_of_the_wild,precast_time=1.3,if=!azerite.primal_instincts.enabled&!essence.essence_of_the_focusing_iris.major&(equipped.azsharas_font_of_power|!equipped.cyclotronic_blast)
-        --     if ui.checked("Aspect of the Wild") and ui.useCDs()
-        --         and cast.able.aspectOfTheWild() and (not traits.primalInstincts.active and not essence.focusedAzeriteBeam.major and (equiped.azsharaFontOfPower() or not equiped.pocketSizedComputationDevice()))
-        --         and unit.ttd(units.dyn40) > 15
-        --     then
-        --         if cast.aspectOfTheWild() then ui.debug("") return true end
-        --     end
-        --     -- Bestial Wrath
-        --     -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!essence.essence_of_the_focusing_iris.major)&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
-        --     if ui.mode.bestialWrath == 1 and (ui.value("Bestial Wrath") == 2 or (ui.value("Bestial Wrath") == 1 and ui.useCDs()))
-        --         and cast.able.bestialWrath() and (traits.primalInstincts.active) and not essence.focusedAzeriteBeam.major and unit.ttd(units.dyn40) > 15
-        --         and (not equiped.pocketSizedComputationDevice() or cd.pocketSizedComputationDevice.remain() > 0)
-        --     then
-        --         if cast.bestialWrath() then ui.debug("") return true end
-        --     end
-        -- end
         -- Init Combat
         if unit.distance("target") < 40 and unit.valid("target") then-- and opener.complete then
             -- Auto Shot

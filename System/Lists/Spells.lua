@@ -1023,6 +1023,7 @@ br.lists.spells = {
                 rejuvenation                = 774,
                 regrowth                    = 8936,
                 shadowmeld                  = 58984,
+                soulshape                   = 310143,
                 stagForm                    = 210053,
                 stampedingRoar              = 77764,
                 suddenAmbush                = 340698,
