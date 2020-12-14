@@ -818,6 +818,7 @@ br.lists.spells = {
         -- Guardian
         [104] = {
             abilities                       = {
+                berserk                     = 50334,
                 incapacitatingRoar          = 99,
                 incarnationGuardianOfUrsoc  = 102558,
                 maul                        = 6807,
@@ -830,14 +831,18 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                berserk                     = 50334,
                 galacticGuardian            = 213708,
                 goryFur                     = 201671,
                 incarnationGuardianOfUrsoc  = 102558,
                 gore    					= 93622,
                 pulverize                   = 158792,
+                savageCombatant             = 340613,
                 survivalInstincts           = 61336,
+                toothAndClaw                = 135286,
             },
             conduits                        = {
+                savageCombatant             = 340609,
 
             },
             covenants                       = {
@@ -845,6 +850,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 moonfireGuardian            = 164812,
+                toothAndClaw                = 135601,
             },
             glyphs                          = {
 
@@ -925,6 +931,10 @@ br.lists.spells = {
                 sunfire                     = 164815,
             },
             glyphs                          = {
+
+            },
+            runeforges                      = {
+                theDarkTitansLesson         = 338831,
 
             },
             talents                         = {
