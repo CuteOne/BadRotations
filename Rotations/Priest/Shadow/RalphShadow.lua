@@ -187,7 +187,6 @@ local allDotsUp
 local biggestGroup
 local bestUnit
 local dotsUp
-local dtProc
 local mfTicks
 local msTicks
 local novaEnemies
@@ -237,10 +236,6 @@ local function CwC()
     if cast.current.mindFlay() and buff.boonOfTheAscended.exists() and cd.ascendedBlast.ready() then
         if cast.cancel.mindFlay() then ui.debug("Stop Mindflay for Ascended Blast [CwC]") return end
     end
-    -- need to add more cd logic so won't cancel if not needed
-    if cast.current.mindFlay() and dtProc and cast.last.mindBlast() and (cd.mindBlast.ready() or cd.voidTorrent.ready() or cd.mindgames.ready()) then
-        if cast.cancel.mindFlay() then ui.debug("Stop Mindflay if consumed Dark Thoughts proc [CwC]") return end
-    end
     if cast.current.mindFlay() and mfTicks >=1 and vtCheck() then
         if cast.cancel.mindFlay() then ui.debug("Stop Mindflay to refresh VT") return end
     end
@@ -250,13 +245,6 @@ local function CwC()
     if cast.current.mindSear() and msTicks >= 5 and cast.last.searingNightmare() and power > 30 then
         if cast.cancel.mindSear() then ui.debug("Stop Mind Sear after 2nd SnM [CwC]") return end
     end
-    -- if talent.searingNightmare and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) then
-    --     if power > 35 then
-    --         if cast.searingNightmare() then
-    --             return
-    --         end
-    --     end
-    -- end
     
     -- # Use Searing Nightmare if you will hit enough targets and Power Infusion and Voidform are not ready, or to refresh SW:P on two or more targets.
     -- actions.cwc=searing_nightmare,use_while_casting=1,target_if=(variable.searing_nightmare_cutoff&!variable.pool_for_cds)|(dot.shadow_word_pain.refreshable&spell_targets.mind_sear>1)
@@ -268,14 +256,12 @@ local function CwC()
     
     -- # Short Circuit Searing Nightmare condition to keep SW:P up in AoE
     -- actions.cwc+=/searing_nightmare,use_while_casting=1,target_if=talent.searing_nightmare.enabled&dot.shadow_word_pain.refreshable&spell_targets.mind_sear>2
-    if talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) then
-        if power > 30 then
-            if cast.searingNightmare("target") then ui.debug('SNM to refresh SW:P [CwC]') return end
-        end
+    if talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) and power > 30 then
+        if cast.searingNightmare("target") then ui.debug('SNM to refresh SW:P [CwC]') return end
     end    
     
     -- Consume dark thoughts proc while channeling mindflay or mind sear
-    if cast.current.mindFlay() or cast.current.mindSear() then
+    if cast.current.mindFlay() or cast.current.mindSear() and power < 30 then
         if buff.darkThoughts.exists() then
             if cast.mindBlast("target") then ui.debug("Consuming dark thoughts proc [CwC]") return end
         end
@@ -626,7 +612,7 @@ actionList.Main = function()
         end
     end
 
-    if not debuff.vampiricTouch.exists() and not moving then
+    if not debuff.vampiricTouch.exists() and not moving and #searEnemies < searCutoff then
         if cast.vampiricTouch("target") then ui.debug("Casting VT on target [Main]") return end
     end
    
@@ -642,6 +628,17 @@ actionList.Main = function()
         if cast.shadowWordPain('target') then ui.debug("Casting SW:P on target [Main]") return end
     end
 
+    -- # Use Shadow Crash on CD unless there are adds incoming.
+    -- actions.main+=/shadow_crash,if=raid_event.adds.in>10
+    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and ((not tankMoving and (inRaid or inInstance)) or (not inInstance and not inRaid and not isMoving("target"))) then
+        if cast.shadowCrash("best",nil,1,8) then ui.debug("Casting Shadow Crash [Main]") SpellStopTargeting() return end
+    end
+
+    -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
+    if talent.searingNightmare and #searEnemies > searCutoff and not moving and power > 30 and not cast.current.mindSear() then
+        if cast.mindSear('target') then ui.debug("Mind Sear on 4+ [Main]") return end
+    end
+
     -- Spread SW:P
     if debuff.shadowWordPain.remain() < SWPmaxTargets then
         for i = 1, #enemies.yards40 do
@@ -652,12 +649,6 @@ actionList.Main = function()
                 end
             end
         end
-    end
-
-    -- # Use Shadow Crash on CD unless there are adds incoming.
-    -- actions.main+=/shadow_crash,if=raid_event.adds.in>10
-    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and ((not tankMoving and (inRaid or inInstance)) or (not inInstance and not inRaid and not isMoving("target"))) then
-        if cast.shadowCrash("best",nil,1,8) then ui.debug("Casting Shadow Crash [Main]") SpellStopTargeting() return end
     end
     
     -- actions.main+=/call_action_list,name=cds
@@ -747,11 +738,7 @@ actionList.Main = function()
     -- # Use Mind Blast if you don't need to refresh DoTs. Stop casting at 4 or more targets with Searing Nightmare talented.
     -- actions.main+=/mind_blast,if=variable.dots_up&raid_event.movement.in>cast_time+0.5&(spell_targets.mind_sear<4&!talent.misery.enabled|spell_targets.mind_sear<6&talent.misery.enabled)
     if not moving and dotsUp and (#searEnemies < 4 and not talent.misery or #searEnemies < 6 and talent.misery) then
-        if buff.darkThoughts.exists() and #searEnemies < 4 then
-            if cast.mindFlay('target') then ui.debug("Casting Mindflay for Dark Thoughts Proc [Main]") dtProc = true return end
-        else
-            if cast.mindBlast('target') then ui.debug("Casting Mind Blast on target [Main]") return end
-        end
+        if cast.mindBlast('target') then ui.debug("Casting Mind Blast on target [Main]") return end
     end
    
     -- actions.main+=/vampiric_touch,target_if=refreshable&target.time_to_die>6|(talent.misery.enabled&dot.shadow_word_pain.refreshable)|buff.unfurling_darkness.up
@@ -794,14 +781,14 @@ actionList.Main = function()
         end
     end
     
-    -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-    if #searEnemies > searCutoff and not moving then
-        if cast.mindSear('target') then ui.debug("Casting Mind Sear on target [Main]") return end
-    end
-    
     -- actions.main+=/mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&cooldown.void_bolt.up
-    if dotsUp and not moving then
+    if dotsUp and not moving and #searEnemies <= searCutoff then
         if cast.mindFlay('target') then ui.debug("Casting Mindflay on target [Main]") return end
+    end
+
+    -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
+    if talent.searingNightmare and #searEnemies > searCutoff and not moving then
+        if cast.mindSear('target') then ui.debug("Casting Mind Sear on target [Main]") return end
     end
   
     -- # Use SW:D as last resort if on the move
@@ -880,6 +867,7 @@ local function runRotation()
     -- Enemies
     enemies.get(5) -- Makes a varaible called, enemies.yards5
     enemies.get(8) -- Makes a varaible called, enemies.yards8
+    enemies.get(8,"target")
     enemies.get(20) -- Makes a variable called, enemies.yards20
     enemies.get(30) -- Makes a varaible called, enemies.yards30
     enemies.get(40) -- Makes a varaible called, enemies.yards40
@@ -895,7 +883,7 @@ local function runRotation()
     --|talent.hungering_void.enabled|covenant.kyrian)
     pool                                            = cd.voidEruption.ready()
     searCutoff                                      = 2
-    searEnemies                                     = getEnemies(units.dyn40, 8, true)
+    searEnemies                                     = enemies.yards8t
     --# Start using Searing Nightmare at 3+ targets or 4+ if you are in Voidform
     --actions+=/variable,name=searing_nightmare_cutoff,op=set,value=spell_targets.mind_sear>2+buff.voidform.up
     snmCutoff                                       = #searEnemies > 2 + buff.voidForm.count()
