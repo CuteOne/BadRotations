@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 095812042020")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012151743")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -2385,7 +2385,8 @@ local function runRotation()
                 else
                     --raid shit here
                     local raid_bloom_target = "none"
-                    if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
+                    if runeforge.theDarkTitansLesson.equiped and
+                            (not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5)) then
                         if cast.lifebloom("player") then
                             return true
                         end
@@ -2404,6 +2405,7 @@ local function runRotation()
                                 break
                             else
                                 --stick it on the tank that has aggro
+                                Print("Tell Laks this: " .. tostring(UnitThreatSituation(tank, "boss1target")))
                                 if cast.able.lifebloom(tank) and UnitThreatSituation(tank, "boss1target") ~= nil and UnitThreatSituation(tank, "boss1target") > 2 and getLineOfSight("player", tank) then
                                     raid_bloom_target = tank
                                     break
@@ -2972,12 +2974,12 @@ local function runRotation()
             end
             if mode.forms == 2 then
                 if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus()
-                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP")) or not isChecked("Break form for critical")
+                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
                 then
                     cat_rest()
                     return true
                 elseif SpecificToggle("Owl Key") and not GetCurrentKeyBoardFocus()
-                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP")) or not isChecked("Break form for critical")
+                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
                 then
                     owl_rest()
                     return true
