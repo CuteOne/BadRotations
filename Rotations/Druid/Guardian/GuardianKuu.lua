@@ -1194,7 +1194,7 @@ local function runRotation()
             end
         end
         -- Convoke the Spirits
-        if ui.checked("Use Covenant") and ui.useCDs() and covenant.nightFae.active and not buff.berserk.exists() and not buff.incarnationGuardianOfUrsoc.exists() then
+        if ui.checked("Use Covenant") and #enemies.yards8 > 0 and ui.useCDs() and covenant.nightFae.active and not buff.berserk.exists() and not buff.incarnationGuardianOfUrsoc.exists() then
             if cast.convokeTheSpirits() then br.addonDebug("Casting Convoke the Spirits") return end
         end
         -- Moonfire
