@@ -190,7 +190,7 @@ function getLineOfSight(Unit1, Unit2)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)
 		local pX, pY, pZ = GetObjectPosition("player")
 		local trace
-		if br.player.eID and br.player.eID == 2398 then 
+		if br.player and br.player.eID and br.player.eID == 2398 then 
 			trace = TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2,  0x100111) 
 		else
 			trace = TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10)

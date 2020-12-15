@@ -108,6 +108,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Use Bark w/Smart Hot", 30, 0, 100, 5, "Bark based on smart hot - and HP limit to use it at")
         br.ui:createCheckbox(section, "Smart Charge", 1)
         br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "When to stop what we do, emergency heals!")
+        br.ui:createCheckbox(section, "Nature's Swiftness", "Use NS when critical")
         br.ui:createSpinner(section, "Swiftmend", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Nourish", 45, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Nourish - hot count", 3, 0, 5, 1, "Hot count where we like this option")
@@ -1096,6 +1097,12 @@ local function runRotation()
 
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
+                if isSelected("Nature's Swiftness") and cast.able.naturesSwiftness() then
+                    if cast.naturesSwiftness() then
+                        br.addonDebug("Natures Swiftness")
+                        return true
+                    end
+                end
                 if cast.able.cenarionWard() then
                     if cast.cenarionWard(lowest.unit) then
                         br.addonDebug("[CRIT]CWard on: " .. UnitName(lowest.unit))
@@ -2376,45 +2383,45 @@ local function runRotation()
                         end
                     end
                 else
-                    br.addonDebug("Lifebloom in use for boss mechanics - skipping")
-                    return true
-                end
-            else
-                --raid shit here
-                local raid_bloom_target = "none"
-                if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
-                    if cast.lifebloom("player") then
-                        return true
+                    --raid shit here
+                    local raid_bloom_target = "none"
+                    if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
+                        if cast.lifebloom("player") then
+                            return true
+                        end
                     end
-                end
-                -- keep it on focus
-                if UnitExists("focustarget") and not UnitIsDeadOrGhost("focustarget")
-                        and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
-                    raid_bloom_target = "focustarget"
-                end
-                if raid_bloom_target == "none" then
-                    for i = 1, #tanks do
-                        tank = tanks[i].unit
-                        --if not focus, check critical health on tanks
-                        if isChecked("Critical HP") and getHP(tank) < getValue("Critical HP") then
-                            raid_bloom_target = tank
-                            break
-                        else
-                            --stick it on the tank that has aggro
-                            if UnitThreatSituation(tank, "boss1target") > 1 and getLineOfSight("player", tank) then
+                    -- keep it on focus
+                    if UnitExists("focustarget") and not UnitIsDeadOrGhost("focustarget")
+                            and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
+                        raid_bloom_target = "focustarget"
+                    end
+                    if raid_bloom_target == "none" then
+                        for i = 1, #tanks do
+                            tank = tanks[i].unit
+                            --if not focus, check critical health on tanks
+                            if isChecked("Critical HP") and getHP(tank) < getValue("Critical HP") then
                                 raid_bloom_target = tank
                                 break
+                            else
+                                --stick it on the tank that has aggro
+                                if cast.able.lifebloom(tank) and UnitThreatSituation(tank, "boss1target") ~= nil and UnitThreatSituation(tank, "boss1target") > 2 and getLineOfSight("player", tank) then
+                                    raid_bloom_target = tank
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    if raid_bloom_target ~= "none" then
+                        if (buff.lifebloom.remain(raid_bloom_target) < 4.5 or not buff.lifebloom.exists(raid_bloom_target)) then
+                            if cast.lifebloom(raid_bloom_target) then
+                                return true
                             end
                         end
                     end
                 end
-                if raid_bloom_target ~= "none" then
-                    if (buff.lifebloom.remain(raid_bloom_target) < 4.5 or not buff.lifebloom.exists(raid_bloom_target)) then
-                        if cast.lifebloom(raid_bloom_target) then
-                            return true
-                        end
-                    end
-                end
+            else
+                br.addonDebug("Lifebloom in use for boss mechanics - skipping")
+                return true
             end
 
             if isChecked("Grievous Wounds") then
@@ -2911,6 +2918,7 @@ local function runRotation()
                 item=113509/conjured-mana-bun
                 item=126936/sugar-crusted-fish-feast ff
                 item=177040/SL water
+                item=178217/moar SL water
                 item=173859/water from Kyrian steward
                 ]]
 
@@ -2923,6 +2931,9 @@ local function runRotation()
                     end
                     if hasItem(177040) and canUseItem(177040) then
                         useItem(177040)
+                    end
+                    if hasItem(178217) and canUseItem(178217) then
+                        useItem(178217)
                     end
                     if hasItem(173859) and canUseItem(173859) then
                         useItem(173859)
