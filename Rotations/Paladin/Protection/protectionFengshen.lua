@@ -344,7 +344,7 @@ local function runRotation()
 	local function actionList_Defensive()
 		if useDefensive() then
 			module.BasicHealing()
-			if isChecked("PoS removes Necrotic") and inInstance and getDebuffStacks(lowest.unit, 209858) >= getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
+			if isChecked("PoS removes Necrotic") and inInstance and getDebuffStacks("player", 209858) >= getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
 				if use.phialOfSerenity() then return true end
 			end
 			-- Arcane Torrent
