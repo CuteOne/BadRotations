@@ -4,6 +4,9 @@ if br.shaman.resto == nil then br.shaman.resto = {} end
 if br.shaman.resto['Healing Rain'] == nil then
     br.shaman.resto['Healing Rain'] = 0
 end
+if br.shaman.resto['Earthen Wall Totem'] == nil then
+    br.shaman.resto['Earthen Wall Totem'] = 0
+end
 
 ---------------
 --- Toggles ---
@@ -94,6 +97,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs/AoE Healing will be triggered.")
         -- DPS Threshold
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
+        -- Critical HP
+            br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "|cffFFFFFFWill stop casting a DPS Spell if party member drops below value. Default: 30" )
         -- Mana Pot
             br.ui:createSpinner(section, "Mana Pot", 30, 0, 100, 5, "|cffFFFFFFWill use mana pot if mana below this value. Default: 30")
         -- Mana Tide Totem
@@ -331,7 +336,14 @@ local function runRotation()
                 tankIsNotMoving = true
             end
         end
-
+        local dpsSpells = {spell.lightningBolt, spell.chainLightning, spell.lavaBurst,spell.flameShock}
+        local function castingDPSSpells() 
+            for i = 1, #dpsSpells do
+                if isCastingSpell(dpsSpells[i]) and isChecked("Critical HP") and lowest.hp <= getValue("Critical HP") then
+                    return true
+                end
+            end
+        end
         local movingCheck = not isMoving("player") and not IsFalling() or (isMoving and buff.spiritwalkersGrace.exists("player"))
         
 --------------------
@@ -473,8 +485,16 @@ local function runRotation()
                     if cast.astralShift() then br.addonDebug("Casting Astral Shift") return end
                 end
                 -- Earthen Wall Totem
-                if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem then
-                    if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,ui.value("Earthen Wall Totem"),ui.value("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
+                if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem and GetTime() - br.shaman.resto['Earthen Wall Totem'] >= 2 then
+                    if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,ui.value("Earthen Wall Totem"),ui.value("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem")
+                        br.addonDebug("Casting Earthen Wall Totem")
+                        if SpellIsTargeting() then 
+                            br.shaman.resto['Earthen Wall Totem'] = GetTime()
+                            SpellStopTargeting() 
+                            br.addonDebug(colorRed.."Canceling Spell") 
+                        end 
+                        return 
+                    end
                 end
                     -- Capacitor Totem
                 if cd.capacitorTotem.remain() <= gcd then
@@ -489,7 +509,7 @@ local function runRotation()
         end -- End Action List - Defensive
     -- Action List - Interrupts
         local function actionList_Interrupts()
-            if useInterrupts() then
+            if useInterrupts() and inCombat and not buff.ghostWolf.exists() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,ui.value("Interrupt At")) then
@@ -498,7 +518,7 @@ local function runRotation()
                             if cast.windShear(thisUnit) then br.addonDebug("Casting Wind Shear") return end
                         end
         -- Capacitor Totem
-                        if ui.checked("Capacitor Totem") then
+                        if ui.checked("Capacitor Totem") and cd.global.remains() == 0 then
                             if cast.capacitorTotem(thisUnit) then br.addonDebug("Casting Capacitor Totem") return end
                         end
                     end
@@ -653,12 +673,13 @@ local function runRotation()
                                             loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
                                         else
                                             if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,getValue("Healing Rain Targets"),6,true, true) then
+                                                br.addonDebug("Casting Healing Rain") 
                                                 if SpellIsTargeting() then 
                                                     br.shaman.resto['Healing Rain'] = GetTime()
                                                     SpellStopTargeting() 
                                                     br.addonDebug(colorRed.."Canceling Spell") 
                                                 end 
-                                                br.addonDebug("Casting Healing Rain") return 
+                                                return 
                                             end
                                         end
                                     end
@@ -674,36 +695,39 @@ local function runRotation()
                                             loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
                                         else
                                             if castWiseAoEHeal(meleeHurt,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then
+                                                br.addonDebug("Casting Healing Rain") 
                                                 if SpellIsTargeting() then 
                                                     br.shaman.resto['Healing Rain'] = GetTime()
                                                     SpellStopTargeting() 
                                                     br.addonDebug(colorRed.."Canceling Spell") 
                                                 end
-                                                br.addonDebug("Casting Healing Rain") return 
+                                                return 
                                             end
                                         end
                                     end
                                 end
                                 if loc ~= nil then
                                     if castGroundAtLocation(loc, spell.healingRain) then 
+                                        br.addonDebug("Casting Healing Rain (Cast Ground)") 
                                         if SpellIsTargeting() then 
                                             br.shaman.resto['Healing Rain'] = GetTime()
                                             SpellStopTargeting() 
                                             br.addonDebug(colorRed.."Canceling Spell") 
                                         end
-                                        br.addonDebug("Casting Healing Rain (Cast Ground)") return
+                                        return
                                     end
                                 end
                             end
                         end
                     else
                         if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then 
+                            br.addonDebug("Casting Healing Rain (Wise AoE)") 
                             if SpellIsTargeting() then 
                                 br.shaman.resto['Healing Rain'] = GetTime()
                                 SpellStopTargeting() 
                                 br.addonDebug(colorRed.."Canceling Spell") 
                             end
-                            br.addonDebug("Casting Healing Rain (Wise AoE)") return 
+                            return 
                         end
                     end
                 end
@@ -908,8 +932,16 @@ local function runRotation()
                 if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") return end
             end     
             -- Earthen Wall Totem
-            if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem and cd.earthenWallTotem.remain() <= gcd then
-                if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,ui.value("Earthen Wall Totem"),ui.value("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
+            if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem and GetTime() - br.shaman.resto['Earthen Wall Totem'] >= 2 then
+                if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,ui.value("Earthen Wall Totem"),ui.value("Earthen Wall Totem Targets"),6,false,true) then
+                    br.addonDebug("Casting Earthen Wall Totem")
+                    if SpellIsTargeting() then 
+                        br.shaman.resto['Earthen Wall Totem'] = GetTime()
+                        SpellStopTargeting() 
+                        br.addonDebug(colorRed.."Canceling Spell") 
+                    end 
+                    return
+                end
             end
             -- Purify Spirit
             if mode.decurse == 1 and cd.purifySpirit.remain() <= gcd and lowest.hp > 30 then
@@ -919,6 +951,7 @@ local function runRotation()
                     end
                 end
             end
+            -- Healing Rain on CD
             if mode.healingR == 1 and movingCheck and (ui.checked("Healing Rain on CD") or buff.heavyRainfall.exists()) 
                 and GetTime() - br.shaman.resto['Healing Rain'] >= 2 and lowest.hp > 50   
             then
@@ -933,8 +966,6 @@ local function runRotation()
                             -- get the best ground circle to encompass the most of them
                             local loc = nil
                             if not isMoving(tanks[i].unit) then
-                                -- CastGroundHeal(spell.healingRain, meleeFriends)
-                                -- return
                                 if #meleeFriends < 12 then
                                     local x, y, z = GetObjectPosition(tanks[i].unit)
                                     loc = {
@@ -944,23 +975,25 @@ local function runRotation()
                                     }
                                 else
                                     if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,1,6,true, true) then
+                                        br.addonDebug("Casting Healing Rain (CD)") 
                                         if SpellIsTargeting() then 
                                             br.shaman.resto['Healing Rain'] = GetTime()
                                             SpellStopTargeting() 
                                             br.addonDebug(colorRed.."Canceling Spell") 
                                         end
-                                        br.addonDebug("Casting Healing Rain (CD)") return 
+                                        return 
                                     end
                                 end
                             end
                             if loc ~= nil then
                                 if castGroundAtLocation(loc, spell.healingRain) then 
+                                    br.addonDebug("Casting Healing Rain (Cast Ground CD)") 
                                     if SpellIsTargeting() then 
                                         br.shaman.resto['Healing Rain'] = GetTime()
                                         SpellStopTargeting() 
                                         br.addonDebug(colorRed.."Canceling Spell") 
                                     end
-                                    br.addonDebug("Casting Healing Rain (Cast Ground CD)") return 
+                                    return 
                                 end
                             end
                         end
@@ -971,7 +1004,7 @@ local function runRotation()
             if ui.checked("Chain Heal") and movingCheck and runeforge.spiritwalkersTidalTotem.equiped and buff.spiritwalkersTidalTotem.exists() then
                 if chainHealUnits(spell.chainHeal,15,ui.value("Chain Heal"),ui.value("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
             end
-            -- Healing Wave with Legendary (To do) 
+            -- Healing Wave with Legendary
             if ui.checked("Healing Wave") and movingCheck and runeforge.spiritwalkersTidalTotem.equiped and buff.spiritwalkersTidalTotem.exists() then
                 if lowest.hp <= ui.value("Healing Wave") then
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
@@ -990,6 +1023,10 @@ local function runRotation()
             -- Unleash Life
             if ui.checked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) and cd.unleashLife.remain() <= gcd then
                 if lowest.hp <= ui.value("Unleash Life") then
+                    if castingDPSSpells() then
+                        br.addonDebug(colorRed.."Crit HP detected, cancelling DPS spell")
+                        SpellStopCasting()
+                    end
                     if cast.unleashLife(lowest.unit) then br.addonDebug("Casting Unleash Life") return end     
                 end
             end
@@ -1018,6 +1055,10 @@ local function runRotation()
             --Chain Harvest
             if ui.checked("Chain Harvest") and covenant.venthyr.active then
                 if getLowAllies(ui.value("Chain Harvest")) >= ui.value("Chain Harvest Targets") then
+                    if castingDPSSpells() then
+                        br.addonDebug(colorRed.."Crit HP detected, cancelling DPS spell")
+                        SpellStopCasting()
+                    end
                     if cast.chainHarvest(lowest.unit) then br.addonDebug("Casting Chain Harvest") return end
                 end
             end
@@ -1045,41 +1086,47 @@ local function runRotation()
                                         loc = getBestGroundCircleLocation(meleeHurt,ui.value("Healing Rain Targets"),6,10)
                                     else
                                         if castWiseAoEHeal(meleeHurt,spell.healingRain,10,ui.value("Healing Rain"),ui.value("Healing Rain Targets"),6,true, true) then
+                                            br.addonDebug("Casting Healing Rain") 
                                             if SpellIsTargeting() then 
                                                 br.shaman.resto['Healing Rain'] = GetTime()
                                                 SpellStopTargeting() 
                                                 br.addonDebug(colorRed.."Canceling Spell") 
                                             end
-                                            br.addonDebug("Casting Healing Rain") return 
+                                            return 
                                         end
                                     end
                                 end
                                 if loc ~= nil then
                                     if castGroundAtLocation(loc, spell.healingRain) then 
+                                        br.addonDebug("Casting Healing Rain (Cast Ground)") 
                                         if SpellIsTargeting() then 
                                             br.shaman.resto['Healing Rain'] = GetTime()
                                             SpellStopTargeting() 
                                             br.addonDebug(colorRed.."Canceling Spell") 
                                         end
-                                        br.addonDebug("Casting Healing Rain (Cast Ground)") return 
+                                        return 
                                     end
                                 end
                             end
                         end
                     else
                         if castWiseAoEHeal(br.friend,spell.healingRain,10,ui.value("Healing Rain"),ui.value("Healing Rain Targets"),6,true, true) then 
+                            br.addonDebug("Casting Healing Rain (Wise AoE)") 
                             if SpellIsTargeting() then 
                                 br.shaman.resto['Healing Rain'] = GetTime()
                                 SpellStopTargeting() 
                                 br.addonDebug(colorRed.."Canceling Spell") 
                             end
-                            br.addonDebug("Casting Healing Rain (Wise AoE)") return end
+                            return 
+                        end
                     end
                 end
             end	
             -- Wellspring
             if ui.checked("Wellspring") and talent.wellspring and cd.wellspring.remain() <= gcd and movingCheck then
-                if healConeAround(ui.value("Wellspring Targets"), ui.value("Wellspring"), 90, 30, 0) then br.addonDebug("Casting Wellspring") return end
+                if healConeAround(ui.value("Wellspring Targets"), ui.value("Wellspring"), 90, 30, 0) then 
+                    if cast.wellspring() then br.addonDebug("Casting Wellspring") return end
+                end
             end
             -- Surge of Earth
             if ui.checked("Surge of Earth") and talent.surgeOfEarth then
@@ -1106,25 +1153,30 @@ local function runRotation()
              -- Healing Surge (2 stacks)
              if ui.checked("Healing Surge") and movingCheck then
                 if lowest.hp <= ui.value("Healing Surge") and buff.tidalWaves.stack() == 2 then
+                    if castingDPSSpells() then
+                        br.addonDebug(colorRed.."Crit HP detected, cancelling DPS spell")
+                        SpellStopCasting()
+                    end
                     if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
                 end
             end
             -- Healing Wave
             if ui.checked("Healing Wave") and movingCheck and not burst then
                 if lowest.hp <= ui.value("Healing Wave") and buff.tidalWaves.stack() == 2 then
+                    if castingDPSSpells() then
+                        br.addonDebug(colorRed.."Crit HP detected, cancelling DPS spell")
+                        SpellStopCasting()
+                    end
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
             end
             -- Riptide
-            if ui.checked("Riptide") then
-                if not buff.tidalWaves.stack() == 2 and level >= 34 then
-                    if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
-                end
-               for i = 1, #br.friend do
+            if ui.checked("Riptide") and charges.riptide.count() > 0 then
+                for i = 1, #br.friend do
                     if br.friend[i].hp <= ui.value("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
-                        if cast.riptide(br.friend[i].unit) then br.addonDebug("Casting Riptide") return end     
+                        if cast.riptide(br.friend[i].unit) then br.addonDebug("Casting Riptide (Party)") return end     
                     end
-               end
+                end
             end
              -- Downpour
              if cd.downpour.remain() <= gcd and movingCheck then
@@ -1172,7 +1224,7 @@ local function runRotation()
                 end 
             end
             -- Healing Stream Totem
-            if ui.checked("Healing Stream Totem") and cd.healingStreamTotem.remain() <= gcd and movingCheck and not talent.cloudburstTotem then                        
+            if ui.checked("Healing Stream Totem") and not talent.cloudburstTotem and movingCheck and not buff.swirlingCurrents.exists() then                        
                 if lowest.hp <= ui.value("Healing Stream Totem") then
                     if not talent.echoOfTheElements then
                         if cast.healingStreamTotem(lowest.unit) then br.addonDebug("Casting Healing Stream Totem") return end
@@ -1187,13 +1239,21 @@ local function runRotation()
             end
             -- Healing Surge
             if ui.checked("Healing Surge") and movingCheck then
-                if lowest.hp <= 50 then
+                if lowest.hp <= ui.value("Healing Surge") then
+                    if castingDPSSpells() then
+                        br.addonDebug(colorRed.."Crit HP detected, cancelling DPS spell")
+                        SpellStopCasting()
+                    end
                     if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
                 end
             end
             -- Healing Wave
             if ui.checked("Healing Wave") and movingCheck and not burst then
-                if lowest.hp <= ui.value("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
+                if lowest.hp <= ui.value("Healing Wave") then
+                    if castingDPSSpells() then
+                        br.addonDebug(colorRed.."Crit HP detected, cancelling DPS spell")
+                        SpellStopCasting()
+                    end
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
             end
@@ -1213,6 +1273,7 @@ local function runRotation()
             if SpellIsTargeting() then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
          end
         ghostWolf()
+        actionList_Interrupts()
         -- Pause
         if pause() or cd.global.remains() > 0 then
             return true
@@ -1242,7 +1303,6 @@ local function runRotation()
             if inCombat and not IsMounted() and not drinking then
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                     actionList_Defensive()
-                    actionList_Interrupts()
                     -- Purge
                     if ui.checked("Purge") and lowest.hp > ui.value("DPS Threshold") and power >= ui.value("Purge Min Mana") then
                         if ui.value("Purge") == 1 then
