@@ -91,6 +91,8 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
 		-- Basic Healing Module
 		br.player.module.BasicHealing(section)
+		-- Phial of Serenity
+		br.ui:createSpinner (section, "PoS removes Necrotic", 10, 0, 20, 1, "","|cffFFFFFFNecrotic stacks Phial of Serenity to use at")
 		if br.player.race == "BloodElf" then
 			br.ui:createSpinner (section, "Arcane Torrent Dispel", 1, 0, 20, 1, "","|cffFFFFFFMinimum Torrent Targets")
 		end
@@ -245,6 +247,7 @@ local function runRotation()
 	local units         = br.player.units
 	local level         = br.player.level
 	local module        = br.player.module
+	local use           = br.player.use
 	local SotR          = true
 
 	units.get(5)
@@ -341,6 +344,9 @@ local function runRotation()
 	local function actionList_Defensive()
 		if useDefensive() then
 			module.BasicHealing()
+			if isChecked("PoS removes Necrotic") and inInstance and getDebuffStacks(lowest.unit, 209858) >= getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
+				if use.phialOfSerenity() then return true end
+			end
 			-- Arcane Torrent
 			if isChecked("Arcane Torrent Dispel") and race == "BloodElf" then
 				local torrentUnit = 0
@@ -810,7 +816,7 @@ local function runRotation()
 				if cast.crusaderStrike(units.dyn5) then return true end
 			end
 			-- Blessed Hammer
-			if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 1 then
+			if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and (#enemies.yards5 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
 				if cast.blessedHammer() then return true end
 			end
 			-- Hammer of the Righteous
