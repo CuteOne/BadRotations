@@ -68,15 +68,20 @@ br.lists.noTouchUnits = {
     { unitID = 133972 }, -- Cannon in Tol Dagor
     { unitID = 160652 }, -- Void Tentacle
     -- Shadowlands
+
     -- Dungeons
     --The Necrotic Wake
     { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
+    { unitID = 166079, buff = 321576 }, -- can't kill them with this aura up
+    { unitID = 163126, buff = 321576 }, -- can't kill them with this aura up
+    { unitID = 163122, buff = 321576 }, -- can't kill them with this aura up
+
     --Hall of Atonement
     { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
     --de other side
     { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
-	-- Raid
-	-- Castle Nathria
+    -- Raid
+    -- Castle Nathria
     { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
     { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
 }
