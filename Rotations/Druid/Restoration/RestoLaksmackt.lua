@@ -2256,7 +2256,7 @@ local function runRotation()
             radar = "on"
         end
 
-        if radar == "on" then
+        if radar == "on" and not inRaid then
 
             local root = 339
             local root_range = 35
@@ -2405,13 +2405,20 @@ local function runRotation()
                                 break
                             else
                                 --stick it on the tank that has aggro
-                                Print("Tell Laks this: " .. tostring(UnitThreatSituation(tank, "boss1target")))
-                                if cast.able.lifebloom(tank) and UnitThreatSituation(tank, "boss1target") ~= nil and UnitThreatSituation(tank, "boss1target") > 2 and getLineOfSight("player", tank) then
-                                    raid_bloom_target = tank
+                                --      Print("Tell Laks this: " .. tostring(UnitThreatSituation(tank, "boss1target")))
+                                if UnitExists("boss1target") then
+                                    if inCombat and cast.able.lifebloom(tanks[i].unit) and UnitThreatSituation(tanks[i].unit, "boss1target") ~= nil
+                                            and UnitThreatSituation(tanks[i].unit, "boss1target") > 2 and getLineOfSight("player", tanks[i].unit) then
+                                        raid_bloom_target = tanks[i].unit
+                                        break
+                                    end
+                                else
+                                    raid_bloom_target = tanks[1].unit
                                     break
                                 end
                             end
                         end
+
                     end
                     if raid_bloom_target ~= "none" then
                         if (buff.lifebloom.remain(raid_bloom_target) < 4.5 or not buff.lifebloom.exists(raid_bloom_target)) then
