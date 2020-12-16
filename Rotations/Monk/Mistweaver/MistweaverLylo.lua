@@ -274,8 +274,10 @@ local function createOptions()
             5,
             "Mana percent to activate, " .. colors.green .. "(default: 50 - enabled)"
         )
-
+        -- Basic Healing Module
+        br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
+
 
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         br.ui:createCheckbox(section, "Paralysis")
@@ -945,6 +947,8 @@ local function runRotation()
             br.debug.cpu:updateDebug(startTime, "rotation.profile.interrupts")
         end -- End Interrupt Check
     end
+
+    br.player.module.BasicHealing()
 
     if br.player.inCombat and not cast.active.essenceFont() then
         if castWeaponsOfOrder() then
