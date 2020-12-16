@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012151743")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012152047")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -2386,7 +2386,7 @@ local function runRotation()
                     else
                         --raid shit here
                         local raid_bloom_target = "none"
-                        if runeforge.theDarkTitansLesson.equiped and
+                        if runeforge.theDarkTitansLesson.equiped and talent.photosynthesis and
                                 (not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5)) then
                             if cast.lifebloom("player") then
                                 return true
@@ -2396,6 +2396,14 @@ local function runRotation()
                         if UnitExists("focustarget") and not UnitIsDeadOrGhost("focustarget")
                                 and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
                             raid_bloom_target = "focustarget"
+                        end
+                        if not talent.photosynthesis and runeforge.theDarkTitansLesson.equiped then
+                            for i = 1, #tanks do
+                                if buff.lifebloom.remain(tanks[i].unit) < 4.5 or not buff.lifebloom.exists(tanks[i].unit) then
+                                    raid_bloom_target = tanks[i].unit
+                                    return true
+                                end
+                            end
                         end
                         if raid_bloom_target == "none" then
                             for i = 1, #tanks do
