@@ -941,7 +941,7 @@ actionList.AoE = function()
     end
     -- Crackling Jade Lightning
     -- crackling_jade_lightning,if=buff.the_emperors_capacitor.stack>19&energy.time_to_max>execute_time-1&cooldown.fists_of_fury.remains>execute_time
-    if cast.able.cracklingJadeLightning() and buff.theEmperorsCapacitor.stack() > 19 and energyTTM() > cast.time.cracklingJadeLightninig() and cd.fistsOfFury.remains() > csat.time.cracklingJadeLightning() then
+    if cast.able.cracklingJadeLightning() and buff.theEmperorsCapacitor.stack() > 19 and energyTTM() > cast.time.cracklingJadeLightninig() and cd.fistsOfFury.remains() > cast.time.cracklingJadeLightning() then
         if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [AOE The Emperor's Capacitor]") return true end
     end
     -- Tiger Palm

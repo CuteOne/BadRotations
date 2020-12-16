@@ -10,7 +10,7 @@ br.lists.ccUnits = {
     -- SL Dungeons
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
-
+    [165251] = { name = "Illusionary Vulpin"}, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
     -- Necrotic Wake
     [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
     --Theater of Pain

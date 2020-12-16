@@ -78,4 +78,5 @@ br.lists.noTouchUnits = {
 	-- Raid
 	-- Castle Nathria
     { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
+    { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
 }

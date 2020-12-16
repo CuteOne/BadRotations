@@ -1,8 +1,8 @@
 local br = _G["br"]
 if br.api == nil then br.api = {} end
 br.api.covenant = function(covenant,k,v)
-    if covenant.kyrian.active == nil then
-        local activeID = C_Covenants.GetActiveCovenantID()
+    local activeID = C_Covenants.GetActiveCovenantID()
+    if C_Covenants.GetActiveCovenantID() ~= nil then
         covenant.kyrian.active = activeID == 1
         covenant.venthyr.active = activeID == 2
         covenant.nightFae.active = activeID == 3
