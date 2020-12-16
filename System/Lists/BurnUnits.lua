@@ -5,8 +5,12 @@ end
 br.lists.burnUnits = {
 
     --Shadowlands dungeons
-    [164362] = { coef = 50, name = "Slimy Morsel", id = 164362 }, -- Plaguefall Dungeon - if they reach boss the heal him
 
+    --plaguelands
+    [164362] = { coef = 50, name = "Slimy Morsel", id = 164362 }, -- Plaguefall Dungeon - if they reach boss the heal him
+    [169498] = { coef = 50, name = "Plague Bomb", id = 169498 }, -- kill before it explodes
+    [164707] = { coef = 50, name = "Congealed Slime", buff = 333737, id = 164707 }, -- 75% damage reduction to boss
+    [165430] = { coef = 50, name = "Malignant Spawn", id = 165430 }, -- kill add before it explodes
 
     -- old content stuff
     [30176] = { coef = 100, name = "Ahn'kahar Guardian", id = 30176 }, -- Gives boss and other add immune buff while alive.
