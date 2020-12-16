@@ -1000,7 +1000,6 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
-            print(ruptureCount)
             if cast.last.vanish(1) and mode.vanish == 2 then StopAttack() end
             if actionList_Defensive() then return true end
             if someone_casting == true then
