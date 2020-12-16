@@ -242,7 +242,7 @@ br.rotations.support["PetCuteOne"] = {
             -- Spec Abilities
             if unit.inCombat("pet") then
                 if ui.checked("Master's Call - Cunning") and cast.noControl.mastersCall() then
-                    if cast.masterCall() then ui.debug("[Pet] Cast Master's Call") return true end
+                    if cast.mastersCall() then ui.debug("[Pet] Cast Master's Call") return true end
                 end
                 if ui.value("Primal Rage - Ferocity") == 1 or (ui.value("Primal Rage") == 2 and ui.useCDs()) then
                     if cast.primalRage() then ui.debug("[Pet] Cast Primal Rage") return true end
