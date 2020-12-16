@@ -324,6 +324,7 @@ local function runRotation()
     local enemyTable5 = { }
     local deadlyPoison10 = true
     local fightRemain = 0
+    local ruptureCount = 0
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
@@ -381,6 +382,7 @@ local function runRotation()
                 if thisUnit.distance <= 5 then
                     tinsert(enemyTable5, thisUnit)
                 end
+                if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
             end
         end
         if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
@@ -795,7 +797,6 @@ local function runRotation()
         end
         -- # Multidotting targets that will live for the duration of Rupture, refresh during pandemic.
         -- actions.finish+=/rupture,cycle_targets=1,if=!variable.skip_rupture&!variable.use_priority_rotation&spell_targets.shuriken_storm>=2&target.time_to_die>=(5+(2*combo_points))&refreshable
-        local ruptureCount = debuff.rupture.count()
         if not skipRupture and not priorityRotation and enemies10 >= 2 and getSpellCD(spell.rupture) == 0 and ruptureCount <= getOptionValue("Multidot Limit") then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
@@ -999,6 +1000,7 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
+            print(ruptureCount)
             if cast.last.vanish(1) and mode.vanish == 2 then StopAttack() end
             if actionList_Defensive() then return true end
             if someone_casting == true then
