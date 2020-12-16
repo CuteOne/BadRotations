@@ -114,7 +114,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             br.ui:createCheckbox(section, "Kick")
-            br.ui:createCheckbox(section, "Kidney Shot/Cheap Shot")
+            br.ui:createCheckbox(section, "Kidney/Cheap Shot interrupt")
             br.ui:createCheckbox(section, "Blind")
             br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
@@ -568,24 +568,23 @@ local function runRotation()
                 end
                 distance = getDistance(interrupt_target)
                 if canInterrupt(interrupt_target,getOptionValue("Interrupt %")) and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target) then
-                    if isChecked("Kick") and distance < 5 then
+                    if isChecked("Kick") and distance < 5 and cast.able.kick() then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.remain() ~= 0 and distance < 5 and isCrowdControlCandidates(interrupt_target) and noStunList[GetObjectID(interrupt_target)] == nil then
-                        if isChecked("Kidney Shot/Cheap Shot") then
-                            if stealthedAll then
-                                if cast.cheapShot(interrupt_target) then return true end
-                            elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
-                                if cast.kidneyShot(interrupt_target) then return true end
-                            end
+                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap Shot interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
+                        print("In stun interrupt")
+                        if cast.able.cheapShot() then
+                            if cast.cheapShot(interrupt_target) then return true end
+                        else
+                            if cast.kidneyShot(interrupt_target) then return true end
                         end
                     end
-                    if isChecked("Blind") and isCrowdControlCandidates(interrupt_target) and (cd.kick.remain() ~= 0 or distance >= 5)  and noStunList[GetObjectID(interrupt_target)] == nil then
+                    if isChecked("Blind") and (cd.kick.exists() or distance >= 5) and noStunList[GetObjectID(interrupt_target)] == nil then
                         if cast.blind(interrupt_target) then return end
                     end
                 end
                 if isChecked("Stuns") and distance < 5 and isCrowdControlCandidates(interrupt_target) and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target) 
-                 and not isBoss(interrupt_target) and noStunList[GetObjectID(thisUnit)] == nil then
+                 and not isBoss(interrupt_target) and noStunList[GetObjectID(interrupt_target)] == nil then
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
@@ -701,13 +700,9 @@ local function runRotation()
         end
         -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
         if enemies10 < 3 and sndCondition == 1 and not stealthedRogue then
-            local mobsAround = #enemyTable30
-            if mobsAround > 3 then
-                mobsAround = 3
-            end
-            for i = 1, mobsAround do
-                local thisUnit = enemyTable30[i].unit
-                if debuff.serratedBoneSpikeDot.exists(thisUnit) and (ttd(thisUnit) >= 21 or fightRemain <= 5) and cast.able.serratedBoneSpike(thisUnit) then
+            for i = 1, #enemyTable10 do
+                local thisUnit = enemyTable10[i].unit
+                if not debuff.serratedBoneSpikeDot.exists(thisUnit) and (ttd(thisUnit) >= 21 or fightRemain <= 5) and cast.able.serratedBoneSpike(thisUnit) then
                     if cast.serratedBoneSpike(thisUnit) then return true end
                 end
             end
@@ -763,10 +758,10 @@ local function runRotation()
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
         if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not hasEquiped(184052, 13) then
+            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) then
                 useItem(13)
             end
-            if canUseItem(14) and not hasEquiped(184052, 14) then
+            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) then
                 useItem(14)
             end
         end
@@ -951,9 +946,9 @@ local function runRotation()
         -- actions.build+=/shuriken_storm,if=spell_targets>=2+(talent.gloomblade.enabled&azerite.perforate.rank>=2&position_back)
         if enemies10 >= 2 then
             for i = 1, #enemyTable10 do
-                thisUnit = enemyTable10[i].unit
+                local thisUnit = enemyTable10[i].unit
                 local buildersStorm = 0
-                if (talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player")) or isBoss() then buildersStorm = 1 else buildersStorm = 0 end
+                if (talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player")) or isBoss(thisUnit) then buildersStorm = 1 else buildersStorm = 0 end
                 if enemies10 >= (2 + buildersStorm) and ((not cast.last.vanish(1) or cast.last.shadowstrike(1)) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1)) then
                     if cast.shurikenStorm("player") then return true end
                 end
@@ -1005,8 +1000,8 @@ local function runRotation()
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
             if cast.last.vanish(1) and mode.vanish == 2 then StopAttack() end
+            if actionList_Defensive() then return true end
             if someone_casting == true then
-                if actionList_Defensive() then return true end
                 if actionList_Interrupts() then return true end
             end
             --pre mfd

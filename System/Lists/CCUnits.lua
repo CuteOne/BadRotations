@@ -8,6 +8,8 @@ br.lists.ccUnits = {
     [167566] = { name = "Return to Stone", spell = 333145 }, -- Sun King's Salvation
     [165762] = { name = "Soul Infuser" }, -- Sun King's Salvation
     -- SL Dungeons
+    [168572] = { name = "Fungistorm", spell = 328177 }, -- Plague Fungi Stormer
+    [168572] = { name = "Fungistorm", spell = 330423 }, -- Plague Fungi Stormer
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
     [165251] = { name = "Illusionary Vulpin"}, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
