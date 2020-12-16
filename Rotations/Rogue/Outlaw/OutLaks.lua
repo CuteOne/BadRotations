@@ -54,8 +54,8 @@ local function createToggles()
     CreateButton("Kidney", 5, -1)
 
     CovModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Covenant", tip = "Use Pots", highlight = 0, icon = br.player.spell.summonSteward },
-        [2] = { mode = "Off", value = 2, overlay = "Use Covenant", tip = "Use Pots", highlight = 0, icon = br.player.spell.summonSteward }
+        [1] = { mode = "On", value = 1, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward },
+        [2] = { mode = "Off", value = 2, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward }
     };
     CreateButton("Cov", 6, -1)
 
@@ -768,12 +768,17 @@ actionList.dps = function()
 
     if (mode.cooldown == 1 and isChecked("Level 90 talent row") or not isChecked("Level 90 talent row")) then
         if getCombatTime() > 2 and getFacing("player", dynamic_target_melee, 45) then
-            if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee) and ((getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.exists()) then
+            if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee)
+                    and ((getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2)
+                    or buff.bladeFlurry.exists()) then
                 if cast.killingSpree() then
                     return true
                 end
             end
-            if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) and br.player.power.energy.ttm() > 2 and getDistance(dynamic_target_melee) <= dynamic_range then
+            if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee)
+                    and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
+                    and (br.player.power.energy.ttm() > 2 or #enemies.yards8 > 3)
+                    and getDistance(dynamic_target_melee) <= dynamic_range then
                 if cast.bladeRush(dynamic_target_melee) then
                     return true
                 end
@@ -807,7 +812,7 @@ actionList.dps = function()
               or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
       then
     ]]
-    if combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw))
+    if not stealth and combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw))
             or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
     then
 

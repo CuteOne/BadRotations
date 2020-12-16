@@ -12,8 +12,12 @@ end
 function br:ObjectManager()
 	local function ObjectManagerUpdate(self)
 		if br.unlocked then
-			br:updateOM()
-			br.om:Update()
+			if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
+				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
+					br:updateOM()
+					br.om:Update()
+				end
+			end
 		end
 	end
 	if br.engines.OM_Engine == nil then
