@@ -1864,6 +1864,8 @@ br.lists.spells = {
                 risingSunKick               = 107428,
                 soothingMist                = 115175,
                 thunderFocusTea             = 116680,
+                invokeYulonTheJadeSerpent   = 322118,
+                fortifyingBrew              = 243435,
             },
             artifacts                       = {
             },
