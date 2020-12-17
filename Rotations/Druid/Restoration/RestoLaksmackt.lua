@@ -1093,8 +1093,6 @@ local function runRotation()
         end
 
         if mode.hEALS == 1 then
-
-
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
                 if isSelected("Nature's Swiftness") and cast.able.naturesSwiftness() then
@@ -2307,19 +2305,6 @@ local function runRotation()
         end
 
         if mode.hEALS == 1 then
-            if isChecked("Swiftmend") and cast.able.swiftmend() and count_hots(lowest.unit) > 0
-                    and (lowest.hp <= getValue("Swiftmend") or (talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists()))
-                    and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
-                if cast.swiftmend(lowest.unit) then
-                    return true
-                end
-            end
-            if talent.nourish and cast.able.nourish() and php < getValue("Nourish") and count_hots(lowest.unit) >= getValue("Nourish - hot count") then
-                if cast.nourish(lowest.unit) then
-                    br.addonDebug("[HEAL]nourish on: " .. UnitName(lowest.unit))
-                    return true
-                end
-            end
 
             if #tanks > 0 and inInstance then
                 tank = tanks[1].unit
@@ -2331,6 +2316,41 @@ local function runRotation()
             else
                 freemana = false
             end
+
+            if isChecked("Swiftmend") and cast.able.swiftmend() and count_hots(lowest.unit) > 0
+                    and (lowest.hp <= getValue("Swiftmend") or (talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists()))
+                    and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
+                if cast.swiftmend(lowest.unit) then
+                    return true
+                end
+            end
+
+            -- Wild Growth
+            if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
+                local lowHealthCandidates = getUnitsToHealAround("player", 30, getValue("Wild Growth"), #br.friend)
+                if not freemana or not buff.soulOfTheForest.exists() then
+                    for i = 1, #br.friend do
+                        if UnitInRange(br.friend[i].unit) then
+                            lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
+                            --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
+                        end
+                    end
+                end
+                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) then
+                    if cast.wildGrowth(lowest.unit) then
+                        return true
+                    end
+                end
+            end
+
+            if talent.nourish and cast.able.nourish() and php < getValue("Nourish") and count_hots(lowest.unit) >= getValue("Nourish - hot count") then
+                if cast.nourish(lowest.unit) then
+                    br.addonDebug("[HEAL]nourish on: " .. UnitName(lowest.unit))
+                    return true
+                end
+            end
+
+
 
 
 
@@ -2716,24 +2736,6 @@ local function runRotation()
                 end
             end
 
-
-            -- Wild Growth
-            if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
-                local lowHealthCandidates = getUnitsToHealAround("player", 30, getValue("Wild Growth"), #br.friend)
-                if not freemana or not buff.soulOfTheForest.exists() then
-                    for i = 1, #br.friend do
-                        if UnitInRange(br.friend[i].unit) then
-                            lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
-                            --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
-                        end
-                    end
-                end
-                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) then
-                    if cast.wildGrowth(lowest.unit) then
-                        return true
-                    end
-                end
-            end
 
         end
     end -- end heal
