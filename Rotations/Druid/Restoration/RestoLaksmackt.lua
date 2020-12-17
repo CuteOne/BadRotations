@@ -2321,7 +2321,7 @@ local function runRotation()
                 end
             end
 
-            if #tanks > 0 and inInstance  then
+            if #tanks > 0 and inInstance then
                 tank = tanks[1].unit
             else
                 tank = "Player"
@@ -2627,10 +2627,14 @@ local function runRotation()
             end -- end grievance
 
             -- cenarionWard
-            if not isChecked("Smart Hot") and isChecked("Cenarion Ward") and talent.cenarionWard and not buff.cenarionWard.exists(tank) and cast.able.cenarionWard(tank) and inCombat then
-                if cast.cenarionWard(tank) then
-                    Print("hgere? on " .. tostring(tank))
-                    return true
+            if not isChecked("Smart Hot") and isChecked("Cenarion Ward") and talent.cenarionWard then
+                for i = 1, #tanks do
+                    tank = tanks[i].unit
+                    if not buff.cenarionWard.exists(tank) and cast.able.cenarionWard(tank) and inCombat then
+                        if cast.cenarionWard(tank) then
+                            return true
+                        end
+                    end
                 end
             end
 
