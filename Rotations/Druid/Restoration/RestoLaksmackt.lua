@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012152047")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012161828")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -1061,25 +1061,24 @@ local function runRotation()
             else
                 burst = false
             end
-
-            if burst == false then
-                for i = 1, #br.friend do
-                    if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical HP") then
-                        crit_count = crit_count + 1
-                    end
-                    if crit_count >= getOptionValue("Bursting") then
-                        burst = true
-                    end
+        end
+        if burst == false then
+            for i = 1, #br.friend do
+                if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical HP") then
+                    crit_count = crit_count + 1
+                end
+                if crit_count >= getOptionValue("Bursting") then
+                    burst = true
                 end
             end
+        end
 
-            --cw on ourself to survive bursting
-            if burst == true and cast.able.cenarionWard() and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2) then
-                if cast.able.cenarionWard() then
-                    if cast.cenarionWard("player") then
-                        br.addonDebug("[BURST]: CW on self")
-                        return true
-                    end
+        --cw on ourself to survive bursting
+        if burst == true and cast.able.cenarionWard() and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2) then
+            if cast.able.cenarionWard() then
+                if cast.cenarionWard("player") then
+                    br.addonDebug("[BURST]: CW on self")
+                    return true
                 end
             end
         end
@@ -2257,7 +2256,7 @@ local function runRotation()
             radar = "on"
         end
 
-        if radar == "on" and not inRaid then
+        if radar == "on" then
 
             local root = 339
             local root_range = 35
@@ -2337,10 +2336,92 @@ local function runRotation()
 
             --lifebloom
             local lifebloom_count = 0
-            -- big dots
+            local raid_bloom_target = "none"
+            local kill_boss
+            local bloom_count_max = 0
 
-            if incombat then
+            if inCombat and not cast.last.lifebloom(1) then
+                if using_lifebloom then
+                    br.addonDebug("Lifebloom in use for boss mechanics - skipping")
+                    return true
+                else
+                    if runeforge.theDarkTitansLesson.equiped then
+                        if not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
+                            if cast.lifebloom("player") then
+                                br.addonDebug("[BLOOM][DT][PS] Lifebloom on player")
+                                return true
+                            end
+                        end
+                    end
+                    --  if inRaid then
+                    -- raid lifebloom logic
+                    -- if talent.photosynthesis then
+                    --bloom on tanking tank here
+                    -- keep it on focus
+                    if UnitExists("focustarget") and not UnitIsDeadOrGhost("focustarget")
+                            and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
+                        raid_bloom_target = "focustarget"
+                    end
+                    if #br.friend > 1 then
+                        if #br.friend > 10 then
+                            bloom_count_max = 10
+                        else
+                            bloom_count_max = #br.friend
+                        end
+                        if not runeforge.theDarkTitansLesson.equiped and talent.photosynthesis and raid_bloom_target == "none" then
+                            for i = 1, bloom_count_max do
+                                if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Photosynthesis") then
+                                    lifebloom_count = lifebloom_count + 1
+                                end
+                            end
+                            if (lifebloom_count >= getValue("Photosynthesis Count") or bursting) and (not buff.lifebloom.exists("Player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5 and php < 80)) then
+                                raid_bloom_target = "player"
+                                br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                            else
+                                raid_bloom_target = "tank"
+                                br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                            end
+                        end
+                        if raid_bloom_target == "none" or raid_bloom_target == "tank" then
+                            if #tanks > 0 then
+                                for i = 1, #tanks do
+                                    --if not focus, check critical health on tanks
+                                    if isChecked("Critical HP") and getHP(tanks[i].unit) < getValue("Critical HP") then
+                                        raid_bloom_target = tanks[i].unit
+                                        break
+                                    else
+                                        --stick it on the tank that has aggro
+                                        if UnitExists("boss1target") then
+                                            kill_boss = "boss1target"
+                                        elseif UnitExists("boss2target") then
+                                            kill_boss = "boss2target"
+                                        end
+                                        if kill_boss and cast.able.lifebloom(tanks[i].unit) and UnitThreatSituation(tanks[i].unit, kill_boss) ~= nil and UnitThreatSituation(tanks[i].unit, kill_boss) > 2 and getLineOfSight("player", tanks[i].unit) then
+                                            raid_bloom_target = tanks[i].unit
+                                            break
+                                        else
+                                            raid_bloom_target = tanks[1].unit
+                                        end
+                                    end
+                                end
+
+                            else
+                                raid_bloom_target = "player"
+                            end
+                        end
+                        -- cast bloom
+                        if raid_bloom_target ~= "none" and getLineOfSight("player", raid_bloom_target)
+                                and (not buff.lifebloom.exists(raid_bloom_target) or (buff.lifebloom.exists(raid_bloom_target) and buff.lifebloom.remain(raid_bloom_target) < 4.5)) then
+                            if cast.lifebloom(raid_bloom_target) then
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+            if 1 == 2 then
                 if not using_lifebloom then
+
                     if not inRaid then
                         if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat and #tanks == 1 then
                             if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
@@ -2386,7 +2467,7 @@ local function runRotation()
                     else
                         --raid shit here
                         local raid_bloom_target = "none"
-                        if runeforge.theDarkTitansLesson.equiped and talent.photosynthesis and
+                        if runeforge.theDarkTitansLesson.equiped and
                                 (not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5)) then
                             if cast.lifebloom("player") then
                                 return true
@@ -2397,14 +2478,6 @@ local function runRotation()
                                 and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
                             raid_bloom_target = "focustarget"
                         end
-                        if not talent.photosynthesis and runeforge.theDarkTitansLesson.equiped then
-                            for i = 1, #tanks do
-                                if buff.lifebloom.remain(tanks[i].unit) < 4.5 or not buff.lifebloom.exists(tanks[i].unit) then
-                                    raid_bloom_target = tanks[i].unit
-                                    return true
-                                end
-                            end
-                        end
                         if raid_bloom_target == "none" then
                             for i = 1, #tanks do
                                 tank = tanks[i].unit
@@ -2414,20 +2487,13 @@ local function runRotation()
                                     break
                                 else
                                     --stick it on the tank that has aggro
-                                    --      Print("Tell Laks this: " .. tostring(UnitThreatSituation(tank, "boss1target")))
-                                    if UnitExists("boss1target") then
-                                        if inCombat and cast.able.lifebloom(tanks[i].unit) and UnitThreatSituation(tanks[i].unit, "boss1target") ~= nil
-                                                and UnitThreatSituation(tanks[i].unit, "boss1target") > 2 and getLineOfSight("player", tanks[i].unit) then
-                                            raid_bloom_target = tanks[i].unit
-                                            break
-                                        end
-                                    else
-                                        raid_bloom_target = tanks[1].unit
+                                    Print("Tell Laks this: " .. tostring(UnitThreatSituation(tank, "boss1target")))
+                                    if cast.able.lifebloom(tank) and UnitThreatSituation(tank, "boss1target") ~= nil and UnitThreatSituation(tank, "boss1target") > 2 and getLineOfSight("player", tank) then
+                                        raid_bloom_target = tank
                                         break
                                     end
                                 end
                             end
-
                         end
                         if raid_bloom_target ~= "none" then
                             if (buff.lifebloom.remain(raid_bloom_target) < 4.5 or not buff.lifebloom.exists(raid_bloom_target)) then
@@ -2441,7 +2507,7 @@ local function runRotation()
                     br.addonDebug("Lifebloom in use for boss mechanics - skipping")
                     return true
                 end
-            end
+            end -- old shitty code
 
             if isChecked("Grievous Wounds") then
                 for i = 1, #br.friend do
@@ -2561,9 +2627,14 @@ local function runRotation()
             end -- end grievance
 
             -- cenarionWard
-            if not isChecked("Smart Hot") and isChecked("Cenarion Ward") and talent.cenarionWard and not buff.cenarionWard.exists(tank) and cast.able.cenarionWard(tank) and inCombat then
-                if cast.cenarionWard(tank) then
-                    return true
+            if not isChecked("Smart Hot") and isChecked("Cenarion Ward") and talent.cenarionWard then
+                for i = 1, #tanks do
+                    tank = tanks[i].unit
+                    if not buff.cenarionWard.exists(tank) and cast.able.cenarionWard(tank) and inCombat then
+                        if cast.cenarionWard(tank) then
+                            return true
+                        end
+                    end
                 end
             end
 

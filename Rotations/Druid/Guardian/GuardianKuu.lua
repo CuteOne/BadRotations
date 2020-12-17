@@ -803,7 +803,7 @@ local function runRotation()
 			end
             -- Berserk
             if not talent.incarnationGuardianOfUrsoc and ui.checked("Incarnation/Berserk") and php <= ui.value("Incarnation/Berserk") then
-                if cast.berkserk() then br.addonDebug("Casting Berserk") return end
+                if cast.berserk() then br.addonDebug("Casting Berserk") return end
             end
             -- Incarnation
             if ui.checked("Incarnation/Berserk") and php <= ui.value("Incarnation/Berserk") then
@@ -1141,7 +1141,7 @@ local function runRotation()
             end
         end
         -- Ravenous Frenzy
-        if ui.checked("Use Covenant") and covenant.venthyr.active and buff.berkserk.exists() then
+        if ui.checked("Use Covenant") and covenant.venthyr.active and buff.berserk.exists() then
             if cast.ravenousFrenzy() then br.addonDebug("Casting Ravenous Frenzy") return end
         end
         -- Pulverize
