@@ -71,6 +71,7 @@ local function createOptions()
         br.ui:checkSectionState(section) ]]
 
         section = br.ui:createSection(br.ui.window.profile, "General - Version 1.002")
+        br.ui:createCheckbox(section,"Sunking")
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
         br.ui:createCheckbox(section, "Automatic Aura replacement")
@@ -287,7 +288,7 @@ local function runRotation()
     lowest.hp = 100
 
     for i = 1, #br.friend do
-        if br.friend[i].hp < lowest.hp and getLineOfSight(br.friend[i].unit, "player") then
+        if br.friend[i].hp < lowest.hp and getLineOfSight(br.friend[i].unit, "player") and not UnitIsDeadOrGhost(br.friend[i].unit) then
             lowest = br.friend[i]
         end
     end
@@ -517,7 +518,7 @@ local function runRotation()
         end
         if mode.beacon == 1 and (inInstance or inRaid or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) then
+                if UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss1target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfLightinRaid = br.friend[i].unit
                     end
@@ -534,7 +535,7 @@ local function runRotation()
         end
         if mode.beacon == 2 and (inInstance or inRaid or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) then
+                if UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss2target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfLightinRaid = br.friend[i].unit
                     end
@@ -549,9 +550,9 @@ local function runRotation()
                 end
             end
         end
-        if mode.beacon == 3 and (inInstance or inRaidor or OWGroup) and #tanks > 0 then
+        if mode.beacon == 3 and (inInstance or inRaid or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) then
+                if UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss3target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfLightinRaid = br.friend[i].unit
                     end
@@ -601,7 +602,7 @@ local function runRotation()
 
         -- check for bop target / BoS target
         for i = 1, #br.friend do
-            if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
+            if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) and not UnitIsDeadOrGhost(br.friend[i].unit) then
                 if br.friend[i].hp <= getValue("Blessing of Protection") then
                     blessingOfProtectionall = br.friend[i].unit
                 end
@@ -654,7 +655,7 @@ local function runRotation()
         --get lay-d
         if isChecked("Lay on Hands - min") and getSpellCD(633) == 0 then
             for i = 1, #br.friend do
-                if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
+                if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) and not UnitIsDeadOrGhost(br.friend[i].unit) then
                     if getOptionValue("Lay on Hands Target") == 1 then
                         if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance)) then
                             layOnHandsTarget = br.friend[i].unit
@@ -889,7 +890,7 @@ local function runRotation()
                 --find lowest friend without glitter buff on them - tank first
                 for i = 1, #br.friend do
                     if getLineOfSight(br.friend[i].unit, "player") then
-                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
+                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not UnitIsDeadOrGhost(br.friend[i].unit) and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
                             if cast.holyShock(br.friend[i].unit) then
                                 --Print("Holy Shock 4")
                                 --Print(br.friend[i].unit)
@@ -900,7 +901,7 @@ local function runRotation()
                 end
                 glimmerTable = {}
                 for i = 1, #br.friend do
-                    if getLineOfSight(br.friend[i].unit, "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
+                    if getLineOfSight(br.friend[i].unit, "player") and not UnitIsDeadOrGhost(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
                         tinsert(glimmerTable, br.friend[i])
                     end
                 end
@@ -943,7 +944,7 @@ local function runRotation()
         if isChecked("Holy Shock") and getSpellCD(20473) < gcd and mode.glimmer ~= 1 then
             --critical first
             if #tanks > 0 then
-                if tanks[1].hp <= getValue("Critical HP") then
+                if tanks[1].hp <= getValue("Critical HP") and not UnitIsDeadOrGhost(tanks[1].unit) then
                     if cast.holyShock(tanks[1].unit) then
                         --Print("Holy Shock 8")
                         return true
@@ -968,7 +969,7 @@ local function runRotation()
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
                 local thisHP = br.friend[i].hp
-                if not GetUnitIsUnit(thisUnit, "player") then
+                if not GetUnitIsUnit(thisUnit, "player") and not UnitIsDeadOrGhost(thisUnit) then
                     if isChecked("Moving LotM") and thisHP <= getValue("Moving LotM") and moving then
                         if cast.lightOfTheMartyr(thisUnit) then
                             return true
@@ -996,7 +997,7 @@ local function runRotation()
                 end
             end
             if #tanks > 0 then
-                if tanks[1].hp <= getValue("Critical HP") then
+                if tanks[1].hp <= getValue("Critical HP") and not UnitIsDeadOrGhost(tanks[1].unit) then
                     if cast.flashOfLight(tanks[1].unit) then
                         return true
                     end
@@ -1015,7 +1016,7 @@ local function runRotation()
             end
 
             if #tanks > 0 then
-                if tanks[1].hp <= getValue("FoL Tanks") then
+                if tanks[1].hp <= getValue("FoL Tanks") and not UnitIsDeadOrGhost(tanks[1].unit) then
                     if cast.flashOfLight(tanks[1].unit) then
                         return true
                     end
@@ -1043,6 +1044,24 @@ local function runRotation()
             end
         end
     end -- end healing
+
+    if isChecked("Sunking") and lowest.hp >= getValue("Critical HP") then
+        if GetObjectID("target") == 165759 and inCombat then
+            if getHP("target") < 100 then
+                if holyPower >= 3 or buff.divinePurpose.exists() then 
+                    if cast.wordOfGlory("target") then
+                        return true
+                    end
+                end
+                if cast.holyShock("target") then
+                    return true
+                end
+                if cast.holyLight("target") then
+                    return true
+                end
+            end
+        end
+    end
 
     if isChecked("Automatic Aura replacement") then
 		if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
