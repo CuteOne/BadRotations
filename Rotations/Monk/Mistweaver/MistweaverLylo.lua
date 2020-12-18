@@ -40,7 +40,8 @@ local variables = {
         paralysis                       = "Paralysis",
         legSweep                        = "Leg Sweep",
         ringOfPeace                     = "Ring of Peace",
-        interruptAt                     = "Interrupt At"
+        interruptAt                     = "Interrupt At",
+        version                         = "1.1.1"
     }
 }
 
@@ -115,7 +116,7 @@ local function createOptions()
         br.ui:createSpinnerWithout( section, variables.sectionValues.interruptAt     , 0, 0, 95, 5, colors.green .. "Cast Percentage to use at.")
         br.ui:checkSectionState(section)
 
-        section = br.ui:createSection(br.ui.window.profile, "Made By: Lylo - Version 1.0.0")
+        section = br.ui:createSection(br.ui.window.profile, "Made By: Lylo - Version " .. variables.sectionValues.version)
         br.ui:createText(section, colors.red    .. "Discord contact: " .. colors.green .. "LyLo#0253")
         br.ui:createText(section, colors.red    .. "Required: " .. colors.yellow .. "Healing Engine > HR")
         br.ui:createText(section, colors.blue   .. "Good to have: " .. colors.yellow .. "Enemies Engine > Dynamic Targeting")
