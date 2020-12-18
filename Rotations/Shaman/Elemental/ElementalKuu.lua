@@ -749,21 +749,21 @@ local function runRotation()
             end
             -- Earthquake
             --actions.se_single_target+=/earthquake,if=buff.echoes_of_great_sundering.up
-            if (runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists()) or (#enemies.yards10t > 0 and not debuff.flameShock.refresh("target")) then
-                if #enemies.yards8t >= ui.value("Earthquake Targets") and holdBreak then
-                    local cc = false
-                    if getOptionCheck("Don't break CCs") then
-                        for i = 1, #enemies.yards8t do 
-                            local thisUnit = #enemies.yards8t[i]
-                            if isLongTimeCCed(thisUnit) then
-                                cc = true
-                                break
-                            end
+            if (runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists()) 
+                or (#enemies.yards8t >= ui.value("Earthquake Targets") and not debuff.flameShock.refresh("target")) and holdBreak
+            then
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards8t do 
+                        local thisUnit = #enemies.yards8t[i]
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
                         end
                     end
-                    if cc == false then
-                        if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
-                    end
+                end
+                if cc == false then
+                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
                 end
             end
             -- Earth Shock
@@ -909,21 +909,21 @@ local function runRotation()
             end
              -- Earthquake
             --actions.single_target+=/earthquake,if=buff.echoes_of_great_sundering.up&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up)
-            if runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists() and (not talent.masterOfTheElements or buff.masterOfTheElements.exists()) then
-                if #enemies.yards8t >= ui.value("Earthquake Targets") and holdBreak then
-                    local cc = false
-                    if getOptionCheck("Don't break CCs") then
-                        for i = 1, #enemies.yards8t do 
-                            local thisUnit = #enemies.yards8t[i]
-                            if isLongTimeCCed(thisUnit) then
-                                cc = true
-                                break
-                            end
+            if (runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists()) 
+                or (#enemies.yards8t >= ui.value("Earthquake Targets") and not debuff.flameShock.refresh("target")) and holdBreak
+            then
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards8t do 
+                        local thisUnit = #enemies.yards8t[i]
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
                         end
                     end
-                    if cc == false then
-                        if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
-                    end
+                end
+                if cc == false then
+                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
                 end
             end
             -- Earthquake

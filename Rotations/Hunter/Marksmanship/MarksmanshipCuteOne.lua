@@ -587,7 +587,7 @@ actionList.PreCombat = function()
         -- Summon Pet
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
-        if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage") then
+        if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage if OOC") then
             -- Tar Trap
             -- tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
