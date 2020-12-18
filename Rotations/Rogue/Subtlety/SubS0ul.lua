@@ -346,6 +346,10 @@ local function runRotation()
                     enemyTable30.lowestTTDUnit = enemyUnit.unit
                     enemyTable30.lowestTTD = enemyUnit.ttd
                 end
+                if enemyTable30.highestTTDUnit == nil or enemyTable30.highestTTD < enemyUnit.ttd then
+                    enemyTable30.highestTTDUnit = enemyUnit.unit
+                    enemyTable30.highestTTD = enemyUnit.ttd
+                end
             end
         end
         if #enemyTable30 > 1 then
@@ -391,6 +395,7 @@ local function runRotation()
     end
     --Just nil fixes
     if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
+    if enemyTable30.highestTTD == nil then enemyTable30.highestTTD = 999 end
 
     --Variables
     local dSEnabled, subterfugeActive, vEnabled, mosEnabled, sfEnabled, aEnabled, sndCondition, ssThd, priorityRotation, necroActive, animachargedCP
@@ -630,7 +635,7 @@ local function runRotation()
 
     local function actionList_CooldownsOGCD()
         -- Slice and dice for opener
-        if enemies10 < 6 and ttd("target") > 6 and combo >= 2 and not buff.sliceAndDice.exists("player") and (combatTime < 6 and cd.vanish.remain() < 118) then
+        if enemies10 < 6 and combo >= 2 and not buff.sliceAndDice.exists("player") and (combatTime < 6 and cd.vanish.remain() < 118) then
             if cast.sliceAndDice("player") then return true end
         end
         -- # Rupture condition for opener with MA
@@ -786,9 +791,9 @@ local function runRotation()
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
         -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=5
         local skipRupture = (buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
-        -- # Keep up Rupture if it is about to run out.
+        -- # Keep up Rupture if it is about to run out. Don't ruptre if they die faster than debuff.
         -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
-        if not skipRupture and ttd("target") > 6 and debuff.rupture.refresh("target") and shallWeDot("target") then
+        if not skipRupture and ttd("target") >= (5 + 2 * combo) and debuff.rupture.refresh("target") and shallWeDot("target") then
             if cast.rupture("target") then return true end
         end
         -- actions.finish+=/secret_technique
@@ -807,7 +812,7 @@ local function runRotation()
         end
         -- # Refresh Rupture early if it will expire during Symbols. Do that refresh if SoD gets ready in the next 5s.
         -- actions.finish+=/rupture,if=!variable.skip_rupture&remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5&target.time_to_die-remains>cooldown.symbols_of_death.remains+5
-        if not skipRupture and ruptureRemain < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and shallWeDot("target") and ttd("target") - ruptureRemain > cd.symbolsOfDeath.remain()+5 then
+        if not skipRupture and ruptureRemain < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and shallWeDot("target") and ttd("target") - ruptureRemain > cd.symbolsOfDeath.remain() + 5 then
             if cast.rupture(thisUnit) then return true end
         end
         -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=3
@@ -851,7 +856,7 @@ local function runRotation()
         -- # Dance during Symbols or above threshold.
         -- Added vanish checks, coming off gcd to prevent casting after finisher and on GCD
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and ttd("target") > 3 and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
+        if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3) and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
          and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target") or not talent.premeditation)
          and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo < (4 + dSEnabled) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
             if cast.shadowDance("player") then return true end
@@ -889,7 +894,7 @@ local function runRotation()
             if actionList_Finishers() then return true end
         end
         -- actions.stealthed+=/shiv,if=talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped&spell_targets.shuriken_storm<5
-        if talent.nightstalker and runeforge.tinyToxicBlade.equiped and enemies10 < 5 and (ttd("target") > 9 or isBoss()) then
+        if talent.nightstalker and runeforge.tinyToxicBlade.equiped and enemies10 < 5 then
             if cast.shiv("target") then return true end
         end
         -- # For pre-patch, keep Find Weakness up on the primary target due to no Shadow Vault
