@@ -1559,7 +1559,6 @@ actionList.Interrupt = function()
                         if cd.global.remain() == 0 then
                             if mode.gouge ~= 2 and mode.gouge < 5 and not cd.gouge.exists()
                                     and not cast.last.gouge(1)
-                                    and not isBoss(dynamic_target_melee)
                                     and getFacing(interrupt_target, "player", 45)
                                     and (distance < 5 or talent.acrobaticStrikes and distance < 8) then
                                 if cast.gouge(interrupt_target) then
@@ -1568,14 +1567,14 @@ actionList.Interrupt = function()
                                     return true
                                 end
                             end
-                            if (mode.blind == 1 or mode.blind == 3) and distance <= 15 and cast.able.blind(interrupt_target) and not isBoss(dynamic_target_melee) then
+                            if (mode.blind == 1 or mode.blind == 3) and distance <= 15 and cast.able.blind(interrupt_target) then
                                 if cast.blind(interrupt_target) then
                                     br.addonDebug("[int]Blind " .. UnitName(interrupt_target))
                                     someone_casting = false
                                     return true
                                 end
                             end
-                            if cast.able.kidneyShot(interrupt_target) and (mode.kidney == 1 or mode.kidney == 3) and not isBoss(dynamic_target_melee) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
+                            if cast.able.kidneyShot(interrupt_target) and (mode.kidney == 1 or mode.kidney == 3) and cast.able.kidneyShot(interrupt_target) and combo > 0 and not already_stunned(interrupt_target) then
                                 if getDistance(interrupt_target) < 8 and getFacing("player", interrupt_target) then
                                     if cast.kidneyShot(interrupt_target) then
                                         br.addonDebug("[int]Kidney/stunning")
