@@ -276,7 +276,7 @@ actionList.Interrupts = function()
         for i=1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             local distance = unit.distance(thisUnit)
-            if canInterrupt(thisUnit,ui.value("Interrupts")) then
+            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 if distance < 50 then
                     -- Counter Shot
                     if ui.checked("Counter Shot") then
