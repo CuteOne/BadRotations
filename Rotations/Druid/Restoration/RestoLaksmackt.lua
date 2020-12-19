@@ -734,6 +734,7 @@ local function runRotation()
     local LastEfflorescenceTime = nil
     local buff = br.player.buff
     local runeforge = br.player.runeforge
+    local lastSpell = lastSpellCast
     local cast = br.player.cast
     local combo = br.player.power.comboPoints.amount()
     local debuff = br.player.debuff
@@ -2365,7 +2366,7 @@ local function runRotation()
             local kill_boss
             local bloom_count_max = 0
 
-            if inCombat and not cast.last.lifebloom() and isChecked("Lifebloom") then
+            if inCombat and isChecked("Lifebloom") and lastSpell ~= spell.lifebloom then
                 if using_lifebloom then
                     br.addonDebug("Lifebloom in use for boss mechanics - skipping")
                     return true
@@ -2408,7 +2409,7 @@ local function runRotation()
                                 br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                             end
                         end
-                        if raid_bloom_target == "none" or raid_bloom_target == "tank" and (GetTime() - x) > 10 then
+                        if (x == 0 or (GetTime() - x) > 10) and raid_bloom_target == "none" or raid_bloom_target == "tank" then
                             if #tanks > 0 then
                                 for i = 1, #tanks do
                                     --if not focus, check critical health on tanks
