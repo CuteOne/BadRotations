@@ -1724,6 +1724,7 @@ local function runRotation()
     combo, comboDeficit, comboMax = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
     units = br.player.units
     use = br.player.use
+    conduit = br.player.conduit
     stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists() or buff.sepsis.exists()
     -- General Locals
     hastar = GetObjectExists("target")
