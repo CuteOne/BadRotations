@@ -104,7 +104,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Heals")
-        br.ui:createCheckbox(section, "Lifebloom", 1)
+        br.ui:createSpinner(section, "Lifebloom", 8, 1, 10, 1, "Delay in seconds before checking for targets")
         br.ui:createSpinner(section, "Smart Hot", 5, 0, 100, 1, "Pre-hot based on DBM or incoming casts - number is max enemies")
         br.ui:createSpinner(section, "Use Bark w/Smart Hot", 30, 0, 100, 5, "Bark based on smart hot - and HP limit to use it at")
         br.ui:createCheckbox(section, "Smart Charge", 1)
@@ -2371,7 +2371,8 @@ local function runRotation()
                     return true
                 else
                     if runeforge.theDarkTitansLesson.equiped then
-                        if not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
+                        if not buff.lifebloom.exists("player") then
+                            -- or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
                             if cast.lifebloom("player") then
                                 br.addonDebug("[BLOOM][DT] Lifebloom on player")
                                 return true
@@ -2436,7 +2437,8 @@ local function runRotation()
                         end
                         -- cast bloom
                         if raid_bloom_target ~= "none" and getLineOfSight("player", raid_bloom_target)
-                                and (not buff.lifebloom.exists(raid_bloom_target) or (buff.lifebloom.exists(raid_bloom_target) and buff.lifebloom.remain(raid_bloom_target) < 4.5)) then
+                                and buff.lifebloom.remain(raid_bloom_target) < 4.5 then
+                            --  (not buff.lifebloom.exists(raid_bloom_target) or (buff.lifebloom.exists(raid_bloom_target) and
                             if cast.lifebloom(raid_bloom_target) then
                                 -- I want to set a timer here
                                 x = GetTime()
