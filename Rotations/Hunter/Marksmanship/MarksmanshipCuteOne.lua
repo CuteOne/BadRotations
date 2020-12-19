@@ -664,17 +664,17 @@ local function runRotation()
     var.role = _G["UnitGroupRolesAssigned"]
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
-    var.lowestAimedSerpentSting = "target"
-    var.lowestHPUnit = "target"
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
     
+    var.lowestAimedSerpentSting = "target"
     var.lowestAimedRemain = 99
+    var.lowestHPUnit = "target"
     var.lowestHP = 100
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
         local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
-        if serpentStingRemain < var.lowestAimedRemain then
+        if ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain then
             var.lowestAimedRemain = serpentStingRemain
             var.lowestAimedSerpentSting = thisUnit
         end
