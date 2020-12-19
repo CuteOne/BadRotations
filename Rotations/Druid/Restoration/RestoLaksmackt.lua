@@ -699,6 +699,7 @@ frame:SetScript("OnEvent", reader)
 local eclipse_next = "any"
 local wrath_counter = 0
 local starfire_counter = 0
+local x = 0
 
 local function runRotation()
     -- if br.timer:useTimer("debugRestoration", 0.1) then
@@ -773,7 +774,7 @@ local function runRotation()
     local traits = br.player.traits
     local mode = br.player.ui.mode
     local solo = #br.friend == 1
-    tanks = getTanksTable()
+    local tanks = getTanksTable()
     local tank = nil
     local covenant = br.player.covenant
     local critical = nil
@@ -785,7 +786,6 @@ local function runRotation()
     local hasteAmount = GetHaste() / 100
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
     local freeMana = buff.innervate.exists() or buff.symbolOfHope.exists()
-    local x = 0
 
     units.get(5)
     units.get(8)
@@ -2385,9 +2385,9 @@ local function runRotation()
                     -- if talent.photosynthesis then
                     --bloom on tanking tank here
                     -- keep it on focus
-                    if UnitExists("focustarget") and not UnitIsDeadOrGhost("focustarget")
-                            and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
-                        raid_bloom_target = "focustarget"
+                    if UnitExists("focus") and not UnitIsDeadOrGhost("focus")
+                            and UnitAffectingCombat("focustarget") and hasThreat("focus") and getLineOfSight("focus", "player") then
+                        raid_bloom_target = "focus"
                     end
                     if #br.friend > 1 then
                         if #br.friend > 10 then
@@ -2409,7 +2409,9 @@ local function runRotation()
                                 br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                             end
                         end
-                        if (x == 0 or (GetTime() - x) > 10) and raid_bloom_target == "none" or raid_bloom_target == "tank" then
+
+                        if GetTime() - x > getValue("Lifebloom") and raid_bloom_target == "none" or raid_bloom_target == "tank" then
+                            tanks = getTanksTable()
                             if #tanks > 0 then
                                 for i = 1, #tanks do
                                     --if not focus, check critical health on tanks
@@ -2434,6 +2436,7 @@ local function runRotation()
 
                             else
                                 raid_bloom_target = "player"
+                                --     Print(" ERROR - tanks: " .. tostring(#tanks))
                             end
                         end
                         -- cast bloom
@@ -2441,8 +2444,11 @@ local function runRotation()
                                 and buff.lifebloom.remain(raid_bloom_target) < 4.5 then
                             --  (not buff.lifebloom.exists(raid_bloom_target) or (buff.lifebloom.exists(raid_bloom_target) and
                             if cast.lifebloom(raid_bloom_target) then
+                                br.addonDebug("Bloom_target: " .. UnitName(raid_bloom_target))
+                                raid_bloom_target = "none"
                                 -- I want to set a timer here
                                 x = GetTime()
+                                --   Print(tostring(x))
                                 return true
                             end
                         end
@@ -2901,6 +2907,15 @@ local function runRotation()
         -- clearForm()
         if not cat and not travel and not bear then
             local tank_unit
+            if runeforge.theDarkTitansLesson.equiped then
+                if not buff.lifebloom.exists("player") then
+                    if cast.lifebloom("player") then
+                        br.addonDebug("[BLOOM][PRE] Lifebloom on player")
+                        return true
+                    end
+                end
+            end
+
             if (#tanks > 0 or UnitExists("focus")) and (mode.prehot == 1 or mode.prehot == 2) and mode.hEALS == 1 then
 
                 if UnitExists("focus") then
@@ -2910,12 +2925,7 @@ local function runRotation()
                         tank_unit = tanks[1].unit
                     end
                 end
-                if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") then
-                    if cast.lifebloom("player") then
-                        br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName("player"))
-                        return true
-                    end
-                end
+
                 if tank_unit and getLineOfSight("player", tank_unit) then
                     -- cenarionWard
                     if not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tank_unit) and cast.able.cenarionWard(tank_unit) and getLineOfSight(tank_unit, "player") then
@@ -2931,7 +2941,12 @@ local function runRotation()
                             return true
                         end
                     end
-
+                    if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") then
+                        if cast.lifebloom("player") then
+                            br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName("player"))
+                            return true
+                        end
+                    end
                     if talent.germination and cast.able.rejuvenation(tank_unit) and not buff.rejuvenationGermination.exists(tank_unit) then
                         if cast.rejuvenation(tank_unit) then
                             br.addonDebug("[PRE-HOT]Germination on: " .. UnitName(tank_unit))
