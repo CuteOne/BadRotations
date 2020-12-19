@@ -482,19 +482,18 @@ br.rotations.support["PetCuteOne"] = {
             -- Fetch
             if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch() and petExists and not br.deadPet then
                 if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
-                for k, v in pairs(br.lootable) do
+                for k, _ in pairs(br.lootable) do
                     if br.lootable[k] ~= nil then
-                        local thisDistance = unit.distance(br.lootable[k])
+                        local thisDistance = unit.distance(k)
                         if thisDistance > 8 and thisDistance < 40 and not fetching then
                             cast.fetch("pet")
                             fetchCount = getLootableCount()
                             fetching = true
-                            ui.debug("[Pet] Pet is fetching loot! "..fetchCount.." loots found!")
                             break
                         end
                     end
                 end
-            end            
+            end
             -- Mend Pet
             if ui.checked("Mend Pet") and cast.able.mendPet() and petExists and not br.deadPet
                 and not buff.mendPet.exists("pet") and petHealth < ui.value("Mend Pet")

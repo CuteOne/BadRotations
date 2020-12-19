@@ -100,7 +100,7 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Covenant Ability
-            br.ui:createCheckbox(section,"Covenant Ability")
+            br.ui:createDropdownWithout(section,"Covenant Ability",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Covenant Ability")
             -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
             br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
@@ -406,7 +406,8 @@ actionList.Extras = function()
             --[[falling > ui.value("Fall Timer")]] and unit.level() >= 24 and not buff.prowl.exists()
         then
             if unit.form() ~= 0 and not cast.last.travelForm() then
-                unit.cancelForm()
+                unit.cancelForm()                
+                ui.debug("Cancel Form [Flying]")
             elseif unit.form() == 0 then
                 if cast.travelForm("player") then ui.debug("Casting Travel Form [Flying]") return true end
             end
@@ -417,6 +418,7 @@ actionList.Extras = function()
         then
             if unit.form() ~= 0 and not cast.last.travelForm() then
                 unit.cancelForm()
+                ui.debug("Cancel Form [Swimming]")
             elseif unit.form() == 0 then
                 if cast.travelForm("player") then ui.debug("Casting Travel From [Swimming]") return true end
             end
@@ -442,7 +444,7 @@ actionList.Extras = function()
             end
         end
         -- Kindred Spirits
-        if ui.checked("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindresSpirit) then
+        if ui.alwaysCdNever("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindresSpirit) then
             if (#br.friend > 1 and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then            
                 if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..UnitName(var.kindredSpirit).." [Kyrian]") return true end
             end
@@ -627,15 +629,12 @@ actionList.Defensive = function()
             end
         end
         -- Regrowth
-        if ui.checked("Regrowth") and cast.able.regrowth() and not (unit.mounted() or unit.flying())
-            and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1
-            and unit.distance(br.friend[1].unit) < 40)) and not cast.current.regrowth()
-        then
+        if ui.checked("Regrowth") and cast.able.regrowth() and not (unit.mounted() or unit.flying()) and not cast.current.regrowth() then
             local thisHP = unit.hp()
             local thisUnit = "player"
             local lowestUnit = unit.lowest(40)
             local fhp = unit.hp(lowestUnit)
-            if ui.value("Auto Heal") == 1 then thisHP = fhp; thisUnit = lowestUnit end
+            if ui.value("Auto Heal") == 1 and unit.distance(lowestUnit) < 40 then thisHP = fhp; thisUnit = lowestUnit end
             if not unit.inCombat() then
                 -- Don't Break Form
                 if ui.value("Regrowth - OoC") == 2 then
@@ -650,6 +649,7 @@ actionList.Defensive = function()
                 if ui.value("Regrowth - OoC") == 1 and unit.hp() <= ui.value("Regrowth") and not unit.moving() then
                     if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
                         unit.cancelForm()
+                        ui.debug("Cancel Form [Regrowth - OoC Break]")
                     elseif unit.form() == 0 then
                        if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..unit.name(thisUnit)) return true end
                     end
@@ -779,19 +779,19 @@ actionList.Cooldowns = function()
         end
         -- Ravenous Frenzy
         -- ravenous_frenzy,if=buff.bs_inc.up|fight_remains<21
-        if ui.checked("Covenant Ability") and cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup(5) < 21 and ui.useCDs())) then
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup(5) < 21 and ui.useCDs())) then
             if cast.ravenousFrenzy() then ui.debug("Casting Ravenous Frenzy [Venthyr]") return true end
         end
         -- Convoke the Spirits
         -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<3&dot.rake.ticking)|fight_remains<5
-        if ui.checked("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
             and comboPoints < 3 and debuff.rake.exists(units.dyn5) and unit.ttdGroup(5) > 10) or (unit.ttdGroup(5) < 5 and unit.isBoss()))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end
         -- Kindred Spirits
         -- kindred_spirits,if=buff.tigers_fury.up|(conduit.deep_allegiance.enabled)
-        if ui.checked("Covenant Ability") and cast.able.kindredSpirits() then
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.kindredSpirits() then
             if ((var.kindredSpirit ~= nil and buff.kindredSpirits.exists(var.kindredSpirit)) or buff.loneSpirit.exists())
                 and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled)
             then
@@ -804,7 +804,7 @@ actionList.Cooldowns = function()
         end
         -- Adaptive Swarm
         -- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
-        if ui.checked("Covenant Ability") and cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adaptiveSwarm.exists(var.maxTTDUnit) then
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adaptiveSwarm.exists(var.maxTTDUnit) then
             if cast.adaptiveSwarm(var.maxTTDUnit) then ui.debug("Casting Adaptive Swarm [Necrolord]") return true end
         end
         -- Trinkets
@@ -987,7 +987,7 @@ actionList.Stealth = function()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUit)) and ticksGain.rake > 2 then
+            if (canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUit)) and ticksGain.rake > 2) or not unit.inCombat() then
                 if cast.rake(thisUnit) then ui.debug("Casting Rake [Stealth]") return true end
             end
         end
@@ -1015,7 +1015,7 @@ actionList.Bloodtalons = function()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if (not debuff.rake.exists(thisUnit) or (debuff.rake.refresh(thisUnit) and debuff.rake.calc() > debuff.rake.applied(thisUnit))) and ticksGain.rake >= 2 then
+            if ((not debuff.rake.exists(thisUnit) or (debuff.rake.refresh(thisUnit) and debuff.rake.calc() > debuff.rake.applied(thisUnit))) and ticksGain.rake >= 2) or not unit.inCombat() then
                 if cast.rake(thisUnit) then 
                     ui.debug("Casting Rake [BT - Ticks Gain]")
                     btGen.rake = true
@@ -1149,6 +1149,7 @@ actionList.PreCombat = function()
                 if unit.form() ~= 0 then
                     -- CancelShapeshiftForm()
                     unit.cancelForm()
+                    ui.debug("Cancel Form [Pre-pull]")
                 elseif unit.form() == 0 then
                     if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = GetTime(); return true end
                 end
@@ -1199,9 +1200,6 @@ actionList.PreCombat = function()
         end -- End Pre-Pull
         -- Pull
         if unit.valid("target") and opener.complete and unit.exists("target") and unit.distance("target") < 5 then
-            if comboPoints == 5 then
-                if actionList.Finisher() then return true end
-            end
             -- Run Action List - Stealth
             -- run_action_list,name=(buff.prowl.exists() or buff.shadowmeld.exists()),if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
