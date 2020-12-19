@@ -387,9 +387,9 @@ actionList.TrickShots = function()
         and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd(true) or buff.trueshot.exists())
     then
         if br.data.settings[br.selectedSpec].toggles["Rotation"] == 3 then
-            if cast.aimedShot() then ui.debug("Casting Aimed Shot [Trick Shot]") return true end
+            if cast.aimedShot() then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
         else
-            if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot [Trick Shot]") return true end
+            if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
         end
     end
     -- Death Chakram
@@ -529,9 +529,9 @@ actionList.SingleTarget = function()
         and (not talent.chimaeraShot or #enemies.yards40f < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40f > 1)
     then
         if br.data.settings[br.selectedSpec].toggles["Rotation"] == 3 then
-            if cast.aimedShot() then ui.debug("Casting Aimed Shot [Trick Shot]") return true end
+            if cast.aimedShot() then ui.debug("Casting Aimed Shot") return true end
         else
-            if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot [Trick Shot]") return true end
+            if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot") return true end
         end
     end
     -- Rapid Fire
