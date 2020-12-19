@@ -858,7 +858,7 @@ local function runRotation()
     end
 
     local function getAllHotCnt(time_remain)
-        hotCnt = br.player.ui.mode
+        hotCnt = 0
         for i = 1, #br.friend do
             local lifebloomRemain = buff.lifebloom.remain(br.friend[i].unit)
             local rejuvenationRemain = buff.rejuvenation.remain(br.friend[i].unit)
