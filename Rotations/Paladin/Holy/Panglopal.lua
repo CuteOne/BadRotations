@@ -134,6 +134,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
         --Flash of Light
         br.ui:createSpinner(section, "Flash of Light", 70, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "FoL Beacon", 70, 0, 100, 5,"", "Health of Beacon Target to cast FoL At")
         br.ui:createSpinner(section, "FoL Tanks", 70, 0, 100, 5, "", "|cffFFFFFFTanks Health Percent to Cast At", true)
         br.ui:createSpinner(section, "FoL Infuse", 70, 0, 100, 5, "", "|cffFFFFFFIn Infuse buff Health Percent to Cast At", true)
         --Holy Light
@@ -184,6 +185,8 @@ local function createOptions()
         ---------- DPS ----------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "DPS")
+        br.ui:createDropdown(section, "Hard DPS Key", br.dropOptions.Toggle, 6)
+        br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1,"Use Divine Toll at >= x units")
         br.ui:createCheckbox(section, "Auto Focus target")
         -- Consecration
         br.ui:createSpinner(section, "Consecration", 1, 0, 40, 1, "", "|cffFFFFFFMinimum Consecration Targets")
@@ -293,6 +296,18 @@ local function runRotation()
         end
     end
 
+    local lowestBeacon = {}
+    lowestBeacon.unit = nil
+    lowestBeacon.hp = 100
+
+    for i = 1, #br.friend do
+        if buff.beaconOfLight.exists(br.friend[i].unit) or buff.beaconOfVirtue.exists(br.friend[i].unit) or buff.beaconOfFaith.exists(br.friend[i].unit) then
+            if br.friend[i].hp <= lowestBeacon.hp and getLineOfSight(br.friend[i].unit, "player") and not UnitIsDeadOrGhost(br.friend[i].unit) then
+                lowestBeacon = br.friend[i]
+            end
+        end
+    end
+
 
     for i = 1, #br.friend do
         if buff.glimmerOfLight.remain(br.friend[i].unit) > gcd then
@@ -396,6 +411,89 @@ local function runRotation()
     --[[ local function dumpers()
 
     end ]]
+    local function bigDPS()
+        if holyPower >= 3 then
+            if cast.shieldOfTheRighteous() then
+                return true
+            end
+        end
+
+        if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2) then
+            if cast.consecration() then
+                cX, cY, cZ = GetObjectPosition("player")
+                return
+            end
+        end
+
+        if isChecked("Divine Toll during DPS Key") and #enemies.yards30 >= getValue("Divine Toll during DPS Key") and not GetUnitIsFriend("target", "player") then
+            if cast.divineToll("target") then
+                return
+            end
+        end
+
+        if isChecked("Holy Shock Damage") and lowest.hp > getOptionValue("Holy Shock") and cast.able.holyShock() then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and not debuff.glimmerOfLight.exists(thisUnit, "player") and not UnitIsDeadOrGhost(thisUnit) and getLineOfSight(thisUnit, "player") then
+                    if cast.holyShock(thisUnit) then
+                        --Print("Holy Shock 11: on " .. thisUnit)
+                        return
+                    end
+                end
+            end
+            if cast.able.holyShock() then
+                if cast.holyShock("target") then
+                    --Print("Holy Shock 12")
+                    return
+                end
+            end
+        end
+
+        for i = 1, #enemies.yards30 do
+            thisUnit = enemies.yards30[i]
+            if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and holyPower < 5 then
+                if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
+                    if cast.hammerOfWrath(thisUnit) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        if isChecked("Crusader Strike") then
+            if cast.crusaderStrike(units.dyn5) then
+                return true
+            end
+        end
+
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and not UnitIsDeadOrGhost(thisUnit) then
+                if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
+                    TargetUnit("focustarget")
+                end
+                -- Start Attack
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and isValidUnit("target") and getDistance("target") <= 5 then
+                    StartAttack(units.dyn5)
+                end
+                -- Light's Hammer
+                if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
+                    if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
+                        return true
+                    end
+                end
+                -- Judgment
+                if not debuff.judgmentOfLight.exists("target") and talent.judgmentOfLight then
+                    thisUnit = "target"
+                end
+                if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player",thisUnit) and getLineOfSight(thisUnit, "player") then
+                    if cast.judgment(thisUnit) then
+                        return true
+                    end
+                end    
+            end
+        end  
+    end
     local function spendies()
         if isChecked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) and inCombat then
             --Critical first
@@ -1009,6 +1107,12 @@ local function runRotation()
                 end
             end
 
+            if lowestBeacon.unit ~= nil and isChecked("FoL Beacon") and lowestBeacon.hp <= getValue("FoL Beacon") then
+                if cast.flashOfLight(lowestBeacon.unit) then
+                    return true
+                end
+            end
+
             if lowest.hp <= getValue("Flash of Light") or (lowest.hp <= getValue("FoL Infuse") and buff.infusionOfLight.exists() and not cast.last.flashOfLight()) then
                 if cast.flashOfLight(lowest.unit) then
                     return true
@@ -1046,8 +1150,13 @@ local function runRotation()
     end -- end healing
 
     if isChecked("Sunking") and lowest.hp >= getValue("Critical HP") then
-        if GetObjectID("target") == 165759 and inCombat then
+        if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577) and inCombat then
             if getHP("target") < 100 then
+                if not buff.beaconOfLight.exists("target") then 
+                    if cast.beaconOfLight("target") then
+                        return true
+                    end
+                end
                 if holyPower >= 3 or buff.divinePurpose.exists() then 
                     if cast.wordOfGlory("target") then
                         return true
@@ -1056,7 +1165,7 @@ local function runRotation()
                 if cast.holyShock("target") then
                     return true
                 end
-                if cast.holyLight("target") then
+                if cast.flashOfLight("target") then
                     return true
                 end
             end
@@ -1093,60 +1202,66 @@ local function runRotation()
                 end
             end
             if inCombat and not UnitBuffID("player", 115834) then
-                if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
-                    if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
-                        if cast.blessingOfFreedom("boss1target") then return true end
+                if isChecked("Hard DPS Key") and (SpecificToggle("Hard DPS Key") and not GetCurrentKeyBoardFocus()) then
+                    if bigDPS() then
+                        return true
                     end
-                    if hasNoControl(spell.blessingOfFreedom) then
-                        if cast.blessingOfFreedom("player") then
-                            return true
+                elseif not isChecked("Hard DPS Key") or not (SpecificToggle("Hard DPS Key") and not GetCurrentKeyBoardFocus()) then
+                    if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
+                        if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
+                            if cast.blessingOfFreedom("boss1target") then return true end
+                        end
+                        if hasNoControl(spell.blessingOfFreedom) then
+                            if cast.blessingOfFreedom("player") then
+                                return true
+                            end
                         end
                     end
-                end
-                if spendies() then
-                    return
-                end
-
-                if useCDs() then
-                    if Coolies() then
+                    if spendies() then
                         return
                     end
-                end
 
-                if mode.wrath == 1 then
-                    for i = 1, #enemies.yards30 do
-                        thisUnit = enemies.yards30[i]
-                        if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and holyPower < 5 and lowest.hp >= getValue("Critical HP") then
-                            if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
-                                if cast.hammerOfWrath(thisUnit) then
-                                    return true
+                    if useCDs() then
+                        if Coolies() then
+                            return
+                        end
+                    end
+
+                    if mode.wrath == 1 then
+                        for i = 1, #enemies.yards30 do
+                            thisUnit = enemies.yards30[i]
+                            if (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and holyPower < 5 and lowest.hp >= getValue("Critical HP") then
+                                if getHP(thisUnit) < 20 or buff.avengingWrath.exists("player") then
+                                    if cast.hammerOfWrath(thisUnit) then
+                                        return true
+                                    end
                                 end
                             end
                         end
                     end
-                end
 
-                if defensiveTime() then
-                    return
-                end
-
-                if bellsAndWhistles() then
-                    return
-                end
-
-                if mode.beacon ~= 4 and not talent.beaconOfVirtue then
-                    if Beacon() then
+                    if defensiveTime() then
                         return
                     end
-                end
 
-                if healingTime() then
-                    return
-                end
-
-                if not isChecked("Hard Lock Crit Heal") or lowest.hp > getValue("Critical HP") then
-                    if damageTime() then
+                    if bellsAndWhistles() then
                         return
+                    end
+
+                    if mode.beacon ~= 4 and not talent.beaconOfVirtue then
+                        if Beacon() then
+                            return
+                        end
+                    end
+
+                    if healingTime() then
+                        return
+                    end
+
+                    if not isChecked("Hard Lock Crit Heal") or lowest.hp > getValue("Critical HP") then
+                        if damageTime() then
+                            return
+                        end
                     end
                 end
             end

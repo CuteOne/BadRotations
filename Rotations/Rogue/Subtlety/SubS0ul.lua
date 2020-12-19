@@ -1,6 +1,6 @@
 local rotationName = "SubS0ul - 9.0"
 local dotBlacklist = ""
-local stunSpellList = "332329|332671|326450|328177|336451|331718|331743"
+local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|164737"
 local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612"
 ---------------
 --- Toggles ---
@@ -590,8 +590,8 @@ local function runRotation()
                         if cast.blind(interrupt_target) then return end
                     end
                 end
-                if isChecked("Stuns") and distance < 5 and isCrowdControlCandidates(interrupt_target) and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target) 
-                 and not isBoss(interrupt_target) and noStunList[GetObjectID(interrupt_target)] == nil then
+                if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
+                 and noStunList[GetObjectID(interrupt_target)] == nil then -- and not isBoss(interrupt_target)
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
@@ -601,7 +601,7 @@ local function runRotation()
                         interruptID = select(7,GetSpellInfo(UnitChannelInfo(interrupt_target)))
                     end
                     if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
-                        if stealthedAll then
+                        if cast.able.cheapShot() then
                             if cast.cheapShot(interrupt_target) then return true end
                         elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
                             if cast.kidneyShot(interrupt_target) then return true end
@@ -690,7 +690,7 @@ local function runRotation()
         if debuff.flagellation.remain("target") < 2 and debuff.flagellation.exists("target") and cast.able.flagellationCleanse("target") then
             if cast.flagellationCleanse("target") then return true end
         end
-        -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin.equipped&combo_points.deficit<=1-talent.deeper_strategem.enabled|runeforge.deathly_shadows.equipped&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
+        -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin&combo_points.deficit<=1-talent.deeper_strategem.enabled|runeforge.deathly_shadows&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
         if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.equiped and comboDeficit <= (1 - dSEnabled) or runeforge.deathlyShadows.equiped and combo < 1) 
          and buff.symbolsOfDeath.exists() and buff.shadowDance.exists() and not buff.masterAssassinsMark.exists() and not buff.deathlyShadows.exists() then
             if cast.vanish("player") then return true end
@@ -793,7 +793,7 @@ local function runRotation()
         local skipRupture = (buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
         -- # Keep up Rupture if it is about to run out. Don't ruptre if they die faster than debuff.
         -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
-        if not skipRupture and ttd("target") >= (5 + 2 * combo) and debuff.rupture.refresh("target") and shallWeDot("target") then
+        if (not skipRupture or priorityRotation) and ttd("target") >= (5 + 2 * combo) and debuff.rupture.refresh("target") and shallWeDot("target") then
             if cast.rupture("target") then return true end
         end
         -- actions.finish+=/secret_technique
@@ -893,6 +893,8 @@ local function runRotation()
         if (buff.shurikenTornado.exists() and comboDeficit <= 2) or (enemies10 >= 4 and combo >= 4) or (comboDeficit <= (1 - finishThd)) then
             if actionList_Finishers() then return true end
         end
+---------------------------WTF IS STEALTHED SEPSIS
+        -- actions.stealthed+=/shadowstrike,if=stealthed.sepsis&spell_targets.shuriken_storm<4
         -- actions.stealthed+=/shiv,if=talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped&spell_targets.shuriken_storm<5
         if talent.nightstalker and runeforge.tinyToxicBlade.equiped and enemies10 < 5 then
             if cast.shiv("target") then return true end
@@ -902,10 +904,9 @@ local function runRotation()
         if level < 52 and debuff.findWeakness.remain("target") < 1 and ttd("target") > 6 then
             if cast.shadowstrike("target") then return true end
         end
-        -- # Up to 3 targets keep up Find Weakness by cycling Shadowstrike.
-        -- cycle_targets=1,if=debuff.find_weakness.remains<1&spell_targets.shuriken_storm<=3&target.time_to_die-remains>6
-        -- actions.stealthed+=/shadowstrike,cycle_targets=1,if=debuff.find_weakness.remains<1&spell_targets.shuriken_storm<=3&target.time_to_die-remains>6
-        if enemies10 <= 3 then
+        -- # Up to 3 targets (no prio) keep up Find Weakness by cycling Shadowstrike.
+        -- actions.stealthed+=/shadowstrike,cycle_targets=1,if=!variable.use_priority_rotation&debuff.find_weakness.remains<1&spell_targets.shuriken_storm<=3&target.time_to_die-remains>6
+        if enemies10 <= 3 and not priorityRotation then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 if debuff.findWeakness.remain(thisUnit) < 1 and ttd(thisUnit) > 6 then
@@ -944,6 +945,10 @@ local function runRotation()
         -- actions.stealthed+=/shadowstrike
         if cast.able.shadowstrike() then
             if cast.shadowstrike("target") then return true end
+        end
+        -- actions.stealthed+=/cheap_shot,if=!target.is_boss&combo_points.deficit>=1&buff.shot_in_the_dark.up&energy.time_to_40>gcd.max
+        if cast.able.cheapShot() and isBoss() and comboDeficit >= 1 and buff.shotInTheDark.exists() and getTimeToMax("player", 40) > gcdMax then
+            if cast.cheapShot("target") then return true end
         end
     end
 
