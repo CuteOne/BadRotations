@@ -784,6 +784,7 @@ local function runRotation()
     local hasteAmount = GetHaste() / 100
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
     local freeMana = buff.innervate.exists() or buff.symbolOfHope.exists()
+    local x = 0
 
     units.get(5)
     units.get(8)
@@ -2364,7 +2365,7 @@ local function runRotation()
             local kill_boss
             local bloom_count_max = 0
 
-            if inCombat and not cast.last.lifebloom(1) and isChecked("Lifebloom") then
+            if inCombat and not cast.last.lifebloom() and isChecked("Lifebloom") then
                 if using_lifebloom then
                     br.addonDebug("Lifebloom in use for boss mechanics - skipping")
                     return true
@@ -2372,7 +2373,7 @@ local function runRotation()
                     if runeforge.theDarkTitansLesson.equiped then
                         if not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
                             if cast.lifebloom("player") then
-                                br.addonDebug("[BLOOM][DT][PS] Lifebloom on player")
+                                br.addonDebug("[BLOOM][DT] Lifebloom on player")
                                 return true
                             end
                         end
@@ -2406,7 +2407,7 @@ local function runRotation()
                                 br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                             end
                         end
-                        if raid_bloom_target == "none" or raid_bloom_target == "tank" then
+                        if raid_bloom_target == "none" or raid_bloom_target == "tank" and (GetTime() - x) > 10 then
                             if #tanks > 0 then
                                 for i = 1, #tanks do
                                     --if not focus, check critical health on tanks
@@ -2438,6 +2439,7 @@ local function runRotation()
                                 and (not buff.lifebloom.exists(raid_bloom_target) or (buff.lifebloom.exists(raid_bloom_target) and buff.lifebloom.remain(raid_bloom_target) < 4.5)) then
                             if cast.lifebloom(raid_bloom_target) then
                                 -- I want to set a timer here
+                                x = GetTime()
                                 return true
                             end
                         end
