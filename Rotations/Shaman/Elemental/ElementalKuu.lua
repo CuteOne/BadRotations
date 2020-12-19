@@ -197,7 +197,7 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+        local falling, swimming, flying                     = getFallTime(), IsSwimming(), IsFlying()
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
         local hastar                                        = GetObjectExists("target")
@@ -278,6 +278,8 @@ local function runRotation()
                 flameShockCount = flameShockCount + 1
             end
         end
+
+        local moving = not isMoving("player") and not IsFalling() or (isMoving("player") and buff.spiritwalkersGrace.exists("player"))
        
 --------------------
 --- Action Lists ---
