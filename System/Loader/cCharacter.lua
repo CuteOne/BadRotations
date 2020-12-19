@@ -183,9 +183,10 @@ function cCharacter:new(class)
 
 	function self.tankAggro()
 		if self.instance=="raid" or self.instance=="party" then
-			if getTanksTable() ~= nil then
-				for i = 1, #getTanksTable() do
-					if UnitAffectingCombat(getTanksTable()[i].unit) and getTanksTable()[i].distance < 40 then
+			local tanksTable = getTanksTable()
+			if tanksTable ~= nil then
+				for i = 1, #tanksTable do
+					if UnitAffectingCombat(tanksTable[i].unit) and tanksTable[i].distance < 40 then
 						return true
 					end
 				end

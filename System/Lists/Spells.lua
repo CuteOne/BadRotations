@@ -2828,6 +2828,9 @@ br.lists.spells = {
                 celerity                    = 340087,
                 concealedBlunderbuss        = 340088,
             },
+            conduits                        = {
+                countTheOdds                = 341546,
+            },
         },
         -- Subtlety
         [261] = {

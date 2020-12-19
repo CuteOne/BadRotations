@@ -199,7 +199,7 @@ actionList.Extras = function()
     -- Misdirection
     if ui.mode.misdirection == 1 then
         local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 then
+        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
                 local tankInRange, tankUnit = isTankInRange()
@@ -276,7 +276,7 @@ actionList.Interrupts = function()
         for i=1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             local distance = unit.distance(thisUnit)
-            if canInterrupt(thisUnit,ui.value("Interrupts")) then
+            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 if distance < 50 then
                     -- Counter Shot
                     if ui.checked("Counter Shot") then
@@ -587,7 +587,7 @@ actionList.PreCombat = function()
         -- Summon Pet
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
-        if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage") then
+        if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage if OOC") then
             -- Tar Trap
             -- tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
