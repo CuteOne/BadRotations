@@ -898,18 +898,7 @@ local function runRotation()
 
         local is_aoe = #enemies.yards45 > 1 or false
         local current_eclipse = "none"
-
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
-
-        if not eclipse_in then
-            if GetSpellCount(5176) > 0 and GetSpellCount(197628) == 0 then
-                eclipse_next = "lunar"
-            elseif GetSpellCount(5176) == 0 and GetSpellCount(197628) > 0 then
-                eclipse_next = "solar"
-            elseif GetSpellCount(5176) > 0 and GetSpellCount(197628) > 0 then
-                eclipse_next = "any"
-            end
-        end
 
 
 
@@ -996,37 +985,20 @@ local function runRotation()
             end
         end
 
-        if cast.able.wrath(units.dyn45) and buff.eclipse_solar.exists() or eclipse_next == "lunar" then
-            if cast.wrath(units.dyn45) then
-                if not eclipse_in then
-                    starfire_counter = 0
-                    wrath_counter = wrath_counter + 1
-                end
-                return true
-            end
+        if buff.eclipse_solar.exists() then
+            eclipse_next = "lunar"
+        end
+        if buff.eclipse_lunar.exists() then
+            eclipse_next = "solar"
         end
 
-        if cast.able.starfire(units.dyn45) then
-            if cast.starfire(units.dyn45) then
-                if not eclipse_in then
-                    starfire_counter = starfire_counter + 1
-                    wrath_counter = 0
-                end
-                return true
-            end
-        end
-
-        if cast.able.starsurge(units.dyn45) and eclipse_in then
-            if cast.starsurge(units.dyn45) then
-                return true
-            end
-        end
+        -- Print("Next Eclipse should be: " .. eclipse_next)
 
         if is_aoe then
             -- AOE
             if cast.able.wrath()
                     and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_aoe)
-                    or eclipse_in and buff.eclipse_solar.exists()
+                    or buff.eclipse_solar.exists()
             then
                 if cast.wrath(units.dyn45) then
                     return true
@@ -1040,7 +1012,7 @@ local function runRotation()
         else
             -- ST
             if cast.able.starfire() then
-                if (eclipse_in and current_eclipse == "lunar")
+                if buff.eclipse_lunar.exists()
                         or (not eclipse_in and eclipse_next == "solar")
                         or (not eclipse_in and eclipse_next == "any")
                 then
@@ -2630,7 +2602,7 @@ local function runRotation()
 
 
             --Efflorescence
-            if isChecked("Efflorescence") then
+            if isChecked("Efflorescence") and inCombat then
                 if inInstance and talent.springblossom then
                     if inCombat and #tanks > 0 and botSpell ~= spell.efflorescence and not buff.springblossom.exists(tanks[1].unit) and GetTotemTimeLeft(1) < 20 then
                         local tankTarget = UnitTarget(tanks[1].unit)
@@ -2650,7 +2622,7 @@ local function runRotation()
                             end
                         end
                     end
-                else
+                elseif #br.friend > 1 then
                     if cast.able.efflorescence(7) and GetTotemTimeLeft(1) < 20 then
                         if castWiseAoEHeal(br.friend, spell.efflorescence, 10, 100, 1, 5, true, false) then
                             return true
