@@ -208,9 +208,12 @@ local function runRotation()
     local player = {
         hp = br.player.health,
         unit = "player",
-        moving = isMoving("player"),
         mana = br.player.power.mana.percent(),
-        race = br.player.unit.race()
+        race = br.player.unit.race(),
+        isFlying = IsFlying(),
+        isMounted = IsMounted(),
+        isMoving = isMoving("player"),
+        isDrinking = getBuffRemain("player", 308433) > 0
     }
     -- Q
     -- R
@@ -240,6 +243,12 @@ local function runRotation()
     -- X
     -- Z
     -- local functions
+     local detailedDebugger = function (msg)
+        if false then
+            br.addonDebug(msg)
+        end
+     end
+
     local castRisingSunKick = function()
         if cd.risingSunKick.ready() and dynamicTarget.range5 ~= nil and cast.able.risingSunKick(dynamicTarget.range5) then
             if cast.risingSunKick(dynamicTarget.range5) then
@@ -288,8 +297,11 @@ local function runRotation()
         local doDamage3Targets = function()
             if dynamicTarget.range5 ~= nil and #enemies.range8 == 3 then
                 -- Rising Sun Kick on cooldown
-                if castRisingSunKick() then
+                local risingSunKick = castRisingSunKick()
+                if risingSunKick == true then
                     return true
+                elseif risingSunKick == false then
+                    return false
                 end
                 -- Blackout Kick at any stacks
                 if cast.able.blackoutKick() and cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() > 1 then
@@ -314,8 +326,11 @@ local function runRotation()
         local doDamageST = function()
             if dynamicTarget.range5 ~= nil then
                 -- Rising Sun Kick on cooldown
-                if castRisingSunKick() then
+                local risingSunKick = castRisingSunKick()
+                if risingSunKick == true then
                     return true
+                elseif risingSunKick == false then
+                    return false
                 end
                 -- Blackout Kick at 3 stacks
                 if cast.able.blackoutKick() and cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 then
@@ -337,7 +352,7 @@ local function runRotation()
                     ui.checked(variables.sectionValues.cracklingJadeLightning) and cast.able.cracklingJadeLightning() and
                         cd.cracklingJadeLightning.ready()
                  then
-                    if dynamicTarget.range40 ~= nil and not player.moving then
+                    if dynamicTarget.range40 ~= nil and not player.isMoving then
                         if cast.cracklingJadeLightning(dynamicTarget.range40) then
                             br.addonDebug(colors.yellow .. "[Crackling Jade Lightning]: " .. UnitName(dynamicTarget.range40))
                             return true
@@ -365,6 +380,7 @@ local function runRotation()
     end
 
     local doHealing = function()
+        detailedDebugger("----INIT : doHealing-----")
         local countEnvelopingBreathHot = function()
             local count = 0
             for i = 1, #friends.range40 do
@@ -408,6 +424,8 @@ local function runRotation()
             end
         end
 
+        -- AOE Revival
+        detailedDebugger("---- AOE Revival : doHealing-----")
         if ui.checked(variables.sectionValues.revival) and cd.revival.ready() and friends.lowAllies.revival >= ui.value(variables.sectionValues.revivalTargets) and cast.able.revival() then
             if cast.revival() then
                 br.addonDebug(colors.green .. "[Revival]: Allies under " .. ui.value(variables.sectionValues.revival) .. ": " .. friends.lowAllies.revival)
@@ -417,6 +435,8 @@ local function runRotation()
                 return false
             end
         end
+        -- AOE Yulon
+        detailedDebugger("---- AOE Yulon : doHealing-----")
         if ui.checked(variables.sectionValues.invokeYulon) and cd.invokeYulonTheJadeSerpent.ready() and friends.lowAllies.invokeYulon >= ui.value(variables.sectionValues.invokeYulonTargets) and cast.able.invokeYulonTheJadeSerpent() then
             if cast.invokeYulonTheJadeSerpent() then
                 br.addonDebug(colors.green .. "[Invoke Yu'lon]: Allies under " ..ui.value(variables.sectionValues.invokeYulon) .. ": " .. friends.lowAllies.invokeYulon)
@@ -426,6 +446,8 @@ local function runRotation()
                 return false
             end
         end
+        -- AOE Enveloping Breath
+        detailedDebugger("---- AOE Enveloping Breath : doHealing-----")
         if friends.lowAllies.yulonEnvelopingBreath >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and cd.envelopingMist.ready()
             and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() and countEnvelopingBreathHot() <= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and cast.able.envelopingMist(friends.lowest.unit) then
             if cast.envelopingMist(friends.lowest.unit) then
@@ -436,6 +458,8 @@ local function runRotation()
                 return false
             end
         end
+        -- AOE Essence Font
+        detailedDebugger("---- AOE Essence Font : doHealing-----")
         if ui.checked(variables.sectionValues.essenceFont) and cd.essenceFont.ready() and friends.lowAllies.essenceFont >= ui.value(variables.sectionValues.essenceFontTargets) and cast.able.essenceFont() then
             if cast.essenceFont() then
                 br.addonDebug(colors.green .. "[Essence Font]: Allies under " ..ui.value(variables.sectionValues.essenceFont) .. ": " .. friends.lowAllies.essenceFont)
@@ -445,8 +469,10 @@ local function runRotation()
                 return false
             end
         end
+        -- AOE Vivify
+        detailedDebugger("---- AOE Vivify : doHealing-----")
         if cast.active.soothingMist() and variables.lastSoothingMist and friends.lowest.unit == variables.lastSoothingMist.unit and
-            buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify)
+            buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and #friends.range40 >= 3
             and ((buff.renewingMist.exists(friends.range40[2].unit) and friends.range40[2].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10 )
             or (buff.renewingMist.exists(friends.range40[3].unit) and friends.range40[3].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10)) and  cast.able.vivify(friends.lowest.unit) then
                 if cast.vivify(friends.lowest.unit) then
@@ -458,6 +484,8 @@ local function runRotation()
                 end
         end
         -- Single Target Healing
+        -- ST Life Cocoon
+        detailedDebugger("---- ST Life Cocoon : doHealing-----")
         if ui.checked(variables.sectionValues.lifeCocoon) and friends.lowest.hp <= ui.value(variables.sectionValues.lifeCocoon) and cd.lifeCocoon.ready() and cast.able.lifeCocoon() then
             if cast.lifeCocoon(friends.lowest.unit) then
                 br.addonDebug(colors.green .. "[Life Cocoon]:" .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
@@ -467,6 +495,8 @@ local function runRotation()
                 return false
             end
         end
+        -- ST Detox
+        detailedDebugger("---- ST Detox : doHealing-----")
         if ui.mode.detox == 1 and cd.detox.ready() and not cast.last.detox(1) and cast.able.detox() then
             for i = 1, #friends.range40 do
                 local dispelUnit = friends.range40[i]
@@ -481,6 +511,8 @@ local function runRotation()
                 end
             end
         end
+        -- ST Healing Elixir
+        detailedDebugger("---- ST Healing Elixir : doHealing-----")
         if ui.checked(variables.sectionValues.healingElixir) and cd.healingElixir.ready() and player.hp <= ui.value(variables.sectionValues.healingElixir) and cast.able.healingElixir(player.unit) and (not cast.last.healingElixir(1) and not cast.last.healingElixir(2)) then
             if cast.healingElixir(player.unit) then
                 br.addonDebug(colors.green .. "[Healing Elixir]:" .. UnitName(player.unit) .. " at: " .. round2(player.hp + lowMana, 2) .. "%")
@@ -491,6 +523,7 @@ local function runRotation()
             end
         end
         -- REFACTOR TODO
+        detailedDebugger("----TFT : doHealing-----")
         if cast.able.thunderFocusTea() and cd.thunderFocusTea.ready() then
             if ui.mode.thunderFocusTea == 1 then -- Auto
                 if cast.able.envelopingMist() and getLowAllies(70) < 3 and friends.lowest.hp + lowMana < 50 then -- Enveloping Mist
@@ -583,25 +616,37 @@ local function runRotation()
                     return true
                 end
             elseif ui.mode.thunderFocusTea == 5 or variables.thunderFocusTea == 5 then -- Rising Sun Kick
-                if castRisingSunKick() then
+                local risingSunKick = castRisingSunKick()
+                if risingSunKick == true then
                     variables.thunderFocusTea = nil
                     return true
+                elseif risingSunKick == false then
+                    return false
                 end
             end
+            br.addonDebug(colors.red .. "[TFT]: Failed")
             return false
         end
+        -- TALENT Rising Sun Kick
+        detailedDebugger("----TALENT Rising Sun Kick : doHealing-----")
         if dynamicTarget.range5 ~= nil and cd.risingSunKick.ready() and talent.risingMist and cast.able.risingSunKick(dynamicTarget.range5) then
             if cast.last.essenceFont(1) or cast.last.envelopingMist(1) or (cast.last.thunderFocusTea(2) and cast.last.risingSunKick(1)) then
-                if castRisingSunKick() then
+                local risingSunKick = castRisingSunKick()
+                if risingSunKick == true then
                     return true
-                else
+                elseif risingSunKick == false then
                     return false
                 end
             end
         end
-        if castRenewingMist() then
+        detailedDebugger("----ST Renewing Mist : doHealing-----")
+        -- ST Renewing Mist
+        local renewingMist = castRenewingMist()
+        if renewingMist == true or renewingMist == false then
             return true
         end
+        detailedDebugger("----TALENT Summon Jade Serpent Statue : doHealing-----")
+        -- TALENT Summon Jade Serpent Statue
         if talent.summonJadeSerpentStatue and cd.summonJadeSerpentStatue.ready() and cast.able.summonJadeSerpentStatue() then
             local distanceToStatue = getDistanceToObject("player", variables.statue.x, variables.statue.y, variables.statue.z)
             if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
@@ -619,12 +664,16 @@ local function runRotation()
                 end
             end
         end
-        if cast.active.soothingMist() and variables.lastSoothingMist ~= nil and variables.lastSoothingMist.hp + lowMana >= 95 and variables.lastSoothingMist.unit ~= friends.lowest.unit then
+        detailedDebugger("----CANCEL Soothing Mist : doHealing-----")
+        -- CANCEL Soothing Mist
+        if cast.active.soothingMist() and variables.lastSoothingMist ~= nil and variables.lastSoothingMist.hp + lowMana >= 95 and variables.lastSoothingMist.unit == friends.lowest.unit then
             if cast.cancel.soothingMist() then
                 br.addonDebug(colors.red .. "CANCELED: [Soothing Mist]: " .. UnitName(variables.lastSoothingMist.unit) .. " at: " .. round2(variables.lastSoothingMist.hp + lowMana, 2) .. "%" )
             end
         end
-        if cd.soothingMist.ready() and not player.moving and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMist) and cast.able.soothingMist() then
+        detailedDebugger("----ST Soothing Mist : doHealing-----")
+        -- ST Soothing Mist
+        if cd.soothingMist.ready() and not player.isMoving and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMist) and cast.able.soothingMist() then
             if cast.soothingMist(friends.lowest.unit) then
                 variables.lastSoothingMist = {
                     unit = friends.lowest.unit,
@@ -632,41 +681,53 @@ local function runRotation()
                 }
                 br.addonDebug(colors.green .. "[Soothing Mist]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%" )
                 return true
+            else
+                br.addonDebug(colors.red .. "[Soothing Mist]: Failed")
+                return false
             end
         end
-        if not player.moving and cast.active.soothingMist() and friends.lowest.unit == variables.lastSoothingMist.unit then
-            -- expel harm
+        detailedDebugger("----ST Soothing Mist Insta Casts : doHealing-----")
+        -- ST Soothing Mist Insta Casts
+        if not player.isMoving and cast.active.soothingMist() and friends.lowest.unit == variables.lastSoothingMist.unit then
+            -- ST Expel Harm
             if  cd.expelHarm.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistExpelHarm) and cast.able.expelHarm() then
-                if cast.expelHarm() then
+                if cast.expelHarm("player") then
                     br.addonDebug(colors.green .. "[Expel Harm]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%" )
                     return true
+                else
+                    br.addonDebug(colors.red .. "[Expel Harm]: Failed")
+                    return false
                 end
             end
-
-            -- enveloping mist 80.67%
+            -- ST Enveloping Mist
             if cd.envelopingMist.ready() and buff.envelopingMist.remains(friends.lowest.unit) < 2 and (friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistEnvelopingMist) or (friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistEnvelopingMist) + 10 and buff.lifeCyclesEnvelopingMist.exists())) and cast.able.envelopingMist() then
                 if cast.envelopingMist(friends.lowest.unit) then
                     br.addonDebug(colors.green .. "[Enveloping Mist]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%" )
                     return true
+                else
+                    br.addonDebug(colors.red .. "[Enveloping Mist]: Failed")
+                    return false
                 end
             end
-
-            -- vivify
+            -- ST Vivify
             if cd.vivify.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and (buff.envelopingMist.remains(friends.lowest.unit) < 2 or friends.lowest.hp <= 50) and cast.able.vivify() then
                 if cast.vivify(friends.lowest.unit) then
                     br.addonDebug(colors.green .. "[Vivify]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
                     return true
                 else
                     br.addonDebug(colors.red .. "[Vivify]: Failed")
+                    return false
                 end
             end
 
             if friends.lowest.hp <= 90 then
+                br.addonDebug(colors.red .. "[Soothing Mist]: Continue")
                 return false -- return false to not cancel soothing mist to dps
             end
-        else
-            return nil
         end
+
+        detailedDebugger("----END : doHealing-----")
+        return nil
     end
 
     local doInterrupt = function()
@@ -707,6 +768,10 @@ local function runRotation()
         end -- End Interrupt Check
     end
 
+    if pause(true) or player.isMounted or player.isFlying or player.isDrinking then
+        return true
+    end
+
     br.player.module.BasicHealing()
 
     if br.player.inCombat and not cast.active.essenceFont() then
@@ -732,13 +797,14 @@ local function runRotation()
             end
         end
 
-        if doInterrupt() then
-            return true
-        end
         local healing = doHealing() -- will return nil if no healing was done
         if healing == true or healing == false then
             return true
-        elseif doDamage() then
+        end
+        if doInterrupt() then
+            return true
+        end
+        if doDamage() then
             return true
         end
         return false
