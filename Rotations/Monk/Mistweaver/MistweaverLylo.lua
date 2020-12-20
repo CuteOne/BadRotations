@@ -209,6 +209,7 @@ local function runRotation()
     }
     friends.lowAllies = {
         essenceFont = getLowAlliesInTable(ui.value(variables.sectionValues.essenceFont) + lowMana, friends.range30),
+        essenceFontOoc = getLowAlliesInTable(ui.value(variables.sectionValues.outOfCombat.essenceFont) + lowMana, friends.range30),
         revival = getLowAlliesInTable(ui.value(variables.sectionValues.revival) + lowMana, friends.range40),
         invokeYulon = getLowAlliesInTable(ui.value(variables.sectionValues.invokeYulon) + lowMana, friends.range40),
         weaponsOfOrder = getLowAlliesInTable(ui.value(variables.sectionValues.weaponsOfOrder) + lowMana, friends.range40)
@@ -279,6 +280,38 @@ local function runRotation()
             end
         end
     end   
+
+    local castRenewingMist = function(hpThreshhold)
+        local renewingMistUnit = nil
+        for i = 1, #tanks do
+            local tempUnit = tanks[i]
+            if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshhold then
+                renewingMistUnit = tempUnit
+            end
+        end
+        if renewingMistUnit == nil then
+            for i = 1, #friends.range40 do
+                local tempUnit = friends.range40[i]
+                if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshhold then
+                    renewingMistUnit = tempUnit
+                end
+            end
+        end
+        if renewingMistUnit == nil then
+            if not buff.renewingMist.exists(player.unit) and player.hp + lowMana <= hpThreshhold then
+                renewingMistUnit = player
+            end
+        end
+        if renewingMistUnit ~= nil and cast.able.renewingMist(renewingMistUnit.unit) then
+            if cast.renewingMist(renewingMistUnit.unit) then
+                br.addonDebug(colors.green .. "[Renewing Mist]: " .. UnitName(renewingMistUnit.unit) .. " at: " .. round2(renewingMistUnit.hp + lowMana, 2) .. "%" )
+                return true
+            else
+                br.addonDebug(colors.red .. "[Renewing Mist]: Failed")
+                return false
+            end
+        end
+    end
 
     local doDamage = function()
         local doDamageAOE = function()
@@ -385,37 +418,6 @@ local function runRotation()
 
     local doHealing = function()
         detailedDebugger("----INIT : doHealing-----")
-        local castRenewingMist = function()
-            local renewingMistUnit = nil
-            for i = 1, #tanks do
-                local tempUnit = tanks[i]
-                if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= ui.value(variables.sectionValues.renewingMist) then
-                    renewingMistUnit = tempUnit
-                end
-            end
-            if renewingMistUnit == nil then
-                for i = 1, #friends.range40 do
-                    local tempUnit = friends.range40[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= ui.value(variables.sectionValues.renewingMist) then
-                        renewingMistUnit = tempUnit
-                    end
-                end
-            end
-            if renewingMistUnit == nil then
-                if not buff.renewingMist.exists(player.unit) and UnitInRange(player.unit) and player.hp + lowMana <= ui.value(variables.sectionValues.renewingMist) then
-                    renewingMistUnit = player
-                end
-            end
-            if renewingMistUnit ~= nil and cast.able.renewingMist(renewingMistUnit.unit) then
-                if cast.renewingMist(renewingMistUnit.unit) then
-                    br.addonDebug(colors.green .. "[Renewing Mist]: " .. UnitName(renewingMistUnit.unit) .. " at: " .. round2(renewingMistUnit.hp + lowMana, 2) .. "%" )
-                    return true
-                else
-                    br.addonDebug(colors.red .. "[Renewing Mist]: Failed")
-                    return false
-                end
-            end
-        end
 
         -- AOE Revival
         detailedDebugger("---- AOE Revival : doHealing-----")
@@ -470,7 +472,8 @@ local function runRotation()
         if cast.active.soothingMist() and variables.lastSoothingMist and friends.lowest.unit == variables.lastSoothingMist.unit and
             buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and #friends.range40 >= 3
             and ((buff.renewingMist.exists(friends.range40[2].unit) and friends.range40[2].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10 )
-            or (buff.renewingMist.exists(friends.range40[3].unit) and friends.range40[3].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10)) and  cast.able.vivify(friends.lowest.unit) then
+            or (buff.renewingMist.exists(friends.range40[3].unit) and friends.range40[3].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10)) and cast.able.vivify(friends.lowest.unit) 
+        then
                 if cast.vivify(friends.lowest.unit) then
                     br.addonDebug(colors.green .. "[Vivify AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "% " .. UnitName(friends.range40[2].unit) .. " at: " .. round2(friends.range40[2].hp, 2) .. "%  " .. UnitName(friends.range40[3].unit) .. " at: " .. round2(friends.range40[3].hp, 2) .. "%")
                     return true
@@ -607,7 +610,7 @@ local function runRotation()
                     br.addonDebug(colors.red .. "[Vivify TFT]: Failed")
                 end
             elseif ui.mode.thunderFocusTea == 4 or variables.thunderFocusTea == 4 then -- Renewing Mist
-                if castRenewingMist() then
+                if castRenewingMist(ui.value(variables.sectionValues.renewingMist)) then
                     variables.thunderFocusTea = nil
                     return true
                 end
@@ -637,7 +640,7 @@ local function runRotation()
         end
         detailedDebugger("----ST Renewing Mist : doHealing-----")
         -- ST Renewing Mist
-        local renewingMist = castRenewingMist()
+        local renewingMist = castRenewingMist(ui.value(variables.sectionValues.renewingMist))
         if renewingMist == true or renewingMist == false then
             return true
         end
@@ -724,6 +727,40 @@ local function runRotation()
 
         detailedDebugger("----END : doHealing-----")
         return nil
+    end
+
+    local doHealingOutOfCombat = function()
+        detailedDebugger("----INIT : doHealingOutOfCombat-----")
+        detailedDebugger("---- OOC AOE Essence Font : doHealingOutOfCombat-----")
+        if ui.checked(variables.sectionValues.outOfCombat.essenceFont) and cd.essenceFont.ready() and friends.lowAllies.essenceFontOoc >= ui.value(variables.sectionValues.outOfCombat.essenceFontTargets) and cast.able.essenceFont() then
+            if cast.essenceFont() then
+                br.addonDebug(colors.green .. "[OOC Essence Font]: Allies under " ..ui.value(variables.sectionValues.outOfCombat.essenceFont) .. ": " .. ui.value(variables.sectionValues.outOfCombat.essenceFontTargets))
+                return true
+            else
+                br.addonDebug(colors.red .. "[OOC Essence Font]: Failed")
+                return false
+            end
+        end
+        detailedDebugger("----OOC ST Renewing Mist : doHealingOutOfCombat-----")
+        if ui.checked(variables.sectionValues.outOfCombat.renewingMist) then
+            local renewingMist = castRenewingMist(ui.value(variables.sectionValues.outOfCombat.renewingMist))
+            if renewingMist == true or renewingMist == false then
+                return true
+            end
+        end
+        detailedDebugger("----OOC ST Vivify : doHealingOutOfCombat-----")
+        if ui.checked(variables.sectionValues.outOfCombat.vivify) and cd.vivify.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.outOfCombat.vivify)
+            and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.vivify() 
+        then
+            if cast.vivify(friends.lowest.unit) then
+                br.addonDebug(colors.green .. "[Vivify]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
+                return true
+            else
+                br.addonDebug(colors.red .. "[Vivify]: Failed")
+                return false
+            end
+        end
+        detailedDebugger("----END : doHealingOutOfCombat-----")
     end
 
     local doInterrupt = function()
@@ -825,6 +862,12 @@ local function runRotation()
             return true
         end
         if doDamage() then
+            return true
+        end
+        return false
+
+    elseif not br.player.inCombat then
+        if doHealingOutOfCombat() then
             return true
         end
         return false
