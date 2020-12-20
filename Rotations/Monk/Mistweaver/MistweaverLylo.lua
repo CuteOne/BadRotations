@@ -44,6 +44,12 @@ local variables = {
         legSweep                        = "Leg Sweep",
         ringOfPeace                     = "Ring of Peace",
         interruptAt                     = "Interrupt At",
+        outOfCombat                     = {
+            vivify                      = "OOC - Vivify",
+            renewingMist                = "OOC - Renewing Mist",
+            essenceFont                 = "OOC - Essence Font",
+            essenceFontTargets          = "OOC - Essence Font targets"
+        },
         version                         = "1.2.2"
     }
 }
@@ -100,6 +106,13 @@ local function createOptions()
         br.ui:createSpinnerWithout( section,    variables.sectionValues.essenceFontTargets,           3,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.weaponsOfOrder,               60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.weaponsOfOrderTargets,        2,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
+        br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, "Out Of Combat Heal Options")
+        br.ui:createSpinner(        section,    variables.sectionValues.outOfCombat.vivify,             90, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 90 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.outOfCombat.renewingMist,       95, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 95 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.outOfCombat.essenceFont,        90, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 90 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.outOfCombat.essenceFontTargets, 3,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "DPS Options")
@@ -198,7 +211,6 @@ local function runRotation()
         essenceFont = getLowAlliesInTable(ui.value(variables.sectionValues.essenceFont) + lowMana, friends.range30),
         revival = getLowAlliesInTable(ui.value(variables.sectionValues.revival) + lowMana, friends.range40),
         invokeYulon = getLowAlliesInTable(ui.value(variables.sectionValues.invokeYulon) + lowMana, friends.range40),
-        yulonEnvelopingBreath = getLowAlliesInTable(ui.value(variables.sectionValues.yulonEnvelopingBreath) + lowMana, friends.range40),
         weaponsOfOrder = getLowAlliesInTable(ui.value(variables.sectionValues.weaponsOfOrder) + lowMana, friends.range40)
     }
     -- G
@@ -371,19 +383,10 @@ local function runRotation()
         end
     end
 
+    print(getDistance("player","target"))
+
     local doHealing = function()
         detailedDebugger("----INIT : doHealing-----")
-        local countEnvelopingBreathHot = function()
-            local count = 0
-            for i = 1, #friends.range40 do
-                local tempUnit = friends.range40[i]
-                if buff.envelopingBreath.exists(tempUnit.unit) then
-                    count = count +1
-                end
-            end
-            return count
-        end
-
         local castRenewingMist = function()
             local renewingMistUnit = nil
             for i = 1, #tanks do
@@ -440,16 +443,19 @@ local function runRotation()
         end
         -- AOE Enveloping Breath
         detailedDebugger("---- AOE Enveloping Breath : doHealing-----")
-        if friends.lowAllies.yulonEnvelopingBreath >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and cd.envelopingMist.ready()
-            and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() and countEnvelopingBreathHot() <= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and cast.able.envelopingMist(friends.lowest.unit) then
-            if cast.envelopingMist(friends.lowest.unit) then
-                br.addonDebug(colors.green .. "[Enveloping Mist AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
-                return true
-            else
-                br.addonDebug(colors.red .. "[Enveloping Mist AOE]: Failed")
-                return false
+        if cd.envelopingMist.ready() and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() then
+            local lowHealthAroundUnit = getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(variables.sectionValues.yulonEnvelopingBreath), 6)
+            if lowHealthAroundUnit >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.envelopingMist(friends.lowest.unit) then
+                if cast.envelopingMist(friends.lowest.unit) then
+                    br.addonDebug(colors.green .. "[Enveloping Mist AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
+                    return true
+                else
+                    br.addonDebug(colors.red .. "[Enveloping Mist AOE]: Failed")
+                    return false
+                end
             end
         end
+
         -- AOE Essence Font
         detailedDebugger("---- AOE Essence Font : doHealing-----")
         if ui.checked(variables.sectionValues.essenceFont) and cd.essenceFont.ready() and friends.lowAllies.essenceFont >= ui.value(variables.sectionValues.essenceFontTargets) and cast.able.essenceFont() then
@@ -713,7 +719,7 @@ local function runRotation()
             end
 
             if friends.lowest.hp <= 90 then
-                br.addonDebug(colors.red .. "[Soothing Mist]: Continue")
+                br.addonDebug("[Soothing Mist]: Continue")
                 return false -- return false to not cancel soothing mist to dps
             end
         end
@@ -789,7 +795,7 @@ local function runRotation()
         end
 
         -- Arcane Torrent
-        if ui.checked(variables.sectionValues.arcaneTorrent) and player.mana <= ui.value(variables.sectionValues.arcaneTorrent) and cast.able.racial() and player.race == "BloodElf" then
+        if ui.checked(variables.sectionValues.arcaneTorrent) and player.mana <= ui.value(variables.sectionValues.arcaneTorrent) and cast.able.racial() and player.race == "BloodElf" and dynamicTarget.range5 ~= nil then
             if cast.racial("player") then
                 br.addonDebug(colors.blue .. "Casting Arcane Torrent [AoE]")
                 return true
