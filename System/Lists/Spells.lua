@@ -3069,6 +3069,7 @@ br.lists.spells = {
                 masterOfTheElements         = 260734,
                 powerOfTheMaelstrom         = 191877,
                 resonanceTotem              = 202192,
+                spiritwalkersGrace          = 79206,
                 stormKeeper                 = 191634,
                 stormTotem                  = 210652,
                 surgeOfPower                = 285514,
