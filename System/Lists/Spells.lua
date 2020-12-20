@@ -785,6 +785,7 @@ br.lists.spells = {
             debuffs                         = {
                 feralFrenzy                 = 274838,
                 moonfireFeral               = 155625,
+                rakeStun                    = 163505,
             },
             glyphs                          = {
 
