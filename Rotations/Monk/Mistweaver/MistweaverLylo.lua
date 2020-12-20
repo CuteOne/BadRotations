@@ -50,7 +50,7 @@ local variables = {
             essenceFont                 = "OOC - Essence Font",
             essenceFontTargets          = "OOC - Essence Font targets"
         },
-        version                         = "1.2.2"
+        version                         = "1.3.0"
     }
 }
 
