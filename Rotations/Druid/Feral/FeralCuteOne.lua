@@ -357,18 +357,6 @@ local function usePrimalWrath()
     end
     return false
 end
--- Razor Coral Target
-local function razorTarget()
-    local razorUnit = units.dyn40
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        if debuff.razorCoral.exists(thisUnit) then
-            razorUnit = thisUnit
-            break
-        end
-    end
-    return razorUnit
-end
 
 local function findKindredSpirit()
     local kindredSpirit
@@ -987,7 +975,7 @@ actionList.Stealth = function()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if (canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUit,"EXACT")) and ticksGain.rake > 2) then
+            if (canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUnit,"EXACT")) and ticksGain.rake > 2) then
                 if cast.rake(thisUnit) then ui.debug("Casting Rake [Stealth]") return true end
             end
         end
@@ -1009,7 +997,7 @@ end -- End Action List - Stealth
 actionList.Bloodtalons = function()
     -- Rake
     -- rake,target_if=(!ticking|(refreshable&persistent_multiplier>dot.rake.pmultiplier))&buff.bt_rake.down&druid.rake.ticks_gained_on_refresh>=2
-    if cast.able.rake() and not btGen.rake 
+    if cast.able.rake() and not btGen.rake
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
     then
