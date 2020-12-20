@@ -2600,10 +2600,10 @@ local function runRotation()
                 end
             end
 
-
-            --Efflorescence
+            --
+                        --Efflorescence
             if isChecked("Efflorescence") and inCombat then
-                if inInstance and talent.springblossom then
+                if inInstance and talent.springBlossoms then
                     if inCombat and #tanks > 0 and botSpell ~= spell.efflorescence and not buff.springblossom.exists(tanks[1].unit) and GetTotemTimeLeft(1) < 20 then
                         local tankTarget = UnitTarget(tanks[1].unit)
                         if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
@@ -2624,12 +2624,14 @@ local function runRotation()
                     end
                 elseif #br.friend > 1 then
                     if cast.able.efflorescence(7) and GetTotemTimeLeft(1) < 20 then
-                        if castWiseAoEHeal(br.friend, spell.efflorescence, 10, 100, 1, 5, true, false) then
+                        local meleeFriends = getAllies(tankTarget, 5)
+                        if castWiseAoEHeal(meleeFriends, spell.efflorescence, 10, 100, 1, 5, true, false) then
                             return true
                         end
                     end
                 end
             end
+            --
 
             -- Rejuvenation
             if isChecked("Rejuvenation") then
