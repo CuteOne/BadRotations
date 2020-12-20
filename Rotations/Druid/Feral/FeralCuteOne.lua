@@ -1395,7 +1395,7 @@ local function runRotation()
     var.thrashCatTicksRemain = function(thisUnit)
         return math.floor(debuff.thrashCat.remain(thisUnit) / 3)
     end
-    var.moonFireFeralTicksTotal = function(thisUnit)
+    var.moonfireFeralTicksTotal = function(thisUnit)
         return math.floor(debuff.moonfireFeral.remain(thisUnit) / 2)
     end
     var.moonfireFeralTicksRemain = function(thisUnit)
