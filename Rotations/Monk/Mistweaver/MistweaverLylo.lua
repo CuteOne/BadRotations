@@ -41,7 +41,7 @@ local variables = {
         legSweep                        = "Leg Sweep",
         ringOfPeace                     = "Ring of Peace",
         interruptAt                     = "Interrupt At",
-        version                         = "1.1.1"
+        version                         = "1.2.1"
     }
 }
 
@@ -83,18 +83,18 @@ local function createOptions()
         br.ui:createSpinnerWithout( section,    variables.sectionValues.renewingMist,                 95, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 95 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMist,                 85, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 85 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMistExpelHarm,        80, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 80 - enabled)")
-        br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMistVivify,           75, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 75 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMistVivify,           80, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 80 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMistEnvelopingMist,   65, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 65 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.revival,                      40, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 40 - enabled)")
-        br.ui:createSpinnerWithout( section,    variables.sectionValues.revivalTargets,               3,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.revivalTargets,               2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.invokeYulon,                  55, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 55 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.invokeYulonTargets,           2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.yulonEnvelopingBreath,        80, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 80 - enabled)")
-        br.ui:createSpinnerWithout( section,    variables.sectionValues.yulonEnvelopingBreathTargets, 3,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.yulonEnvelopingBreathTargets, 2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.healingElixir,                85, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 85 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.lifeCocoon,                   30, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 30 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.essenceFont,                  60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
-        br.ui:createSpinnerWithout( section,    variables.sectionValues.essenceFontTargets,           5,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 05 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.essenceFontTargets,           3,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "DPS Options")
@@ -105,7 +105,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Other Options")
         br.ui:createSpinner( section, variables.sectionValues.fortifyingBrew,   75, 1, 100, 5,  "Health percent to cast at "            .. colors.green .. "(default: 75 - enabled)")
         br.ui:createSpinner( section, variables.sectionValues.arcaneTorrent,    80, 1, 100, 5,  "Mana percent to cast at "              .. colors.green .. "(default: 80 - enabled)")
-        br.ui:createSpinner( section, variables.sectionValues.lowManaAt,        50, 1, 100, 5,  "Mana percent to activate this mode "   .. colors.green .. "(default: 50 - enabled)")
+        br.ui:createSpinner( section, variables.sectionValues.lowManaAt,        60, 1, 100, 5,  "Mana percent to activate this mode "   .. colors.green .. "(default: 60 - enabled)")
         br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
 
