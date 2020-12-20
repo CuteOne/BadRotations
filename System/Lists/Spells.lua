@@ -2873,6 +2873,7 @@ br.lists.spells = {
                 masterAssassin              = 256735,
                 coldBlood                   = 213981,
                 perforatedVeins             = 341572,
+                shotInTheDark               = 257506,
             },
             debuffs                         = {
                 rupture                     = 1943,
