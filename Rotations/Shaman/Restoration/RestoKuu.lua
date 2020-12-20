@@ -344,7 +344,7 @@ local function runRotation()
                 end
             end
         end
-        local movingCheck = not isMoving("player") and not IsFalling() or (isMoving and buff.spiritwalkersGrace.exists("player"))
+        local movingCheck = not isMoving("player") and not IsFalling() or (isMoving("player") and buff.spiritwalkersGrace.exists("player"))
         
 --------------------
 --- Action Lists ---

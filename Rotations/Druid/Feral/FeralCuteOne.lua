@@ -987,7 +987,7 @@ actionList.Stealth = function()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if (canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUit)) and ticksGain.rake > 2) or not unit.inCombat() then
+            if (canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUit)) and ticksGain.rake > 2) then
                 if cast.rake(thisUnit) then ui.debug("Casting Rake [Stealth]") return true end
             end
         end
@@ -1015,7 +1015,7 @@ actionList.Bloodtalons = function()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if ((not debuff.rake.exists(thisUnit) or (debuff.rake.refresh(thisUnit) and debuff.rake.calc() > debuff.rake.applied(thisUnit))) and ticksGain.rake >= 2) or not unit.inCombat() then
+            if ((not debuff.rake.exists(thisUnit) or (debuff.rake.refresh(thisUnit) and debuff.rake.calc() > debuff.rake.applied(thisUnit))) and ticksGain.rake >= 2) then
                 if cast.rake(thisUnit) then 
                     ui.debug("Casting Rake [BT - Ticks Gain]")
                     btGen.rake = true
@@ -1203,7 +1203,11 @@ actionList.PreCombat = function()
             -- Run Action List - Stealth
             -- run_action_list,name=(buff.prowl.exists() or buff.shadowmeld.exists()),if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
-                if actionList.Stealth() then return true end
+                if not unit.inCombat() then
+                    if cast.rake("target") then ui.debug("Casting Rake [Pre-Pull") return true end
+                else 
+                    if actionList.Stealth() then return true end
+                end
             end
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
