@@ -199,7 +199,7 @@ actionList.Extras = function()
     -- Misdirection
     if ui.mode.misdirection == 1 then
         local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 then
+        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
                 local tankInRange, tankUnit = isTankInRange()
@@ -276,7 +276,7 @@ actionList.Interrupts = function()
         for i=1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             local distance = unit.distance(thisUnit)
-            if canInterrupt(thisUnit,ui.value("Interrupts")) then
+            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 if distance < 50 then
                     -- Counter Shot
                     if ui.checked("Counter Shot") then
@@ -664,17 +664,17 @@ local function runRotation()
     var.role = _G["UnitGroupRolesAssigned"]
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
-    var.lowestAimedSerpentSting = "target"
-    var.lowestHPUnit = "target"
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
     
+    var.lowestAimedSerpentSting = "target"
     var.lowestAimedRemain = 99
+    var.lowestHPUnit = "target"
     var.lowestHP = 100
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
         local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
-        if serpentStingRemain < var.lowestAimedRemain then
+        if ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain then
             var.lowestAimedRemain = serpentStingRemain
             var.lowestAimedSerpentSting = thisUnit
         end

@@ -1893,6 +1893,7 @@ br.lists.spells = {
                 essenceFont                 = 191840,
                 risingMist                  = 22170,
                 soothingMistJadeStatue      = 198533,
+                envelopingBreath            = 3205209
             },
             debuffs                         = {
                 mysticTouch                 = 8647,
@@ -2827,6 +2828,9 @@ br.lists.spells = {
                 celerity                    = 340087,
                 concealedBlunderbuss        = 340088,
             },
+            conduits                        = {
+                countTheOdds                = 341546,
+            },
         },
         -- Subtlety
         [261] = {
@@ -2869,6 +2873,7 @@ br.lists.spells = {
                 masterAssassin              = 256735,
                 coldBlood                   = 213981,
                 perforatedVeins             = 341572,
+                shotInTheDark               = 257506,
             },
             debuffs                         = {
                 rupture                     = 1943,
