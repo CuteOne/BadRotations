@@ -795,7 +795,7 @@ actionList.Standard = function()
     var.profileDebug = "Standard"
     -- Remorseless Winter
     -- remorseless_winter,if=talent.gathering_storm|conduit.everfrost.enabled|runeforge.biting_cold.equipped
-    if cast.able.remorselessWinter() and (talent.gatheringStorm or conduit.everforst.enabled or runeforge.bitingCold.equiped) then
+    if cast.able.remorselessWinter() and (talent.gatheringStorm or conduit.everfrost.enabled or runeforge.bitingCold.equiped) then
         if cast.remorselessWinter() then ui.debug("Casting Remorseless Winter") return true end
     end
     -- Glacial Advance
