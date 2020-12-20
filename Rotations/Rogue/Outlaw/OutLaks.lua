@@ -465,40 +465,40 @@ local StunsBlackList = {
     [162061] = "Devos",
     [162060] = "Oryphrion",
     [168681] = "Forsworn Helion",
-    [168844] = "Lakesis", 
+    [168844] = "Lakesis",
     [168843] = "Klotos",
     [168845] = "Astronos",
     [168318] = "Forsworn Goliath",
     [163520] = "Forsworn Squad-Leader",
 
-  --[[   -- Theater of Pain
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
+    --[[   -- Theater of Pain
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
 
-    -- The Necrotic Wave
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
-    [164501] = "Mistcaller",
- ]]
+      -- The Necrotic Wave
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+   ]]
 
     -- 8.3 tier 4 adds
     [161244] = "Blood of the Corruptor ",
@@ -857,7 +857,8 @@ actionList.dps = function()
                 end
             end]]
 
-    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0) then --and #br.friend > 0
+    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0) then
+        --and #br.friend > 0
         ambush_flag = true
         if mode.vanish == 1 then
             if cast.vanish() then
@@ -1114,12 +1115,19 @@ actionList.dps = function()
         local Trinket14 = GetInventoryItemID("player", 14)
 
         local hold13, hold14
+
+        --darkmoon trinket
+        if (GetInventoryItemID("player", 13) == 173087 or GetInventoryItemID("player", 14) == 173087)
+                and canUseItem(173087) and inCombat and not stealth then
+            useItem(173087)
+        end
+
         --trinket 13
         if canUseItem(13) then
             if Trinket13 == 169769 then
                 useItem(13, getBiggestUnitCluster(30, 8))
             else
-                if not hold13 and (Trinket13 ~= 178715 or Trinket13 ~= 184016) then
+                if not hold13 and (Trinket13 ~= 178715) then
                     if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
                         useItem(13)
                     end
@@ -1130,7 +1138,7 @@ actionList.dps = function()
             if Trinket14 == 169769 then
                 useItem(13, getBiggestUnitCluster(30, 8))
             else
-                if not hold14 and (Trinket14 ~= 178715 or Trinket14 ~= 184016) then
+                if not hold14 and (Trinket14 ~= 178715) then
                     if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
                         useItem(14)
                     end
@@ -1257,12 +1265,13 @@ actionList.Extra = function()
                     local thisUnit = enemies.yards25nc[i]
                     local react = GetUnitReaction(thisUnit, "player") or 10
                     if react < 4 and UnitIsEnemy("player", thisUnit) then
-                        useItem(178715)
+                        useItem(184016)
                         return true
                     end
                 end
             end
         end
+
     end
 end -- End Action List - Extra
 

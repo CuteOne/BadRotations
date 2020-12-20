@@ -1091,7 +1091,6 @@ local function runRotation()
                 if isSelected("Natures Swiftness") and cast.able.naturesSwiftness() then
                     if cast.naturesSwiftness() then
                         br.addonDebug("[CRIT] Natures Swiftness")
-                        return true
                     end
                 end
                 if cast.able.cenarionWard(lowest.unit) then
