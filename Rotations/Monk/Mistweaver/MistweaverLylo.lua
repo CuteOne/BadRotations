@@ -383,8 +383,6 @@ local function runRotation()
         end
     end
 
-    print(getDistance("player","target"))
-
     local doHealing = function()
         detailedDebugger("----INIT : doHealing-----")
         local castRenewingMist = function()
