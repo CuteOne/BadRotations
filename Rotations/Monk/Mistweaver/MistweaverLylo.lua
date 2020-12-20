@@ -10,7 +10,6 @@ local colors = {
 local variables = {
     lastSoothingMist = nil,
     thunderFocusTea = nil,
-    weaponsOfOrderTicks = 0,
     statue = {
         x = 0,
         y = 0,
@@ -25,15 +24,19 @@ local variables = {
         revival                         = "Revival",
         revivalTargets                  = "Revival targets",
         invokeYulon                     = "Invoke Yu'lon",
-        invokeYulonTargets              = "Invoke Yu'lon targets",
+        invokeYulonTargets              = "Invoke Yu'lon - Targets",
         yulonEnvelopingBreath           = "Yu'lon - Enveloping Breath",
-        yulonEnvelopingBreathTargets    = "Yu'lon - Enveloping Breath targets",
+        yulonEnvelopingBreathTargets    = "Yu'lon - Enveloping Breath - Targets",
         healingElixir                   = "Healing Elixir",
         lifeCocoon                      = "Life Cocoon",
         essenceFont                     = "Essence Font",
-        essenceFontTargets              = "Essence Font targets",
+        essenceFontTargets              = "Essence Font - Targets",
         dpsThreshold                    = "DPS Threshold",
         cracklingJadeLightning          = "Crackling Jade Lightning",
+        touchOfDeathMode                = "Touch Of Death Mode",
+        weaponsOfOrder                  = "Weapons of Order",
+        weaponsOfOrderTargets           = "Weapons of Order - Targets",
+        tigersLust                      = "Tiger's Lust",
         fortifyingBrew                  = "Fortifying Brew",
         arcaneTorrent                   = "Arcane Torrent",
         lowManaAt                       = "Low mana at",
@@ -95,17 +98,21 @@ local function createOptions()
         br.ui:createSpinner(        section,    variables.sectionValues.lifeCocoon,                   30, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 30 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.essenceFont,                  60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.essenceFontTargets,           3,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.weaponsOfOrder,               60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.weaponsOfOrderTargets,        2,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "DPS Options")
-        br.ui:createSpinnerWithout( section, variables.sectionValues.dpsThreshold,           85, 1, 100, 5, "Health limit where we focus on getting kicks in " .. colors.green .. "(default: 85 - enabled)")
-        br.ui:createCheckbox(       section, variables.sectionValues.cracklingJadeLightning, "Enables" .. "/" .. "Disables " .. "the use of Crackling Jade Lightning ".. colors.green .. "(default: disabled)")
+        br.ui:createSpinnerWithout(     section, variables.sectionValues.dpsThreshold,           85, 1, 100, 5, "Health limit where we focus on getting kicks in " .. colors.green .. "(default: 85 - enabled)")
+        br.ui:createCheckbox(           section, variables.sectionValues.cracklingJadeLightning, "Enables" .. "/" .. "Disables " .. "the use of Crackling Jade Lightning ".. colors.green .. "(default: disabled)")
+        br.ui:createDropdownWithout(    section, variables.sectionValues.touchOfDeathMode,       {colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never"}, 2, "When to use racial ability")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Other Options")
-        br.ui:createSpinner( section, variables.sectionValues.fortifyingBrew,   75, 1, 100, 5,  "Health percent to cast at "            .. colors.green .. "(default: 75 - enabled)")
-        br.ui:createSpinner( section, variables.sectionValues.arcaneTorrent,    80, 1, 100, 5,  "Mana percent to cast at "              .. colors.green .. "(default: 80 - enabled)")
-        br.ui:createSpinner( section, variables.sectionValues.lowManaAt,        60, 1, 100, 5,  "Mana percent to activate this mode "   .. colors.green .. "(default: 60 - enabled)")
+        br.ui:createSpinner(        section, variables.sectionValues.fortifyingBrew,   75, 1, 100, 5,  "Health percent to cast at "            .. colors.green .. "(default: 75 - enabled)")
+        br.ui:createSpinner(        section, variables.sectionValues.arcaneTorrent,    80, 1, 100, 5,  "Mana percent to cast at "              .. colors.green .. "(default: 80 - enabled)")
+        br.ui:createSpinner(        section, variables.sectionValues.lowManaAt,        60, 1, 100, 5,  "Mana percent to activate this mode "   .. colors.green .. "(default: 60 - enabled)")
+        br.ui:createCheckbox(       section, variables.sectionValues.tigersLust      )
         br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
 
@@ -192,7 +199,7 @@ local function runRotation()
         revival = getLowAlliesInTable(ui.value(variables.sectionValues.revival) + lowMana, friends.range40),
         invokeYulon = getLowAlliesInTable(ui.value(variables.sectionValues.invokeYulon) + lowMana, friends.range40),
         yulonEnvelopingBreath = getLowAlliesInTable(ui.value(variables.sectionValues.yulonEnvelopingBreath) + lowMana, friends.range40),
-        weaponsOfOrder = getLowAlliesInTable(50, friends.range40)
+        weaponsOfOrder = getLowAlliesInTable(ui.value(variables.sectionValues.weaponsOfOrder) + lowMana, friends.range40)
     }
     -- G
     -- H
@@ -259,27 +266,7 @@ local function runRotation()
                 return false
             end
         end
-    end
-
-    local castWeaponsOfOrder = function()
-        if cast.able.weaponsOfOrder() and cd.weaponsOfOrder.ready() then
-            if variables.weaponsOfOrderTicks > 20 then
-                if cast.weaponsOfOrder() then
-                    br.addonDebug(colors.blue .. "[Weapons of order]")
-                    return true
-                else
-                    br.addonDebug(colors.red .. "[Weapons of order]: Failed")
-                    return false
-                end
-            elseif friends.lowAllies.weaponsOfOrder > 2 or friends.lowest.hp < 50 then
-                variables.weaponsOfOrderTicks = variables.weaponsOfOrderTicks + 1
-            else
-                variables.weaponsOfOrderTicks = 0
-            end
-        else
-            variables.weaponsOfOrderTicks = 0
-        end
-    end
+    end   
 
     local doDamage = function()
         local doDamageAOE = function()
@@ -364,14 +351,19 @@ local function runRotation()
 
         if ui.mode.dps == 1 and friends.lowest.hp >= ui.value(variables.sectionValues.dpsThreshold) then --ON
             -- Touch of Death
-            if cast.able.touchOfDeath() and cd.touchOfDeath.ready() then
-                if dynamicTarget.range5 ~= nil and player.hp > getHP(dynamicTarget.range5) then
+            local touchOfDeathMode = ui.value(variables.sectionValues.touchOfDeathMode)
+            if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and isBoss(dynamicTarget.range5)) then
+                if cd.touchOfDeath.ready() and cast.able.touchOfDeath() and dynamicTarget.range5 ~= nil and player.hp > getHP(dynamicTarget.range5) then
                     if cast.touchOfDeath(dynamicTarget.range5) then
                         br.addonDebug(colors.yellow .. "[Touch of Death]: " .. UnitName(dynamicTarget.range5))
                         return true
+                    else
+                        br.addonDebug(colors.red .. "[Touch of Death]: Failed")
+                        return false
                     end
                 end
             end
+
 
             if doDamageAOE() or doDamage3Targets() or doDamageST() then
                 return true
@@ -659,7 +651,7 @@ local function runRotation()
                         y = py,
                         z = pz
                     }
-                    br.addonDebug(colors.yellow .. "[Jade Serpent Statue]")
+                    br.addonDebug(colors.yellow .. "[Jade Serpent Statue]: distance to statue: " .. distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
                     return true
                 end
             end
@@ -775,8 +767,15 @@ local function runRotation()
     br.player.module.BasicHealing()
 
     if br.player.inCombat and not cast.active.essenceFont() then
-        if castWeaponsOfOrder() then
-            return true
+        -- Weapons of order
+        if ui.checked(variables.sectionValues.weaponsOfOrder) and cd.weaponsOfOrder.ready() and friends.lowAllies.weaponsOfOrder >= ui.value(variables.sectionValues.weaponsOfOrderTargets) and cast.able.weaponsOfOrder() then
+            if cast.weaponsOfOrder() then
+                br.addonDebug(colors.green .. "[Weapons of Order]: Allies under " .. ui.value(variables.sectionValues.weaponsOfOrder) .. ": " .. friends.lowAllies.weaponsOfOrder)
+                return true
+            else
+                br.addonDebug(colors.red .. "[Weapons of Order]: Failed")
+                return false
+            end
         end
 
         -- Fortifying Brew
@@ -796,6 +795,23 @@ local function runRotation()
                 return true
             end
         end
+
+        -- Tiger's Lust
+        if ui.checked(variables.sectionValues.tigersLust) and talent.tigersLust then
+            for i = 1, #friends.range40 do
+                local tempUnit = friends.range40[i]
+                if cast.noControl.tigersLust(tempUnit.unit) then
+                    if cast.tigersLust() then 
+                        ui.debug("[Tiger's Lust]: on" .. UnitName(tempUnit.unit)) 
+                        return true 
+                    else
+                        br.addonDebug(colors.red .. "[Tiger's Lust]: Failed")
+                        return false
+                    end
+                end
+            end
+        end
+
 
         local healing = doHealing() -- will return nil if no healing was done
         if healing == true or healing == false then
