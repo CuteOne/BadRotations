@@ -992,7 +992,7 @@ local function runRotation()
             eclipse_next = "solar"
         end
 
-        Print("Next Eclipse should be: " .. eclipse_next)
+        -- Print("Next Eclipse should be: " .. eclipse_next)
 
         if is_aoe then
             -- AOE
@@ -2602,7 +2602,7 @@ local function runRotation()
 
 
             --Efflorescence
-            if isChecked("Efflorescence") then
+            if isChecked("Efflorescence") and inCombat then
                 if inInstance and talent.springblossom then
                     if inCombat and #tanks > 0 and botSpell ~= spell.efflorescence and not buff.springblossom.exists(tanks[1].unit) and GetTotemTimeLeft(1) < 20 then
                         local tankTarget = UnitTarget(tanks[1].unit)
