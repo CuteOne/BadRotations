@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012192001")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012200940")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -1091,7 +1091,6 @@ local function runRotation()
                 if isSelected("Natures Swiftness") and cast.able.naturesSwiftness() then
                     if cast.naturesSwiftness() then
                         br.addonDebug("[CRIT] Natures Swiftness")
-                        return true
                     end
                 end
                 if cast.able.cenarionWard(lowest.unit) then
@@ -2600,10 +2599,10 @@ local function runRotation()
                 end
             end
 
-
-            --Efflorescence
+            --
+                        --Efflorescence
             if isChecked("Efflorescence") and inCombat then
-                if inInstance and talent.springblossom then
+                if inInstance and talent.springBlossoms then
                     if inCombat and #tanks > 0 and botSpell ~= spell.efflorescence and not buff.springblossom.exists(tanks[1].unit) and GetTotemTimeLeft(1) < 20 then
                         local tankTarget = UnitTarget(tanks[1].unit)
                         if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
@@ -2624,12 +2623,14 @@ local function runRotation()
                     end
                 elseif #br.friend > 1 then
                     if cast.able.efflorescence(7) and GetTotemTimeLeft(1) < 20 then
-                        if castWiseAoEHeal(br.friend, spell.efflorescence, 10, 100, 1, 5, true, false) then
+                        local meleeFriends = getAllies(tankTarget, 5)
+                        if castWiseAoEHeal(meleeFriends, spell.efflorescence, 10, 100, 1, 5, true, false) then
                             return true
                         end
                     end
                 end
             end
+            --
 
             -- Rejuvenation
             if isChecked("Rejuvenation") then

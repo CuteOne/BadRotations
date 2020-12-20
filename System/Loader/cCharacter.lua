@@ -302,7 +302,7 @@ function cCharacter:new(class)
         -- Base Wrap
         local section_base = br.ui:createSection(br.ui.window.profile, "Base Options")
         br.ui:createCheckbox(section_base, "Cast Debug", "Shows information about how the bot is casting.")
-        br.ui:createCheckbox(section_base, "Ignore Combat Checks", "Checking this will make BR think it is always in combat")
+        br.ui:createCheckbox(section_base, "Ignore Combat", "Checking this will make BR think it is always in combat")
 		br.ui:createCheckbox(section_base, "Mute Queue", "Mute messages from Smart Queue and Queue Casting")
         br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
         br.ui:checkSectionState(section_base)
