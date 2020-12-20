@@ -41,7 +41,7 @@ local variables = {
         legSweep                        = "Leg Sweep",
         ringOfPeace                     = "Ring of Peace",
         interruptAt                     = "Interrupt At",
-        version                         = "1.2.1"
+        version                         = "1.2.2"
     }
 }
 
@@ -229,7 +229,7 @@ local function runRotation()
 
     for index=1,4 do
         local exists, totemName, startTime, duration, _ = GetTotemInfo(index)
-        if exists then
+        if exists and totemName ~= nil then
             local duration = round2(startTime + duration - GetTime())
             if string.find(totemName, "Jade") then
                 totemInfo.jadeSerpentStatueDuration = duration
