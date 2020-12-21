@@ -50,7 +50,7 @@ local variables = {
             essenceFont                 = "OOC - Essence Font",
             essenceFontTargets          = "OOC - Essence Font targets"
         },
-        version                         = "1.3.0"
+        version                         = "1.3.1"
     }
 }
 
@@ -147,7 +147,7 @@ local function createOptions()
         br.ui:createText(section, colors.green  .. "     Go to Proving Grounds and tweek settings")
         br.ui:createText(section, colors.green  .. "     until you find something you like.")
         br.ui:createText(section, colors.blue   .. "  2 - What talents are supported?")
-        br.ui:createText(section, colors.green  .. "     Currently: Mist Wrap, Lifecycles, Healing Elixir")
+        br.ui:createText(section, colors.green  .. "     Currently: Mist Wrap, Tigers Lust, Lifecycles, Healing Elixir")
         br.ui:createText(section, colors.green  .. "     Summon Jade Serpent, Rising Mist.")
         br.ui:createText(section, colors.blue   .. "  3 - What covenant abilities are supported?")
         br.ui:createText(section, colors.green  .. "     Currently: Kyrian")
@@ -445,7 +445,7 @@ local function runRotation()
         detailedDebugger("---- AOE Enveloping Breath : doHealing-----")
         if cd.envelopingMist.ready() and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() then
             local lowHealthAroundUnit = getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(variables.sectionValues.yulonEnvelopingBreath), 6)
-            if lowHealthAroundUnit >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.envelopingMist(friends.lowest.unit) then
+            if #lowHealthAroundUnit >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.envelopingMist(friends.lowest.unit) then
                 if cast.envelopingMist(friends.lowest.unit) then
                     br.addonDebug(colors.green .. "[Enveloping Mist AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
                     return true
