@@ -1259,6 +1259,7 @@ actionList.Extra = function()
             useItem(178715)
             return true
         end
+
         if (GetInventoryItemID("player", 13) == 184016 or GetInventoryItemID("player", 14) == 184016) and canUseItem(184016) then
             if #enemies.yards25nc > 0 then
                 for i = 1, #enemies.yards25nc do
@@ -1271,7 +1272,19 @@ actionList.Extra = function()
                 end
             end
         end
-
+        --Inscrutable Quantum Device
+        if (GetInventoryItemID("player", 13) == 179350 or GetInventoryItemID("player", 14) == 179350) and canUseItem(179350) then
+            if #enemies.yards25nc > 0 then
+                for i = 1, #enemies.yards25nc do
+                    local thisUnit = enemies.yards25nc[i]
+                    local react = GetUnitReaction(thisUnit, "player") or 10
+                    if react < 4 and UnitIsEnemy("player", thisUnit) then
+                        useItem(179350)
+                        return true
+                    end
+                end
+            end
+        end
     end
 end -- End Action List - Extra
 
