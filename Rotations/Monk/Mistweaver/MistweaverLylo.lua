@@ -10,7 +10,6 @@ local colors = {
 local variables = {
     lastSoothingMist = nil,
     thunderFocusTea = nil,
-    weaponsOfOrderTicks = 0,
     statue = {
         x = 0,
         y = 0,
@@ -25,15 +24,19 @@ local variables = {
         revival                         = "Revival",
         revivalTargets                  = "Revival targets",
         invokeYulon                     = "Invoke Yu'lon",
-        invokeYulonTargets              = "Invoke Yu'lon targets",
+        invokeYulonTargets              = "Invoke Yu'lon - Targets",
         yulonEnvelopingBreath           = "Yu'lon - Enveloping Breath",
-        yulonEnvelopingBreathTargets    = "Yu'lon - Enveloping Breath targets",
+        yulonEnvelopingBreathTargets    = "Yu'lon - Enveloping Breath - Targets",
         healingElixir                   = "Healing Elixir",
         lifeCocoon                      = "Life Cocoon",
         essenceFont                     = "Essence Font",
-        essenceFontTargets              = "Essence Font targets",
+        essenceFontTargets              = "Essence Font - Targets",
         dpsThreshold                    = "DPS Threshold",
         cracklingJadeLightning          = "Crackling Jade Lightning",
+        touchOfDeathMode                = "Touch Of Death Mode",
+        weaponsOfOrder                  = "Weapons of Order",
+        weaponsOfOrderTargets           = "Weapons of Order - Targets",
+        tigersLust                      = "Tiger's Lust",
         fortifyingBrew                  = "Fortifying Brew",
         arcaneTorrent                   = "Arcane Torrent",
         lowManaAt                       = "Low mana at",
@@ -41,7 +44,13 @@ local variables = {
         legSweep                        = "Leg Sweep",
         ringOfPeace                     = "Ring of Peace",
         interruptAt                     = "Interrupt At",
-        version                         = "1.2.1"
+        outOfCombat                     = {
+            vivify                      = "OOC - Vivify",
+            renewingMist                = "OOC - Renewing Mist",
+            essenceFont                 = "OOC - Essence Font",
+            essenceFontTargets          = "OOC - Essence Font targets"
+        },
+        version                         = "1.3.1"
     }
 }
 
@@ -95,17 +104,28 @@ local function createOptions()
         br.ui:createSpinner(        section,    variables.sectionValues.lifeCocoon,                   30, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 30 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.essenceFont,                  60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.essenceFontTargets,           3,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.weaponsOfOrder,               60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.weaponsOfOrderTargets,        2,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
+        br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, "Out Of Combat Heal Options")
+        br.ui:createSpinner(        section,    variables.sectionValues.outOfCombat.vivify,             90, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 90 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.outOfCombat.renewingMist,       95, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 95 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.outOfCombat.essenceFont,        90, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 90 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.outOfCombat.essenceFontTargets, 3,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "DPS Options")
-        br.ui:createSpinnerWithout( section, variables.sectionValues.dpsThreshold,           85, 1, 100, 5, "Health limit where we focus on getting kicks in " .. colors.green .. "(default: 85 - enabled)")
-        br.ui:createCheckbox(       section, variables.sectionValues.cracklingJadeLightning, "Enables" .. "/" .. "Disables " .. "the use of Crackling Jade Lightning ".. colors.green .. "(default: disabled)")
+        br.ui:createSpinnerWithout(     section, variables.sectionValues.dpsThreshold,           85, 1, 100, 5, "Health limit where we focus on getting kicks in " .. colors.green .. "(default: 85 - enabled)")
+        br.ui:createCheckbox(           section, variables.sectionValues.cracklingJadeLightning, "Enables" .. "/" .. "Disables " .. "the use of Crackling Jade Lightning ".. colors.green .. "(default: disabled)")
+        br.ui:createDropdownWithout(    section, variables.sectionValues.touchOfDeathMode,       {colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never"}, 2, "When to use racial ability")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Other Options")
-        br.ui:createSpinner( section, variables.sectionValues.fortifyingBrew,   75, 1, 100, 5,  "Health percent to cast at "            .. colors.green .. "(default: 75 - enabled)")
-        br.ui:createSpinner( section, variables.sectionValues.arcaneTorrent,    80, 1, 100, 5,  "Mana percent to cast at "              .. colors.green .. "(default: 80 - enabled)")
-        br.ui:createSpinner( section, variables.sectionValues.lowManaAt,        60, 1, 100, 5,  "Mana percent to activate this mode "   .. colors.green .. "(default: 60 - enabled)")
+        br.ui:createSpinner(        section, variables.sectionValues.fortifyingBrew,   75, 1, 100, 5,  "Health percent to cast at "            .. colors.green .. "(default: 75 - enabled)")
+        br.ui:createSpinner(        section, variables.sectionValues.arcaneTorrent,    80, 1, 100, 5,  "Mana percent to cast at "              .. colors.green .. "(default: 80 - enabled)")
+        br.ui:createSpinner(        section, variables.sectionValues.lowManaAt,        60, 1, 100, 5,  "Mana percent to activate this mode "   .. colors.green .. "(default: 60 - enabled)")
+        br.ui:createCheckbox(       section, variables.sectionValues.tigersLust      )
         br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
 
@@ -127,7 +147,7 @@ local function createOptions()
         br.ui:createText(section, colors.green  .. "     Go to Proving Grounds and tweek settings")
         br.ui:createText(section, colors.green  .. "     until you find something you like.")
         br.ui:createText(section, colors.blue   .. "  2 - What talents are supported?")
-        br.ui:createText(section, colors.green  .. "     Currently: Mist Wrap, Lifecycles, Healing Elixir")
+        br.ui:createText(section, colors.green  .. "     Currently: Mist Wrap, Tigers Lust, Lifecycles, Healing Elixir")
         br.ui:createText(section, colors.green  .. "     Summon Jade Serpent, Rising Mist.")
         br.ui:createText(section, colors.blue   .. "  3 - What covenant abilities are supported?")
         br.ui:createText(section, colors.green  .. "     Currently: Kyrian")
@@ -189,10 +209,10 @@ local function runRotation()
     }
     friends.lowAllies = {
         essenceFont = getLowAlliesInTable(ui.value(variables.sectionValues.essenceFont) + lowMana, friends.range30),
+        essenceFontOoc = getLowAlliesInTable(ui.value(variables.sectionValues.outOfCombat.essenceFont) + lowMana, friends.range30),
         revival = getLowAlliesInTable(ui.value(variables.sectionValues.revival) + lowMana, friends.range40),
         invokeYulon = getLowAlliesInTable(ui.value(variables.sectionValues.invokeYulon) + lowMana, friends.range40),
-        yulonEnvelopingBreath = getLowAlliesInTable(ui.value(variables.sectionValues.yulonEnvelopingBreath) + lowMana, friends.range40),
-        weaponsOfOrder = getLowAlliesInTable(50, friends.range40)
+        weaponsOfOrder = getLowAlliesInTable(ui.value(variables.sectionValues.weaponsOfOrder) + lowMana, friends.range40)
     }
     -- G
     -- H
@@ -229,7 +249,7 @@ local function runRotation()
 
     for index=1,4 do
         local exists, totemName, startTime, duration, _ = GetTotemInfo(index)
-        if exists then
+        if exists and totemName ~= nil then
             local duration = round2(startTime + duration - GetTime())
             if string.find(totemName, "Jade") then
                 totemInfo.jadeSerpentStatueDuration = duration
@@ -259,25 +279,37 @@ local function runRotation()
                 return false
             end
         end
-    end
+    end   
 
-    local castWeaponsOfOrder = function()
-        if cast.able.weaponsOfOrder() and cd.weaponsOfOrder.ready() then
-            if variables.weaponsOfOrderTicks > 20 then
-                if cast.weaponsOfOrder() then
-                    br.addonDebug(colors.blue .. "[Weapons of order]")
-                    return true
-                else
-                    br.addonDebug(colors.red .. "[Weapons of order]: Failed")
-                    return false
-                end
-            elseif friends.lowAllies.weaponsOfOrder > 2 or friends.lowest.hp < 50 then
-                variables.weaponsOfOrderTicks = variables.weaponsOfOrderTicks + 1
-            else
-                variables.weaponsOfOrderTicks = 0
+    local castRenewingMist = function(hpThreshhold)
+        local renewingMistUnit = nil
+        for i = 1, #tanks do
+            local tempUnit = tanks[i]
+            if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshhold then
+                renewingMistUnit = tempUnit
             end
-        else
-            variables.weaponsOfOrderTicks = 0
+        end
+        if renewingMistUnit == nil then
+            for i = 1, #friends.range40 do
+                local tempUnit = friends.range40[i]
+                if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshhold then
+                    renewingMistUnit = tempUnit
+                end
+            end
+        end
+        if renewingMistUnit == nil then
+            if not buff.renewingMist.exists(player.unit) and player.hp + lowMana <= hpThreshhold then
+                renewingMistUnit = player
+            end
+        end
+        if renewingMistUnit ~= nil and cast.able.renewingMist(renewingMistUnit.unit) then
+            if cast.renewingMist(renewingMistUnit.unit) then
+                br.addonDebug(colors.green .. "[Renewing Mist]: " .. UnitName(renewingMistUnit.unit) .. " at: " .. round2(renewingMistUnit.hp + lowMana, 2) .. "%" )
+                return true
+            else
+                br.addonDebug(colors.red .. "[Renewing Mist]: Failed")
+                return false
+            end
         end
     end
 
@@ -364,14 +396,19 @@ local function runRotation()
 
         if ui.mode.dps == 1 and friends.lowest.hp >= ui.value(variables.sectionValues.dpsThreshold) then --ON
             -- Touch of Death
-            if cast.able.touchOfDeath() and cd.touchOfDeath.ready() then
-                if dynamicTarget.range5 ~= nil and player.hp > getHP(dynamicTarget.range5) then
+            local touchOfDeathMode = ui.value(variables.sectionValues.touchOfDeathMode)
+            if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and isBoss(dynamicTarget.range5)) then
+                if cd.touchOfDeath.ready() and cast.able.touchOfDeath() and dynamicTarget.range5 ~= nil and player.hp > getHP(dynamicTarget.range5) then
                     if cast.touchOfDeath(dynamicTarget.range5) then
                         br.addonDebug(colors.yellow .. "[Touch of Death]: " .. UnitName(dynamicTarget.range5))
                         return true
+                    else
+                        br.addonDebug(colors.red .. "[Touch of Death]: Failed")
+                        return false
                     end
                 end
             end
+
 
             if doDamageAOE() or doDamage3Targets() or doDamageST() then
                 return true
@@ -381,48 +418,6 @@ local function runRotation()
 
     local doHealing = function()
         detailedDebugger("----INIT : doHealing-----")
-        local countEnvelopingBreathHot = function()
-            local count = 0
-            for i = 1, #friends.range40 do
-                local tempUnit = friends.range40[i]
-                if buff.envelopingBreath.exists(tempUnit.unit) then
-                    count = count +1
-                end
-            end
-            return count
-        end
-
-        local castRenewingMist = function()
-            local renewingMistUnit = nil
-            for i = 1, #tanks do
-                local tempUnit = tanks[i]
-                if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= ui.value(variables.sectionValues.renewingMist) then
-                    renewingMistUnit = tempUnit
-                end
-            end
-            if renewingMistUnit == nil then
-                for i = 1, #friends.range40 do
-                    local tempUnit = friends.range40[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= ui.value(variables.sectionValues.renewingMist) then
-                        renewingMistUnit = tempUnit
-                    end
-                end
-            end
-            if renewingMistUnit == nil then
-                if not buff.renewingMist.exists(player.unit) and UnitInRange(player.unit) and player.hp + lowMana <= ui.value(variables.sectionValues.renewingMist) then
-                    renewingMistUnit = player
-                end
-            end
-            if renewingMistUnit ~= nil and cast.able.renewingMist(renewingMistUnit.unit) then
-                if cast.renewingMist(renewingMistUnit.unit) then
-                    br.addonDebug(colors.green .. "[Renewing Mist]: " .. UnitName(renewingMistUnit.unit) .. " at: " .. round2(renewingMistUnit.hp + lowMana, 2) .. "%" )
-                    return true
-                else
-                    br.addonDebug(colors.red .. "[Renewing Mist]: Failed")
-                    return false
-                end
-            end
-        end
 
         -- AOE Revival
         detailedDebugger("---- AOE Revival : doHealing-----")
@@ -448,16 +443,19 @@ local function runRotation()
         end
         -- AOE Enveloping Breath
         detailedDebugger("---- AOE Enveloping Breath : doHealing-----")
-        if friends.lowAllies.yulonEnvelopingBreath >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and cd.envelopingMist.ready()
-            and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() and countEnvelopingBreathHot() <= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and cast.able.envelopingMist(friends.lowest.unit) then
-            if cast.envelopingMist(friends.lowest.unit) then
-                br.addonDebug(colors.green .. "[Enveloping Mist AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
-                return true
-            else
-                br.addonDebug(colors.red .. "[Enveloping Mist AOE]: Failed")
-                return false
+        if cd.envelopingMist.ready() and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() then
+            local lowHealthAroundUnit = getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(variables.sectionValues.yulonEnvelopingBreath), 6)
+            if #lowHealthAroundUnit >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.envelopingMist(friends.lowest.unit) then
+                if cast.envelopingMist(friends.lowest.unit) then
+                    br.addonDebug(colors.green .. "[Enveloping Mist AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
+                    return true
+                else
+                    br.addonDebug(colors.red .. "[Enveloping Mist AOE]: Failed")
+                    return false
+                end
             end
         end
+
         -- AOE Essence Font
         detailedDebugger("---- AOE Essence Font : doHealing-----")
         if ui.checked(variables.sectionValues.essenceFont) and cd.essenceFont.ready() and friends.lowAllies.essenceFont >= ui.value(variables.sectionValues.essenceFontTargets) and cast.able.essenceFont() then
@@ -474,7 +472,8 @@ local function runRotation()
         if cast.active.soothingMist() and variables.lastSoothingMist and friends.lowest.unit == variables.lastSoothingMist.unit and
             buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and #friends.range40 >= 3
             and ((buff.renewingMist.exists(friends.range40[2].unit) and friends.range40[2].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10 )
-            or (buff.renewingMist.exists(friends.range40[3].unit) and friends.range40[3].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10)) and  cast.able.vivify(friends.lowest.unit) then
+            or (buff.renewingMist.exists(friends.range40[3].unit) and friends.range40[3].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10)) and cast.able.vivify(friends.lowest.unit) 
+        then
                 if cast.vivify(friends.lowest.unit) then
                     br.addonDebug(colors.green .. "[Vivify AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "% " .. UnitName(friends.range40[2].unit) .. " at: " .. round2(friends.range40[2].hp, 2) .. "%  " .. UnitName(friends.range40[3].unit) .. " at: " .. round2(friends.range40[3].hp, 2) .. "%")
                     return true
@@ -611,7 +610,7 @@ local function runRotation()
                     br.addonDebug(colors.red .. "[Vivify TFT]: Failed")
                 end
             elseif ui.mode.thunderFocusTea == 4 or variables.thunderFocusTea == 4 then -- Renewing Mist
-                if castRenewingMist() then
+                if castRenewingMist(ui.value(variables.sectionValues.renewingMist)) then
                     variables.thunderFocusTea = nil
                     return true
                 end
@@ -641,7 +640,7 @@ local function runRotation()
         end
         detailedDebugger("----ST Renewing Mist : doHealing-----")
         -- ST Renewing Mist
-        local renewingMist = castRenewingMist()
+        local renewingMist = castRenewingMist(ui.value(variables.sectionValues.renewingMist))
         if renewingMist == true or renewingMist == false then
             return true
         end
@@ -659,7 +658,7 @@ local function runRotation()
                         y = py,
                         z = pz
                     }
-                    br.addonDebug(colors.yellow .. "[Jade Serpent Statue]")
+                    br.addonDebug(colors.yellow .. "[Jade Serpent Statue]: distance to statue: " .. distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
                     return true
                 end
             end
@@ -721,13 +720,47 @@ local function runRotation()
             end
 
             if friends.lowest.hp <= 90 then
-                br.addonDebug(colors.red .. "[Soothing Mist]: Continue")
+                br.addonDebug("[Soothing Mist]: Continue")
                 return false -- return false to not cancel soothing mist to dps
             end
         end
 
         detailedDebugger("----END : doHealing-----")
         return nil
+    end
+
+    local doHealingOutOfCombat = function()
+        detailedDebugger("----INIT : doHealingOutOfCombat-----")
+        detailedDebugger("---- OOC AOE Essence Font : doHealingOutOfCombat-----")
+        if ui.checked(variables.sectionValues.outOfCombat.essenceFont) and cd.essenceFont.ready() and friends.lowAllies.essenceFontOoc >= ui.value(variables.sectionValues.outOfCombat.essenceFontTargets) and cast.able.essenceFont() then
+            if cast.essenceFont() then
+                br.addonDebug(colors.green .. "[OOC Essence Font]: Allies under " ..ui.value(variables.sectionValues.outOfCombat.essenceFont) .. ": " .. ui.value(variables.sectionValues.outOfCombat.essenceFontTargets))
+                return true
+            else
+                br.addonDebug(colors.red .. "[OOC Essence Font]: Failed")
+                return false
+            end
+        end
+        detailedDebugger("----OOC ST Renewing Mist : doHealingOutOfCombat-----")
+        if ui.checked(variables.sectionValues.outOfCombat.renewingMist) then
+            local renewingMist = castRenewingMist(ui.value(variables.sectionValues.outOfCombat.renewingMist))
+            if renewingMist == true or renewingMist == false then
+                return true
+            end
+        end
+        detailedDebugger("----OOC ST Vivify : doHealingOutOfCombat-----")
+        if ui.checked(variables.sectionValues.outOfCombat.vivify) and cd.vivify.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.outOfCombat.vivify)
+            and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.vivify() 
+        then
+            if cast.vivify(friends.lowest.unit) then
+                br.addonDebug(colors.green .. "[Vivify]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
+                return true
+            else
+                br.addonDebug(colors.red .. "[Vivify]: Failed")
+                return false
+            end
+        end
+        detailedDebugger("----END : doHealingOutOfCombat-----")
     end
 
     local doInterrupt = function()
@@ -775,8 +808,15 @@ local function runRotation()
     br.player.module.BasicHealing()
 
     if br.player.inCombat and not cast.active.essenceFont() then
-        if castWeaponsOfOrder() then
-            return true
+        -- Weapons of order
+        if ui.checked(variables.sectionValues.weaponsOfOrder) and cd.weaponsOfOrder.ready() and friends.lowAllies.weaponsOfOrder >= ui.value(variables.sectionValues.weaponsOfOrderTargets) and cast.able.weaponsOfOrder() then
+            if cast.weaponsOfOrder() then
+                br.addonDebug(colors.green .. "[Weapons of Order]: Allies under " .. ui.value(variables.sectionValues.weaponsOfOrder) .. ": " .. friends.lowAllies.weaponsOfOrder)
+                return true
+            else
+                br.addonDebug(colors.red .. "[Weapons of Order]: Failed")
+                return false
+            end
         end
 
         -- Fortifying Brew
@@ -790,12 +830,29 @@ local function runRotation()
         end
 
         -- Arcane Torrent
-        if ui.checked(variables.sectionValues.arcaneTorrent) and player.mana <= ui.value(variables.sectionValues.arcaneTorrent) and cast.able.racial() and player.race == "BloodElf" then
+        if ui.checked(variables.sectionValues.arcaneTorrent) and player.mana <= ui.value(variables.sectionValues.arcaneTorrent) and cast.able.racial() and player.race == "BloodElf" and dynamicTarget.range5 ~= nil then
             if cast.racial("player") then
                 br.addonDebug(colors.blue .. "Casting Arcane Torrent [AoE]")
                 return true
             end
         end
+
+        -- Tiger's Lust
+        if ui.checked(variables.sectionValues.tigersLust) and talent.tigersLust then
+            for i = 1, #friends.range40 do
+                local tempUnit = friends.range40[i]
+                if cast.noControl.tigersLust(tempUnit.unit) then
+                    if cast.tigersLust() then 
+                        ui.debug("[Tiger's Lust]: on" .. UnitName(tempUnit.unit)) 
+                        return true 
+                    else
+                        br.addonDebug(colors.red .. "[Tiger's Lust]: Failed")
+                        return false
+                    end
+                end
+            end
+        end
+
 
         local healing = doHealing() -- will return nil if no healing was done
         if healing == true or healing == false then
@@ -805,6 +862,12 @@ local function runRotation()
             return true
         end
         if doDamage() then
+            return true
+        end
+        return false
+
+    elseif not br.player.inCombat then
+        if doHealingOutOfCombat() then
             return true
         end
         return false
