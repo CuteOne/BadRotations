@@ -112,8 +112,13 @@ function br.ui:createConfigWindow()
         end
         local loadProfile = function()
             br.data.loadedSettings = false
-            br:loadSettings("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
-            ReloadUI()
+            local loadDir = br:checkDirectories("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
+            if br:findFileInFolder("savedSettings.lua", loadDir) then
+                br:loadSettings("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
+                ReloadUI()
+            else
+                Print("You don't have saved setting for :" .. exportSettings[getValue("Select Settings")])
+            end
         end
         local y = -5
         for i=1, #section.children do
