@@ -281,8 +281,9 @@ local function runRotation()
     enemies.get(12, "target") -- enemies.yards12t
     enemies.get(15)
     enemies.get(15, "target") -- enemies.yards15t
-    enemies.get(45)
     enemies.get(40)
+    enemies.get(45)
+
 
     local furyUnits = 0
     if cast.able.furyOfElune() then
@@ -726,7 +727,7 @@ local function runRotation()
             end
 
 
-            --covenant heregetTTD
+            --covenant here
             if useCDs() and cast.able.convokeTheSpirits("target") and getTTD("target") > 10 then
                 if cast.convokeTheSpirits("target") then
                     return true
@@ -837,12 +838,12 @@ local function runRotation()
                         and pewbuff or buff.ravenousFrenzy.exists() and hasteAmount > 0.6
                         or not is_cleave and (buff.celestialAlignment.remain() > buff.eclipse_lunar.remain() or buff.incarnationChoseOfElune.remain() > buff.eclipse_lunar.remain())
                 then
-                    if cast.wrath(units.dyn45) then
+                    if cast.wrath(enemies.dyn45) then
                         return true
                     end
                 end
                 if cast.able.starfire() then
-                    if cast.starfire(units.dyn45) then
+                    if cast.starfire(enemies.dyn45) then
                         return true
                     end
                 end
