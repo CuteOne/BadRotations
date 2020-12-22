@@ -579,7 +579,6 @@ local function runRotation()
                         if cast.kick(interrupt_target) then end
                     end
                     if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap Shot interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
-                        print("In stun interrupt")
                         if cast.able.cheapShot() then
                             if cast.cheapShot(interrupt_target) then return true end
                         else
@@ -592,6 +591,7 @@ local function runRotation()
                 end
                 if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
                  and noStunList[GetObjectID(interrupt_target)] == nil then -- and not isBoss(interrupt_target)
+                    print("In stun stun")
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
@@ -856,7 +856,7 @@ local function runRotation()
         -- # Dance during Symbols or above threshold.
         -- Added vanish checks, coming off gcd to prevent casting after finisher and on GCD
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3) and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
+        if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3 or charges.shadowDance.frac() >= 1.75) and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
          and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target") or not talent.premeditation)
          and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo < (4 + dSEnabled) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
             if cast.shadowDance("player") then return true end
