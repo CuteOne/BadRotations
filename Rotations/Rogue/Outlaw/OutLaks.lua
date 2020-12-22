@@ -1160,7 +1160,7 @@ actionList.Stealth = function()
             end
             if StunsBlackList[GetObjectID(do_stun)] == nil then
                 if cast.cheapShot(do_stun) then
-                    br.addonDebug("Cheapshot stun on:" .. do_stun)
+                    br.addonDebug("Cheapshot stun")
                     do_stun = nil
                     return true
                 end
