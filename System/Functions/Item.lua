@@ -125,8 +125,8 @@ end
 function getHealthPot()
 	local locale = GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
-		if hasItem(169451) then
-			return 169451
+		if hasItem(171267) then
+			return 171267
 		end
 	end
 	local potion = br.player.potion

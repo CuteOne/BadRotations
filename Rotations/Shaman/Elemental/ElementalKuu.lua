@@ -197,7 +197,7 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), isMoving("player")
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
         local hastar                                        = GetObjectExists("target")
@@ -278,6 +278,8 @@ local function runRotation()
                 flameShockCount = flameShockCount + 1
             end
         end
+
+        local movingCheck = not isMoving("player") and not IsFalling() or (isMoving("player") and buff.spiritwalkersGrace.exists("player"))
        
 --------------------
 --- Action Lists ---
@@ -303,11 +305,11 @@ local function runRotation()
                 if cast.waterWalking() then br.addonDebug("Casting Waterwalking") return end
             end
             -- Healing Surge (OOC)
-            if ui.checked("Healing Surge") and not moving and php <= ui.value("Healing Surge") then    
+            if ui.checked("Healing Surge") and movingCheck and php <= ui.value("Healing Surge") then    
                 if cast.healingSurge("player") then br.addonDebug("Casting Healing Surge") return end
             end
             -- Ancestral Spirit
-            if ui.checked("Ancestral Spirit") and not moving then
+            if ui.checked("Ancestral Spirit") and movingCheck then
                 if ui.value("Ancestral Spirit")==1 and hastar and playertar and deadtar then
                     if cast.ancestralSpirit("target","dead") then br.addonDebug("Casting Ancestral Spirit") return end
                 end
@@ -322,7 +324,7 @@ local function runRotation()
                 if mode.ghostWolf == 1 then
                     if moving and not buff.ghostWolf.exists("player") then                        
                         if cast.ghostWolf("player") then br.addonDebug("Casting Ghost Wolf") end
-                    elseif not moving and buff.ghostWolf.exists("player") and br.timer:useTimer("Delay",0.5) then
+                    elseif movingCheck and buff.ghostWolf.exists("player") and br.timer:useTimer("Delay",0.5) then
                         RunMacroText("/cancelAura Ghost Wolf")
                     end
                 elseif mode.ghostWolf == 2 then
@@ -348,7 +350,7 @@ local function runRotation()
                 bossHelper()
             end
             prepullOpener = inRaid and ui.checked("Pre-pull Opener") and pullTimer <= ui.value("Pre-pull Opener") 
-            if prepullOpener and not moving then
+            if prepullOpener and movingCheck then
                 --actions.precombat+=/earth_elemental,if=!talent.primal_elementalist.enabled
                 if useCDs() and ui.checked("Earth Elemental") and not talent.primalElementalist then
                     if cast.earthElemental() then br.addonDebug("Casting Earth Elemental") return end
@@ -436,7 +438,7 @@ local function runRotation()
                     if cast.earthShield() then br.addonDebug("Casting Earth Shield") return end
                 end
         -- Healing Surge
-                if ui.checked("Healing Surge") and not moving and ((mana >= 90 and php <= ui.value("Healing Surge"))or (php <= ui.value("Healing Surge") / 2 and mana > 20))
+                if ui.checked("Healing Surge") and movingCheck and ((mana >= 90 and php <= ui.value("Healing Surge"))or (php <= ui.value("Healing Surge") / 2 and mana > 20))
                 then
                     if cast.healingSurge("player") then br.addonDebug("Casting Healing Surge") return end
                 end
@@ -499,7 +501,7 @@ local function runRotation()
             end
             --Storm Keeper
             --actions.aoe=stormkeeper,if=talent.stormkeeper.enabled
-            if not moving and talent.stormKeeper and #enemies.yards10t >= ui.value("SK Targets") and mode.stormKeeper == 1 and holdBreak then
+            if movingCheck and talent.stormKeeper and #enemies.yards10t >= ui.value("SK Targets") and mode.stormKeeper == 1 and holdBreak then
                 if cast.stormKeeper() then br.addonDebug("Casting Stormkeeper") return end
             end
             -- Flame Shock
@@ -558,7 +560,7 @@ local function runRotation()
             end
             --Lava Burst
             --actions.aoe+=/lava_burst,target_if=dot.flame_shock.remains,if=spell_targets.chain_lightning<4|buff.lava_surge.up|(talent.master_of_the_elements.enabled&!buff.master_of_the_elements.up&maelstrom>=60)
-            if (#enemies.yards10t < 4 or (talent.masterOfTheElements and not buff.masterOfTheElements.exists() and power >= 60) and not moving) or buff.lavaSurge.exists() then
+            if (#enemies.yards10t < 4 or (talent.masterOfTheElements and not buff.masterOfTheElements.exists() and power >= 60) and movingCheck) or buff.lavaSurge.exists() then
                 if debuff.flameShock.exists("target") then
                     if UnitCastingInfo("player") then
                         SpellStopCasting()
@@ -639,12 +641,12 @@ local function runRotation()
             end
             -- Elemental Blast
             --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
-            if not moving and talent.elementalBlast and #enemies.yards10t <= ui.value("Maximum EB Targets") and (not talent.stormElemental or not stormEle) and holdBreak then
+            if movingCheck and talent.elementalBlast and #enemies.yards10t <= ui.value("Maximum EB Targets") and (not talent.stormElemental or not stormEle) and holdBreak then
                 if cast.elementalBlast() then br.addonDebug("Casting Elemental Blast") return end
             end
             -- Lava Beam
             --actions.aoe+=/lava_beam,if=talent.ascendance.enabled
-            if not moving and buff.ascendance.exists() and #enemies.yards10t >= ui.value("Lava Beam Targets") and holdBreak then
+            if movingCheck and buff.ascendance.exists() and #enemies.yards10t >= ui.value("Lava Beam Targets") and holdBreak then
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
@@ -661,7 +663,7 @@ local function runRotation()
             end             
             -- Chain Lightning
             --actions.aoe+=/chain_lightning
-            if not moving and #enemies.yards10t > 2 and holdBreak then
+            if movingCheck and #enemies.yards10t > 2 and holdBreak then
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
@@ -739,7 +741,7 @@ local function runRotation()
             end
             -- Lava Burst
             --actions.se_single_target+=/lava_burst,if=buff.wind_gust.stack<18|buff.lava_surge.up
-            if (buff.windGust.stack() < 18 and not moving) or buff.lavaSurge.exists() then
+            if (buff.windGust.stack() < 18 and movingCheck) or buff.lavaSurge.exists() then
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
             end
             --Lightning Bolt
@@ -749,21 +751,21 @@ local function runRotation()
             end
             -- Earthquake
             --actions.se_single_target+=/earthquake,if=buff.echoes_of_great_sundering.up
-            if (runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists()) or (#enemies.yards10t > 0 and not debuff.flameShock.refresh("target")) then
-                if #enemies.yards8t >= ui.value("Earthquake Targets") and holdBreak then
-                    local cc = false
-                    if getOptionCheck("Don't break CCs") then
-                        for i = 1, #enemies.yards8t do 
-                            local thisUnit = #enemies.yards8t[i]
-                            if isLongTimeCCed(thisUnit) then
-                                cc = true
-                                break
-                            end
+            if (runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists()) 
+                or (#enemies.yards8t >= ui.value("Earthquake Targets") and not debuff.flameShock.refresh("target")) and holdBreak
+            then
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards8t do 
+                        local thisUnit = #enemies.yards8t[i]
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
                         end
                     end
-                    if cc == false then
-                        if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
-                    end
+                end
+                if cc == false then
+                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
                 end
             end
             -- Earth Shock
@@ -782,7 +784,7 @@ local function runRotation()
                 if cast.frostShock() then br.addonDebug("Casting Frostshock") return end
             end
             -- Lava Burst
-            if not moving and buff.ascendance.exists() and not talent.masterOfTheElements and holdBreak then
+            if movingCheck and buff.ascendance.exists() and not talent.masterOfTheElements and holdBreak then
                 if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
                     if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
                 else
@@ -801,7 +803,7 @@ local function runRotation()
             end
             -- Lava Burst (MotE)
             --actions.se_single_target+=/lava_burst,if=cooldown_react&charges>talent.echo_of_the_elements.enabled
-            if not moving and cd.lavaBurst.remains() <= gcdMax and charges.lavaBurst.count() > 1 and talent.echoOfTheElements then
+            if movingCheck and cd.lavaBurst.remains() <= gcdMax and charges.lavaBurst.count() > 1 and talent.echoOfTheElements then
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
              end
             --Frost Shock
@@ -826,7 +828,7 @@ local function runRotation()
             end
             -- Lightning Bolt
             --actions.se_single_target+=/lightning_bolt
-            if not moving then
+            if movingCheck then
                 if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
             end
              -- Flame Shock (Moving)
@@ -868,13 +870,13 @@ local function runRotation()
             --# Don't use Elemental Blast if you could cast a Master of the Elements empowered Earth Shock instead.
             --actions.single_target+=/elemental_blast,if=talent.elemental_blast.enabled&(talent.master_of_the_elements.enabled&buff.master_of_the_elements.up&maelstrom<60|!talent.master_of_the_elements.enabled)
             --&(!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)|azerite.natural_harmony.rank=3&buff.wind_gust.stack<14)
-            if not moving and talent.elementalBlast and ((talent.masterOfTheElements and buff.masterOfTheElements.exists() and power < 60) or not talent.masterOfTheElements)and holdBreak  then
+            if movingCheck and talent.elementalBlast and ((talent.masterOfTheElements and buff.masterOfTheElements.exists() and power < 60) or not talent.masterOfTheElements)and holdBreak  then
                 if cast.elementalBlast() then br.addonDebug("Casting Elemental Blast") return end
             end
             --Storm Keeper
             --# Keep SK for large or soon add waves.
             --actions.single_target+=/stormkeeper,if=talent.stormkeeper.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if not moving and useCDs() and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
+            if movingCheck and useCDs() and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
                 if cast.stormKeeper() then br.addonDebug("Casting Stormkeeper") return end
             end
             --Echoing Shock
@@ -882,7 +884,7 @@ local function runRotation()
                 if cast.echoingShock() then br.addonDebug("Casting Echoing Shock") return end
             end
             -- Lava Burst
-            if not moving and talent.echoingShock and buff.echoingShock.exists() then
+            if movingCheck and talent.echoingShock and buff.echoingShock.exists() then
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
             end
             -- Liquid Magma Totem
@@ -909,21 +911,21 @@ local function runRotation()
             end
              -- Earthquake
             --actions.single_target+=/earthquake,if=buff.echoes_of_great_sundering.up&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up)
-            if runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists() and (not talent.masterOfTheElements or buff.masterOfTheElements.exists()) then
-                if #enemies.yards8t >= ui.value("Earthquake Targets") and holdBreak then
-                    local cc = false
-                    if getOptionCheck("Don't break CCs") then
-                        for i = 1, #enemies.yards8t do 
-                            local thisUnit = #enemies.yards8t[i]
-                            if isLongTimeCCed(thisUnit) then
-                                cc = true
-                                break
-                            end
+            if (runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists()) 
+                or (#enemies.yards8t >= ui.value("Earthquake Targets") and not debuff.flameShock.refresh("target")) and holdBreak
+            then
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards8t do 
+                        local thisUnit = #enemies.yards8t[i]
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
                         end
                     end
-                    if cc == false then
-                        if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
-                    end
+                end
+                if cc == false then
+                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return end
                 end
             end
             -- Earthquake
@@ -971,7 +973,7 @@ local function runRotation()
             end
             --Lava Burst
             --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
-            if not moving and buff.ascendance.exists() or (cd.lavaBurst.remain() <= gcd and not talent.masterOfTheElements) and holdBreak then
+            if movingCheck and buff.ascendance.exists() or (cd.lavaBurst.remain() <= gcd and not talent.masterOfTheElements) and holdBreak then
                 if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
                     if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
                 else
@@ -988,7 +990,7 @@ local function runRotation()
                 if cast.iceFury() then br.addonDebug("Casting Ice Fury") return end
             end
             
-            if not moving and cd.lavaBurst.remains() <= gcdMax and charges.lavaBurst.count() > 1 then
+            if movingCheck and cd.lavaBurst.remains() <= gcdMax and charges.lavaBurst.count() > 1 then
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
              end
             --# Slightly delay using Icefury empowered Frost Shocks to empower them with Master of the Elements too.
@@ -997,7 +999,7 @@ local function runRotation()
                if cast.frostShock() then br.addonDebug("Casting Frostshock") return end
             end
             -- actions.single_target+=/lava_burst,if=cooldown_react
-            if not moving and cd.lavaBurst.remains() <= gcdMax then
+            if movingCheck and cd.lavaBurst.remains() <= gcdMax then
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return end
              end
             -- Flame Shock
@@ -1052,7 +1054,7 @@ local function runRotation()
             end
             -- Lightning Bolt
             --actions.single_target+=/lightning_bolt
-            if not moving then
+            if movingCheck then
                 if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
             end
              -- Flame Shock (Moving)

@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012152047")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012211544")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -104,11 +104,12 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Heals")
+        br.ui:createSpinner(section, "Lifebloom", 8, 1, 10, 1, "Delay in seconds before checking for targets")
         br.ui:createSpinner(section, "Smart Hot", 5, 0, 100, 1, "Pre-hot based on DBM or incoming casts - number is max enemies")
         br.ui:createSpinner(section, "Use Bark w/Smart Hot", 30, 0, 100, 5, "Bark based on smart hot - and HP limit to use it at")
         br.ui:createCheckbox(section, "Smart Charge", 1)
         br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "When to stop what we do, emergency heals!")
-        br.ui:createCheckbox(section, "Nature's Swiftness", "Use NS when critical")
+        br.ui:createCheckbox(section, "Natures Swiftness", "Use NS when critical")
         br.ui:createSpinner(section, "Swiftmend", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Nourish", 45, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Nourish - hot count", 3, 0, 5, 1, "Hot count where we like this option")
@@ -196,8 +197,10 @@ local function createOptions()
         -- Interrupt Percentage
         br.ui:createSpinner(section, "InterruptAt", 95, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
-
-
+        section = br.ui:createSection(br.ui.window.profile, "Root/CC")
+        br.ui:createCheckbox(section, "Mist - Spirit vulpin")
+        br.ui:createCheckbox(section, "Plague - Globgrod")
+        br.ui:checkSectionState(section)
     end
     optionTable = { {
                         [1] = "Rotation Options",
@@ -210,6 +213,21 @@ local function isCC(unit)
         return isLongTimeCCed(Unit)
     end
     return false
+end
+
+local timers = {}
+timers._timers = {}
+function timers.time(name, fn)
+    local time = timers._timers[name]
+    if fn then
+        if not time then
+            time = GetTime()
+        end
+    else
+        time = nil
+    end
+    timers._timers[name] = time
+    return time and (GetTime() - time) or 0
 end
 
 local function already_stunned(Unit)
@@ -681,6 +699,7 @@ frame:SetScript("OnEvent", reader)
 local eclipse_next = "any"
 local wrath_counter = 0
 local starfire_counter = 0
+local x = 0
 
 local function runRotation()
     -- if br.timer:useTimer("debugRestoration", 0.1) then
@@ -716,6 +735,7 @@ local function runRotation()
     local LastEfflorescenceTime = nil
     local buff = br.player.buff
     local runeforge = br.player.runeforge
+    local lastSpell = lastSpellCast
     local cast = br.player.cast
     local combo = br.player.power.comboPoints.amount()
     local debuff = br.player.debuff
@@ -754,7 +774,7 @@ local function runRotation()
     local traits = br.player.traits
     local mode = br.player.ui.mode
     local solo = #br.friend == 1
-    tanks = getTanksTable()
+    local tanks = getTanksTable()
     local tank = nil
     local covenant = br.player.covenant
     local critical = nil
@@ -840,7 +860,7 @@ local function runRotation()
     end
 
     local function getAllHotCnt(time_remain)
-        hotCnt = br.player.ui.mode
+        hotCnt = 0
         for i = 1, #br.friend do
             local lifebloomRemain = buff.lifebloom.remain(br.friend[i].unit)
             local rejuvenationRemain = buff.rejuvenation.remain(br.friend[i].unit)
@@ -878,18 +898,7 @@ local function runRotation()
 
         local is_aoe = #enemies.yards45 > 1 or false
         local current_eclipse = "none"
-
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
-
-        if not eclipse_in then
-            if GetSpellCount(5176) > 0 and GetSpellCount(197628) == 0 then
-                eclipse_next = "lunar"
-            elseif GetSpellCount(5176) == 0 and GetSpellCount(197628) > 0 then
-                eclipse_next = "solar"
-            elseif GetSpellCount(5176) > 0 and GetSpellCount(197628) > 0 then
-                eclipse_next = "any"
-            end
-        end
 
 
 
@@ -976,37 +985,20 @@ local function runRotation()
             end
         end
 
-        if cast.able.wrath(units.dyn45) and buff.eclipse_solar.exists() or eclipse_next == "lunar" then
-            if cast.wrath(units.dyn45) then
-                if not eclipse_in then
-                    starfire_counter = 0
-                    wrath_counter = wrath_counter + 1
-                end
-                return true
-            end
+        if buff.eclipse_solar.exists() then
+            eclipse_next = "lunar"
+        end
+        if buff.eclipse_lunar.exists() then
+            eclipse_next = "solar"
         end
 
-        if cast.able.starfire(units.dyn45) then
-            if cast.starfire(units.dyn45) then
-                if not eclipse_in then
-                    starfire_counter = starfire_counter + 1
-                    wrath_counter = 0
-                end
-                return true
-            end
-        end
-
-        if cast.able.starsurge(units.dyn45) and eclipse_in then
-            if cast.starsurge(units.dyn45) then
-                return true
-            end
-        end
+        -- Print("Next Eclipse should be: " .. eclipse_next)
 
         if is_aoe then
             -- AOE
             if cast.able.wrath()
                     and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_aoe)
-                    or eclipse_in and buff.eclipse_solar.exists()
+                    or buff.eclipse_solar.exists()
             then
                 if cast.wrath(units.dyn45) then
                     return true
@@ -1020,7 +1012,7 @@ local function runRotation()
         else
             -- ST
             if cast.able.starfire() then
-                if (eclipse_in and current_eclipse == "lunar")
+                if buff.eclipse_lunar.exists()
                         or (not eclipse_in and eclipse_next == "solar")
                         or (not eclipse_in and eclipse_next == "any")
                 then
@@ -1061,25 +1053,24 @@ local function runRotation()
             else
                 burst = false
             end
-
-            if burst == false then
-                for i = 1, #br.friend do
-                    if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical HP") then
-                        crit_count = crit_count + 1
-                    end
-                    if crit_count >= getOptionValue("Bursting") then
-                        burst = true
-                    end
+        end
+        if burst == false then
+            for i = 1, #br.friend do
+                if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical HP") then
+                    crit_count = crit_count + 1
+                end
+                if crit_count >= getOptionValue("Bursting") then
+                    burst = true
                 end
             end
+        end
 
-            --cw on ourself to survive bursting
-            if burst == true and cast.able.cenarionWard() and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2) then
-                if cast.able.cenarionWard() then
-                    if cast.cenarionWard("player") then
-                        br.addonDebug("[BURST]: CW on self")
-                        return true
-                    end
+        --cw on ourself to survive bursting
+        if burst == true and cast.able.cenarionWard() and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2) then
+            if cast.able.cenarionWard() then
+                if cast.cenarionWard("player") then
+                    br.addonDebug("[BURST]: CW on self")
+                    return true
                 end
             end
         end
@@ -1094,17 +1085,15 @@ local function runRotation()
         end
 
         if mode.hEALS == 1 then
-
-
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
-                if isSelected("Nature's Swiftness") and cast.able.naturesSwiftness() then
+
+                if isChecked("Natures Swiftness") and cast.able.naturesSwiftness() then
                     if cast.naturesSwiftness() then
-                        br.addonDebug("Natures Swiftness")
-                        return true
+                        br.addonDebug("[CRIT] Natures Swiftness")
                     end
                 end
-                if cast.able.cenarionWard() then
+                if cast.able.cenarionWard(lowest.unit) then
                     if cast.cenarionWard(lowest.unit) then
                         br.addonDebug("[CRIT]CWard on: " .. UnitName(lowest.unit))
                         return true
@@ -1133,7 +1122,8 @@ local function runRotation()
                         return true
                     end
                 end
-                if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getOptionCheck("Nourish - hot count") then
+
+                if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) > getValue("Nourish - hot count") then
                     if cast.nourish(lowest.unit) then
                         br.addonDebug("[CRIT]nourish on: " .. UnitName(lowest.unit))
                         return true
@@ -1175,247 +1165,234 @@ local function runRotation()
         end
 
         --Smart Stuff
+        if 1 == 2 then
+            if isSelected("Smart Charge") or isChecked("Smart Hot") then
 
-        if isSelected("Smart Charge") or isChecked("Smart Hot") then
+                local countSmart = #enemies.yards40
+                local smarthottargets = getValue("Smart Hot")
+                if smarthottargets < #enemies.yards40 then
+                    countSmart = smarthottargets
+                end
 
-            local countSmart = #enemies.yards40
-            local smarthottargets = getValue("Smart Hot")
-            if smarthottargets < #enemies.yards40 then
-                countSmart = smarthottargets
-            end
+                local spellTarget = nil
+                local furthers_friend
+                local furthest_distance = 0
 
-            local spellTarget = nil
-            local furthers_friend
-            local furthest_distance = 0
+                if someone_casting and mode.hEALS == 1 then
+                    for i = 1, countSmart do
+                        local thisUnit = enemies.yards40[i]
+                        local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
+                        spellTarget = select(3, UnitCastID(thisUnit))
 
-            if someone_casting and mode.hEALS == 1 then
-                for i = 1, countSmart do
-                    local thisUnit = enemies.yards40[i]
-                    local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
-                    spellTarget = select(3, UnitCastID(thisUnit))
-
-                    --[[
-                    --wild charge stuff  - not working, needs more testing
-                    if talent.wildCharge and cast.able.wildCharge() and spellTarget == "player" then
-                        -- find furthest friend in range
-                        if isSelected("Smart Charge") then
-                            if #friends > 1 then
-                                for i = 1, #friends do
-                                    if getDistance(friends[i].unit) > furthest_distance then
-                                        furthest_distance = getDistance(friends[i].unit)
-                                        furthers_friend = friends[i].unit
+                        --[[
+                        --wild charge stuff  - not working, needs more testing
+                        if talent.wildCharge and cast.able.wildCharge() and spellTarget == "player" then
+                            -- find furthest friend in range
+                            if isSelected("Smart Charge") then
+                                if #friends > 1 then
+                                    for i = 1, #friends do
+                                        if getDistance(friends[i].unit) > furthest_distance then
+                                            furthest_distance = getDistance(friends[i].unit)
+                                            furthers_friend = friends[i].unit
+                                        end
+                                    end
+                                    if spellTarget ~= nil and endCast
+                                            and (spellcastID == 253239 or spellcastID == 268932)
+                                            and ((endCast / 1000) - GetTime()) < 1
+                                            and GetShapeshiftForm() == 0 then
+                                        if cast.wildCharge(furthers_friend) then
+                                            br.addonDebug("[CHARGE] to " .. UnitName(furthers_friend))
+                                            return true
+                                        end
                                     end
                                 end
-                                if spellTarget ~= nil and endCast
-                                        and (spellcastID == 253239 or spellcastID == 268932)
-                                        and ((endCast / 1000) - GetTime()) < 1
-                                        and GetShapeshiftForm() == 0 then
-                                    if cast.wildCharge(furthers_friend) then
-                                        br.addonDebug("[CHARGE] to " .. UnitName(furthers_friend))
+                            end
+                        end
+        ]]
+                        if isChecked("Smart Hot") then
+                            --        if someone_casting then
+                            if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
+                                if cast.able.cenarionWard() then
+                                    if cast.cenarionWard(spellTarget) then
+                                        br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
+                                        return true
+                                    end
+                                end
+                                if talent.germination and not buff.rejuvenationGermination.exists(spellTarget) then
+                                    if cast.rejuvenation(spellTarget) then
+                                        br.addonDebug("[Snipe]Germination on: " .. UnitName(spellTarget))
+                                        return true
+                                    end
+                                elseif not talent.germination and not buff.rejuvenation.exists(spellTarget) then
+                                    if cast.rejuvenation(spellTarget) then
+                                        br.addonDebug("[Snipe]Rejuvenation on: " .. UnitName(spellTarget))
+                                        return true
+                                    end
+                                end
+                                if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) < getValue("Use Bark w/Smart Hot") then
+                                    if cast.ironbark(spellTarget) then
+                                        br.addonDebug("[Snipe]Bark on: " .. UnitName(spellTarget))
                                         return true
                                     end
                                 end
                             end
                         end
                     end
-    ]]
-                    if isChecked("Smart Hot") then
-                        --        if someone_casting then
-                        if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
-                            if cast.able.cenarionWard() then
-                                if cast.cenarionWard(spellTarget) then
-                                    br.addonDebug("[Snipe]CW on: " .. UnitName(spellTarget))
-                                    return true
+                end
+
+                for i = 1, #br.friend do
+                    if UnitInRange(br.friend[i].unit) then
+                        for k, v in pairs(debuff_list) do
+                            if getDebuffRemain(br.friend[i].unit, v.spellID) > v.secs and getDebuffStacks(br.friend[i].unit, v.spellID) >= v.stacks and not buff.rejuvenation.exists(br.friend[i].unit) then
+                                if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+                                    if cast.rejuvenation(br.friend[i].unit) then
+                                        br.addonDebug("[DEBUFF]Germination on: " .. UnitName(br.friend[i].unit))
+                                        return true
+                                    end
+                                elseif not buff.rejuvenation.exists(br.friend[i].unit) then
+                                    if cast.rejuvenation(br.friend[i].unit) then
+                                        br.addonDebug("[DEBUFF]Rejuv on: " .. UnitName(br.friend[i].unit))
+                                        return true
+                                    end
                                 end
-                            end
-                            if talent.germination and not buff.rejuvenationGermination.exists(spellTarget) then
-                                if cast.rejuvenation(spellTarget) then
-                                    br.addonDebug("[Snipe]Germination on: " .. UnitName(spellTarget))
-                                    return true
-                                end
-                            elseif not talent.germination and not buff.rejuvenation.exists(spellTarget) then
-                                if cast.rejuvenation(spellTarget) then
-                                    br.addonDebug("[Snipe]Rejuvenation on: " .. UnitName(spellTarget))
-                                    return true
-                                end
-                            end
-                            if isSelected("Use Bark w/Smart Hot") and getHP(spellTarget) < getValue("Use Bark w/Smart Hot") then
-                                if cast.ironbark(spellTarget) then
-                                    br.addonDebug("[Snipe]Bark on: " .. UnitName(spellTarget))
-                                    return true
-                                end
+                                return true
                             end
                         end
                     end
-                end
-            end
-            for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) then
-                    for k, v in pairs(debuff_list) do
-                        if getDebuffRemain(br.friend[i].unit, v.spellID) > v.secs and getDebuffStacks(br.friend[i].unit, v.spellID) >= v.stacks and not buff.rejuvenation.exists(br.friend[i].unit) then
-                            if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-                                if cast.rejuvenation(br.friend[i].unit) then
-                                    br.addonDebug("[DEBUFF]Germination on: " .. UnitName(br.friend[i].unit))
-                                    return true
-                                end
-                            elseif not buff.rejuvenation.exists(br.friend[i].unit) then
-                                if cast.rejuvenation(br.friend[i].unit) then
-                                    br.addonDebug("[DEBUFF]Rejuv on: " .. UnitName(br.friend[i].unit))
-                                    return true
-                                end
+                end -- cw snipe
+
+
+                for i = 1, #precast_spell_list do
+                    local boss_spell_id = precast_spell_list[i][1]
+                    local precast_time = precast_spell_list[i][2]
+                    local spell_name = precast_spell_list[i][3]
+                    local time_remain = br.DBM:getPulltimer(nil, boss_spell_id)
+
+                    -- Innervate
+                    if (time_remain < precast_time + 2 and time_remain < precast_time + 4) then
+                        if cast.able.innervate and not buff.innervate.exists("player") then
+                            if cast.innervate() then
+                                br.addonDebug("[PRE-HOT] Innervate - pre-pre-hot")
+                                return true
                             end
-                            return true
                         end
                     end
-                end
-            end -- cw snipe
 
-
-            for i = 1, #precast_spell_list do
-                local boss_spell_id = precast_spell_list[i][1]
-                local precast_time = precast_spell_list[i][2]
-                local spell_name = precast_spell_list[i][3]
-                local time_remain = br.DBM:getPulltimer(nil, boss_spell_id)
-
-                -- Innervate
-                if (time_remain < precast_time + 2 and time_remain < precast_time + 4) then
-                    if cast.able.innervate and not buff.innervate.exists("player") then
-                        if cast.innervate() then
-                            br.addonDebug("[PRE-HOT] Innervate - pre-pre-hot")
-                            return true
+                    -- wildGrowth
+                    if time_remain < precast_time - 2 then
+                        if cast.able.wildGrowth then
+                            if cast.wildGrowth("player") then
+                                br.addonDebug("[PRE-HOT] Wildgrowth")
+                                return true
+                            end
                         end
                     end
-                end
 
-                -- wildGrowth
-                if time_remain < precast_time - 2 then
-                    if cast.able.wildGrowth then
-                        if cast.wildGrowth("player") then
-                            br.addonDebug("[PRE-HOT] Wildgrowth")
-                            return true
-                        end
-                    end
-                end
-
-                if time_remain < precast_time then
-                    for j = 1, #br.friend do
-                        if UnitInRange(br.friend[j].unit) then
-                            if not buff.rejuvenation.exists(br.friend[j].unit) then
-                                if cast.rejuvenation(br.friend[j].unit) then
-                                    br.addonDebug("[PRE-HOT]Rejuv on: " .. UnitName(br.friend[j].unit) .. " because: " .. spell_name)
-                                    return true
+                    if time_remain < precast_time then
+                        for j = 1, #br.friend do
+                            if UnitInRange(br.friend[j].unit) then
+                                if not buff.rejuvenation.exists(br.friend[j].unit) then
+                                    if cast.rejuvenation(br.friend[j].unit) then
+                                        br.addonDebug("[PRE-HOT]Rejuv on: " .. UnitName(br.friend[j].unit) .. " because: " .. spell_name)
+                                        return true
+                                    end
                                 end
                             end
                         end
                     end
                 end
             end
-        end
-
-        if isChecked("Freehold - pig") then
-            bossHelper()
         end
 
         local heal_target = "none"
         using_lifebloom = false
         local seth_routine
 
-
-        -- Underrot
-
-        -- Temple of Sethraliss
-        if lowest.hp > getOptionValue("Critical HP") then
-            for i = 1, GetObjectCountBR() do
-                if GetObjectID(GetObjectWithIndex(i)) == 133392 and getHP(GetObjectWithIndex(i)) < 100 and getBuffRemain(GetObjectWithIndex(i), 274148) == 0 then
-                    heal_target = GetObjectWithIndex(i)
-                    seth_routine = true
-                end
-            end
-        end
-
-        -- Waycrest Manor
-        if inInstance and inCombat and select(8, GetInstanceInfo()) == 1862 then
-            for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
-                        and br.friend[i].hp < 95 then
-                    heal_target = br.friend[i].unit
-                end
-            end
-        end
-
-        --Kings Rest
-        if inInstance and inCombat and select(8, GetInstanceInfo()) == 1762 then
-            for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 267626) ~= 0 -- Dessication
-                        or getDebuffRemain(br.friend[i].unit, 267618) ~= 0 -- Drain Fluids
-                        or getDebuffRemain(br.friend[i].unit, 266231) ~= 0 -- Severing axe from axe lady in council
-                        or getDebuffRemain(br.friend[i].unit, 272388) ~= 0 -- shadow barrage
-                        or getDebuffRemain(br.friend[i].unit, 265773) > 1 -- spit-gold
-                        or (getDebuffRemain(br.friend[i].unit, 270487) ~= 0 and getDebuffStacks(br.friend[i].unit, 270487) > 1) -- severing-blade
-                        and br.friend[i].hp < 95 then
-                    heal_target = br.friend[i].unit
-                end
-            end
-        end
-
-        -- Sacrifical Pits/ Devour
-        if inInstance and inCombat and select(8, GetInstanceInfo()) == 1763 then
-            for i = 1, #br.friend do
-                if (getDebuffRemain(br.friend[i].unit, 255421) or getDebuffRemain(br.friend[i].unit, 255434)) ~= 0 and br.friend[i].hp <= 90 then
-                    heal_target = br.friend[i].unit
-                end
-            end
-        end
-
-        if heal_target ~= "none" then
-            if talent.germination and not buff.rejuvenationGermination.exists(heal_target) then
-                if cast.rejuvenation(heal_target) then
-                    br.addonDebug("[BOSS]Germination on: " .. UnitName(heal_target))
-                    return true
-                end
-            elseif not talent.germination and not buff.rejuvenation.exists(heal_target) then
-                if cast.rejuvenation(heal_target) then
-                    br.addonDebug("[CRIT]Rejuvenation on: " .. UnitName(heal_target))
-                    return true
-                end
-            end
-            if not seth_routine then
-                if cast.able.ironbark() then
-                    if cast.ironbark(heal_target) then
-                        br.addonDebug("[BOSS]Bark on: " .. UnitName(heal_target))
-                        return true
-                    end
-                end
-                if cast.able.cenarionWard() then
-                    if cast.cenarionWard(heal_target) then
-                        br.addonDebug("[BOSS]CWard on: " .. UnitName(heal_target))
-                        return true
+        if 1 == 2 then
+            -- Waycrest Manor
+            if inInstance and inCombat and select(8, GetInstanceInfo()) == 1862 then
+                for i = 1, #br.friend do
+                    if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                            and br.friend[i].hp < 95 then
+                        heal_target = br.friend[i].unit
                     end
                 end
             end
-            if cast.able.lifebloom() and (not buff.lifebloom.exists(heal_target) or buff.lifebloom.remains(heal_target) < 2) then
-                if cast.lifebloom(heal_target) then
-                    using_lifebloom = true
-                    br.addonDebug("[BOSS]Bloom on: " .. UnitName(heal_target))
-                    return true
+
+            --Kings Rest
+            if inInstance and inCombat and select(8, GetInstanceInfo()) == 1762 then
+                for i = 1, #br.friend do
+                    if getDebuffRemain(br.friend[i].unit, 267626) ~= 0 -- Dessication
+                            or getDebuffRemain(br.friend[i].unit, 267618) ~= 0 -- Drain Fluids
+                            or getDebuffRemain(br.friend[i].unit, 266231) ~= 0 -- Severing axe from axe lady in council
+                            or getDebuffRemain(br.friend[i].unit, 272388) ~= 0 -- shadow barrage
+                            or getDebuffRemain(br.friend[i].unit, 265773) > 1 -- spit-gold
+                            or (getDebuffRemain(br.friend[i].unit, 270487) ~= 0 and getDebuffStacks(br.friend[i].unit, 270487) > 1) -- severing-blade
+                            and br.friend[i].hp < 95 then
+                        heal_target = br.friend[i].unit
+                    end
                 end
             end
-            if cast.able.swiftmend() and count_hots(heal_target) > 0 and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 95)) then
-                if cast.swiftmend(heal_target) then
-                    br.addonDebug("[BOSS]Swiftmend on: " .. UnitName(heal_target))
-                    return true
+
+            -- Sacrifical Pits/ Devour
+            if inInstance and inCombat and select(8, GetInstanceInfo()) == 1763 then
+                for i = 1, #br.friend do
+                    if (getDebuffRemain(br.friend[i].unit, 255421) or getDebuffRemain(br.friend[i].unit, 255434)) ~= 0 and br.friend[i].hp <= 90 then
+                        heal_target = br.friend[i].unit
+                    end
                 end
             end
-            if talent.nourish and cast.able.nourish() and count_hots(heal_target) >= getOptionCheck("Nourish - hot count") then
-                if cast.nourish(heal_target) then
-                    br.addonDebug("[BOSS]nourish on: " .. UnitName(heal_target))
-                    return true
+
+            if heal_target ~= "none" then
+                if talent.germination and not buff.rejuvenationGermination.exists(heal_target) then
+                    if cast.rejuvenation(heal_target) then
+                        br.addonDebug("[BOSS]Germination on: " .. UnitName(heal_target))
+                        return true
+                    end
+                elseif not talent.germination and not buff.rejuvenation.exists(heal_target) then
+                    if cast.rejuvenation(heal_target) then
+                        br.addonDebug("[CRIT]Rejuvenation on: " .. UnitName(heal_target))
+                        return true
+                    end
                 end
-            end
-            if cast.able.regrowth() and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 98)) then
-                if cast.regrowth(heal_target) then
-                    br.addonDebug("[BOSS]Regrowth on: " .. UnitName(heal_target))
-                    return true
+                if not seth_routine then
+                    if cast.able.ironbark() then
+                        if cast.ironbark(heal_target) then
+                            br.addonDebug("[BOSS]Bark on: " .. UnitName(heal_target))
+                            return true
+                        end
+                    end
+                    if cast.able.cenarionWard() then
+                        if cast.cenarionWard(heal_target) then
+                            br.addonDebug("[BOSS]CWard on: " .. UnitName(heal_target))
+                            return true
+                        end
+                    end
+                end
+                if cast.able.lifebloom() and (not buff.lifebloom.exists(heal_target) or buff.lifebloom.remains(heal_target) < 2) then
+                    if cast.lifebloom(heal_target) then
+                        using_lifebloom = true
+                        br.addonDebug("[BOSS]Bloom on: " .. UnitName(heal_target))
+                        return true
+                    end
+                end
+                if cast.able.swiftmend() and count_hots(heal_target) > 0 and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 95)) then
+                    if cast.swiftmend(heal_target) then
+                        br.addonDebug("[BOSS]Swiftmend on: " .. UnitName(heal_target))
+                        return true
+                    end
+                end
+                if talent.nourish and cast.able.nourish() and count_hots(heal_target) >= getOptionCheck("Nourish - hot count") then
+                    if cast.nourish(heal_target) then
+                        br.addonDebug("[BOSS]nourish on: " .. UnitName(heal_target))
+                        return true
+                    end
+                end
+                if cast.able.regrowth() and (getHP(heal_target) < 80 or (seth_routine and getHP(heal_target) < 98)) then
+                    if cast.regrowth(heal_target) then
+                        br.addonDebug("[BOSS]Regrowth on: " .. UnitName(heal_target))
+                        return true
+                    end
                 end
             end
         end
@@ -1425,7 +1402,6 @@ local function runRotation()
     -- Action List - Extras
     local function auto_forms()
         if mode.forms == 1 then
-
             local standingTime = 0
             if DontMoveStartTime then
                 standingTime = GetTime() - DontMoveStartTime
@@ -1497,7 +1473,6 @@ local function runRotation()
 
     local function Defensive()
         if useDefensive() then
-
             -- Barkskin
             if isChecked("Barkskin") and cast.able.barkskin() then
                 for i = 1, #enemies.yards40 do
@@ -1653,54 +1628,22 @@ local function runRotation()
 
     local function Cooldowns()
 
-
-        -- item support
-        --Wraps of wrapsOfElectrostaticPotential
-        if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
-            if br.player.use.wrapsOfElectrostaticPotential() then
-                br.addonDebug("Using HBracers")
-            end
-        end
-        --staff of neural
-        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
-                and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
-        then
-            if br.player.use.neuralSynapseEnhancer() then
-                br.addonDebug("Using neuralSynapseEnhancer ")
-            end
-        end
-        -- Corruption stuff
-        -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    br.addonDebug("Using shroudOfResolve")
-                end
-            end
-        end
-
-
         -- Ironbark
         if isChecked("Ironbark") and inCombat then
             if getOptionValue("Ironbark Target") == 1 then
                 if php <= getValue("Ironbark") then
-
                     if cast.ironbark("player") then
                         return true
                     end
                 end
             elseif getOptionValue("Ironbark Target") == 2 then
                 if getHP("target") <= getValue("Ironbark") then
-
                     if cast.ironbark("target") then
                         return true
                     end
                 end
             elseif getOptionValue("Ironbark Target") == 3 then
                 if getHP("mouseover") <= getValue("Ironbark") then
-
                     if cast.ironbark("mouseover") then
                         return true
                     end
@@ -1708,7 +1651,6 @@ local function runRotation()
             elseif getOptionValue("Ironbark Target") == 4 then
                 for i = 1, #tanks do
                     if tanks[i].hp <= getValue("Ironbark") then
-
                         if cast.ironbark(tanks[i].unit) then
                             return true
                         end
@@ -1732,7 +1674,6 @@ local function runRotation()
                 end
             elseif getOptionValue("Ironbark Target") == 7 then
                 if lowest.hp <= getValue("Ironbark") then
-
                     if cast.ironbark(lowest.unit) then
                         return true
                     end
@@ -1741,7 +1682,7 @@ local function runRotation()
         end
 
         -- Ghetto Flourish Support
-        if isChecked("Flourish") and inCombat and talent.flourish and buff.wildGrowth.exists() then
+        if talent.flourish and isChecked("Flourish") and inCombat and talent.flourish and buff.wildGrowth.exists() then
             if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then
                 local c = getAllHotCnt(getValue("HOT Time count"))
                 if c >= getValue("Flourish HOT Targets") or buff.tranquility.exists() then
@@ -1874,20 +1815,6 @@ local function runRotation()
                     end
                 end
             end
-
-            --pocket size computing device
-            if isChecked("Trinket 1") and canUseItem(13) and getOptionValue("Trinket 1 Mode") == 4
-                    or isChecked("Trinket 2") and canUseItem(14) and getOptionValue("Trinket 2 Mode") == 4 then
-                local Trinket13 = GetInventoryItemID("player", 13)
-                local Trinket14 = GetInventoryItemID("player", 14)
-                if (Trinket13 == 167555 or Trinket14 == 167555) and lowest.hp >= 60 and ttd("target") > 10
-                        and not isMoving("player") and not noDamageCheck("target") and not buff.innervate.exists("player") and burst == false then
-                    if canUseItem(167555) then
-                        br.player.use.pocketSizedComputationDevice()
-                    end
-                end
-            end
-
 
             -- Mana Potion
             if isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
@@ -2191,10 +2118,17 @@ local function runRotation()
                 end
             end
         end
-        -- Nature's Cure / Cleanse   --Shrine == 1864  getDebuffStacks("player", 267034)
+        -- Nature's Cure / Cleanse
+        --        local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(enemies.yards40[1])
+        if #enemies.yards40 > 0 then
+            spellTarget = select(3, UnitCastID(enemies.yards40[1]))
+        end
         if mode.decurse == 1 and cast.able.naturesCure() and not cast.last.naturesCure() then
             for i = 1, #br.friend do
-                if canDispel(br.friend[i].unit, spell.naturesCure) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
+                if canDispel(br.friend[i].unit, spell.naturesCure) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40
+                        and (getDebuffStacks(br.friend[i].unit, 240443) == 0 or getDebuffStacks("player", 240443) >= getOptionValue("Bursting")) --https://www.wowhead.com/spell=240443/burst
+                        and (getDebuffStacks(br.friend[i].unit, 319603) == 0 or getDebuffStacks(br.friend[i].unit, 319603) ~= 0 and isCasting(319592, enemies.yards40[1]) and GetUnitIsUnit(spellTarget, br.friend[i].unit))
+                then
                     if cast.naturesCure(br.friend[i].unit) then
                         return true
                     end
@@ -2226,12 +2160,12 @@ local function runRotation()
 
         --Building root list
         local root_UnitList = {}
-        if isChecked("KR - root Minions of Zul") then
-            root_UnitList[133943] = "minion-of-zul"
+        if isChecked("Mist - Spirit vulpin") then
+            root_UnitList[165251] = "Spirit vulpin"
             radar = "on"
         end
-        if isChecked("All - root the thing") then
-            root_UnitList[161895] = "the thing from beyond"
+        if isChecked("Plague - Globgrod") then
+            root_UnitList[171887] = "Globgrod"
             radar = "on"
         end
         if isChecked("FH - root grenadier") then
@@ -2251,13 +2185,7 @@ local function runRotation()
             radar = "on"
         end
 
-        --test dude
-        if 1 == 1 then
-            root_UnitList[143647] = "my little friend"
-            radar = "on"
-        end
-
-        if radar == "on" and not inRaid then
+        if radar == "on" then
 
             local root = 339
             local root_range = 35
@@ -2270,7 +2198,7 @@ local function runRotation()
                 for i = 1, GetObjectCountBR() do
                     local object = GetObjectWithIndex(i)
                     local ID = ObjectID(object)
-                    if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
+                    if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and not already_stunned(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
                         local x1, y1, z1 = ObjectPosition("player")
                         local x2, y2, z2 = ObjectPosition(object)
                         local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
@@ -2308,19 +2236,6 @@ local function runRotation()
         end
 
         if mode.hEALS == 1 then
-            if isChecked("Swiftmend") and cast.able.swiftmend() and count_hots(lowest.unit) > 0
-                    and (lowest.hp <= getValue("Swiftmend") or (talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists()))
-                    and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
-                if cast.swiftmend(lowest.unit) then
-                    return true
-                end
-            end
-            if talent.nourish and cast.able.nourish() and php < getValue("Nourish") and count_hots(lowest.unit) >= getValue("Nourish - hot count") then
-                if cast.nourish(lowest.unit) then
-                    br.addonDebug("[HEAL]nourish on: " .. UnitName(lowest.unit))
-                    return true
-                end
-            end
 
             if #tanks > 0 and inInstance then
                 tank = tanks[1].unit
@@ -2333,14 +2248,142 @@ local function runRotation()
                 freemana = false
             end
 
+            if isChecked("Swiftmend") and cast.able.swiftmend() and count_hots(lowest.unit) > 0
+                    and (lowest.hp <= getValue("Swiftmend") or (talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists()))
+                    and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
+                if cast.swiftmend(lowest.unit) then
+                    return true
+                end
+            end
+
+            -- Wild Growth
+            if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
+                local lowHealthCandidates = getUnitsToHealAround("player", 30, getValue("Wild Growth"), getValue("Wild Growth Targets"))
+                --[[      if not freemana or not buff.soulOfTheForest.exists() then
+                          for i = 1, #br.friend do
+                              if UnitInRange(br.friend[i].unit) then
+                                  lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
+                                  --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
+                              end
+                          end
+                      end
+                  ]]
+                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) then
+                    if cast.wildGrowth(lowest.unit) then
+                        return true
+                    end
+                end
+            end
+
+            if talent.nourish and cast.able.nourish() and count_hots(lowest.unit) >= getValue("Nourish - hot count") then
+                if cast.nourish(lowest.unit) then
+                    br.addonDebug("[HEAL]nourish on: " .. UnitName(lowest.unit))
+                    return true
+                end
+            end
+
+
+
 
 
             --lifebloom
             local lifebloom_count = 0
-            -- big dots
+            local raid_bloom_target = "none"
+            local kill_boss
+            local bloom_count_max = 0
 
-            if incombat then
+            if inCombat and isChecked("Lifebloom") and lastSpell ~= spell.lifebloom then
+                if using_lifebloom then
+                    br.addonDebug("Lifebloom in use for boss mechanics - skipping")
+                    return true
+                else
+                    if runeforge.theDarkTitansLesson.equiped then
+                        if not buff.lifebloom.exists("player") then
+                            -- or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5) then
+                            if cast.lifebloom("player") then
+                                br.addonDebug("[BLOOM][DT] Lifebloom on player")
+                                return true
+                            end
+                        end
+                    end
+                    --  if inRaid then
+                    -- raid lifebloom logic
+                    -- if talent.photosynthesis then
+                    --bloom on tanking tank here
+                    -- keep it on focus
+                    if UnitExists("focus") and not UnitIsDeadOrGhost("focus")
+                            and UnitAffectingCombat("focustarget") and hasThreat("focus") and getLineOfSight("focus", "player") then
+                        raid_bloom_target = "focus"
+                    end
+                    if #br.friend > 1 then
+                        if #br.friend > 10 then
+                            bloom_count_max = 10
+                        else
+                            bloom_count_max = #br.friend
+                        end
+                        if not runeforge.theDarkTitansLesson.equiped and talent.photosynthesis and raid_bloom_target == "none" then
+                            for i = 1, bloom_count_max do
+                                if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Photosynthesis") then
+                                    lifebloom_count = lifebloom_count + 1
+                                end
+                            end
+                            if (lifebloom_count >= getValue("Photosynthesis Count") or bursting) and (not buff.lifebloom.exists("Player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5 and php < 80)) then
+                                raid_bloom_target = "player"
+                                br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                            else
+                                raid_bloom_target = "tank"
+                                br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                            end
+                        end
+
+                        if GetTime() - x > getValue("Lifebloom") and raid_bloom_target == "none" or raid_bloom_target == "tank" then
+                            tanks = getTanksTable()
+                            if #tanks > 0 then
+                                for i = 1, #tanks do
+                                    --if not focus, check critical health on tanks
+                                    if isChecked("Critical HP") and getHP(tanks[i].unit) < getValue("Critical HP") then
+                                        raid_bloom_target = tanks[i].unit
+                                        break
+                                    else
+                                        --stick it on the tank that has aggro
+                                        if UnitExists("boss1target") then
+                                            kill_boss = "boss1target"
+                                        elseif UnitExists("boss2target") then
+                                            kill_boss = "boss2target"
+                                        end
+                                        if kill_boss and cast.able.lifebloom(tanks[i].unit) and UnitThreatSituation(tanks[i].unit, kill_boss) ~= nil and UnitThreatSituation(tanks[i].unit, kill_boss) > 2 and getLineOfSight("player", tanks[i].unit) then
+                                            raid_bloom_target = tanks[i].unit
+                                            break
+                                        else
+                                            raid_bloom_target = tanks[1].unit
+                                        end
+                                    end
+                                end
+
+                            else
+                                raid_bloom_target = "player"
+                                --     Print(" ERROR - tanks: " .. tostring(#tanks))
+                            end
+                        end
+                        -- cast bloom
+                        if raid_bloom_target ~= "none" and getLineOfSight("player", raid_bloom_target)
+                                and buff.lifebloom.remain(raid_bloom_target) < 4.5 then
+                            --  (not buff.lifebloom.exists(raid_bloom_target) or (buff.lifebloom.exists(raid_bloom_target) and
+                            if cast.lifebloom(raid_bloom_target) then
+                                br.addonDebug("Bloom_target: " .. UnitName(raid_bloom_target))
+                                raid_bloom_target = "none"
+                                -- I want to set a timer here
+                                x = GetTime()
+                                --   Print(tostring(x))
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+            if 1 == 2 then
                 if not using_lifebloom then
+
                     if not inRaid then
                         if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat and #tanks == 1 then
                             if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
@@ -2386,7 +2429,7 @@ local function runRotation()
                     else
                         --raid shit here
                         local raid_bloom_target = "none"
-                        if runeforge.theDarkTitansLesson.equiped and talent.photosynthesis and
+                        if runeforge.theDarkTitansLesson.equiped and
                                 (not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5)) then
                             if cast.lifebloom("player") then
                                 return true
@@ -2397,14 +2440,6 @@ local function runRotation()
                                 and UnitAffectingCombat("focustarget") and hasThreat("focustarget") and getLineOfSight("focustarget", "player") then
                             raid_bloom_target = "focustarget"
                         end
-                        if not talent.photosynthesis and runeforge.theDarkTitansLesson.equiped then
-                            for i = 1, #tanks do
-                                if buff.lifebloom.remain(tanks[i].unit) < 4.5 or not buff.lifebloom.exists(tanks[i].unit) then
-                                    raid_bloom_target = tanks[i].unit
-                                    return true
-                                end
-                            end
-                        end
                         if raid_bloom_target == "none" then
                             for i = 1, #tanks do
                                 tank = tanks[i].unit
@@ -2414,20 +2449,13 @@ local function runRotation()
                                     break
                                 else
                                     --stick it on the tank that has aggro
-                                    --      Print("Tell Laks this: " .. tostring(UnitThreatSituation(tank, "boss1target")))
-                                    if UnitExists("boss1target") then
-                                        if inCombat and cast.able.lifebloom(tanks[i].unit) and UnitThreatSituation(tanks[i].unit, "boss1target") ~= nil
-                                                and UnitThreatSituation(tanks[i].unit, "boss1target") > 2 and getLineOfSight("player", tanks[i].unit) then
-                                            raid_bloom_target = tanks[i].unit
-                                            break
-                                        end
-                                    else
-                                        raid_bloom_target = tanks[1].unit
+                                    Print("Tell Laks this: " .. tostring(UnitThreatSituation(tank, "boss1target")))
+                                    if cast.able.lifebloom(tank) and UnitThreatSituation(tank, "boss1target") ~= nil and UnitThreatSituation(tank, "boss1target") > 2 and getLineOfSight("player", tank) then
+                                        raid_bloom_target = tank
                                         break
                                     end
                                 end
                             end
-
                         end
                         if raid_bloom_target ~= "none" then
                             if (buff.lifebloom.remain(raid_bloom_target) < 4.5 or not buff.lifebloom.exists(raid_bloom_target)) then
@@ -2441,7 +2469,7 @@ local function runRotation()
                     br.addonDebug("Lifebloom in use for boss mechanics - skipping")
                     return true
                 end
-            end
+            end -- old shitty code
 
             if isChecked("Grievous Wounds") then
                 for i = 1, #br.friend do
@@ -2561,34 +2589,49 @@ local function runRotation()
             end -- end grievance
 
             -- cenarionWard
-            if not isChecked("Smart Hot") and isChecked("Cenarion Ward") and talent.cenarionWard and not buff.cenarionWard.exists(tank) and cast.able.cenarionWard(tank) and inCombat then
-                if cast.cenarionWard(tank) then
-                    return true
-                end
-            end
-
-
-            --Efflorescence
-            if isChecked("Efflorescence") then
-                if inCombat and #tanks > 0 and botSpell ~= spell.efflorescence and not buff.springblossom.exists(tanks[1].unit) and GetTotemTimeLeft(1) < 20 then
-                    local tankTarget = UnitTarget(tanks[1].unit)
-                    if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
-                        local meleeFriends = getAllies(tankTarget, 8)
-                        local loc = getBestGroundCircleLocation(meleeFriends, 1, 6, 10)
-                        if loc ~= nil then
-                            local px, py, pz = ObjectPosition("player")
-                            loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
-                            if loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil then
-                                -- Check z and LoS, ignore terrain and m2 collisions
-                                if cast.efflorescence() then
-                                    ClickPosition(loc.x, loc.y, loc.z)
-                                    return true
-                                end
-                            end
+            if not isChecked("Smart Hot") and isChecked("Cenarion Ward") and talent.cenarionWard then
+                for i = 1, #tanks do
+                    tank = tanks[i].unit
+                    if not buff.cenarionWard.exists(tank) and cast.able.cenarionWard(tank) and inCombat then
+                        if cast.cenarionWard(tank) then
+                            return true
                         end
                     end
                 end
             end
+
+            --
+            --Efflorescence
+            if isChecked("Efflorescence") and inCombat then
+                if inInstance and talent.springBlossoms then
+                    if inCombat and #tanks > 0 and botSpell ~= spell.efflorescence and not buff.springblossom.exists(tanks[1].unit) and GetTotemTimeLeft(1) < 20 then
+                        local tankTarget = UnitTarget(tanks[1].unit)
+                        if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
+                            local meleeFriends = getAllies(tankTarget, 8)
+                            local loc = getBestGroundCircleLocation(meleeFriends, 1, 6, 10)
+                            if loc ~= nil then
+                                local px, py, pz = ObjectPosition("player")
+                                loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                                if loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil then
+                                    -- Check z and LoS, ignore terrain and m2 collisions
+                                    if cast.efflorescence() then
+                                        ClickPosition(loc.x, loc.y, loc.z)
+                                        return true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                elseif #br.friend > 1 then
+                    if cast.able.efflorescence(7) and GetTotemTimeLeft(1) < 20 then
+                        local meleeFriends = getAllies(tankTarget, 5)
+                        if castWiseAoEHeal(meleeFriends, spell.efflorescence, 10, 100, 1, 5, true, false) then
+                            return true
+                        end
+                    end
+                end
+            end
+            --
 
             -- Rejuvenation
             if isChecked("Rejuvenation") then
@@ -2645,24 +2688,6 @@ local function runRotation()
                 end
             end
 
-
-            -- Wild Growth
-            if isChecked("Wild Growth") and cast.able.wildGrowth() and not moving then
-                local lowHealthCandidates = getUnitsToHealAround("player", 30, getValue("Wild Growth"), #br.friend)
-                if not freemana or not buff.soulOfTheForest.exists() then
-                    for i = 1, #br.friend do
-                        if UnitInRange(br.friend[i].unit) then
-                            lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
-                            --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
-                        end
-                    end
-                end
-                if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) then
-                    if cast.wildGrowth(lowest.unit) then
-                        return true
-                    end
-                end
-            end
 
         end
     end -- end heal
@@ -2817,43 +2842,62 @@ local function runRotation()
     local function pre_combat()
         -- clearForm()
         if not cat and not travel and not bear then
+            local tank_unit
 
-            if (#tanks > 0 or UnitExists("focus")) and (mode.prehot == 1 or mode.prehot == 2) and mode.HEALS == 1 then
-                local tank_unit = tanks[1] ~= nil and tanks[1].unit or "focus"
+            if (#tanks > 0 or UnitExists("focus")) and (mode.prehot == 1 or mode.prehot == 2) and mode.hEALS == 1 then
 
-                -- cenarionWard
-                if not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tank_unit) and cast.able.cenarionWard(tank_unit) then
-                    if cast.cenarionWard(tank_unit) then
-                        br.addonDebug("[PRE-HOT]:CW on: " .. UnitName(tank_unit))
-                        return true
+
+                if runeforge.theDarkTitansLesson.equiped then
+                    if not buff.lifebloom.exists("player") then
+                        if cast.lifebloom("player") then
+                            br.addonDebug("[BLOOM][PRE] Lifebloom on player")
+                            return true
+                        end
                     end
                 end
 
-                if not buff.lifebloom.exists(tank_unit) and not buff.lifebloom.exists(tank_unit) then
-                    if cast.lifebloom(tank_unit) then
-                        br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName(tank_unit))
-                        return true
-                    end
-                end
-                if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") then
-                    if cast.lifebloom("player") then
-                        br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName("player"))
-                        return true
-                    end
-                end
-                if talent.germination and not buff.rejuvenationGermination.exists(tank_unit) then
-                    if cast.rejuvenation(tank_unit) then
-                        br.addonDebug("[PRE-HOT]Germination on: " .. UnitName(tank_unit))
-                        return true
-                    end
-                elseif not buff.rejuvenation.exists(tank_unit) then
-                    if cast.rejuvenation(tank_unit) then
-                        br.addonDebug("[PRE-HOT]Rejuv on: " .. UnitName(tank_unit))
-                        return true
+                if UnitExists("focus") then
+                    tank_unit = "focus"
+                else
+                    if tanks[1] ~= nil then
+                        tank_unit = tanks[1].unit
                     end
                 end
 
+                if tank_unit and getLineOfSight("player", tank_unit) then
+                    -- cenarionWard
+                    if not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tank_unit) and cast.able.cenarionWard(tank_unit) and getLineOfSight(tank_unit, "player") then
+                        if cast.cenarionWard(tank_unit) then
+                            br.addonDebug("[PRE-HOT]:CW on: " .. UnitName(tank_unit))
+                            return true
+                        end
+                    end
 
+                    if cast.able.lifebloom(tank_unit) and not buff.lifebloom.exists(tank_unit) then
+                        if cast.lifebloom(tank_unit) then
+                            br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName(tank_unit))
+                            return true
+                        end
+                    end
+                    if runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") then
+                        if cast.lifebloom("player") then
+                            br.addonDebug("[PRE-HOT]:Lifebloom on: " .. UnitName("player"))
+                            return true
+                        end
+                    end
+                    if talent.germination and cast.able.rejuvenation(tank_unit) and not buff.rejuvenationGermination.exists(tank_unit) then
+                        if cast.rejuvenation(tank_unit) then
+                            br.addonDebug("[PRE-HOT]Germination on: " .. UnitName(tank_unit))
+                            return true
+                        end
+                    elseif not buff.rejuvenation.exists(tank_unit) and cast.able.rejuvenation(tank_unit) then
+                        if cast.rejuvenation(tank_unit) then
+                            br.addonDebug("[PRE-HOT]Rejuv on: " .. UnitName(tank_unit))
+                            return true
+                        end
+                    end
+
+                end
             end
 
 

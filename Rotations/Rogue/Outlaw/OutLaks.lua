@@ -101,7 +101,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 2012141107 ")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 2018121510 ")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
@@ -122,9 +122,9 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom" }, 1, "", "Use Pot when Adrenaline is up")
-        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
-        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Adrenaline is up")
+        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
+        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
+        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createCheckbox(section, "Use Racial", "Use your racial")
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "Minimum Torrent Targets")
@@ -221,6 +221,7 @@ local spell
 local talent
 local units
 local use
+local conduit
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
 local hastar
@@ -391,6 +392,114 @@ local precast_spell_list = {
 
 
 local StunsBlackList = {
+    -- DeOtherSide
+    [171333] = "Atal'ai Devoted",
+    [168942] = "Death Speaker",
+    [167964] = "4.RF-4.RF",
+    [166608] = "Mueh'zala",
+    [169905] = "Risen Warlord",
+    [168934] = "Enraged Spirit",
+    [164558] = "Hakkar the Soulflayer",
+    [164556] = "Millhouse Manastorm",
+    [171343] = "Bladebeak Matriarch",
+    [167962] = "Defunct Dental Drill",
+    [164555] = "Millificent Manastorm",
+    [171184] = "Mythresh, Sky's Talons",
+    [164450] = "Dealer Xy'exa",
+    [170572] = "Atal'ai Hoodoo Hexxer",
+
+    -- Halls of Atonement
+    [164557] = "Shard of Halkias",
+    [167876] = "Inquisitor Sigar",
+    [165408] = "Halkias",
+    [164218] = "Lord Chamberlain",
+    [174175] = "Loyal Stoneborn",
+    [167612] = "Stoneborn Reaver",
+    [167607] = "Stoneborn Slasher",
+    [164185] = "Echelon",
+    [165410] = "High Adjudicator Aleez",
+
+    --Mists of Tirna Scithe
+    [164929] = "Tirnenn Villager",
+    [167111] = "Spinemaw Staghorn",
+    [164926] = "Drust Boughbreaker",
+    [164517] = "Tred'ova",
+    [173720] = "Mistveil Gorgegullet",
+    [164567] = "Ingra Maloch",
+    [173655] = "Mistveil Matriarch",
+    [164804] = "Droman Oulfarran",
+    [173714] = "Mistveil Nightblossom",
+    [164501] = "Mistcaller",
+
+    -- Plaguefall
+    [164967] = "Doctor Ickus",
+    [168155] = "Plaguebound",
+    [168153] = "Plagueroc",
+    [163882] = "Decaying Flesh Giant",
+    [163915] = "Hatchling Nest",
+    [164255] = "Globgrog",
+    [163894] = "Blighted Spinebreaker",
+    [164266] = "Domina Venomblade",
+    [169159] = "Unstable Canister",
+    [169861] = "Ickor Bileflesh",
+    [168396] = "Plaguebelcher",
+    [168886] = "Virulax Blightweaver",
+    [164267] = "Margrave Stradama",
+
+    -- Sanguine Depths
+    [162100] = "Kryxis the Voracious",
+    [171799] = "Depths Warden",
+    [162103] = "Executor Tarvold",
+    [162038] = "Regal Mistdancer",
+    [162057] = "Chamber Sentinel",
+    [162099] = "General Kaal",
+    [162040] = "Grand Overseer",
+    [162047] = "Insatiable Brute",
+    [162102] = "Grand Proctor Beryllia",
+    [171376] = "Head Custodian Javlin",
+
+    -- Spires of Ascension
+    [163077] = "Azules",
+    [162059] = "Kin-Tara",
+    [162058] = "Ventunax",
+    [162061] = "Devos",
+    [162060] = "Oryphrion",
+    [168681] = "Forsworn Helion",
+    [168844] = "Lakesis",
+    [168843] = "Klotos",
+    [168845] = "Astronos",
+    [168318] = "Forsworn Goliath",
+    [163520] = "Forsworn Squad-Leader",
+
+    --[[   -- Theater of Pain
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+
+      -- The Necrotic Wave
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+      [164501] = "Mistcaller",
+   ]]
+
     -- 8.3 tier 4 adds
     [161244] = "Blood of the Corruptor ",
     [161243] = "Samh 'rek, Beckoner of Chaos",
@@ -563,11 +672,11 @@ local function ambushCondition()
         if (talent.ghostlyStrike and cd.ghostlyStrike.remains() < 1) then
             buff_count = buff_count + 1
         end
-        if buff.broadside.exists() and br.player.power.energy.amount() > 60 and not buff.skullAndCrossbones.exists() and not buff.wits.exists()
+        if buff.broadside.exists() and br.player.power.energy.amount() > 50 and (not conduit.countTheOdds.active or buff.rollTheBones.remain() >= 10)
         then
             buff_count = buff_count + 1
         end
-        if (comboDeficit >= 2 + (2 * buff_count)) and not (buff.bladeFlurry.exists and #enemies.yards8 >= 2) then
+        if (comboDeficit >= 2 + buff_count) and not (buff.bladeFlurry.exists and #enemies.yards8 >= 2) then
             return true
         else
             return false
@@ -748,6 +857,20 @@ actionList.dps = function()
                 end
             end]]
 
+    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0) then
+        --and #br.friend > 0
+        ambush_flag = true
+        if mode.vanish == 1 then
+            if cast.vanish() then
+                return true
+            end
+        end
+        if br.player.race == "NightElf" and isChecked("Use Racial") and not cast.last.vanish(1) then
+            if cast.shadowmeld() then
+                return true
+            end
+        end
+    end
 
     --  Print(tostring(getOutLaksTTD(8)))
     if cast.able.bladeFlurry() and mode.rotation == 1 then
@@ -777,7 +900,7 @@ actionList.dps = function()
             end
             if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee)
                     and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
-                    and (br.player.power.energy.ttm() > 2 or #enemies.yards8 > 3)
+                    and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 3)
                     and getDistance(dynamic_target_melee) <= dynamic_range then
                 if cast.bladeRush(dynamic_target_melee) then
                     return true
@@ -795,8 +918,8 @@ actionList.dps = function()
     --        end
     --    end
 
-    if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) then
-        if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(20) > 0 then
+    if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) and getCombatTime() > 2 then
+        if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(25) > 0 then
             if cast.adrenalineRush() then
                 return true
             end
@@ -826,7 +949,7 @@ actionList.dps = function()
 
         --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
         if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) then
-            if cast.able.sliceAndDice() and combo > 0 then
+            if cast.able.sliceAndDice() and combo > 0 and not (combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4) then
                 if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                     if cast.sliceAndDice() then
                         return true
@@ -841,7 +964,13 @@ actionList.dps = function()
             end
         end
     else
-        if not stealth and not should_pool then
+        if not stealth and not should_pool and not cast.last.vanish(1) and not cast.able.ambush(dynamic_target_melee) then
+
+            if mode.ambush == 1 and cast.able.ambush(dynamic_target_melee) then
+                if cast.ambush(dynamic_target_melee) then
+                    return true
+                end
+            end
 
             if mode.cov == 1 then
                 --sepsis,if=!stealthed.all
@@ -850,7 +979,7 @@ actionList.dps = function()
                         return true
                     end
                 end
-                if cast.able.echoingReprimand(dynamic_target_melee) then
+                if cast.able.echoingReprimand(dynamic_target_melee) and not cast.able.ambush(dynamic_target_melee) then
                     if cast.echoingReprimand(dynamic_target_melee) then
                         return true
                     end
@@ -875,7 +1004,7 @@ actionList.dps = function()
                 end
             end
 
-            if cast.able.pistolShot() and
+            if cast.able.pistolShot() and not cast.able.ambush(dynamic_target_melee) and
                     (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
                             or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
                             or buff.opportunity.exists() and buff.deadShot.exists()) --or buff.greenskinsWickers.exists() or buff.concealedBlunderbuss.exists())
@@ -886,7 +1015,7 @@ actionList.dps = function()
                 end
             end
 
-            if cast.able.sinisterStrike(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
+            if cast.able.sinisterStrike(dynamic_target_melee) and not cast.able.ambush(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
                 if cast.sinisterStrike(dynamic_target_melee) then
                     return true
                 end
@@ -910,21 +1039,6 @@ actionList.dps = function()
     Using Vanish/Ambush is only a very tiny increase, so in reality, you're absolutely fine to use it as a utility spell.
     N	2.89	shadowmeld,if=!stealthed.all&variable.ambush_condition
     ]]
-
-
-    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and #br.friend > 0 and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0) then
-        ambush_flag = true
-        if mode.vanish == 1 then
-            if cast.vanish() then
-                return true
-            end
-        end
-        if br.player.race == "NightElf" and isChecked("Use Racial") and not cast.last.vanish(1) then
-            if cast.shadowmeld() then
-                return true
-            end
-        end
-    end
 
 
     --pots
@@ -972,7 +1086,7 @@ actionList.dps = function()
             elseif auto_pot == 9 and canUseItem(169299) then
                 useItem(169299)
             elseif auto_pot == 10 and canUseItem(171349) then
-                useItem(169299)
+                useItem(171349)
             end
         end
     end -- end pots
@@ -1001,12 +1115,19 @@ actionList.dps = function()
         local Trinket14 = GetInventoryItemID("player", 14)
 
         local hold13, hold14
+
+        --darkmoon trinket
+        if (GetInventoryItemID("player", 13) == 173087 or GetInventoryItemID("player", 14) == 173087)
+                and canUseItem(173087) and inCombat and not stealth then
+            useItem(173087)
+        end
+
         --trinket 13
         if canUseItem(13) then
             if Trinket13 == 169769 then
                 useItem(13, getBiggestUnitCluster(30, 8))
             else
-                if not hold13 and Trinket13 ~= 178715 then
+                if not hold13 and (Trinket13 ~= 178715) then
                     if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
                         useItem(13)
                     end
@@ -1017,9 +1138,9 @@ actionList.dps = function()
             if Trinket14 == 169769 then
                 useItem(13, getBiggestUnitCluster(30, 8))
             else
-                if not hold13 and Trinket13 ~= 178715 then
+                if not hold14 and (Trinket14 ~= 178715) then
                     if hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
-                        useItem(13)
+                        useItem(14)
                     end
                 end
             end
@@ -1132,13 +1253,39 @@ actionList.Extra = function()
 
     --OOC trinket usage
     --Mistcaller Ocarina
-    if isChecked("Use Trinkets") and not inCombat and (GetInventoryItemID("player", 13) == 178715 or GetInventoryItemID("player", 14) == 178715)
-            and buff.mistcallerOcarina.remain() < 60 and not isMoving("player") then
-        useItem(178715)
-        return true
+    if isChecked("Use Trinkets") and not inCombat then
+        if (GetInventoryItemID("player", 13) == 178715 or GetInventoryItemID("player", 14) == 178715)
+                and buff.mistcallerOcarina.remain() < 60 and not isMoving("player") and canUseItem(178715) then
+            useItem(178715)
+            return true
+        end
+
+        if (GetInventoryItemID("player", 13) == 184016 or GetInventoryItemID("player", 14) == 184016) and canUseItem(184016) then
+            if #enemies.yards25nc > 0 then
+                for i = 1, #enemies.yards25nc do
+                    local thisUnit = enemies.yards25nc[i]
+                    local react = GetUnitReaction(thisUnit, "player") or 10
+                    if react < 4 and UnitIsEnemy("player", thisUnit) then
+                        useItem(184016)
+                        return true
+                    end
+                end
+            end
+        end
+        --Inscrutable Quantum Device
+        if (GetInventoryItemID("player", 13) == 179350 or GetInventoryItemID("player", 14) == 179350) and canUseItem(179350) then
+            if #enemies.yards25nc > 0 then
+                for i = 1, #enemies.yards25nc do
+                    local thisUnit = enemies.yards25nc[i]
+                    local react = GetUnitReaction(thisUnit, "player") or 10
+                    if react < 4 and UnitIsEnemy("player", thisUnit) then
+                        useItem(179350)
+                        return true
+                    end
+                end
+            end
+        end
     end
-
-
 end -- End Action List - Extra
 
 
@@ -1599,6 +1746,7 @@ local function runRotation()
     combo, comboDeficit, comboMax = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
     units = br.player.units
     use = br.player.use
+    conduit = br.player.conduit
     stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists() or buff.sepsis.exists()
     -- General Locals
     hastar = GetObjectExists("target")

@@ -785,6 +785,7 @@ br.lists.spells = {
             debuffs                         = {
                 feralFrenzy                 = 274838,
                 moonfireFeral               = 155625,
+                rakeStun                    = 163505,
             },
             glyphs                          = {
 
@@ -1864,6 +1865,8 @@ br.lists.spells = {
                 risingSunKick               = 107428,
                 soothingMist                = 115175,
                 thunderFocusTea             = 116680,
+                invokeYulonTheJadeSerpent   = 322118,
+                fortifyingBrew              = 243435,
             },
             artifacts                       = {
             },
@@ -1891,6 +1894,7 @@ br.lists.spells = {
                 essenceFont                 = 191840,
                 risingMist                  = 22170,
                 soothingMistJadeStatue      = 198533,
+                envelopingBreath            = 3205209
             },
             debuffs                         = {
                 mysticTouch                 = 8647,
@@ -2402,6 +2406,7 @@ br.lists.spells = {
             abilities                       = {
                 angelicFeather              = 121536,
                 bodyAndMind                 = 214121,
+                circleOfHealing             = 204883,
                 desperatePrayer             = 19236,
                 divineHymn                  = 64843,
                 divineStar                  = 110744,
@@ -2449,7 +2454,6 @@ br.lists.spells = {
                 apotheosis                  = 200183,
                 bindingHeal                 = 32546,
                 --bodyAndMind                 = 214121,
-                circleOfHealing             = 204883,
                 divineStar                  = 110744,
                 --divinity                    = 197031,
                 halo                        = 120517,
@@ -2825,6 +2829,9 @@ br.lists.spells = {
                 celerity                    = 340087,
                 concealedBlunderbuss        = 340088,
             },
+            conduits                        = {
+                countTheOdds                = 341546,
+            },
         },
         -- Subtlety
         [261] = {
@@ -2867,6 +2874,7 @@ br.lists.spells = {
                 masterAssassin              = 256735,
                 coldBlood                   = 213981,
                 perforatedVeins             = 341572,
+                shotInTheDark               = 257506,
             },
             debuffs                         = {
                 rupture                     = 1943,
@@ -3061,6 +3069,7 @@ br.lists.spells = {
                 masterOfTheElements         = 260734,
                 powerOfTheMaelstrom         = 191877,
                 resonanceTotem              = 202192,
+                spiritwalkersGrace          = 79206,
                 stormKeeper                 = 191634,
                 stormTotem                  = 210652,
                 surgeOfPower                = 285514,
@@ -3260,7 +3269,7 @@ br.lists.spells = {
                 astralShift                 = 108271,
                 chainsOfDevastationHeal     = 336737,
                 doomWinds                   = 335903,
-                echoesOfGreatSundering      = 336216,
+                echoesOfGreatSundering      = 336217,
                 elementalEquilibrium        = 337348,
                 faeTransfusionRecast        = 328933,
                 ghostWolf                   = 2645,

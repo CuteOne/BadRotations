@@ -600,6 +600,7 @@ function cl:Monk(...)
             [myspell.tigerPalm]                 = true,
             [myspell.touchOfDeath]              = true,
             [myspell.whirlingDragonPunch]       = true,
+            [myspell.faelineStomp]              = true,
         }
         if var.lastCombo == nil or not UnitAffectingCombat("player") then var.lastCombo = 6603 end
         if sourceName ~= nil then

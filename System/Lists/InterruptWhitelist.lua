@@ -59,6 +59,7 @@ br.lists.interruptWhitelist = {
 	[324293] = true, -- rasping-scream
 	[320170] = true, -- necrotic-bolt
 	[338353] = true, -- goresplatter
+	[333623] = true, -- frostbolt Volley
 	-- Necrotic Wake end
 	-- Castle start
 	[337110] = true, -- dreadbolt-volley

@@ -8,18 +8,32 @@ br.lists.ccUnits = {
     [167566] = { name = "Return to Stone", spell = 333145 }, -- Sun King's Salvation
     [165762] = { name = "Soul Infuser" }, -- Sun King's Salvation
     -- SL Dungeons
+
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
-    [165251] = { name = "Illusionary Vulpin"}, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+    [165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+
     -- Necrotic Wake
     [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
+    [163619] = { name = "Zolramus Bonecarver", spell = 321807 }, -- Zolramus Bonecarver casting Boneflay
+    [173016] = { name = "Corpse Collector", spell = 334748 },
+    [166302] = { name = "Corpse Collector", spell = 334748 },
+    [173044] = { name = "Stitching Assistant", spell = 334748 },
+    [165872] = { name = "Stitching Assistant", spell = 327130 },
+    [165911] = { name = "Loyal Creation", spell = 327240 },
+    [165872] = { name = "Flesh Crafter", spell = 327130 },
+
     --Theater of Pain
     [164510] = { name = "Shambling Arbalest" }, -- Nasty dot - needs to be cc'ed
 
     -- Plaguefall
     [171887] = { name = "Slimy Smorgasbord" }, -- Plaguefall Dungeon
-    [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Plaguefall Dungeon
     [164737] = { name = "Enveloping Webbing", spell = 328475 }, -- Plaguefall Dungeon
+    [168572] = { name = "Fungistorm", spell = 330423 }, -- big AOE, can be stunned
+    [168572] = { name = "Fungistorm", spell = 328177 }, -- -- big AOE, can be stunned
+    [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Prevent the shield from going on
+
+
 
     -- Thorghast
     [150959] = { name = "Critical Shot", spell = 294171 }, -- Torghast Mawsworn Interceptor

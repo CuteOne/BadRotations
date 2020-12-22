@@ -695,7 +695,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		end
 		if thisUnit == "None" then printReport(true,"No Unit") return false end
 		-- Other Cast Conditions - Require Target
-		if thisUnit ~= nil and thisUnit ~= "None" and (GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or getLineOfSight(thisUnit)) then
+		if thisUnit ~= nil and thisUnit ~= "None" and (debug == "dead" or not UnitIsDeadOrGhost(thisUnit))
+			and (GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or getLineOfSight(thisUnit))
+		then
 			-- Determined Target Pet/Normal Cast (Early Exit as Range Checks done to determine target)
 			if unitAssigned and (debug == "norm" or debug == "pet") then
 				local enemyFacingCount = #getEnemies("player",maxRange,false,true) or 0

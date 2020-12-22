@@ -100,7 +100,7 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Covenant Ability
-            br.ui:createCheckbox(section,"Covenant Ability")
+            br.ui:createDropdownWithout(section,"Covenant Ability",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Covenant Ability")
             -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
             br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
@@ -311,7 +311,7 @@ local function snipeTF()
             end
         end
         local timeTillDeath = 99
-        local longestBleed = math.max(debuff.rake.remain(lowestUnit), debuff.rip.remain(lowestUnit),
+        local longestBleed = math.max(debuff.rake.remain(lowestUnit,"EXACT"), debuff.rip.remain(lowestUnit),
             debuff.thrashCat.remain(lowestUnit), debuff.feralFrenzy.remain(lowestUnit))
         if unit.ttd(lowestUnit) > 0 then timeTillDeath = unit.ttd(lowestUnit) end
         if lowestUnit ~= nil and timeTillDeath < longestBleed then return true end
@@ -357,18 +357,6 @@ local function usePrimalWrath()
     end
     return false
 end
--- Razor Coral Target
-local function razorTarget()
-    local razorUnit = units.dyn40
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        if debuff.razorCoral.exists(thisUnit) then
-            razorUnit = thisUnit
-            break
-        end
-    end
-    return razorUnit
-end
 
 local function findKindredSpirit()
     local kindredSpirit
@@ -406,7 +394,8 @@ actionList.Extras = function()
             --[[falling > ui.value("Fall Timer")]] and unit.level() >= 24 and not buff.prowl.exists()
         then
             if unit.form() ~= 0 and not cast.last.travelForm() then
-                unit.cancelForm()
+                unit.cancelForm()                
+                ui.debug("Cancel Form [Flying]")
             elseif unit.form() == 0 then
                 if cast.travelForm("player") then ui.debug("Casting Travel Form [Flying]") return true end
             end
@@ -417,6 +406,7 @@ actionList.Extras = function()
         then
             if unit.form() ~= 0 and not cast.last.travelForm() then
                 unit.cancelForm()
+                ui.debug("Cancel Form [Swimming]")
             elseif unit.form() == 0 then
                 if cast.travelForm("player") then ui.debug("Casting Travel From [Swimming]") return true end
             end
@@ -442,7 +432,7 @@ actionList.Extras = function()
             end
         end
         -- Kindred Spirits
-        if ui.checked("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindresSpirit) then
+        if ui.alwaysCdNever("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindresSpirit) then
             if (#br.friend > 1 and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then            
                 if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..UnitName(var.kindredSpirit).." [Kyrian]") return true end
             end
@@ -627,15 +617,12 @@ actionList.Defensive = function()
             end
         end
         -- Regrowth
-        if ui.checked("Regrowth") and cast.able.regrowth() and not (unit.mounted() or unit.flying())
-            and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1
-            and unit.distance(br.friend[1].unit) < 40)) and not cast.current.regrowth()
-        then
+        if ui.checked("Regrowth") and cast.able.regrowth() and not (unit.mounted() or unit.flying()) and not cast.current.regrowth() then
             local thisHP = unit.hp()
             local thisUnit = "player"
             local lowestUnit = unit.lowest(40)
             local fhp = unit.hp(lowestUnit)
-            if ui.value("Auto Heal") == 1 then thisHP = fhp; thisUnit = lowestUnit end
+            if ui.value("Auto Heal") == 1 and unit.distance(lowestUnit) < 40 then thisHP = fhp; thisUnit = lowestUnit end
             if not unit.inCombat() then
                 -- Don't Break Form
                 if ui.value("Regrowth - OoC") == 2 then
@@ -650,6 +637,7 @@ actionList.Defensive = function()
                 if ui.value("Regrowth - OoC") == 1 and unit.hp() <= ui.value("Regrowth") and not unit.moving() then
                     if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
                         unit.cancelForm()
+                        ui.debug("Cancel Form [Regrowth - OoC Break]")
                     elseif unit.form() == 0 then
                        if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..unit.name(thisUnit)) return true end
                     end
@@ -779,19 +767,19 @@ actionList.Cooldowns = function()
         end
         -- Ravenous Frenzy
         -- ravenous_frenzy,if=buff.bs_inc.up|fight_remains<21
-        if ui.checked("Covenant Ability") and cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup(5) < 21 and ui.useCDs())) then
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup(5) < 21 and ui.useCDs())) then
             if cast.ravenousFrenzy() then ui.debug("Casting Ravenous Frenzy [Venthyr]") return true end
         end
         -- Convoke the Spirits
         -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<3&dot.rake.ticking)|fight_remains<5
-        if ui.checked("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
-            and comboPoints < 3 and debuff.rake.exists(units.dyn5) and unit.ttdGroup(5) > 10) or (unit.ttdGroup(5) < 5 and unit.isBoss()))
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
+            and comboPoints < 3 and debuff.rake.exists(units.dyn5,"EXACT") and unit.ttdGroup(5) > 10) or (unit.ttdGroup(5) < 5 and unit.isBoss()))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end
         -- Kindred Spirits
         -- kindred_spirits,if=buff.tigers_fury.up|(conduit.deep_allegiance.enabled)
-        if ui.checked("Covenant Ability") and cast.able.kindredSpirits() then
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.kindredSpirits() then
             if ((var.kindredSpirit ~= nil and buff.kindredSpirits.exists(var.kindredSpirit)) or buff.loneSpirit.exists())
                 and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled)
             then
@@ -804,7 +792,7 @@ actionList.Cooldowns = function()
         end
         -- Adaptive Swarm
         -- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
-        if ui.checked("Covenant Ability") and cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adaptiveSwarm.exists(var.maxTTDUnit) then
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adaptiveSwarm.exists(var.maxTTDUnit) then
             if cast.adaptiveSwarm(var.maxTTDUnit) then ui.debug("Casting Adaptive Swarm [Necrolord]") return true end
         end
         -- Trinkets
@@ -844,7 +832,7 @@ actionList.Opener = function()
             -- Rake
             -- rake,if=!ticking|buff.prowl.up
             elseif opener.TF1 and not opener.RK1 then
-                if debuff.rake.exists("target") then
+                if debuff.rake.exists("target","EXACT") then
                     cast.openerFail("rake","RK1",opener.count)
                 elseif cast.able.rake() then
                     cast.opener("rake","RK1",opener.count)
@@ -942,7 +930,7 @@ actionList.Filler = function()
     -- Rake
     -- rake,if=variable.filler=2
     if cast.able.rake() and filler == 2 and canDoT(units.dyn5)
-        and range.dyn5 and debuff.rake.refresh(units.dyn5)
+        and range.dyn5 and debuff.rake.refresh(units.dyn5,"EXACT")
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
     then
@@ -987,7 +975,7 @@ actionList.Stealth = function()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUit)) and ticksGain.rake > 2 then
+            if (canDoT(thisUnit) and (debuff.rake.applied(thisUnit) < 1.5 or debuff.rake.refresh(thisUnit,"EXACT")) and ticksGain.rake > 2) then
                 if cast.rake(thisUnit) then ui.debug("Casting Rake [Stealth]") return true end
             end
         end
@@ -1009,13 +997,13 @@ end -- End Action List - Stealth
 actionList.Bloodtalons = function()
     -- Rake
     -- rake,target_if=(!ticking|(refreshable&persistent_multiplier>dot.rake.pmultiplier))&buff.bt_rake.down&druid.rake.ticks_gained_on_refresh>=2
-    if cast.able.rake() and not btGen.rake 
+    if cast.able.rake() and not btGen.rake
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if (not debuff.rake.exists(thisUnit) or (debuff.rake.refresh(thisUnit) and debuff.rake.calc() > debuff.rake.applied(thisUnit))) and ticksGain.rake >= 2 then
+            if ((not debuff.rake.exists(thisUnit,"EXACT") or (debuff.rake.refresh(thisUnit,"EXACT") and debuff.rake.calc() > debuff.rake.applied(thisUnit))) and ticksGain.rake >= 2) then
                 if cast.rake(thisUnit) then 
                     ui.debug("Casting Rake [BT - Ticks Gain]")
                     btGen.rake = true
@@ -1149,6 +1137,7 @@ actionList.PreCombat = function()
                 if unit.form() ~= 0 then
                     -- CancelShapeshiftForm()
                     unit.cancelForm()
+                    ui.debug("Cancel Form [Pre-pull]")
                 elseif unit.form() == 0 then
                     if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = GetTime(); return true end
                 end
@@ -1199,13 +1188,14 @@ actionList.PreCombat = function()
         end -- End Pre-Pull
         -- Pull
         if unit.valid("target") and opener.complete and unit.exists("target") and unit.distance("target") < 5 then
-            if comboPoints == 5 then
-                if actionList.Finisher() then return true end
-            end
             -- Run Action List - Stealth
             -- run_action_list,name=(buff.prowl.exists() or buff.shadowmeld.exists()),if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
-                if actionList.Stealth() then return true end
+                -- if not unit.inCombat() then
+                --     if cast.rake("target") then ui.debug("Casting Rake [Pre-Pull") return true end
+                -- else 
+                    if actionList.Stealth() then return true end
+                -- end
             end
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
@@ -1337,7 +1327,7 @@ local function runRotation()
             filler = 1
         end
     end
-    if not debuff.rake.exists(units.dyn5) then
+    if not debuff.rake.exists(units.dyn5,"EXACT") then
         filler = 2
     end
     if talent.lunarInspiration and not debuff.moonfireFeral.exists(units.dyn40) then 
@@ -1355,7 +1345,7 @@ local function runRotation()
     -- NEVER!
 
     -- Bloodtalons - Reset
-    if btGen.timer - GetTime() <= 0 or buff.bloodtalons.exists() then
+    if btGen.timer - GetTime() <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
         if btGen.brutalSlash then btGen.brutalSlash = false end
         if btGen.moonfireFeral then btGen.moonfireFeral = false end
         if btGen.rake then btGen.rake = false end
@@ -1375,10 +1365,34 @@ local function runRotation()
     if not btGen.thrash then btGen.triggers = btGen.triggers + 1 end
 
     -- Group Tracking
-    ticksGain.thrash = 0
-    ticksGain.rip = 0
-    ticksGain.rake = 0
-    ticksGain.moonfireFeral = 0
+    var.rakeTicksTotal = function(thisUnit)
+        return math.floor(debuff.rake.duration(thisUnit,"EXACT") / 3)
+    end
+    var.rakeTicksRemain = function(thisUnit)
+        return math.floor(debuff.rake.remain(thisUnit,"EXACT") / 3)
+    end
+    var.ripTicksTotal = function(thisUnit)
+        return math.floor(debuff.rip.duration(thisUnit) / 2)
+    end
+    var.ripTicksRemain = function(thisUnit)
+        return math.floor(debuff.rip.remain(thisUnit) / 2)
+    end
+    var.thrashCatTicksTotal = function(thisUnit)
+        return math.floor(debuff.thrashCat.duration(thisUnit) / 3)
+    end
+    var.thrashCatTicksRemain = function(thisUnit)
+        return math.floor(debuff.thrashCat.remain(thisUnit) / 3)
+    end
+    var.moonfireFeralTicksTotal = function(thisUnit)
+        return math.floor(debuff.moonfireFeral.remain(thisUnit) / 2)
+    end
+    var.moonfireFeralTicksRemain = function(thisUnit)
+        return math.floor(debuff.moonfireFeral.remain(thisUnit) / 2)
+    end
+    ticksGain.thrash = not debuff.thrashCat.exists("target") and 5 or (var.thrashCatTicksTotal("target") - var.thrashCatTicksRemain("target"))
+    ticksGain.rip = not debuff.rip.exists("target") and 12 or (var.ripTicksTotal("target") - var.ripTicksRemain("target"))
+    ticksGain.rake = not debuff.rake.exists("target","EXACT") and 5 or (var.rakeTicksTotal("target") - var.rakeTicksRemain("target"))
+    ticksGain.moonfireFeral = not debuff.moonfireFeral.exists("target") and 8 or (var.moonfireFeralTicksTotal("target") - var.moonfireFeralTicksRemain("target"))
     var.lowestTTD = 999
     var.lowestTTDUnit = "target"
     var.maxTTD = 0
@@ -1391,32 +1405,33 @@ local function runRotation()
     for i = 1, #enemies.yards8 do
         local thisUnit = enemies.yards8[i]
         local thisTTD = unit.ttd(thisUnit)
-        -- Moonfire Feral Ticks to Gain
-        if not debuff.moonfireFeral.exists(thisUnit) then ticksGain.moonfireFeral = ticksGain.moonfireFeral + 8 end
-        if debuff.moonfireFeral.exists(thisUnit) then ticksGain.moonfireFeral = ticksGain.moonfireFeral + (8 - math.floor(debuff.moonfireFeral.remain(thisUnit) / 2)) end
-        -- Thrash Ticks to Gain
-        if not debuff.thrashCat.exists(thisUnit) then ticksGain.thrash = ticksGain.thrash + 5 end
-        if debuff.thrashCat.exists(thisUnit) then ticksGain.thrash = ticksGain.thrash + (5 - math.floor(debuff.thrashCat.remain(thisUnit) / 3)) end
-        -- cycling_variable,name=best_rip,op=max,value=druid.rip.ticks_gained_on_refresh,if=talent.primal_wrath.enabled
-        if talent.primalWrath then
-            if not debuff.rip.exists(thisUnit) then var.ripTicksGain = var.ripTicksGain + 12 end
-            if debuff.rip.exists(thisUnit) then var.ripTicksGain = var.ripTicksGain + (12 - math.floor(debuff.rip.remain(thisUnit) / 2)) end
+        if not unit.isUnit("target",thisUnit) then
+            -- Moonfire Feral Ticks to Gain
+            ticksGain.moonfireFeral = debuff.moonfireFeral.exists(thisUnit) and (ticksGain.moonfireFeral + (var.moonfireFeralTicksTotal(thisUnit) - var.moonfireFeralTicksRemain(thisUnit))) or ticksGain.moonfireFeral + 8
+            -- Thrash Ticks to Gain
+            ticksGain.thrash = debuff.thrashCat.exists(thisUnit) and (ticksGain.thrash + (var.thrashCatTicksTotal(thisUnit) - var.thrashCatTicksRemain(thisUnit))) or ticksGain.thrash + 5
+            -- cycling_variable,name=best_rip,op=max,value=druid.rip.ticks_gained_on_refresh,if=talent.primal_wrath.enabled
+            if talent.primalWrath then
+                var.ripTicksGain = debuff.rip.exists(thisUnit) and (var.ripTicksGain + (var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit))) or var.ripTicksGain + 12
+            end
         end
         -- 5 Yards Checks
         if unit.distance(thisUnit) < 5 then
-            -- Rip Ticks to Gain
-            if not debuff.rip.exists(thisUnit) then ticksGain.rip = ticksGain.rip + 12 end
-            if debuff.rip.exists(thisUnit) then ticksGain.rip = ticksGain.rip + (12 - math.floor(debuff.rip.remain(thisUnit) / 2)) end
-            -- Rake Ticks to Gain
-            if not debuff.rake.exists(thisUnit) then ticksGain.rake = ticksGain.rake + 5 end
-            if debuff.rake.exists(thisUnit) then ticksGain.rake = ticksGain.rake + (5 - math.floor(debuff.rake.remain(thisUnit) / 3)) end
+            if not unit.isUnit("target",thisUnit) then
+                -- Rip Ticks to Gain
+                ticksGain.rip = debuff.rip.exists(thisUnit) and (ticksGain.rip + (var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit))) or ticksGain.rip + 12
+                -- Rake Ticks to Gain
+                ticksGain.rake = debuff.rake.exists(thisUnit,"EXACT") and (ticksGain.rake + (var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit))) or ticksGain.rake + 5
+            end
             -- variable,name=shortest_ttd,value=target.time_to_die,if=variable.shortest_ttd=0
             -- cycling_variable,name=shortest_ttd,op=min,value=target.time_to_die
-            if thisTTD < var.lowestTTD then var.lowestTTD = thisTTD var.lowestTTDUnit = thisUnit end 
-            if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end    
+            if thisTTD < var.lowestTTD then var.lowestTTD = thisTTD var.lowestTTDUnit = thisUnit end
+            if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end
         end
     end
     if talent.primalWrath then bestRip = var.ripTicksGain end
+
+    -- Print("Remain: "..tostring(var.rakeTicksRemain("target")).." Gain: "..tostring(round2(ticksGain.rake,2)).." Total: "..tostring(var.rakeTicksTotal("target")).." Time: "..round2(debuff.rake.remain("target","EXACT"),2))
 
     ---------------------
     --- Begin Profile ---
@@ -1540,7 +1555,7 @@ local function runRotation()
                     if (cast.able.rake() or cast.pool.rake()) and canDoT(units.dyn5)
                         and debuff.rake.count() < ui.value("Multi-DoT Limit")
                         and #enemies.yards5f < ui.value("Multi-DoT Limit")
-                        and (debuff.rake.refresh(units.dyn5) or debuff.rake.calc() > debuff.rake.applied(units.dyn5))
+                        and (debuff.rake.refresh(units.dyn5,"EXACT") or debuff.rake.calc() > debuff.rake.applied(units.dyn5))
                         and ticksGain.rake > #enemies.yards8 * 2 - 2
                     then
                         if cast.pool.rake() then return true end

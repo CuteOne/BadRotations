@@ -158,10 +158,14 @@ br.lists.dummies = {
 	[174568] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Ardenweald) 
 	[174491] = "Iron Tester", 				  -- Lvl ?? (Location Unknown)
 	[174488] = "Unbreakable Defender", 		  -- Lvl ?? (Location Unknown)
-	[174489] = "Necromantic Guide", 		  -- Lvl ?? (Location Unknown)
+	-- [174489] = "Necromantic Guide", 		  -- Lvl ?? (Location Unknown)
 	[174489] = "Raider's Training Dummy",	  -- Lvl ?? (Revendreth)
 	[175452] = "Raider's Training Dummy",	  -- Lvl ?? (Location Unknown)
 	[175451] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Revendreth)
+	[154580] = "Reinforced Guardian", 		  -- Elysian Hold
+	[154583] = "Stalward Guardian", 		  -- Elysian Hold
+	[154585] = "Valiant's Resolve",			  -- Elysian Hold
+	[154586] = "Stalward Phalanx", 			  -- Elysian Hold
 	
 
 
