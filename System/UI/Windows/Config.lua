@@ -137,6 +137,11 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
+    local function callDebugEngine()
+        section = br.ui:createSection(br.ui.window.config, "Debug")
+        br.ui:createDebugInput(section, "Input string...", 5, -10)
+    end
+
     local function callQueueEngine()
         local function pairsByKeys (t, f)
             local a = {}
@@ -212,6 +217,10 @@ function br.ui:createConfigWindow()
          {
             [1] = "Tracker Engine",
             [2] = callTrackerEngine,
+        },
+        {
+            [1] = "Debug Engine",
+            [2] = callDebugEngine,
         },
     })
 

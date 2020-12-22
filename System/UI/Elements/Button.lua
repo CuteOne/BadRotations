@@ -413,3 +413,78 @@ br.tableLoad = function( sfile )
     br.loadFile = true
     return tables[1]
 end
+
+function br.ui:createDebugInput(parent, text)
+    local parent = parent
+    local x = 5
+    local y = -5
+
+    local newInput = DiesalGUI:Create('Input')
+    parent:AddChild(newInput)
+    newInput:SetParent(parent.content)
+    newInput:SetStylesheet(br.ui.buttonStyleSheet)
+    newInput:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
+    newInput:SetText(text)
+    newInput:SetWidth(300)
+    newInput:SetHeight(20)
+
+    local newBtn = DiesalGUI:Create('Button')
+    parent:AddChild(newBtn)
+    newBtn:SetParent(parent.content)
+    newBtn:SetStylesheet(br.ui.buttonStyleSheet)
+    newBtn:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y-25)
+    newBtn:SetText("Read")
+    newBtn:SetWidth(40)
+    newBtn:SetHeight(20)
+
+    newBtn:SetEventListener("OnClick", function()
+        local tbl = nil
+        local line = newInput:GetText()
+        print("Debug information for table ".. line ..":")
+
+        -- get table
+        local t = _G    -- start with the table of globals
+        for w, d in string.gmatch(line, "([%w_]+)(.?)") do
+            if d == "." then      -- not last field?
+                t = t[w]          -- get the table
+            else                  -- last field
+                tbl = t[w]  -- do the assignment
+            end
+        end
+
+        -- print
+        if tbl==nil then
+            print("No information found!")
+        else
+            Tprint(tbl, 0)
+        end
+    end)
+
+    local reloadBtn = DiesalGUI:Create('Button')
+    parent:AddChild(reloadBtn)
+    reloadBtn:SetParent(parent.content)
+    reloadBtn:SetStylesheet(br.ui.buttonStyleSheet)
+    reloadBtn:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y-50)
+    reloadBtn:SetText("Reload UI")
+    reloadBtn:SetWidth(60)
+    reloadBtn:SetHeight(20)
+
+    reloadBtn:SetEventListener("OnClick", function()
+        ReloadUI()
+    end)
+end
+  
+function Tprint (tbl, indent)
+    if not indent then indent = 0 end
+    for k, v in pairs(tbl) do
+      local formatting = string.rep("  ", indent) .. k .. ": "
+      if type(v) == "table" then
+        print(formatting)
+        Tprint(v, indent+1)
+      elseif type(v) == 'boolean' then
+        print(formatting .. tostring(v))
+      else
+        print(formatting .. v)
+      end
+    end
+  end
