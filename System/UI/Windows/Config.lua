@@ -103,16 +103,27 @@ function br.ui:createConfigWindow()
     end
 
     local function callSettingsEngine()
-        section = br.ui:createSection(br.ui.window.config, "Export/Import from Settings Folder")
-        --br.ui:createDropdownWithout(section, "Load Prior Saved Settings", {"Dungeons", "Mythic Dungeons", "Raids", "Mythic Raids"}, 1, "Select Profile to Load.")
---         br.ui:createProfileDropdown(section)
---         br.ui:createSaveButton(section, " +", 200, -5)
---         br.ui:createDeleteButton(section, " -", 220, -5)
---         br.ui:createLoadButton(section, "Load", 20, -40)
-        br.ui:createText(section,"Export/Import from Settings Folder")
-        br.ui:createExportButton(section, "Export", 40, -90)
-        br.ui:createImportButton(section, "Import", 140, -90)
-        br.ui:createText(section,"FileName: "..br.selectedSpec..br.selectedProfileName..".lua")
+        exportSettings = {"Solo", "Dungeon", "M+ Dungeon", "Raid", "M+ Raids"}
+        section = br.ui:createSection(br.ui.window.config, "Settings")
+        br.ui:createDropdownWithout(section,    "Select Settings", exportSettings, 2, "Select profile to use, then click load")
+        br.ui:createText(section, "|cffDB4437Save your current settings before loading a new one!!")
+        local saveProfile = function()
+            br:saveSettings("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
+        end
+        local loadProfile = function()
+            br.data.loadedSettings = false
+            br:loadSettings("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
+            ReloadUI()
+        end
+        local y = -5
+        for i=1, #section.children do
+            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
+                y = y - section.children[i].frame:GetHeight()*1.2
+            end
+        end
+        y = round2(y, 1)
+        br.ui:createButton(section, "Save", 10, y, saveProfile)
+        br.ui:createButton(section, "Load", -10, y, loadProfile, true)
         br.ui:checkSectionState(section)
     end
 
