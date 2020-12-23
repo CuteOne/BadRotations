@@ -471,6 +471,10 @@ local StunsBlackList = {
     [168318] = "Forsworn Goliath",
     [163520] = "Forsworn Squad-Leader",
 
+
+    -- The Necrotic Wave
+    [164414] = "Reanimated Mage",
+
     --[[   -- Theater of Pain
       [164501] = "Mistcaller",
       [164501] = "Mistcaller",
@@ -485,8 +489,7 @@ local StunsBlackList = {
       [164501] = "Mistcaller",
       [164501] = "Mistcaller",
 
-      -- The Necrotic Wave
-      [164501] = "Mistcaller",
+
       [164501] = "Mistcaller",
       [164501] = "Mistcaller",
       [164501] = "Mistcaller",
@@ -1160,7 +1163,7 @@ actionList.Stealth = function()
             end
             if StunsBlackList[GetObjectID(do_stun)] == nil then
                 if cast.cheapShot(do_stun) then
-                    br.addonDebug("Cheapshot stun on:" .. do_stun)
+                    br.addonDebug("Cheapshot stun")
                     do_stun = nil
                     return true
                 end
