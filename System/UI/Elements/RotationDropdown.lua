@@ -11,7 +11,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
     newDropdown:SetList(itemlist)
 
     -- Set selected profile to 1 if not found
-    br:loadLastProfileTracker()
+    -- br:loadLastProfileTracker()
     if br.data.settings[br.selectedSpec][text.."Drop"] == nil then
         br.data.settings[br.selectedSpec][text.."Drop"] = 1
     elseif br.data.settings[br.selectedSpec][text.."Drop"] > #itemlist then
@@ -41,11 +41,11 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
         else
             -- Print("Rotation Changed")
             br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
+            br:saveLastProfileTracker()
             br.data.settings[br.selectedSpec][text.."Drop"] = key
             br.data.tracker[br.selectedSpec][text..'Drop'] = key
             br.data.settings[br.selectedSpec][text.."DropValue"] = value
             br.data.tracker[br.selectedSpec][text..'DropValue'] = value
-            br:saveLastProfileTracker()
             br.data.lastProfile = key 
             br.selectedProfile = key
             br.selectedProfileName = value

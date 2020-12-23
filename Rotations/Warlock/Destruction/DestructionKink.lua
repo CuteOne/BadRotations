@@ -1,5 +1,5 @@
 local rotationName = "KinkDestruction"
-local VerNum = "1.2.6"
+local VerNum = "1.2.7"
 local colorOrange = "|cffFF7C0A"
 ---------------
 --- Toggles ---
@@ -51,6 +51,13 @@ local function createToggles()
         [5] = { mode = "None", value = 5 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.conflagrate }
     };
     CreateButton("PetSummon",6,0)
+    
+    -- Burning Rush button
+    BurningRushModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Burning Rush Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.burningRush},
+        [2] = { mode = "Off", value = 2 , overlay = "Burning Rush Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.burningRush}
+    };
+    CreateButton("BurningRush",1,1)
 end
 
 ---------------
@@ -304,6 +311,13 @@ end
             end
         end
         return true
+    end
+        -- spell usable check
+    local function spellUsable(spellID)
+        if isKnown(spellID) and not select(2, IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 then
+            return true
+        end
+        return false
     end
 
 
@@ -708,6 +722,11 @@ actionList.Defensive = function()
                 end
             end
         end
+
+                    -- Mortal Coil
+            if ui.checked("Mortal Coil") and php <= ui.value("Mortal Coil") then
+                if cast.mortalCoil() then br.addonDebug("Casting Mortal Coil") return true end
+            end
 
         -- Heirloom Neck
         if ui.checked("Heirloom Neck") and php <= ui.value("Heirloom Neck") then
@@ -1283,20 +1302,31 @@ actionList.PreCombat = function()
         end
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(spell.healthFunnel) and php >= ui.value ("Health Funnel Cancel Cast") then SpellStopCasting() return true end 
-    if UnitChannelInfo("player") == GetSpellInfo(spell.drainLife) and php >= ui.value("Drain Life Cancel Cast") then SpellStopCasting() return true end
+    if solo then
+        -- Burning Rush
+        if buff.burningRush.exists() and not moving or buff.burningRush.exists() and php <= ui.value("Burning Rush Health") then RunMacroText("/cancelaura Burning Rush") br.addonDebug("Canceling Burning Rush") return true end 
+
+        if mode.burningRush ~= 2 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and moving and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
+
+        if mode.burningRush == 3 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
+    end  
+
+    --if UnitChannelInfo("player") == GetSpellInfo(spell.healthFunnel) and php >= ui.value ("Health Funnel Cancel Cast") then SpellStopCasting() return true end 
+    --if UnitChannelInfo("player") == GetSpellInfo(spell.drainLife) and php >= ui.value("Drain Life Cancel Cast") then SpellStopCasting() return true end
 
 
-        if isChecked("Soulstone") and getOptionValue("Soulstone") == 7 then -- Player
+        if not moving and not inCombat and isChecked("Soulstone") and getOptionValue("Soulstone") == 7 then -- Player
             if not UnitIsDeadOrGhost("player") and not moving and not inCombat then
                 if cast.soulstone("player") then br.addonDebug("Casting Soulstone [Player]" ) return true end
             end
         end
 
-            -- Create Healthstone
-        if not moving and ui.checked("Create Healthstone") and GetItemCount(5512) < 1 or itemCharges(5512) < 3 and (not lcast or GetTime() - lcast >= 5) then
-            if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) lcast = GetTime() return true end
-        end
+        -- Create Healthstone
+        if not moving and not inCombat and ui.checked("Create Healthstone") then
+            if GetItemCount(5512) < 1 and br.timer:useTimer("CH", 5) then
+                if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
+            end
+         end
 
     if not inCombat and isValidUnit("target") and getDistance("target") < 40 and getFacing("player","target") then
         -- Grimoire Of Sacrifice
@@ -1333,6 +1363,14 @@ actionList.ST = function()
             if debuff.havoc.count() > 0 and #enemies.yards40f < 5 - inferno + internalInferno then
                 if actionList.Havoc() then return true end
             end
+
+        if level < 60 then
+            -- Decimating Bolt
+            if spellUsable(313347) and select(2,GetSpellCooldown(313347)) <= gcdMax and not moving and ttd("target") < 15 then if CastSpellByName(GetSpellInfo(313347)) then return true end end 
+
+                -- Kyrian: Scouring Tithe
+            if spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax  and not moving and ttd(thisUnit) < 18 and shards >= 4.5 and debuff.havoc.exists(thisUnit) then if CastSpellByName(GetSpellInfo(313347),thisUnit) then return true end end 
+        end
            
             -- Curse of Weakness
                 for i = 1, #enemies.yards40f do
@@ -1424,6 +1462,26 @@ actionList.ST = function()
                 end
             end
 
+            -- Immolate
+            -- immolate,cycle_targets=1,if=refreshable&(!talent.cataclysm.enabled|cooldown.cataclysm.remains>remains)
+          --[[ if not moving and cast.able.immolate() then
+                for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.corruption.remains(thisUnit) < 7) 
+                    then
+                        if not GetUnitIsUnit(thisUnit,br.lastImmo) then
+                            if cast.immolate(thisUnit) then debug("Cast Immolate [Main - Multi]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
+                        else
+                            if br.lastImmoCast == nil or GetTime() - br.lastImmoCast > 4.5 then
+                                if cast.immolate(thisUnit) then debug("Cast Immolate [Main - Multi Same Target]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
+                            end
+                        end
+                    end
+                end
+            end--]]
+
+
+
             -- immolate,if=talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains<duration*0.5
             if not moving and UnitHealth("target") >= immoTick and ttd("target") >= 9 and cast.able.immolate() and okToDoT and not cast.last.immolate() and (talent.internalCombustion
                 and cast.inFlight.chaosBolt() and debuff.immolate.remain("target") < debuff.immolate.duration() * 0.5)
@@ -1471,6 +1529,42 @@ actionList.ST = function()
             if essence.concentratedFlame.active and not debuff.concentratedFlame.exists("target") and cd.concentratedFlame.remains() <= gcdMax then
                 if cast.concentratedFlame("target") then debug("Cast Concentrated Flame") return true end
             end
+
+            
+            --actions.covenant=impending_catastrophe,if=cooldown.summon_darkglare.remains<10|cooldown.summon_darkglare.remains>50
+            ---------------------------0--------------------
+            -- Impending Catastrophe : Venthyr -------------
+            ------------------------------------------------
+            --321792
+            if not moving and spellUsable(321792) and IsSpellKnown(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+                if CastSpellByName(GetSpellInfo(321792)) then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end
+
+
+            --actions.covenant+=/decimating_bolt,if=cooldown.summon_darkglare.remains>5&(debuff.haunt.remains>4|!talent.haunt.enabled)
+            ---------------------------0--------------------
+            -- Decimating Bolt : Necrolord -----------------
+            ------------------------------------------------
+            if not moving and spellUsable(325289) and IsSpellKnown(325289) and select(2,GetSpellCooldown(325289)) <= gcdMax then
+                if CastSpellByName(GetSpellInfo(325289)) then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end
+
+
+            --actions.covenant+=/soul_rot,if=cooldown.summon_darkglare.remains<5|cooldown.summon_darkglare.remains>50|cooldown.summon_darkglare.remains>25&conduit.corrupting_leer.enabled
+            ------------------------------------------------
+            -- Soul Rot : Night Fae ------------------------
+            ------------------------------------------------
+            if useCDs() and not moving and spellUsable(325640) and IsSpellKnown(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+                if CastSpellByName(GetSpellInfo(325640)) then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end
+
+            ------------------------------------------------
+            -- Scouring Tithe : Kyrian ---------------------
+            ------------------------------------------------
+            if not moving and spellUsable(312321) and IsSpellKnown(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax then
+                if CastSpellByName(GetSpellInfo(312321)) then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end
+
 
             -- Channel Demonfire
             -- channel_demonfire
@@ -1619,6 +1713,7 @@ local function runRotation()
     ui                                 = br.player.ui
     pet                                = br.player.pet
     php                                = br.player.health
+
     pullTimer                          = PullTimerRemain()
     race                               = br.player.race
     racial                             = br.player.getRacial()

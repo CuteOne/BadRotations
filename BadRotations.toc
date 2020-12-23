@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.33.4
+## Version: 1.33.7
 
 BadRotations.lua
 bindings.xml
@@ -136,6 +136,7 @@ System\API\Item.lua
 System\API\Module.lua
 System\API\Pet.lua
 System\API\Power.lua
+System\API\Runeforge.lua
 System\API\Spell.lua
 System\API\UI.lua
 System\API\Unit.lua

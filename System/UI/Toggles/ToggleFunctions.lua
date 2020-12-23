@@ -221,7 +221,7 @@ function CreateButton(Name,x,y)
 		-- local Name = string.upper(Name)
 		-- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
 		if br.data.settings[br.selectedSpec].toggles[Name] == nil or br.data.settings[br.selectedSpec].toggles[Name] > #_G[Name.."Modes"] then br.data.settings[br.selectedSpec].toggles[Name] = 1 end
-		tinsert(buttonsTable, { name = Name, bx = x, by = y })
+		if buttonsTable then tinsert(buttonsTable, { name = Name, bx = x, by = y }) end
 		_G["button"..Name] = CreateFrame("Button", "MyButtonBR", mainButton, "SecureHandlerClickTemplate")
 		_G["button"..Name]:SetWidth(br.data.settings["buttonSize"])
 		_G["button"..Name]:SetHeight(br.data.settings["buttonSize"])
@@ -287,13 +287,15 @@ function CreateButton(Name,x,y)
 		else
 			_G["frame"..Name].texture:SetTexture(genericIconOn)
 		end
-		if br.data.settings[br.selectedSpec].toggles["Main"] == 1 and not UnitAffectingCombat("player") then
-			mainButton:Show()
-		elseif not UnitAffectingCombat("player") then
-			mainButton:Hide()
-		elseif UnitAffectingCombat("player") then
-			Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
-		end		 
+		if mainButton ~= nil then
+			if br.data.settings[br.selectedSpec].toggles["Main"] == 1 and not UnitAffectingCombat("player") then
+				mainButton:Show()
+			elseif not UnitAffectingCombat("player") then
+				mainButton:Hide()
+			elseif UnitAffectingCombat("player") then
+				Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+			end
+		end	 
 		SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 	end
 end

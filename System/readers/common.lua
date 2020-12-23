@@ -101,7 +101,9 @@ function br.read.commonReaders()
 			-- here we should manage stats snapshots
 			AgiSnap = getAgility()
 
-			br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
+			if br.data.settings ~= nil then
+				br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
+			end
 			ChatOverlay("|cffFF0000Entering Combat")
 		end
 	end
@@ -261,9 +263,11 @@ function br.read.commonReaders()
 			local targeting = isTargeting(unit)
 			local hasThreat = hasThreat(unit) or targeting or isInProvingGround() or burnUnit
 			local reaction = GetUnitReaction(unit, "player") or 10
-			if isChecked("Target Validation Debug") and not UnitIsPlayer(unit) then
+			if isChecked("Target Validation Debug") and (not UnitIsPlayer(unit) or UnitIsCharmed(unit) or UnitDebuffID("player", 320102)) then
 				if isValidUnit(unit) then
 					self:AddLine("Unit is Valid",0,1,0)
+				elseif not getLineOfSight("player",unit) then
+					self:AddLine("LoS Fail",1,0,0)
 				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or br.lists.threatBypass[GetObjectID(unit)] ~= nil or burnUnit) then
 					self:AddLine("Not in Units Table",1,0,0)
 				elseif not (not UnitIsTapDenied(unit) or dummy) then

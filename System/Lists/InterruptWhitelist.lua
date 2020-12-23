@@ -3,6 +3,9 @@ if br.lists == nil then
 end
 -- Interrupt Whitelist - A list of spells we know for sure we want to interrupt (Typically in Dungeons and Raids)
 br.lists.interruptWhitelist = {
+	-- Castle Nathria start
+	[333002] = true, -- Vulgar Brand
+	-- Castle Nathria end
 	-- De other side start
 	-- [333227] = true, -- Undying rage
 	[332329] = true, -- Devoted Sacrifice
@@ -56,7 +59,11 @@ br.lists.interruptWhitelist = {
 	[324293] = true, -- rasping-scream
 	[320170] = true, -- necrotic-bolt
 	[338353] = true, -- goresplatter
+	[333623] = true, -- frostbolt Volley
 	-- Necrotic Wake end
+	-- Castle start
+	[337110] = true, -- dreadbolt-volley
+	-- Castle end
 	-- Old Content start
 	[309648] = true, -- Tainted Polymorph
 	[308375] = true, -- Psychic Scream

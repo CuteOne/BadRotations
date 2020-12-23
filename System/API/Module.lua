@@ -66,7 +66,7 @@ br.api.module = function(self)
                 if cast.racial() then ui.debug("Casting Gift of the Naaru") return true end
             end
             -- Kyrian Bell
-            if ui.checked("Kyrian Bell") and (isInArdenweald() or isInBastion() or isInMaldraxxus() or isInRevendreth() or isInTheMaw())
+            if ui.checked("Kyrian Bell") and (isInArdenweald() or isInBastion() or isInMaldraxxus() or isInRevendreth())-- or isInTheMaw())
                 and use.able.kyrianBell() and has.kyrianBell()
             then
                 if use.kyrianBell() then ui.debug("Using Kyrian Bell") return true end

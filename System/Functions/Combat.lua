@@ -60,6 +60,18 @@ function getCombatTime()
 	br.data.settings[br.selectedSpec]["Combat Time"] = combatTime
 	return (math.floor(combatTime*1000)/1000)
 end
+function getOoCTime()
+	local combatStarted = br.data.settings[br.selectedSpec]["Combat Started"]
+	if combatStarted ~= nil then
+		return GetTime()
+	end
+	if UnitAffectingCombat("player") == false then
+		combatTime = (GetTime() - combatStarted)
+	else
+		combatTime = 0
+	end
+	return (math.floor(combatTime*1000)/1000)
+end
 -- if getLowAllies(60) > 3 then
 function getLowAllies(Value)
 	local lowAllies = 0
@@ -92,7 +104,7 @@ function isIncapacitated(spellID)
 		for i=0,eventIndex do
 			event = C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				if not canRegainControl(spellID,event.locType) and (event.locType ~= "ROOT" or event.locType == "SNARE")
+				if not canRegainControl(spellID,event.locType) and (event.locType ~= "DISARM" and event.locType ~= "ROOT" or event.locType == "SNARE")
 				-- (event.locType == "NONE"
 				-- 	or event.locType == ""CHARM""
 				-- 	or event.locType == "DISORIENT"

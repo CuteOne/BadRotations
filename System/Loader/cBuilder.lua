@@ -81,19 +81,22 @@ function br.loader:new(spec,specName)
     local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
     -- Print("Spec: "..spec.." | Spec Name: "..specName)
-    if not br.loaded then
-        -- Print("Loader - Loading Profiles")
-        br.loader.loadProfiles()
-        br.loaded = true
-    end
+    -- if not br.loaded then
+    --     -- Print("Loader - Loading Profiles")
+    --     br.loader.loadProfiles()
+    --     br.loaded = true
+    -- end
 
     self.profile = specName
 
     -- Mandatory !
-    self.rotation = br.rotations[spec][br.selectedProfile]
-    -- Print("Loader - Loading Settings for Rotation: "..self.rotation.name)
-    br.data.loadedSettings = false
-    br:loadSettings(nil,nil,nil,self.rotation.name)
+    if br.rotations[spec] == nil then br.loader.loadProfiles() end
+    if br.rotations[spec][br.selectedProfile] then
+        self.rotation = br.rotations[spec][br.selectedProfile]
+    else
+        self.rotation = br.rotations[spec][1]
+    end
+
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
@@ -229,9 +232,9 @@ function br.loader:new(spec,specName)
         end
         
         -- Spell Test
-        getSpellsTest()
+        -- getSpellsTest()
         -- Talent Test
-        getTalentTest()
+        -- getTalentTest()
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
         -- Shared Class Spells
@@ -364,6 +367,15 @@ function br.loader:new(spec,specName)
         --     end
         -- end
         br.api.covenant(self.covenant)
+
+        -- Runeforge
+        if self.spell.runeforges ~= nil then
+            for k,v in pairs(self.spell.runeforges) do
+                if self.runeforge == nil then self.runeforge = {} end
+                if self.runeforge[k] == nil then self.runeforge[k] = {} end
+                br.api.runeforge(self.runeforge,k,v)
+            end
+        end
 
         -- Update Power
         if not self.power then self.power = {} end
@@ -509,7 +521,8 @@ function br.loader:new(spec,specName)
             -- Build Spell Charges
             br.api.spells(self.charges,spell,id,"charges")
             -- Build Spell Cooldown
-            br.api.spells(self.cd,spell,id,"cd")
+            br.api.cd(self,spell,id)
+            --br.api.spells(self.cd,spell,id,"cd")
             -- build Spell Known
             br.api.spells(self.spell,spell,id,"known")
         end

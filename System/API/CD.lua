@@ -11,23 +11,34 @@ if br.api == nil then br.api = {} end
 
 br.api.cd = function(self,spell,id)
     if self.cd == nil then self.cd = {} end
+    if self.cd[spell] == nil then self.cd[spell] = {} end
     local cd = self.cd
+
 
     ----------------
     --- CD API ---
     ----------------
-
+    
     -- cd.spell.exists() - returns if spell is on cooldown or not
     cd[spell].exists = function()
-        return getSpellCD(id) > 0
+        local level = UnitLevel("player")
+        local spellLevel = GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        return spellCD > 0
     end
     -- cd.spell.remain() - return the time remaining on spell cooldown or 0 if not
     cd[spell].remain = function()
-        return getSpellCD(id)
+        local level = UnitLevel("player")
+        local spellLevel = GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        return spellCD
     end
     -- cd.spell.remains() - return the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo)
     cd[spell].remains = function()
-        return getSpellCD(id)
+        local level = UnitLevel("player")
+        local spellLevel = GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        return spellCD
     end
     -- cd.spell.duration() - returns the total time of the spell cooldown
     cd[spell].duration = function()
@@ -36,6 +47,9 @@ br.api.cd = function(self,spell,id)
     end
     -- cd.spell.ready() - returns if the spell is not on cooldown or is (opposite of cd.spell.exists())
     cd[spell].ready = function()
-        return getSpellCD(id) == 0
+        local level = UnitLevel("player")
+        local spellLevel = GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        return spellCD == 0
     end
 end

@@ -12,25 +12,25 @@ br.api.spells = function(spells,k,v,subtable)
             return isKnown(v)
         end
     end
-    if subtable == "cd" then
-        if spells[k] == nil then spells[k] = {} end
-        local cd = spells[k]
-        cd.exists = function()
-            return getSpellCD(v) > 0
-        end
-        cd.remain = function()
-            return getSpellCD(v)
-        end
-        cd.remains = function()
-            return getSpellCD(v)
-        end
-        cd.duration = function()
-            local _, CD = GetSpellCooldown(v)
-            return CD
-        end
-        cd.ready = function()
-            return getSpellCD(v) == 0
-        end
+    if subtable == "cd" then -- Moved to own file API\CD.lua
+        -- if spells[k] == nil then spells[k] = {} end
+        -- local cd = spells[k]
+        -- cd.exists = function()
+        --     return getSpellCD(v) > 0
+        -- end
+        -- cd.remain = function()
+        --     return getSpellCD(v)
+        -- end
+        -- cd.remains = function()
+        --     return getSpellCD(v)
+        -- end
+        -- cd.duration = function()
+        --     local _, CD = GetSpellCooldown(v)
+        --     return CD
+        -- end
+        -- cd.ready = function()
+        --     return getSpellCD(v) == 0
+        -- end
     end
     if subtable == "charges" then
         if spells[k] == nil then spells[k] = {} end

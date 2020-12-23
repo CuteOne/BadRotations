@@ -109,6 +109,7 @@ br.lists.items = {
     azsharasFontOfPower             = 169314,
     bygoneBeeAlmanac                = 163936,
     convergenceOfFates              = 140806,
+    darkmoonDeckPutrescence         = 173069,
     deceiversGrandDesign            = 147007,
     draughtOfSouls                  = 140808,
     dribblingInkpod                 = 169319,

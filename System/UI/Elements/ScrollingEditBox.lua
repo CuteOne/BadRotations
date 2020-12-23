@@ -52,7 +52,13 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
             layer   = 'BORDER',
             color   = 'FFFFFF',
             alpha   = .02,
-        }
+        },
+        ["frame-outline"] = {
+            type = "outline",
+            layer = "BORDER",
+            color = 'FFFFFF',
+            offset = 0
+        },
     }
     -------------------------------
 

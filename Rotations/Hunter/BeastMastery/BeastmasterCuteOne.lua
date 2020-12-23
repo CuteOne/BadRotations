@@ -175,6 +175,7 @@ local enemies
 local module
 local opener
 local power
+local runeforge
 local talent
 local unit
 local units
@@ -521,16 +522,16 @@ actionList.St = function()
     if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.1 then
         if cast.barbedShot(br.petTarget) then ui.debug("[ST 1] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end
-    -- -- Tar Trap
-    -- -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    -- if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-    --     if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
-    -- end
-    -- -- Flare
-    -- -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    -- if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
-    --     if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [Soulforge Embers]") var.tarTrapUnit = nil return true end
-    -- end
+    -- Tar Trap
+    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
+    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+    end
+    -- Flare
+    -- flare,if=tar_trap.up&runeforge.soulforge_embers
+    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    end
     -- Bloodshed
     -- bloodshed
     if cast.able.bloodshed() then
@@ -548,14 +549,16 @@ actionList.St = function()
     end
     -- Kill Shot
     -- kill_shot,if=buff.flayers_mark.remains<5|target.health.pct<=20
-    if cast.able.killShot() and (buff.flayersMark.remains() < 5 or unit.hp("target") < 20) then
-        if cast.killShot("target") then ui.debug("Casting Kill Shot") return true end
+    if cast.able.killShot(var.lowestHPUnit) and (buff.flayersMark.remains() < 5 or unit.hp(var.lowestHPUnit) < 20) then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot") return true end
     end
     -- Barbed Shot
     -- barbed_shot,if=(cooldown.wild_spirits.remains>full_recharge_time|!covenant.night_fae)&(cooldown.bestial_wrath.remains<12*charges_fractional+gcd&talent.scent_of_blood|full_recharge_time<gcd&cooldown.bestial_wrath.remains)|target.time_to_die<9
-    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active)
-        and ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true) and talent.scentOfBlood) or (charges.barbedShot.timeTillFull() < unit.gcd(true) and cd.bestialWrath.remains() > 0))
-            or (unit.ttd(br.petTarget) < 9 and ui.useCDs()))
+    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget)
+        and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active or not ui.alwaysCdNever("Covenant Ability"))
+        and ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true) and talent.scentOfBlood)
+            or (charges.barbedShot.timeTillFull() < unit.gcd(true) and (cd.bestialWrath.remains() > 0 or ui.mode.bestialWrath == 2 or not ui.alwaysCdNever("Bestial Wrath")))
+            or (unit.ttd(br.petTarget) < 9 and ui.useCDs())))
     then
         if cast.barbedShot(br.petTarget) then ui.debug("[ST 2] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end
@@ -608,7 +611,7 @@ actionList.St = function()
     -- Cobra Shot
     -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)|(buff.bestial_wrath.up|buff.nesingwarys_trapping_apparatus.up)&!runeforge.qapla_eredun_war_order|target.time_to_die<3
     if cast.able.cobraShot() and ((power.focus.amount() - cast.cost.cobraShot() + power.focus.regen() * (cd.killCommand.remain() - 1) > cast.cost.killCommand() or cd.killCommand.remain() > 1 + unit.gcd(true))
-        --or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped()
+        or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped
         or unit.ttd(units.dyn40) < 3 and ui.useCDs())
     then
         if cast.cobraShot() then ui.debug("Casting Cobra Shot") return true end
@@ -622,8 +625,14 @@ actionList.St = function()
     -- arcane_pulse,if=buff.bestial_wrath.down|target.time_to_die<5
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
+    if cast.able.tarTrap() and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap() then ui.debug("Casting Tar Trap [Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    end
     -- Freezing Trap
-    -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus    
+    -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
+    if cast.able.freezingTrap() and runeforge.nesingwarysTrappingApparatus.equiped then
+        if cast.freezingTrap() then ui.debug("Casting Freezing Trap [Nesingwary's Trapping Apparatus]") return true end
+    end  
 end -- End Action List - Single Target
 
 -- Action List - Cleave
@@ -645,16 +654,16 @@ actionList.Cleave = function()
     then
         if cast.multishot() then ui.debug("Casting Multishot [AOE]") return true end
     end
-    -- -- Tar Trap
-    -- -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    -- if cast.able.tarTrap() and debuff.soulforgeEmbers.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-    --     if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [AOE Soulforge Embers]") var.tarTrapUnit = units.dyn40 return true end
-    -- end
-    -- -- Flare
-    -- -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    -- if unit.exists(var.tarTrapUnit) and cast.able.flare() and debuff.tarTrap.exists(var.tarTrapUnit) then --and runeforge.soulforgeEmbers.equiped() then
-    --     if cast.flare(var.tarTrapUnit) then ui.debug("Casting Flare [AOE Soulforge Embers]") var.tarTrapUnit = nil return true end
-    -- end
+    -- Tar Trap
+    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
+    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") return true end
+    end
+    -- Flare
+    -- flare,if=tar_trap.up&runeforge.soulforge_embers
+    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
     if ui.alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
@@ -678,6 +687,7 @@ actionList.Cleave = function()
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath [AOE]") return true end
     end
     -- Resonating Arrow
+    -- resonating_arrow
     if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
@@ -695,8 +705,8 @@ actionList.Cleave = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot() and unit.hp("target") < 20 then
-        if cast.killShot("target") then ui.debug("Casting Kill Shot [AOE]") return true end
+    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [AOE]") return true end
     end
     -- Chimaera Shot
     -- chimaera_shot
@@ -740,10 +750,14 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-
+    if cast.able.tarTrap() and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap() then ui.debug("Casting Tar Trap [AOE Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    end
     -- Freezing Trap
     -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
-
+    if cast.able.freezingTrap() and runeforge.nesingwarysTrappingApparatus.equiped then
+        if cast.freezingTrap() then ui.debug("Casting Freezing Trap [AOE Nesingwary's Trapping Apparatus]") return true end
+    end
 end -- End Action List - Cleave
 
 -- Action List - PreCombat
@@ -757,25 +771,6 @@ actionList.PreCombat = function()
                 TargetUnit(v)
             end
         end
-        -- -- Pre-Pull
-        -- if true then -- Need to Code Pre-Pull Section
-        --     -- Aspect of the Wild
-        --     -- aspect_of_the_wild,precast_time=1.3,if=!azerite.primal_instincts.enabled&!essence.essence_of_the_focusing_iris.major&(equipped.azsharas_font_of_power|!equipped.cyclotronic_blast)
-        --     if ui.checked("Aspect of the Wild") and ui.useCDs()
-        --         and cast.able.aspectOfTheWild() and (not traits.primalInstincts.active and not essence.focusedAzeriteBeam.major and (equiped.azsharaFontOfPower() or not equiped.pocketSizedComputationDevice()))
-        --         and unit.ttd(units.dyn40) > 15
-        --     then
-        --         if cast.aspectOfTheWild() then ui.debug("") return true end
-        --     end
-        --     -- Bestial Wrath
-        --     -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!essence.essence_of_the_focusing_iris.major)&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
-        --     if ui.mode.bestialWrath == 1 and (ui.value("Bestial Wrath") == 2 or (ui.value("Bestial Wrath") == 1 and ui.useCDs()))
-        --         and cast.able.bestialWrath() and (traits.primalInstincts.active) and not essence.focusedAzeriteBeam.major and unit.ttd(units.dyn40) > 15
-        --         and (not equiped.pocketSizedComputationDevice() or cd.pocketSizedComputationDevice.remain() > 0)
-        --     then
-        --         if cast.bestialWrath() then ui.debug("") return true end
-        --     end
-        -- end
         -- Init Combat
         if unit.distance("target") < 40 and unit.valid("target") then-- and opener.complete then
             -- Auto Shot
@@ -811,6 +806,7 @@ local function runRotation()
     module                             = br.player.module
     opener                             = br.player.opener
     power                              = br.player.power
+    runeforge                          = br.player.runeforge
     unit                               = br.player.unit
     talent                             = br.player.talent
     ui                                 = br.player.ui
@@ -855,6 +851,17 @@ local function runRotation()
         var.profileStop = false
     end
     minCount = ui.useCDs() and 1 or 3
+
+    var.lowestHPUnit = "target"
+    var.lowestHP = 100
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        local thisHP = unit.hp(thisUnit)
+        if thisHP < var.lowestHP then
+            var.lowestHP = thisHP
+            var.lowestHPUnit = thisUnit
+        end
+    end
 
     -- Profile Specific Vars
     lowestBarbedShot = debuff.barbedShot.lowest(8,"remain","pet") or "target"

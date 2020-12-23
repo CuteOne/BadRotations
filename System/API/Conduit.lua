@@ -17,7 +17,7 @@ br.api.conduit = function(conduit,k,v)
                         row = node.row,
                         conduitID = collectionData.conduitID,
                         name = spellName,
-                        rank = spellRank,
+                        rank = collectionData.conduitRank,--spellRank,
                         id = spellID,
                         enabled = true;
                     }
@@ -33,7 +33,7 @@ br.api.conduit = function(conduit,k,v)
                 row = 0,
                 conduitID = 0,
                 name = spellName,
-                rank = spellRank,
+                rank = 0,--spellRank,
                 id = spellID,
                 enabled = false
             }

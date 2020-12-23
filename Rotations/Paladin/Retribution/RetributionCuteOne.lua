@@ -61,13 +61,11 @@ local function createOptions()
             br.ui:createCheckbox(section, "Hand of Hindrance")
             -- Divine Storm Units
             br.ui:createSpinnerWithout(section, "Divine Storm Units",  2,  1,  5,  1,  "|cffFFBB00Units to use Divine Storm.")
-            -- Heart Essence
-            br.ui:createCheckbox(section, "Use Essence")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+            br.ui:checkSectionState(section)
+            ------------------------
+            --- COOLDOWN OPTIONS ---
+            ------------------------
+            section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Potion
             -- br.ui:createCheckbox(section,"Potion")
             -- FlaskUp Module
@@ -76,6 +74,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
+            -- Covenant Ability
+            br.ui:createDropdownWithout(section, "Covenant Ability", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
             -- Avenging Wrath
             br.ui:createDropdownWithout(section, "Avenging Wrath", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
             -- Crusade
@@ -472,7 +472,7 @@ actionList.Cooldowns = function()
     end
     -- Blessing of the Seasons
     -- blessing_of_the_seasons
-    if cast.able.blessingOfTheSeasons() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.blessingOfTheSeasons() then
         if cast.blessingOfTheSeasons() then ui.debug("Casting Blessing of the Seasons [Night Fae]") return true end
     end
     -- Trinkets
@@ -495,7 +495,7 @@ actionList.Cooldowns = function()
     end
     -- Ashen Hallow
     -- ashen_hallow
-    if cast.able.ashenHallow() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.ashenHallow() then
         if cast.ashenHallow() then ui.debug("Casting Ashen Hallow [Venthyr]") return true end
     end
     -- Holy Avenger
@@ -530,7 +530,7 @@ actionList.Finisher = function()
     end
     -- Vanquisher's Hammer
     -- vanquishers_hammer,if=(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10|debuff.final_reckoning.up)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10|debuff.execution_sentence.up)|spell_targets.divine_storm>=2
-    if cast.able.vanquishersHammer() and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10 or debuff.finalReckoning.exists(units.dyn5))
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.vanquishersHammer() and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10 or debuff.finalReckoning.exists(units.dyn5))
         and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10 or debuff.executionSentence.exists(units.dyn5) or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits
     then
         if cast.vanquishersHammer() then ui.debug("Casting Vanquisher's Hammer [Necrolord]") return true end
@@ -576,7 +576,7 @@ actionList.Generator = function()
     end
     -- Divine Toll
     -- divine_toll,if=!debuff.judgment.up&(!raid_event.adds.exists|raid_event.adds.in>30)&(holy_power<=2|holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10)
-    if cast.able.divineToll() and not debuff.judgment.exists(units.dyn5) and not var.dsUnits and (holyPower <= 2 or holyPower <= 4
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.divineToll() and not debuff.judgment.exists(units.dyn5) and not var.dsUnits and (holyPower <= 2 or holyPower <= 4
         and (cd.bladeOfJustice.remains() > unit.gcd(true) * 2 or debuff.executionSentence.exists(units.dyn5) or debuff.finalReckoning.exists(units.dyn5)))
         and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10) and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10)
     then

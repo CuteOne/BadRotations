@@ -189,7 +189,7 @@ local function runRotation()
                     StartAttack(units.dyn5)
                 end
                 --Power Word:Shield
-                if cast.able.powerWordShield("player") and unit.inCombat() then
+                if cast.able.powerWordShield("player") and not buff.powerWordShield.exists(thisUnit) and unit.inCombat() then
                     if cast.powerWordShield("player") then ui.debug("Casting Power Word:Shield") return true end
                 end
                 --Shadow Word:Pain

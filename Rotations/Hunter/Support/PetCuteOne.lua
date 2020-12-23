@@ -143,7 +143,7 @@ br.rotations.support["PetCuteOne"] = {
 
         -- Pet Target Modes
         if br.petTarget == nil then br.petTarget = "player" end
-        if br.petTarget ~= "player" and (not unit.exists(br.petTarget) or unit.deadOrGhost(br.petTarget)) then br.petTarget = "player" end
+        if br.petTarget ~= "player" and (not unit.exists(br.petTarget) or unit.deadOrGhost(br.petTarget) or not UnitIsUnit("pettarget",br.petTarget)) then br.petTarget = "player" end
         if br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget) and not unit.deadOrGhost(br.petTarget)) then
             -- Dynamic
             if ui.value("Pet Target") == 1 and units.dyn40 ~= nil
@@ -174,7 +174,7 @@ br.rotations.support["PetCuteOne"] = {
         end
 
         -- Pet Summoning (Call, Dismiss, Revive)
-        if mode.petSummon ~= 6 and not var.haltPetProfile and not pause() then
+        if mode.petSummon ~= 6 and not var.haltPetProfile and not pause() and not unit.falling() then
             if petAppearTimer < GetTime() - 2 then
                 -- Check for Pet
                 if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
@@ -242,7 +242,7 @@ br.rotations.support["PetCuteOne"] = {
             -- Spec Abilities
             if unit.inCombat("pet") then
                 if ui.checked("Master's Call - Cunning") and cast.noControl.mastersCall() then
-                    if cast.masterCall() then ui.debug("[Pet] Cast Master's Call") return true end
+                    if cast.mastersCall() then ui.debug("[Pet] Cast Master's Call") return true end
                 end
                 if ui.value("Primal Rage - Ferocity") == 1 or (ui.value("Primal Rage") == 2 and ui.useCDs()) then
                     if cast.primalRage() then ui.debug("[Pet] Cast Primal Rage") return true end
@@ -482,19 +482,18 @@ br.rotations.support["PetCuteOne"] = {
             -- Fetch
             if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch() and petExists and not br.deadPet then
                 if fetching and (fetchCount ~= getLootableCount() or getLootableCount() == 0) then fetching = false end
-                for k, v in pairs(br.lootable) do
+                for k, _ in pairs(br.lootable) do
                     if br.lootable[k] ~= nil then
-                        local thisDistance = unit.distance(br.lootable[k])
+                        local thisDistance = unit.distance(k)
                         if thisDistance > 8 and thisDistance < 40 and not fetching then
                             cast.fetch("pet")
                             fetchCount = getLootableCount()
                             fetching = true
-                            ui.debug("[Pet] Pet is fetching loot! "..fetchCount.." loots found!")
                             break
                         end
                     end
                 end
-            end            
+            end
             -- Mend Pet
             if ui.checked("Mend Pet") and cast.able.mendPet() and petExists and not br.deadPet
                 and not buff.mendPet.exists("pet") and petHealth < ui.value("Mend Pet")

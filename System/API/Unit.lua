@@ -42,6 +42,10 @@ br.api.unit = function(self)
         local getCombatTime = _G["getCombatTime"]
         return getCombatTime()
     end
+    unit.ooCombatTime = function()
+        local getOoCTime = _G["getOoCTime()"]
+        return getOoCTime()
+    end
     -- Charmed
     unit.charmed = function(thisUnit)
         local UnitIsCharmed = _G["UnitIsCharmed"]
@@ -170,6 +174,7 @@ br.api.unit = function(self)
     -- Is Boss
     unit.isBoss = function(thisUnit)
         local isBoss = _G["isBoss"]
+        if thisUnit == nil then thisUnit = "target" end
         return isBoss(thisUnit)
     end
     -- Is Casting
