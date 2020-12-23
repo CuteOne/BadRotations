@@ -461,6 +461,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                furiousGaze                 = 343312,
                 innerDemon                  = 337313,
                 metamorphosis               = 162264,
                 momentum                    = 208628,
