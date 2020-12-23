@@ -10,25 +10,33 @@ local colors = {
 local variables = {
     lastSoothingMist = nil,
     thunderFocusTea = nil,
+    loadedProfile = nil,
     statue = {
         x = 0,
         y = 0,
         z = 0
     },
+    nextSpellChiJi = nil,
     sectionValues = {
         renewingMist                    = "Renewing Mist",
         soothingMist                    = "Soothing Mist",
         soothingMistExpelHarm           = "Soothing Mist - Expel Harm",
         soothingMistVivify              = "Soothing Mist - Vivify",
         soothingMistEnvelopingMist      = "Soothing Mist - Enveloping Mist",
+        chiBurst                        = "Chi Burst",
+        chiBurstTargets                 = "Chi Burst - Targets",
         revival                         = "Revival",
-        revivalTargets                  = "Revival targets",
+        revivalTargets                  = "Revival - Targets",
         invokeYulon                     = "Invoke Yu'lon",
         invokeYulonTargets              = "Invoke Yu'lon - Targets",
+        invokeChiJi                     = "Invoke Chi-Ji",
+        invokeChiJiTargets              = "Invoke Chi-Ji - Targets",
+        invokeChiJiDPSThreshold         = "Invoke Chi-Ji - DPS Threshold",
         yulonEnvelopingBreath           = "Yu'lon - Enveloping Breath",
         yulonEnvelopingBreathTargets    = "Yu'lon - Enveloping Breath - Targets",
         healingElixir                   = "Healing Elixir",
         lifeCocoon                      = "Life Cocoon",
+        lifeCocoonMode                  = "Life Cocoon Mode",
         essenceFont                     = "Essence Font",
         essenceFontTargets              = "Essence Font - Targets",
         dpsThreshold                    = "DPS Threshold",
@@ -85,23 +93,27 @@ local function createOptions()
 
     local function rotationOptions()
         local section
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
+
         section = br.ui:createSection(br.ui.window.profile, "Heal Options")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.renewingMist,                 95, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 95 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMist,                 85, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 85 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMistExpelHarm,        80, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 80 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMistVivify,           80, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 80 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.soothingMistEnvelopingMist,   65, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 65 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.chiBurst,                     70, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 70 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.chiBurstTargets,              2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.revival,                      40, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 40 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.revivalTargets,               2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
+        br.ui:createSpinner(        section,    variables.sectionValues.invokeChiJi,                  55, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.invokeChiJiTargets,           2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
+        br.ui:createSpinnerWithout( section,    variables.sectionValues.invokeChiJiDPSThreshold,      70, 1, 100, 5, "Health limit where we focus on getting kicks in " .. colors.green .. "(default: 70 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.invokeYulon,                  55, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 55 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.invokeYulonTargets,           2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.yulonEnvelopingBreath,        80, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 80 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.yulonEnvelopingBreathTargets, 2,  1, 50,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 02 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.healingElixir,                85, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 85 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.lifeCocoon,                   30, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 30 - enabled)")
+        br.ui:createDropdownWithout(section,    variables.sectionValues.lifeCocoonMode,               {colors.blue .. "Any", colors.green .. "Tank", colors.red .. "Tank/Healer"}, 2, "Use ability only on selected type ".. colors.green .. "(default: Tank)")
         br.ui:createSpinner(        section,    variables.sectionValues.essenceFont,                  60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
         br.ui:createSpinnerWithout( section,    variables.sectionValues.essenceFontTargets,           3,  1, 40,  1, "Number of hurt people before triggering spell " .. colors.green .. "(default: 03 - enabled)")
         br.ui:createSpinner(        section,    variables.sectionValues.weaponsOfOrder,               60, 1, 100, 5, "Health percent to cast at "                     .. colors.green .. "(default: 60 - enabled)")
@@ -138,6 +150,9 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile, "Made By: Lylo - Version " .. variables.sectionValues.version)
         br.ui:createText(section, colors.red    .. "Discord contact: " .. colors.green .. "LyLo#0253")
+        br.ui:createText(section, colors.red    .. "This is not a job, it's a hobby. I don't get paid for this, I do ")
+        br.ui:createText(section, colors.red    .. "it because I like it. SO if you make me hate this, I just STOP. ")
+        br.ui:createText(section, "")
         br.ui:createText(section, colors.red    .. "Required: " .. colors.yellow .. "Healing Engine > HR")
         br.ui:createText(section, colors.blue   .. "Good to have: " .. colors.yellow .. "Enemies Engine > Dynamic Targeting")
         br.ui:createText(section, colors.blue   .. "Good to have: " .. colors.yellow .. "Queue Engine > Smart Queue >")
@@ -157,7 +172,7 @@ local function createOptions()
         br.ui:createText(section, colors.blue   .. "  5 - Is this good?")
         br.ui:createText(section, colors.green  .. "     I don't know, you tell me")
         br.ui:checkSectionState(section)
-    end
+        end
     optionTable = {
         {
             [1] = "Rotation Options",
@@ -212,6 +227,7 @@ local function runRotation()
         essenceFontOoc = getLowAlliesInTable(ui.value(variables.sectionValues.outOfCombat.essenceFont) + lowMana, friends.range30),
         revival = getLowAlliesInTable(ui.value(variables.sectionValues.revival) + lowMana, friends.range40),
         invokeYulon = getLowAlliesInTable(ui.value(variables.sectionValues.invokeYulon) + lowMana, friends.range40),
+        invokeChiJi = getLowAlliesInTable(ui.value(variables.sectionValues.invokeChiJi) + lowMana, friends.range40),
         weaponsOfOrder = getLowAlliesInTable(ui.value(variables.sectionValues.weaponsOfOrder) + lowMana, friends.range40)
     }
     -- G
@@ -244,7 +260,8 @@ local function runRotation()
     local tanks = getTanksTable()
     local totemInfo = {
         jadeSerpentStatueDuration = 0,
-        yulonDuration = 0
+        yulonDuration = 0,
+        chiJiDuration = 0
     }
 
     for index=1,4 do
@@ -255,19 +272,21 @@ local function runRotation()
                 totemInfo.jadeSerpentStatueDuration = duration
             elseif string.find(totemName, "Yu'lon") then
                 totemInfo.yulonDuration = duration
+            elseif string.find(totemName, "Chi") then
+                totemInfo.chiJiDuration = duration
             end
         end
-     end
+    end
     -- U
     -- V
     -- X
     -- Z
     -- local functions
-     local detailedDebugger = function (msg)
+    local detailedDebugger = function (msg)
         if false then
-            br.addonDebug(msg)
+            print(msg)
         end
-     end
+    end
 
     local castRisingSunKick = function()
         if cd.risingSunKick.ready() and dynamicTarget.range5 ~= nil and cast.able.risingSunKick(dynamicTarget.range5) then
@@ -279,26 +298,30 @@ local function runRotation()
                 return false
             end
         end
-    end   
+    end
 
-    local castRenewingMist = function(hpThreshhold)
+    local castRenewingMist = function(hpThreshold)
+        -- If is casting soothing mist on low health target we don't want stop insta casts of soothing mist
+        if friends.lowest.hp < 50 and cast.active.soothingMist() then
+            return nil
+        end
         local renewingMistUnit = nil
         for i = 1, #tanks do
             local tempUnit = tanks[i]
-            if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshhold then
+            if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshold then
                 renewingMistUnit = tempUnit
             end
         end
         if renewingMistUnit == nil then
             for i = 1, #friends.range40 do
                 local tempUnit = friends.range40[i]
-                if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshhold then
+                if not buff.renewingMist.exists(tempUnit.unit) and UnitInRange(tempUnit.unit) and tempUnit.hp + lowMana <= hpThreshold then
                     renewingMistUnit = tempUnit
                 end
             end
         end
         if renewingMistUnit == nil then
-            if not buff.renewingMist.exists(player.unit) and player.hp + lowMana <= hpThreshhold then
+            if not buff.renewingMist.exists(player.unit) and player.hp + lowMana <= hpThreshold then
                 renewingMistUnit = player
             end
         end
@@ -313,7 +336,26 @@ local function runRotation()
         end
     end
 
+    local castDetox = function()
+        if ui.mode.detox == 1 and cd.detox.ready() and not cast.last.detox(1) and cast.able.detox() then
+            for i = 1, #friends.range40 do
+                local dispelUnit = friends.range40[i]
+                if canDispel(dispelUnit.unit, spell.detox) and (getLineOfSight(dispelUnit.unit) and getDistance(dispelUnit.unit) <= 40) then
+                    if cast.detox(dispelUnit.unit) then
+                        br.addonDebug(colors.yellow .. "[Detox]:" .. UnitName(dispelUnit.unit))
+                        return true
+                    else
+                        br.addonDebug(colors.red .. "[Detox]: Failed")
+                        return false
+                    end
+                end
+            end
+        end
+        return nil
+    end
+
     local doDamage = function()
+
         local doDamageAOE = function()
             -- Spinning Crane Kick
             if cast.able.spinningCraneKick() and cd.spinningCraneKick.ready() then
@@ -343,10 +385,7 @@ local function runRotation()
                     end
                 end
                 -- Spinning Crane Kick
-                if
-                    cast.able.spinningCraneKick() and cd.spinningCraneKick.ready() and
-                        not cast.active.spinningCraneKick()
-                 then
+                if cast.able.spinningCraneKick() and cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() then
                     if cast.spinningCraneKick() then
                         br.addonDebug(colors.yellow .. "[Spinning Crane Kick]: enemies around: " .. #enemies.range8)
                         return true
@@ -380,10 +419,9 @@ local function runRotation()
                 end
             else
                 -- Crackling Jade Lightning
-                if
-                    ui.checked(variables.sectionValues.cracklingJadeLightning) and cast.able.cracklingJadeLightning() and
+                if ui.checked(variables.sectionValues.cracklingJadeLightning) and cast.able.cracklingJadeLightning() and
                         cd.cracklingJadeLightning.ready()
-                 then
+                then
                     if dynamicTarget.range40 ~= nil and not player.isMoving then
                         if cast.cracklingJadeLightning(dynamicTarget.range40) then
                             br.addonDebug(colors.yellow .. "[Crackling Jade Lightning]: " .. UnitName(dynamicTarget.range40))
@@ -394,7 +432,7 @@ local function runRotation()
             end
         end
 
-        if ui.mode.dps == 1 and friends.lowest.hp >= ui.value(variables.sectionValues.dpsThreshold) then --ON
+        if ui.mode.dps == 1 then --ON
             -- Touch of Death
             local touchOfDeathMode = ui.value(variables.sectionValues.touchOfDeathMode)
             if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and isBoss(dynamicTarget.range5)) then
@@ -432,7 +470,7 @@ local function runRotation()
         end
         -- AOE Yulon
         detailedDebugger("---- AOE Yulon : doHealing-----")
-        if ui.checked(variables.sectionValues.invokeYulon) and cd.invokeYulonTheJadeSerpent.ready() and friends.lowAllies.invokeYulon >= ui.value(variables.sectionValues.invokeYulonTargets) and cast.able.invokeYulonTheJadeSerpent() then
+        if ui.checked(variables.sectionValues.invokeYulon) and not talent.invokeChiJiTheRedCrane and cd.invokeYulonTheJadeSerpent.ready() and friends.lowAllies.invokeYulon >= ui.value(variables.sectionValues.invokeYulonTargets) and cast.able.invokeYulonTheJadeSerpent() then
             if cast.invokeYulonTheJadeSerpent() then
                 br.addonDebug(colors.green .. "[Invoke Yu'lon]: Allies under " ..ui.value(variables.sectionValues.invokeYulon) .. ": " .. friends.lowAllies.invokeYulon)
                 return true
@@ -441,9 +479,29 @@ local function runRotation()
                 return false
             end
         end
+        -- AOE ChiJi
+        detailedDebugger("---- AOE ChiJi : doHealing-----")
+        if ui.checked(variables.sectionValues.invokeChiJi) and talent.invokeChiJiTheRedCrane and cd.invokeChiJiTheRedCrane.ready() and cd.risingSunKick.ready()
+                and friends.lowAllies.invokeChiJi >= ui.value(variables.sectionValues.invokeChiJiTargets) and cast.able.invokeChiJiTheRedCrane("player")
+        then
+
+            if cast.essenceFont("player") then
+                br.addonDebug(colors.green .. "[Invoke Chi-Ji - Essence Font]: Allies under " ..ui.value(variables.sectionValues.invokeChiJi) .. ": " .. friends.lowAllies.invokeChiJi)
+                return true
+            else
+                br.addonDebug(colors.red .. "[Invoke Chi-Ji - Essence Fonti]: Failed")
+            end
+            if cast.invokeChiJiTheRedCrane("player") then
+                br.addonDebug(colors.green .. "[Invoke Chi-Ji]: Allies under " ..ui.value(variables.sectionValues.invokeChiJi) .. ": " .. friends.lowAllies.invokeChiJi)
+                return true
+            else
+                br.addonDebug(colors.red .. "[Invoke Chi-Ji]: Failed")
+                return false
+            end
+        end
         -- AOE Enveloping Breath
         detailedDebugger("---- AOE Enveloping Breath : doHealing-----")
-        if cd.envelopingMist.ready() and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() then
+        if cd.envelopingMist.ready() and totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + getLatency() then
             local lowHealthAroundUnit = getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(variables.sectionValues.yulonEnvelopingBreath), 6)
             if #lowHealthAroundUnit >= ui.value(variables.sectionValues.yulonEnvelopingBreathTargets) and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.envelopingMist(friends.lowest.unit) then
                 if cast.envelopingMist(friends.lowest.unit) then
@@ -455,7 +513,20 @@ local function runRotation()
                 end
             end
         end
-
+        -- AOE Chi Burst
+        detailedDebugger("---- AOE Chi Burst : doHealing-----")
+        if ui.checked(variables.sectionValues.chiBurst) and talent.chiBurst and cd.chiBurst.ready() and cast.able.chiBurst() then
+            local lowAlliesTargetsChiBurst = getUnitsInRect(7 , 40, false, ui.value(variables.sectionValues.chiBurst))
+            if lowAlliesTargetsChiBurst >= ui.value(variables.sectionValues.chiBurstTargets) then
+                if cast.chiBurst() then
+                    br.addonDebug(colors.green .. "[Chi Burst]: Allies under " ..ui.value(variables.sectionValues.chiBurst) .. ": " .. lowAlliesTargetsChiBurst)
+                    return true
+                else
+                    br.addonDebug(colors.red .. "[Chi Burst]: Failed")
+                    return false
+                end
+            end
+        end
         -- AOE Essence Font
         detailedDebugger("---- AOE Essence Font : doHealing-----")
         if ui.checked(variables.sectionValues.essenceFont) and cd.essenceFont.ready() and friends.lowAllies.essenceFont >= ui.value(variables.sectionValues.essenceFontTargets) and cast.able.essenceFont() then
@@ -470,54 +541,29 @@ local function runRotation()
         -- AOE Vivify
         detailedDebugger("---- AOE Vivify : doHealing-----")
         if cast.active.soothingMist() and variables.lastSoothingMist and friends.lowest.unit == variables.lastSoothingMist.unit and
-            buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and #friends.range40 >= 3
-            and ((buff.renewingMist.exists(friends.range40[2].unit) and friends.range40[2].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10 )
-            or (buff.renewingMist.exists(friends.range40[3].unit) and friends.range40[3].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10)) and cast.able.vivify(friends.lowest.unit) 
+                buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and #friends.range40 >= 3
+                and ((buff.renewingMist.exists(friends.range40[2].unit) and friends.range40[2].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10 )
+                or (buff.renewingMist.exists(friends.range40[3].unit) and friends.range40[3].hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) + 10)) and cast.able.vivify(friends.lowest.unit)
         then
-                if cast.vivify(friends.lowest.unit) then
-                    br.addonDebug(colors.green .. "[Vivify AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "% " .. UnitName(friends.range40[2].unit) .. " at: " .. round2(friends.range40[2].hp, 2) .. "%  " .. UnitName(friends.range40[3].unit) .. " at: " .. round2(friends.range40[3].hp, 2) .. "%")
-                    return true
-                else
-                    br.addonDebug(colors.red .. "[Vivify AOE]: Failed " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "% " .. UnitName(friends.range40[2].unit) .. " at: " .. round2(friends.range40[2].hp, 2) .. "%  " .. UnitName(friends.range40[3].unit) .. " at: " .. round2(friends.range40[3].hp, 2) .. "%")
-                    return false
-                end
+            if cast.vivify(friends.lowest.unit) then
+                br.addonDebug(colors.green .. "[Vivify AOE]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "% " .. UnitName(friends.range40[2].unit) .. " at: " .. round2(friends.range40[2].hp, 2) .. "%  " .. UnitName(friends.range40[3].unit) .. " at: " .. round2(friends.range40[3].hp, 2) .. "%")
+                return true
+            else
+                br.addonDebug(colors.red .. "[Vivify AOE]: Failed " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "% " .. UnitName(friends.range40[2].unit) .. " at: " .. round2(friends.range40[2].hp, 2) .. "%  " .. UnitName(friends.range40[3].unit) .. " at: " .. round2(friends.range40[3].hp, 2) .. "%")
+                return false
+            end
         end
         -- Single Target Healing
         -- ST Life Cocoon
         detailedDebugger("---- ST Life Cocoon : doHealing-----")
-        if ui.checked(variables.sectionValues.lifeCocoon) and friends.lowest.hp <= ui.value(variables.sectionValues.lifeCocoon) and cd.lifeCocoon.ready() and cast.able.lifeCocoon() then
+        local lifeCocoonMode = ui.value(variables.sectionValues.lifeCocoonMode)
+        if ui.checked(variables.sectionValues.lifeCocoon) and friends.lowest.hp <= ui.value(variables.sectionValues.lifeCocoon) and cd.lifeCocoon.ready() and cast.able.lifeCocoon()
+                and (lifeCocoonMode == 2 or friends.lowest.role == "TANK" or (lifeCocoonMode >= 2 and friends.lowest.role == "HEALER"))
+        then
             if cast.lifeCocoon(friends.lowest.unit) then
-                br.addonDebug(colors.green .. "[Life Cocoon]:" .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
-                return true
+                br.addonDebug(colors.green .. "[Life Cocoon]:" .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
             else
                 br.addonDebug(colors.red .. "[Life Cocoon]: Failed")
-                return false
-            end
-        end
-        -- ST Detox
-        detailedDebugger("---- ST Detox : doHealing-----")
-        if ui.mode.detox == 1 and cd.detox.ready() and not cast.last.detox(1) and cast.able.detox() then
-            for i = 1, #friends.range40 do
-                local dispelUnit = friends.range40[i]
-                if canDispel(dispelUnit.unit, spell.detox) and (getLineOfSight(dispelUnit.unit) and getDistance(dispelUnit.unit) <= 40) then
-                    if cast.detox(dispelUnit.unit) then
-                        br.addonDebug(colors.yellow .. "[Detox]:" .. UnitName(dispelUnit.unit))
-                        return true
-                    else
-                        br.addonDebug(colors.red .. "[Detox]: Failed")
-                        return false
-                    end
-                end
-            end
-        end
-        -- ST Healing Elixir
-        detailedDebugger("---- ST Healing Elixir : doHealing-----")
-        if ui.checked(variables.sectionValues.healingElixir) and cd.healingElixir.ready() and player.hp <= ui.value(variables.sectionValues.healingElixir) and cast.able.healingElixir(player.unit) and (not cast.last.healingElixir(1) and not cast.last.healingElixir(2)) then
-            if cast.healingElixir(player.unit) then
-                br.addonDebug(colors.green .. "[Healing Elixir]:" .. UnitName(player.unit) .. " at: " .. round2(player.hp + lowMana, 2) .. "%")
-                return true
-            else
-                br.addonDebug(colors.red .. "[Healing Elixir]: Failed")
                 return false
             end
         end
@@ -544,10 +590,10 @@ local function runRotation()
                         return true
                     end
                 elseif
-                    cd.risingSunKick.ready() and cast.able.risingSunKick() and dynamicTarget.range5 ~= nil and
+                cd.risingSunKick.ready() and cast.able.risingSunKick() and dynamicTarget.range5 ~= nil and
                         talent.risingMist or
                         #br.friend == 1
-                 then -- Rising Sun Kick
+                then -- Rising Sun Kick
                     if cast.thunderFocusTea() then
                         br.addonDebug(colors.blue .. "[Thunder Focus Tea]: Rising Sun Kick")
                         variables.thunderFocusTea = 5
@@ -569,11 +615,11 @@ local function runRotation()
                 end
             elseif ui.mode.thunderFocusTea == 3 then -- Vivify
                 if
-                    cast.able.vivify() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and
+                cast.able.vivify() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and
                         cast.active.soothingMist() and
                         variables.lastSoothingMist ~= nil and
                         friends.lowest.unit == variables.lastSoothingMist.unit
-                 then
+                then
                     if cast.thunderFocusTea() then
                         br.addonDebug(colors.blue .. "[Thunder Focus Tea]: Vivify")
                         return true
@@ -597,13 +643,13 @@ local function runRotation()
         elseif lastSpellCast == spell.thunderFocusTea and buff.thunderFocusTea.exists() then
             if ui.mode.thunderFocusTea == 2 or variables.thunderFocusTea == 2 then -- Enveloping Mist
                 if cast.able.envelopingMist(friends.lowest.unit) and cd.envelopingMist.ready() and cast.envelopingMist(friends.lowest.unit) then
-                    br.addonDebug(colors.green .. "[Enveloping Mist TFT]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
+                    br.addonDebug(colors.green .. "[Enveloping Mist TFT]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
                     variables.thunderFocusTea = nil
                     return true
                 end
             elseif ui.mode.thunderFocusTea == 3 or variables.thunderFocusTea == 3 and cd.vivify.ready() and cast.able.vivify(friends.lowest.unit) then -- Vivify
                 if  cast.vivify(friends.lowest.unit) then
-                    br.addonDebug(colors.green .. "[Vivify TFT]: " ..UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
+                    br.addonDebug(colors.green .. "[Vivify TFT]: " ..UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
                     variables.thunderFocusTea = nil
                     return true
                 else
@@ -638,14 +684,14 @@ local function runRotation()
                 end
             end
         end
-        detailedDebugger("----ST Renewing Mist : doHealing-----")
         -- ST Renewing Mist
+        detailedDebugger("----ST Renewing Mist : doHealing-----")
         local renewingMist = castRenewingMist(ui.value(variables.sectionValues.renewingMist))
         if renewingMist == true or renewingMist == false then
             return true
         end
-        detailedDebugger("----TALENT Summon Jade Serpent Statue : doHealing-----")
         -- TALENT Summon Jade Serpent Statue
+        detailedDebugger("----TALENT Summon Jade Serpent Statue : doHealing-----")
         if talent.summonJadeSerpentStatue and cd.summonJadeSerpentStatue.ready() and cast.able.summonJadeSerpentStatue() then
             local distanceToStatue = getDistanceToObject("player", variables.statue.x, variables.statue.y, variables.statue.z)
             if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
@@ -663,55 +709,59 @@ local function runRotation()
                 end
             end
         end
-        detailedDebugger("----CANCEL Soothing Mist : doHealing-----")
         -- CANCEL Soothing Mist
+        detailedDebugger("----CANCEL Soothing Mist : doHealing-----")
         if cast.active.soothingMist() and variables.lastSoothingMist ~= nil and variables.lastSoothingMist.hp + lowMana >= 95 and variables.lastSoothingMist.unit == friends.lowest.unit then
             if cast.cancel.soothingMist() then
                 br.addonDebug(colors.red .. "CANCELED: [Soothing Mist]: " .. UnitName(variables.lastSoothingMist.unit) .. " at: " .. round2(variables.lastSoothingMist.hp + lowMana, 2) .. "%" )
             end
         end
-        detailedDebugger("----ST Soothing Mist : doHealing-----")
         -- ST Soothing Mist
+        detailedDebugger("----ST Soothing Mist : doHealing-----")
         if cd.soothingMist.ready() and not player.isMoving and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMist) and cast.able.soothingMist() then
             if cast.soothingMist(friends.lowest.unit) then
                 variables.lastSoothingMist = {
                     unit = friends.lowest.unit,
                     hp = friends.lowest.hp + lowMana
                 }
-                br.addonDebug(colors.green .. "[Soothing Mist]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%" )
+                br.addonDebug(colors.green .. "[Soothing Mist]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%" )
                 return true
             else
                 br.addonDebug(colors.red .. "[Soothing Mist]: Failed")
                 return false
             end
         end
-        detailedDebugger("----ST Soothing Mist Insta Casts : doHealing-----")
         -- ST Soothing Mist Insta Casts
+        detailedDebugger("----ST Soothing Mist Insta Casts : doHealing-----")
         if not player.isMoving and cast.active.soothingMist() and friends.lowest.unit == variables.lastSoothingMist.unit then
-            -- ST Expel Harm
-            if  cd.expelHarm.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistExpelHarm) and cast.able.expelHarm() then
-                if cast.expelHarm("player") then
-                    br.addonDebug(colors.green .. "[Expel Harm]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%" )
-                    return true
-                else
-                    br.addonDebug(colors.red .. "[Expel Harm]: Failed")
-                    return false
-                end
-            end
             -- ST Enveloping Mist
-            if cd.envelopingMist.ready() and buff.envelopingMist.remains(friends.lowest.unit) < 2 and (friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistEnvelopingMist) or (friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistEnvelopingMist) + 10 and buff.lifeCyclesEnvelopingMist.exists())) and cast.able.envelopingMist() then
+            if cd.envelopingMist.ready() and buff.envelopingMist.remains(friends.lowest.unit) < 2 and
+                    (friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistEnvelopingMist) or
+                            (friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistEnvelopingMist) + 10 and buff.lifeCyclesEnvelopingMist.exists())
+                    ) and cast.able.envelopingMist()
+            then
                 if cast.envelopingMist(friends.lowest.unit) then
-                    br.addonDebug(colors.green .. "[Enveloping Mist]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%" )
+                    br.addonDebug(colors.green .. "[Enveloping Mist]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%" )
                     return true
                 else
                     br.addonDebug(colors.red .. "[Enveloping Mist]: Failed")
                     return false
                 end
             end
+            -- ST Expel Harm
+            if  cd.expelHarm.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistExpelHarm) and cast.able.expelHarm() then
+                if cast.expelHarm("player") then
+                    br.addonDebug(colors.green .. "[Expel Harm]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%" )
+                    return true
+                else
+                    br.addonDebug(colors.red .. "[Expel Harm]: Failed")
+                    return false
+                end
+            end
             -- ST Vivify
-            if cd.vivify.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and (buff.envelopingMist.remains(friends.lowest.unit) < 2 or friends.lowest.hp <= 50) and cast.able.vivify() then
+            if cd.vivify.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.soothingMistVivify) and (buff.envelopingMist.remains(friends.lowest.unit) < 2 or friends.lowest.hp <= 50) and cast.able.vivify(friends.lowest.unit) then
                 if cast.vivify(friends.lowest.unit) then
-                    br.addonDebug(colors.green .. "[Vivify]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
+                    br.addonDebug(colors.green .. "[Vivify]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
                     return true
                 else
                     br.addonDebug(colors.red .. "[Vivify]: Failed")
@@ -719,8 +769,8 @@ local function runRotation()
                 end
             end
 
-            if friends.lowest.hp <= 90 then
-                br.addonDebug("[Soothing Mist]: Continue")
+            if friends.lowest.hp <= ui.value(variables.sectionValues.dpsThreshold) then
+                --br.addonDebug("[Soothing Mist]: Continue | Lowest:" .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%" )
                 return false -- return false to not cancel soothing mist to dps
             end
         end
@@ -750,10 +800,10 @@ local function runRotation()
         end
         detailedDebugger("----OOC ST Vivify : doHealingOutOfCombat-----")
         if ui.checked(variables.sectionValues.outOfCombat.vivify) and cd.vivify.ready() and friends.lowest.hp + lowMana <= ui.value(variables.sectionValues.outOfCombat.vivify)
-            and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.vivify() 
+                and buff.envelopingMist.remains(friends.lowest.unit) < 2 and cast.able.vivify()
         then
             if cast.vivify(friends.lowest.unit) then
-                br.addonDebug(colors.green .. "[Vivify]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp + lowMana, 2) .. "%")
+                br.addonDebug(colors.green .. "[Vivify]: " .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
                 return true
             else
                 br.addonDebug(colors.red .. "[Vivify]: Failed")
@@ -786,9 +836,9 @@ local function runRotation()
                     end
                     -- Leg Sweep
                     if
-                        ui.checked(variables.sectionValues.legSweep) and cast.able.legSweep(thisUnit) and
+                    ui.checked(variables.sectionValues.legSweep) and cast.able.legSweep(thisUnit) and
                             (distance < 5 or (talent.tigerTailSweep and distance < 7))
-                     then
+                    then
                         if cast.legSweep(thisUnit) then
                             ui.debug("[Leg Sweep] to interrupt: " .. UnitName(thisUnit))
                             return true
@@ -842,9 +892,9 @@ local function runRotation()
             for i = 1, #friends.range40 do
                 local tempUnit = friends.range40[i]
                 if cast.noControl.tigersLust(tempUnit.unit) then
-                    if cast.tigersLust() then 
-                        ui.debug("[Tiger's Lust]: on" .. UnitName(tempUnit.unit)) 
-                        return true 
+                    if cast.tigersLust() then
+                        ui.debug("[Tiger's Lust]: on" .. UnitName(tempUnit.unit))
+                        return true
                     else
                         br.addonDebug(colors.red .. "[Tiger's Lust]: Failed")
                         return false
@@ -853,7 +903,247 @@ local function runRotation()
             end
         end
 
+        -- Detox
+        detailedDebugger("----Detox-----")
+        local detoxed = castDetox()
+        if detoxed == true or detoxed == false then
+            return true
+        end
 
+
+        -- ST Healing Elixir
+        detailedDebugger("---- ST Healing Elixir : doHealing-----")
+        if ui.checked(variables.sectionValues.healingElixir) and cd.healingElixir.ready() and player.hp <= ui.value(variables.sectionValues.healingElixir) and cast.able.healingElixir(player.unit) and (not cast.last.healingElixir(1) and not cast.last.healingElixir(2)) then
+            if cast.healingElixir(player.unit) then
+                br.addonDebug(colors.green .. "[Healing Elixir]:" .. UnitName(player.unit) .. " at: " .. round2(player.hp + lowMana, 2) .. "%")
+            else
+                br.addonDebug(colors.red .. "[Healing Elixir]: Failed")
+            end
+        end
+
+        if totemInfo.chiJiDuration > 0 and friends.lowest.hp >= ui.value(variables.sectionValues.invokeChiJiDPSThreshold) then
+
+
+            -- Keep Renewing Mist
+            detailedDebugger("----Chi-Ji Renewing Mist-----")
+            local renewingMist = castRenewingMist(100)
+            if renewingMist == true or renewingMist == false then
+                return true
+            end
+
+            local chiJiCastRisingSunKick = function (nextSpell)
+                if cd.risingSunKick.ready() and dynamicTarget.range5 ~= nil and cast.able.risingSunKick(dynamicTarget.range5) then
+                    if cast.risingSunKick(dynamicTarget.range5) then
+                        br.addonDebug(colors.yellow .. "[Chi-Ji Rising Sun Kick(".. nextSpell-1 .. ")]: " .. UnitName(dynamicTarget.range5))
+                        variables.nextSpellChiJi = nextSpell
+                        return true
+                    else
+                        br.addonDebug(colors.red .. "[Chi-Ji Rising Sun Kick]: Failed")
+                        return false
+                    end
+                end
+            end
+            local chiJiCastBlackoutKick = function (nextSpell)
+                if cd.blackoutKick.ready() and cast.able.blackoutKick(dynamicTarget.range5) then
+                    if cast.blackoutKick(dynamicTarget.range5) then
+                        br.addonDebug(colors.yellow .. "[Chi-Ji Blackout Kick(".. nextSpell-1 .. ")]: " .. UnitName(dynamicTarget.range5))
+                        variables.nextSpellChiJi = nextSpell
+                        return true
+                    else
+                        br.addonDebug(colors.red .. "[Chi-Ji Blackout Kick]: Failed")
+                        return false
+                    end
+                end
+            end
+            local chiJiCastSpinningKick = function (nextSpell)
+                if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and cast.able.spinningCraneKick("player") then
+                    if cast.spinningCraneKick("player") then
+                        br.addonDebug(colors.yellow .. "[Chi-Ji Spinning Crane Kick(".. nextSpell-1 .. ")]: Success")
+                        variables.nextSpellChiJi = nextSpell
+                        return true
+                    else
+                        br.addonDebug(colors.red .. "[Chi-Ji Spinning Crane Kick]: Failed")
+                        return false
+                    end
+                end
+            end
+            local chiJiCastTigerPalm = function (nextSpell)
+                if cd.tigerPalm.ready() and cast.able.tigerPalm("dynamicTarget.range5") then
+                    if cast.tigerPalm(dynamicTarget.range5) then
+                        br.addonDebug(colors.yellow .. "[Chi-Ji Tiger Palm(".. nextSpell-1 .. ")]: " .. UnitName(dynamicTarget.range5))
+                        variables.nextSpellChiJi = nextSpell
+                        return true
+                    else
+                        br.addonDebug(colors.red .. "[Chi-Ji Spinning Crane Kick]: Failed")
+                        return false
+                    end
+                end
+            end
+            local chiJiCastEnvelopingMist = function (nextSpell)
+                if cd.envelopingMist.ready() then
+                    local envelopingMistUnit = nil
+
+                    for i = 1, #tanks do
+                        local tempUnit = tanks[i]
+                        if buff.envelopingMist.remains(tempUnit.unit) <= 3 and tempUnit.hp <= 96 then
+                            envelopingMistUnit = tempUnit
+                        end
+                    end
+                    if envelopingMistUnit == nil then
+                        for i = 1, #friends.range40 do
+                            local tempUnit = friends.range40[i]
+                            if buff.envelopingMist.remains(tempUnit.unit) <= 3 and tempUnit.hp <= 96 then
+                                envelopingMistUnit = tempUnit
+                            end
+                        end
+                    end
+                    if envelopingMistUnit == nil then
+                        if buff.envelopingMist.remains(player.unit) <= 3 and player.hp <= 96 then
+                            envelopingMistUnit = player
+                        elseif #tanks > 0 then
+                            envelopingMistUnit = tanks[1]
+                        else
+                            envelopingMistUnit = player
+                        end
+                    end
+
+                    if cast.able.envelopingMist(envelopingMistUnit.unit) then
+                        if cast.envelopingMist(envelopingMistUnit.unit) then
+                            br.addonDebug(colors.green .. "[Chi-Ji Enveloping Mist(".. nextSpell-1 .. ")]: " .. UnitName(envelopingMistUnit.unit) .. " at: " .. round2(envelopingMistUnit.hp, 2) .. "%" )
+                            variables.nextSpellChiJi = nextSpell
+                            return true
+                        else
+                            br.addonDebug(colors.red .. "[Chi-Ji Enveloping Mist]: Failed")
+                            return false
+                        end
+                    end
+                end
+            end
+
+            -- With Thunder Focus Tea
+            -- Thunder Focus Tea
+            detailedDebugger("----Chi-Ji Thunder Focus Tea-----")
+            if cd.thunderFocusTea.ready() and variables.nextSpellChiJi == nil then
+                if cast.thunderFocusTea() then
+                    br.addonDebug(colors.blue .. "[Chi-Ji Thunder Focus Tea]: Success")
+                    variables.nextSpellChiJi = 2
+                else
+                    br.addonDebug(colors.red .. "[Chi-Ji Thunder Focus Tea]: Failed")
+                    return false
+                end
+            end
+            -- Rising Sun Kick
+            detailedDebugger("----Chi-Ji Rising Sun Kick 1-----")
+            if variables.nextSpellChiJi == 2 then
+                return chiJiCastRisingSunKick(3)
+            end
+            -- Tiger Palm
+            detailedDebugger("----Chi-Ji Tiger Palm 1-----")
+            if variables.nextSpellChiJi == 3 then
+                return chiJiCastTigerPalm(4)
+            end
+            -- Rising Sun Kick
+            detailedDebugger("----Chi-Ji Rising Sun Kick 2-----")
+            if variables.nextSpellChiJi == 4 then
+                return chiJiCastRisingSunKick(5)
+            end
+            -- Tiger Palm
+            detailedDebugger("----Chi-Ji Tiger Palm 2-----")
+            if variables.nextSpellChiJi == 5 then
+                return chiJiCastTigerPalm(6)
+            end
+            -- Rising Sun Kick
+            detailedDebugger("----Chi-Ji Rising Sun Kick 3-----")
+            if variables.nextSpellChiJi == 6 then
+                return chiJiCastRisingSunKick(7)
+            end
+            -- Enveloping Mist
+            detailedDebugger("----Chi-Ji Enveloping Mist 1-----")
+            if variables.nextSpellChiJi == 7 then
+                return chiJiCastEnvelopingMist(8)
+            end
+            -- Tiger Palm
+            detailedDebugger("----Chi-Ji Tiger Palm 3-----")
+            if variables.nextSpellChiJi == 8 then
+                return chiJiCastTigerPalm(9)
+            end
+            -- Blackout Kick
+            detailedDebugger("----Chi-Ji Blackout Kick 1-----")
+            if variables.nextSpellChiJi == 9 then
+                return chiJiCastBlackoutKick(10)
+            end
+            -- Enveloping Mist
+            detailedDebugger("----Chi-Ji Enveloping Mist 2-----")
+            if variables.nextSpellChiJi == 10 then
+                return chiJiCastEnvelopingMist(11)
+            end
+            -- Rising Sun Kick
+            detailedDebugger("----Chi-Ji Rising Sun Kick 4-----")
+            if variables.nextSpellChiJi == 11 then
+                return chiJiCastRisingSunKick(12)
+            end
+            -- Spinning Kick
+            detailedDebugger("----Chi-Ji Spinning Kick 1-----")
+            if variables.nextSpellChiJi == 12 then
+                return chiJiCastSpinningKick(nil)
+            end
+
+            -- Without Thunder Focus Tea
+            -- Rising Sun Kick
+            detailedDebugger("----Chi-Ji Rising Sun Kick 5-----")
+            if variables.nextSpellChiJi == nil and not cd.thunderFocusTea.ready() then
+                return chiJiCastRisingSunKick(13)
+            end
+            -- Tiger Palm
+            detailedDebugger("----Chi-Ji Tiger Palm 4-----")
+            if variables.nextSpellChiJi == 13 then
+                return chiJiCastTigerPalm(14)
+            end
+            -- Spinning Kick
+            detailedDebugger("----Chi-Ji Spinning Kick 2-----")
+            if variables.nextSpellChiJi == 14 then
+                return chiJiCastSpinningKick(15)
+            end
+            -- Tiger Palm
+            detailedDebugger("----Chi-Ji Tiger Palm 5-----")
+            if variables.nextSpellChiJi == 15 then
+                return chiJiCastTigerPalm(16)
+            end
+            -- Spinning Kick
+            detailedDebugger("----Chi-Ji Spinning Kick 3-----")
+            if variables.nextSpellChiJi == 16 then
+                return chiJiCastSpinningKick(17)
+            end
+            -- Enveloping Mist
+            detailedDebugger("----Chi-Ji Enveloping Mist 3-----")
+            if variables.nextSpellChiJi == 17 then
+                return chiJiCastEnvelopingMist(18)
+            end
+            -- Blackout Kick
+            detailedDebugger("----Chi-Ji Blackout Kick 2-----")
+            if variables.nextSpellChiJi == 18 then
+                return chiJiCastBlackoutKick(19)
+            end
+            -- Enveloping Mist
+            detailedDebugger("----Chi-Ji Enveloping Mist 4-----")
+            if variables.nextSpellChiJi == 19 then
+                return chiJiCastEnvelopingMist(20)
+            end
+            -- Rising Sun Kick
+            detailedDebugger("----Chi-Ji Rising Sun Kick 6-----")
+            if variables.nextSpellChiJi == 20 then
+                return chiJiCastRisingSunKick(21)
+            end
+            -- Tiger Palm
+            detailedDebugger("----Chi-Ji Tiger Palm 6-----")
+            if variables.nextSpellChiJi == 21 then
+                return chiJiCastTigerPalm(nil)
+            end
+            return false
+        end
+        if totemInfo.chiJiDuration == 0 then
+            variables.nextSpellChiJi = nil
+        end
         local healing = doHealing() -- will return nil if no healing was done
         if healing == true or healing == false then
             return true
@@ -865,14 +1155,13 @@ local function runRotation()
             return true
         end
         return false
-
     elseif not br.player.inCombat then
         if doHealingOutOfCombat() then
             return true
         end
         return false
     end
-end
+    end
 
 local id = 270
 if br.rotations[id] == nil then

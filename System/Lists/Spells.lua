@@ -1867,6 +1867,7 @@ br.lists.spells = {
                 soothingMist                = 115175,
                 thunderFocusTea             = 116680,
                 invokeYulonTheJadeSerpent   = 322118,
+                invokeChiJiTheRedCrane      = 325197,
                 fortifyingBrew              = 243435,
             },
             artifacts                       = {
@@ -1895,7 +1896,8 @@ br.lists.spells = {
                 essenceFont                 = 191840,
                 risingMist                  = 22170,
                 soothingMistJadeStatue      = 198533,
-                envelopingBreath            = 3205209
+                envelopingBreath            = 3205209,
+                invokeChiJiTheRedCrane      = 343820,
             },
             debuffs                         = {
                 mysticTouch                 = 8647,
