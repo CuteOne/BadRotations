@@ -476,7 +476,7 @@ actionList.Cooldown = function()
     -- actions.cds+=/unholy_nova,if=((!raid_event.adds.up&raid_event.adds.in>20)|raid_event.adds.remains>=15|raid_event.adds.duration<15)&
     --(buff.power_infusion.up|cooldown.power_infusion.remains>=10|!priest.self_power_infusion)&(!talent.hungering_void.enabled|debuff.hungering_void.up|!buff.voidform.up)
         if covenant.necrolord.active then
-            if (buff.powerInfusion.exists() or cd.powerInfusion.remain >= 10) and (not talent.hungeringVoid or debuff.hungeringVoid.exists() or not voidform) then
+            if (buff.powerInfusion.exists() or cd.powerInfusion.remain() >= 10) and (not talent.hungeringVoid or debuff.hungeringVoid.exists() or not voidform) then
                 if cast.unholyNova() then return end
             end
         end

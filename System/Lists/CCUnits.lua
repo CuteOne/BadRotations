@@ -8,6 +8,8 @@ br.lists.ccUnits = {
     [167566] = { name = "Return to Stone", spell = 333145 }, -- Sun King's Salvation
     [165762] = { name = "Soul Infuser" }, -- Sun King's Salvation
     -- SL Dungeons
+    [174773] = { name = "All-Consuming Spite"}, -- M+ Affix
+
 
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side

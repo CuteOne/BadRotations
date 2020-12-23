@@ -352,8 +352,8 @@ actionList.AOE = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0
-        and runeforge.doomWinds.equiped and not buff.doomWinds.exists() and not ui.checked("Windfury Totem Key")
+    if cast.able.windfuryTotem() and not unit.moving() and #enemies.yards8 > 0 and runeforge.doomWinds.equiped
+        and not debuff.doomWinds.exists("player") and not ui.checked("Windfury Totem Key")
     then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE Doom Winds]") return true end
     end
@@ -533,8 +533,8 @@ actionList.Single = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
-        and runeforge.doomWinds.equiped and not buff.doomWinds.exists() and not ui.checked("Windfury Totem Key")
+    if cast.able.windfuryTotem() and not unit.moving() and #enemies.yards8 > 0 and runeforge.doomWinds.equiped
+        and not debuff.doomWinds.exists("player") and not ui.checked("Windfury Totem Key")
     then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST Doom Winds]") return true end
     end

@@ -461,6 +461,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                furiousGaze                 = 343312,
                 innerDemon                  = 337313,
                 metamorphosis               = 162264,
                 momentum                    = 208628,
@@ -3139,6 +3140,7 @@ br.lists.spells = {
                 windfuryTotem               = 327942,
             },
             debuffs                         = {
+                doomWinds                   = 335904,
                 lashingFlames               = 334168,
             },
             glyphs                          = {
@@ -3720,6 +3722,7 @@ br.lists.spells = {
             },
             covenants                       = {
                 condemn                     = 317349,
+				condemnMassacre				= 330334,
             },
             debuffs                         = {
                 colossusSmash               = 208086,
@@ -3787,6 +3790,7 @@ br.lists.spells = {
             },
             covenants                       = {
                 condemn                     = 317349,
+				condemnMassacre				= 330334,
             },
             debuffs                         = {
                 siegebreaker                = 280773,

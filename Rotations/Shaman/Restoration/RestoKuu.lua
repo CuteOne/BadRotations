@@ -279,7 +279,7 @@ local function runRotation()
         local mana                                          = br.player.power.mana.percent()
         local mode                                          = br.player.ui.mode  
         local php                                           = br.player.health
-        local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
+        local power, powmax, powgen                         = br.player.power.mana.percent(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
@@ -784,11 +784,11 @@ local function runRotation()
                     end
                 end
                 -- Racial Buff
-                if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") then
+                if ui.checked("Racial") and (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") then
                     if race == "LightforgedDraenei" then
-                    if cast.racial("target","ground") then br.addonDebug("Casting Racial") return true end
+                        if cast.racial("target","ground") then br.addonDebug("Casting Racial") return true end
                     else
-                    if cast.racial("player") then br.addonDebug("Casting Racial") return true end
+                        if cast.racial("player") then br.addonDebug("Casting Racial") return true end
                     end
                 end
                 -- Trinkets
@@ -799,17 +799,17 @@ local function runRotation()
                             br.addonDebug("Using Trinket 1")
                             return true
                         end
-                        elseif ui.value("Trinket 1 Mode") == 2 then
-                            if (lowest.hp <= ui.value("Trinket 1") or burst == true) and lowest.hp ~= 250 then
+                    elseif ui.value("Trinket 1 Mode") == 2 then
+                        if (lowest.hp <= ui.value("Trinket 1") or burst == true) and lowest.hp ~= 250 then
                             UseItemByName(GetInventoryItemID("player", 13), lowest.unit)
                             br.addonDebug("Using Trinket 1 (Target)")
                             return true
-                            end
-                        elseif ui.value("Trinket 1 Mode") == 3 and #tanks > 0 then
-                            for i = 1, #tanks do
-                                -- get the tank's target
-                                local tankTarget = UnitTarget(tanks[i].unit)
-                                if tankTarget ~= nil then
+                        end
+                    elseif ui.value("Trinket 1 Mode") == 3 and #tanks > 0 then
+                        for i = 1, #tanks do
+                            -- get the tank's target
+                            local tankTarget = UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
                                 -- get the best ground circle to encompass the most of them
@@ -819,12 +819,12 @@ local function runRotation()
                                 else
                                     local meleeHurt = {}
                                     for j = 1, #meleeFriends do
-                                    if meleeFriends[j].hp < ui.value("Trinket 1") then
-                                        tinsert(meleeHurt, meleeFriends[j])
-                                    end
+                                        if meleeFriends[j].hp < ui.value("Trinket 1") then
+                                            tinsert(meleeHurt, meleeFriends[j])
+                                        end
                                     end
                                     if #meleeHurt >= ui.value("Min Trinket 1 Targets") or burst == true then
-                                    loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+                                        loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                                     end
                                 end
                                 if loc ~= nil then
@@ -848,17 +848,17 @@ local function runRotation()
                             br.addonDebug("Using Trinket 2")
                             return true
                         end
-                        elseif ui.value("Trinket 2 Mode") == 2 then
-                            if (lowest.hp <= ui.value("Trinket 2") or burst == true) and lowest.hp ~= 250 then
+                    elseif ui.value("Trinket 2 Mode") == 2 then
+                        if (lowest.hp <= ui.value("Trinket 2") or burst == true) and lowest.hp ~= 250 then
                             UseItemByName(GetInventoryItemID("player", 14), lowest.unit)
                             br.addonDebug("Using Trinket 2 (Target)")
                             return true
-                            end
-                        elseif ui.value("Trinket 2 Mode") == 3 and #tanks > 0 then
-                            for i = 1, #tanks do
-                                -- get the tank's target
-                                local tankTarget = UnitTarget(tanks[i].unit)
-                                if tankTarget ~= nil then
+                        end
+                    elseif ui.value("Trinket 2 Mode") == 3 and #tanks > 0 then
+                        for i = 1, #tanks do
+                            -- get the tank's target
+                            local tankTarget = UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
                                 -- get the best ground circle to encompass the most of them
@@ -868,12 +868,12 @@ local function runRotation()
                                 else
                                     local meleeHurt = {}
                                     for j = 1, #meleeFriends do
-                                    if meleeFriends[j].hp < ui.value("Trinket 2") then
-                                        tinsert(meleeHurt, meleeFriends[j])
-                                    end
+                                        if meleeFriends[j].hp < ui.value("Trinket 2") then
+                                            tinsert(meleeHurt, meleeFriends[j])
+                                        end
                                     end
                                     if #meleeHurt >= ui.value("Min Trinket 2 Targets") or burst == true then
-                                    loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+                                        loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                                     end
                                 end
                                 if loc ~= nil then
@@ -886,7 +886,7 @@ local function runRotation()
                         end
                     end
                 end
-                 -- Healing Tide Totem
+                -- Healing Tide Totem
                 if ui.checked("Healing Tide Totem") and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
                     if getLowAllies(ui.value("Healing Tide Totem")) >= ui.value("Healing Tide Totem Targets") or burst == true or (raidBurstInc and (not ui.checked("Burst Count") or (ui.checked("Burst Count") and burstCount == ui.value("Burst Count")))) then    
                         if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") HTTimer = GetTime() return end    
