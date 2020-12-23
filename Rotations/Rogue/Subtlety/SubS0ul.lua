@@ -410,7 +410,7 @@ local function runRotation()
     if talent.gloomblade then gloombladeActive = 1 else gloombladeActive = 0 end
     if enemies10 >= 4 then ssThd = 1 else ssThd = 0 end
     if covenant.necrolord.active then necroActive = 1 else necroActive = 0 end
-    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() then someone_casting = false end
+    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() or combatTime < 1 then someone_casting = false end
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
     if buff.sliceAndDice.exists("player") or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
@@ -457,6 +457,10 @@ local function runRotation()
         local burnUnits = {
             [120651] = true, -- Explosive
             [164362] = true, -- Plaguefall Slimy Morsel
+            [164427] = true, -- NW Reanimated Warrior
+            [164414] = true, -- NW Reanimated Mage
+            [168246] = true, -- NW Reanimated Crossbowman
+            [164702] = true, -- NW Carrion Worm
         }
         if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
             if combo >= 4 then
@@ -591,7 +595,6 @@ local function runRotation()
                 end
                 if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
                  and noStunList[GetObjectID(interrupt_target)] == nil then -- and not isBoss(interrupt_target)
-                    print("In stun stun")
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
