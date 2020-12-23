@@ -3140,6 +3140,7 @@ br.lists.spells = {
                 windfuryTotem               = 327942,
             },
             debuffs                         = {
+                doomWinds                   = 335904,
                 lashingFlames               = 334168,
             },
             glyphs                          = {
