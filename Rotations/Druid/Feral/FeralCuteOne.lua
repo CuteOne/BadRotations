@@ -969,7 +969,7 @@ actionList.Stealth = function()
     -- Rake
     -- pool_resource,for_next=1
     -- rake,target_if=(dot.rake.pmultiplier<1.5|refreshable)&druid.rake.ticks_gained_on_refresh>2
-    if cast.able.rake() 
+    if cast.able.rake()
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
     then
@@ -1191,16 +1191,16 @@ actionList.PreCombat = function()
             -- Run Action List - Stealth
             -- run_action_list,name=(buff.prowl.exists() or buff.shadowmeld.exists()),if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
-                -- if not unit.inCombat() then
-                --     if cast.rake("target") then ui.debug("Casting Rake [Pre-Pull") return true end
-                -- else 
+                if not debuff.rake.exists("target","EXACT") then
+                    if cast.rake("target") then ui.debug("Casting Rake [Pre-Pull]") return true end
+                else 
                     if actionList.Stealth() then return true end
-                -- end
+                end
             end
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
             if range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-                unit.startAttack(units.dyn5)
+                unit.startAttack("target")
             end
         end
     end -- End No Combat
@@ -1509,7 +1509,11 @@ local function runRotation()
                 -- Call Action List - Stealth
                 -- run_action_list,name=stealth,if=buff.shadowmeld.up|buff.prowl.up
                 if buff.shadowmeld.exists() or buff.prowl.exists() then
-                    if actionList.Stealth() then return true end
+                    if not debuff.rake.exists("target","EXACT") then
+                        if cast.rake("target") then ui.debug("Casting Rake [Pre-Pull]") return true end
+                    else 
+                        if actionList.Stealth() then return true end
+                    end
                 end
                 -- Call Action List - Cooldowns
                 -- call_action_list,name=cooldown
