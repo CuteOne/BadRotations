@@ -16,7 +16,6 @@ local variables = {
         y = 0,
         z = 0
     },
-    nextSpellChiJi = nil,
     sectionValues = {
         renewingMist                    = "Renewing Mist",
         soothingMist                    = "Soothing Mist",
@@ -484,13 +483,6 @@ local function runRotation()
         if ui.checked(variables.sectionValues.invokeChiJi) and talent.invokeChiJiTheRedCrane and cd.invokeChiJiTheRedCrane.ready() and cd.risingSunKick.ready()
                 and friends.lowAllies.invokeChiJi >= ui.value(variables.sectionValues.invokeChiJiTargets) and cast.able.invokeChiJiTheRedCrane("player")
         then
-
-            if cast.essenceFont("player") then
-                br.addonDebug(colors.green .. "[Invoke Chi-Ji - Essence Font]: Allies under " ..ui.value(variables.sectionValues.invokeChiJi) .. ": " .. friends.lowAllies.invokeChiJi)
-                return true
-            else
-                br.addonDebug(colors.red .. "[Invoke Chi-Ji - Essence Fonti]: Failed")
-            end
             if cast.invokeChiJiTheRedCrane("player") then
                 br.addonDebug(colors.green .. "[Invoke Chi-Ji]: Allies under " ..ui.value(variables.sectionValues.invokeChiJi) .. ": " .. friends.lowAllies.invokeChiJi)
                 return true
@@ -921,8 +913,53 @@ local function runRotation()
             end
         end
 
-        if totemInfo.chiJiDuration > 0 and friends.lowest.hp >= ui.value(variables.sectionValues.invokeChiJiDPSThreshold) then
+        local chiJiCastEnvelopingMist = function ()
+            if cd.envelopingMist.ready() then
+                local envelopingMistUnit = nil
 
+                for i = 1, #tanks do
+                    local tempUnit = tanks[i]
+                    if buff.envelopingMist.remains(tempUnit.unit) <= 3 and tempUnit.hp <= 96 then
+                        envelopingMistUnit = tempUnit
+                    end
+                end
+                if envelopingMistUnit == nil then
+                    for i = 1, #friends.range40 do
+                        local tempUnit = friends.range40[i]
+                        if buff.envelopingMist.remains(tempUnit.unit) <= 3 and tempUnit.hp <= 96 then
+                            envelopingMistUnit = tempUnit
+                        end
+                    end
+                end
+                if envelopingMistUnit == nil then
+                    if buff.envelopingMist.remains(player.unit) <= 3 and player.hp <= 96 then
+                        envelopingMistUnit = player
+                    elseif #tanks > 0 then
+                        envelopingMistUnit = tanks[1]
+                    else
+                        envelopingMistUnit = player
+                    end
+                end
+
+                if cast.able.envelopingMist(envelopingMistUnit.unit) then
+                    if cast.envelopingMist(envelopingMistUnit.unit) then
+                        br.addonDebug(colors.green .. "[Chi-Ji Enveloping Mist]: " .. UnitName(envelopingMistUnit.unit) .. " at: " .. round2(envelopingMistUnit.hp, 2) .. "%" )
+                        return true
+                    else
+                        br.addonDebug(colors.red .. "[Chi-Ji Enveloping Mist]: Failed")
+                        return false
+                    end
+                end
+            end
+        end
+
+        -- Enveloping Mist at stack 3
+        detailedDebugger("----Chi-Ji Enveloping Mist-----")
+        if buff.invokeChiJiTheRedCrane.stack() == 3 then
+            return chiJiCastEnvelopingMist()
+        end
+
+        if totemInfo.chiJiDuration > 0 and friends.lowest.hp >= ui.value(variables.sectionValues.invokeChiJiDPSThreshold) then
 
             -- Keep Renewing Mist
             detailedDebugger("----Chi-Ji Renewing Mist-----")
@@ -931,218 +968,63 @@ local function runRotation()
                 return true
             end
 
-            local chiJiCastRisingSunKick = function (nextSpell)
-                if cd.risingSunKick.ready() and dynamicTarget.range5 ~= nil and cast.able.risingSunKick(dynamicTarget.range5) then
-                    if cast.risingSunKick(dynamicTarget.range5) then
-                        br.addonDebug(colors.yellow .. "[Chi-Ji Rising Sun Kick(".. nextSpell-1 .. ")]: " .. UnitName(dynamicTarget.range5))
-                        variables.nextSpellChiJi = nextSpell
-                        return true
-                    else
-                        br.addonDebug(colors.red .. "[Chi-Ji Rising Sun Kick]: Failed")
-                        return false
-                    end
-                end
-            end
-            local chiJiCastBlackoutKick = function (nextSpell)
-                if cd.blackoutKick.ready() and cast.able.blackoutKick(dynamicTarget.range5) then
-                    if cast.blackoutKick(dynamicTarget.range5) then
-                        br.addonDebug(colors.yellow .. "[Chi-Ji Blackout Kick(".. nextSpell-1 .. ")]: " .. UnitName(dynamicTarget.range5))
-                        variables.nextSpellChiJi = nextSpell
-                        return true
-                    else
-                        br.addonDebug(colors.red .. "[Chi-Ji Blackout Kick]: Failed")
-                        return false
-                    end
-                end
-            end
-            local chiJiCastSpinningKick = function (nextSpell)
-                if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and cast.able.spinningCraneKick("player") then
-                    if cast.spinningCraneKick("player") then
-                        br.addonDebug(colors.yellow .. "[Chi-Ji Spinning Crane Kick(".. nextSpell-1 .. ")]: Success")
-                        variables.nextSpellChiJi = nextSpell
-                        return true
-                    else
-                        br.addonDebug(colors.red .. "[Chi-Ji Spinning Crane Kick]: Failed")
-                        return false
-                    end
-                end
-            end
-            local chiJiCastTigerPalm = function (nextSpell)
-                if cd.tigerPalm.ready() and cast.able.tigerPalm("dynamicTarget.range5") then
-                    if cast.tigerPalm(dynamicTarget.range5) then
-                        br.addonDebug(colors.yellow .. "[Chi-Ji Tiger Palm(".. nextSpell-1 .. ")]: " .. UnitName(dynamicTarget.range5))
-                        variables.nextSpellChiJi = nextSpell
-                        return true
-                    else
-                        br.addonDebug(colors.red .. "[Chi-Ji Spinning Crane Kick]: Failed")
-                        return false
-                    end
-                end
-            end
-            local chiJiCastEnvelopingMist = function (nextSpell)
-                if cd.envelopingMist.ready() then
-                    local envelopingMistUnit = nil
-
-                    for i = 1, #tanks do
-                        local tempUnit = tanks[i]
-                        if buff.envelopingMist.remains(tempUnit.unit) <= 3 and tempUnit.hp <= 96 then
-                            envelopingMistUnit = tempUnit
-                        end
-                    end
-                    if envelopingMistUnit == nil then
-                        for i = 1, #friends.range40 do
-                            local tempUnit = friends.range40[i]
-                            if buff.envelopingMist.remains(tempUnit.unit) <= 3 and tempUnit.hp <= 96 then
-                                envelopingMistUnit = tempUnit
-                            end
-                        end
-                    end
-                    if envelopingMistUnit == nil then
-                        if buff.envelopingMist.remains(player.unit) <= 3 and player.hp <= 96 then
-                            envelopingMistUnit = player
-                        elseif #tanks > 0 then
-                            envelopingMistUnit = tanks[1]
-                        else
-                            envelopingMistUnit = player
-                        end
-                    end
-
-                    if cast.able.envelopingMist(envelopingMistUnit.unit) then
-                        if cast.envelopingMist(envelopingMistUnit.unit) then
-                            br.addonDebug(colors.green .. "[Chi-Ji Enveloping Mist(".. nextSpell-1 .. ")]: " .. UnitName(envelopingMistUnit.unit) .. " at: " .. round2(envelopingMistUnit.hp, 2) .. "%" )
-                            variables.nextSpellChiJi = nextSpell
-                            return true
-                        else
-                            br.addonDebug(colors.red .. "[Chi-Ji Enveloping Mist]: Failed")
-                            return false
-                        end
-                    end
-                end
-            end
-
-            -- With Thunder Focus Tea
             -- Thunder Focus Tea
             detailedDebugger("----Chi-Ji Thunder Focus Tea-----")
-            if cd.thunderFocusTea.ready() and variables.nextSpellChiJi == nil then
+            if dynamicTarget.range5 ~= nil and cd.thunderFocusTea.ready() then
                 if cast.thunderFocusTea() then
                     br.addonDebug(colors.blue .. "[Chi-Ji Thunder Focus Tea]: Success")
-                    variables.nextSpellChiJi = 2
                 else
                     br.addonDebug(colors.red .. "[Chi-Ji Thunder Focus Tea]: Failed")
                     return false
                 end
             end
-            -- Rising Sun Kick
-            detailedDebugger("----Chi-Ji Rising Sun Kick 1-----")
-            if variables.nextSpellChiJi == 2 then
-                return chiJiCastRisingSunKick(3)
-            end
-            -- Tiger Palm
-            detailedDebugger("----Chi-Ji Tiger Palm 1-----")
-            if variables.nextSpellChiJi == 3 then
-                return chiJiCastTigerPalm(4)
-            end
-            -- Rising Sun Kick
-            detailedDebugger("----Chi-Ji Rising Sun Kick 2-----")
-            if variables.nextSpellChiJi == 4 then
-                return chiJiCastRisingSunKick(5)
-            end
-            -- Tiger Palm
-            detailedDebugger("----Chi-Ji Tiger Palm 2-----")
-            if variables.nextSpellChiJi == 5 then
-                return chiJiCastTigerPalm(6)
-            end
-            -- Rising Sun Kick
-            detailedDebugger("----Chi-Ji Rising Sun Kick 3-----")
-            if variables.nextSpellChiJi == 6 then
-                return chiJiCastRisingSunKick(7)
-            end
-            -- Enveloping Mist
-            detailedDebugger("----Chi-Ji Enveloping Mist 1-----")
-            if variables.nextSpellChiJi == 7 then
-                return chiJiCastEnvelopingMist(8)
-            end
-            -- Tiger Palm
-            detailedDebugger("----Chi-Ji Tiger Palm 3-----")
-            if variables.nextSpellChiJi == 8 then
-                return chiJiCastTigerPalm(9)
-            end
-            -- Blackout Kick
-            detailedDebugger("----Chi-Ji Blackout Kick 1-----")
-            if variables.nextSpellChiJi == 9 then
-                return chiJiCastBlackoutKick(10)
-            end
-            -- Enveloping Mist
-            detailedDebugger("----Chi-Ji Enveloping Mist 2-----")
-            if variables.nextSpellChiJi == 10 then
-                return chiJiCastEnvelopingMist(11)
-            end
-            -- Rising Sun Kick
-            detailedDebugger("----Chi-Ji Rising Sun Kick 4-----")
-            if variables.nextSpellChiJi == 11 then
-                return chiJiCastRisingSunKick(12)
-            end
-            -- Spinning Kick
-            detailedDebugger("----Chi-Ji Spinning Kick 1-----")
-            if variables.nextSpellChiJi == 12 then
-                return chiJiCastSpinningKick(nil)
+
+            -- Rising Sun Kick on cooldown
+            detailedDebugger("----Chi-Ji Rising Sun Kick-----")
+            if cd.risingSunKick.ready() and dynamicTarget.range5 ~= nil and cast.able.risingSunKick(dynamicTarget.range5) then
+                if cast.risingSunKick(dynamicTarget.range5) then
+                    br.addonDebug(colors.yellow .. "[Chi-Ji Rising Sun Kick]: " .. UnitName(dynamicTarget.range5))
+                    return true
+                else
+                    br.addonDebug(colors.red .. "[Chi-Ji Rising Sun Kick]: Failed")
+                    return false
+                end
             end
 
-            -- Without Thunder Focus Tea
-            -- Rising Sun Kick
-            detailedDebugger("----Chi-Ji Rising Sun Kick 5-----")
-            if variables.nextSpellChiJi == nil and not cd.thunderFocusTea.ready() then
-                return chiJiCastRisingSunKick(13)
+            -- Blackout Kick at 3 stacks
+            detailedDebugger("----Chi-Ji Black Out Kick-----")
+            if cd.blackoutKick.ready() and dynamicTarget.range5 ~= nil and buff.teachingsOfTheMonastery.stack() == 3 and cast.able.blackoutKick(dynamicTarget.range5) then
+                if cast.blackoutKick(dynamicTarget.range5) then
+                    br.addonDebug(colors.yellow .. "[Chi-Ji Blackout Kick]: " .. UnitName(dynamicTarget.range5))
+                    return true
+                else
+                    br.addonDebug(colors.yellow .. "[Chi-Ji Blackout Kick]: " .. UnitName(dynamicTarget.range5))
+                    return true
+                end
             end
+
             -- Tiger Palm
-            detailedDebugger("----Chi-Ji Tiger Palm 4-----")
-            if variables.nextSpellChiJi == 13 then
-                return chiJiCastTigerPalm(14)
+            detailedDebugger("----Chi-Ji Tiger Palm-----")
+            if cd.tigerPalm.ready() and dynamicTarget.range5 ~= nil and not cast.last.tigerPalm(1) and cast.able.tigerPalm(dynamicTarget.range5) then
+                if cast.tigerPalm(dynamicTarget.range5) then
+                    br.addonDebug(colors.yellow .. "[Tiger Palm]: " .. UnitName(dynamicTarget.range5))
+                    return true
+                end
             end
-            -- Spinning Kick
-            detailedDebugger("----Chi-Ji Spinning Kick 2-----")
-            if variables.nextSpellChiJi == 14 then
-                return chiJiCastSpinningKick(15)
+
+            -- Spinning Crane Kick
+            detailedDebugger("----Chi-Ji Spinning Crane Kick-----")
+            if cd.spinningCraneKick.ready() and #enemies.range8 > 0 and not cast.active.spinningCraneKick() and cast.able.spinningCraneKick("player") then
+                if cast.spinningCraneKick("player") then
+                    br.addonDebug(colors.yellow .. "[Chi-Ji Spinning Crane Kick]: Success")
+                    return true
+                else
+                    br.addonDebug(colors.red .. "[Chi-Ji Spinning Crane Kick]: Failed")
+                    return false
+                end
             end
-            -- Tiger Palm
-            detailedDebugger("----Chi-Ji Tiger Palm 5-----")
-            if variables.nextSpellChiJi == 15 then
-                return chiJiCastTigerPalm(16)
-            end
-            -- Spinning Kick
-            detailedDebugger("----Chi-Ji Spinning Kick 3-----")
-            if variables.nextSpellChiJi == 16 then
-                return chiJiCastSpinningKick(17)
-            end
-            -- Enveloping Mist
-            detailedDebugger("----Chi-Ji Enveloping Mist 3-----")
-            if variables.nextSpellChiJi == 17 then
-                return chiJiCastEnvelopingMist(18)
-            end
-            -- Blackout Kick
-            detailedDebugger("----Chi-Ji Blackout Kick 2-----")
-            if variables.nextSpellChiJi == 18 then
-                return chiJiCastBlackoutKick(19)
-            end
-            -- Enveloping Mist
-            detailedDebugger("----Chi-Ji Enveloping Mist 4-----")
-            if variables.nextSpellChiJi == 19 then
-                return chiJiCastEnvelopingMist(20)
-            end
-            -- Rising Sun Kick
-            detailedDebugger("----Chi-Ji Rising Sun Kick 6-----")
-            if variables.nextSpellChiJi == 20 then
-                return chiJiCastRisingSunKick(21)
-            end
-            -- Tiger Palm
-            detailedDebugger("----Chi-Ji Tiger Palm 6-----")
-            if variables.nextSpellChiJi == 21 then
-                return chiJiCastTigerPalm(nil)
-            end
+
             return false
-        end
-        if totemInfo.chiJiDuration == 0 then
-            variables.nextSpellChiJi = nil
         end
         local healing = doHealing() -- will return nil if no healing was done
         if healing == true or healing == false then
