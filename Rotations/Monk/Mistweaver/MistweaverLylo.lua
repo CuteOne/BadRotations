@@ -550,7 +550,7 @@ local function runRotation()
         detailedDebugger("---- ST Life Cocoon : doHealing-----")
         local lifeCocoonMode = ui.value(variables.sectionValues.lifeCocoonMode)
         if ui.checked(variables.sectionValues.lifeCocoon) and friends.lowest.hp <= ui.value(variables.sectionValues.lifeCocoon) and cd.lifeCocoon.ready() and cast.able.lifeCocoon()
-                and (lifeCocoonMode == 2 or friends.lowest.role == "TANK" or (lifeCocoonMode >= 2 and friends.lowest.role == "HEALER"))
+                and (friends.lowest.role == "TANK" or (lifeCocoonMode == 3 and friends.lowest.role == "HEALER") or lifeCocoonMode == 1)
         then
             if cast.lifeCocoon(friends.lowest.unit) then
                 br.addonDebug(colors.green .. "[Life Cocoon]:" .. UnitName(friends.lowest.unit) .. " at: " .. round2(friends.lowest.hp, 2) .. "%")
