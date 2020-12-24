@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "1.7.9"
+local VerNum  = "1.8.0"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffFFBB00"
 local dsInterrupt = false
@@ -836,7 +836,7 @@ end
         if isRare(thisUnit) or isBoss(thisUnit) or ttd("target") >= 30 then 
             inBossFight = true
         end
-        if talent.shadowEmbrace and debuff.shadowEmbrace.exists(thisUnit) then
+        if talent.drainSoul and debuff.shadowEmbrace.exists(thisUnit) then
             if debuff.shadowEmbrace.exists(lowestShadowEmbrace) then
                 shadowEmbraceRemaining = debuff.shadowEmbrace.remain(lowestShadowEmbrace)
             else
@@ -1191,7 +1191,7 @@ end
             end
 
             if isChecked("Racial") and not moving then
-                if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
+                if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" then
                     if race == "LightforgedDraenei" then
                         if cast.racial("target", "ground") then
                             return true
@@ -1212,11 +1212,11 @@ end
         ------------------------------------------------
         -- Malefic Rapture Max Shards ------------------
         ------------------------------------------------
-        if not moving then
-            if anydots and shards > 4 then
-                if cast.maleficRapture("target") then br.addonDebug("[Action:AoE] Malefic Rapture (Max Shards)") return true end 
-            end
-        end
+        -- if not moving then
+        --     if anydots and shards > 4 then
+        --         if cast.maleficRapture("target") then br.addonDebug("[Action:AoE] Malefic Rapture (Max Shards)") return true end 
+        --     end
+        -- end
         ------------------------------------------------
         -- Seed of Corruption, No STS Talent -----------
         ------------------------------------------------
@@ -1441,8 +1441,8 @@ end
         ------------------------------------------------
         -- Summon Darkglare ----------------------------
         ------------------------------------------------
-        if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.exists() or shards == 5) then
-            CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+        if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and not moving and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.exists() or shards == 5) then
+            CastSpellByName(GetSpellInfo(spell.summonDarkglare)) br.addonDebug("[Action:AoE] Summon Darkglare")
             return true
         end
         ------------------------------------------------
@@ -1507,11 +1507,11 @@ local function actionList_Rotation()
             ------------------------------------------------
             -- Malefic Rapture Max Shards ------------------
             ------------------------------------------------
-            if not moving then
-                if anydots and shards > 4 then
-                    if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Max Shards)") return true end 
-                end
-            end
+            -- if not moving then
+            --     if anydots and shards > 4 then
+            --         if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Max Shards)") return true end 
+            --     end
+            -- end
             ------------------------------------------------
             -- Cycle Exhaustion  ---------------------------
             ------------------------------------------------
@@ -1730,7 +1730,7 @@ local function actionList_Rotation()
             ------------------------------------------------
             -- Summon Darkglare ----------------------------
             ------------------------------------------------
-            if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and debuff.agony.exists("target") and debuff.corruption.exists("target") and (debuff.unstableAffliction.exists("target") or shards == 5) then
+            if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and not moving and debuff.agony.exists("target") and debuff.corruption.exists("target") and (debuff.unstableAffliction.exists("target") or shards == 5) then
                 CastSpellByName(GetSpellInfo(spell.summonDarkglare)) br.addonDebug("[Action:Rotation] Summon Darkglare")
                 return true
             end
@@ -1751,6 +1751,14 @@ local function actionList_Rotation()
                 if getSpellCD(spell.summonDarkglare) == 0 then CastSpellByName(GetSpellInfo(spell.summonDarkglare)) br.addonDebug("[Action:Rotation] Cooldowns (Hotkey)") return true end
             end
             ------------------------------------------------
+            -- Racial --------------------------------------
+            ------------------------------------------------
+            if isChecked("Racial") and not moving and race == "Troll" and pet.darkglare.active() then
+                if cast.racial("player") then br.addonDebug("[Action:Rotation] Berserking")
+                    return true
+                end
+            end
+            ------------------------------------------------
             -- Malefic Rapture  ----------------------------
             ------------------------------------------------
             if not moving and shards > 0 then
@@ -1768,10 +1776,13 @@ local function actionList_Rotation()
                 then
                     if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Phantom Singularity)") return true end 
                 end
-                if talent.phantomSingularity and cd.phantomSingularity.remains() > 10 and shards > 1 then
+                if talent.phantomSingularity and cd.phantomSingularity.remains() > 20 and shards > 1 then
                     if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Waiting for Phantom of Singularity CD") return true end
                 end
-
+                --- Soul Rot 
+                if debuff.soulRot.exists("target") then
+                    if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Soul Rot Active)") return true end 
+                end				   
             end
             ------------------------------------------------
             -- Cooldowns -----------------------------------
@@ -1793,7 +1804,7 @@ local function actionList_Rotation()
                 end
 
                 if isChecked("Racial") and not moving then
-                    if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
+                    if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" then
                         if race == "LightforgedDraenei" then
                             if cast.racial("target", "ground") then
                                 return true
@@ -1823,13 +1834,82 @@ local function actionList_Rotation()
         end-- End Spell Queue Ready
 end-- End Action List: Rotation
 
-local function actionList_PreCombat()
-         -- Fel Domination
-        if ui.checked("Fel Domination") and not talent.grimoireOfSacrifice and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax then
+local function actionList_PetControl()
+
+    if UnitExists("pet")
+    and not UnitIsDeadOrGhost("pet") 
+    and not UnitExists("pettarget")
+    and inCombat
+    and br.timer:useTimer("Summon Pet Delay",math.random(0.5,2))
+    then
+        PetAssistMode()
+        PetAttack()
+        RunMacroText("/petattack")
+    end
+
+    if not inCombat 
+    and UnitExists("pet")
+    and not UnitIsDeadOrGhost("pet") 
+    and UnitExists("pettarget")
+    then    
+        PetFollow()   
+        RunMacroText("/petfollow")
+        br.addonDebug("PET FOLLOW!")
+    end
+
+    -- Firebolt Spam
+    if UnitExists("pettarget")
+    and pet.imp.active()
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(3110),"pettarget") 
+    end
+    -- Consuming Shadows Spam
+    if UnitExists("pettarget")
+    and pet.voidwalker.active()
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(3716),"pettarget") 
+    end
+    -- Shadow Bite Spam
+    if UnitExists("pettarget")
+    and pet.felhunter.active()
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(54049),"pettarget") 
+    end
+
+
+end
+
+    local function actionList_SummonPet()
+        local petPadding = 2
+        if talent.grimoireOfSacrifice then
+            petPadding = 5
+        end
+
+        if UnitIsDeadOrGhost("pet") then RunMacroText("/petdismiss") return end 
+
+        if ui.checked("Fel Domination") and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax and not buff.grimoireOfSacrifice.exists() 
+        then
             if cast.felDomination() then br.addonDebug("Fel Domination") return true end
         end
- 
-        --actions.precombat+=/summon_pet
+
+        if ui.checked("Fel Domination Pet HP%") and not moving and cd.felDomination.remain() <= gcdMax and getHP("pet") <= getOptionValue("FD Pet HP%") and (GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet"))
+        then
+            if cast.felDomination() then br.addonDebug("Fel Domination Low Pet Health") return true end
+        end
+
+        -- If we're casting pet summons 
+      --  if UnitCastingInfo("Player") == GetSpellInfo() then if UnitExists("pet") and not UnitIsDeadOrGhost("pet") then SpellStopCasting()  return true end  end
+
+        local var = {} 
+        var.summonImp                   = spell.summonImp
+        var.summonFelhunter             = spell.summonFelhunter
+        var.summonSuccubus              = spell.summonSuccubus
+        var.summonFelguard              = spell.summonFelguard
+        var.summonDemonicTyrant         = spell.summonDemonicTyrant
+        var.summonVilefiend             = spell.summonVilefiend
         if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and ((not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) or talent.grimoireOfSacrifice and not buff.grimoireOfSacrifice.exists("player")) and level >= 5 and br.timer:useTimer("Summon Pet Delay", getOptionValue("Summon Pet Delay")) and not moving then
             if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
                 if mode.summonPet == 1 and (lastSpell ~= spell.summonImp or activePetId == 0) then
@@ -1845,7 +1925,259 @@ local function actionList_PreCombat()
                 end
             end
         end
-        
+    end
+local function actionList_drainSoulST()
+    --------------------------
+    --- Drain Soul Clipped ---
+    --------------------------
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.unstableAffliction.remains("target") <= 3.5 and not lcast then
+        -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+            if cast.unstableAffliction("target") then br.addonDebug("[Action:Clipped ST] Unstable Affliction [Refresh]") return true end
+        end
+    end
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.agony.remains("target") <= 2 then
+        -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+            if cast.agony("target") then br.addonDebug("[Action:Clipped ST] Agony [Refresh]") return true end
+        end
+    end
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.siphonLife.remains("target") <= 2 then
+        -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+            if cast.siphonLife("target") then br.addonDebug("[Action:Clipped ST] Siphon Life [Refresh]") return true end
+        end 
+    end
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.corruption.remains("target") <= 2 then
+        -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+            if cast.corruption("target") then br.addonDebug("[Action:Clipped ST] Corruption [Refresh]") return true end
+        end               
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 0
+    --and debuff.unstableAffliction.remains("target") >= 9
+    and talent.phantomSingularity and debuff.phantomSingularity.exists("target")
+    or talent.vileTaint and debuff.vileTaint.exists("target")
+    then
+            --SpellStopCasting()
+        if not moving and cast.able.maleficRapture()
+        -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+        -- and not cast.current.unstableAffliction()
+        -- and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+        then
+            if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped ST] Malefic Rapture") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 2
+    --and debuff.unstableAffliction.remains("target") >= 9
+    then
+            --SpellStopCasting()
+        if talent.vileTaint and cd.vileTaint.remains() > 10 and not moving
+        -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+        -- and not cast.current.unstableAffliction()
+        -- and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+        then
+            if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped ST] Waiting for Vile Taint CD") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 2
+    --and debuff.unstableAffliction.remains("target") >= 9
+    then
+            --SpellStopCasting()
+        if talent.phantomSingularity and cd.phantomSingularity.remains() > 10 and not moving
+        -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+        -- and not cast.current.unstableAffliction()
+        -- and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+        then
+            if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped ST] Waiting for Phantom of Singularity CD") return true end
+        end
+    end
+end
+local function actionList_drainSoulAoE()
+    --------------------------
+    --- Drain Soul Clipped ---
+    --------------------------
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.unstableAffliction.remains("target") <= getOptionValue("UA Refresh") + 1.5 and not lcast then
+       -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+           if cast.unstableAffliction("target") then br.addonDebug("[Action:Clipped AoE] Unstable Affliction [Refresh]") return true end
+        end
+    end
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.agony.remains("target") <= getOptionValue("Agony Refresh") + 1.5 then
+       -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+           if cast.agony("target") then br.addonDebug("[Action:Clipped AoE] Agony [Refresh]") return true end
+        end
+    end
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.siphonLife.remains("target") <= getOptionValue("Siphon Life Refresh") + 1.5 then
+       -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+           if cast.siphonLife("target") then br.addonDebug("[Action:Clipped AoE] Siphon Life [Refresh]") return true end
+        end 
+    end
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
+        --  SpellStopCasting()
+        if not moving and debuff.corruption.remains("target") <= getOptionValue("Corruption Refresh") + 1.5 then
+        -- and not cast.current.unstableAffliction()
+        --and br.timer:useTimer("UA", 1.5) 
+        -- and cast.timeSinceLast.unstableAffliction() >= 3
+        -- and not cast.last.unstableAffliction(2)
+            if cast.corruption("target") then br.addonDebug("[Action:Clipped AoE] Corruption [Refresh]") return true end
+        end               
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 0
+    --and debuff.unstableAffliction.remains("target") >= 9
+    and talent.phantomSingularity and debuff.phantomSingularity.exists("target")
+    or talent.vileTaint and debuff.vileTaint.exists("target")
+    then
+          --SpellStopCasting()
+        if not moving and cast.able.maleficRapture()
+       -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+       -- and not cast.current.unstableAffliction()
+       -- and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+        then
+           if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped AoE] Malefic Rapture") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 4
+    --and debuff.unstableAffliction.remains("target") >= 9
+    then
+          --SpellStopCasting()
+        if anydots and not moving and cast.able.maleficRapture()
+       -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+       -- and not cast.current.unstableAffliction()
+       -- and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+        then
+           if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped AoE] Malefic Rapture (Max Shards)") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 2
+    --and debuff.unstableAffliction.remains("target") >= 9
+    then
+          --SpellStopCasting()
+        if talent.vileTaint and cd.vileTaint.remains() > 10 and not moving
+       -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+       -- and not cast.current.unstableAffliction()
+       -- and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+        then
+           if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped AoE] Waiting for Vile Taint CD") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 2
+    --and debuff.unstableAffliction.remains("target") >= 9
+    then
+          --SpellStopCasting()
+        if talent.phantomSingularity and cd.phantomSingularity.remains() > 10 and not moving
+       -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+       -- and not cast.current.unstableAffliction()
+       -- and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+        then
+           if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped AoE] Waiting for Phantom of Singularity CD") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) 
+    --and debuff.unstableAffliction.remains("target") >= 11
+    and cd.haunt.remain() <= gcdMax
+    then
+          --SpellStopCasting()
+        if not moving
+       -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+       -- and not cast.current.unstableAffliction()
+       -- and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+        then
+           if cast.haunt("target") then br.addonDebug("[Action:Clipped AoE] Haunt") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) 
+    --and debuff.unstableAffliction.remains("target") >= 11
+    and debuff.shadowEmbrace.stack("target") == 3
+    and cd.vileTaint.remain() <= gcdMax
+    and shards > 1
+    then
+          --SpellStopCasting()
+        if not moving
+       -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+       -- and not cast.current.unstableAffliction()
+       -- and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+        then
+           if cast.vileTaint("target") then br.addonDebug("[Action:Clipped AoE] Vile Taint") return true end
+        end
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) 
+    --and debuff.unstableAffliction.remains("target") >= 11
+    and debuff.shadowEmbrace.stack("target") == 3
+    and cd.phantomSingularity.remain() <= gcdMax
+    then
+          --SpellStopCasting()
+        if not moving
+       -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
+       -- and not cast.current.unstableAffliction()
+       -- and br.timer:useTimer("UA", 1.5) 
+       -- and cast.timeSinceLast.unstableAffliction() >= 3
+       -- and not cast.last.unstableAffliction(2)
+        then
+           if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped AoE] Phantom of Singularity") return true end
+        end
+    end
+end
+
+local function actionList_PreCombat()
         if not inCombat and not (IsFlying() or IsMounted()) then
             -- Flask
             -- flask,type=whispered_pact
@@ -1896,9 +2228,13 @@ end -- End Action List - PreCombat
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not hastar and profileStop==true then
+    if not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif inCombat and profileStop==true or IsMounted() or IsFlying() or pause(true) or mode.rotation==4  then
+    elseif (inCombat and profileStop == true) or IsMounted() or IsFlying() or pause(true) or mode.rotation ==4 then
+        if not pause(true) and IsPetAttackActive() and isChecked("Pet Management") then
+            PetStopAttack()
+            PetFollow()
+        end
         return true
     else
 
@@ -1926,164 +2262,35 @@ end -- End Action List - PreCombat
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------
+        if actionList_PetControl() then return end
         if actionList_PreCombat() then return end
-        --------------------------
-        --- Drain Soul Clipped ---
-        --------------------------
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
-            --  SpellStopCasting()
-            if not moving and debuff.unstableAffliction.remains("target") <= ui.value("UA Refresh") and not lcast then
-           -- and not cast.current.unstableAffliction()
-            --and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-               if cast.unstableAffliction("target") then br.addonDebug("[Action:Clipped DS] Unstable Affliction [Refresh]") return true end
-            end
-        end
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
-            --  SpellStopCasting()
-            if not moving and debuff.agony.remains("target") <= ui.value("Agony Refresh") then
-           -- and not cast.current.unstableAffliction()
-            --and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-               if cast.agony("target") then br.addonDebug("[Action:Clipped DS] Agony [Refresh]") return true end
-            end
-        end
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
-            --  SpellStopCasting()
-            if not moving and debuff.siphonLife.remains("target") <= ui.value("Siphon Life Refresh") then
-           -- and not cast.current.unstableAffliction()
-            --and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-               if cast.siphonLife("target") then br.addonDebug("[Action:Clipped DS] Siphon Life [Refresh]") return true end
-            end 
-        end
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) then
-            --  SpellStopCasting()
-            if not moving and debuff.corruption.remains("target") <= ui.value("Corruption Refresh") then
-            -- and not cast.current.unstableAffliction()
-            --and br.timer:useTimer("UA", 1.5) 
-            -- and cast.timeSinceLast.unstableAffliction() >= 3
-            -- and not cast.last.unstableAffliction(2)
-                if cast.corruption("target") then br.addonDebug("[Action:Clipped DS] Corruption [Refresh]") return true end
-            end               
-        end
 
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 0
-        --and debuff.unstableAffliction.remains("target") >= 9
-        and talent.phantomSingularity and debuff.phantomSingularity.exists("target")
-        or talent.vileTaint and debuff.vileTaint.exists("target")
+        if UnitIsDeadOrGhost("pet") then RunMacroText("/petdismiss") return end 
+
+        if ui.checked("Fel Domination") and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax and not buff.grimoireOfSacrifice.exists() 
         then
-              --SpellStopCasting()
-            if not moving and cast.able.maleficRapture()
-           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
-           -- and not cast.current.unstableAffliction()
-           -- and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped DS] Malefic Rapture") return true end
-            end
+            if cast.felDomination() then br.addonDebug("Fel Domination") return true end
         end
 
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 4
-        --and debuff.unstableAffliction.remains("target") >= 9
+        if ui.checked("Fel Domination New Pet") and not moving and cd.felDomination.remain() <= gcdMax and getHP("pet") <= getOptionValue("FelDom Pet HP") and (GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet"))
         then
-              --SpellStopCasting()
-            if anydots and not moving and cast.able.maleficRapture()
-           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
-           -- and not cast.current.unstableAffliction()
-           -- and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped DS] Malefic Rapture (Max Shards)") return true end
-            end
+            if cast.felDomination() then br.addonDebug("Fel Domination Low Pet Health") return true end
         end
 
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 2
-        --and debuff.unstableAffliction.remains("target") >= 9
-        then
-              --SpellStopCasting()
-            if talent.vileTaint and cd.vileTaint.remains() > 10 and not moving
-           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
-           -- and not cast.current.unstableAffliction()
-           -- and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped DS] Waiting for Vile Taint CD") return true end
-            end
+        -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
+        if (not inCombat and not moving) or buff.felDomination.exists() then 
+            if actionList_SummonPet() then return end 
+        elseif inCombat and moving and buff.felDomination.exists() then 
+            if actionList_SummonPet() then return end
+        end
+        if ((mode.rotation == 1 and #enemies.yards40f < ui.value("Multi-Target Units")) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
+            if actionList_drainSoulST() then return end
         end
 
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) and shards > 2
-        --and debuff.unstableAffliction.remains("target") >= 9
-        then
-              --SpellStopCasting()
-            if talent.phantomSingularity and cd.phantomSingularity.remains() > 10 and not moving
-           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
-           -- and not cast.current.unstableAffliction()
-           -- and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped DS] Waiting for Phantom of Singularity CD") return true end
-            end
+        if ((mode.rotation == 1 and #enemies.yards40f >= ui.value("Multi-Target Units")) or (mode.rotation == 2 and #enemies.yards40f > 0)) then
+            if actionList_drainSoulAoE() then return end
         end
-
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) 
-        --and debuff.unstableAffliction.remains("target") >= 11
-        and cd.haunt.remain() <= gcdMax
-        then
-              --SpellStopCasting()
-            if not moving
-           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
-           -- and not cast.current.unstableAffliction()
-           -- and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.haunt("target") then br.addonDebug("[Action:Clipped DS] Haunt") return true end
-            end
-        end
-
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) 
-        --and debuff.unstableAffliction.remains("target") >= 11
-        and debuff.shadowEmbrace.stack("target") == 3
-        and cd.vileTaint.remain() <= gcdMax
-        and shards > 1
-        then
-              --SpellStopCasting()
-            if not moving
-           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
-           -- and not cast.current.unstableAffliction()
-           -- and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.vileTaint("target") then br.addonDebug("[Action:Clipped DS] Vile Taint") return true end
-            end
-        end
-
-        if UnitChannelInfo("player") == GetSpellInfo(spell.drainSoul) 
-        --and debuff.unstableAffliction.remains("target") >= 11
-        and debuff.shadowEmbrace.stack("target") == 3
-        and cd.phantomSingularity.remain() <= gcdMax
-        then
-              --SpellStopCasting()
-            if not moving
-           -- and select(2,GetSpellCooldown(spell.unstableAffliction)) ~= 1 
-           -- and not cast.current.unstableAffliction()
-           -- and br.timer:useTimer("UA", 1.5) 
-           -- and cast.timeSinceLast.unstableAffliction() >= 3
-           -- and not cast.last.unstableAffliction(2)
-            then
-               if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped DS] Phantom of Singularity") return true end
-            end
-        end
-
+    
         --------------------------
         --- In Combat Rotation ---
         --------------------------
@@ -2092,7 +2299,7 @@ end -- End Action List - PreCombat
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList_Interrupts() then return end
-
+                
             if br.queueSpell then
                 ChatOverlay("Pausing for queuecast")
                 return true 
