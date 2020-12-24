@@ -3724,6 +3724,7 @@ br.lists.spells = {
             },
             covenants                       = {
                 condemn                     = 317349,
+				condemnMassacre				= 330334,
             },
             debuffs                         = {
                 colossusSmash               = 208086,
@@ -3791,6 +3792,7 @@ br.lists.spells = {
             },
             covenants                       = {
                 condemn                     = 317349,
+				condemnMassacre				= 330334,
             },
             debuffs                         = {
                 siegebreaker                = 280773,
