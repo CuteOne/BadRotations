@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.3.1"
+local versionNum = "1.3.2"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffb28cc7"								   
 local dreadstalkersActive, grimoireActive = false, false
@@ -178,14 +178,6 @@ local function createToggles()
     };
     CreateButton("BurningRush",2,1)
 
-    -- No Touch Blacklist button
-    NoTouchModes = {
-        [1] = { mode = "On", value = 1 , overlay = "No Touch Blacklist Enabled", tip = "No Touch Blacklist Enabled.", highlight = 1, icon = br.player.spell.corruption},
-        [2] = { mode = "Off", value = 2 , overlay = "No Touch Blacklist Disabled", tip = "No Touch Blacklist Disabled.", highlight = 0, icon = br.player.spell.corruption}
-    };
-    CreateButton("NoTouch",5,1)
-    
-    
 end
 
 ---------------
@@ -335,7 +327,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Lists Options")
         -- No Dot units
         br.ui:createCheckbox(section, "No Touch Blacklist", "Ignore certain units for dots")
-        br.ui:createScrollingEditBoxWithout(section,"No Touch Blacklist Units", NoTouch, "List of units to not touch", 240, 40)
+       -- br.ui:createScrollingEditBoxWithout(section,"No Touch Blacklist Units", NoTouch, "List of units to not touch", 240, 40)
         -- Curse of Exhaustion
         br.ui:createSpinner(section, "Curse of Exhaustion", 2, 1, 10, 1, "|cffFFBB00Number of enemies to cast Curse of Exhaustion at.")
         br.ui:createScrollingEditBoxWithout(section,"Exhaustion Units", exhaustionUnits, "List of units to cast Curse of Exhaustion on.", 240, 40)
@@ -383,6 +375,7 @@ local function runRotation()
     local castable = br.player.cast.debug
     local combatTime = getCombatTime()
     local cd = br.player.cd
+    local debug = br.addonDebug
     local charges = br.player.charges
     local deadMouse = UnitIsDeadOrGhost("mouseover")
     local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
@@ -427,6 +420,7 @@ local function runRotation()
     local use = br.player.use
     local covenant = br.player.covenant
     local ui = br.player.ui
+    local cl = br.read
 
     units.get(40)
     enemies.get(8, "target")
@@ -974,10 +968,12 @@ local function runRotation()
         end -- End useCDs check
     end -- End Action List - Cooldowns
 
-    local function actionList_BuildAShard()
+    local function actionList_BuildAShard() 
         -- actions.build_a_shard=soul_strike
-        if cast.soulStrike("target") then ui.debug("[Action:BuildAShard] Soul Strike")
-            return true
+        if GetPetActionInfo(4) == GetSpellInfo(30213) then 
+            if cast.soulStrike("target")then ui.debug("[Action:BuildAShard] Soul Strike")
+                return true
+            end
         end
         -- actions.build_a_shard+=/shadow_bolt
         if not moving then
@@ -988,7 +984,9 @@ local function runRotation()
     end
 
     local function actionList_NetherPortalBuilding()
-        -- actions.nether_portal_building=nether_portal,if=soul_shard>=5&(!talent.power_siphon.enabled|buff.demonic_core.up)
+        
+
+        -- actions.nether_portal_building=nether_portal,if=so
         if not moving and shards >= 5 and (not talent.powerSiphon or buff.demonicCore.exists()) then
             if cast.netherPortal("target") then ui.debug("[Action:PortalBuilding] Nether Portal")
                 return true
@@ -1025,6 +1023,7 @@ local function runRotation()
     end
 
     local function actionList_NetherPortalActive()
+                local casttime = select(4,GetSpellInfo(172))
         --bilescourge_bombers
         if mode.bsb == 1 and mode.rotation ~= 3 then
             if getOptionValue("Bilescourge Bombers Target") == 1 then
@@ -1100,6 +1099,8 @@ local function runRotation()
     end
 
     local function actionList_NetherPortal()
+                local casttime = select(4,GetSpellInfo(172))
+
         -- actions.nether_portal=call_action_list,name=nether_portal_building,if=cooldown.nether_portal.remains<20
         if cd.netherPortal.remain() < 20 then
             if actionList_NetherPortalBuilding() then
@@ -1115,6 +1116,9 @@ local function runRotation()
     end
 
     local function actionList_Implosion()
+
+                local casttime = select(4,GetSpellInfo(172))
+
         -- actions.implosion=implosion,if=(buff.wild_imps.stack>=6&(soul_shard<3|prev_gcd.1.call_dreadstalkers|buff.wild_imps.stack>=9|prev_gcd.1.bilescourge_bombers|(!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan))&!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan&buff.demonic_power.down)|(time_to_die<3&buff.wild_imps.stack>0)|(prev_gcd.2.call_dreadstalkers&buff.wild_imps.stack>2&!talent.demonic_calling.enabled)
         if (wildImps >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImps >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) or not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and botSpell ~= spell.implosion and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImps > 0 and useCDs()) or (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling) then
             if cast.implosion("target") then ui.debug("[Action:Implosion] Implosion")
@@ -1184,7 +1188,7 @@ local function runRotation()
             end
         end
         -- actions.implosion+=/soul_strike,if=soul_shard<5&buff.demonic_core.stack<=2
-        if shards < 5 and buff.demonicCore.stack() <= 2 then
+        if shards < 5 and buff.demonicCore.stack() <= 2 and  GetPetActionInfo(4) == GetSpellInfo(30213)  then
             if cast.soulStrike("target") then ui.debug("[Action:Implosion] Soul Strike")
                 return true
             end
@@ -1220,15 +1224,7 @@ local function runRotation()
         end
 
         local casttime = select(4,GetSpellInfo(172))
-
-        if ui.checked("Instant Corruption Torghast") and getCastTime(spell.pyroblast) == 0 then
-            for i = 1, #enemies.yards40 do
-            local thisUnit =  #enemies.yards40[i]
-                if not debuff.corruption.exists(thisUnit)  then
-                   if CastSpellByName(GetSpellInfo(172),thisUnit) then return true end 
-                end
-            end
-        end
+  
         --
         -- actions+=/hand_of_guldan,if=azerite.explosive_potential.rank&time<5&soul_shard>2&buff.explosive_potential.down&buff.wild_imps.stack<3&!prev_gcd.1.hand_of_guldan&&!prev_gcd.2.hand_of_guldan
         if combatTime < 5 and shards > 2 and wildImps < 3 and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) then
@@ -1338,7 +1334,7 @@ local function runRotation()
             end
         end
         -- actions+=/soul_strike,if=soul_shard<5&buff.demonic_core.stack<=2
-        if shards < 5 and buff.demonicCore.stack() <= 2 then
+        if shards < 5 and buff.demonicCore.stack() <= 2 and GetPetActionInfo(4) == GetSpellInfo(30213) then
             if cast.soulStrike("target") then ui.debug("[Action:Rotation] Soul Strike")
                 return true
             end
@@ -1455,6 +1451,73 @@ local function runRotation()
             return true
         end
     end
+
+    local function actionList_PetControl()
+
+    if UnitExists("pet")
+    and not UnitIsDeadOrGhost("pet") 
+    and not UnitExists("pettarget")
+    and inCombat
+    and br.timer:useTimer("Summon Pet Delay",math.random(0.5,2))
+    then
+        PetAssistMode()
+        PetAttack()
+        RunMacroText("/petattack")
+    end
+
+    if not inCombat 
+    and UnitExists("pet")
+    and not UnitIsDeadOrGhost("pet") 
+    and UnitExists("pettarget")
+    then    
+        PetFollow()   
+        RunMacroText("/petfollow")
+        br.addonDebug("PET FOLLOW!")
+    end
+
+    -- Legion Strike
+    if UnitExists("pettarget")
+    and GetPetActionInfo(4) == GetSpellInfo(30213) 
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(30213),"pettarget") 
+    end
+    -- Firebolt Spam
+    if UnitExists("pettarget")
+    and GetPetActionInfo(4) == GetSpellInfo(3110) 
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(3110),"pettarget") 
+    end
+    -- Consuming Shadows Spam
+    if UnitExists("pettarget")
+    and GetPetActionInfo(4) == GetSpellInfo(3716)
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(3716),"pettarget") 
+    end
+    -- Shadow Bite Spam
+    if UnitExists("pettarget")
+    and GetPetActionInfo(4) == GetSpellInfo(19505)
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(54049),"pettarget") 
+    end
+    -- Whiplash Spam
+    if UnitExists("pettarget")
+    and GetPetActionInfo(4) == GetSpellInfo(6360) -- Succubus Active
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(6360),"pettarget") 
+    end
+    -- Lash of Pain
+    if UnitExists("pettarget")
+    and GetPetActionInfo(6) == GetSpellInfo(7814) -- Succubus Active
+    and not UnitIsDeadOrGhost("pet") 
+    then
+        CastSpellByName(GetSpellInfo(7814),"pettarget") 
+    end
+end
 
     local function actionList_SummonPet()
         local petPadding = 2
@@ -1628,6 +1691,7 @@ local function runRotation()
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------
+        if actionList_PetControl() then return end
         if actionList_PreCombat() then
             return
         end
@@ -1677,6 +1741,8 @@ local function runRotation()
                 if isChecked("Pet Management") and not GetUnitIsUnit("pettarget", "target") and isValidUnit("target") then
                     PetAttack()
                 end
+
+
                 -- rotation
                 if actionList_Rotation() then
                     return
