@@ -983,7 +983,7 @@ actionList.Stealth = function()
     -- Brutal Slash
     -- brutal_slash,if=spell_targets.brutal_slash>2
     if cast.able.brutalSlash() and talent.brutalSlash and #enemies.yards8 > 2 then
-        if cast.brutalSlash() then ui.debug("Casting Brutal Slash [Stealth]") return true end
+        if cast.brutalSlash("player","aoe",3,8) then ui.debug("Casting Brutal Slash [Stealth]") return true end
     end
     -- Shred
     -- pool_resource,for_next=1
@@ -1057,7 +1057,7 @@ actionList.Bloodtalons = function()
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down&spell_targets.swipe_cat>1
-    if cast.able.swipeCat() and not btGen.swipe and (#enemies.yards8 > 1) then
+    if cast.able.swipeCat() and not talent.brutalSlash and not btGen.swipe and (#enemies.yards8 > 1) then
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT - Multi]")
             btGen.swipe = true
@@ -1077,7 +1077,7 @@ actionList.Bloodtalons = function()
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down
-    if cast.able.swipeCat() and not btGen.swipe then
+    if cast.able.swipeCat() and not talent.brutalSlash and not btGen.swipe then
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT]")
             btGen.swipe = true
@@ -1578,9 +1578,10 @@ local function runRotation()
                     -- Brutal Slash
                     -- pool_resource,for_next=1
                     -- brutal_slash,if=(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time)&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
-                    if cast.able.brutalSlash() and talent.brutalSlash and charges.brutalSlash.timeTillFull() < unit.gcd(true)
-                        and (#enemies.yards8 < ui.value("Brutal Slash Targets") or (ui.mode.rotation == 3 and #enemies.yards8 > 0))
-                        and range.dyn8AOE
+                    if cast.able.brutalSlash() and talent.brutalSlash and range.dyn8AOE
+                        and ((charges.brutalSlash.timeTillFull() < unit.gcd(true) and ui.useST(8,ui.value("Brutal Slash Targets")))
+                        or ui.useAOE(8,ui.value("Brutal Slash Targets")))
+                        
                     then
                         if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
                     end

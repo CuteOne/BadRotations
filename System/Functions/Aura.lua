@@ -61,10 +61,10 @@ function UnitDebuffID(unit, spellID, filter)
 	local exactSearch = filter ~= nil and strfind(strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitDebuff(unit, i)
+			local buffName, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitDebuff(unit, i, "player")
 			if buffName == nil then	return nil end
 			if buffSpellID == spellID then
-				return UnitDebuff(unit, i)
+				return UnitDebuff(unit, i, "player")
 			end
 		end
 	else
