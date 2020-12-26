@@ -361,7 +361,7 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley
-    if cast.able.volley() and ui.checked("Volley Units") and (#enemies.yards8t >= ui.value("Volley Units")) then
+    if cast.able.volley() and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units") then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
@@ -651,7 +651,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8,"target")
     enemies.get(8,"pet")
-    enemies.yards10t = enemies.get(10,unit.dyn40)
+    enemies.yards10t = enemies.get(10,units.get(40))
     enemies.yards25r = getEnemiesInRect(8,25,false) or 0
     enemies.get(30,"pet")
     enemies.get(40)
