@@ -1,6 +1,6 @@
 ﻿local rotationName = "Feng"
 local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893"
-local StunSpellList="332329|332671|326450|328177|336451|331718|331743"
+local StunSpellList="332329|332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328475|330423|294171|164737"
 local HoJPrioList = "164702|164362|170488|165905|165251"
 ---------------
 --- Toggles ---
@@ -61,6 +61,9 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Automatic Aura replacement")
 		-- Taunt
 		br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
+		-- Lay On Hands
+		br.ui:createSpinner(section, "OOC FoL", 50, 0, 100, 1, "", "|cffFFFFFFout of combat Flash of Light.")
+		br.ui:createDropdownWithout(section, "OOC FoL Target", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFFFFFFPlayer and Target"}, 3, "|ccfFFFFFFTarget to Cast On")
 		-- infinite Divine Steed
 		br.ui:createDropdown(section, "infinite Divine Steed key", br.dropOptions.Toggle, 6)
 		br.ui:checkSectionState(section)
@@ -249,6 +252,7 @@ local function runRotation()
 	local module        = br.player.module
 	local use           = br.player.use
 	local SotR          = true
+	local BoF           = true
 
 	units.get(5)
 	units.get(10)
@@ -288,21 +292,17 @@ local function runRotation()
 	end
 	-- infinite Divine Steed
 	if isChecked("infinite Divine Steed key") and (SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
-		if not IsHackEnabled("talents") then
-			RunMacroText(".talents 1")
-		end
-		if getBuffRemain("player", 254474) <= 0.5 then
-			if not IsAddOnLoaded("Blizzard_TalentUI") and not UnitAffectingCombat("player") then
-				LoadAddOn("Blizzard_TalentUI")
-			end
-			PlayerTalentFrame:Show()
-			PlayerTalentFrame:Hide()
-			RunMacroText("/click PlayerTalentFrameTab2")
-			if IsResting() then
-				RunMacroText("/click PlayerTalentFrameTalentsTalentRow4Talent1")
-			end
-			RunMacroText("/click PlayerTalentFrameTalentsTalentRow4Talent2")
+		if getBuffRemain("player", 254474) <= 0.5 and not UnitAffectingCombat("player") then
+			RemoveTalent(22433)
+			RemoveTalent(22433)
+			RemoveTalent(22434)
+			RemoveTalent(22434)
+			RemoveTalent(22435)
+			RemoveTalent(22435)
+			LearnTalent(22434)
 			if cast.divineSteed() then return true end
+		elseif not talent.unbreakableSpirit and not talent.cavalier and not talent.blessingOfSpellwarding then
+			LearnTalent(22434)
 		end
 	end
 	--------------------
@@ -314,7 +314,7 @@ local function runRotation()
 		if isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
-				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) and GetObjectID(thisUnit) ~= 174773 then
 					if cast.handOfReckoning(thisUnit) then return true end
 				end
 			end
@@ -330,12 +330,33 @@ local function runRotation()
 				end
 			end
 			-- Auto cancel Divine Shield
-			if isChecked("Auto cancel DS") then
+			if isChecked("Auto cancel DS") and not talent.finalStand then
 				if buff.divineShield.exists() and cast.able.handOfReckoning() then
 					if cast.handOfReckoning("target") then return true end
 				end
-				if buff.divineShield.exists() and not talent.finalStand and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+				if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
 					CancelUnitBuffID("player", spell.divineShield)
+				end
+			end
+		end
+		-- Flash of Light
+		if isChecked("OOC FoL") and cast.able.flashOfLight() and not inCombat and not isMoving("player") then
+				-- Player
+			if getOptionValue("OOC FoL Target") == 1 then
+				if php <= getValue("OOC FoL") then
+					if cast.flashOfLight("player") then return true end
+				end
+				-- Target
+			elseif getOptionValue("OOC FoL Target") == 2 then
+				if getHP("target") <= getValue("OOC FoL") then
+					if cast.flashOfLight("target") then return true end
+				end
+				-- Player and Target
+			elseif getOptionValue("OOC FoL Target") == 3 then
+				if php <= getValue("OOC FoL") then
+					if cast.flashOfLight("player") then return true end
+				elseif getHP("target") <= getValue("OOC FoL") then
+					if cast.flashOfLight("target") then return true end
 				end
 			end
 		end
@@ -620,6 +641,7 @@ local function runRotation()
 		-- Blessing of Freedom
 		if inInstance and cast.able.blessingOfFreedom() then
 			if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
+				BoF = false
 				if cast.blessingOfFreedom("boss1target") then return true end
 			end
 			if getDebuffRemain("player",330810) ~= 0 or getDebuffRemain("player",326827) ~= 0 or getDebuffRemain("player",324608) ~= 0 or getDebuffRemain("player",334926) ~= 0 then
@@ -775,7 +797,7 @@ local function runRotation()
 			if BossEncounterCase() then return end
 		end
 		if actionList_Opener() then return end
-		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false then
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false and BoF == true then
 			if actionList_Interrupts() then return end
 			if actionList_Cooldowns() then return end
 			----------------------------------
@@ -792,8 +814,18 @@ local function runRotation()
 				if cast.avengersShield(units.dyn30) then return true end
 			end
 			-- Divine Toll
-			if isChecked("Divine Toll") and cast.able.divineToll() and (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and mob30 then
-				if cast.divineToll(units.dyn30) then return true end
+			if isChecked("Divine Toll") and cast.able.divineToll() then
+				if (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and GetObjectID("boss1") ~= 165946 then
+					if cast.divineToll(units.dyn30) then return true end
+				end
+				if GetObjectID("boss1") == 165946 then
+					for i = 1, #enemies.yards30 do
+					local thisUnit = enemies.yards30[i]
+						if GetObjectID(thisUnit) == 166524 then
+							if cast.divineToll(thisUnit) then return true end
+						end
+					end
+				end
 			end
 			-- Consecration
 			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and not buff.consecration.exists() then

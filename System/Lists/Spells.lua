@@ -1040,6 +1040,7 @@ br.lists.spells = {
                 stampedingRoar              = 77764,
                 suddenAmbush                = 340698,
                 travelForm                  = 783,
+                treantForm                  = 114282,
                 wildGrowth                  = 48438,
             },
             conduits                        = {
