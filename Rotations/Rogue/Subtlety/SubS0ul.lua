@@ -319,6 +319,17 @@ local function runRotation()
         return false
     end
 
+    local function trinket_Pop()
+        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
+            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) then
+                useItem(13)
+            end
+            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) then
+                useItem(14)
+            end
+        end
+    end
+
     local enemyTable30 = { }
     local enemyTable10 = { }
     local enemyTable5 = { }
@@ -767,14 +778,7 @@ local function runRotation()
             end
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
-        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) then
-                useItem(13)
-            end
-            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) then
-                useItem(14)
-            end
-        end
+        if trinket_Pop() then return true end
     end
 
     local function actionList_Finishers()
@@ -1057,6 +1061,9 @@ local function runRotation()
                     cast.racial("player")
                 end
                 return true
+            end
+            if isBoss() and buff.shadowBlades.exists() and buff.shadowDance.exists() then
+                if trinket_Pop() then return true end
             end
             -- Off GCD Cooldowns
             if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
