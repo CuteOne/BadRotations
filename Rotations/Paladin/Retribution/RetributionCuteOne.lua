@@ -142,6 +142,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Turn Evil")
             -- Word of Glory
             br.ui:createSpinner(section, "Word of Glory", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+			-- Hand of the Protector - on others
+		    br.ui:createSpinner(section, "Word of Glory - Party",  40,  0,  100,  5,  "|cffFFBB00Teammate Word of Glory to use at.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -211,38 +213,7 @@ local var
 ------------------------
 --- Custom Functions ---
 ------------------------
-local canGlory = function()
-    local optionValue = ui.value("Word of Glory")
-    local otherCounter = 0
-    if charges.wordOfGlory.count() > 0 then
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
-            local thisHP = unit.hp(thisUnit)
-            if thisHP < optionValue then
-                -- Emergency Single
-                if thisHP < 25 then
-                    var.thisGlory = thisUnit
-                    return true
-                end
-                -- Group Heal
-                if otherCounter < 2 then
-                    for j = 1, #br.friend do
-                        local otherUnit = br.friend[j].unit
-                        local otherHP = unit.hp(otherUnit)
-                        local distanceFromYou = unit.distance(otherUnit,"player")
-                        if distanceFromYou < 30 and otherHP < optionValue then
-                            otherCounter = otherCounter + 1
-                        end
-                    end
-                else
-                    var.thisGlory = thisUnit
-                    return true
-                end
-            end
-        end
-    end
-    return false
-end
+
 
 local getHealUnitOption = function(option,checkForbearance)
     local thisTar = ui.value(option)
@@ -538,9 +509,15 @@ actionList.Defensive = function()
             end
         end
         -- Word of Glory
-        if ui.checked("Word of Glory") and talent.wordOfGlory and cast.able.wordOfGlory() and canGlory() then
-            if cast.wordOfGlory(var.thisGlory) then ui.debug("Casting Word of Glory on "..unit.name(var.thisGlory)) return true end
-        end
+		if holyPower >= 3 then
+			if isChecked("Word of Glory") and getHP("player") <= 20 then
+				SotR = false
+				if cast.wordOfGlory("player") then return true end
+			elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= 20 then
+				SotR = false
+				if cast.wordOfGlory(lowestUnit) then return true end
+			end
+		end
     end
 end -- End Action List - Defensive
 -- Action List - Interrupts
@@ -777,7 +754,7 @@ actionList.Generator = function()
     end
     -- Consecration
     -- consecration,if=time_to_hpg>gcd
-    if cast.able.consecration() and var.timeToHPG > unit.gcd(true) then
+    if cast.able.consecration() then
         if cast.consecration("player","aoe",1,8) then ui.debug("Casting Consecration") return true end
     end
 end -- End Action List - Generator
