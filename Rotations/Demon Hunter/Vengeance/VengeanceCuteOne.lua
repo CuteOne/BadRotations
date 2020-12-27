@@ -92,6 +92,9 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Hold Demon Spikes", 1, 0, 2, 1, "|cffFFBB00Number of Demon Spikes the bot will hold for manual use.");
             -- Metamorphosis
             br.ui:createSpinner(section, "Metamorphosis",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            -- Sigil of Chains
+            br.ui:createSpinner(section, "Sigil of Chains - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Sigil of Chains - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
             -- Sigil of Misery
             br.ui:createSpinner(section, "Sigil of Misery - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             br.ui:createSpinner(section, "Sigil of Misery - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
@@ -210,9 +213,9 @@ actionList.Defensive = function()
         -- Demon Spikes
         -- demon_spikes
         if ui.checked("Demon Spikes") and unit.inCombat() and cast.able.demonSpikes() and charges.demonSpikes.count() > ui.value("Hold Demon Spikes") and unit.hp() <= ui.value("Demon Spikes") then
-            if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
+            -- if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
                 if cast.demonSpikes() then ui.debug("Casting Demon Spikes") return true end
-            end
+            -- end
         end
         -- Metamorphosis
         -- metamorphosis,if=!(talent.demonic.enabled)&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|target.time_to_die<15
@@ -241,6 +244,17 @@ actionList.Defensive = function()
             and #enemies.yards8 >= ui.value("Sigil of Misery - AoE") and unit.inCombat()
         then
             if cast.sigilOfMisery("best",false,ui.value("Sigil of Misery - AoE"),8) then ui.debug("Casting Sigil of Misery [AOE]") return true end
+        end
+        -- Sigil of Chains
+        if ui.checked("Sigil of Chains - HP") and cast.able.sigilOfChains()
+            and unit.hp() <= ui.value("Sigil of Chains - HP") and unit.inCombat() and #enemies.yards8 > 0
+        then
+            if cast.sigilOfChains("player","ground") then ui.debug("Casting Sigil of Chains [HP]") return true end
+        end
+        if ui.checked("Sigil of Chains - AoE") and cast.able.sigilOfChains()
+            and #enemies.yards8 >= ui.value("Sigil of Chains - AoE") and unit.inCombat()
+        then
+            if cast.sigilOfChains("best",false,ui.value("Sigil of Chains - AoE"),8) then ui.debug("Casting Sigil of Chains [AOE]") return true end
         end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
