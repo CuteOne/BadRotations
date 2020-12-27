@@ -798,7 +798,7 @@ local function runRotation()
             end
             --Ice Fury
             --actions.se_single_target+=/icefury,if=talent.icefury.enabled&!(maelstrom>75&cooldown.lava_burst.remains<=0)
-            if talent.iceFury and not (power > 75 and cd.lavaBurst.remain <= gcd) then
+            if talent.iceFury and not (power > 75 and cd.lavaBurst.remain() <= gcd) then
                 if cast.iceFury() then br.addonDebug("Casting Ice Fury") return end
             end
             -- Lava Burst (MotE)
