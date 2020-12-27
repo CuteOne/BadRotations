@@ -350,6 +350,11 @@ actionList.AOE = function()
     -- if ui.alwaysCdNever("Covenant Abiity") and cast.able.faeTransfusion() and (soulbind.groveInvigoration or soulbind.fieldOfBlossoms) then
     --     if cast.faeTransfusion() then ui.debug("Casting Fae Transfusion") return true end
     -- end
+    -- Crash Lightning 
+    -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if cast.able.crashLightning() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
+    end
     -- Frost Shock
     -- frost_shock,if=buff.hailstorm.up
     if cast.able.frostShock() and buff.hailstorm.exists() then
