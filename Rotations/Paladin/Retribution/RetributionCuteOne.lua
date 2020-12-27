@@ -119,7 +119,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Blinding Light", 40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinnerWithout(section, "Blinding Light Units", 3, 1, 5, 1, "|cffFFFFFFUnits to Cast On")
             -- Cleanse Toxin
-		    br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFFFFFFPlayer and Target","|cffFF0000Mouseover Target","|cffFFFFFFAny"}, 3, "|ccfFFFFFFTarget to Cast On")
+		    br.ui:createDropdown(section, "Cleanse Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFFFFFFPlayer and Target","|cffFF0000Mouseover Target","|cffFFFFFFAny"}, 3, "|ccfFFFFFFTarget to Cast On")
             -- Divine Shield
             br.ui:createSpinner(section, "Divine Shield",  35,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Eye for an Eye
@@ -384,26 +384,26 @@ actionList.Defensive = function()
             if cast.blindingLight() then ui.debug("Casting Blinding Light") return true end
         end
         -- Cleanse Toxins
-		if isChecked("Clease Toxin") and cast.able.cleanseToxins() then
-			if getOptionValue("Clease Toxin")==1 then
+		if isChecked("Cleanse Toxin") and cast.able.cleanseToxins() then
+			if getOptionValue("Cleanse Toxin")==1 then
 				if canDispel("player",spell.cleanseToxins) then
 					if cast.cleanseToxins("player") then return true end
 				end
-			elseif getOptionValue("Clease Toxin")==2 then
+			elseif getOptionValue("Cleanse Toxin")==2 then
 				if canDispel("target",spell.cleanseToxins) then
 					if cast.cleanseToxins("target") then return true end
 				end
-			elseif getOptionValue("Clease Toxin")==3 then
+			elseif getOptionValue("Cleanse Toxin")==3 then
 				if canDispel("player",spell.cleanseToxins) then
 					if cast.cleanseToxins("player") then return true end
 				elseif canDispel("target",spell.cleanseToxins) then
 					if cast.cleanseToxins("target") then return true end
 				end
-			elseif getOptionValue("Clease Toxin")==4 then
+			elseif getOptionValue("Cleanse Toxin")==4 then
 				if canDispel("mouseover",spell.cleanseToxins) then
 					if cast.cleanseToxins("mouseover") then return true end
 				end
-			elseif getOptionValue("Clease Toxin")==5 then
+			elseif getOptionValue("Cleanse Toxin")==5 then
 				for i = 1, #br.friend do
 					if canDispel(br.friend[i].unit,spell.cleanseToxins) then
 						if cast.cleanseToxins(br.friend[i].unit) then return true end
