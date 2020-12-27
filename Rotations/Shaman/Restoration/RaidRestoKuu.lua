@@ -1,4 +1,4 @@
-local rotationName = "Kuu"
+local rotationName = "Kuu Raid"
 if br.shaman == nil then
     br.shaman = {}
 end
