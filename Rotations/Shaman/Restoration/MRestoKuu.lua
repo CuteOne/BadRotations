@@ -1160,7 +1160,7 @@ local function runRotation()
                                 if #meleeHurt < 12 then
                                     loc = getBestGroundCircleLocation(meleeHurt, ui.value("Earthen Wall Totem Targets"), 6, 10)
                                 else
-                                    if castWiseAoEHeal(meleeHurt, spell.healingRain, 10, ui.value("Earthen Wall Totem"), ui.value("Earthen Wall Totem Targets"), 6, true, true) then
+                                    if castWiseAoEHeal(meleeHurt, spell.earthenWallTotem, 10, ui.value("Earthen Wall Totem"), ui.value("Earthen Wall Totem Targets"), 6, true, true) then
                                         br.addonDebug("Casting Earthen Wall Totem")
                                         if SpellIsTargeting() then
                                             br.shaman.resto["Earthen Wall Totem"] = GetTime()
@@ -1172,7 +1172,7 @@ local function runRotation()
                                 end
                             end
                             if loc ~= nil then
-                                if castGroundAtLocation(loc, spell.healingRain) then
+                                if castGroundAtLocation(loc, spell.earthenWallTotem) then
                                     br.addonDebug("Casting Earthen Wall Totem (Cast Ground)")
                                     if SpellIsTargeting() then
                                         br.shaman.resto["Earthen Wall Totem"] = GetTime()
