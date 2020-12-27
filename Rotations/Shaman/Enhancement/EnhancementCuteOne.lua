@@ -50,7 +50,7 @@ local function createOptions()
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Ghost Wolf
-            br.ui:createCheckbox(section,"Ghost Wolf")
+            br.ui:createDropdownWithout(section,"Ghost Wolf", {"|cff00FF00Always","|cffFFFF00OoC Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Ghost Wolf.")
             -- Feral Lunge
             br.ui:createCheckbox(section,"Feral Lunge")
             -- Lightning Bolt OOC
@@ -209,7 +209,7 @@ actionList.Extras = function()
         end
     end -- End Dummy Test
     -- Ghost Wolf
-    if ui.checked("Ghost Wolf") and cast.able.ghostWolf() and not (unit.mounted() or unit.flying()) then
+    if (ui.value("Ghost Wolf") == 1 or (ui.value("Ghost Wolf") == 2 and not unit.inCombat())) and cast.able.ghostWolf() and not (unit.mounted() or unit.flying()) then
         if ((#enemies.yards20 == 0 and not unit.inCombat()) or (#enemies.yards10 == 0 and unit.inCombat())) and unit.moving("player") and not buff.ghostWolf.exists() then
             if cast.ghostWolf() then ui.debug("Casting Ghost Wolf") return true end
         end
@@ -340,22 +340,30 @@ actionList.Interrupts = function()
 end -- End Action List - Interrupts
 -- Action List - AOE
 actionList.AOE = function()
+    -- Windstrike
+    -- windstrike,if=buff.crash_lightning.up
+    if cast.able.windstrike() and buff.ascendance.exists() and buff.crashLightning.exists() then
+        if cast.windstrike() then ui.debug("Casting Windstrike [AOE - Crash Lightning]") return true end
+    end
     -- Fae Transfusion
     -- fae_transfusion,if=soulbind.grove_invigoration|soulbind.field_of_blossoms
     -- if ui.alwaysCdNever("Covenant Abiity") and cast.able.faeTransfusion() and (soulbind.groveInvigoration or soulbind.fieldOfBlossoms) then
     --     if cast.faeTransfusion() then ui.debug("Casting Fae Transfusion") return true end
     -- end
+    -- Crash Lightning 
+    -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if cast.able.crashLightning() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
+    end
     -- Frost Shock
     -- frost_shock,if=buff.hailstorm.up
     if cast.able.frostShock() and buff.hailstorm.exists() then
         if cast.frostShock() then ui.debug("Casting Frost Shock [AOE Hailstorm]") return true end
     end
-    -- Windfury Totem
-    -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    if cast.able.windfuryTotem() and not unit.moving() and #enemies.yards8 > 0 and runeforge.doomWinds.equiped
-        and not debuff.doomWinds.exists("player") and not ui.checked("Windfury Totem Key")
-    then
-        if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE Doom Winds]") return true end
+    -- Sundering
+    -- sundering
+    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
+        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Flame Shock
     -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord
@@ -397,6 +405,11 @@ actionList.AOE = function()
     if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
         if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
     end
+    -- Stormstrike
+    -- stormstrike,if=buff.crash_lightning.up
+    if cast.able.stormstrike() and unit.level() >= 20 and buff.crashLightning.exists() then
+        if cast.stormstrike() then ui.debug("Casting Stormstrike [AOE - Crash Lightning]") return true end
+    end
     -- Crash Lightning
     -- crash_lightning
     if cast.able.crashLightning() then
@@ -437,15 +450,20 @@ actionList.AOE = function()
             end
         end
     end
-    -- Sundering
-    -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
-        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
-    end
     -- Lava lash
     -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6
     if cast.able.lavaLash(var.lowestLashingFlames) and runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6 then
         if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lava Lash [AOE Primal Lava Actuators]") return true end
+    end
+    -- Chain Lightning
+    -- chain_lightning,if=buff.maelstrom_weapon.stack>=5&active_enemies>=3
+    if cast.able.chainLightning and buff.maelstromWeapon.stack() >= 5 and #enemies.yards10t >= 3 then
+        if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE 5+ Maelstrom 3+ Enemies]") return true end
+    end
+    -- Windstrike
+    -- windstrike
+    if cast.able.windstrike() and buff.ascendance.exists() then
+        if cast.windstrike() then ui.debug("Casting Windstrike [AOE]") return true end
     end
     -- Stormstrike
     -- stormstrike
@@ -526,18 +544,31 @@ actionList.AOE = function()
 end -- End Action List - AOE
 -- Action List - Single
 actionList.Single = function()
+    -- Windstrike
+    -- windstrike
+    if cast.able.windstrike() and buff.ascendance.exists() then
+        if cast.windstrike() then ui.debug("Casting Windstrike [ST]") return true end
+    end
     -- Primordial Wave
     -- primordial_wave,if=!buff.primordial_wave.up
     if ui.alwaysCdNever("Covenant Ability") and not buff.primordialWave.exists() then
         if cast.primordialWave() then ui.debug("Casting Primordial Wave [ST]") return true end
     end
-    -- Windfury Totem
-    -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    if cast.able.windfuryTotem() and not unit.moving() and #enemies.yards8 > 0 and runeforge.doomWinds.equiped
-        and not debuff.doomWinds.exists("player") and not ui.checked("Windfury Totem Key")
-    then
-        if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST Doom Winds]") return true end
+    -- Stormstrike
+    -- stormstrike,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if cast.able.stormstrike() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.stormstrike() then ui.debug("Casting Stormstrike [ST - Doom Winds]") return true end
     end
+    -- Crash Lightning
+    -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if cast.able.crashLightning() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [ST - Doom Winds]") return true end
+    end
+    -- Ice Strike
+    -- ice_strike,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if cast.able.iceStrike() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.iceStrike() then ui.debug("Casting Ice Strike [ST - Doom Winds]") return true end
+    end 
     -- Flame Shock
     -- flame_shock,if=!ticking
     if cast.able.flameShock() and not debuff.flameShock.exists(units.dyn40) then
@@ -585,7 +616,7 @@ actionList.Single = function()
     end
     -- Lava Lash
     -- lava_lash,if=buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
-    if cast.able.lavaLash() and (buff.hotHand.exists() --[[or (runeforge.primalLavaActuators.equiped() and buff.primalLavaActuators.stack() > 6)]]) then
+    if cast.able.lavaLash() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
         if cast.lavaLash() then ui.debug("Casting Lava Lash [ST Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Stormstrike
@@ -629,7 +660,7 @@ actionList.Single = function()
         if cast.iceStrike() then ui.debug("Casting Ice Strike [ST]") return true end
     end
     -- Sundering
-    -- sundering
+    -- sundering,if=raid_event.adds.in>=40
     if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
     end
@@ -710,8 +741,10 @@ actionList.PreCombat = function()
                 if cast.feralLunge("target") then ui.debug("Casting Feral Lunge [Pull]") return true end
             end
             -- Windfury Totem
-            -- windfury_totem
-            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+            -- windfury_totem,if=!runeforge.doom_winds.equipped
+            if cast.able.windfuryTotem() and not unit.moving() and not runeforge.doomWinds.equiped
+                and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+            then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Pull]") return true end
             end
             -- Lightning Bolt
@@ -765,6 +798,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8,"player",false,true)
     enemies.get(10)
+    enemies.yards10t = enemies.get(10,units.get(5))
     enemies.yards11r = getEnemiesInRect(10,11,false) or 0
     enemies.get(20)
     enemies.get(30)
@@ -840,18 +874,15 @@ local function runRotation()
                 unit.startAttack("target")
             end
             -- Windfury Totem
-            -- windfury_totem
-            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+            -- windfury_totem,if=!runeforge.doom_winds.equipped
+            if cast.able.windfuryTotem() and not unit.moving() and not runeforge.doomWinds.equiped
+                and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+            then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- manual windury totem
             if ui.toggle("Windfury Totem Key") and ui.checked("Windfury Totem Key") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
-            end
-            -- Windstrike
-            -- windstrike
-            if cast.able.windstrike() and buff.ascendance.exists() then
-                if cast.windstrike() then ui.debug("Casting Windstrike") return true end
             end
             -- Basic Trinkets Module
             if #enemies.yards8f > 0 then
@@ -874,10 +905,22 @@ local function runRotation()
             if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() and unit.ttd("target") > 15 then
                 if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
             end
+            -- Fae Transfusion
+            -- fae_transfusion,if=(talent.ascendance.enabled|runeforge.doom_winds.equipped)&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies=1)
+            if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() and (talent.ascendance or runeforge.doomWinds.equiped) and #enemies.yards5 == 1 then
+                if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion") return true end
+            end
             -- Ascendance
             -- ascendance
             if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() and #enemies.yards8 > 0 and unit.ttd("target") > 15 then
                 if cast.ascendance() then ui.debug("Casting Ascendance") return true end
+            end
+            -- Windfury Totem
+            -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down&(raid_event.adds.in>=60|active_enemies>1)
+            if cast.able.windfuryTotem() and not unit.moving() and runeforge.doomWinds.equiped and not debuff.doomWinds.exists("player")
+                and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+            then
+                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Doom Winds]") return true end
             end
             -- Call Action List - Single
             -- call_action_list,name=single,if=active_enemies=1
