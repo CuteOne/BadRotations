@@ -517,6 +517,7 @@ br.lists.spells = {
                 infernalStrike              = 189110,
                 metamorphosis               = 187827,
                 shear                       = 203782,
+                sigilOfChains               = 202138,
                 sigilOfFlame                = 204596,
                 sigilOfMisery               = 207684,
                 sigilOfSilence              = 202137,

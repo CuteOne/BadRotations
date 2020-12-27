@@ -361,7 +361,7 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley
-    if cast.able.volley() and ui.checked("Volley Units") and (#enemies.yards8t >= ui.value("Volley Units")) then
+    if cast.able.volley() and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units") then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
@@ -401,8 +401,8 @@ actionList.TrickShots = function()
     -- Multishot
     -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&focus>cost+action.aimed_shot.cost&(!talent.chimaera_shot|active_enemies>3)
     if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists()
-        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards40f > 3))
-        and #enemies.yards40f > 0
+        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards10t > 3))
+        and #enemies.yards10t > 0
     then
         if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
@@ -433,7 +433,7 @@ actionList.TrickShots = function()
     end
     -- Multishot
     -- multishot,if=focus>cost+action.aimed_shot.cost
-    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards40f > 0 then
+    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards10t > 0 then
         if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
     -- Steady Shot
@@ -651,6 +651,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8,"target")
     enemies.get(8,"pet")
+    enemies.yards10t = enemies.get(10,units.get(40))
     enemies.yards25r = getEnemiesInRect(8,25,false) or 0
     enemies.get(30,"pet")
     enemies.get(40)
