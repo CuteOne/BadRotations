@@ -510,10 +510,10 @@ actionList.Defensive = function()
         end
         -- Word of Glory
 		if holyPower >= 3 then
-			if isChecked("Word of Glory") and getHP("player") <= 20 then
+			if isChecked("Word of Glory") and unit.hp()<= ui.value("Word of Glory") and unit.inCombat() then
 				SotR = false
 				if cast.wordOfGlory("player") then return true end
-			elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= 20 then
+			elseif isChecked("Word of Glory - Party") and unit.hp()<= ui.value("Word of Glory - Party") and unit.inCombat() then
 				SotR = false
 				if cast.wordOfGlory(lowestUnit) then return true end
 			end
