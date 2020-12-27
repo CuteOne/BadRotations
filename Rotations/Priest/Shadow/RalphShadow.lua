@@ -813,7 +813,7 @@ actionList.Main = function()
     end
     
     -- actions.main+=/mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&cooldown.void_bolt.up
-    if dotsUp and not moving and #searEnemies <= searCutoff and cd.mindBlast.exists() and cd.voidTorrent.exists() then
+    if dotsUp and not moving and #searEnemies <= searCutoff then
         if cast.mindFlay('target') then ui.debug("Casting Mindflay on target [Main]") return end
     end
 
