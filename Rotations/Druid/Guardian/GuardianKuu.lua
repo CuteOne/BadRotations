@@ -220,7 +220,7 @@ local function createOptions()
         ----------------------
         --- General Options---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.010")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.02")
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
