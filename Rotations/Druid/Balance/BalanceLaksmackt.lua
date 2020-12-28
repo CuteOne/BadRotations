@@ -232,12 +232,12 @@ local function runRotation()
     local swimming = IsSwimming()
     local ttd = getTTD
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
-    local norepeat
     local hasteAmount = GetHaste() / 100
     local masteryAmount = GetMastery() / 100
     local thisUnit
     local aoeTarget = 0
-    local essence = br.player.essence
+    local conduit = br.player.conduit
+    local covenant = br.player.covenant
     local travel = br.player.buff.travelForm.exists()
     local cat = br.player.buff.catForm.exists()
     local moonkin = br.player.buff.moonkinForm.exists()
@@ -284,7 +284,6 @@ local function runRotation()
     enemies.get(40)
     enemies.get(45)
 
-
     local furyUnits = 0
     if cast.able.furyOfElune() then
         for i = 1, #enemies.yards10tnc do
@@ -308,6 +307,10 @@ local function runRotation()
         end
         timers._timers[name] = time
         return time and (GetTime() - time) or 0
+    end
+
+    local function int (b)
+        return b and 1 or 0
     end
 
     local function isCC(unit)
@@ -432,6 +435,14 @@ local function runRotation()
         return false
     end
 
+    local function pew_remain()
+        if talent.incarnationChoseOfElune then
+            return cd.incarnationChoseOfElune.remain()
+        else
+            return cd.celestialAlignment.remain()
+        end
+    end
+
     local function castBeam(minUnits, safe, minttd)
         if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
             return false
@@ -488,14 +499,26 @@ local function runRotation()
     if DontMoveStartTime then
         standingTime = GetTime() - DontMoveStartTime
     end
+    function isExplosive(Unit)
+        return GetObjectID(Unit) == 120651
+    end
+    function getOutLaksTTDMAX()
+        local highTTD = 0
+        local mob_count = #enemies.yards45
+        if mob_count > 6 then
+            mob_count = 6
+        end
+        for i = 1, mob_count do
+            if getTTD(enemies.yards45[i]) > highTTD and getTTD(enemies.yards45[i]) < 999 and not isExplosive(enemies.yards45[i]) and
+                    isSafeToAttack(enemies.yards45[i]) then
+                highTTD = getTTD(enemies.yards45[i])
+            end
+        end
+        return tonumber(highTTD)
+    end
 
     local function dps()
 
-        --setting norepeat
-        norepeat = false
-        if (traits.streakingStars.active and pewbuff) or UnitDebuffID("player", 304409) then
-            norepeat = true
-        end
         if mode.forms ~= 3 then
             if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
                 if cast.moonkinForm() then
@@ -623,6 +646,11 @@ local function runRotation()
         local starfire_fallback = cast.last.starfire(1) and cast.last.starfire(2) and cast.last.starfire(3) or false
         local wrath_fallback = cast.last.wrath(1) and cast.last.wrath(2) and cast.last.wrath(3) or false
 
+        --    local convoke_desync = floor((getOutLaksTTDMAX() - 20 - cd.convokeTheSpirits.remains()) % 120) > floor((getOutLaksTTDMAX() - 25 - (10 * int(talent.incarnationChoseOfElune) - (int(conduit.preciseAlignment.enabled)) - pew_remain())) % 180) or pew_remain() > getOutLaksTTDMAX() or cd.convokeTheSpirits.remains() > getOutLaksTTDMAX() or not covenant.nightFae.active
+
+
+
+
         --  Print(GetSpellCount(190984)) --wrath
         -- Print(GetSpellCount(194153))   --starfire
 
@@ -677,13 +705,6 @@ local function runRotation()
                     end
                 end
 
-                --pocket size computing device
-                if (Trinket13 == 167555 or Trinket14 == 167555) and ttd("target") > 10 and not isMoving("player")
-                        and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare) then
-                    if canUseItem(167555) then
-                        useItem(167555)
-                    end
-                end
 
                 -- Generic fallback
                 if (pewbuff or (cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)) then
@@ -699,7 +720,6 @@ local function runRotation()
                     end
                 end
             end
-
 
 
             -- Force Of Nature / treants
@@ -721,7 +741,7 @@ local function runRotation()
                     (furyUnits >= getValue("Fury of Elune Targets") or isBoss("target"))
                     and astral_def > 8
                     and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group Fury with CD")) then
-                if cast.furyOfElune(getBiggestUnitCluster(45, 1.25)) then
+                if cast.furyOfElune() then
                     return true
                 end
             end
@@ -746,7 +766,7 @@ local function runRotation()
                         and not buff.starfall.exists() or buff.starfall.refresh() then
                     --  or br.timer:useTimer("starfall_timer", 5.6) then
                     -- and (!runeforge.lycaras_fleeting_glimpse.equipped or time%%45>buff.starfall.remains+2)
-                    if cast.starfall("best", false, 1, 40) then
+                    if cast.starfall() then
                         return true
                     end
                 end
@@ -797,7 +817,7 @@ local function runRotation()
                 -- celestialAlignment
                 if mode.cooldown == 2 or (isBoss("target") and mode.cooldown == 1) and isChecked("Incarnation/Celestial Alignment") then
                     if (buff.starfall.exists() or power > 50) and not buff.solstice.exists() and not pewbuff then
-                        -- and (interpolated_fight_remains < cooldown.convoke_the_spirits.remains + 7 | interpolated_fight_remains % % 180 < 22 | cooldown.convoke_the_spirits.up |!covenant.night_fae)
+                        -- and (interpolated_fight_remains < cooldown.convokeTheSpirits.remains() + 7 | interpolated_fight_remains % % 180 < 22 | cooldown.convoke_the_spirits.up |!covenant.night_fae)
                         if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                             if cast.celestialAlignment() then
                             end
@@ -816,11 +836,10 @@ local function runRotation()
                         or ((buff.incarnationChoseOfElune.remains() < 5 or buff.celestialAlignment.remains() < 5) and pewbuff
                         or (buff.ravenousFrenzy.remains() < gcd * ceil(power / 30) and buff.ravenousFrenzy.exists()))
                         and starfall_wont_fall_off and #enemies.yards45 < 3 then
-                    if cast.starsurge(units.dyn45) then
+                    if cast.starsurge(enemies.dyn45) then
                         return true
                     end
                 end
-
 
                 -- Warrior of Elune
                 if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
@@ -831,7 +850,7 @@ local function runRotation()
 
 
                 -- wrath
-                if cast.able.wrath() --eclipse.in_solar&!variable.starfire_in_solar|buff.ca_inc.remains<action.starfire.execute_time&!variable.is_cleave&buff.ca_inc.remains<execute_time&buff.ca_inc.up|buff.ravenous_frenzy.up&spell_haste>0.6|!variable.is_cleave&buff.ca_inc.remains>execute_time
+                if cast.able.wrath(enemies.dyn45) --eclipse.in_solar&!variable.starfire_in_solar|buff.ca_inc.remains<action.starfire.execute_time&!variable.is_cleave&buff.ca_inc.remains<execute_time&buff.ca_inc.up|buff.ravenous_frenzy.up&spell_haste>0.6|!variable.is_cleave&buff.ca_inc.remains>execute_time
                         and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_cleave)
                         or eclipse_in and buff.eclipse_solar.exists() and not starfire_in_solar
                         or (buff.celestialAlignment.remain() < buff.eclipse_lunar.remain() or buff.incarnationChoseOfElune.remain() < buff.eclipse_lunar.remain())
@@ -843,7 +862,7 @@ local function runRotation()
                     end
                 end
                 if cast.able.starfire() then
-                    if cast.starfire(enemies.dyn45) then
+                    if cast.starfire(getBiggestUnitCluster(45, 8)) then
                         return true
                     end
                 end

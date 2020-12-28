@@ -694,6 +694,8 @@ br.lists.spells = {
 
             },
             conduits                        = {
+                preciseAlignment            = 340706,
+
 
             },
             covenants                       = {
