@@ -783,6 +783,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 	-- elseif not IsUsableSpell(spellID) then
 		-- br.player.ui.debug("Spell: "..spellName.." failed to cast because it is not usable.")
     end
+	printReport(false,"noooo")
 	return false
 end
 
