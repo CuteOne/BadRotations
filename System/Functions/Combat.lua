@@ -182,13 +182,6 @@ function canRegainControl(spellID,controlEvent)
 		then
 			return true
 		end
-		if spellID == 8143 --Tremor Totem
-			and	(controlEvent == "CHARM"
-			or controlEvent == "FEAR"
-			or controlEvent == "SLEEP")
-		then
-			return true
-		end
 		if spellID == 108273 --Windwalk Totem
 			and (controlEvent == "ROOT" or controlEvent == "SNARE")
 		then

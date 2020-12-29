@@ -80,7 +80,6 @@ br.api.module = function(self)
                     if use.phialOfSerenity() then ui.debug("Using Phial of Serenity") return true end
                 end
             end
-            return true
         end
     end
 
