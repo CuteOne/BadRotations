@@ -99,8 +99,6 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             br.player.module.BasicHealing(section)
-            -- br.ui:createSpinner(section, "Health Pot / Healthstone",  25,  0,  100,  5,  "Health Percentage to use at.")
-            -- br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createCheckbox(section, "Cloak of Shadows")
             br.ui:createSpinner(section, "Crimson Vial",  40,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "Health Percentage to use at.")
@@ -114,7 +112,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             br.ui:createCheckbox(section, "Kick")
-            br.ui:createCheckbox(section, "Kidney/Cheap Shot interrupt")
+            br.ui:createDropdown(section, "Kidney/Cheap interrupt", {"Kidney","Cheap","Both"}, 3, "What to use to interrupt")
             br.ui:createCheckbox(section, "Blind")
             br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
@@ -593,10 +591,10 @@ local function runRotation()
                     if isChecked("Kick") and distance < 5 and cast.able.kick() then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap Shot interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
-                        if cast.able.cheapShot() then
+                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
+                        if cast.able.cheapShot() and getOptionValue("Kidney/Cheap interrupt") ~= 1 then
                             if cast.cheapShot(interrupt_target) then return true end
-                        else
+                        elseif getOptionValue("Kidney/Cheap interrupt") ~= 2 then
                             if cast.kidneyShot(interrupt_target) then return true end
                         end
                     end
