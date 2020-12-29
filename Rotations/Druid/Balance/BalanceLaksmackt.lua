@@ -71,11 +71,12 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012080959")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012080960")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
-        br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
         br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "Treant Key")
+        br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
+        br.ui:createCheckbox(section, "Use Mount Form", "Uses the Mount Form for ground travel.", 1)        
         br.ui:createCheckbox(section, "Cat Charge", "Use Wild Charge to close distance.", 1)
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
@@ -239,6 +240,7 @@ local function runRotation()
     local conduit = br.player.conduit
     local covenant = br.player.covenant
     local travel = br.player.buff.travelForm.exists()
+    local mount = GetShapeshiftForm() == 6 --- or maybe br.player.buff.mountForm.exists() but this is not working (mountform has no buff? idk)
     local cat = br.player.buff.catForm.exists()
     local moonkin = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
@@ -1480,15 +1482,24 @@ local function runRotation()
                     end
                 end
                 -- Travel Form
-                if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not IsIndoors() and IsMovingTime(1) then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                        RunMacroText("/CancelForm")
-                        CastSpellByID(783, "player")
-                        return true
+                if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not mount and not IsIndoors() and IsMovingTime(1) then
+                    -- Print(GetShapeshiftForm())
+                if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                    RunMacroText("/CancelForm")
+                    if isChecked("Use Mount Form") and not canFly() then
+                        CastSpellByID(210053, "player")
                     else
                         CastSpellByID(783, "player")
-                        return true
                     end
+                    return true
+                else
+                    if isChecked("Use Mount Form") and not canFly() then
+                        CastSpellByID(210053, "player")
+                    else
+                        CastSpellByID(783, "player")
+                    end
+                    return true
+                end
                 end
                 -- Cat Form
                 if not cat and not IsMounted() and not flying and IsIndoors() then
