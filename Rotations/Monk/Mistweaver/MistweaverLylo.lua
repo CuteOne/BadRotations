@@ -153,6 +153,34 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        local exportSettings = {"Solo", "Dungeon", "Raid", "Extra 1", "Extra 2"}
+        section = br.ui:createSection(br.ui.window.profile, "Settings")
+        br.ui:createDropdownWithout(section,    "Select Settings", exportSettings, 2, "Select profile to use, then click load")
+        br.ui:createText(section, colors.red.."Save your current settings before loading a new one!!")
+        local saveProfile = function()
+            br:saveSettings("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
+        end
+        local loadProfile = function()
+            br.data.loadedSettings = false
+            local loadDir = br:checkDirectories("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
+            if br:findFileInFolder("savedSettings.lua", loadDir) then
+                br:loadSettings("Exported Settings", br.player.class, br.selectedSpec, br.selectedProfileName.. "\\" .. exportSettings[getValue("Select Settings")])
+                ReloadUI()
+            else
+                Print("You don't have saved setting for :" .. exportSettings[getValue("Select Settings")])
+            end
+        end
+        local y = -5
+        for i=1, #section.children do
+            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
+                y = y - section.children[i].frame:GetHeight()*1.2
+            end
+        end
+        y = round2(y, 1)
+        br.ui:createButton(section, "Save", 10, y, saveProfile)
+        br.ui:createButton(section, "Load", -10, y, loadProfile, true)
+        br.ui:checkSectionState(section)
+
         section = br.ui:createSection(br.ui.window.profile, "Debug Info")
         br.ui:createCheckbox(       section, text.debug,  "Enable Debug Info")
         br.ui:createCheckbox(       section, text.detailedDebugger,  "Enable Debug Info")
@@ -822,6 +850,14 @@ local actionList = {
         end,
 
         chiJiRotation = function()
+            -- Enveloping Mist Chi-Ji
+            if buff.invokeChiJiTheRedCrane.stack() == 3 then
+                debugMessage("      Enveloping Mist - Chi-Ji Init")
+                if cd.envelopingMist.ready() then
+                    if cast.envelopingMist(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingMist) return false end
+                end
+                debugMessage("      Enveloping Mist - Chi-Ji End")
+            end
             if totemInfo.chiJiDuration > 0 and dynamicTarget.range5 ~= nil and friends.lowest.hp >= ui.value(text.damage.chiJiDpsThreshold) then
                 -- Rising Sun Kick
                 if cd.risingSunKick.ready() then
@@ -1239,16 +1275,16 @@ local function runRotation()
             return true
         end
 
-        if friends.lowest.hp >= ui.value(text.damage.dpsThreshold) and ui.mode.dps < 4 then
-            if ui.useCDs() then
-                debugMessage("  Damage CDs Init")
-                current = actionList.damage.CDs()
-                debugMessage("  Damage CDs End")
-                if current ~= nil then
-                    return true
-                end
+        if ui.useCDs() then
+            debugMessage("  Damage CDs Init")
+            current = actionList.damage.CDs()
+            debugMessage("  Damage CDs End")
+            if current ~= nil then
+                return true
             end
+        end
 
+        if friends.lowest.hp >= ui.value(text.damage.dpsThreshold) and ui.mode.dps < 4 then
             if ui.mode.dps == 1 or ui.mode.dps == 2 then
                 debugMessage("  Damage AoE Rotation Init")
                 current = actionList.damage.AoERotation()
