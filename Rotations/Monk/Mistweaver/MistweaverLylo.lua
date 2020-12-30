@@ -89,6 +89,7 @@ local text = {
     damage = {
         options                                     = colors.red.."Damage - Options",
         dpsThreshold                                = colors.red.."DPS Threshold",
+        chiJiDpsThreshold                           = colors.red.."Chi-Ji DPS Threshold",
         cracklingJadeLightning                      = colors.red.."Crackling Jade Lightning",
         touchOfDeath                                = colors.red.."Touch of Death",
     },
@@ -246,6 +247,7 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile, text.damage.options)
         br.ui:createSpinnerWithout( section, text.damage.dpsThreshold,           85, 1, 100, 5, "Lowest friend HP has to be higher then")
+        br.ui:createSpinnerWithout( section, text.damage.chiJiDpsThreshold,      60, 1, 100, 5, "Lowest friend HP has to be higher then")
         br.ui:createCheckbox(       section, text.damage.cracklingJadeLightning,       "Enable auto usage of this spell")
         br.ui:createDropdown(       section, text.damage.touchOfDeath,       {colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never"}, 2, "Enable auto usage of this spell.", "Select")
         br.ui:checkSectionState(section)
@@ -423,7 +425,7 @@ local actionList = {
                 end
             end
             -- Soothing Mist
-            if ui.checked(text.heal.soothingMist.soothingMist) and cd.soothingMist.ready() and not cast.active.soothingMist() then
+            if ui.checked(text.heal.soothingMist.soothingMist) and cd.soothingMist.ready() and not cast.active.soothingMist() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.soothingMist.soothingMist) then
                     if cast.soothingMist(friends.lowest.unit) then
                         lastSoothingMist = {
@@ -475,7 +477,7 @@ local actionList = {
         AoERotation = function()
             -- Chi Burst
             debugMessage("      Chi Burst Init")
-            if ui.checked(text.heal.chiBurst) and cd.chiBurst.ready() and talent.chiBurst then
+            if ui.checked(text.heal.chiBurst) and cd.chiBurst.ready() and talent.chiBurst and not player.isMoving then
                 local lowAlliesTargetsChiBurst = getUnitsInRect(7 , 40, false, ui.value(text.heal.chiBurst.."2"))
                 if lowAlliesTargetsChiBurst >= ui.value(text.heal.chiBurst.."1") then
                     if cast.chiBurst(player.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.chiBurst) return true else ui.debug("[AUTO - FAIL]: "..text.heal.chiBurst) return false end
@@ -492,7 +494,7 @@ local actionList = {
             debugMessage("      Essence Font End")
             -- Enveloping Breath
             debugMessage("      Enveloping Breath Init")
-            if ui.checked(text.heal.envelopingBreath) and cd.envelopingMist.ready() then
+            if ui.checked(text.heal.envelopingBreath) and cd.envelopingMist.ready() and not player.isMoving then
                 if totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + getLatency() then
                     local lowHealthAroundUnit = getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(text.heal.envelopingBreath.."2"), 6)
                     if #lowHealthAroundUnit >= ui.value(text.heal.envelopingBreath.."1") then
@@ -503,7 +505,7 @@ local actionList = {
             debugMessage("      Enveloping Breath End")
             -- Vivify AoE
             debugMessage("      Vivify AoE Init")
-            if ui.checked(text.heal.vivifyAoE) and cd.vivify.ready() then
+            if ui.checked(text.heal.vivifyAoE) and cd.vivify.ready() and not player.isMoving then
                 local countUnitsWithRenewingMistUnderHealth = 0
                 for i = 1, #friends.range40 do
                     local tempUnit = friends.range40[i]
@@ -535,14 +537,14 @@ local actionList = {
             debugMessage("      Chi Wave End")
             -- Enveloping Mist
             debugMessage("      Enveloping Mist Init")
-            if ui.checked(text.heal.envelopingMist) and cd.envelopingMist.ready() then
+            if ui.checked(text.heal.envelopingMist) and cd.envelopingMist.ready() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.envelopingMist) then
                     if cast.envelopingMist(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingMist) return false end
                 end
             end
             debugMessage("      Enveloping Mist End")
             -- Enveloping Mist Chi-Ji
-            if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0) then
+            if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0 and not player.isMoving) then
                 debugMessage("      Enveloping Mist - Chi-Ji Init")
                 if cd.envelopingMist.ready() then
                     if cast.envelopingMist(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingMist) return false end
@@ -551,7 +553,7 @@ local actionList = {
             end
             -- Vivify
             debugMessage("      Vivify Init")
-            if ui.checked(text.heal.vivify) and cd.vivify.ready() then
+            if ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.vivify) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.vivify) return true else ui.debug("[AUTO - FAIL]: "..text.heal.vivify) return false end
                 end
@@ -597,7 +599,7 @@ local actionList = {
                 end
             end
             -- Vivify
-            if ui.checked(text.heal.outOfCombat.vivify) and cd.vivify.ready() then
+            if ui.checked(text.heal.outOfCombat.vivify) and cd.vivify.ready() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.outOfCombat.vivify) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.outOfCombat.vivify) return true else ui.debug("[AUTO - FAIL]: "..text.heal.outOfCombat.vivify) return false end
                 end
@@ -606,7 +608,7 @@ local actionList = {
 
         thunderFocusTeaRotation = function()
             if cd.thunderFocusTea.ready() then
-                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 2 then -- EM
+                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 2 and not player.isMoving then -- EM
                     -- Thunder Focus Tea + Enveloping Mist
                     if ui.checked(text.heal.thunderFocusTea.envelopingMist) and friends.lowest.hp <= ui.value(text.heal.thunderFocusTea.envelopingMist) and cd.envelopingMist.ready() then
                         if cast.thunderFocusTea(player.unit) and cast.envelopingMist(friends.lowest.unit) then
@@ -615,7 +617,7 @@ local actionList = {
                         else ui.debug("[AUTO - FAIL]: "..text.heal.thunderFocusTea.envelopingMist) return false end
                     end
                 end
-                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 3 then -- VVF
+                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 3 and not player.isMoving then -- VVF
                     -- Thunder Focus Tea + Vivify
                     if ui.checked(text.heal.thunderFocusTea.vivify) and friends.lowest.hp <= ui.value(text.heal.thunderFocusTea.vivify.."2") and cd.vivify.ready() then
                         if player.mana <= ui.value(text.heal.thunderFocusTea.vivify.."1") then
@@ -820,7 +822,7 @@ local actionList = {
         end,
 
         chiJiRotation = function()
-            if totemInfo.chiJiDuration > 0 and dynamicTarget.range5 ~= nil then
+            if totemInfo.chiJiDuration > 0 and dynamicTarget.range5 ~= nil and friends.lowest.hp >= ui.value(text.damage.chiJiDpsThreshold) then
                 -- Rising Sun Kick
                 if cd.risingSunKick.ready() then
                     if cast.risingSunKick(dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Chi-Ji") return false end
@@ -1080,7 +1082,6 @@ local getDebugInfo = function()
     end
 end
 
-
 local function runRotation()
     debugMessage("##########################################")
     buff                = br.player.buff
@@ -1216,6 +1217,14 @@ local function runRotation()
             return true
         end
 
+        debugMessage("  Damage Chi-Ji Rotation Init")
+        current = actionList.damage.chiJiRotation()
+        debugMessage("  Damage Chi-Ji Rotation End")
+        if current ~= nil then
+            return true
+        end
+
+
         debugMessage("  Healing Soothing Mist Rotation Init")
         current = actionList.healing.soothingMistRotation()
         debugMessage("  Healing Soothing Mist Rotation End")
@@ -1238,13 +1247,6 @@ local function runRotation()
                 if current ~= nil then
                     return true
                 end
-            end
-
-            debugMessage("  Damage Chi-Ji Rotation Init")
-            current = actionList.damage.chiJiRotation()
-            debugMessage("  Damage Chi-Ji Rotation End")
-            if current ~= nil then
-                return true
             end
 
             if ui.mode.dps == 1 or ui.mode.dps == 2 then
