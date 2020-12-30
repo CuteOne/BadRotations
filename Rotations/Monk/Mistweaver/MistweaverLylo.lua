@@ -782,7 +782,7 @@ local actionList = {
                     local thisUnit = enemies.range5[i]
                     if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and isBoss(thisUnit)) then
                         if unit.health(player.unit) > unit.health(thisUnit) then
-                            if cast.touchOfDeath(thisUnit.unit) then ui.debug("[AUTO - SUCCESS]: "..text.damage.touchOfDeath) return true else ui.debug("[AUTO - FAIL]: "..text.damage.touchOfDeath) return false end
+                            if cast.touchOfDeath(thisUnit) then ui.debug("[AUTO - SUCCESS]: "..text.damage.touchOfDeath) return true else ui.debug("[AUTO - FAIL]: "..text.damage.touchOfDeath) return false end
                         end
                     end
                 end
@@ -1035,46 +1035,48 @@ local getTotemInfo = function()
 end
 
 local getDebugInfo = function()
-    labels.lowest:SetText("   ".. UnitName(friends.lowest.unit) .. " at " .. round2(friends.lowest.hp, 2) .."%")
-    local tempColor = colors.red
-    if friends.lowAllies.essenceFont >= ui.value(text.heal.essenceFont.."1") then
-        tempColor = colors.green
-    end
-    labels.lowAllies.essenceFont:SetText("   Essence Font: ".. tempColor .. friends.lowAllies.essenceFont .."/".. ui.value(text.heal.essenceFont.."1") .. colors.white .. " under " .. ui.value(text.heal.essenceFont.."2") .. "%")
-    tempColor = colors.red
-    if friends.lowAllies.essenceFontOoc >= ui.value(text.heal.outOfCombat.essenceFont.."1") then
-        tempColor = colors.green
-    end
-    labels.lowAllies.essenceFontOoc:SetText("   Essence Font OOC: ".. tempColor .. friends.lowAllies.essenceFontOoc .."/".. ui.value(text.heal.outOfCombat.essenceFont.."1") .. colors.white .." under " .. ui.value(text.heal.outOfCombat.essenceFont.."2").. "%")
-    tempColor = colors.red
-    if friends.lowAllies.revival >= ui.value(text.heal.revival.."1") then
-        tempColor = colors.green
-    end
-    labels.lowAllies.revival:SetText("   Revival: ".. tempColor .. friends.lowAllies.revival .."/".. ui.value(text.heal.revival.."1") .. colors.white .. " under " .. ui.value(text.heal.revival.."2").. "%")
-    tempColor = colors.red
-    if friends.lowAllies.invokeYulonTheJadeSerpent >= ui.value(text.heal.invokeYulonTheJadeSerpent.."1") then
-        tempColor = colors.green
-    end
-    labels.lowAllies.invokeYulonTheJadeSerpent:SetText("   Invoke Yu'lon, The Jade Serpent: ".. tempColor .. friends.lowAllies.invokeYulonTheJadeSerpent .."/".. ui.value(text.heal.invokeYulonTheJadeSerpent.."1") .. colors.white .. " under " .. ui.value(text.heal.invokeYulonTheJadeSerpent.."2").. "%")
-    tempColor = colors.red
-    if friends.lowAllies.invokeChiJiTheRedCrane >= ui.value(text.heal.invokeChiJiTheRedCrane.."1") then
-        tempColor = colors.green
-    end
-    labels.lowAllies.invokeChiJiTheRedCrane:SetText("   Invoke Chi-Ji, The Red Crane: ".. tempColor .. friends.lowAllies.invokeChiJiTheRedCrane .."/".. ui.value(text.heal.invokeChiJiTheRedCrane.."1") .. colors.white .. " under " .. ui.value(text.heal.invokeChiJiTheRedCrane.."2").. "%")
-    tempColor = colors.red
-    if friends.lowAllies.weaponsOfOrder >= ui.value(text.heal.weaponsOfOrder.."1") then
-        tempColor = colors.green
-    end
-    labels.lowAllies.weaponsOfOrder:SetText("   Weapons Of Order: ".. tempColor .. friends.lowAllies.weaponsOfOrder .."/".. ui.value(text.heal.weaponsOfOrder.."1") .. colors.white .. " under " .. ui.value(text.heal.weaponsOfOrder.."2").. "%")
-    if dynamicTarget.range5 then
-        labels.dynamicTarget.range5:SetText("   ".. UnitName(dynamicTarget.range5) .. " at " .. round2(getHP(dynamicTarget.range5), 2) .."% at 5 yards")
-    else
-        labels.dynamicTarget.range5:SetText("   No dynamic target at 5 yards")
-    end
-    if dynamicTarget.range40 then
-        labels.dynamicTarget.range40:SetText("   ".. UnitName(dynamicTarget.range40) .. " at " .. round2(getHP(dynamicTarget.range40), 2) .."% at 40 yards")
-    else
-        labels.dynamicTarget.range40:SetText("   No dynamic target at 40 yards")
+    if labels.lowest then
+        labels.lowest:SetText("   ".. UnitName(friends.lowest.unit) .. " at " .. round2(friends.lowest.hp, 2) .."%")
+        local tempColor = colors.red
+        if friends.lowAllies.essenceFont >= ui.value(text.heal.essenceFont.."1") then
+            tempColor = colors.green
+        end
+        labels.lowAllies.essenceFont:SetText("   Essence Font: ".. tempColor .. friends.lowAllies.essenceFont .."/".. ui.value(text.heal.essenceFont.."1") .. colors.white .. " under " .. ui.value(text.heal.essenceFont.."2") .. "%")
+        tempColor = colors.red
+        if friends.lowAllies.essenceFontOoc >= ui.value(text.heal.outOfCombat.essenceFont.."1") then
+            tempColor = colors.green
+        end
+        labels.lowAllies.essenceFontOoc:SetText("   Essence Font OOC: ".. tempColor .. friends.lowAllies.essenceFontOoc .."/".. ui.value(text.heal.outOfCombat.essenceFont.."1") .. colors.white .." under " .. ui.value(text.heal.outOfCombat.essenceFont.."2").. "%")
+        tempColor = colors.red
+        if friends.lowAllies.revival >= ui.value(text.heal.revival.."1") then
+            tempColor = colors.green
+        end
+        labels.lowAllies.revival:SetText("   Revival: ".. tempColor .. friends.lowAllies.revival .."/".. ui.value(text.heal.revival.."1") .. colors.white .. " under " .. ui.value(text.heal.revival.."2").. "%")
+        tempColor = colors.red
+        if friends.lowAllies.invokeYulonTheJadeSerpent >= ui.value(text.heal.invokeYulonTheJadeSerpent.."1") then
+            tempColor = colors.green
+        end
+        labels.lowAllies.invokeYulonTheJadeSerpent:SetText("   Invoke Yu'lon, The Jade Serpent: ".. tempColor .. friends.lowAllies.invokeYulonTheJadeSerpent .."/".. ui.value(text.heal.invokeYulonTheJadeSerpent.."1") .. colors.white .. " under " .. ui.value(text.heal.invokeYulonTheJadeSerpent.."2").. "%")
+        tempColor = colors.red
+        if friends.lowAllies.invokeChiJiTheRedCrane >= ui.value(text.heal.invokeChiJiTheRedCrane.."1") then
+            tempColor = colors.green
+        end
+        labels.lowAllies.invokeChiJiTheRedCrane:SetText("   Invoke Chi-Ji, The Red Crane: ".. tempColor .. friends.lowAllies.invokeChiJiTheRedCrane .."/".. ui.value(text.heal.invokeChiJiTheRedCrane.."1") .. colors.white .. " under " .. ui.value(text.heal.invokeChiJiTheRedCrane.."2").. "%")
+        tempColor = colors.red
+        if friends.lowAllies.weaponsOfOrder >= ui.value(text.heal.weaponsOfOrder.."1") then
+            tempColor = colors.green
+        end
+        labels.lowAllies.weaponsOfOrder:SetText("   Weapons Of Order: ".. tempColor .. friends.lowAllies.weaponsOfOrder .."/".. ui.value(text.heal.weaponsOfOrder.."1") .. colors.white .. " under " .. ui.value(text.heal.weaponsOfOrder.."2").. "%")
+        if dynamicTarget.range5 then
+            labels.dynamicTarget.range5:SetText("   ".. UnitName(dynamicTarget.range5) .. " at " .. round2(getHP(dynamicTarget.range5), 2) .."% at 5 yards")
+        else
+            labels.dynamicTarget.range5:SetText("   No dynamic target at 5 yards")
+        end
+        if dynamicTarget.range40 then
+            labels.dynamicTarget.range40:SetText("   ".. UnitName(dynamicTarget.range40) .. " at " .. round2(getHP(dynamicTarget.range40), 2) .."% at 40 yards")
+        else
+            labels.dynamicTarget.range40:SetText("   No dynamic target at 40 yards")
+        end
     end
 end
 
