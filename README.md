@@ -125,6 +125,7 @@ CuteOne  |   Full   |  9.0  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
+Kuukuu  |  Full   | 9.0   |   99%  |  :white_check_mark:
 ADSpirit| Unknown |  8.0  |   100% | :interrobang:
 
 - Moonkin

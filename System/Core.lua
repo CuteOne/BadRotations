@@ -161,7 +161,6 @@ function BadRotationsUpdate(self)
 					br.player:createToggles()
 					br.player:update()
 					if br.player ~= nil and br.rotationChanged then
-						br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 					 	br:saveLastProfileTracker()
 					end
 					collectGarbage = true
@@ -211,6 +210,7 @@ function BadRotationsUpdate(self)
 				if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
 					-- Closing the windows will save the position
 					br.ui:closeWindow("all")
+					br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 					-- Update Selected Spec/Profile
 					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
 					br.loader.loadProfiles()

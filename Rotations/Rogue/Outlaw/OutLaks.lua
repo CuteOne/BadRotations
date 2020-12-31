@@ -149,8 +149,9 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupt/stun Options")
         -- Interrupt Percentage
-        br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
+        br.ui:createSpinnerWithout(section, "Interrupt %", 0, 0, 95, 5, "Remaining Cast Percentage to interrupt at.")
         br.ui:createCheckbox(section, "Kick", "Will use Kick to int")
+
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Aggro")
@@ -809,7 +810,7 @@ function getOutLaksTTDMAX()
             highTTD = getTTD(enemies.yards8[i])
         end
     end
-    return tonumber(lowTTDcount)
+    return tonumber(highTTD)
 end
 
 
@@ -971,6 +972,12 @@ actionList.dps = function()
 
             if mode.ambush == 1 and cast.able.ambush(dynamic_target_melee) then
                 if cast.ambush(dynamic_target_melee) then
+                    return true
+                end
+            end
+
+            if talent.ghostlyStrike and cast.able.ghostlyStrike(dynamic_target_melee) then
+                if cast.ghostlyStrike(dynamic_target_melee) then
                     return true
                 end
             end
@@ -1512,7 +1519,7 @@ actionList.Interrupt = function()
             if spellname ~= nil then
                 local castleft = castEndTime - GetTime()
                 if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5 then
-                    if cloakList[interruptID] then
+                    if mode.cloak == 1 and cloakList[interruptID] then
                         if cast.cloakOfShadows() then
                             return true
                         end
@@ -1587,14 +1594,8 @@ actionList.Interrupt = function()
 
             -- Print("Target: " .. UnitName(interrupt_target))
 
-            local int_when = getUnitID(interrupt_target) == 136297 and 10 or getValue("InterruptAt")
 
-            if canInterrupt(interrupt_target, int_when)
-                    or getUnitID(interrupt_target) == 136297 then
-
-                --   Print(tostring(br.player.cast.timeRemain(interrupt_target)))
-                --    Print(tostring(getTTD(interrupt_target)))
-                --Print(UnitName(enemies.yards20[i]))
+            if canInterrupt(interrupt_target, getOptionValue("Interrupt %")) then
                 distance = getDistance(interrupt_target)
                 if not (inInstance and #tanks > 0 and select(3, UnitClass(tanks[1].unit)) == 1 and hasBuff(23920, tanks[1].unit) and UnitIsUnit(select(3, UnitCastID(interrupt_target)), tanks[1].unit)) then
                     if StunsBlackList[GetObjectID(interrupt_target)] == nil and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target) then

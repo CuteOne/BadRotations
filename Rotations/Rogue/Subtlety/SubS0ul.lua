@@ -99,8 +99,6 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             br.player.module.BasicHealing(section)
-            -- br.ui:createSpinner(section, "Health Pot / Healthstone",  25,  0,  100,  5,  "Health Percentage to use at.")
-            -- br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createCheckbox(section, "Cloak of Shadows")
             br.ui:createSpinner(section, "Crimson Vial",  40,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "Health Percentage to use at.")
@@ -114,7 +112,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             br.ui:createCheckbox(section, "Kick")
-            br.ui:createCheckbox(section, "Kidney/Cheap Shot interrupt")
+            br.ui:createDropdown(section, "Kidney/Cheap interrupt", {"Kidney","Cheap","Both"}, 3, "What to use to interrupt")
             br.ui:createCheckbox(section, "Blind")
             br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
@@ -319,6 +317,17 @@ local function runRotation()
         return false
     end
 
+    local function trinket_Pop()
+        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
+            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) then
+                useItem(13)
+            end
+            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) then
+                useItem(14)
+            end
+        end
+    end
+
     local enemyTable30 = { }
     local enemyTable10 = { }
     local enemyTable5 = { }
@@ -410,7 +419,7 @@ local function runRotation()
     if talent.gloomblade then gloombladeActive = 1 else gloombladeActive = 0 end
     if enemies10 >= 4 then ssThd = 1 else ssThd = 0 end
     if covenant.necrolord.active then necroActive = 1 else necroActive = 0 end
-    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() then someone_casting = false end
+    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() or combatTime < 1 then someone_casting = false end
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
     if buff.sliceAndDice.exists("player") or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
@@ -457,6 +466,10 @@ local function runRotation()
         local burnUnits = {
             [120651] = true, -- Explosive
             [164362] = true, -- Plaguefall Slimy Morsel
+            [164427] = true, -- NW Reanimated Warrior
+            [164414] = true, -- NW Reanimated Mage
+            [168246] = true, -- NW Reanimated Crossbowman
+            [164702] = true, -- NW Carrion Worm
         }
         if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
             if combo >= 4 then
@@ -578,10 +591,10 @@ local function runRotation()
                     if isChecked("Kick") and distance < 5 and cast.able.kick() then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap Shot interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
-                        if cast.able.cheapShot() then
+                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
+                        if cast.able.cheapShot() and getOptionValue("Kidney/Cheap interrupt") ~= 1 then
                             if cast.cheapShot(interrupt_target) then return true end
-                        else
+                        elseif getOptionValue("Kidney/Cheap interrupt") ~= 2 then
                             if cast.kidneyShot(interrupt_target) then return true end
                         end
                     end
@@ -591,7 +604,6 @@ local function runRotation()
                 end
                 if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
                  and noStunList[GetObjectID(interrupt_target)] == nil then -- and not isBoss(interrupt_target)
-                    print("In stun stun")
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
@@ -764,14 +776,7 @@ local function runRotation()
             end
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
-        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) then
-                useItem(13)
-            end
-            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) then
-                useItem(14)
-            end
-        end
+        if trinket_Pop() then return true end
     end
 
     local function actionList_Finishers()
@@ -1054,6 +1059,9 @@ local function runRotation()
                     cast.racial("player")
                 end
                 return true
+            end
+            if isBoss() and buff.shadowBlades.exists() and buff.shadowDance.exists() then
+                if trinket_Pop() then return true end
             end
             -- Off GCD Cooldowns
             if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then

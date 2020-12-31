@@ -65,7 +65,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         ----------------------
---[[         section = br.ui:createSection(br.ui.window.profile, "Visions Helpers")
+        --[[         section = br.ui:createSection(br.ui.window.profile, "Visions Helpers")
         br.ui:createCheckbox(section,"Potions Tracker")
         br.ui:createCheckbox(section,"Chest Tracker")
         br.ui:createScrollingEditBox(section,"Custom Tracker", "", "Type custom search", 300, 40)
@@ -169,11 +169,11 @@ local function createOptions()
         --- CORRUPTION OPTIONS ---
         --------------------------
         section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
-        br.ui:createCheckbox(section,"Corruption Radar On")
-        br.ui:createCheckbox(section,"Use Hammer of Justice on TFTB")
+        br.ui:createCheckbox(section, "Corruption Radar On")
+        br.ui:createCheckbox(section, "Use Hammer of Justice on TFTB")
         br.ui:createCheckbox(section, "Use Blinding Light on TFTB")
         br.ui:createCheckbox(section, "Use Blessing of Freedom for Snare")
-        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
+        br.ui:createDropdownWithout(section, "Use Cloak", {"snare", "Eye", "THING", "Never"}, 4, "", "")
         br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
         br.ui:checkSectionState(section)
         -------------------------
@@ -400,8 +400,8 @@ local function runRotation()
     -- local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
     -- local healPot                                       = getHealthPot()
     -- local level                                         = br.player.level
-    local holyPower     = br.player.power.holyPower.amount()
-	local holyPowerMax  = br.player.power.holyPower.max()
+    local holyPower = br.player.power.holyPower.amount()
+    local holyPowerMax = br.player.power.holyPower.max()
     -- local lowestHP                                      = br.friend[1].unit
     -- local lowest                                        = br.friend[1]
     local mana = getMana("player")
@@ -536,7 +536,6 @@ local function runRotation()
             end
         end
     end ]]
-
     units.get(5)
     units.get(8)
     units.get(15)
@@ -702,14 +701,16 @@ local function runRotation()
         return false
     end
 
-
-
     -- Beacon of Virtue
     if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and getSpellCD(200025) == 0 and not IsMounted() then
         for i = 1, #br.friend do
             if UnitInRange(br.friend[i].unit) then
                 local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Beacon of Virtue"), #br.friend)
-                if ((BOV ~= nil or BleedFriendCount >= 2) and isCastingSpell(spell.flashOfLight)) or ((#lowHealthCandidates >= getValue("BoV Targets") or BleedFriendCount >= 2) and isCastingSpell(spell.flashOfLight)) or (#lowHealthCandidates >= getValue("BoV Targets") and moving and cast.able.beaconOfVirtue() and getSpellCD(20473) < gcd) then
+                if
+                    ((BOV ~= nil or BleedFriendCount >= 2) and isCastingSpell(spell.flashOfLight)) or
+                        ((#lowHealthCandidates >= getValue("BoV Targets") or BleedFriendCount >= 2) and isCastingSpell(spell.flashOfLight)) or
+                        (#lowHealthCandidates >= getValue("BoV Targets") and moving and cast.able.beaconOfVirtue() and getSpellCD(20473) < gcd)
+                 then
                     if CastSpellByName(GetSpellInfo(200025), br.friend[i].unit) then
                         return
                     end
@@ -771,7 +772,6 @@ local function runRotation()
     end
     bossHelper()
 
-    
     -----------------
     --- Rotations ---
     -----------------
@@ -830,7 +830,10 @@ local function runRotation()
             end
         end
         -- CC  /  Repentance
-        if talent.repentance and isChecked("Repentance Key") and SpecificToggle("Repentance Key") and not GetCurrentKeyBoardFocus() and IsSpellInRange(GetSpellInfo(spell.repentance), "mouseover") then
+        if
+            talent.repentance and isChecked("Repentance Key") and SpecificToggle("Repentance Key") and not GetCurrentKeyBoardFocus() and
+                IsSpellInRange(GetSpellInfo(spell.repentance), "mouseover")
+         then
             if castSpell("mouseover", spell.repentance, true, false, false, true, false, true, true, false) then
                 return true
             end
@@ -895,7 +898,11 @@ local function runRotation()
             end
             -- Divine Shield
             if isChecked("Divine Shield") and cast.able.divineShield() then
-                if (php <= getOptionValue("Divine Shield") or (isChecked("Siege - Choking Waters") and UnitDebuffID("player", 272571)) or (isChecked("Atal - Devour") and UnitDebuffID("player", 255421))) and not UnitDebuffID("player", 25771) then
+                if
+                    (php <= getOptionValue("Divine Shield") or (isChecked("Siege - Choking Waters") and UnitDebuffID("player", 272571)) or
+                        (isChecked("Atal - Devour") and UnitDebuffID("player", 255421))) and
+                        not UnitDebuffID("player", 25771)
+                 then
                     if cast.divineShield() then
                         return true
                     end
@@ -914,16 +921,21 @@ local function runRotation()
                 end
             end
             -- Blessing of Freedom
-            if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom)) or isChecked("Use Blessing of Freedom for Snare") and debuff.graspingTendrils.exists("player") then
+            if
+                (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom)) or
+                    isChecked("Use Blessing of Freedom for Snare") and debuff.graspingTendrils.exists("player")
+             then
                 if cast.blessingOfFreedom("player") then
                     return true
                 end
             end
             --Shroud
             if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                        or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak")
-                        or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                if
+                    getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or
+                        getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak") or
+                        getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
+                 then
                     if br.player.use.shroudOfResolve() then
                         return
                     end
@@ -931,7 +943,7 @@ local function runRotation()
             end
             if isChecked("Corruption Radar On") then
                 local stun = "Hammer of Justice"
-    
+
                 for i = 1, GetObjectCountBR() do
                     local object = GetObjectWithIndex(i)
                     local ID = ObjectID(object)
@@ -940,12 +952,16 @@ local function runRotation()
                             local x1, y1, z1 = ObjectPosition("player")
                             local x2, y2, z2 = ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                            if distance <= 8 and isChecked("Use Blinding Light on TFTB") and cd.blindingLight.remains() <= gcd and talent.blindingLight and not debuff.hammerOfJustice.exists(object) then
+                            if
+                                distance <= 8 and isChecked("Use Blinding Light on TFTB") and cd.blindingLight.remains() <= gcd and talent.blindingLight and
+                                    not debuff.hammerOfJustice.exists(object)
+                             then
                                 CastSpellByName("Blinding Light", object)
                                 return true
                             end
                             if distance < 10 and not isLongTimeCCed(object) and cd.hammerOfJustice.remains() <= gcd and not debuff.blindingLight.exists(object) then
-                                CastSpellByName(stun, object) return true
+                                CastSpellByName(stun, object)
+                                return true
                             end
                         end
                     end -- end the thing
@@ -978,7 +994,12 @@ local function runRotation()
                     if getDebuffRemain(br.friend[i].unit, 268896) ~= 0 or getDebuffRemain(br.friend[i].unit, 264526) ~= 0 or getDebuffRemain(br.friend[i].unit, 258058) ~= 0 then
                         blessingOfFreedomCase = br.friend[i].unit
                     end
-                    if (isChecked("Atal - Devour") and getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and br.friend[i].unit ~= "player") or (isChecked("Tol Dagor - Deadeye") and getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player") or (isChecked("Waycrest - jagged Nettles") and getDebuffRemain(br.friend[i].unit, 260741) ~= 0) or (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0) then
+                    if
+                        (isChecked("Atal - Devour") and getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and br.friend[i].unit ~= "player") or
+                            (isChecked("Tol Dagor - Deadeye") and getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player") or
+                            (isChecked("Waycrest - jagged Nettles") and getDebuffRemain(br.friend[i].unit, 260741) ~= 0) or
+                            (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
+                     then
                         blessingOfProtectionCase = br.friend[i].unit
                     end
                     if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit, 272407) == 0 and br.friend[i].distance <= 10 then
@@ -993,7 +1014,10 @@ local function runRotation()
                 local localClass, englishClass, classIndex = UnitClass(br.friend[i].unit)
                 local thisUnit = br.friend[i].unit
                 if UnitInRange(thisUnit) then
-                    if (isChecked("Blessing of Freedom Shadhar")) and UnitDebuffID(thisUnit, 318078) ~= nil and (classIndex == 1 or classIndex == 2 or classIndex == 4 or classIndex == 5 or classIndex == 9) then
+                    if
+                        (isChecked("Blessing of Freedom Shadhar")) and UnitDebuffID(thisUnit, 318078) ~= nil and
+                            (classIndex == 1 or classIndex == 2 or classIndex == 4 or classIndex == 5 or classIndex == 9)
+                     then
                         blessingOfFreedomCase = thisUnit
                     end
                     if (isChecked("Blessing of Freedom Wrathion")) and getDebuffStacks(thisUnit, 313255) >= getOptionValue("Movement Stacks") then
@@ -1062,7 +1086,12 @@ local function runRotation()
             for i = 1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
                 local distance = getDistance(thisUnit)
-                if (HOJ_unitList[GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
+                if
+                    (HOJ_unitList[GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or
+                        HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and
+                        getBuffRemain(thisUnit, 226510) == 0 and
+                        distance <= 10
+                 then
                     if cast.hammerOfJustice(thisUnit) then
                         return true
                     end
@@ -1110,7 +1139,10 @@ local function runRotation()
                     end
                   end
                 end]]
-                if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 and ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power")) or GetMinimapZoneText() ~= "Shrine of Shadows") then
+                if
+                    canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 and
+                        ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power")) or GetMinimapZoneText() ~= "Shrine of Shadows")
+                 then
                     if cast.cleanse(br.friend[i].unit) then
                         return true
                     end
@@ -1126,7 +1158,12 @@ local function runRotation()
             for i = 1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
                 local distance = getDistance(thisUnit)
-                if canInterrupt(thisUnit, getOptionValue("InterruptAt")) and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)] == nil and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+                if
+                    canInterrupt(thisUnit, getOptionValue("InterruptAt")) and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)] == nil and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923)
+                 then
                     -- Blinding Light
                     if isChecked("Blinding Light") and cast.able.blindingLight() then
                         if cast.blindingLight() then
@@ -1134,7 +1171,10 @@ local function runRotation()
                         end
                     end
                     -- Hammer of Justice
-                    if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit, 226510) == 0 and (thisUnit == 130488 and isChecked("Motherload - Stun jockeys") or thisUnit ~= 130488) then
+                    if
+                        isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit, 226510) == 0 and
+                            (thisUnit == 130488 and isChecked("Motherload - Stun jockeys") or thisUnit ~= 130488)
+                     then
                         if cast.hammerOfJustice(thisUnit) then
                             return true
                         end
@@ -1146,7 +1186,14 @@ local function runRotation()
         if useInterrupts() and talent.repentance and cast.able.repentance() and isChecked("Repentance as Interrupt") then
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > getCastTime(spell.repentance) and StunsBlackList[GetObjectID(thisUnit)] == nil and not isBoss(thisUnit) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
+                if
+                    canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > getCastTime(spell.repentance) and StunsBlackList[GetObjectID(thisUnit)] == nil and
+                        not isBoss(thisUnit) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and
+                        UnitCreatureType(thisUnit) == CC_CreatureTypeList[i]
+                 then
                     if cast.repentance(thisUnit) then
                         return true
                     end
@@ -1156,7 +1203,12 @@ local function runRotation()
         if isChecked("organic grenade as int") and useInterrupts() and hasItem(153487) and canUseItem(153487) then
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > 1.5 and StunsBlackList[GetObjectID(thisUnit)] == nil and not isBoss(thisUnit) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+                if
+                    canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > 1.5 and StunsBlackList[GetObjectID(thisUnit)] == nil and not isBoss(thisUnit) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
+                        UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923)
+                 then
                     local currentX, currentY, currentZ = GetObjectPosition(thisUnit)
                     useItem(153487)
                     ClickPosition(currentX, currentY, currentZ)
@@ -1188,13 +1240,23 @@ local function runRotation()
         if mode.Beacon == 1 and (inInstance or inRaid or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss1target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss1target") and
+                            not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfLightinRaid = br.friend[i].unit
                     end
-                    if LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfLightTANK = br.friend[i].unit
                     end
-                    if FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfFaithTANK = br.friend[i].unit
                     elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfFaithplayer = br.friend[i].unit
@@ -1205,13 +1267,23 @@ local function runRotation()
         if mode.Beacon == 2 and (inInstance or inRaid or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss2target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss2target") and
+                            not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfLightinRaid = br.friend[i].unit
                     end
-                    if LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfLightTANK = br.friend[i].unit
                     end
-                    if FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfFaithTANK = br.friend[i].unit
                     elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfFaithplayer = br.friend[i].unit
@@ -1222,13 +1294,23 @@ local function runRotation()
         if mode.Beacon == 3 and (inInstance or inRaidor or OWGroup) and #tanks > 0 then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss3target") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss3target") and
+                            not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfLightinRaid = br.friend[i].unit
                     end
-                    if LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfLightTANK = br.friend[i].unit
                     end
-                    if FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    if
+                        FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and
+                            not buff.beaconOfFaith.exists(br.friend[i].unit)
+                     then
                         beaconOfFaithTANK = br.friend[i].unit
                     elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfFaithplayer = br.friend[i].unit
@@ -1342,7 +1424,10 @@ local function runRotation()
             end
         end
         if isChecked("Group Avenger w/ Wrath") then
-            if cast.able.holyAvenger() and (buff.avengingWrath.exists() or buff.avengingCrusader.exists()) and ((buff.avengingWrath.remain() > 12 and buff.avengingWrath.remain() < 17) or (buff.avengingCrusader.remain() > 12 and buff.avengingCrusader.remain() < 19)) then
+            if
+                cast.able.holyAvenger() and (buff.avengingWrath.exists() or buff.avengingCrusader.exists()) and
+                    ((buff.avengingWrath.remain() > 12 and buff.avengingWrath.remain() < 17) or (buff.avengingCrusader.remain() > 12 and buff.avengingCrusader.remain() < 19))
+             then
                 if cast.holyAvenger() then
                     br.addonDebug("Grouping HA w/wings - Wings remain:" .. buff.avengingWrath.remain())
                     return true
@@ -1377,7 +1462,10 @@ local function runRotation()
                 if br.friend[i].hp <= getValue("Blessing of Protection") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                     blessingOfProtectionTANK = br.friend[i].unit
                 end
-                if br.friend[i].hp <= getValue("Blessing of Protection") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER") then
+                if
+                    br.friend[i].hp <= getValue("Blessing of Protection") and
+                        (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER")
+                 then
                     blessingOfProtectionHD = br.friend[i].unit
                 end
                 if br.friend[i].hp <= getValue("Blessing of Sacrifice") and not GetUnitIsUnit(br.friend[i].unit, "player") then
@@ -1396,18 +1484,31 @@ local function runRotation()
             for i = 1, #br.friend do
                 if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
                     if getOptionValue("Lay on Hands Target") == 1 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if
+                            br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and
+                                (solo or OWGroup or inRaid or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                         then
                             layOnHandsTarget = br.friend[i].unit
                         end
                     elseif getOptionValue("Lay on Hands Target") == 2 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if
+                            br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and
+                                (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
+                                (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                         then
                             layOnHandsTarget = br.friend[i].unit
                         end
-                    elseif getOptionValue("Lay on Hands Target") == 3 and getDebuffRemain("player", 267037) == 0 and php <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) then
+                    elseif
+                        getOptionValue("Lay on Hands Target") == 3 and getDebuffRemain("player", 267037) == 0 and
+                            php <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max"))
+                     then
                         layOnHandsTarget = "player"
                     elseif getOptionValue("Lay on Hands Target") == 4 then
                         if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-                            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                            if
+                                br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and
+                                    (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                             then
                                 layOnHandsTarget = br.friend[i].unit
                             end
                         end
@@ -1654,11 +1755,18 @@ local function runRotation()
     ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     local function DPS()
         --and isChecked("DPS")
-        if (mode.DPS == 1 or mode.DPS == 3) and (isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana")) and (isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health")) then
-            if isChecked("Holy Shock Damage") and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or solo or OWGroup or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)) then
+        if
+            (mode.DPS == 1 or mode.DPS == 3) and (isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana")) and
+                (isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health"))
+         then
+            if
+                isChecked("Holy Shock Damage") and
+                    ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or solo or OWGroup or
+                        (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90))
+             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) then
+                    if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
                         if cast.holyShock(thisUnit) then
                             return true
                         end
@@ -1670,7 +1778,10 @@ local function runRotation()
             end
 
             --Consecration
-            if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2) then
+            if
+                isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and
+                    (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2)
+             then
                 if cast.consecration() then
                     cX, cY, cZ = GetObjectPosition("player")
                     return
@@ -1680,7 +1791,10 @@ local function runRotation()
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-                    if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
+                    if
+                        isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and
+                            hasThreat("focustarget")
+                     then
                         TargetUnit("focustarget")
                     end
                     -- Start Attack
@@ -1695,14 +1809,14 @@ local function runRotation()
                     end
                     -- Hammer of Wrath Wings
                     --if isChecked("Hammer of Wrath") and holyPower <=4 then
-                        --if buff.avengingWrath.exists() then
-                            --if cast.hammerOfWrath(thisUnit) then
-                              --  return true
-                            --end
-                        --end
+                    --if buff.avengingWrath.exists() then
+                    --if cast.hammerOfWrath(thisUnit) then
+                    --  return true
+                    --end
+                    --end
                     --end
                     -- Hammer of Wrath
-                    if isChecked("Hammer of Wrath") and holyPower <=4 then
+                    if isChecked("Hammer of Wrath") and holyPower <= 4 then
                         if getHP(thisUnit) < 20 then
                             if cast.hammerOfWrath(thisUnit) then
                                 return true
@@ -1716,11 +1830,11 @@ local function runRotation()
                         end
                     end
                     -- Judgment
-                    if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player",thisUnit) then
+                    if isChecked("Judgment - DPS") and cast.able.judgment() and getFacing("player", thisUnit) then
                         if cast.judgment(thisUnit) then
                             return true
                         end
-                    end    
+                    end
                 end
             end
 
@@ -1728,7 +1842,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() and getFacing("player",thisUnit) then
+                    if isChecked("Crusader Strike") and (not talent.crusadersMight or solo or OWGroup) and cast.able.crusaderStrike() and getFacing("player", thisUnit) then
                         if cast.crusaderStrike(thisUnit) then
                             return true
                         end
@@ -1757,7 +1871,11 @@ local function runRotation()
         end
         -- Judgment as heal
         if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
-            if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or (traits.graceoftheJusticar.active and inInstance and #tanks > 0 and tanks[1].hp <= 95 or not inInstance) or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
+            if
+                buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or
+                    (traits.graceoftheJusticar.active and inInstance and #tanks > 0 and tanks[1].hp <= 95 or not inInstance) or
+                    (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30))
+             then
                 if cast.judgment(units.dyn30) then
                     return true
                 end
@@ -1796,7 +1914,7 @@ local function runRotation()
             end
         end
         -- Light of Dawn
-        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and getSpellCD(20473) > gcd and holyPower >=3 or buff.divinePurpose.exists() then
+        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and getSpellCD(20473) > gcd and holyPower >= 3 or buff.divinePurpose.exists() then
             if br.unlocked then --EasyWoWToolbox == nil then
                 if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
                     if cast.lightOfDawn() then
@@ -1835,9 +1953,15 @@ local function runRotation()
         end
 
         -- Jagged Nettles and Dessication logic
-        if inInstance and inCombat and (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation" or GetMinimapZoneText() == "The Lustrous Apse") then
+        if
+            inInstance and inCombat and
+                (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation" or GetMinimapZoneText() == "The Lustrous Apse")
+         then
             for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 or (getDebuffRemain(br.friend[i].unit, 265773) ~= 0 and br.friend[i].hp < 90) then
+                if
+                    getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 or
+                        (getDebuffRemain(br.friend[i].unit, 265773) ~= 0 and br.friend[i].hp < 90)
+                 then
                     if getSpellCD(20473) == 0 then
                         if cast.holyShock(br.friend[i].unit) then
                             return true
@@ -1859,11 +1983,16 @@ local function runRotation()
 
         --Avenging Crusader (216331)  UnitBuffID("player", 216331)
         if buff.avengingCrusader.exists("player") then
-            if mode.DPS == 1 or mode.DPS == 3 and (isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana")) and (isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health")) and lowest.hp > getValue("Critical HP") then
+            if
+                mode.DPS == 1 or
+                    mode.DPS == 3 and (isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana")) and
+                        (isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health")) and
+                        lowest.hp > getValue("Critical HP")
+             then
                 if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player",thisUnit) then
+                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player", thisUnit) then
                             if cast.holyShock(thisUnit) then
                                 return true
                             end
@@ -1883,12 +2012,20 @@ local function runRotation()
         end
 
         --Wings, burst mode MAX dps
-        if (mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player")) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295)) or (isChecked("Hard DPS Key") and SpecificToggle("Hard DPS Key")) then
-            if ((isChecked("DPS Mana") and mana > getValue("DPS Mana")) or not isChecked("DPS Mana")) and ((isChecked("DPS Health") and lowest.hp > getValue("DPS Health")) or not isChecked("DPS Health")) and lowest.hp > getValue("Critical HP") then
+        if
+            (mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player")) or
+                (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295)) or
+                (isChecked("Hard DPS Key") and SpecificToggle("Hard DPS Key"))
+         then
+            if
+                ((isChecked("DPS Mana") and mana > getValue("DPS Mana")) or not isChecked("DPS Mana")) and
+                    ((isChecked("DPS Health") and lowest.hp > getValue("DPS Health")) or not isChecked("DPS Health")) and
+                    lowest.hp > getValue("Critical HP")
+             then
                 if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or OWGroup or inRaid) then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player",thisUnit) then
+                        if not debuff.glimmerOfLight.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and getFacing("player", thisUnit) then
                             if cast.holyShock(thisUnit) then
                                 return true
                             end
@@ -1899,13 +2036,19 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 3) then
+            if
+                isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and
+                    (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 3)
+             then
                 if cast.consecration() then
                     cX, cY, cZ = GetObjectPosition("player")
                     return
                 end
             end
-            if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= getValue("Shield of the Righteous") and holyPower >=3 or buff.divinePurpose.exists() then
+            if
+                isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= getValue("Shield of the Righteous") and holyPower >= 3 or
+                    buff.divinePurpose.exists()
+             then
                 if cast.shieldOfTheRighteous(thisUnit) then
                     return true
                 end
@@ -1931,8 +2074,11 @@ local function runRotation()
     local function glimmer()
         --Glimmer support
 
-        if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player") and isChecked("Critical HP") and lowest.hp > getValue("Critical HP") then
-            if not debuff.glimmerOfLight.exists("target") and getFacing("player","target") then
+        if
+            isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player") and isChecked("Critical HP") and
+                lowest.hp > getValue("Critical HP")
+         then
+            if not debuff.glimmerOfLight.exists("target") and getFacing("player", "target") then
                 if cast.holyShock("target") then
                     br.addonDebug("glimmerOfLight on target")
                     return true
@@ -1974,7 +2120,11 @@ local function runRotation()
                 --find lowest friend without glitter buff on them - tank first
                 for i = 1, #br.friend do
                     if UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") then
-                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
+                        if
+                            (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and
+                                not buff.beaconOfFaith.exists(br.friend[i].unit) and
+                                not UnitBuffID(br.friend[i].unit, 287280)
+                         then
                             if cast.holyShock(br.friend[i].unit) then
                                 --Print(br.friend[i].unit)
                                 return true
@@ -1984,7 +2134,10 @@ local function runRotation()
                 end
                 glimmerTable = {}
                 for i = 1, #br.friend do
-                    if UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
+                    if
+                        UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and
+                            not UnitBuffID(br.friend[i].unit, 115191)
+                     then
                         tinsert(glimmerTable, br.friend[i])
                     end
                 end
@@ -2023,7 +2176,11 @@ local function runRotation()
                 end
             elseif getSpellCD(20473) > gcd then
                 if br.unlocked then --EasyWoWToolbox == nil then
-                    if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) and holyPower >=3 or buff.divinePurpose.exists() then
+                    if
+                        healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) and
+                            holyPower >= 3 or
+                            buff.divinePurpose.exists()
+                     then
                         if cast.lightOfDawn() then
                             return true
                         end
@@ -2091,59 +2248,98 @@ local function runRotation()
                     end
 
                     if isChecked("Mastery bonus") and inRaid then
-                        if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and br.friend[i].distance <= (10 * master_coff) then
+                        if
+                            br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and
+                                br.friend[i].distance <= (10 * master_coff)
+                         then
                             holyshocktarget = br.friend[i].unit
                         end
-                        if holyshocktarget == nil and br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and br.friend[i].distance <= (20 * master_coff) then
+                        if
+                            holyshocktarget == nil and br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and
+                                not buff.beaconOfVirtue.exists(br.friend[i].unit) and
+                                br.friend[i].distance <= (20 * master_coff)
+                         then
                             holyshocktarget = br.friend[i].unit
                         end
-                        if holyshocktarget == nil and br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and br.friend[i].distance <= (30 * master_coff) then
+                        if
+                            holyshocktarget == nil and br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and
+                                not buff.beaconOfVirtue.exists(br.friend[i].unit) and
+                                br.friend[i].distance <= (30 * master_coff)
+                         then
                             holyshocktarget = br.friend[i].unit
                         end
                     end
 
-                    if holyshocktarget == nil and br.friend[i].hp <= getValue("Holy Shock") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                    if
+                        holyshocktarget == nil and br.friend[i].hp <= getValue("Holy Shock") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                     then
                         holyshocktarget = br.friend[i].unit
                     end
                     if br.friend[i].hp <= 90 and buff.divineShield.exists("player") and not GetUnitIsUnit(br.friend[i].unit, "player") then
                         lightOfTheMartyrDS = br.friend[i].unit
                     end
-                    if br.friend[i].hp <= getValue("LoM after FoL") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and getSpellCD(20473) >= gcd then
+                    if
+                        br.friend[i].hp <= getValue("LoM after FoL") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
+                            getSpellCD(20473) >= gcd
+                     then
                         lightOfTheMartyrTANK = br.friend[i].unit
                     end
                     if br.friend[i].hp <= getValue("LoM after FoL") and getSpellCD(20473) >= gcd and not GetUnitIsUnit(br.friend[i].unit, "player") then
                         lightOfTheMartyrHS = br.friend[i].unit
                     end
-                    if br.friend[i].hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(br.friend[i].unit, "player") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                    if
+                        br.friend[i].hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(br.friend[i].unit, "player") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                     then
                         lightOfTheMartyrHP = br.friend[i].unit
                     end
 
                     --Flash of Light
-                    if br.friend[i].hp <= getValue("FoL Tanks") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                    if
+                        br.friend[i].hp <= getValue("FoL Tanks") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                     then
                         folTarget = br.friend[i].unit
                     end
 
                     if isChecked("Mastery bonus") and inRaid then
-                        if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (10 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
+                        if
+                            folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (10 * master_coff) and
+                                buff.infusionOfLight.remain("player") > gcd
+                         then
                             folTarget = br.friend[i].unit
                         elseif br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (10 * master_coff) then
                             folTarget = br.friend[i].unit
                         end
-                        if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (20 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
+                        if
+                            folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (20 * master_coff) and
+                                buff.infusionOfLight.remain("player") > gcd
+                         then
                             folTarget = br.friend[i].unit
                         elseif folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (20 * master_coff) then
                             folTarget = br.friend[i].unit
                         end
-                        if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (30 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
+                        if
+                            folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (30 * master_coff) and
+                                buff.infusionOfLight.remain("player") > gcd
+                         then
                             folTarget = br.friend[i].unit
                         elseif folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (30 * master_coff) then
                             folTarget = br.friend[i].unit
                         end
                     end
 
-                    if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) and buff.infusionOfLight.remain("player") > gcd then
+                    if
+                        folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) and
+                            buff.infusionOfLight.remain("player") > gcd
+                     then
                         folTarget = br.friend[i].unit
-                    elseif folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                    elseif
+                        folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                     then
                         folTarget = br.friend[i].unit
                     end
                     if isChecked("Mastery bonus") and inRaid then
@@ -2157,7 +2353,10 @@ local function runRotation()
                             lightOfTheMartyrBF30 = br.friend[i].unit
                         end
                     end
-                    if br.friend[i].hp <= getValue("Bestow Faith") and not GetUnitIsUnit(br.friend[i].unit, "player") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                    if
+                        br.friend[i].hp <= getValue("Bestow Faith") and not GetUnitIsUnit(br.friend[i].unit, "player") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                     then
                         lightOfTheMartyrBF40 = br.friend[i].unit
                     end
                     if isChecked("Mastery bonus") and inRaid then
@@ -2171,7 +2370,10 @@ local function runRotation()
                             holyLight30 = br.friend[i].unit
                         end
                     end
-                    if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].hp >= getValue("Critical HP") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                    if
+                        br.friend[i].hp <= getValue("Holy Light") and br.friend[i].hp >= getValue("Critical HP") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                     then
                         holyLight40 = br.friend[i].unit
                     end
                     if isChecked("Mastery bonus") and inRaid then
@@ -2185,7 +2387,10 @@ local function runRotation()
                             lightOfTheMartyrM30 = br.friend[i].unit
                         end
                     end
-                    if br.friend[i].hp <= getValue("Moving LotM") and not GetUnitIsUnit(br.friend[i].unit, "player") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                    if
+                        br.friend[i].hp <= getValue("Moving LotM") and not GetUnitIsUnit(br.friend[i].unit, "player") and
+                            (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+                     then
                         lightOfTheMartyrM40 = br.friend[i].unit
                     end
                 end
@@ -2231,13 +2436,17 @@ local function runRotation()
         -- Grievous stuff
 
         if BleedFriend ~= nil then
-            if cast.able.lightOfDawn() and isChecked("Light of Dawn") and holyPower >=3 or buff.divinePurpose.exists() then
+            if cast.able.lightOfDawn() and isChecked("Light of Dawn") and holyPower >= 3 or buff.divinePurpose.exists() then
                 if bestConeHeal(spell.lightOfDawn, 1, 80, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
                     return true
                 end
             end
 
-            if cast.able.lightOfTheMartyr() and isChecked("Light of the Martyr") and BleedFriend ~= player and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 and getDebuffStacks("player", 267034) < 2 then
+            if
+                cast.able.lightOfTheMartyr() and isChecked("Light of the Martyr") and BleedFriend ~= player and php >= getOptionValue("LotM player HP limit") and
+                    BleedFriend.hp > 70 and
+                    getDebuffStacks("player", 267034) < 2
+             then
                 if cast.lightOfTheMartyr(BleedFriend.unit) then
                     return true
                 end
@@ -2266,7 +2475,11 @@ local function runRotation()
             end
         end
         -- Light of Martyr
-        if lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 and getDebuffStacks("player", 265773) == 0 and getSpellCD(20473) < gcd then
+        if
+            lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 and
+                getDebuffStacks("player", 265773) == 0 and
+                getSpellCD(20473) < gcd
+         then
             if cast.lightOfTheMartyr(lightOfTheMartyrHP) then
                 return true
             end
@@ -2301,7 +2514,7 @@ local function runRotation()
         end -- end Bestow Faith
 
         -- Word of Glory
-        if isChecked("Word of Glory") and getSpellCD(20473) > gcd and holyPower >=3 or buff.divinePurpose.exists() then
+        if isChecked("Word of Glory") and getSpellCD(20473) > gcd and holyPower >= 3 or buff.divinePurpose.exists() then
             --Critical first
             if php <= getValue("Critical HP") then
                 if cast.wordOfGlory("player") then
@@ -2327,7 +2540,7 @@ local function runRotation()
                     return true
                 end
             elseif lowest.hp <= getValue("Word of Glory") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
-                if cast.wordOfGlory(lowest.unit) then 
+                if cast.wordOfGlory(lowest.unit) then
                     return true
                 end
             end
@@ -2370,7 +2583,11 @@ local function runRotation()
             end
         end
         -- Light of Martyr and Bestow Faith
-        if isChecked("Light of the Martyr") and php >= 80 and buff.bestowFaith.exists("player") and getDebuffStacks("player", 267034) < 2 and getOptionValue("Bestow Faith Target") == 4 and getDebuffStacks("player", 265773) == 0 then
+        if
+            isChecked("Light of the Martyr") and php >= 80 and buff.bestowFaith.exists("player") and getDebuffStacks("player", 267034) < 2 and
+                getOptionValue("Bestow Faith Target") == 4 and
+                getDebuffStacks("player", 265773) == 0
+         then
             if lightOfTheMartyrBF10 ~= nil then
                 if cast.lightOfTheMartyr(lightOfTheMartyrBF10) then
                     return true
@@ -2393,7 +2610,11 @@ local function runRotation()
             end
         end
         -- Holy Light
-        if isChecked("Holy Light") and not moving and getSpellCD(20473) > gcd and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > getCastTime(spell.holyLight) and flashOfLightInfuse40 == nil)) then
+        if
+            isChecked("Holy Light") and not moving and getSpellCD(20473) > gcd and
+                (getOptionValue("Holy Light Infuse") == 1 or
+                    (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > getCastTime(spell.holyLight) and flashOfLightInfuse40 == nil))
+         then
             if holyLight10 ~= nil then
                 if cast.holyLight(holyLight10) then
                     healing_obj = holyLight10
@@ -2420,7 +2641,10 @@ local function runRotation()
             end
         end
         -- Moving Martyr
-        if isChecked("Moving LotM") and moving and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 and getDebuffStacks("player", 265773) == 0 then
+        if
+            isChecked("Moving LotM") and moving and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 and
+                getDebuffStacks("player", 265773) == 0
+         then
             if #tanks > 0 then
                 if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
                     if cast.lightOfTheMartyr(tanks[1].unit) then
@@ -2428,7 +2652,10 @@ local function runRotation()
                     end
                 end
             end
-            if lowest.hp <= getValue("Critical HP") and not GetUnitIsUnit(lowest.unit, "player") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") and getDebuffStacks("player", 267034) < 2 then
+            if
+                lowest.hp <= getValue("Critical HP") and not GetUnitIsUnit(lowest.unit, "player") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") and
+                    getDebuffStacks("player", 267034) < 2
+             then
                 if cast.lightOfTheMartyr(lowest.unit) then
                     return true
                 end
@@ -2592,7 +2819,7 @@ end -- End runRotation
 --if isChecked("Boss Helper") then
 --      bossManager()
 --end
-local id = 65
+local id = 0
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
