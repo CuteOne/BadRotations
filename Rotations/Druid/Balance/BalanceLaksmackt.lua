@@ -71,11 +71,12 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012080959")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012080960")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
-        br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
         br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "Treant Key")
+        br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
+        br.ui:createCheckbox(section, "Use Mount Form", "Uses the Mount Form for ground travel.", 1)        
         br.ui:createCheckbox(section, "Cat Charge", "Use Wild Charge to close distance.", 1)
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
@@ -138,6 +139,9 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Starfall Targets (0 for auto)", 0, 0, 30, 1, "Set to minimum number of targets to use Starfall. 0 to calculate")
         br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "Set to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createCheckbox(section, "Ignore dots during pewbuff")
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Root/CC")
+        br.ui:createCheckbox(section, "Root - Spiteful(M+)")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -239,6 +243,7 @@ local function runRotation()
     local conduit = br.player.conduit
     local covenant = br.player.covenant
     local travel = br.player.buff.travelForm.exists()
+    local mount = GetShapeshiftForm() == 6 --- or maybe br.player.buff.mountForm.exists() but this is not working (mountform has no buff? idk)
     local cat = br.player.buff.catForm.exists()
     local moonkin = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
@@ -292,6 +297,48 @@ local function runRotation()
                 furyUnits = furyUnits + 1
             end
         end
+    end
+
+    local function already_stunned(Unit)
+        if Unit == nil then
+            return false
+        end
+        local already_stunned_list = {
+            [47481] = "Gnaw",
+            [5211] = "Mighty Bash",
+            [22570] = "Maim",
+            [19577] = "Intimidation",
+            [119381] = "Leg Sweep",
+            [853] = "Hammer of Justice",
+            [408] = "Kidney Shot",
+            [1833] = "Cheap Shot",
+            [199804] = "Between the eyes",
+            [107570] = "Storm Bolt",
+            [46968] = "Shockwave",
+            [221562] = "Asphyxiate",
+            [91797] = "Monstrous Blow",
+            [179057] = "Chaos Nova",
+            [211881] = "Fel Eruption",
+            [1822] = "Rake",
+            [192058] = "Capacitor Totem",
+            [118345] = "Pulverize",
+            [89766] = "Axe Toss",
+            [30283] = "Shadowfury",
+            [1122] = "Summon Infernal",
+        }
+        for i = 1, #already_stunned_list do
+            --  Print(select(10, UnitDebuff(Unit, i)))
+            local debuffSpellID = select(10, UnitDebuff(Unit, i))
+            if debuffSpellID == nil then
+                return false
+            end
+
+            --    Print(tostring(already_stunned_list[tonumber(debuffSpellID)]))
+            if already_stunned_list[tonumber(debuffSpellID)] ~= nil then
+                return true
+            end
+        end
+        return false
     end
 
     local timers = {}
@@ -531,6 +578,11 @@ local function runRotation()
 
         --Building root list
         local root_UnitList = {}
+
+        if isChecked("Root - Spiteful(M+)") then
+            root_UnitList[174773] = "Spiteful"
+            radar = "on"
+        end
         if isChecked("KR - root Minions of Zul") then
             root_UnitList[133943] = "minion-of-zul"
             radar = "on"
@@ -561,19 +613,21 @@ local function runRotation()
                 root = "Mass Entanglement"
             end
 
-            for i = 1, GetObjectCountBR() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isLongTimeCCed(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
-                    local x1, y1, z1 = ObjectPosition("player")
-                    local x2, y2, z2 = ObjectPosition(object)
-                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                    if distance <= 8 and talent.mightyBash then
-                        CastSpellByName("Mighty Bash", object)
-                        return true
-                    end
-                    if distance < root_range and not isLongTimeCCed(object) then
-                        CastSpellByName(root, object)
+            if (root == "Mass Entanglement" and cast.able.massEntanglement()) or cast.able.entanglingRoots() then
+                for i = 1, GetObjectCountBR() do
+                    local object = GetObjectWithIndex(i)
+                    local ID = ObjectID(object)
+                    if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isLongTimeCCed(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
+                        local x1, y1, z1 = ObjectPosition("player")
+                        local x2, y2, z2 = ObjectPosition(object)
+                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                        if distance <= 8 and talent.mightyBash then
+                            CastSpellByName("Mighty Bash", object)
+                            return true
+                        end
+                        if distance < root_range and not isLongTimeCCed(object) and not already_stunned(object) then
+                            CastSpellByName(root, object)
+                        end
                     end
                 end
             end -- end root
@@ -1480,15 +1534,24 @@ local function runRotation()
                     end
                 end
                 -- Travel Form
-                if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not IsIndoors() and IsMovingTime(1) then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                        RunMacroText("/CancelForm")
-                        CastSpellByID(783, "player")
-                        return true
+                if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not mount and not IsIndoors() and IsMovingTime(1) then
+                    -- Print(GetShapeshiftForm())
+                if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                    RunMacroText("/CancelForm")
+                    if isChecked("Use Mount Form") and not canFly() then
+                        CastSpellByID(210053, "player")
                     else
                         CastSpellByID(783, "player")
-                        return true
                     end
+                    return true
+                else
+                    if isChecked("Use Mount Form") and not canFly() then
+                        CastSpellByID(210053, "player")
+                    else
+                        CastSpellByID(783, "player")
+                    end
+                    return true
+                end
                 end
                 -- Cat Form
                 if not cat and not IsMounted() and not flying and IsIndoors() then
