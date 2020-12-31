@@ -825,7 +825,7 @@ local function runRotation()
                 end
             end
             -- Remove Corruption
-            if ui.checked("Remove Corruption") then
+            if ui.checked("Remove Corruption") and ((mode.forms == 1 and ((mode.travel == 2 and travel) or (mode.travel == 1 and not travel))) or mode.forms ~= 1) then
                 if ui.value("Remove Corruption - Target") == 1 and canDispel("player", spell.removeCorruption) then
                     if cast.removeCorruption("player") then
                         return
@@ -1253,13 +1253,6 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         if inCombat and not UnitBuffID("player", 115834) then
-            List_Interrupts()
-            List_Defensive()
-            if ui.checked("Big Hit Oh Shit!") and SpecificToggle("Big Hit Oh Shit!") and not GetCurrentKeyBoardFocus() and bear then
-                if br.timer:useTimer("Big Hit Delay", 2) then
-                    actionList_BigHit()
-                end
-            end
             if mode.forms == 2 then
                 if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and talent.feralAffinity then
                     cat_dps()
@@ -1270,6 +1263,13 @@ local function runRotation()
                 elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
                     travel_form()
                     return
+                end
+            end
+            List_Interrupts()
+            List_Defensive()
+            if ui.checked("Big Hit Oh Shit!") and SpecificToggle("Big Hit Oh Shit!") and not GetCurrentKeyBoardFocus() and bear then
+                if br.timer:useTimer("Big Hit Delay", 2) then
+                    actionList_BigHit()
                 end
             end
             List_Bearmode()
