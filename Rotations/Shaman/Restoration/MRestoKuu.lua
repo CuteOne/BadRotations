@@ -795,7 +795,7 @@ local function runRotation()
                         for i = 1, #tanks do
                             -- get the tank's target
                             local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
+                            if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
                                 -- get the best ground circle to encompass the most of them
@@ -841,14 +841,23 @@ local function runRotation()
                                     end
                                 end
                                 if loc ~= nil then
-                                    if castGroundAtLocation(loc, spell.healingRain) then
-                                        br.addonDebug("Casting Healing Rain (Cast Ground)")
-                                        if SpellIsTargeting() then
-                                            br.shaman.resto["Healing Rain"] = GetTime()
-                                            SpellStopTargeting()
-                                            br.addonDebug(colorRed .. "Canceling Spell")
+                                    local px, py, pz = ObjectPosition("player")
+                                    loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                                    if
+                                        loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
+                                            TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil
+                                     then
+                                        -- Check z and LoS, ignore terrain and m2 collisions
+                                        if cast.earthenWallTotem() then
+                                            ClickPosition(loc.x, loc.y, loc.z)
+                                            br.addonDebug("Casting Earthen Wall Totem (Cast Ground)")
+                                            if SpellIsTargeting() then
+                                                br.shaman.resto["Earthen Wall Totem"] = GetTime()
+                                                SpellStopTargeting()
+                                                br.addonDebug(colorRed .. "Canceling Spell")
+                                            end
+                                            return true
                                         end
-                                        return
                                     end
                                 end
                             end
@@ -1106,7 +1115,7 @@ local function runRotation()
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain), "cursor") then
                         br.addonDebug("Casting Healing Rain")
-                        return
+                        return true
                     end
                 end
             end
@@ -1114,28 +1123,28 @@ local function runRotation()
             if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Spirit Link Totem Key") then
                 if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem), "cursor") then
                     br.addonDebug("Casting Spirit Link Totem")
-                    return
+                    return true
                 end
             end
             -- Ascendance Key
             if (SpecificToggle("Ascendance Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Ascendance Key") then
                 if cast.ascendance() then
                     br.addonDebug("Casting Ascendance")
-                    return
+                    return true
                 end
             end
             -- Tremor Totem Key
             if (SpecificToggle("Tremor Totem Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Tremor Totem Key") then
                 if cast.tremorTotem("player") then
                     br.addonDebug("Casting Tremor Totem")
-                    return
+                    return true
                 end
             end
             -- Healing Tide Key
             if (SpecificToggle("Healing Tide Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Healing Tide Key") then
                 if cast.healingTideTotem() then
                     br.addonDebug("Casting Healing Tide Totem")
-                    return
+                    return true
                 end
             end
             -- Earthen Wall Totem
@@ -1145,7 +1154,7 @@ local function runRotation()
                     for i = 1, #tanks do
                         -- get the tank's target
                         local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
+                        if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
                             -- get players in melee range of tank's target
                             local meleeFriends = getAllies(tankTarget, 5)
                             -- get the best ground circle to encompass the most of them
@@ -1167,7 +1176,7 @@ local function runRotation()
                                             SpellStopTargeting()
                                             br.addonDebug(colorRed .. "Canceling Spell")
                                         end
-                                        return
+                                        return true
                                     end
                                 end
                             end
@@ -1179,7 +1188,7 @@ local function runRotation()
                                         SpellStopTargeting()
                                         br.addonDebug(colorRed .. "Canceling Spell")
                                     end
-                                    return
+                                    return true
                                 end
                             end
                         end
@@ -1192,7 +1201,7 @@ local function runRotation()
                             SpellStopTargeting()
                             br.addonDebug(colorRed .. "Canceling Spell")
                         end
-                        return
+                        return true
                     end
                 end
             end
@@ -1202,7 +1211,7 @@ local function runRotation()
                     if canDispel(br.friend[i].unit, spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then
                             br.addonDebug("Casting Purify Spirit")
-                            return
+                            return true
                         end
                     end
                 end
@@ -1217,7 +1226,7 @@ local function runRotation()
                     for i = 1, #tanks do
                         -- get the tank's target
                         local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
+                        if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
                             -- get players in melee range of tank's target
                             local meleeFriends = getAllies(tankTarget, 5)
                             -- get the best ground circle to encompass the most of them
@@ -1238,7 +1247,7 @@ local function runRotation()
                                             SpellStopTargeting()
                                             br.addonDebug(colorRed .. "Canceling Spell")
                                         end
-                                        return
+                                        return true
                                     end
                                 end
                             end
@@ -1250,7 +1259,7 @@ local function runRotation()
                                         SpellStopTargeting()
                                         br.addonDebug(colorRed .. "Canceling Spell")
                                     end
-                                    return
+                                    return true
                                 end
                             end
                         end
@@ -1269,26 +1278,26 @@ local function runRotation()
                 if lowest.hp <= ui.value("Healing Wave") then
                     if cast.healingWave(lowest.unit) then
                         br.addonDebug("Casting Healing Wave")
-                        return
+                        return true
                     end
                 end
             end
             -- Cooldowns
             if actionList_Cooldowns() then
-                return
+                return true
             end
             -- Fae Transfusion Heal
             if covenant.nightFae.active and ((getLowAllies(ui.value("Fae Transfusion")) >= ui.value("Fae Transfusion Targets")) or buff.faeTransfusionRecast.remain() < 3) then
                 if castWiseAoEHeal(br.friend, spell.faeTransfusion, 10, ui.value("Fae Transfusion"), ui.value("Fae Transfusion Targets"), 4, false, true) then
                     br.addonDebug("Casting Fae Transfusion (Wise AoE)")
-                    return
+                    return true
                 end
             end
             -- Vesper Totem
             if covenant.kyrian.active and getLowAllies(ui.value("Vesper Totem")) >= ui.value("Vesper Totem Targets") then
                 if castWiseAoEHeal(br.friend, spell.vesperTotem, 10, ui.value("Vesper Totem"), ui.value("Vesper Totem Targets"), 6, false, true) then
                     br.addonDebug("Casting Vesper Totem (Wise AoE)")
-                    return
+                    return true
                 end
             end
             -- Unleash Life
@@ -1300,7 +1309,7 @@ local function runRotation()
                     end
                     if cast.unleashLife(lowest.unit) then
                         br.addonDebug("Casting Unleash Life")
-                        return
+                        return true
                     end
                 end
             end
@@ -1310,7 +1319,7 @@ local function runRotation()
                     if cast.cloudburstTotem("player") then
                         br.addonDebug("Casting Cloud Burst Totem")
                         ChatOverlay(colorGreen .. "Cloudburst Totem!")
-                        return
+                        return true
                     end
                 end
             end
@@ -1318,7 +1327,7 @@ local function runRotation()
             if covenant.necrolord.active and buff.primordialWave.exists() and movingCheck then
                 if cast.healingWave(lowest.unit) then
                     br.addonDebug("Casting Healing Wave (Primordial Wave buff)")
-                    return
+                    return true
                 end
             end
             -- Primordial Wave
@@ -1327,7 +1336,7 @@ local function runRotation()
                     if buff.riptide.refresh(br.friend[i].unit) and br.friend[i].hp < (ui.value("Primordial Wave")) then
                         if cast.primordialWave(br.friend[i].unit) then
                             br.addonDebug("Casting Primordial Wave")
-                            return
+                            return true
                         end
                     end
                 end
@@ -1341,7 +1350,7 @@ local function runRotation()
                     end
                     if cast.chainHarvest(lowest.unit) then
                         br.addonDebug("Casting Chain Harvest")
-                        return
+                        return true
                     end
                 end
             end
@@ -1353,7 +1362,7 @@ local function runRotation()
                         for i = 1, #tanks do
                             -- get the tank's target
                             local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
+                            if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
                                 -- get the best ground circle to encompass the most of them
@@ -1375,7 +1384,7 @@ local function runRotation()
                                                 SpellStopTargeting()
                                                 br.addonDebug(colorRed .. "Canceling Spell")
                                             end
-                                            return
+                                            return true
                                         end
                                     end
                                 end
@@ -1387,7 +1396,7 @@ local function runRotation()
                                             SpellStopTargeting()
                                             br.addonDebug(colorRed .. "Canceling Spell")
                                         end
-                                        return
+                                        return true
                                     end
                                 end
                             end
@@ -1400,7 +1409,7 @@ local function runRotation()
                                 SpellStopTargeting()
                                 br.addonDebug(colorRed .. "Canceling Spell")
                             end
-                            return
+                            return true
                         end
                     end
                 end
@@ -1410,7 +1419,7 @@ local function runRotation()
                 if healConeAround(ui.value("Wellspring Targets"), ui.value("Wellspring"), 90, 30, 0) then
                     if cast.wellspring() then
                         br.addonDebug("Casting Wellspring")
-                        return
+                        return true
                     end
                 end
             end
@@ -1421,7 +1430,7 @@ local function runRotation()
                     if #unitsAroundTank > 0 and getLowAlliesInTable(ui.value("Surge of Earth"), unitsAroundTank) >= 3 and buff.earthShield.stacks(tanks[i].unit) >= 3 then
                         if cast.surgeOfEarth() then
                             br.addonDebug("Casting Surge Of Earth")
-                            return
+                            return true
                         end
                     end
                 end
@@ -1430,7 +1439,7 @@ local function runRotation()
             if ui.checked("Chain Heal") and movingCheck then
                 if talent.unleashLife and talent.highTide then
                     if cast.unleashLife(lowest.unit) then
-                        return
+                        return true
                     end
                     if buff.unleashLife.remain() > 2 then
                         if chainHealUnits(spell.chainHeal, 15, ui.value("Chain Heal"), ui.value("Chain Heal Targets") + 1) then
@@ -1459,7 +1468,7 @@ local function runRotation()
                     end
                     if cast.healingSurge(lowest.unit) then
                         br.addonDebug("Casting Healing Surge")
-                        return
+                        return true
                     end
                 end
             end
@@ -1472,7 +1481,7 @@ local function runRotation()
                     end
                     if cast.healingWave(lowest.unit) then
                         br.addonDebug("Casting Healing Wave")
-                        return
+                        return true
                     end
                 end
             end
@@ -1482,7 +1491,7 @@ local function runRotation()
                     if br.friend[i].hp <= ui.value("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
                         if cast.riptide(br.friend[i].unit) then
                             br.addonDebug("Casting Riptide (Party)")
-                            return
+                            return true
                         end
                     end
                 end
@@ -1516,7 +1525,7 @@ local function runRotation()
                                                 br.addonDebug(colorRed .. "Canceling Spell")
                                             end
                                             br.addonDebug("Casting Downpour")
-                                            return
+                                            return true
                                         end
                                     end
                                 end
@@ -1527,7 +1536,7 @@ local function runRotation()
                                             br.addonDebug(colorRed .. "Canceling Spell")
                                         end
                                         br.addonDebug("Casting Downpour")
-                                        return
+                                        return true
                                     end
                                 end
                             end
@@ -1539,7 +1548,7 @@ local function runRotation()
                                 br.addonDebug(colorRed .. "Canceling Spell")
                             end
                             br.addonDebug("Casting Downpour")
-                            return
+                            return true
                         end
                     end
                 end
@@ -1550,7 +1559,7 @@ local function runRotation()
                     if not talent.echoOfTheElements then
                         if cast.healingStreamTotem(lowest.unit) then
                             br.addonDebug("Casting Healing Stream Totem")
-                            return
+                            return true
                         end
                     elseif talent.echoOfTheElements and (not HSTime or GetTime() - HSTime > 15) then
                         if cast.healingStreamTotem(lowest.unit) then
@@ -1570,7 +1579,7 @@ local function runRotation()
                     end
                     if cast.healingSurge(lowest.unit) then
                         br.addonDebug("Casting Healing Surge")
-                        return
+                        return true
                     end
                 end
             end
@@ -1583,7 +1592,7 @@ local function runRotation()
                     end
                     if cast.healingWave(lowest.unit) then
                         br.addonDebug("Casting Healing Wave")
-                        return
+                        return true
                     end
                 end
             end
@@ -1665,9 +1674,12 @@ local function runRotation()
                     if ui.checked("DPS Key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
                         actionList_dpsKey()
                     end
-                    actionList_AMR()
+                    if actionList_AMR() then
+                        return
+                    end
                     --if not ui.checked("Healing Rain on CD") or buff.healingRain.exists() or mode.healingR ~= 1 or not tankIsNotMoving then
                     if mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player", "target") and getFacing("player", "target") and lowest.hp > ui.value("DPS Threshold") then
+                        br.addonDebug("Using DPS APL as lowest unit is at " .. tostring(lowest.hp))
                         if isExplosive("target") then
                             actionList_Explosive()
                         else
@@ -1677,7 +1689,7 @@ local function runRotation()
                     --end
                     if movingCheck and mode.dPS == 1 and getFacing("player", "target") then
                         if cast.lightningBolt() then
-                            br.addonDebug("Casting Lightning Bolt")
+                            br.addonDebug("Casting Lightning Bolt (Filler)")
                             return
                         end
                     end
