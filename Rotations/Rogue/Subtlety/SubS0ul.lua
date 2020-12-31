@@ -603,7 +603,7 @@ local function runRotation()
                     end
                 end
                 if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
-                 and noStunList[GetObjectID(interrupt_target)] == nil then -- and not isBoss(interrupt_target)
+                 and noStunList[GetObjectID(interrupt_target)] == nil and (not isBoss(interrupt_target) or stunList[interruptID]) then
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
