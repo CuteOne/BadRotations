@@ -27,6 +27,7 @@ br.lists.ccUnits = {
 
     --Theater of Pain
     [164510] = { name = "Shambling Arbalest" }, -- Nasty dot - needs to be cc'ed
+    [330586] = { name = "Devour Flesh" }, -- Big heal from Putrid Butcher
 
     -- Plaguefall
     [171887] = { name = "Slimy Smorgasbord" }, -- Plaguefall Dungeon
