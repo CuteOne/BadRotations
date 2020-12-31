@@ -1,5 +1,5 @@
 --Version 1.0.0
-local rotationName = "WinterzRipOff"
+local rotationName = "WinterzFury"
 
 ---------------
 --- Toggles ---
@@ -420,10 +420,8 @@ local function runRotation()
         -- condemn test
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)))
-                and cast.able.condemn() and cd.condemn.remains() == 0 and br.timer:useTimer("condemnCD",condemnCDdur)
-            then
-                if cast.condemn(thisUnit) then
+            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35))) then
+                if CastSpellByName(GetSpellInfo(330325)) then
                     return
                 end
             end
@@ -564,10 +562,8 @@ local function runRotation()
                 -- condemn test
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35)))
-                and cast.able.condemn() and cd.condemn.remains() == 0 and br.timer:useTimer("condemnCD",condemnCDdur)
-            then
-                if cast.condemn(thisUnit) then
+            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35))) then
+                if CastSpellByName(GetSpellInfo(330325)) then
                     return
                 end
             end
