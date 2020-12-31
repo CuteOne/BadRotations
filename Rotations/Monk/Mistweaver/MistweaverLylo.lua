@@ -413,7 +413,7 @@ local actionList = {
         renewingMist = function()
             -- Renewing Mist
             debugMessage("      Renewing Mist Init")
-            if ui.checked(text.heal.renewingMist) and charges.renewingMist.exists() then
+            if ui.checked(text.heal.renewingMist) and charges.renewingMist.exists() and cd.renewingMist.ready() then
                 local renewingMistUnit
 
                 for i = 1, #tanks do
@@ -591,7 +591,7 @@ local actionList = {
 
         outOfCombatRotation = function()
             -- Renewing Mist
-            if ui.checked(text.heal.outOfCombat.renewingMist) and charges.renewingMist.exists() then
+            if ui.checked(text.heal.outOfCombat.renewingMist) and charges.renewingMist.exists() and cd.renewingMist.ready() then
                 local renewingMistUnit
 
                 for i = 1, #tanks do
@@ -658,7 +658,7 @@ local actionList = {
                 end
                 if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 4 then -- RM
                     -- Thunder Focus Tea + Renewing Mist
-                    if ui.checked(text.heal.thunderFocusTea.renewingMist) and friends.lowest.hp <= ui.value(text.heal.thunderFocusTea.renewingMist) and cd.renewingMist.ready() and not buff.renewingMist.exists(friends.lowest.unit) then
+                    if ui.checked(text.heal.thunderFocusTea.renewingMist) and friends.lowest.hp <= ui.value(text.heal.thunderFocusTea.renewingMist) and not buff.renewingMist.exists(friends.lowest.unit) and charges.renewingMist.exists() and cd.renewingMist.ready() then
                         if cast.thunderFocusTea(player.unit) and cast.renewingMist(friends.lowest.unit) then
                             ui.debug("[AUTO - SUCCESS]: "..text.heal.thunderFocusTea.renewingMist)
                             return true
@@ -1170,7 +1170,6 @@ local function runRotation()
     }
     ui                  = br.player.ui
     unit                = br.player.unit
-
 
     ui.mode.thunderFocusTea = br.data.settings[br.selectedSpec].toggles["ThunderFocusTea"]
     ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
