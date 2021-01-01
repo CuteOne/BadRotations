@@ -506,9 +506,8 @@ local function runRotation()
         if mob_count > 6 then
             mob_count = 6
         end
-        if #enemies.yards45 > 1 then
+        if #enemies.yards45 > 0 then
             for i = 1, mob_count do
-
                 if getTTD(enemies.yards45[i]) > highTTD and getTTD(enemies.yards45[i]) < 999 and not isExplosive(enemies.yards45[i]) and
                         isSafeToAttack(enemies.yards45[i]) then
                     highTTD = getTTD(enemies.yards45[i])
@@ -798,8 +797,8 @@ local function runRotation()
                                 and (power < 50 or ignore_starsurge)
                                 and (buff.eclipse_lunar.remains() > 6 or buff.eclipse_solar.remains() > 6)
                                 and (not runeforge.balanceOfAllThings.equipped or buff.balanceOfAllThingsNature.stack() > 3 or buff.balanceOfAllThingsArcane.stack() > 3)
-                                or getOutLaksTTDMAX() < 10) then
-                    if cast.convokeTheSpirits(units.dyn45) then
+                ) then
+                    if cast.convokeTheSpirits() then
                         return true
                     end
                 end
@@ -1001,20 +1000,21 @@ local function runRotation()
                 if cast.able.adaptiveSwarm() then
                     if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
                         if cast.adaptiveSwarm(units.dyn45) then
+                            getOutLaksTTDMAX()
                             return true
                         end
                     end
                 end
 
                 --convoke_the_spirits
-                if useCDs() and cd.convokeTheSpirits.remain() == 0
-                        and (
-                        (convoke_desync and pew_remain() > 0 or pewbuff)
-                                and power < 40
-                                and (buff.eclipse_lunar.remains() > 10 or buff.eclipse_solar.remains() > 10)
-                                and getOutLaksTTDMAX() > 10) then
-                    if cast.convokeTheSpirits() then
-                        return true
+                if useCDs() and cd.convokeTheSpirits.remain() == 0 then
+                    --  Print("getout: " .. tostring(getOutLaksTTDMAX()))
+                    if ((convoke_desync and pew_remain() > 0 or pewbuff)
+                            and power < 40
+                            and (buff.eclipse_lunar.remains() > 10 or buff.eclipse_solar.remains() > 10)) then
+                        if cast.convokeTheSpirits() then
+                            return true
+                        end
                     end
                 end
 
