@@ -60,12 +60,12 @@ function getDistanceCalc(Unit1,Unit2,option)
     if (GetUnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true))
         and (GetUnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true))
     then
-        -- Modifier for Balance Affinity range change (Druid - Not Balance)
         local rangeMod = 0
         if br.player ~= nil then
+            -- Modifier for Balance Affinity range change (Druid - Not Balance)
             if br.player.talent.balanceAffinity ~= nil then
                 if br.player.talent.balanceAffinity and option ~= "noMod" then
-                    rangeMod = 5
+                    rangeMod = 3
                 end
             end
         end
@@ -98,15 +98,22 @@ function getDistanceCalc(Unit1,Unit2,option)
         -- Get the distance
         local TargetCombatReach = UnitCombatReach(Unit2) or 0
         local PlayerCombatReach = UnitCombatReach(Unit1) or 0
-        local MeleeCombatReachConstant = 4/3
+        local MeleeCombatReachConstant = 7/3
         local IfSourceAndTargetAreRunning = 0
         if isMoving(Unit1) and isMoving(Unit2) then IfSourceAndTargetAreRunning = 8/3 end
-
+        -- Rogue Melee Range Increase Mod
+        if br.player ~= nil then            
+            if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil then
+                if br.player.talent.acrobaticStrikes and option ~= "noMod" and IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then
+                    rangeMod = 3
+                end
+            end
+        end
         local dist = sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (PlayerCombatReach + TargetCombatReach) - rangeMod
         local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
         local dist3 = dist + 0.05 * ((8 - dist) / 0.15) + 1
         local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
-        local meleeRange = max(5, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
+        local meleeRange = max(6, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
         if option == "dist" then return dist end
         if option == "dist2" then return dist2 end
         if option == "dist3" then return dist3 end
@@ -129,7 +136,7 @@ function getDistanceCalc(Unit1,Unit2,option)
         else
             currentDist = 0
         end
-    -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
+        -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
         if currentDist < 100 and isKnown(193468) and option ~= "noMod" then
             currentDist = currentDist - (currentDist * 0.05)
         end

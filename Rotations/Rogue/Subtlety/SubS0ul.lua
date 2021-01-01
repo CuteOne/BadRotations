@@ -1,6 +1,6 @@
 local rotationName = "SubS0ul - 9.0"
 local dotBlacklist = ""
-local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|164737"
+local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|164737|330586"
 local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612"
 ---------------
 --- Toggles ---
@@ -603,7 +603,7 @@ local function runRotation()
                     end
                 end
                 if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
-                 and noStunList[GetObjectID(interrupt_target)] == nil then -- and not isBoss(interrupt_target)
+                 and noStunList[GetObjectID(interrupt_target)] == nil and (not isBoss(interrupt_target) or stunList[interruptID]) then
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))

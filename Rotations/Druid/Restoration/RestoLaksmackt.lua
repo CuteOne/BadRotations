@@ -71,7 +71,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "Forms - 2012211545")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - SL 2101011533")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat/DPS form")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
@@ -201,6 +201,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Root/CC")
         br.ui:createCheckbox(section, "Mist - Spirit vulpin")
         br.ui:createCheckbox(section, "Plague - Globgrod")
+        br.ui:createCheckbox(section, "Root - Spiteful(M+)")
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -2180,8 +2181,8 @@ local function runRotation()
             root_UnitList[171887] = "Globgrod"
             radar = "on"
         end
-        if isChecked("FH - root grenadier") then
-            root_UnitList[129758] = "grenadier"
+        if isChecked("Root - Spiteful(M+)") then
+            root_UnitList[174773] = "Spiteful"
             radar = "on"
         end
         if isChecked("KR - root Spirit of Gold") then
@@ -2197,40 +2198,42 @@ local function runRotation()
             radar = "on"
         end
 
-        if radar == "on" then
+        if (root == "Mass Entanglement" and cast.able.massEntanglement()) or cast.able.entanglingRoots() then
+            if radar == "on" then
 
-            local root = 339
-            local root_range = 35
-            if talent.massEntanglement and cast.able.massEntanglement() then
-                root = 102359
-                root_range = 30
-            end
+                local root = 339
+                local root_range = 35
+                if talent.massEntanglement and cast.able.massEntanglement() then
+                    root = 102359
+                    root_range = 30
+                end
 
-            if lowest.hp > 45 then
-                for i = 1, GetObjectCountBR() do
-                    local object = GetObjectWithIndex(i)
-                    local ID = ObjectID(object)
-                    if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and not already_stunned(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
-                        local x1, y1, z1 = ObjectPosition("player")
-                        local x2, y2, z2 = ObjectPosition(object)
-                        local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                        if talent.mightyBash and cast.able.mightyBash() then
-                            if not debuff.mightyBash.exists(object) then
-                                if root == 339 and distance <= 8 then
-                                    root = 5211
-                                    root_range = 8
-                                    --CastSpellByName("Mighty Bash", object)
+                if lowest.hp > 45 then
+                    for i = 1, GetObjectCountBR() do
+                        local object = GetObjectWithIndex(i)
+                        local ID = ObjectID(object)
+                        if root_UnitList[ID] ~= nil and getBuffRemain(object, 226510) == 0 and getHP(object) > 90 and not isCC(object) and not already_stunned(object) and (getBuffRemain(object, 102359) < 2 or getBuffRemain(object, 339) < 2) then
+                            local x1, y1, z1 = ObjectPosition("player")
+                            local x2, y2, z2 = ObjectPosition(object)
+                            local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                            if talent.mightyBash and cast.able.mightyBash() then
+                                if not debuff.mightyBash.exists(object) then
+                                    if root == 339 and distance <= 8 then
+                                        root = 5211
+                                        root_range = 8
+                                        --CastSpellByName("Mighty Bash", object)
+                                    end
                                 end
                             end
-                        end
-                        if root == 339 and UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
-                            -- Using hibernate as root if we can
-                            root = 2637
-                            root_range = 30
-                        end
-                        if distance < root_range and not isLongTimeCCed(object) then
-                            br.addonDebug("Root: " .. tostring(root) .. " target:" .. UnitName(object) .. " Distance: " .. tostring(distance))
-                            CastSpellByName(GetSpellInfo(root), object)
+                            if root == 339 and UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
+                                -- Using hibernate as root if we can
+                                root = 2637
+                                root_range = 30
+                            end
+                            if distance < root_range and not isLongTimeCCed(object) then
+                                br.addonDebug("Root: " .. tostring(root) .. " target:" .. UnitName(object) .. " Distance: " .. tostring(distance))
+                                CastSpellByName(GetSpellInfo(root), object)
+                            end
                         end
                     end
                 end
@@ -3164,7 +3167,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if mode.dPS == 1 and lowest.hp > getValue("DPS Min % health") then
+                if mode.dPS == 1 and lowest.hp > getValue("DPS Min % health") and mana >= getValue("DPS Save mana") then
                     if DPS() then
                         return true
                     end

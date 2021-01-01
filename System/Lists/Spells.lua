@@ -691,6 +691,13 @@ br.lists.spells = {
                 onethsClearVision           = 338661,
                 ravenousFrenzy              = 323546,
                 PrimordialArcanicPulsar     = 338668,
+                balanceOfAllThings          = 339942,
+                balanceOfAllThingsNature    = 339943, -- Nature Buff
+                balanceOfAllThingsArcane    = 339946, -- Arcane Buff
+                timewornDreambinder	        = 339949,
+                kindredEmpowerment          = 327022,
+                onethsClearVision           = 338661,
+                ravenousFrenzy              = 323546,
 
             },
             conduits                        = {
@@ -700,6 +707,7 @@ br.lists.spells = {
             },
             covenants                       = {
                 loneEmpowerment             = 338142,
+                ravenousFrenzy              = 323546,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -708,9 +716,16 @@ br.lists.spells = {
                 stellarEmpowerment          = 197637,
             },
             glyphs                          = {
+            },
+
+            runeforges                      = {
+                timewornDreambinder	        = 339949,
+		        balanceOfAllThings          = 339942,
+                primordialArcanicPulsar     = 338668,
+                lycarasFleetingGlimpse      = 340059,
 
             },
-            talents                         = {
+            talents                       = {
                 feralAffinity               = 202157,
                 forceOfNature               = 205636,
                 furyOfElune                 = 202770,
@@ -1015,7 +1030,7 @@ br.lists.spells = {
                 treantForm                  = 114282,
                 ursolsVortex                = 102793,
                 wildGrowth                  = 48438,
-                wrath                       = 5176,
+            --    wrath                       = 5176,
             },
             artifacts                       = {
 
@@ -1032,6 +1047,7 @@ br.lists.spells = {
                 ironfur                     = 192081,
                 kindredEmpowerment          = 327139,
                 kindredSpirits              = 326434,
+                kindredEmpowermentEnergize  = 327022, --/kindred-empowerment  this is when someone else cast it on you
                 loneSpirit                  = 338041,
                 moonkinForm                 = 197625,
                 prowl                       = 5215,
@@ -1045,6 +1061,7 @@ br.lists.spells = {
                 travelForm                  = 783,
                 treantForm                  = 114282,
                 wildGrowth                  = 48438,
+                onethsPerception            = 339800,
             },
             conduits                        = {
                 deepAllegiance              = 341378,
