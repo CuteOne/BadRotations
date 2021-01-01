@@ -52,14 +52,16 @@ local text = {
             renewingMist            = colors.blue3.."Renewing Mist",
             vivify                  = colors.blue3.."Vivify",
             risingSunKick           = colors.blue3.."Rising Sun Kick",
-        }
+        },
     },
     utility = {
         options                     = colors.yellow.."Utility - Options",
         tigersLust                  = colors.yellow.."Tiger's Lust",
         manaTea                     = colors.yellow.."Mana Tea",
+        manaTeaWithYulon            = colors.yellow.."Mana Tea with Yulon",
         summonJadeSerpentStatue     = colors.yellow.."Summon Jade Serpent Statue",
         arcaneTorrent               = colors.yellow.."Arcane Torrent",
+        ringOfPeace                 = colors.yellow.."Ring of Peace",
     },
     manual = {
         options                     = colors.blue.."Manual - Options",
@@ -259,8 +261,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, text.utility.options)
         br.ui:createCheckbox( section, text.utility.tigersLust,       "Enable auto usage of this spell on player or allies")
         br.ui:createSpinner(  section, text.utility.manaTea, 60, 1, 100, 5, "Mana of player to cast spell")
+        br.ui:createCheckbox( section, text.utility.manaTeaWithYulon,       "Enable auto usage of this spell when Yulon is activated")
         br.ui:createDropdown( section, text.utility.summonJadeSerpentStatue, {"Around Tank", "Around Player"}, 2, "Enable usage of this spell around option", "Select")
         br.ui:createSpinner(  section, text.utility.arcaneTorrent, 70, 1, 100, 5, "Mana of player to cast spell")
+        br.ui:createCheckbox( section, text.utility.ringOfPeace,       "Enable auto usage of this spell to interrupt")
         br.ui:checkSectionState(section)
 
 
@@ -411,6 +415,9 @@ local actionList = {
         end,
 
         renewingMist = function()
+            if cast.active.soothingMist() and friends.lowest.hp <= 60 then
+                return nil
+            end
             -- Renewing Mist
             debugMessage("      Renewing Mist Init")
             if ui.checked(text.heal.renewingMist) and charges.renewingMist.exists() and cd.renewingMist.ready() then
@@ -418,7 +425,7 @@ local actionList = {
 
                 for i = 1, #tanks do
                     local tempUnit = tanks[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.renewingMist) then
+                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.renewingMist) and renewingMistUnit == nil then
                         renewingMistUnit = tempUnit
                     end
                 end
@@ -426,7 +433,7 @@ local actionList = {
                 if renewingMistUnit == nil then
                     for i = 1, #friends.range40 do
                         local tempUnit = friends.range40[i]
-                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.renewingMist) then
+                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.renewingMist) and renewingMistUnit == nil then
                             renewingMistUnit = tempUnit
                         end
                     end
@@ -486,9 +493,12 @@ local actionList = {
                 -- Vivify AoE
                 if ui.checked(text.heal.vivifyAoE) and cd.vivify.ready() then
                     local countUnitsWithRenewingMistUnderHealth = 0
+                    if not buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp <= ui.value(text.heal.vivifyAoE.."2") then
+                        countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
+                    end
                     for i = 1, #friends.range40 do
                         local tempUnit = friends.range40[i]
-                        if buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.essenceFont.."2") then
+                        if buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.vivifyAoE.."2") then
                             countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
                         end
                     end
@@ -535,9 +545,12 @@ local actionList = {
             debugMessage("      Vivify AoE Init")
             if ui.checked(text.heal.vivifyAoE) and cd.vivify.ready() and not player.isMoving then
                 local countUnitsWithRenewingMistUnderHealth = 0
+                if not buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp <= ui.value(text.heal.vivifyAoE.."2") then
+                    countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
+                end
                 for i = 1, #friends.range40 do
                     local tempUnit = friends.range40[i]
-                    if buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.essenceFont.."2") then
+                    if buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.vivifyAoE.."2") then
                         countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
                     end
                 end
@@ -571,14 +584,6 @@ local actionList = {
                 end
             end
             debugMessage("      Enveloping Mist End")
-            -- Enveloping Mist Chi-Ji
-            if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0 and not player.isMoving) then
-                debugMessage("      Enveloping Mist - Chi-Ji Init")
-                if cd.envelopingMist.ready() then
-                    if cast.envelopingMist(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingMist) return false end
-                end
-                debugMessage("      Enveloping Mist - Chi-Ji End")
-            end
             -- Vivify
             debugMessage("      Vivify Init")
             if ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.isMoving then
@@ -596,7 +601,7 @@ local actionList = {
 
                 for i = 1, #tanks do
                     local tempUnit = tanks[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) then
+                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) and renewingMistUnit == nil then
                         renewingMistUnit = tempUnit
                     end
                 end
@@ -604,7 +609,7 @@ local actionList = {
                 if renewingMistUnit == nil then
                     for i = 1, #friends.range40 do
                         local tempUnit = friends.range40[i]
-                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) then
+                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) and renewingMistUnit == nil then
                             renewingMistUnit = tempUnit
                         end
                     end
@@ -697,6 +702,12 @@ local actionList = {
                 if cast.manaTea(player.unit) then ui.debug("[AUTO - SUCCESS]: "..text.utility.manaTea) return true else ui.debug("[AUTO - FAIL]: "..text.utility.manaTea) return false end
             end
         end
+        -- Mana Tea Yulon
+        if ui.checked(text.utility.manaTeaWithYulon) and talent.manaTea and cd.manaTea.ready() and totemInfo.yulonDuration >= 5 then
+            if player.mana <= ui.value(text.utility.manaTea) then
+                if cast.manaTea(player.unit) then ui.debug("[AUTO - SUCCESS]: "..text.utility.manaTea) return true else ui.debug("[AUTO - FAIL]: "..text.utility.manaTea) return false end
+            end
+        end
         debugMessage("      Mana Tea End")
         -- Summon Jade Serpent Statue
         debugMessage("      Summon Jade Serpent Statue Init")
@@ -785,7 +796,7 @@ local actionList = {
                         if cast.paralysis(thisUnit) then ui.debug("[AUTO - SUCCESS - INTERRUPT]: Paralysis") return true else ui.debug("[AUTO - FAIL - INTERRUPT]: Paralysis") return false end
                     end
                     -- Ring of Peace
-                    if talent.ringOfPeace and cd.ringOfPeace.ready() then
+                    if talent.ringOfPeace and cd.ringOfPeace.ready() and ui.checked(text.utility.ringOfPeace) then
                         if cast.ringOfPeace(thisUnit, "ground") then ui.debug("[AUTO - SUCCESS - INTERRUPT]: Ring Of Peace") return true else ui.debug("[AUTO - FAIL - INTERRUPT]: Ring Of Peace") return false end
                     end
                     -- Leg Sweep
@@ -811,7 +822,7 @@ local actionList = {
                 for i = 1, #enemies.range5 do
                     local thisUnit = enemies.range5[i]
                     if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and isBoss(thisUnit)) then
-                        if unit.health(player.unit) > unit.health(thisUnit) then
+                        if unit.health(player.unit) > unit.health(thisUnit) or unit.hp(thisUnit) <= 15 then
                             if cast.touchOfDeath(thisUnit) then ui.debug("[AUTO - SUCCESS]: "..text.damage.touchOfDeath) return true else ui.debug("[AUTO - FAIL]: "..text.damage.touchOfDeath) return false end
                         end
                     end
@@ -851,10 +862,20 @@ local actionList = {
 
         chiJiRotation = function()
             -- Enveloping Mist Chi-Ji
-            if buff.invokeChiJiTheRedCrane.stack() == 3 then
+            if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0 and not player.isMoving) then
                 debugMessage("      Enveloping Mist - Chi-Ji Init")
+                local theUnit
                 if cd.envelopingMist.ready() then
-                    if cast.envelopingMist(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingMist) return false end
+                    for i = 1, #friends.range40 do
+                        local tempUnit = friends.range40[i]
+                        if buff.envelopingMist.remains(friends.lowest.unit) < 2 and theUnit == nil then
+                            theUnit = tempUnit
+                        end
+                    end
+                    if theUnit == nil then
+                        theUnit = player
+                    end
+                    if cast.envelopingMist(theUnit.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingMist) return false end
                 end
                 debugMessage("      Enveloping Mist - Chi-Ji End")
             end
@@ -867,13 +888,16 @@ local actionList = {
                 if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 then
                     if cast.blackoutKick(dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Chi-Ji") return false end
                 end
-                -- Tiger Palm alternate with Spinning Crane Kick
-                if cd.tigerPalm.ready() and not cast.last.tigerPalm(1) then
-                    if cast.tigerPalm(dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Chi-Ji") return false end
-                end
-                -- Tiger Palm alternate with Spinning Crane Kick
-                if cd.spinningCraneKick.ready() and not cast.last.spinningCraneKick(1) then
-                    if cast.spinningCraneKick(player.unit) then ui.debug("[AUTO - SUCCESS]: Spinning Crane Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Spinning Crane Kick Chi-Ji") return false end
+                if #enemies.range8 >= 3 then
+                    -- Tiger Palm alternate with Spinning Crane Kick
+                    if cd.spinningCraneKick.ready() then
+                        if cast.spinningCraneKick(player.unit) then ui.debug("[AUTO - SUCCESS]: Spinning Crane Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Spinning Crane Kick Chi-Ji") return false end
+                    end
+                else
+                    -- Tiger Palm alternate with Spinning Crane Kick
+                    if cd.tigerPalm.ready() then
+                        if cast.tigerPalm(dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Chi-Ji") return false end
+                    end
                 end
             end
         end,
