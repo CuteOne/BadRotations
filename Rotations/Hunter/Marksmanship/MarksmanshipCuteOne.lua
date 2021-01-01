@@ -391,7 +391,7 @@ actionList.TrickShots = function()
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down
     if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire()
-        and runeforge.surgingShots.equiped and not buff.doubleTap.exists()
+        and runeforge.surgingShots.equiped and not buff.doubleTap.exists() and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots Surging Shots]") return true end
     end
@@ -409,7 +409,7 @@ actionList.TrickShots = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() then
+    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() and unit.ttd(units.dyn40) > cast.time.rapidFire() then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots]") return true end
     end
     -- Multishot
@@ -452,7 +452,7 @@ actionList.TrickShots = function()
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() then
+    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() < cast.cost.arcaneShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots]") return true end
     end
 end -- End Action List - Trick Shots
@@ -545,6 +545,7 @@ actionList.SingleTarget = function()
     if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.trueshot.exists() or not runeforge.eagletalonsTrueFocus.equiped)
         and (not buff.doubleTap.exists() or talent.streamline))
+		and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
     end
@@ -581,12 +582,13 @@ actionList.SingleTarget = function()
     if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
         and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.doubleTap.exists() or talent.streamline))
+		and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() then
+    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() < cast.cost.arcaneShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
     end
 end -- End Action List - Single Target
@@ -677,6 +679,7 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",true)
     enemies.get(40,"player",false,true)
+	
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
