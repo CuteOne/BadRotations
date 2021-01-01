@@ -1,6 +1,6 @@
 local rotationName = "KinkyFireSL"
 local versionNum = "1.0.0"
-local colorRed      = "|cffFF0000"
+local colorRed = "|cffFF0000"
 
 ---------------
 --- Toggles ---
@@ -65,7 +65,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- General Options
-         section = br.ui:createSection(br.ui.window.profile, colorRed .. "Fire " .. ".:|:. General ".. "Ver|" ..colorRed .. rotationVer .. ".:|:. ")
+         section = br.ui:createSection(br.ui.window.profile, colorRed .. "Fire " .. ".:|:. General ".. "Ver " ..colorRed .. versionNum .. ".:|:. ")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 1 / Max: 60 / Interval: 5")
 
