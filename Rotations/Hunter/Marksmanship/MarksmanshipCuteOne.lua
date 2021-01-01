@@ -588,7 +588,7 @@ actionList.SingleTarget = function()
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() < cast.cost.arcaneShot() then
+    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
     end
 end -- End Action List - Single Target
