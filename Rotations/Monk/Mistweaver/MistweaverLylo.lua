@@ -59,6 +59,7 @@ local text = {
         tigersLust                  = colors.yellow.."Tiger's Lust",
         manaTea                     = colors.yellow.."Mana Tea",
         manaTeaWithYulon            = colors.yellow.."Mana Tea with Yulon",
+        weaponsOfOrderWithChiji     = colors.yellow.."Weapons of Order with Chi-Ji",
         summonJadeSerpentStatue     = colors.yellow.."Summon Jade Serpent Statue",
         arcaneTorrent               = colors.yellow.."Arcane Torrent",
         ringOfPeace                 = colors.yellow.."Ring of Peace",
@@ -262,6 +263,7 @@ local function createOptions()
         br.ui:createCheckbox( section, text.utility.tigersLust,       "Enable auto usage of this spell on player or allies")
         br.ui:createSpinner(  section, text.utility.manaTea, 60, 1, 100, 5, "Mana of player to cast spell")
         br.ui:createCheckbox( section, text.utility.manaTeaWithYulon,       "Enable auto usage of this spell when Yulon is activated")
+        br.ui:createCheckbox( section, text.utility.weaponsOfOrderWithChiji,       "Enable auto usage of this spell when Chi-Ji is activated")
         br.ui:createDropdown( section, text.utility.summonJadeSerpentStatue, {"Around Tank", "Around Player"}, 2, "Enable usage of this spell around option", "Select")
         br.ui:createSpinner(  section, text.utility.arcaneTorrent, 70, 1, 100, 5, "Mana of player to cast spell")
         br.ui:createCheckbox( section, text.utility.ringOfPeace,       "Enable auto usage of this spell to interrupt")
@@ -317,13 +319,10 @@ local function createOptions()
         br.ui:createText(section, colors.blue   .. "  1 - What are the best settings?")
         br.ui:createText(section, colors.green  .. "     Go to Proving Grounds and tweek settings")
         br.ui:createText(section, colors.green  .. "     until you find something you like.")
-        br.ui:createText(section, colors.blue   .. "  2 - What talents are supported?")
-        br.ui:createText(section, colors.green  .. "     All")
-        br.ui:createText(section, colors.blue   .. "  3 - What covenant abilities are supported?")
-        br.ui:createText(section, colors.green  .. "     Currently: Kyrian")
-        br.ui:createText(section, colors.green  .. "     Get in touch to get support for other covenants.")
-        br.ui:createText(section, colors.blue   .. "  4 - How can I request changes?")
+        br.ui:createText(section, colors.blue   .. "  2 - How can I request changes?")
         br.ui:createText(section, colors.green  .. "     Send a message on discord.")
+        br.ui:createText(section, colors.blue   .. "  3 - I want to support the developer, how can I do it?")
+        br.ui:createText(section, colors.green  .. "     You can support BR through Patreon or support me (Lylo) via paypal :)")
         br.ui:checkSectionState(section)
     end
 
@@ -412,9 +411,15 @@ local actionList = {
                     if cast.weaponsOfOrder(player.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.weaponsOfOrder) return true else ui.debug("[AUTO - FAIL]: "..text.heal.weaponsOfOrder) return false end
                 end
             end
+            if ui.checked(text.utility.weaponsOfOrderWithChiji) and cd.weaponsOfOrder.ready() and totemInfo.chiJiDuration > 0 then
+                if cast.weaponsOfOrder(player.unit) then ui.debug("[AUTO - SUCCESS]: "..text.utility.weaponsOfOrderWithChiji) return true else ui.debug("[AUTO - FAIL]: "..text.utility.weaponsOfOrderWithChiji) return false end
+            end
         end,
 
         renewingMist = function()
+            if cast.active.essenceFont() then
+                return nil
+            end
             if cast.active.soothingMist() and friends.lowest.hp <= 60 then
                 return nil
             end
@@ -595,6 +600,9 @@ local actionList = {
         end,
 
         outOfCombatRotation = function()
+            if cast.active.essenceFont() then
+                return nil
+            end
             -- Renewing Mist
             if ui.checked(text.heal.outOfCombat.renewingMist) and charges.renewingMist.exists() and cd.renewingMist.ready() then
                 local renewingMistUnit
