@@ -1,6 +1,6 @@
 local br = _G["br"]
 local rotationName = "Lylo"
-local version = "2.0.0-beta"
+local version = "2.0.0"
 
 
 local colors = {
