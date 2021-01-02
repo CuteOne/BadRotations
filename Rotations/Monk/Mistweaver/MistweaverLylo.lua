@@ -1,6 +1,6 @@
 local br = _G["br"]
 local rotationName = "Lylo"
-local version = "2.0.0"
+local version = "2.0.1"
 
 
 local colors = {
@@ -530,7 +530,7 @@ local actionList = {
             -- Essence Font
             debugMessage("      Essence Font Init")
             if ui.checked(text.heal.essenceFont) and cd.essenceFont.ready() then
-                if friends.lowAllies.revival >= ui.value(text.heal.essenceFont.."1") then
+                if friends.lowAllies.essenceFont >= ui.value(text.heal.essenceFont.."1") then
                     if cast.essenceFont(player.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.essenceFont) return true else ui.debug("[AUTO - FAIL]: "..text.heal.essenceFont) return false end
                 end
             end
