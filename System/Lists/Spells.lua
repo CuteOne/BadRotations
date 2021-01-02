@@ -4102,7 +4102,34 @@ br.lists.spells = {
                 cascadingTerror                 = 314478,
             },
             essences                            = {
-             
+                aegisOfTheDeep                  = 298168,
+                animaOfDeath                    = 294926,
+                azerothsUndyingGift             = 298081,
+                bloodOfTheEnemy                 = 297108,
+                concentratedFlame               = 295373,
+                condensedLifeForce              = 299357,
+                empoweredNullBarrier            = 295746,
+                focusedAzeriteBeam              = 295258,
+                guardianOfAzeroth               = 299355,
+                guardianShell                   = 296036, --added in 8.3
+                heartEssence                    = 296208,
+                lifeBindersInvocation           = 293032,
+                memoryOfLucidDreams             = 298357,
+                overchargeMana                  = 296072,
+                purifyingBlast                  = 299345,
+                reapingFlames                   = 310690, -- Added in 8.3
+                refreshment                     = 296197,
+                replicaOfKnowledge              = 312725, --added in 8.3
+                rippleInSpace                   = 302731,
+                spiritOfPreservation            = 297375, -- added in 8.3
+                standstill                      = 299882,
+                suppressingPulse                = 300009,
+                theUnboundForce                 = 299376,
+                vigilantProtector               = 310592,
+                visionOfPerfection              = 299370,
+                vitalityConduit                 = 299958,
+                conflict                        = 303823,
+                worldveinResonance              = 295186
             },
         },
     },
