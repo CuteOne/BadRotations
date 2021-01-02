@@ -1,7 +1,7 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalTools = LibStub("DiesalTools-1.0")
 
-function br.ui:createButton(parent, buttonName, x, y)
+function br.ui:createButton(parent, buttonName, x, y, onClickFunction, alignRight)
     if y == nil then
         y = -5
         for i=1, #parent.children do
@@ -15,20 +15,20 @@ function br.ui:createButton(parent, buttonName, x, y)
     local newButton = DiesalGUI:Create('Button')
     local parent = parent
 
-    parent:AddChild(newButton)
     newButton:SetParent(parent.content)
+    parent:AddChild(newButton)
     newButton:SetStylesheet(br.ui.buttonStyleSheet)
-    newButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
+    if alignRight then
+        newButton:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", x, y)
+    else
+        newButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
+    end
     newButton:SetText(buttonName)
     newButton:SetWidth(100)
     newButton:SetHeight(20)
-    --newBox:SetEventListener("OnClick", function()
-    --
-    --end)
-
-    parent:AddChild(newButton)
-
-    return newButton
+    newButton:SetEventListener("OnClick", function()
+        onClickFunction()
+    end)
 end
 
 function br.ui:createSaveButton(parent, buttonName, x, y)

@@ -42,4 +42,6 @@ function br.ui:createText(parent, text, isCheckbox)
     -------------------------
     --------END Label--------
     -------------------------
+
+    return label
 end
