@@ -848,11 +848,11 @@ local function runRotation()
                                             TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil
                                      then
                                         -- Check z and LoS, ignore terrain and m2 collisions
-                                        if cast.earthenWallTotem() then
+                                        if cast.healingRain() then
                                             ClickPosition(loc.x, loc.y, loc.z)
-                                            br.addonDebug("Casting Earthen Wall Totem (Cast Ground)")
+                                            br.addonDebug("Casting Healing Rain (Cast Ground)")
                                             if SpellIsTargeting() then
-                                                br.shaman.resto["Earthen Wall Totem"] = GetTime()
+                                                br.shaman.resto["Healing Rain"] = GetTime()
                                                 SpellStopTargeting()
                                                 br.addonDebug(colorRed .. "Canceling Spell")
                                             end
@@ -1148,7 +1148,7 @@ local function runRotation()
                 end
             end
             -- Earthen Wall Totem
-            if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem and GetTime() - br.shaman.resto["Earthen Wall Totem"] >= 2 then
+            if ui.checked("Earthen Wall Totem") and talent.earthenWallTotem and cd.earthenWallTotem.remain() <= gcdMax and GetTime() - br.shaman.resto["Earthen Wall Totem"] >= 2 then
                 if ui.checked("EW on Melee") then
                     -- get melee players
                     for i = 1, #tanks do
@@ -1573,6 +1573,7 @@ local function runRotation()
             -- Healing Surge
             if ui.checked("Healing Surge") and movingCheck then
                 if lowest.hp <= ui.value("Healing Surge") then
+                    print("We should be casting healing surge")
                     if castingDPSSpells() then
                         br.addonDebug(colorRed .. "Crit HP detected, cancelling DPS spell")
                         SpellStopCasting()
@@ -1586,6 +1587,7 @@ local function runRotation()
             -- Healing Wave
             if ui.checked("Healing Wave") and movingCheck and not burst then
                 if lowest.hp <= ui.value("Healing Wave") then
+                    print("We should be casting healing wave")
                     if castingDPSSpells() then
                         br.addonDebug(colorRed .. "Crit HP detected, cancelling DPS spell")
                         SpellStopCasting()
@@ -1672,7 +1674,9 @@ local function runRotation()
                         end
                     end
                     if ui.checked("DPS Key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
-                        actionList_dpsKey()
+                        if actionList_dpsKey() then
+                            return
+                        end
                     end
                     if actionList_AMR() then
                         return
@@ -1684,13 +1688,6 @@ local function runRotation()
                             actionList_Explosive()
                         else
                             actionList_DPS()
-                        end
-                    end
-                    --end
-                    if movingCheck and mode.dPS == 1 and getFacing("player", "target") then
-                        if cast.lightningBolt() then
-                            br.addonDebug("Casting Lightning Bolt (Filler)")
-                            return
                         end
                     end
                 end

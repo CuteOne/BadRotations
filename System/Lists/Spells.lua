@@ -690,7 +690,7 @@ br.lists.spells = {
                 kindredEmpowerment          = 327022,
                 onethsClearVision           = 338661,
                 ravenousFrenzy              = 323546,
-                PrimordialArcanicPulsar     = 338668,
+                primordialArcanicPulsar     = 338668,
                 balanceOfAllThings          = 339942,
                 balanceOfAllThingsNature    = 339943, -- Nature Buff
                 balanceOfAllThingsArcane    = 339946, -- Arcane Buff
@@ -955,6 +955,7 @@ br.lists.spells = {
             },
             runeforges                      = {
                 theDarkTitansLesson         = 338831,
+                verdantInfusion             = 338829,
 
             },
             talents                         = {
@@ -1036,6 +1037,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                adaptiveSwarm               = 325748,
                 barkskin                    = 22812,
                 bearForm                    = 5487,
                 burningEssence              = 138927,

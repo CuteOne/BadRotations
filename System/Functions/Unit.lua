@@ -320,10 +320,10 @@ function isBoss(unit)
 		local healthMax = UnitHealthMax(unit)
 		local pHealthMax = UnitHealthMax("player")
 		local instance = select(2,IsInInstance())
-		return isInstanceBoss(unit) or isDummy(unit) 
+		return isInstanceBoss(unit) or isDummy(unit)
 			or (not isChecked("Boss Detection Only In Instance") and not UnitIsTrivial(unit) and instance ~= "party"
 				and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
-					or (class == "elite" and healthMax > 4 * pHealthMax and instance ~= "raid")	or UnitLevel(unit) < 0))
+					or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or UnitLevel(unit) < 0))
 	end
 	return false
 end
