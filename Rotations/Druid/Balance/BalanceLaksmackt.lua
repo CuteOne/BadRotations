@@ -1077,7 +1077,7 @@ local function runRotation()
                     if not talent.incarnationChoseOfElune then
                         if (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active)
                                 or covenant.nightFae.active or is_aoe or hasBloodLust() and (hasBloodLustRemain() < 20) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment))))
-                                and not pewbuff and (not covenant.nightFae.active or cd.convokeTheSpirits == 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6))
+                                and not pewbuff and (not covenant.nightFae.active or cd.convokeTheSpirits.remains() == 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6))
                         then
                             if cast.celestialAlignment() then
                                 return true
@@ -1086,7 +1086,7 @@ local function runRotation()
                     else
                         if (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active)
                                 or covenant.nightFae.active or is_aoe or hasBloodLust() and (hasBloodLustRemain() < 30) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment))))
-                                and not pewbuff and (not covenant.nightFae.active or cd.convokeTheSpirits == 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6))
+                                and not pewbuff and (not covenant.nightFae.active or cd.convokeTheSpirits.remains() == 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6))
                         then
                             if cast.incarnationChoseOfElune() then
                                 return true
