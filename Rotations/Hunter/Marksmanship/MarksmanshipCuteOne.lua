@@ -38,6 +38,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
     CreateButton("Misdirection",5,0)
+    -- Volley Button
+    VolleyModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Volley Enabled", tip = "Volley Enabled", highlight = 1, icon = br.player.spell.volley },
+        [2] = { mode = "Off", value = 2 , overlay = "Volley Disabled", tip = "Volley Disabled", highlight = 0, icon = br.player.spell.volley }
+    };
+    CreateButton("Volley",6,0)
     --Pet summon
     PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
@@ -47,7 +53,7 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    CreateButton("PetSummon",6,0)
+    CreateButton("PetSummon",7,0)
 end
 
 ---------------
@@ -85,7 +91,7 @@ local function createOptions()
             br.player.module.FlaskUp("Agility",section)
             -- Racial
             br.ui:createCheckbox(section,"Racial")
-			            -- Hunter's Mark
+            -- Hunter's Mark
             br.ui:createCheckbox(section,"Hunter's Mark")
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
@@ -125,7 +131,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Counter Shot
             br.ui:createCheckbox(section,"Counter Shot")
-						-- Freezing Trap
+            -- Freezing Trap
             br.ui:createCheckbox(section, "Freezing Trap")
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
@@ -140,8 +146,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
             br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-            -- Explosive Shot Key Toggle
-            br.ui:createDropdownWithout(section, "Explosive Shot Mode", br.dropOptions.Toggle,  6)
+            -- Volley Key Toggle
+            br.ui:createDropdownWithout(section, "Volley Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -375,7 +381,7 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley
-    if cast.able.volley() and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units") then
+    if cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units") then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
@@ -522,7 +528,7 @@ actionList.SingleTarget = function()
     end
     -- Volley
     -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
-    if cast.able.volley() and ui.checked("Volley Units") and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
+    if cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end
     end
     -- Trueshot
