@@ -734,7 +734,7 @@ actionList.Cooldowns = function()
         end
         -- Tiger's Fury
         -- tigers_fury,if=energy.deficit>40|buff.bs_inc.up|(talent.predator.enabled&variable.shortest_ttd<3)
-        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and range.dyn5
+        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and not buff.tigersFury.exists() and range.dyn5
             and (energyDeficit > 40 or snipeTF() or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
                 or (talent.predator and var.lowestTTD < 3))
         then
@@ -778,7 +778,7 @@ actionList.Cooldowns = function()
         -- Convoke the Spirits
         -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<3&dot.rake.ticking&energy.deficit>=20)|fight_remains<5
         if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
-            and comboPoints < 3 and debuff.rake.exists(units.dyn5,"EXACT") and energyDeficit >= 20 and unit.ttdGroup(5) > 10)) --or (unit.ttdGroup(5) < 5 and unit.isBoss()))
+            and comboPoints < 3 and debuff.rake.exists(units.dyn5,"EXACT") and energyDeficit >= 50 and unit.ttdGroup(5) > 10)) --or (unit.ttdGroup(5) < 5 and unit.isBoss()))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end
@@ -902,8 +902,10 @@ actionList.Finisher = function()
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if canDoT(thisUnit) then
-                if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks and ((buff.tigersFury.exists() or cd.tigersFury.remains() > 5)
+                if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks 
+                    and (((buff.tigersFury.exists() or cd.tigersFury.remains() > 5)
                     and (buff.bloodtalons.exists() or not talent.bloodtalons) and debuff.rip.applied(thisUnit) <= debuff.rip.calc() or not talent.sabertooth)
+                    or not debuff.rip.exists(thisUnit))
                 then
                     if cast.rip(thisUnit) then ui.debug("Casting Rip [Finish]") return true end
                 end
@@ -912,8 +914,15 @@ actionList.Finisher = function()
     end
     -- Ferocious Bite
     -- ferocious_bite,max_energy=1
-    if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5 then
-        if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
+    if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5 and debuff.rip.remain(units.dyn5) > unit.gcd(true) then
+        if cast.ferociousBite() then
+            if buff.apexPredatorsCraving.exists() then
+                ui.debug("Casting Ferocious Bite [Apex Predator's Craving]")
+            else
+                ui.debug("Casting Ferocious Bite [Finish]")
+            end
+            return true
+        end
     end
 end -- End Action List - Finisher
 
@@ -1205,11 +1214,7 @@ actionList.PreCombat = function()
             -- Run Action List - Stealth
             -- run_action_list,name=(buff.prowl.exists() or buff.shadowmeld.exists()),if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
-                --if not debuff.rake.exists("target","EXACT") then
-                --    if cast.rake("target") then ui.debug("Casting Rake [Pre-Pull]") return true end
-                --else 
-                    if actionList.Stealth() then return true end
-                --end
+                if actionList.Stealth() then return true end
             end
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
@@ -1526,11 +1531,7 @@ local function runRotation()
                 -- Call Action List - Stealth
                 -- run_action_list,name=stealth,if=buff.shadowmeld.up|buff.prowl.up
                 if buff.shadowmeld.exists() or buff.prowl.exists() then
-                    --if not debuff.rake.exists("target","EXACT") then
-                    --    if cast.rake("target") then ui.debug("Casting Rake [Pre-Pull]") return true end
-                    --else 
-                        if actionList.Stealth() then return true end
-                    --end
+                    if actionList.Stealth() then return true end
                 else
                     -- Call Action List - Cooldowns
                     -- call_action_list,name=cooldown
@@ -1571,11 +1572,15 @@ local function runRotation()
                         if (cast.able.rake() or cast.pool.rake()) and canDoT(units.dyn5)
                             and debuff.rake.count() < ui.value("Multi-DoT Limit")
                             and #enemies.yards5f < ui.value("Multi-DoT Limit")
-                            and (debuff.rake.refresh(units.dyn5,"EXACT") or debuff.rake.calc() > debuff.rake.applied(units.dyn5))
+                            and ((debuff.rake.refresh(units.dyn5,"EXACT") and debuff.rake.remain(units.dyn5,"EXACT") < cd.tigersFury.remain() + unit.gcd(true)) or debuff.rake.calc() > debuff.rake.applied(units.dyn5))
                             and ticksGain.rake > #enemies.yards8 * 2 - 2
                         then
                             if cast.pool.rake() then return true end
-                            if cast.rake(units.dyn5) then ui.debug("Casting Rake") return true end
+                            if cast.rake(units.dyn5) then
+                                if debuff.rake.refresh(units.dyn5,"EXACT") then ui.debug("Casting Rake [Refresh]") end
+                                if debuff.rake.calc() > debuff.rake.applied(units.dyn5) then ui.debug("Casting Rake [More Powerful]") end
+                                return true
+                            end
                         end
                         -- Lunar Inspiration
                         -- moonfire_cat,target_if=refreshable&druid.moonfire.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
@@ -1605,8 +1610,7 @@ local function runRotation()
                         -- brutal_slash,if=(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time)&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
                         if cast.able.brutalSlash() and talent.brutalSlash and range.dyn8AOE
                             and ((charges.brutalSlash.timeTillFull() < unit.gcd(true) and ui.useST(8,ui.value("Brutal Slash Targets")))
-                            or ui.useAOE(8,ui.value("Brutal Slash Targets")))
-                            
+                            or ui.useAOE(8,ui.value("Brutal Slash Targets"))) 
                         then
                             if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
                         end
