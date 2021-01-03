@@ -374,6 +374,7 @@ local function runRotation()
     local snapLossHP = 0
     local spell = br.player.spell
     local talent = br.player.talent
+    local tanks = getTanksTable()
     local traits = br.player.traits
     local travel, flight, bear, cat, noform =
         br.player.buff.travelForm.exists(),
@@ -426,7 +427,7 @@ local function runRotation()
         [129758] = "Irontide Grenadier"
     }
 
-    local function List_Extras()
+    local function actionList_Extras()
         -- Bear Form when not in combat and target selected and within 20yrds
         if
             (mode.forms == 1 or (mode.forms == 2 and not SpecificToggle("Travel Key") and not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus())) and
@@ -607,9 +608,9 @@ local function runRotation()
     local function actionList_BigHit()
         -- Trinkets
         if (ui.value("Trinket Use") == 1 or (ui.value("Trinket Use") == 2 and useCDs())) then
-            if ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1") and use.able.slot(13) then
+            if ui.checked("Trinket 1") and ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1") and use.able.slot(13) then
                 use.slot(13)
-            elseif ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 2") and use.able.slot(14) then
+            elseif ui.checked("Trinket 2") and ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 2") and use.able.slot(14) then
                 use.slot(14)
             end
         end
@@ -664,7 +665,7 @@ local function runRotation()
         end
     end
 
-    local function List_Defensive()
+    local function actionList_Defensive()
         if useDefensive() then
             if ui.checked("Healthstone/Potion") and php <= ui.value("Healthstone/Potion") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                 if canUseItem(5512) then
@@ -845,7 +846,7 @@ local function runRotation()
         end
     end
     -- Incap Logic
-    local function List_Interrupts()
+    local function actionList_Interrupts()
         if useInterrupts() then
             if ui.checked("Incapacitating Roar Logic (M+)") then
                 if cast.able.incapacitatingRoar() then
@@ -1062,7 +1063,7 @@ local function runRotation()
         end
     end
 
-    local function List_Bearmode()
+    local function actionList_Bearmode()
         if (mode.forms == 1 and ((mode.travel == 2 and travel) or (mode.travel == 1 and not travel))) or mode.forms ~= 1 then
             if not bear and not buff.prowl.exists() and not cast.last.bearForm() then
                 if cast.bearForm() then
@@ -1107,9 +1108,9 @@ local function runRotation()
             end
             -- Trinkets
             if (ui.value("Trinket Use") == 1 or (ui.value("Trinket Use") == 2 and useCDs())) then
-                if (ui.value("Trinket Type") == 1 or (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and use.able.slot(13) then
+                if ui.checked("Trinket 1") and (ui.value("Trinket Type") == 1 or (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and use.able.slot(13) then
                     use.slot(13)
-                elseif (ui.value("Trinket Type") == 1 or (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and use.able.slot(14) then
+                elseif ui.checked("Trinket 1") and (ui.value("Trinket Type") == 1 or (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and use.able.slot(14) then
                     use.slot(14)
                 end
             end
@@ -1247,7 +1248,8 @@ local function runRotation()
                     travel_form()
                 end
             end
-            List_Extras()
+            actionList_Extras()
+            actionList_OOC()
         end -- End Out of Combat Rotation
         -----------------------------
         --- In Combat - Rotations ---
@@ -1265,14 +1267,14 @@ local function runRotation()
                     return
                 end
             end
-            List_Interrupts()
-            List_Defensive()
+            actionList_Interrupts()
+            actionList_Defensive()
             if ui.checked("Big Hit Oh Shit!") and SpecificToggle("Big Hit Oh Shit!") and not GetCurrentKeyBoardFocus() and bear then
                 if br.timer:useTimer("Big Hit Delay", 2) then
                     actionList_BigHit()
                 end
             end
-            List_Bearmode()
+            actionList_Bearmode()
         end
     end -- End In Combat Rotation
 end -- End runRotation
