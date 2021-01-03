@@ -79,7 +79,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.2")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.21")
         br.ui:createCheckbox(section, "Disable Auto Ground Cast Circle Cancel")
         br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
@@ -1573,7 +1573,6 @@ local function runRotation()
             -- Healing Surge
             if ui.checked("Healing Surge") and movingCheck then
                 if lowest.hp <= ui.value("Healing Surge") then
-                    print("We should be casting healing surge")
                     if castingDPSSpells() then
                         br.addonDebug(colorRed .. "Crit HP detected, cancelling DPS spell")
                         SpellStopCasting()
@@ -1587,7 +1586,6 @@ local function runRotation()
             -- Healing Wave
             if ui.checked("Healing Wave") and movingCheck and not burst then
                 if lowest.hp <= ui.value("Healing Wave") then
-                    print("We should be casting healing wave")
                     if castingDPSSpells() then
                         br.addonDebug(colorRed .. "Crit HP detected, cancelling DPS spell")
                         SpellStopCasting()
