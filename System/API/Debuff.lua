@@ -13,7 +13,7 @@ local function getSnapshotValue(dot)
         local TigersFury        = 1.15
         local RakeMultiplier    = 1
         -- Bloodtalons
-        if self.buff.bloodtalons.exists() then multiplier = multiplier*Bloodtalons end
+        if self.buff.bloodtalons.exists() and dot == self.spell.debuffs.rip then multiplier = multiplier*Bloodtalons end
         -- Savage Roar
         -- if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
         -- Tigers Fury
@@ -28,8 +28,8 @@ local function getSnapshotValue(dot)
         -- rake
         if dot == self.spell.debuffs.rake then
             -- Incarnation/Prowl/Sudden Ambush
-            if self.buff.incarnationKingOfTheJungle.exists() or self.buff.prowl.exists() or self.buff.shadowmeld.exists() or self.buff.suddenAmbush.exists() then
-                RakeMultiplier = 2
+            if self.buff.berserk.exists() or self.buff.incarnationKingOfTheJungle.exists() or self.buff.prowl.exists() or self.buff.shadowmeld.exists() or self.buff.suddenAmbush.exists() then
+                RakeMultiplier = 1.6
             end
             -- return rake
             return multiplier*RakeMultiplier
