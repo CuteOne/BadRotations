@@ -532,14 +532,14 @@ local function runRotation()
 	end
 	-- Photosynthesis logic
 	if
-		(getOptionValue("Lifebloom Target") ~= 3 and talent.photosynthesis and not buff.lifebloom.exists("player") and isCastingSpell(spell.wildGrowth)) or
-			(runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") and talent.photosynthesis and bloomCount ~= 2)
+		isChecked("Lifebloom Target") and (mode.prehot == 1 or inCombat) and
+			((getOptionValue("Lifebloom Target") ~= 3 and talent.photosynthesis and not buff.lifebloom.exists("player") and isCastingSpell(spell.wildGrowth)) or
+				(runeforge.theDarkTitansLesson.equiped and not buff.lifebloom.exists("player") and talent.photosynthesis and bloomCount ~= 2))
 	 then
 		--clearform()
-		if CastSpellByName(GetSpellInfo(33763), "player") then
-			br.addonDebug("Casting Lifebloom (Photosynthesis)")
-			return true
-		end
+		CastSpellByName(GetSpellInfo(33763), "player")
+		--br.addonDebug("Casting Lifebloom (Photosynthesis)")
+		return true
 	end
 
 	local function key()
@@ -1496,10 +1496,25 @@ local function runRotation()
 				end
 			end
 		end
-		if runeforge.theDarkTitansLesson.equiped and bloomCount == 1 then
-			if cast.lifebloom(lowest.unit) then
-				br.addonDebug("Casting Lifebloom (Dark Titan)")
-				return true
+		if isChecked("Lifebloom Target") and runeforge.theDarkTitansLesson.equiped and bloomCount == 1 and #br.friend > 1 and (mode.prehot == 1 or inCombat) and not cat and not travel then
+			local lbTargets = {}
+			for i = 1, #br.friend do
+				local thisUnit = br.friend[i]
+				if buff.lifebloom.remains(thisUnit.unit) < 4.5 then
+					table.insert(lbTargets, thisUnit)
+				end
+			end
+			if #lbTargets > 1 then
+				table.sort(
+					lbTargets,
+					function(x, y)
+						return x.hp < y.hp
+					end
+				)
+				if cast.lifebloom(lbTargets[1].unit) then
+					br.addonDebug("Casting Lifebloom (Dark Titan)")
+					return true
+				end
 			end
 		end
 		-- Cenarion Ward
