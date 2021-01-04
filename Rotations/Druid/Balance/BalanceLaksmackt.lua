@@ -144,9 +144,10 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 5, 1, 10, 1, "Set to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 10, 1, 10, 1, "Set to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createCheckbox(section, "Safe Dots")
+        br.ui:createDropdownWithout(section, "Starfall", { "Simc", "AOE", "Never" }, 1, "", "Do We use Starfall?")
         br.ui:createCheckbox(section, "Starfall While moving")
         br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "Set to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createCheckbox(section, "Ignore dots during pewbuff")
+
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Root/CC")
         br.ui:createCheckbox(section, "Mist - Spirit vulpin")
@@ -761,7 +762,7 @@ local function runRotation()
 
 
             --if we are moving, we should try to starfall, otherwise rotate instants
-            if moving and not buff.starfall.exists() then
+            if moving and not buff.starfall.exists() and getValue("Starfall") ~= 3 then
                 if isChecked("Starfall While moving") then
                     if cast.able.starfall() then
                         if cast.starfall() then
@@ -816,8 +817,9 @@ local function runRotation()
                         end
                     end
                 end
+
                 --starfall
-                if cast.able.starfall()
+                if cast.able.starfall() and (getValue("Starfall") == 1 or getValue("Starfall") == 2)
                         and (not buff.starfall.exists() or buff.starfall.refresh())
                         and (#enemies.yards45 < 3 or not runeforge.timewornDreambinder.equiped)
                 --  and (not runeforge.lycarasFleetingGlimpse.equiped) then
@@ -959,10 +961,12 @@ local function runRotation()
 
 
                 --new starfall here
-                if covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff)
-                        and cd.convokeTheSpirits.remains() < gcd * math.ceil(power / 50) and buff.starfall.remains() < 4 then
-                    if cast.starfall() then
-                        return true
+                if cast.able.starfall() and (getValue("Starfall") == 1 or getValue("Starfall") == 2) then
+                    if covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff)
+                            and cd.convokeTheSpirits.remains() < gcd * math.ceil(power / 50) and buff.starfall.remains() < 4 then
+                        if cast.starfall() then
+                            return true
+                        end
                     end
                 end
 
@@ -1137,10 +1141,12 @@ local function runRotation()
                     end
                 end
 
-                -- starfall - single target, with legendary
-                if buff.onethsPerception.exists() and not buff.starfall.exists() then
-                    if cast.starfall() then
-                        return true
+                if getValue("Starfall") == 1 then
+                    -- starfall - single target, with legendary
+                    if buff.onethsPerception.exists() and not buff.starfall.exists() then
+                        if cast.starfall() then
+                            return true
+                        end
                     end
                 end
 
@@ -1163,7 +1169,7 @@ local function runRotation()
 
 
                 --Starfall - ST
-                if talent.stellarDrift and not talent.starlord and buff.starfall.remains() < 2
+                if getValue("Starfall") == 1 and talent.stellarDrift and not talent.starlord and buff.starfall.remains() < 2
                         and (buff.eclipse_lunar.remains() > 6 and current_eclipse == "lunar"
                         --          and buff.primordialArcanicPulsar.value() < 250 or buff.primordialArcanicPulsar.value() >= 250 and power > 90
                         or debuff.adaptiveSwarm.remains(units.dyn45) > 8) and pew_remain() > 0
