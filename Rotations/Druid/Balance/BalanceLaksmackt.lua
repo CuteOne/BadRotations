@@ -762,21 +762,21 @@ local function runRotation()
 
 
             --if we are moving, we should try to starfall, otherwise rotate instants
-            if moving and not buff.starfall.exists() and getValue("Starfall") ~= 3 then
-                if isChecked("Starfall While moving") then
+            if isMoving("player") and (talent.stellarFlare and not buff.starfall.exists()) and getValue("Starfall") ~= 3 then
+                if isChecked("Starfall While moving") and talent.stellarFlare then
                     if cast.able.starfall() then
                         if cast.starfall() then
                             return true
                         end
                     end
-                elseif cast.able.sunfire(units.dyn45) and not cast.last.sunfire(1) then
+                end
+                if cast.able.sunfire(units.dyn45) and lastSpell ~= spell.sunfire then
                     if cast.sunfire(units.dyn45) then
                         return true
                     end
-                else
-                    if cast.moonfire(units.dyn45) then
-                        return true
-                    end
+                end
+                if cast.moonfire(units.dyn45) then
+                    return true
                 end
             end
 
