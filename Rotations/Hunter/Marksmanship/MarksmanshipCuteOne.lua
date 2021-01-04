@@ -138,7 +138,9 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Dungeon / Raid tools
         section = br.ui:createSection(br.ui.window.profile, "CC")
-        br.ui:createCheckbox(section, "Dungeon CCs", "|cffFFFFFFCurrently supports Pf (Globgrod) and Mots (Spirit Vulpin)")
+        br.ui:createCheckbox(section, "Dungeon CCs", "|cffFFFFFFCurrently supported dungeons:"..
+                                                     "\nPlaguefall (Globgrog - Slimy Smorgasbord)"..
+                                                     "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
