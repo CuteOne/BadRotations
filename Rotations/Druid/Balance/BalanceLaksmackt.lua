@@ -51,6 +51,14 @@ local function createToggles()
     };
     CreateButton("Forms", 6, 0)
 
+    CovModes = {
+        [1] = { mode = "On", value = 1, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward },
+        [2] = { mode = "Off", value = 2, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward }
+    };
+    CreateButton("Cov", 1, -1)
+
+
+
 
     --[[
     --pots
@@ -71,7 +79,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - SL 21010210131")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - SL 2101031840")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "Treant Key")
@@ -136,11 +144,13 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 5, 1, 10, 1, "Set to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 10, 1, 10, 1, "Set to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createCheckbox(section, "Safe Dots")
-        br.ui:createSpinnerWithout(section, "Starfall Targets (0 for auto)", 0, 0, 30, 1, "Set to minimum number of targets to use Starfall. 0 to calculate")
+        br.ui:createCheckbox(section, "Starfall While moving")
         br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "Set to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createCheckbox(section, "Ignore dots during pewbuff")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Root/CC")
+        br.ui:createCheckbox(section, "Mist - Spirit vulpin")
+        br.ui:createCheckbox(section, "Plague - Globgrod")
         br.ui:createCheckbox(section, "Root - Spiteful(M+)")
         br.ui:checkSectionState(section)
         -------------------------
@@ -264,7 +274,6 @@ local function runRotation()
     local mode
     local units = br.player.units
     local pewbuff = (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) or false
-    local starfallRadius
 
     local tank
     if #tanks > 0 and inInstance then
@@ -531,30 +540,16 @@ local function runRotation()
 
         --Building root list
         local root_UnitList = {}
-
+        if isChecked("Mist - Spirit vulpin") then
+            root_UnitList[165251] = "Spirit vulpin"
+            radar = "on"
+        end
+        if isChecked("Plague - Globgrod") then
+            root_UnitList[171887] = "Globgrod"
+            radar = "on"
+        end
         if isChecked("Root - Spiteful(M+)") then
             root_UnitList[174773] = "Spiteful"
-            radar = "on"
-        end
-        if isChecked("KR - root Minions of Zul") then
-            root_UnitList[133943] = "minion-of-zul"
-            radar = "on"
-        end
-        if isChecked("FH - root grenadier") then
-            root_UnitList[129758] = "grenadier"
-            radar = "on"
-        end
-        if isChecked("KR - root Spirit of Gold") then
-            root_UnitList[131009] = "root Spirit of Gold"
-            radar = "on"
-        end
-        if isChecked("KR - animated gold") then
-            root_UnitList[135406] = "animated gold"
-            radar = "on"
-        end
-        --test dude
-        if 1 == 2 then
-            root_UnitList[143647] = "my little friend"
             radar = "on"
         end
 
@@ -663,9 +658,9 @@ local function runRotation()
         local wrath_fallback = cast.last.wrath(1) and cast.last.wrath(2) and cast.last.wrath(3) or false
 
         local convoke_desync = false
-        if math.floor((getOutLaksTTDMAX() - 20 - cd.convokeTheSpirits.remains()) / 120) > math.floor((getOutLaksTTDMAX() - 25 - (10 * int(talent.incarnationChoseOfElune) - (int(conduit.preciseAlignment.enabled)) - pew_remain())) / 180)
+        if math.floor((getOutLaksTTDMAX() - 20 - cd.convokeTheSpirits.remains() - gcd) / 120) > math.floor((getOutLaksTTDMAX() - 25 - (10 * int(talent.incarnationChoseOfElune) - (int(conduit.preciseAlignment.enabled)) - pew_remain())) / 180)
                 or pew_remain() > getOutLaksTTDMAX()
-                or cd.convokeTheSpirits.remains() > getOutLaksTTDMAX()
+                or cd.convokeTheSpirits.remains() - gcd > getOutLaksTTDMAX()
                 or not covenant.nightFae.active then
             convoke_desync = true
 
@@ -766,10 +761,12 @@ local function runRotation()
 
 
             --if we are moving, we should try to starfall, otherwise rotate instants
-            if isMoving("player") and not buff.starfall.exists() then
-                if cast.able.starfall() then
-                    if cast.starfall() then
-                        return true
+            if moving and not buff.starfall.exists() then
+                if isChecked("Starfall While moving") then
+                    if cast.able.starfall() then
+                        if cast.starfall() then
+                            return true
+                        end
                     end
                 elseif cast.able.sunfire(units.dyn45) and not cast.last.sunfire(1) then
                     if cast.sunfire(units.dyn45) then
@@ -787,20 +784,21 @@ local function runRotation()
                 --AOE Variables
                 local ignore_starsurge = current_eclipse == "lunar" and (#enemies.yards45 > 4 and talent.soulOfTheForest or #enemies.yards45 > 6) or false
 
-
-
-                --convoke_the_spirits,
-                if useCDs() and cast.able.convokeTheSpirits() and getOutLaksTTDMAX() > 10
-                        and (
-                        (convoke_desync and pew_remain() > 0 or pewbuff)
-                                and (power < 50 or ignore_starsurge)
-                                and (buff.eclipse_lunar.remains() > 6 or buff.eclipse_solar.remains() > 6)
-                                and (not runeforge.balanceOfAllThings.equiped or buff.balanceOfAllThingsNature.stack() > 3 or buff.balanceOfAllThingsArcane.stack() > 3)
-                ) then
-                    if cast.convokeTheSpirits() then
-                        return true
+                if mode.cov == 1 then
+                    --convoke_the_spirits,
+                    if useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10
+                            and (
+                            (convoke_desync and pew_remain() > 0 or pewbuff)
+                                    and (power < 50 or ignore_starsurge)
+                                    and (buff.eclipse_lunar.remains() > 6 or buff.eclipse_solar.remains() > 6)
+                                    and (not runeforge.balanceOfAllThings.equiped or buff.balanceOfAllThingsNature.stack() > 3 or buff.balanceOfAllThingsArcane.stack() > 3)
+                    ) then
+                        if cast.convokeTheSpirits() then
+                            return true
+                        end
                     end
                 end
+
                 if debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
                     for i = 1, #enemies.yards45 do
                         thisUnit = enemies.yards45[i]
@@ -846,10 +844,12 @@ local function runRotation()
 
 
                 --adaptive swarm here
-                if cast.able.adaptiveSwarm() then
-                    if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
-                        if cast.adaptiveSwarm(units.dyn45) then
-                            return true
+                if mode.cov == 1 then
+                    if cast.able.adaptiveSwarm() then
+                        if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
+                            if cast.adaptiveSwarm(units.dyn45) then
+                                return true
+                            end
                         end
                     end
                 end
@@ -917,6 +917,19 @@ local function runRotation()
                     end
                 end
 
+                if mode.cov == 1 then
+                    if cast.able.kindredSpirits() then
+                        if getOutLaksTTDMAX() > 15
+                                -- or (buff.primordial_arcanic_pulsar.value<250|buff.primordial_arcanic_pulsar.value>=250)
+                                and buff.starfall.exists() and (pew_remain() > 50) or not useCDs() then
+                            if cast.kindredSpirits("player") then
+                                return true
+                            end
+                        end
+                    end
+                end
+
+
                 --starsurge,
                 if cast.able.starsurge() and starfall_wont_fall_off and #enemies.yards45 < 3 then
                     if buff.onethsClearVision.exists()
@@ -955,7 +968,7 @@ local function runRotation()
 
                 if cast.able.starsurge() and starfall_wont_fall_off then
                     -- starsurge 2
-                    if covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff and cd.convokeTheSpirits.remains() < 6)
+                    if covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff and cd.convokeTheSpirits.remains() - gcd < 6)
                             and buff.starfall.exists() and eclipse_in and not ignore_starsurge then
                         if cast.starsurge(units.dyn45) then
                             br.addonDebug("[SS] - 3")
@@ -1004,23 +1017,25 @@ local function runRotation()
                 --ST   - NO BOAT (single target rotation)
 
                 --adaptive swarm here
-                if cast.able.adaptiveSwarm() then
-                    if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
-                        if cast.adaptiveSwarm(units.dyn45) then
-                            getOutLaksTTDMAX()
-                            return true
+                if mode.cov == 1 then
+                    if cast.able.adaptiveSwarm() then
+                        if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
+                            if cast.adaptiveSwarm(units.dyn45) then
+                                getOutLaksTTDMAX()
+                                return true
+                            end
                         end
                     end
-                end
 
-                --convoke_the_spirits
-                if useCDs() and cd.convokeTheSpirits.remain() == 0 and getOutLaksTTDMAX() > 10 then
-                    --  Print("getout: " .. tostring(getOutLaksTTDMAX()))
-                    if ((convoke_desync and pew_remain() > 0 or pewbuff)
-                            and power < 40
-                            and (buff.eclipse_lunar.remains() > 10 or buff.eclipse_solar.remains() > 10)) then
-                        if cast.convokeTheSpirits() then
-                            return true
+                    --convoke_the_spirits
+                    if useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 then
+                        --  Print("getout: " .. tostring(getOutLaksTTDMAX()))
+                        if ((convoke_desync and pew_remain() > 0 or pewbuff)
+                                and power < 40
+                                and (buff.eclipse_lunar.remains() > 10 or buff.eclipse_solar.remains() > 10)) then
+                            if cast.convokeTheSpirits() then
+                                return true
+                            end
                         end
                     end
                 end
@@ -1067,17 +1082,33 @@ local function runRotation()
 
 
                 -- racenousFrenzy here
-                if cast.able.ravenousFrenzy() and pewbuff then
-                    if cast.ravenousFrenzy() then
-                        return true
+                if mode.cov == 1 then
+                    if cast.able.ravenousFrenzy() and pewbuff then
+                        if cast.ravenousFrenzy() then
+                            return true
+                        end
+                    end
+
+                    --kindred spirit
+                    if cast.able.kindredSpirits() then
+                        if ((buff.eclipse_solar.remains() > 10 or buff.eclipse_lunar.remains() > 10)
+                                and pew_remain() > 30)
+                                --buff.primordial_arcanic_pulsar.value < 240
+                                --  |!runeforge.primordial_arcanic_pulsar.equipped))|buff.primordial_arcanic_pulsar.value>=270
+                                or pew_remain() == 0 and (power > 90 or is_aoe) then
+                            if cast.kindredSpirits("player") then
+                                return true
+                            end
+                        end
                     end
                 end
-
                 if getCombatTime() > 2 and useCDs() and isChecked("Incarnation/Celestial Alignment") then
                     if not talent.incarnationChoseOfElune then
                         if (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active)
                                 or covenant.nightFae.active or is_aoe or hasBloodLust() and (hasBloodLustRemain() < 20) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment))))
-                                and not pewbuff and (not covenant.nightFae.active or cd.convokeTheSpirits.remains() == 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6))
+                                and not pewbuff and (not covenant.nightFae.active
+                                or (cd.convokeTheSpirits.remains() - gcd) <= 0
+                                or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6 - gcd))
                         then
                             if cast.celestialAlignment() then
                                 return true
@@ -1195,52 +1226,54 @@ local function runRotation()
                 end
 
             elseif runeforge.balanceOfAllThings.equiped and (not is_aoe or mode.rotation == 3) then
-
-                -- damn vampires
-                if cast.able.ravenousFrenzy() then
-                    if cast.ravenousFrenzy() then
-                        return true
-                    end
-                end
-
                 local critnotup = not buff.balanceOfAllThingsNature.exists() and not buff.balanceOfAllThingsArcane.exists() or false
 
-                --adaptive swarm here
-                if cast.able.adaptiveSwarm() then
-                    if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
-                        if cast.adaptiveSwarm(units.dyn45) then
+                -- damn vampires
+                if mode.cov == 1 then
+                    if cast.able.ravenousFrenzy() then
+                        if cast.ravenousFrenzy() then
                             return true
                         end
                     end
-                end
-
-                --   Print("----")
-                --   Print(tostring(convoke_desync))
-                --  Print(tostring(pew_remain() == 0))
-                --[[      if useCDs() and cast.able.convokeTheSpirits() and buff.balanceOfAllThingsNature.stack() == 5 or buff.balanceOfAllThingsArcane.stack() == 5 then
-                          if (convoke_desync and pew_remain() > 0 or pewbuff) then
-                              Print("---")
-                              Print(tostring(buff.balanceOfAllThingsNature.stack() == 5))
-                              Print(tostring(convoke_desync))
-                              Print(tostring(pew_remain()))
-                              Print(tostring(pewbuff))
-                              CastSpellByName(GetSpellInfo(spell.convokeTheSpirits))
-                              return true
-
-                              --   if cast.convokeTheSpirits() then
-                              --       return true
-                              --   end
-                          end
-                      end]]
 
 
-                --convoke_the_spirits,
-                if useCDs() and cast.able.convokeTheSpirits() and getOutLaksTTDMAX() > 10
-                        and ((convoke_desync and pew_remain() ~= 0 or pewbuff)
-                        and (buff.balanceOfAllThingsNature.stack() == 5 or buff.balanceOfAllThingsArcane.stack() == 5))
-                then
-                    CastSpellByID(323764, "player")
-                    return true
+                    --adaptive swarm here
+                    if cast.able.adaptiveSwarm() then
+                        if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
+                            if cast.adaptiveSwarm(units.dyn45) then
+                                return true
+                            end
+                        end
+                    end
+
+                    --   Print("----")
+                    --   Print(tostring(convoke_desync))
+                    --  Print(tostring(pew_remain() == 0))
+                    --[[      if useCDs() and cast.able.convokeTheSpirits() and buff.balanceOfAllThingsNature.stack() == 5 or buff.balanceOfAllThingsArcane.stack() == 5 then
+                              if (convoke_desync and pew_remain() > 0 or pewbuff) then
+                                  Print("---")
+                                  Print(tostring(buff.balanceOfAllThingsNature.stack() == 5))
+                                  Print(tostring(convoke_desync))
+                                  Print(tostring(pew_remain()))
+                                  Print(tostring(pewbuff))
+                                  CastSpellByName(GetSpellInfo(spell.convokeTheSpirits))
+                                  return true
+
+                                  --   if cast.convokeTheSpirits() then
+                                  --       return true
+                                  --   end
+                              end
+                          end]]
+
+
+                    --convoke_the_spirits,
+                    if useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10
+                            and ((convoke_desync and pew_remain() ~= 0 or pewbuff)
+                            and (buff.balanceOfAllThingsNature.stack() == 5 or buff.balanceOfAllThingsArcane.stack() == 5))
+                    then
+                        CastSpellByID(323764, "player")
+                        return true
+                    end
                 end
 
                 --starlord cancel here
@@ -1264,11 +1297,8 @@ local function runRotation()
                             return true
                         end
                     end
-                    if (cd.convokeTheSpirits.remains() < 5 and useCDs() and (convoke_desync or pew_remain() < 5)) and power > 40 and covenant.nightFae.active and useCDs()
+                    if (cd.convokeTheSpirits.remains() < (5 + gcd) and useCDs() and (convoke_desync or pew_remain() < 5)) and power > 40 and covenant.nightFae.active and useCDs()
                     then
-                        --   starsurge,if=(cooldown.convoke_the_spirits.remains<5&!druid.no_cds&(variable.convoke_desync|cooldown.ca_inc.remains<5))&astral_power>40&covenant.night_fae&!druid.no_cds
-
-
                         if cast.starsurge(units.dyn45) then
                             br.addonDebug("[SS] - Overflow1")
                             return true
@@ -1321,15 +1351,17 @@ local function runRotation()
                 --need to support fury of elune here ...at somet point
                 --fury_of_elune,if=(eclipse.in_any|eclipse.solar_in_1|eclipse.lunar_in_1)&(!covenant.night_fae|druid.no_cds|(astral_power<95&(variable.critnotup|astral_power<30|variable.is_aoe)&(variable.convoke_desync&!cooldown.convoke_the_spirits.up|!variable.convoke_desync&!cooldown.ca_inc.up)))&(cooldown.ca_inc.remains>30|druid.no_cds|astral_power>90&cooldown.ca_inc.up&(cooldown.empower_bond.remains<action.starfire.execute_time|!covenant.kyrian)|interpolated_fight_remains<10)&(dot.adaptive_swarm_damage.remains>4|!covenant.necrolord)
 
-                if cast.able.kindredSpirits() then
-                    if (eclipse_next == "lunar" or (eclipse_next == "solar" or (eclipse_next == "any"
-                            or buff.balanceOfAllThingsNature.remains()) > 4.5
-                            or buff.balanceOfAllThingsArcane.remains()) > 4.5
-                            or power > 90 and pew_remain() == 0 and useCDs())
-                            and (pew_remain() > 30 or pew_remain() == 0)
-                    then
-                        if cast.kindredSpirits("player") then
-                            return true
+                if mode.cov == 1 then
+                    if cast.able.kindredSpirits() then
+                        if (eclipse_next == "lunar" or (eclipse_next == "solar" or (eclipse_next == "any"
+                                or buff.balanceOfAllThingsNature.remains()) > 4.5
+                                or buff.balanceOfAllThingsArcane.remains()) > 4.5
+                                or power > 90 and pew_remain() == 0 and useCDs())
+                                and (pew_remain() > 30 or pew_remain() == 0)
+                        then
+                            if cast.kindredSpirits("player") then
+                                return true
+                            end
                         end
                     end
                 end
@@ -1342,7 +1374,7 @@ local function runRotation()
                     if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                         if (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active)
                                 or covenant.nightFae.active or hasBloodLust() and (hasBloodLustRemain() < 20))
-                                and (convoke_desync or cd.convokeTheSpirits.remain() == 0)
+                                and (convoke_desync or cd.convokeTheSpirits.remain() - gcd <= 0)
                         then
                             if cast.celestialAlignment() then
                                 return true
@@ -1351,7 +1383,7 @@ local function runRotation()
                     else
                         if cast.able.incarnationChoseOfElune() and (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active)
                                 or covenant.nightFae.active or hasBloodLust() and (hasBloodLustRemain() < 30))
-                                and (convoke_desync or cd.convokeTheSpirits.remain() == 0)
+                                and (convoke_desync or cd.convokeTheSpirits.remain() - gcd <= 0)
                         then
                             if cast.incarnationChoseOfElune() then
                                 return true
@@ -1417,25 +1449,31 @@ local function runRotation()
 
     local function defensive()
 
+        --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
+        if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634) or hasItem(177278)) then
+            if canUseItem(177278) then
+                useItem(177278)
+            elseif canUseItem(5512) then
+                useItem(5512)
+            elseif canUseItem(156634) then
+                useItem(156634)
+            elseif canUseItem(169451) then
+                useItem(169451)
+            elseif canUseItem(getHealthPot()) then
+                useItem(getHealthPot())
+            elseif canUseItem(getHealthPot()) then
+                useItem(getHealthPot())
+            end
+        end
 
-        -- Pot/Stoned
-        if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
-            if inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
-                if canUseItem(5512) then
-                    br.addonDebug("Using Healthstone")
-                    useItem(5512)
-                elseif hasItem(156634) and canUseItem(156634) then
-                    br.addonDebug("Using Silas' Vial of Continuous Curing")
-                    useItem(156634)
-                elseif hasItem(166799) and canUseItem(166799) then
-                    br.addonDebug("Using Emerald of Vigor")
-                    useItem(166799)
-                elseif hasItem(169451) and canUseItem(169451) then
-                    br.addonDebug("Using Health Pot")
-                    useItem(169451)
+        if mode.cov == 1 then
+            if covenant.kyrian.active and not hasItem(177278) and cast.able.summonSteward() then
+                if cast.summonSteward() then
+                    return true
                 end
             end
         end
+
 
         -- Renewal
         if isChecked("Renewal") and talent.renewal and php <= getValue("Renewal") then
