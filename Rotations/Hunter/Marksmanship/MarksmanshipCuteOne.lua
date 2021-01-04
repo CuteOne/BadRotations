@@ -136,6 +136,10 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
+        -- Dungeon / Raid tools
+        section = br.ui:createSection(br.ui.window.profile, "CC")
+        br.ui:createCheckbox(section, "Dungeon CCs", "|cffFFFFFFCurrently supports Pf (Globgrod) and Mots (Spirit Vulpin)")
+        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -167,10 +171,8 @@ local cast
 local cd
 local charges
 local covenant
-local conduit
 local debuff
 local enemies
-local equiped
 local module
 local power
 local runeforge
@@ -190,12 +192,77 @@ local function alwaysCdNever(option)
     return thisOption == 1 or (thisOption == 2 and ui.useCDs())
 end
 
+local function isCC(unit)
+    if getOptionCheck("Don't break CCs") then
+        return isLongTimeCCed(Unit)
+    end
+    return false
+end
+
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
--- Hunter's Mark
+    -- CC
+    if ui.checked("Dungeon CCs") then
+
+        local dungeons = {"The Necrotic Wake", "Plaguefall", "Mists of Tirna Scithe", "Halls of Atonement",
+        "Theater of Pain", "De Other Side", "Spires of Ascension", "Sanguine Depths"}
+        local radar = "off"
+        local currentDungeon = ""
+
+        for _, v in pairs(dungeons) do
+            if v == GetZoneText() then
+                currentDungeon = v
+                radar = "on"
+            end
+        end
+
+        local query = {}
+        query["Mists of Tirna Scithe"] = {165251} -- {spirit vulpin, }
+        query["Plaguefall"] = {171887} -- {Globgrod, }
+
+        local cc_range = 35
+
+        if radar == "on" then
+            for i = 1, GetObjectCountBR() do
+                local object = GetObjectWithIndex(i)
+                local ID = ObjectID(object)
+                for _,v in pairs(query[tostring(currentDungeon)]) do
+                    if ID == v then
+                        if not isCC(object) or getBuffRemain(object, 3355) < math.random(5,10) then
+                            local theTarget = UnitTarget(object) -- cc target moving to its target
+                            if theTarget == nil then theTarget = "player" end
+                            local x1, y1, z1 = ObjectPosition(theTarget)
+                            local x2, y2, z2 = ObjectPosition(object)
+                            local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                            if distance < cc_range and not isLongTimeCCed(object) then
+                                local distanceDelta = 0
+                                if isMoving(tostring(object)) then
+                                    distanceDelta = math.random(5,8)
+                                end
+                                local px, py, pz = ObjectPosition(theTarget)
+                                local x, y, z = GetPositionBetweenObjects(object, theTarget, distanceDelta)
+                                z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                                if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+                                    if cast.able.freezingTrap() then
+                                        CastSpellByName("Freezing Trap")
+                                        br.addonDebug("Casting freezing trap on " .. ObjectName(object) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
+                                        ClickPosition(x, y, z)
+                                        if mouselookActive then
+                                            MouselookStart()
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    -- Hunter's Mark
     if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
         if cast.huntersMark() then ui.debug("Cast Hunter's Mark") return true end
     end
@@ -393,7 +460,7 @@ actionList.TrickShots = function()
     -- trueshot
     if alwaysCdNever("Trueshot") and cast.able.trueshot() then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
-    end 
+    end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down
     if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire()
@@ -537,7 +604,7 @@ actionList.SingleTarget = function()
         or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards10t > 1)
     then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
-    end 
+    end
     -- Aimed Shot
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
     if cast.able.aimedShot() and not unit.moving("player") and (not buff.preciseShots.exists()
@@ -685,7 +752,6 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",true)
     enemies.get(40,"player",false,true)
-	
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
@@ -695,7 +761,6 @@ local function runRotation()
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
-    
     var.lowestAimedSerpentSting = "target"
     var.lowestAimedRemain = 99
     var.lowestHPUnit = "target"
