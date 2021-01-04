@@ -1031,7 +1031,7 @@ br.lists.spells = {
                 treantForm                  = 114282,
                 ursolsVortex                = 102793,
                 wildGrowth                  = 48438,
-            --    wrath                       = 5176,
+                wrath                       = 5176,
             },
             artifacts                       = {
 
