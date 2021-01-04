@@ -76,6 +76,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
+        br.ui:createDropdownWithout(section, "Auto Forms", { "Any", "Travel Forms", "Cat Form", }, 1, "|cffFFFFFFSelect the forms you want to use while moving")
         br.ui:createCheckbox(section, "Use Mount Form", "Uses the Mount Form for ground travel.", 1)
         br.ui:createCheckbox(section, "Cat Charge", "Use Wild Charge to close distance.", 1)
         br.ui:createCheckbox(section, "Break form for critical", "", 1)
@@ -771,7 +772,7 @@ local function runRotation()
     local cat = br.player.buff.catForm.exists()
     local owl = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
-    local mount = GetShapeshiftForm() == 5 --- or maybe br.player.buff.mountForm.exists() but this is not working (mountform has no buff? idk)
+    local mount = GetShapeshiftForm() == 5 
     local noform = GetShapeshiftForm() == 0
     local units = br.player.units
     local traits = br.player.traits
@@ -789,6 +790,13 @@ local function runRotation()
     local hasteAmount = GetHaste() / 100
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
     local freeMana = buff.innervate.exists() or buff.symbolOfHope.exists()
+    
+    
+    if talent.balanceAffinity then -- BalanceAffinity adds one stance
+        mount = GetShapeshiftForm() == 6
+    else 
+        mount = GetShapeshiftForm() == 5
+    end
 
     units.get(5)
     units.get(8)
@@ -1410,10 +1418,10 @@ local function runRotation()
                 standingTime = GetTime() - DontMoveStartTime
             end            --     local moveTimer = player.movingTime()
             --     Print(tostring(moveTimer))
-
             --and br.timer:useTimer("debugShapeshift", 0.25) then
+
             -- Flight Form
-            if not inCombat and canFly() and not swimming and (br.fallDist > 90 or 1 == 1) and level >= 24 and not buff.prowl.exists() then
+            if not inCombat and canFly() and not swimming and (br.fallDist > 90 or 1 == 1) and level >= 24 and not buff.prowl.exists() and (getOptionValue("Auto Forms") == 1 or getOptionValue("Auto Forms") == 2) then
                 if GetShapeshiftForm() ~= 0 and not buff.travelForm.exists() then
                     -- RunMacroText("/CancelForm")
                     CastSpellByID(783, "player")
@@ -1421,7 +1429,7 @@ local function runRotation()
                 end
             end
             -- Aquatic Form
-            if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
+            if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") and (getOptionValue("Auto Forms") == 1 or getOptionValue("Auto Forms") == 2) then
                 if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                     -- CancelShapeshiftForm()
                     RunMacroText("/CancelForm")
@@ -1430,7 +1438,7 @@ local function runRotation()
                 end
             end
             -- Travel Form
-            if not inCombat and not swimming and level >= 24 and not buff.prowl.exists() and not travel and not mount and not IsIndoors() and IsMovingTime(1) then
+            if not inCombat and not swimming and level >= 24 and not buff.prowl.exists() and not travel and not mount and not IsIndoors() and IsMovingTime(1) and (getOptionValue("Auto Forms") == 1 or getOptionValue("Auto Forms") == 2) then
                 -- Print(GetShapeshiftForm())
                 if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                     RunMacroText("/CancelForm")
@@ -1450,7 +1458,7 @@ local function runRotation()
                 end
             end
             -- Cat Form
-            if not cat and not IsMounted() and not flying and IsIndoors() then
+            if not cat and not IsMounted() and not flying and (IsIndoors() or getOptionValue("Auto Forms") == 3) and (getOptionValue("Auto Forms") == 1 or getOptionValue("Auto Forms") == 3) then
                 -- Cat Form when not swimming or flying or stag and not in combat
                 if moving and not swimming and not flying and not travel then
                     if cast.catForm("player") then
@@ -1466,6 +1474,7 @@ local function runRotation()
                 end
             end
         end -- End Shapeshift Form Management
+
         -- Revive
         if isChecked("Revive") and not cast.last.revive(1) then
             if getOptionValue("Revive") == 1 and hastar and playertar and deadtar then
