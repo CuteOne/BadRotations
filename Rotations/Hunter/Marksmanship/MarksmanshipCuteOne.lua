@@ -201,6 +201,45 @@ local function isCC(unit)
     return false
 end
 
+local function CCLogic(IDs, spell)
+    local cc_range = 35
+    for i = 1, GetObjectCountBR() do
+        local object = GetObjectWithIndex(i)
+        local ID = ObjectID(object)
+        for _,v in pairs(IDs) do
+            if ID == v then
+                if not isCC(object) then
+                    local theTarget = UnitTarget(object) -- cc target moving to its target
+                    if theTarget == nil then theTarget = "player" end
+                    local x1, y1, z1 = ObjectPosition(theTarget)
+                    local x2, y2, z2 = ObjectPosition(object)
+                    local facingDeg=ObjectFacing(object)*(180/math.pi)
+                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                    if distance < cc_range and not isLongTimeCCed(object) and not UnitIsDeadOrGhost(object) then
+                        local distanceDelta = 0
+                        if isMoving(tostring(object)) and not spell == "Binding Shot" then
+                            distanceDelta = math.random(5,8)
+                        end
+                        local px, py, pz = ObjectPosition(theTarget)
+                        local x, y, z = GetPositionFromPosition(x2, y2, z2, distanceDelta, ObjectFacing(object), 1)
+                        z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                        if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+                            if canCast(spell) then
+                                CastSpellByName(spell)
+                                br.addonDebug("Casting "..spell .." on " .. ObjectName(object) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
+                                ClickPosition(x, y, z)
+                                if mouselookActive then
+                                    MouselookStart()
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -211,56 +250,14 @@ actionList.Extras = function()
 
         local dungeons = {"The Necrotic Wake", "Plaguefall", "Mists of Tirna Scithe", "Halls of Atonement",
         "Theater of Pain", "De Other Side", "Spires of Ascension", "Sanguine Depths"}
-        local radar = "off"
-        local currentDungeon = ""
 
         for _, v in pairs(dungeons) do
             if v == GetZoneText() then
-                currentDungeon = v
-                radar = "on"
-            end
-        end
+                local query = {}
+                query["Mists of Tirna Scithe"] = {165251} -- {spirit vulpin, }
+                query["Plaguefall"] = {171887} -- {Globgrod, }
 
-        local query = {}
-        query["Mists of Tirna Scithe"] = {165251} -- {spirit vulpin, }
-        query["Plaguefall"] = {171887} -- {Globgrod, }
-
-        local cc_range = 35
-
-        if radar == "on" then
-            for i = 1, GetObjectCountBR() do
-                local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                for _,v in pairs(query[tostring(currentDungeon)]) do
-                    if ID == v then
-                        if not isCC(object) or getBuffRemain(object, 3355) < math.random(5,10) then
-                            local theTarget = UnitTarget(object) -- cc target moving to its target
-                            if theTarget == nil then theTarget = "player" end
-                            local x1, y1, z1 = ObjectPosition(theTarget)
-                            local x2, y2, z2 = ObjectPosition(object)
-                            local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                            if distance < cc_range and not isLongTimeCCed(object) then
-                                local distanceDelta = 0
-                                if isMoving(tostring(object)) then
-                                    distanceDelta = math.random(5,8)
-                                end
-                                local px, py, pz = ObjectPosition(theTarget)
-                                local x, y, z = GetPositionBetweenObjects(object, theTarget, distanceDelta)
-                                z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
-                                if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
-                                    if cast.able.freezingTrap() then
-                                        CastSpellByName("Freezing Trap")
-                                        br.addonDebug("Casting freezing trap on " .. ObjectName(object) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
-                                        ClickPosition(x, y, z)
-                                        if mouselookActive then
-                                            MouselookStart()
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
+                CCLogic(query[tostring(v)], "Freezing Trap")
             end
         end
     end
