@@ -865,7 +865,7 @@ local function runRotation()
                 end
                 -- Throw Glaive
                 -- throw_glaive,if=buff.fel_bombardment.stack=5&(buff.immolation_aura.up|!buff.metamorphosis.up)
-                if ui.checked("Throw Glaive") and cast.able.throwGlaive() and buff.felBombardment.stack() == 5 and (buff.imolationAura.exists() or not buff.metamorphosis.exists()) then
+                if ui.checked("Throw Glaive") and cast.able.throwGlaive() and buff.felBombardment.stack() == 5 and (buff.immolationAura.exists() or not buff.metamorphosis.exists()) then
                     if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Fel Bombardment]") return true end
                 end
                 -- Call Action List - Essence Break

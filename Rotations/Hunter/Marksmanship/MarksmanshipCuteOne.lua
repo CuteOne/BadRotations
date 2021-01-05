@@ -85,6 +85,8 @@ local function createOptions()
         br.rotations.support["PetCuteOne"].options()
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            -- Cooldown harmonization
+            br.ui:createCheckbox(section,"Cooldown harmonizing with Trueshot", "|cffFFFFFFUse other cooldowns with trueshot")
             -- Agi Pot
             br.ui:createCheckbox(section,"Potion")
             -- Flask Up Module
@@ -183,9 +185,11 @@ local power
 local runeforge
 local spell
 local talent
+local items
 local ui
 local unit
 local units
+local use
 local var
 local actionList = {}
 local dungeons = {"The Necrotic Wake", "Plaguefall", "Mists of Tirna Scithe", "Halls of Atonement",
@@ -235,6 +239,11 @@ actionList.Extras = function()
                 end
             end
         end
+    end
+    -- Feign Death
+    if buff.feignDeath.exists() then
+        StopAttack()
+        ClearTarget()
     end
     -- Hunter's Mark
     if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
@@ -370,13 +379,27 @@ actionList.Cooldowns = function()
         end
         -- bag_of_tricks,if=buff.trueshot.down
     end
+
+    -- Cooldown Harmonizing
+    if ui.checked("Cooldown harmonizing with Trueshot") then
+        if buff.trueshot.exists() then
+            --Inscrutable Quantum Device
+            if use.able.inscrutableQuantumDevice() then
+                use.inscrutableQuantumDevice()
+            end
+            --Double Tap
+            if cast.able.doubleTap() then
+                cast.doubleTap()
+            end
+        end
+    end
     -- Potion
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    -- if ui.useCDs() and ui.checked("Potion") and canUseItem(142117) and unit.instance("raid") then
-    --     if buff.trueshot.exists() and (buff.bloodLust.exists() or var.caActive or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25 and ui.useCDs())) then
-    --         useItem(142117)
-    --     end
-    -- end
+    if ui.useCDs() and ui.checked("Potion") and use.able.potionOfSpectralAgility() and unit.instance("raid") then
+        if buff.trueshot.exists() and (buff.bloodLust.exists() or var.caActive or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25 and ui.useCDs())) then
+            use.potionOfSpectralAgility()
+        end
+    end
 end -- End Action List - Cooldowns
 
 -- Action List - Trick Shots
@@ -702,18 +725,18 @@ local function runRotation()
     cd                                            = br.player.cd
     charges                                       = br.player.charges
     covenant                                      = br.player.covenant
-    conduit                                       = br.player.conduit
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
-    equiped                                       = br.player.equiped
     module                                        = br.player.module
     power                                         = br.player.power
     runeforge                                     = br.player.runeforge
     spell                                         = br.player.spell
     talent                                        = br.player.talent
+    items                                         = br.player.items
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
+    use                                           = br.player.use
     var                                           = br.player.variables
 
     units.get(40)

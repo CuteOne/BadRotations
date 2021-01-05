@@ -1,7 +1,7 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893"
-local StunSpellList="332329|332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328475|330423|294171|164737"
-local HoJPrioList = "164702|164362|170488|165905|165251"
+local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
+local StunSpellList="332329|332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328475|330423|294171|164737|330586|329224|328429"
+local HoJPrioList = "164702|164362|170488|165905|165251|164464|165556"
 ---------------
 --- Toggles ---
 ---------------
@@ -95,7 +95,7 @@ local function createOptions()
 		-- Basic Healing Module
 		br.player.module.BasicHealing(section)
 		-- Phial of Serenity
-		br.ui:createSpinner (section, "PoS removes Necrotic", 10, 0, 20, 1, "","|cffFFFFFFNecrotic stacks Phial of Serenity to use at")
+		br.ui:createSpinner (section, "PoS removes Necrotic", 20, 0, 50, 1, "","|cffFFFFFFNecrotic stacks Phial of Serenity to use at")
 		if br.player.race == "BloodElf" then
 			br.ui:createSpinner (section, "Arcane Torrent Dispel", 1, 0, 20, 1, "","|cffFFFFFFMinimum Torrent Targets")
 		end
@@ -146,7 +146,7 @@ local function createOptions()
 		-- Avenger's Shield
 		br.ui:createCheckbox(section, "Avenger's Shield - INT")
 		-- Interrupt Percentage
-		br.ui:createSpinner(section,  "Interrupt At",  60,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
+		br.ui:createSpinnerWithout(section, "Interrupt At",  60,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
 		br.ui:checkSectionState(section)
 		------------------------
 		--- ROTATION OPTIONS ---
@@ -534,7 +534,7 @@ local function runRotation()
 				end
 			end
 			-- Cleanse Toxins
-			if isChecked("Clease Toxin") and cast.able.cleanseToxins() then
+			if isChecked("Clease Toxin") and cast.able.cleanseToxins() and GetObjectID("boss1") ~= 164267 then
 				if getOptionValue("Clease Toxin")==1 then
 					if canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return true end
@@ -591,10 +591,10 @@ local function runRotation()
 			end
 			-- Redemption
 			if isChecked("Redemption") and not inCombat then
-				if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
+				if getOptionValue("Redemption")==1 and not isMoving("player") and resable and not castingUnit() then
 					if cast.redemption("target","dead") then return true end
 				end
-				if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
+				if getOptionValue("Redemption")==2 and not isMoving("player") and resable and not castingUnit() then
 					if cast.redemption("mouseover","dead") then return true end
 				end
 			end
@@ -629,12 +629,38 @@ local function runRotation()
 		end
 	end -- End Action List - Defensive
 	local function BossEncounterCase()
+		-- Infectious Rain
+		if UnitChannelInfo("boss1") ~= GetSpellInfo(331399) and getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
+			if cast.cleanseToxins("player") then return true end
+		end
+		-- Will to
+		if race == "Human" and getSpellCD(59752) == 0 and getDebuffRemain("player",321893) ~= 0 then
+			if CastSpellByName(GetSpellInfo(59752)) then return true end
+		end
+		-- Gloom Squall
+		if getBuffRemain("player",324089) ~= 0 then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if (GetObjectID(thisUnit) == 162099 or GetObjectID(thisUnit) == 162133) and (UnitCastingInfo(thisUnit) == GetSpellInfo(322903) or UnitCastingInfo(thisUnit) == GetSpellInfo(324103)) then
+					RunMacroText("/click ExtraActionButton1")
+				end
+			end
+		end
 		-- Hammer of Justice
 		if cast.able.hammerOfJustice() then
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
-				if HoJList[GetObjectID(thisUnit)] ~= nil then
+				if HoJList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit,343503) == 0 then
 					if cast.hammerOfJustice(thisUnit) then return true end
+				end
+			end
+		end
+		-- Divine Toll
+		if (GetObjectID("boss1") == 165946 or GetObjectID("boss1") == 164185) and cast.able.divineToll() then
+			for i = 1, #enemies.yards30 do
+			local thisUnit = enemies.yards30[i]
+				if GetObjectID(thisUnit) == 166524 or GetObjectID(thisUnit) == 164363 then
+					if cast.divineToll(thisUnit) then return true end
 				end
 			end
 		end
@@ -718,21 +744,19 @@ local function runRotation()
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
 				local distance = getDistance(thisUnit)
-				-- Hammer of Justice
-				if getBuffRemain(thisUnit,226510) == 0 then
-					local interruptID
-					if UnitCastingInfo(thisUnit) then
-						interruptID = select(9,UnitCastingInfo(thisUnit))
-					elseif UnitChannelInfo(thisUnit) then
-						interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
+				-- Stun Spells
+				local interruptID
+				if UnitCastingInfo(thisUnit) then
+					interruptID = select(9,UnitCastingInfo(thisUnit))
+				elseif UnitChannelInfo(thisUnit) then
+					interruptID = select(8,UnitChannelInfo(thisUnit))
+				end
+				if interruptID ~=nil and StunSpellsList[interruptID] then
+					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
+						if cast.hammerOfJustice(thisUnit) then return true end
 					end
-					if interruptID ~=nil and StunSpellsList[interruptID] then
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
-							if cast.hammerOfJustice(thisUnit) then return true end
-						end
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
-							if cast.blindingLight() then return true end
-						end
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and getBuffRemain(thisUnit,343503) == 0 then
+						if cast.blindingLight() then return true end
 					end
 				end
 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -747,12 +771,14 @@ local function runRotation()
 					end
 					-- Hammer of Justice
 					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
-						if cast.hammerOfJustice(thisUnit) then return true end
-						InterruptTime = GetTime()
+						if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
 					end
 					-- Rebuke
-					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and (not InterruptTime or GetTime() - InterruptTime > 0.5) then
+					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and not GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
+					end
+					if cast.last.hammerOfJustice() or cast.last.rebuke() then
+						hoj_unit = nil
 					end
 				end
 			end
@@ -815,16 +841,8 @@ local function runRotation()
 			end
 			-- Divine Toll
 			if isChecked("Divine Toll") and cast.able.divineToll() then
-				if (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and GetObjectID("boss1") ~= 165946 then
+				if (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and GetObjectID("boss1") ~= 165946 and GetObjectID("boss1") ~= 164185 then
 					if cast.divineToll(units.dyn30) then return true end
-				end
-				if GetObjectID("boss1") == 165946 then
-					for i = 1, #enemies.yards30 do
-					local thisUnit = enemies.yards30[i]
-						if GetObjectID(thisUnit) == 166524 then
-							if cast.divineToll(thisUnit) then return true end
-						end
-					end
 				end
 			end
 			-- Consecration
