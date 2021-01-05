@@ -140,10 +140,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "CC")
         br.ui:createCheckbox(section, "Boss Mechanic CCs", "|cffFFFFFFCurrently supported dungeons:"..
                                                            "\nPlaguefall (Globgrog - Slimy Smorgasbord)"..
-                                                           "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)")
+                                                           "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)"..
+                                                           "\nThe Necrotic Wake (Blightbone  - Carrion Worms)")
         br.ui:createCheckbox(section, "Miscellaneous CCs", "|cffFFFFFFCurrently supported dungeons:"..
-                                                           "\nPlaguefall (Rotting slimeclaws)"..
-                                                           "\nThe Necrotic Wake (First boss - Carrion Worms)")
+                                                           "\nPlaguefall (Rotting slimeclaws)")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -189,7 +189,7 @@ local units
 local var
 local actionList = {}
 local dungeons = {"The Necrotic Wake", "Plaguefall", "Mists of Tirna Scithe", "Halls of Atonement",
-        "Theater of Pain", "De Other Side", "Spires of Ascension", "Sanguine Depths", "Bastion"}
+        "Theater of Pain", "De Other Side", "Spires of Ascension", "Sanguine Depths"}
 
 
 -----------------------
@@ -213,9 +213,13 @@ actionList.Extras = function()
                 local query = {}
                 query["Mists of Tirna Scithe"] = {165251} -- {spirit vulpin, }
                 query["Plaguefall"] = {171887} -- {Globgrog, }
-                query["Bastion"] = {167109} -- test
                 if query[v] ~= nil then
                     castGroundOnOrInfront(query[v], spell.freezingTrap)
+                end
+                query = {}
+                query["The Necrotic Wake"] = {164702} -- Necrotic Wake first boss - Carrion Worm
+                if query[v] ~= nil then
+                    castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, query[v])
                 end
             end
         end
@@ -225,7 +229,6 @@ actionList.Extras = function()
         for _, v in pairs(dungeons) do
             if v == GetZoneText() then
                 local query = {}
-                query["The Necrotic Wake"] = {164702} -- Necrotic Wake first boss - Carrion Worm
                 query["Plaguefall"] = {163892} -- Running little bitches in Plaguefall
                 if query[v] ~= nil then
                     castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, query[v])
