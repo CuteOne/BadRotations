@@ -353,11 +353,11 @@ actionList.Cooldowns = function()
     end
     -- Potion
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    -- if ui.useCDs() and ui.checked("Potion") and canUseItem(142117) and unit.instance("raid") then
-    --     if buff.trueshot.exists() and (buff.bloodLust.exists() or var.caActive or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25 and ui.useCDs())) then
-    --         useItem(142117)
-    --     end
-    -- end
+    if ui.useCDs() and ui.checked("Potion") and canUseItem(items.potionOfSpectralAgility) and unit.instance("raid") then
+        if buff.trueshot.exists() and (buff.bloodLust.exists() or var.caActive or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25 and ui.useCDs())) then
+            useItem(items.potionOfSpectralAgility)
+        end
+    end
 end -- End Action List - Cooldowns
 
 -- Action List - Trick Shots
@@ -707,7 +707,6 @@ local function runRotation()
     enemies.get(40,"player",true)
     enemies.get(40,"player",false,true)
 
-
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
     var.getCombatTime = _G["getCombatTime"]
@@ -716,7 +715,6 @@ local function runRotation()
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
-
     var.lowestAimedSerpentSting = "target"
     var.lowestAimedRemain = 99
     var.lowestHPUnit = "target"
