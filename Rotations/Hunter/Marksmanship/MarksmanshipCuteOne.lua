@@ -141,6 +141,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Boss Mechanic CCs", "|cffFFFFFFCurrently supported dungeons:"..
                                                      "\nPlaguefall (Globgrog - Slimy Smorgasbord)"..
                                                      "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)")
+        br.ui:createCheckbox(section, "Miscellaneous CCs")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -178,12 +179,16 @@ local enemies
 local module
 local power
 local runeforge
+local spell
 local talent
 local ui
 local unit
 local units
 local var
 local actionList = {}
+local dungeons = {"The Necrotic Wake", "Plaguefall", "Mists of Tirna Scithe", "Halls of Atonement",
+        "Theater of Pain", "De Other Side", "Spires of Ascension", "Sanguine Depths", "Bastion"}
+
 
 -----------------------
 --- Local Functions ---
@@ -194,53 +199,6 @@ local function alwaysCdNever(option)
     return thisOption == 1 or (thisOption == 2 and ui.useCDs())
 end
 
-local function isCC(unit)
-    if getOptionCheck("Don't break CCs") then
-        return isLongTimeCCed(Unit)
-    end
-    return false
-end
-
-local function CCLogic(IDs, spell)
-    local spellName, _, _, _, _, spellMaxRange, _ = GetSpellInfo(spell)
-    local cc_range = spellMaxRange
-    getSpellRange()
-    for i = 1, GetObjectCountBR() do
-        local object = GetObjectWithIndex(i)
-        local ID = ObjectID(object)
-        for _,v in pairs(IDs) do
-            if ID == v then
-                if not isCC(object) then
-                    local theTarget = UnitTarget(object) -- cc target moving to its target
-                    if theTarget == nil then theTarget = "player" end
-                    local x1, y1, z1 = ObjectPosition(theTarget)
-                    local x2, y2, z2 = ObjectPosition(object)
-                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                    if distance < cc_range and not isLongTimeCCed(object) and not UnitIsDeadOrGhost(object) then
-                        local distanceDelta = 0
-                        if isMoving(tostring(object)) and not spell == "Binding Shot" then
-                            distanceDelta = math.random(5,8)
-                        end
-                        local px, py, pz = ObjectPosition(theTarget)
-                        local x, y, z = GetPositionFromPosition(x2, y2, z2, distanceDelta, ObjectFacing(object), 1)
-                        z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
-                        if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
-                            if canCast(spellName) then
-                                CastSpellByName(spellName)
-                                br.addonDebug("Casting "..spellName .." on " .. ObjectName(object) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
-                                ClickPosition(x, y, z)
-                                if mouselookActive then
-                                    MouselookStart()
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -248,17 +206,28 @@ end
 actionList.Extras = function()
     -- CC
     if ui.checked("Boss Mechanic CCs") then
-
-        local dungeons = {"The Necrotic Wake", "Plaguefall", "Mists of Tirna Scithe", "Halls of Atonement",
-        "Theater of Pain", "De Other Side", "Spires of Ascension", "Sanguine Depths"}
-
         for _, v in pairs(dungeons) do
             if v == GetZoneText() then
                 local query = {}
                 query["Mists of Tirna Scithe"] = {165251} -- {spirit vulpin, }
-                query["Plaguefall"] = {171887} -- {Globgrod, }
-
-                CCLogic(query[tostring(v)], "Freezing Trap")
+                query["Plaguefall"] = {171887} -- {Globgrog, }
+                query["Bastion"] = {167109} -- test
+                if query[v] ~= nil then
+                    castGroundOnOrInfront(query[v], spell.freezingTrap)
+                end
+            end
+        end
+    end
+    -- M+ thingies
+    if ui.checked("Miscellaneous CCs") then
+        for _, v in pairs(dungeons) do
+            if v == GetZoneText() then
+                local query = {}
+                query["The Necrotic Wake"] = {164702} -- Necrotic Wake first boss - Carrion Worm
+                query["Plaguefall"] = {163892} -- Running little bitches in Plaguefall
+                if query[v] ~= nil then
+                    castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, query[v])
+                end
             end
         end
     end
@@ -735,6 +704,7 @@ local function runRotation()
     module                                        = br.player.module
     power                                         = br.player.power
     runeforge                                     = br.player.runeforge
+    spell                                         = br.player.spell
     talent                                        = br.player.talent
     ui                                            = br.player.ui
     unit                                          = br.player.unit

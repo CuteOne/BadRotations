@@ -98,11 +98,9 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
         local X1,Y1,Z1 = GetObjectPosition(unit)
         if castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
     end
-
-
 end
 
-function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime, unitID)
     if radius == nil then radius = maxRange end
     if maxRange == nil then maxRange = radius end
     -- return table with combination of every 2 units
@@ -167,6 +165,16 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
     if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = getEnemies("player",maxRange,false) end
+
+    if unitID ~= nil then
+        for key, value in pairs(allUnitsInRange) do
+            if value ~= nil then
+                if GetObjectID(value) ~= UnitID then
+                    table.remove(allUnitsInRange, key)
+                end
+            end
+        end
+    end
 
     local testCircles = {}
     --for every combination of units make 2 circles, and put in testCircles
@@ -1031,6 +1039,58 @@ function BWCheck()
                     br.DBM.Timer[i] = nil
                 end
             else
+            end
+        end
+    end
+end
+
+local function isCC(unit)
+    if getOptionCheck("Don't break CCs") then
+        return isLongTimeCCed(unit)
+    end
+    return false
+end
+
+-- <summary>
+-- Given a table of units, find the best location infront of moving or ontop of still unit
+-- </summary>
+-- <param name="EnemyIDs">table of units to consider</param>
+-- <param name="spell">spell to use</param>
+function castGroundOnOrInfront(EnemyIDs, spell)
+    local spellName, _, _, _, _, spellMaxRange, _ = GetSpellInfo(spell)
+    local cc_range = spellMaxRange
+    getSpellRange()
+    for i = 1, GetObjectCountBR() do
+        local object = GetObjectWithIndex(i)
+        local ID = ObjectID(object)
+        for _,v in pairs(EnemyIDs) do
+            if ID == v then
+                if not isCC(object) and isInCombat(object) then
+                    local theTarget = UnitTarget(object) -- cc target moving to its target
+                    if theTarget == nil then theTarget = "player" end
+                    local x1, y1, z1 = ObjectPosition(theTarget)
+                    local x2, y2, z2 = ObjectPosition(object)
+                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                    if distance < cc_range and not isLongTimeCCed(object) and not UnitIsDeadOrGhost(object) then
+                        local distanceDelta = 0
+                        if isMoving(tostring(object)) then
+                            distanceDelta = math.random(5,8)
+                        end
+                        local px, py, pz = ObjectPosition(theTarget)
+                        local x, y, z = GetPositionFromPosition(x2, y2, z2, distanceDelta, ObjectFacing(object), 1)
+                        z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                        if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+                            if canCast(spellName) then
+                                CastSpellByName(spellName)
+                                br.addonDebug("Casting "..spellName .." on " .. ObjectName(object) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
+                                ClickPosition(x, y, z)
+                                if mouselookActive then
+                                    MouselookStart()
+                                end
+                            end
+                        end
+                    end
+                end
             end
         end
     end
