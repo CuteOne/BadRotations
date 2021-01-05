@@ -133,8 +133,16 @@ br.lists.items = {
     vigorTrinket                    = 165572,
     visionOfDemise                  = 169307,
     hummingBlackDragonscale         = 174044,
+
     --weapons that are clickable
     neuralSynapseEnhancer           = 168973,
     -- Legendary 8.3 cloak
     shroudOfResolve                 = 169223,
+    ----------- SL items below -----------
+    --Trinkets
+    inscrutableQuantumDevice        = 179350,
+    --Consumables
+    potionOfSpectralAgility         = 171270,
+    shadowCoreOil                   = 171285,
+    spectralFlaskOfPower            = 171276,
 }
