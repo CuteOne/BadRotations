@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "1.8.2"
+local VerNum  = "1.8.3"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffFFBB00"
 local colorGreen = "|cff4DDB1D"
@@ -207,6 +207,9 @@ local function createOptions ()
 
             -- Drain Soul Snipe
             br.ui:createCheckbox(section, "Drain Soul Snipe", "Will cast Drain Soul on dying units for shards generation.")
+
+            -- Refresh Dots for Phantom
+            br.ui:createCheckbox(section, "Refresh Dots before casting Phantom", "Will refresh dots before casting Phantom of Singularity")
 
         br.ui:checkSectionState(section)
 		-------------------------
@@ -1158,7 +1161,30 @@ end
         end
         return true
     end
-
+local function actionList_PhantomPrep()
+    if not moving then
+        if spellQueueReady then
+            if not debuff.phantomSingularity.exists("target") and not debuff.soulRot.exists("target") then
+                if debuff.unstableAffliction.exists("target") and debuff.unstableAffliction.remains("target") < 15 then
+                    if cast.unstableAffliction("target") then br.addonDebug("[Action:PhantomPrep] Forced UA Refresh") return true end
+                end
+                if debuff.agony.exists("target") and debuff.agony.remains("target") < 12 then
+                    if cast.agony("target") then br.addonDebug("[Action:PhantomPrep] Forced Agony Refresh") return true end
+                end
+                if talent.siphonLife and debuff.siphonLife.exists("target") and debuff.siphonLife.remains("target") < 12 then
+                    if cast.siphonLife("target") then br.addonDebug("[Action:PhantomPrep] Forced Siphon Life Refresh") return true end
+                end
+                if debuff.corruption.exists("target") and debuff.corruption.remains("target") < 12 then
+                    if cast.corruption("target") then br.addonDebug("[Action:PhantomPrep] Forced Corruption Refresh") return true end
+                end
+                if debuff.shadowEmbrace.exists("target") and debuff.shadowEmbrace.stack("target") >= 3 and debuff.shadowEmbrace.remains("target") < 9 then
+                    if cast.drainSoul("target") then br.addonDebug("[Action:PhantomPrep] Forced Shadow Embrace Refresh") return true end
+                end
+            end
+        end
+    end
+end
+    
 local function actionList_AoE()
     ------------------------------------------------
     -- Drain Soul Snipe ----------------------------
@@ -1704,8 +1730,7 @@ local function actionList_LevelingAoE()
         end
     end
 
-end -- End Action List: Leveling AoE
-    
+end -- End Action List: Leveling AoE  
 
 local function actionList_Rotation()
     --[[-- Curse of Weakness
@@ -1772,7 +1797,7 @@ local function actionList_Rotation()
     -- Summon Darkglare (Any Talent)----------------
     ------------------------------------------------
     if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and not moving and talent.seedOfCorruption and (debuff.soulRot.exists("target") or not debuff.soulRot.exists("target") and cd.soulRot.remains() >= gcdMax) and debuff.agony.exists("target") and debuff.corruption.exists("target") and debuff.unstableAffliction.exists("target")
-    and (talent.siphonLife and debuff.siphonLife.exists("target") or not talent.siphonLife) and debuff.shadowEmbrace.stack() >= 3 then
+    and (talent.siphonLife and debuff.siphonLife.exists("target") or not talent.siphonLife) and debuff.shadowEmbrace.stack("target") >= 3 then
         CastSpellByName(GetSpellInfo(spell.summonDarkglare)) br.addonDebug("[Action:Rotation] Summon Darkglare (SoC)")
         return true
     end
@@ -1946,6 +1971,14 @@ local function actionList_Rotation()
         if cast.haunt("target") then br.addonDebug("[Action:Rotation] Haunt") return true end
     end
     ------------------------------------------------
+    -- Haunt (Dark Glare Active)--------------------
+    ------------------------------------------------
+    if not moving and talent.haunt and getTTD("target") >= ui.value("Haunt TTD")
+    and pet.darkglare.active()
+    and shards < 1 then
+        if cast.haunt("target") then br.addonDebug("[Action:Rotation] Haunt") return true end
+    end
+    ------------------------------------------------
     -- Drain Soul ----------------------------------
     ------------------------------------------------
     if not moving then
@@ -1999,18 +2032,29 @@ local function actionList_Rotation()
                 dsInterrupt = true
                 return true
             end
+        elseif talent.phantomSingularity and cd.phantomSingularity.ready() and cd.soulRot.remains() >= gcdMax then
+            if cast.drainSoul() then br.addonDebug("[Action:Rotation] Drain Soul Filler (Waiting for Soul Rot)")
+                dsInterrupt = true
+                return true
+            end
         end
     end
     ------------------------------------------------
     -- Phantom Singularity -------------------------
     ------------------------------------------------
-    if not talent.darkCaller and not moving and talent.phantomSingularity then
+    if not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() then
+        if isChecked("Refresh Dots before casting Phantom") and cd.summonDarkglare.remains() > 1 then
+            if actionList_PhantomPrep() then return end
+        end
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Rotation] Phantom Singularity") return true end 
     end
     ------------------------------------------------
     -- Phantom Singularity (Dark Caller Talent)-----
     ------------------------------------------------
-    if talent.darkCaller and not moving and talent.phantomSingularity and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
+    if talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
+        if isChecked("Refresh Dots before casting Phantom") and cd.summonDarkglare.remains() >= gcdMax then
+            if actionList_PhantomPrep() then return end
+        end
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Rotation] Phantom Singularity") return true end 
     end
     ------------------------------------------------
@@ -2335,18 +2379,24 @@ local function actionList_LevelingST()
                         dsInterrupt = true
                         return true
                     end
+                elseif talent.phantomSingularity and cd.phantomSingularity.ready() and cd.soulRot.remains() >= gcdMax then
+                    if cast.drainSoul() then br.addonDebug("[Action:Leveling ST] Drain Soul Filler (Waiting for Soul Rot")
+                        dsInterrupt = true
+                        return true
+                    end
+        
                 end
             end
     ------------------------------------------------
     -- Phantom Singularity -------------------------
     ------------------------------------------------
-    if not talent.darkCaller and not moving and talent.phantomSingularity then
+    if not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() then
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Leveling ST] Phantom Singularity") return true end 
     end
     ------------------------------------------------
     -- Phantom Singularity (Dark Caller Talent)-----
     ------------------------------------------------
-    if talent.darkCaller and not moving and talent.phantomSingularity and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
+    if talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Leveling ST] Phantom Singularity") return true end 
     end
     ------------------------------------------------
@@ -2431,7 +2481,6 @@ local function actionList_LevelingST()
         end
     end
 end-- End Action List: leveling ST
-
 local function actionList_PetControl()
     if UnitExists("pet")
     and not UnitIsDeadOrGhost("pet") 
@@ -2581,18 +2630,43 @@ local function actionList_drainSoulST()
     and debuff.shadowEmbrace.stack("target") >= 3
     and cd.phantomSingularity.remain() <= gcdMax
     and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)
+    and cd.soulRot.ready()
     and not moving then
+        if isChecked("Refresh Dots before casting Phantom") and cd.summonDarkglare.remains() >= gcdMax then
+            if actionList_PhantomPrep() then return end
+        end
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped ST] Phantom of Singularity") return true end
     end
 
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if (#enemies.yards40 > 0 or useCDs()) 
+        if talent.darkCaller and (#enemies.yards40 > 0 or useCDs()) 
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45))
         or (talent.vileTaint and debuff.vileTaint.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
         or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget) and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
         then
+            if cast.soulRot("target") then br.addonDebug("[Action:Clipped ST] Soul Rot (DC)")  return true end
+        end 
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+        if (#enemies.yards40 > 0 or useCDs()) 
+        and (talent.phantomSingularity and debuff.phantomSingularity.exists("target"))
+        or (talent.vileTaint and debuff.vileTaint.exists("target")) 
+        or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget)) 
+        then
             if cast.soulRot("target") then br.addonDebug("[Action:Clipped ST] Soul Rot")  return true end
         end 
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+        if not moving and shards >= 5 and debuff.agony.remains() > getOptionValue("Agony Refresh") 
+        and debuff.corruption.remains() > getOptionValue("Corruption Refresh") 
+        and debuff.unstableAffliction.remains() > getOptionValue("UA Refresh")
+        and (talent.siphonLife and debuff.siphonLife.remains() > getOptionValue("Siphon Life Refresh") or not talent.siphonLife) 
+        and debuff.shadowEmbrace.remains() > 5 
+        and not cd.phantomSingularity.ready() then
+            if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped ST] Malefic Rapture (Max Shards)") return true end
+        end
     end
 end
 
@@ -2749,18 +2823,39 @@ local function actionList_LevelingDsST()
     if UnitChannelInfo("player") == GetSpellInfo(198590) 
     and cd.phantomSingularity.remain() <= gcdMax
     and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)
+    and cd.soulRot.remains() == 0
     and not moving then
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped Leveling ST] Phantom of Singularity") return true end
     end
 
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if (#enemies.yards40 > 0 or useCDs()) 
+        if talent.darkCaller and (#enemies.yards40 > 0 or useCDs()) 
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45))
         or (talent.vileTaint and debuff.vileTaint.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
         or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget) and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
         then
             if cast.soulRot("target") then br.addonDebug("[Action:Clipped Leveling ST] Soul Rot")  return true end
         end 
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+        if (#enemies.yards40 > 0 or useCDs()) 
+        and (talent.phantomSingularity and debuff.phantomSingularity.exists("target"))
+        or (talent.vileTaint and debuff.vileTaint.exists("target")) 
+        or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget)) 
+        then
+            if cast.soulRot("target") then br.addonDebug("[Action:Clipped Leveling ST] Soul Rot")  return true end
+        end 
+    end
+
+    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+        if not moving and shards >= 5 and debuff.agony.remains() > getOptionValue("Agony Refresh") 
+        and debuff.corruption.remains() > getOptionValue("Corruption Refresh") 
+        and debuff.unstableAffliction.remains() > getOptionValue("UA Refresh")
+        and (talent.siphonLife and debuff.siphonLife.remains() > getOptionValue("Siphon Life Refresh") or not talent.siphonLife)
+        then
+            if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped Leveling ST] Malefic Rapture (Max Shards)") return true end
+        end
     end
 end
 

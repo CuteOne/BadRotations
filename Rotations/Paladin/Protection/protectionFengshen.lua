@@ -146,7 +146,7 @@ local function createOptions()
 		-- Avenger's Shield
 		br.ui:createCheckbox(section, "Avenger's Shield - INT")
 		-- Interrupt Percentage
-		br.ui:createSpinner(section,  "Interrupt At",  60,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
+		br.ui:createSpinnerWithout(section, "Interrupt At",  60,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
 		br.ui:checkSectionState(section)
 		------------------------
 		--- ROTATION OPTIONS ---
@@ -591,10 +591,10 @@ local function runRotation()
 			end
 			-- Redemption
 			if isChecked("Redemption") and not inCombat then
-				if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
+				if getOptionValue("Redemption")==1 and not isMoving("player") and resable and not castingUnit() then
 					if cast.redemption("target","dead") then return true end
 				end
-				if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
+				if getOptionValue("Redemption")==2 and not isMoving("player") and resable and not castingUnit() then
 					if cast.redemption("mouseover","dead") then return true end
 				end
 			end
@@ -656,10 +656,10 @@ local function runRotation()
 			end
 		end
 		-- Divine Toll
-		if GetObjectID("boss1") == 165946 and cast.able.divineToll() then
+		if (GetObjectID("boss1") == 165946 or GetObjectID("boss1") == 164185) and cast.able.divineToll() then
 			for i = 1, #enemies.yards30 do
 			local thisUnit = enemies.yards30[i]
-				if GetObjectID(thisUnit) == 166524 then
+				if GetObjectID(thisUnit) == 166524 or GetObjectID(thisUnit) == 164363 then
 					if cast.divineToll(thisUnit) then return true end
 				end
 			end
@@ -744,21 +744,19 @@ local function runRotation()
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
 				local distance = getDistance(thisUnit)
-				-- Hammer of Justice
-				if getBuffRemain(thisUnit,226510) == 0 then
-					local interruptID
-					if UnitCastingInfo(thisUnit) then
-						interruptID = select(9,UnitCastingInfo(thisUnit))
-					elseif UnitChannelInfo(thisUnit) then
-						interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
+				-- Stun Spells
+				local interruptID
+				if UnitCastingInfo(thisUnit) then
+					interruptID = select(9,UnitCastingInfo(thisUnit))
+				elseif UnitChannelInfo(thisUnit) then
+					interruptID = select(8,UnitChannelInfo(thisUnit))
+				end
+				if interruptID ~=nil and StunSpellsList[interruptID] then
+					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
+						if cast.hammerOfJustice(thisUnit) then return true end
 					end
-					if interruptID ~=nil and StunSpellsList[interruptID] then
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
-							if cast.hammerOfJustice(thisUnit) then return true end
-						end
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and getBuffRemain(thisUnit,343503) == 0 then
-							if cast.blindingLight() then return true end
-						end
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and getBuffRemain(thisUnit,343503) == 0 then
+						if cast.blindingLight() then return true end
 					end
 				end
 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -773,12 +771,14 @@ local function runRotation()
 					end
 					-- Hammer of Justice
 					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
-						if cast.hammerOfJustice(thisUnit) then return true end
-						InterruptTime = GetTime()
+						if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
 					end
 					-- Rebuke
-					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and (not InterruptTime or GetTime() - InterruptTime > 0.5) then
+					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and not GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
+					end
+					if cast.last.hammerOfJustice() or cast.last.rebuke() then
+						hoj_unit = nil
 					end
 				end
 			end
@@ -841,7 +841,7 @@ local function runRotation()
 			end
 			-- Divine Toll
 			if isChecked("Divine Toll") and cast.able.divineToll() then
-				if (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and GetObjectID("boss1") ~= 165946 then
+				if (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and GetObjectID("boss1") ~= 165946 and GetObjectID("boss1") ~= 164185 then
 					if cast.divineToll(units.dyn30) then return true end
 				end
 			end
