@@ -198,7 +198,12 @@ end
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
--- Hunter's Mark
+    -- Feign Death
+    if buff.feignDeath.exists() then
+        StopAttack()
+        ClearTarget()
+    end
+    -- Hunter's Mark
     if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
         if cast.huntersMark() then ui.debug("Cast Hunter's Mark") return true end
     end
