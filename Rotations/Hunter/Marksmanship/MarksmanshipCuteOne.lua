@@ -181,6 +181,7 @@ local items
 local ui
 local unit
 local units
+local use
 local var
 local actionList = {}
 
@@ -342,8 +343,8 @@ actionList.Cooldowns = function()
     if ui.checked("Cooldown harmonizing with Trueshot") then
         if buff.trueshot.exists() then
             --Inscrutable Quantum Device
-            if hasEquiped(items.inscrutableQuantumDevice) and canUseItem(items.inscrutableQuantumDevice) then
-                useItem(items.inscrutableQuantumDevice)
+            if use.able.inscrutableQuantumDevice() then
+                use.inscrutableQuantumDevice()
             end
             --Double Tap
             if cast.able.doubleTap() then
@@ -353,9 +354,9 @@ actionList.Cooldowns = function()
     end
     -- Potion
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    if ui.useCDs() and ui.checked("Potion") and canUseItem(items.potionOfSpectralAgility) and unit.instance("raid") then
+    if ui.useCDs() and ui.checked("Potion") and use.able.potionOfSpectralAgility() and unit.instance("raid") then
         if buff.trueshot.exists() and (buff.bloodLust.exists() or var.caActive or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25 and ui.useCDs())) then
-            useItem(items.potionOfSpectralAgility)
+            use.potionOfSpectralAgility()
         end
     end
 end -- End Action List - Cooldowns
@@ -693,6 +694,7 @@ local function runRotation()
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
+    use                                           = br.player.use
     var                                           = br.player.variables
 
     units.get(40)
