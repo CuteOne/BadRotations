@@ -512,11 +512,14 @@ local function runRotation()
             if isChecked("Auto Defensive Unavoidables") then
                 --Frozen Binds (4th boss NW)
                 if bossID == 162693 and isCastingSpell(320788, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) and isChecked("Cloak Unavoidables") then
+                    if cd.cloakOfShadows.remain() > 2 then
+                        if cast.vanish("player") then return true end
+                    end
                     if cast.cloakOfShadows("player") then return true end
                 end
                 --Dark Exile (4th boss NW)
                 if bossID == 162693 and isCastingSpell(321894, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) then
-                    if cast.cloakOfShadows("player") then return true end
+                    if cast.vanish("player") then return true end
                 end
                 --Powder Shot (2nd boss freehold)
                 local bossID = GetObjectID("boss1")
