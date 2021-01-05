@@ -67,23 +67,22 @@ br.lists.noTouchUnits = {
     -- Tol Dagor
     { unitID = 133972 }, -- Cannon in Tol Dagor
     { unitID = 160652 }, -- Void Tentacle
+    
     -- Shadowlands
-
     -- Dungeons
     --The Necrotic Wake
     { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
     { unitID = 166079, buff = 321576 }, -- can't kill them with this aura up
     { unitID = 163126, buff = 321576 }, -- can't kill them with this aura up
     { unitID = 163122, buff = 321576 }, -- can't kill them with this aura up
-
     --Hall of Atonement
     { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
     --de other side
     { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
-    -- Raid
+    --Mists
+    { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
     -- Castle Nathria
     { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
-    { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
     { unitID = 165318, buff = 329636 }, -- General Kaal with Hardened Stone Form
     { unitID = 170323, buff = 329636 }, -- General Grashaal with Hardened Stone Form
 }
