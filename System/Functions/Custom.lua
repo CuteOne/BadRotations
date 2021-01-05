@@ -289,8 +289,21 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     -- end
 
     --check with minUnits
-    if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
-        if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
+    if unitID == nil then
+        print("if")
+        if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
+            if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
+        end
+    else
+        for _, v in pairs(unitID) do
+            if getUnitID("target") == v then
+                unitID = v
+            end
+        end
+        -- print(minUnits, ", ", bestCircle.nro, ", ", GetUnitExists("target"), ", ", getUnitID("target"), ", ", unitID)
+        if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") and getUnitID("target") == unitID then
+            if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
+        end
     end
     if bestCircle.nro < minUnits then return false end
 
