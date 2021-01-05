@@ -139,9 +139,11 @@ local function createOptions()
         -- Dungeon / Raid tools
         section = br.ui:createSection(br.ui.window.profile, "CC")
         br.ui:createCheckbox(section, "Boss Mechanic CCs", "|cffFFFFFFCurrently supported dungeons:"..
-                                                     "\nPlaguefall (Globgrog - Slimy Smorgasbord)"..
-                                                     "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)")
-        br.ui:createCheckbox(section, "Miscellaneous CCs")
+                                                           "\nPlaguefall (Globgrog - Slimy Smorgasbord)"..
+                                                           "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)")
+        br.ui:createCheckbox(section, "Miscellaneous CCs", "|cffFFFFFFCurrently supported dungeons:"..
+                                                           "\nPlaguefall (Rotting slimeclaws)"..
+                                                           "\nThe Necrotic Wake (First boss - Carrion Worms)")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
