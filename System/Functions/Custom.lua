@@ -1077,7 +1077,7 @@ function castGroundOnOrInfront(EnemyIDs, spell)
         local ID = ObjectID(object)
         for _,v in pairs(EnemyIDs) do
             if ID == v then
-                if not isCC(object) and isInCombat(object) then
+                if not isCC(object) and isInCombat("player") then
                     local theTarget = UnitTarget(object) -- cc target moving to its target
                     if theTarget == nil then theTarget = "player" end
                     local x1, y1, z1 = ObjectPosition(theTarget)
