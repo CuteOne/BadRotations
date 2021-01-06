@@ -290,7 +290,6 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     --check with minUnits
     if unitID == nil then
-        print("if")
         if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
             if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
         end
