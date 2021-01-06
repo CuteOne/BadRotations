@@ -666,7 +666,7 @@ local function runRotation()
 		end
 		-- Blessing of Freedom
 		if inInstance and cast.able.blessingOfFreedom() then
-			if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
+			if UnitCastingInfo("boss1") == GetSpellInfo(320788) or UnitCastingInfo("boss1") == GetSpellInfo(324608) then
 				BoF = false
 				if cast.blessingOfFreedom("boss1target") then return true end
 			end
