@@ -889,7 +889,7 @@ actionList.Finisher = function()
     end
     -- Primal Wrath
     -- primal_wrath,if=spell_targets.primal_wrath>2
-    if usePrimalWrath() and (not var.noDoT or #enemies.yards8 > 1) and range.dyn8AOE and #enemies.yards8 > 2 then
+    if usePrimalWrath() and (not var.noDoT or #enemies.yards8 > 1) and range.dyn8AOE then
         if cast.primalWrath(nil,"aoe",1,8) then ui.debug("Casting Primal Wrath [Finish]") return true end
     end
     -- Rip
