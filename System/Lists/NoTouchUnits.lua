@@ -85,4 +85,5 @@ br.lists.noTouchUnits = {
     { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
     { unitID = 165318, buff = 329636 }, -- General Kaal with Hardened Stone Form
     { unitID = 170323, buff = 329636 }, -- General Grashaal with Hardened Stone Form
+    { unitID = 168962}, -- Sun King's Reborn Phoenix
 }

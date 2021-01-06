@@ -1,5 +1,5 @@
 local rotationName = "SubS0ul - 9.0"
-local dotBlacklist = ""
+local dotBlacklist = "168962"
 local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
 local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
 ---------------
@@ -405,6 +405,7 @@ local function runRotation()
             local thisUnit = enemyTable30[i]
             local sStormIgnore = {
                 [120651]=true, -- Explosive
+                [168962]=true, -- Sun King's Reborn Phoenix
             }
 
             if thisUnit.distance <= 10 then
@@ -778,7 +779,7 @@ local function runRotation()
             if cast.shadowDance("player") then return true end
         end
         -- actions.cds+=/potion,if=buff.bloodlust.react|fight_remains<30|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
-        if cdUsage and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or (fightRemain < 30 and isBoss()) or (buff.symbolsOfDeath.exists("target") and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10))) then
+        if cdUsage and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or (fightRemain < 30 and isBoss()) or (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10)) then
             if getOptionValue("Potion") == 1 and canUseItem(171349) then
                 useItem(171349)
             elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
