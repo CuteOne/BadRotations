@@ -29,15 +29,27 @@ br.lists.maps = {
 	},
 	Ardenweald = {
 		1565,
+		Zones = {
+			MistsOfTirnaScithe = 13334,
+		}
 	},
 	Bastion = {
 		1533,
+		Zones = {
+			TheNecroticWake = 12916,
+		}
 	},
 	Maldraxxus = {
 		1536,
+		Zones = {
+			Plaguefall = 13228,
+		}
 	},
 	Revendreth = {
 		1525,
+		Zones = {
+			CastleNathria = 13224,
+		}
 	},
 	TheMaw = {
 		1543,

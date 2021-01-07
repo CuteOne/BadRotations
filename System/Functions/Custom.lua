@@ -100,7 +100,7 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
     end
 end
 
-function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime, unitID)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime, unitID, unitHp, buff)
     if radius == nil then radius = maxRange end
     if maxRange == nil then maxRange = radius end
     -- return table with combination of every 2 units
@@ -164,13 +164,34 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
+    if unitHp ~= nil then unitHp = 100 end
+    if buff ~= nil then buff = 0 end
+
     if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = getEnemies("player",maxRange,false) end
 
-    if unitID ~= nil then
-        for key, value in pairs(allUnitsInRange) do
-            if value ~= nil then
-                if GetObjectID(value) ~= UnitID then
-                    table.remove(allUnitsInRange, key)
+    -- Remove from list according to criteria
+    --ID
+    for key, value in pairs(allUnitsInRange) do
+        if value ~= nil then
+            if getUnitID(value) ~= unitID then
+                table.remove(allUnitsInRange, key)
+            end
+        end
+    end
+    --HP
+    for key, value in pairs(allUnitsInRange) do
+        if value ~= nil then
+            if getHP(value) > unitHp then
+                table.remove(allUnitsInRange, key)
+            end
+        end
+    end
+    --Buff
+    for key, value in pairs(allUnitsInRange) do
+        if value ~= nil then
+            if buff ~= 0 then
+            else if not (getBuffDuration(v, buff) > 0) then
+                table.remove(allUnitsInRange, key)
                 end
             end
         end
@@ -294,11 +315,6 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
             if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
         end
     else
-        for _, v in pairs(unitID) do
-            if getUnitID("target") == v then
-                unitID = v
-            end
-        end
         -- print(minUnits, ", ", bestCircle.nro, ", ", GetUnitExists("target"), ", ", getUnitID("target"), ", ", unitID)
         if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") and getUnitID("target") == unitID then
             if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
@@ -1068,42 +1084,48 @@ end
 -- </summary>
 -- <param name="EnemyIDs">table of units to consider</param>
 -- <param name="spell">spell to use</param>
-function castGroundOnOrInfront(EnemyIDs, spell)
+function castGroundOnOrInfront(unitId, spell, hp, debuffId)
+    local allUnitsInRange
     local spellName, _, _, _, _, spellMaxRange, _ = GetSpellInfo(spell)
-    local cc_range = spellMaxRange
-    getSpellRange()
-    for i = 1, GetObjectCountBR() do
-        local object = GetObjectWithIndex(i)
-        local ID = ObjectID(object)
-        for _,v in pairs(EnemyIDs) do
-            if ID == v then
-                if not isCC(object) and isInCombat("player") then
-                    local theTarget = UnitTarget(object) -- cc target moving to its target
-                    if theTarget == nil then theTarget = "player" end
-                    local x1, y1, z1 = ObjectPosition(theTarget)
-                    local x2, y2, z2 = ObjectPosition(object)
-                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                    if distance < cc_range and not isLongTimeCCed(object) and not UnitIsDeadOrGhost(object) then
-                        local distanceDelta = 0
-                        if isMoving(tostring(object)) then
-                            distanceDelta = math.random(5,8)
-                        end
-                        local px, py, pz = ObjectPosition(theTarget)
-                        local x, y, z = GetPositionFromPosition(x2, y2, z2, distanceDelta, ObjectFacing(object), 1)
-                        z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
-                        if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
-                            if canCast(spellName) then
-                                CastSpellByName(spellName)
-                                br.addonDebug("Casting "..spellName .." on " .. ObjectName(object) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
-                                ClickPosition(x, y, z)
-                                if mouselookActive then
-                                    MouselookStart()
-                                end
+    if getSpellType(spellName) == "heal" then allUnitsInRange = getAllies("player",spellMaxRange) else allUnitsInRange = getEnemies("player",spellMaxRange,false) end
+    if hp == nil then hp = 100 end
+    if debuffId == nil then debuffId = 0 end
+
+    for _,v in pairs(allUnitsInRange) do
+        if unitId == getUnitID(v) then
+            if not isCC(v) and isInCombat("player") and getHP(v) <= math.random(hp, hp+2)  then
+                if debuffId ~= 0 then
+                    if not (getDebuffDuration(v, debuffId) > 0) then return end
+                end
+                local theTarget = UnitTarget(v) -- cc target moving to its target
+                if theTarget == nil then theTarget = "player" end
+                local distance = GetDistanceBetweenObjects(theTarget, v)
+
+                if distance < spellMaxRange and not isLongTimeCCed(v) and not UnitIsDeadOrGhost(v) then
+                    local distanceDelta = 0
+                    if isMoving(v) then
+                        distanceDelta = math.random(5,8)
+                    end
+                    local px, py, pz = ObjectPosition(theTarget)
+                    local x, y, z = GetPositionBetweenObjects(v, theTarget, distanceDelta)
+                    z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                    if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+                        if canCast(spellName) then
+                            CastSpellByName(spellName)
+                            br.addonDebug("Casting "..spellName .." on " .. ObjectName(v) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
+                            ClickPosition(x, y, z)
+                            if mouselookActive then
+                                MouselookStart()
                             end
+                            return
                         end
                     end
                 end
             end
         end
     end
+end
+
+function getCurrentZoneId()
+    return select(2, GetMapId())
 end

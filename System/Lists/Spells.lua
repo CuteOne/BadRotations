@@ -1145,6 +1145,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 barbedShot                  = 217200,
+                freezingTrap                = 3355,
             },
             glyphs                          = {
 

@@ -140,7 +140,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Dungeon / Raid tools
         section = br.ui:createSection(br.ui.window.profile, "CC")
-        br.ui:createCheckbox(section, "Boss Mechanic CCs", "|cffFFFFFFCurrently supported dungeons:"..
+        br.ui:createCheckbox(section, "Boss Mechanic CCs", "|cffFFFFFFCurrently supported boss mechanics:"..
+                                                           "\nCastle Nathria (Huntsman - Shade of Bargast)"..
                                                            "\nPlaguefall (Globgrog - Slimy Smorgasbord)"..
                                                            "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)"..
                                                            "\nThe Necrotic Wake (Blightbone  - Carrion Worms)")
@@ -180,6 +181,7 @@ local charges
 local covenant
 local debuff
 local enemies
+local maps = br.lists.maps
 local module
 local power
 local runeforge
@@ -192,8 +194,6 @@ local units
 local use
 local var
 local actionList = {}
-local dungeons = {"The Necrotic Wake", "Plaguefall", "Mists of Tirna Scithe", "Halls of Atonement",
-        "Theater of Pain", "De Other Side", "Spires of Ascension", "Sanguine Depths"}
 
 
 -----------------------
@@ -205,6 +205,15 @@ local function alwaysCdNever(option)
     return thisOption == 1 or (thisOption == 2 and ui.useCDs())
 end
 
+local function isFreezingTrapActive()
+    for _,v in pairs(enemies.get(40)) do
+        if debuff.freezingTrap.exists(v) then
+            return true
+        end
+    end
+    return false
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -212,32 +221,30 @@ end
 actionList.Extras = function()
     -- CC
     if ui.checked("Boss Mechanic CCs") then
-        for _, v in pairs(dungeons) do
-            if v == GetZoneText() then
-                local query = {}
-                query["Mists of Tirna Scithe"] = {165251} -- {spirit vulpin, }
-                query["Plaguefall"] = {171887} -- {Globgrog, }
-                if query[v] ~= nil then
-                    castGroundOnOrInfront(query[v], spell.freezingTrap)
-                end
-                query = {}
-                query["The Necrotic Wake"] = {164702} -- Necrotic Wake first boss - Carrion Worm
-                if query[v] ~= nil then
-                    castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, query[v])
-                end
+        if getCurrentZoneId() == maps.Revendreth.Zones.CastleNathria then
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(171557, spell.freezingTrap) -- Hunstman, shade of bargast
             end
+        end
+        -- Mythicplus
+        if getCurrentZoneId() == maps.Maldraxxus.Zones.Plaguefall then
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(165251, spell.freezingTrap) -- Globgrog, Slimy Smorgasbord
+            end
+        end
+        if getCurrentZoneId() == maps.Ardenweald.Zones.MistsOfTirnaScithe then
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(165251, spell.freezingTrap) -- Mistcaller - Illusionary Vulpin
+            end
+        end
+        if getCurrentZoneId() == maps.Bastion.Zones.TheNecroticWake then
+            castGroundAtBestLocation(spell.bindingShot, 5, 1, getSpellRange(spell.bindingshot), 0, getSpellType(spell.bindingShot), 0, 164702) -- Blightbone, Carrion Worm
         end
     end
     -- M+ thingies
     if ui.checked("Miscellaneous CCs") then
-        for _, v in pairs(dungeons) do
-            if v == GetZoneText() then
-                local query = {}
-                query["Plaguefall"] = {163892} -- Running little bitches in Plaguefall
-                if query[v] ~= nil then
-                    castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, query[v])
-                end
-            end
+        if select(2, GetMapId()) == maps.Maldraxxus.Zones.Plaguefall then
+            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 163892) -- Running little bitches in Plaguefall
         end
     end
     -- Feign Death
