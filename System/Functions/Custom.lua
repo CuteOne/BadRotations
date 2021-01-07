@@ -100,7 +100,7 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
     end
 end
 
-function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime, unitID, unitHp, buff)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime, unitID, minUnitHp, buff)
     if radius == nil then radius = maxRange end
     if maxRange == nil then maxRange = radius end
     -- return table with combination of every 2 units
@@ -164,7 +164,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if unitHp ~= nil then unitHp = 100 end
+    if minUnitHp ~= nil then minUnitHp = 0 end
     if buff ~= nil then buff = 0 end
 
     if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = getEnemies("player",maxRange,false) end
@@ -181,7 +181,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     --HP
     for key, value in pairs(allUnitsInRange) do
         if value ~= nil then
-            if getHP(value) > unitHp then
+            if getHP(value) >= minUnitHp then
                 table.remove(allUnitsInRange, key)
             end
         end
@@ -1084,16 +1084,16 @@ end
 -- </summary>
 -- <param name="EnemyIDs">table of units to consider</param>
 -- <param name="spell">spell to use</param>
-function castGroundOnOrInfront(unitId, spell, hp, debuffId)
+function castGroundOnOrInfront(unitId, spell, minHp, debuffId)
     local allUnitsInRange
     local spellName, _, _, _, _, spellMaxRange, _ = GetSpellInfo(spell)
     if getSpellType(spellName) == "heal" then allUnitsInRange = getAllies("player",spellMaxRange) else allUnitsInRange = getEnemies("player",spellMaxRange,false) end
-    if hp == nil then hp = 100 end
+    if minHp == nil then minHp = 0 end
     if debuffId == nil then debuffId = 0 end
 
     for _,v in pairs(allUnitsInRange) do
         if unitId == getUnitID(v) then
-            if not isCC(v) and isInCombat("player") and getHP(v) <= math.random(hp, hp+2)  then
+            if not isCC(v) and isInCombat("player") and getHP(v) >= minHp  then
                 if debuffId ~= 0 then
                     if not (getDebuffDuration(v, debuffId) > 0) then return end
                 end

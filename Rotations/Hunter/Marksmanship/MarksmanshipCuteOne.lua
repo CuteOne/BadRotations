@@ -223,7 +223,7 @@ actionList.Extras = function()
     if ui.checked("Boss Mechanic CCs") then
         if getCurrentZoneId() == maps.Revendreth.Zones.CastleNathria then
             if not isFreezingTrapActive() then
-                castGroundOnOrInfront(171557, spell.freezingTrap) -- Hunstman, shade of bargast
+                castGroundOnOrInfront(171557, spell.freezingTrap, 98) -- Hunstman, shade of bargast
             end
         end
         -- Mythicplus
