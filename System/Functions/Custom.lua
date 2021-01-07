@@ -179,19 +179,19 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         end
     end
     --HP
-    for key, value in pairs(allUnitsInRange) do
-        if value ~= nil then
-            if getHP(value) >= minUnitHp then
-                table.remove(allUnitsInRange, key)
-            end
-        end
-    end
+    -- for key, value in pairs(allUnitsInRange) do
+    --     if value ~= nil then
+    --         if getHP(value) >= minUnitHp then
+    --             table.remove(allUnitsInRange, key)
+    --         end
+    --     end
+    -- end
     --Buff
     for key, value in pairs(allUnitsInRange) do
         if value ~= nil then
             if buff ~= 0 then
-            else if not (getBuffDuration(v, buff) > 0) then
-                table.remove(allUnitsInRange, key)
+                if getDebuffDuration(value, debuffId) > 0 then
+                    table.remove(allUnitsInRange, key)
                 end
             end
         end
@@ -315,9 +315,11 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
             if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
         end
     else
-        -- print(minUnits, ", ", bestCircle.nro, ", ", GetUnitExists("target"), ", ", getUnitID("target"), ", ", unitID)
-        if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") and getUnitID("target") == unitID then
-            if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
+        for _, value in pairs(allUnitsInRange) do
+            -- print(minUnits, ", ", bestCircle.nro, ", ", GetUnitExists("target"), ", ", getUnitID("target"), ", ", unitID)
+            if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists(value) and getUnitID(value) == unitID then
+                if castGround(value,spellID,maxRange,minRange,radius,castTime) then return true else return false end
+            end
         end
     end
     if bestCircle.nro < minUnits then return false end

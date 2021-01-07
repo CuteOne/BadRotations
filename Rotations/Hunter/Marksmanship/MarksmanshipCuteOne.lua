@@ -206,12 +206,7 @@ local function alwaysCdNever(option)
 end
 
 local function isFreezingTrapActive()
-    for _,v in pairs(enemies.get(40)) do
-        if debuff.freezingTrap.exists(v) then
-            return true
-        end
-    end
-    return false
+    for _,v in pairs(enemies.get(40)) do return debuff.freezingTrapEffect.exists(v) end
 end
 
 --------------------

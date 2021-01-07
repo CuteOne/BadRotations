@@ -1145,7 +1145,6 @@ br.lists.spells = {
             },
             debuffs                         = {
                 barbedShot                  = 217200,
-                freezingTrap                = 3355,
             },
             glyphs                          = {
 
@@ -1477,7 +1476,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 bestialFerocity             = 191413,
-                freezingTrap                = 3355,
+                freezingTrapEffect          = 3355,
                 huntersMark                 = 257284,
                 intimidation                = 24934,
                 mortalWounds                = 115804, -- Pet Ability Debuff
