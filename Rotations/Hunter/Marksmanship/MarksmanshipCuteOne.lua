@@ -208,10 +208,6 @@ actionList.Extras = function()
     if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
         if cast.huntersMark() then ui.debug("Cast Hunter's Mark") return true end
     end
-    --  FlayedWignToxin
-    if use.able.bottledFlayedWingToxin() and not buff.flayedWingToxin.exists("player") then
-        use.bottledFlayedWingToxin()
-    end
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then

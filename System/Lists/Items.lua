@@ -141,7 +141,6 @@ br.lists.items = {
     ----------- SL items below -----------
     --Trinkets
     inscrutableQuantumDevice        = 179350,
-    bottledFlayedWingToxin          = 178742,
     --Consumables
     potionOfSpectralAgility         = 171270,
     shadowCoreOil                   = 171285,
