@@ -43,12 +43,14 @@ br.lists.maps = {
 		1536,
 		Zones = {
 			Plaguefall = 13228,
+			TheaterOfPain = 12841,
 		}
 	},
 	Revendreth = {
 		1525,
 		Zones = {
 			CastleNathria = 13224,
+			HallsOfAtonement = 12831,
 		}
 	},
 	TheMaw = {

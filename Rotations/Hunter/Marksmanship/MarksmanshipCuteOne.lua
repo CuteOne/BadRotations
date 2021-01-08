@@ -146,7 +146,10 @@ local function createOptions()
                                                            "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)"..
                                                            "\nThe Necrotic Wake (Blightbone  - Carrion Worms)")
         br.ui:createCheckbox(section, "Miscellaneous CCs", "|cffFFFFFFCurrently supported dungeons:"..
-                                                           "\nPlaguefall (Rotting slimeclaws)")
+                                                           "\nPlaguefall (Rotting Slimeclaw)"..
+                                                           "\nTheater of Pain (Disgusting Refuse)"..
+                                                           "\nHalls of Atonement (Vicious Gargon, Loyal Beasts)"..
+                                                           "\nPlaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -239,7 +242,16 @@ actionList.Extras = function()
     -- M+ thingies
     if ui.checked("Miscellaneous CCs") then
         if select(2, GetMapId()) == maps.Maldraxxus.Zones.Plaguefall then
-            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 163892) -- Running little bitches in Plaguefall
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(163862, spell.freezingTrap, nil, 336449) -- Defender of Many Eyes, Bulwark of Maldraxxus
+            end
+            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 163892, 25) -- Rotting Slimeclaw, 25% HP
+        end
+        if select(2, GetMapId()) == maps.Maldraxxus.Zones.TheaterOfPain then
+            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 163089) -- Disgusting Refuse
+        end
+        if select(2, GetMapId()) == maps.Revendreth.Zones.HallsOfAtonement then
+            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 164563, nil, 326450) -- Vicious Gargon, Loyal Beasts
         end
     end
     -- Feign Death
