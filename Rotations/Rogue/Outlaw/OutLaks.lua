@@ -902,8 +902,7 @@ actionList.dps = function()
                     end
                 end
 
-                Print(tostring(unit.distance("Target")))
-                Print(tostring(dynamic_target_melee))
+
                 if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee)
                         and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
                         and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 3)
