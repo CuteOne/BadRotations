@@ -236,7 +236,7 @@ actionList.Extras = function()
             end
         end
         if getCurrentZoneId() == maps.Bastion.Zones.TheNecroticWake then
-            castGroundAtBestLocation(spell.bindingShot, 5, 1, getSpellRange(spell.bindingshot), 0, getSpellType(spell.bindingShot), 0, 164702) -- Blightbone, Carrion Worm
+            castGroundOnOrInfront(164702, spell.bindingShot) -- Blightbone, Carrion Worm
         end
     end
     -- M+ thingies
@@ -245,13 +245,13 @@ actionList.Extras = function()
             if not isFreezingTrapActive() then
                 castGroundOnOrInfront(163862, spell.freezingTrap, nil, 336449) -- Defender of Many Eyes, Bulwark of Maldraxxus
             end
-            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 163892, 25) -- Rotting Slimeclaw, 25% HP
+            castGroundOnOrInfront(163892, spell.bindingShot, nil, 25) -- Rotting Slimeclaw, 25% HP
         end
         if select(2, GetMapId()) == maps.Maldraxxus.Zones.TheaterOfPain then
-            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 163089) -- Disgusting Refuse
+            castGroundOnOrInfront(spell.bindingShot, 163089)-- Disgusting Refuse
         end
         if select(2, GetMapId()) == maps.Revendreth.Zones.HallsOfAtonement then
-            castGroundAtBestLocation(spell.bindingShot, 5, 1, 35, 0, getSpellType(spell.bindingShot), 0, 164563, nil, 326450) -- Vicious Gargon, Loyal Beasts
+            castGroundOnOrInfront(spell.bindingShot, 164563, nil, nil, 326450) -- Vicious Gargon, Loyal Beasts
         end
     end
     -- Feign Death

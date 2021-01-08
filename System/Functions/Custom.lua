@@ -164,38 +164,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if minUnitHp ~= nil then minUnitHp = 0 end
-    if buff ~= nil then buff = 0 end
-
     if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = getEnemies("player",maxRange,false) end
-
-    -- Remove from list according to criteria
-    --ID
-    for key, value in pairs(allUnitsInRange) do
-        if value ~= nil then
-            if getUnitID(value) ~= unitID then
-                table.remove(allUnitsInRange, key)
-            end
-        end
-    end
-    --HP
-    -- for key, value in pairs(allUnitsInRange) do
-    --     if value ~= nil then
-    --         if getHP(value) >= minUnitHp then
-    --             table.remove(allUnitsInRange, key)
-    --         end
-    --     end
-    -- end
-    --Buff
-    for key, value in pairs(allUnitsInRange) do
-        if value ~= nil then
-            if buff ~= 0 then
-                if getDebuffDuration(value, debuffId) > 0 then
-                    table.remove(allUnitsInRange, key)
-                end
-            end
-        end
-    end
 
     local testCircles = {}
     --for every combination of units make 2 circles, and put in testCircles
@@ -310,17 +279,8 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     -- end
 
     --check with minUnits
-    if unitID == nil then
-        if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
-            if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
-        end
-    else
-        for _, value in pairs(allUnitsInRange) do
-            -- print(minUnits, ", ", bestCircle.nro, ", ", GetUnitExists("target"), ", ", getUnitID("target"), ", ", unitID)
-            if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists(value) and getUnitID(value) == unitID then
-                if castGround(value,spellID,maxRange,minRange,radius,castTime) then return true else return false end
-            end
-        end
+    if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
+        if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end
 
@@ -1086,7 +1046,7 @@ end
 -- </summary>
 -- <param name="EnemyIDs">table of units to consider</param>
 -- <param name="spell">spell to use</param>
-function castGroundOnOrInfront(unitId, spell, minHp, debuffId)
+function castGroundOnOrInfront(unitId, spell, distance, minHp, debuffId)
     local allUnitsInRange
     local spellName, _, _, _, _, spellMaxRange, _ = GetSpellInfo(spell)
     if getSpellType(spellName) == "heal" then allUnitsInRange = getAllies("player",spellMaxRange) else allUnitsInRange = getEnemies("player",spellMaxRange,false) end
@@ -1101,15 +1061,15 @@ function castGroundOnOrInfront(unitId, spell, minHp, debuffId)
                 end
                 local theTarget = UnitTarget(v) -- cc target moving to its target
                 if theTarget == nil then theTarget = "player" end
-                local distance = GetDistanceBetweenObjects(theTarget, v)
+                local dist = GetDistanceBetweenObjects(theTarget, v)
 
-                if distance < spellMaxRange and not isLongTimeCCed(v) and not UnitIsDeadOrGhost(v) then
-                    local distanceDelta = 0
+                if dist < spellMaxRange and not isLongTimeCCed(v) and not UnitIsDeadOrGhost(v) then
+                    distance = 0
                     if isMoving(v) then
-                        distanceDelta = math.random(5,8)
+                        distance = 1 + math.random(distance-1,distance+1)
                     end
                     local px, py, pz = ObjectPosition(theTarget)
-                    local x, y, z = GetPositionBetweenObjects(v, theTarget, distanceDelta)
+                    local x, y, z = GetPositionBetweenObjects(v, theTarget, distance)
                     z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                     if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
                         if canCast(spellName) then
