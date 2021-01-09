@@ -1055,7 +1055,7 @@ function castGroundOnOrInfront(unitId, spell, distance, minHp, debuffId)
 
     for _,v in pairs(allUnitsInRange) do
         if unitId == getUnitID(v) then
-            if not isCC(v) and isInCombat("player") and getHP(v) >= minHp  then
+            if not isCC(v) and isInCombat("player") and getHP(v) <= minHp  then
                 if debuffId ~= 0 then
                     if not (getDebuffDuration(v, debuffId) > 0) then return end
                 end

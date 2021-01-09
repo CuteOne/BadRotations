@@ -243,7 +243,7 @@ actionList.Extras = function()
     if ui.checked("Miscellaneous CCs") then
         if select(2, GetMapId()) == maps.Maldraxxus.Zones.Plaguefall then
             if not isFreezingTrapActive() then
-                castGroundOnOrInfront(163862, spell.freezingTrap, nil, 336449) -- Defender of Many Eyes, Bulwark of Maldraxxus
+                castGroundOnOrInfront(163862, spell.freezingTrap, nil, nil, 336449) -- Defender of Many Eyes, Bulwark of Maldraxxus
             end
             castGroundOnOrInfront(163892, spell.bindingShot, nil, 25) -- Rotting Slimeclaw, 25% HP
         end
