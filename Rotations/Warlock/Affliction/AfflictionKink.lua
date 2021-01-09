@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "1.8.3"
+local VerNum  = "1.8.4"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffFFBB00"
 local colorGreen = "|cff4DDB1D"
@@ -124,7 +124,7 @@ local function createOptions ()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC"}, 1, "|cffFFBB00Set APL Mode to use.")
 
             -- Auto target
-            br.ui:createCheckbox(section, colorGreen .. "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
+            br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
 
             -- Multi-Target Units
             br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffFFBB00Health Percentage to use at.")
@@ -179,16 +179,16 @@ local function createOptions ()
             br.ui:createText(section, "|cffFFBB00.:|:. |cffFF0000Dots Refresh Time (ST) |cffFFBB00.:|:.")
 
             -- Refresh Times
-            br.ui:createSpinnerWithout(section, "Agony Refresh", 7, 1, 25, 0.1, "The remaining time when to refresh Agony. Standard is 7")   
-            br.ui:createSpinnerWithout(section, "Corruption Refresh", 7, 1, 25, 0.1, "The remaining time when to refresh Corruption. Standard is 7")   
-            br.ui:createSpinnerWithout(section, "UA Refresh", 8.5, 1, 25, 0.1, "The remaining time when to refresh Unstable Affliction. Standard is 8.5")   
-            br.ui:createSpinnerWithout(section, "Siphon Life Refresh", 8, 1, 25, 0.1, "The remaining time when to refresh Siphon Life. Standard is 8")   
+            br.ui:createSpinnerWithout(section, "Agony Refresh", 5.4, 1, 25, 0.1, "The remaining time when to refresh Agony.")   
+            br.ui:createSpinnerWithout(section, "Corruption Refresh", 4.2, 1, 25, 0.1, "The remaining time when to refresh Corruption.")   
+            br.ui:createSpinnerWithout(section, "UA Refresh", 6.3, 1, 25, 0.1, "The remaining time when to refresh Unstable Affliction.")   
+            br.ui:createSpinnerWithout(section, "Siphon Life Refresh", 4.5, 1, 25, 0.1, "The remaining time when to refresh Siphon Life.")   
 
             -- Max Dots
             br.ui:createText(section, "|cffFFBB00.:|:. |cffFF0000Multi-Dotting Enemy Count |cffFFBB00.:|:.")
-            br.ui:createSpinnerWithout(section, "Agony Count", 4, 1, 10, 1, "The maximum amount of running Agony.")   
-            br.ui:createSpinnerWithout(section, "Corruption Count", 4, 1, 10, 1, "The maximum amount of running Corruption.")
-            br.ui:createSpinnerWithout(section, "Siphon Life Count", 4, 1, 10, 1, "The maximum amount of running Siphon Life. Standard is 8")
+            br.ui:createSpinnerWithout(section, "Agony Count", 3, 1, 10, 1, "The maximum amount of running Agony.")   
+            br.ui:createSpinnerWithout(section, "Corruption Count", 2, 1, 10, 1, "The maximum amount of running Corruption.")
+            br.ui:createSpinnerWithout(section, "Siphon Life Count", 1, 1, 10, 1, "The maximum amount of running Siphon Life. Standard is 8")
                 
         br.ui:checkSectionState(section)
 
@@ -197,7 +197,7 @@ local function createOptions ()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, colorPurple .."Affliction .:|:."..colorOrange.."Offensive")
             -- Seef of Corruption
-            br.ui:createSpinnerWithout(section, "Seed of Corruption Targets", 1, 1, 10, 1, "Set desired number of targets to cast SoC")
+            br.ui:createSpinnerWithout(section, "Seed of Corruption Targets", 3, 1, 10, 1, "Set desired number of targets to cast SoC")
             br.ui:createSpinnerWithout(section, "Seed of Corruption TTD", 6, 1, 25, 1, "|cffFFBB00Minimum Time to Die of a unit to cast Seed of Corruption on.")
             br.ui:createCheckbox(section, "Spam Seed of Corruption", "Check to spam SoC if SoC is talented")
             br.ui:createSpinner(section, "SoC Spam Delay", 0.1, 0, 10, 0.1, "Set desired delqy between SoC casts during SoC Spam. Min: 0 / Max: 10 / Interval: 0.1")
@@ -273,7 +273,7 @@ local function createOptions ()
             br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
             -- Mortal Coil 
-            br.ui:createSpinner(section, "Mortal Coil",  23,  0,  100,  5,  "|cffFFBB00Health Percent to Cast At")
+            br.ui:createSpinner(section, "Mortal Coil",  60,  0,  100,  5,  "|cffFFBB00Health Percent to Cast At")
 
             -- Drain Life
             br.ui:createSpinner(section, "Drain Life", 48, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
@@ -284,7 +284,7 @@ local function createOptions ()
             br.ui:createSpinnerWithout(section, "Health Funnel", 50, 0, 100, 5, "|cffFFBB00Health Percent of Player to Cast At")
 
             -- Unending Resolve
-            br.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+            br.ui:createSpinner(section, "Unending Resolve", 40, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
             -- Devour Magic
             br.ui:createDropdown(section,"Devour Magic", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
@@ -1242,65 +1242,42 @@ local function actionList_AoE()
     ------------------------------------------------
     -- Cycle Agony  --------------------------------
     ------------------------------------------------
+        if not debuff.agony.exists("target") then
+            thisUnit = "target"
+        end 
         if agonyCount < ui.value("Agony Count") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not noDotCheck("target") and (not debuff.agony.exists("target") or debuff.agony.refresh("target")) and getTTD("target") > 10 then
-                    if cast.agony("target") then br.addonDebug("[Action:AoE] Agony [Multi-Cycle (Target)]") return true end
-                end
-            end
-        end
-        if agonyCount < ui.value("Agony Count") then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and (not debuff.agony.exists(thisUnit) or debuff.agony.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
-                    if cast.agony(thisUnit) then br.addonDebug("[Action:AoE] Agony [Multi-Cycle]") return true end
+                if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
+                    if cast.agony(thisUnit) then br.addonDebug("[Action:AoE] Agony [Multi-Cycle (Target)]") return true end
                 end
             end
         end
     ------------------------------------------------
     -- Cycle Siphon Life  --------------------------
     ------------------------------------------------
+        if not debuff.siphonLife.exists("target") then
+            thisUnit = "target"
+        end 
         if siphonLifeCount < ui.value("Siphon Life Count") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not noDotCheck("target") and (not debuff.siphonLife.exists("target") or debuff.siphonLife.refresh("target")) and getTTD("target") > 10 then
-                    if cast.siphonLife("target") then br.addonDebug("[Action:AoE] Siphon Life [Multi-Cycle (Target)]") return true end
+                if not noDotCheck(thisUnit) and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
+                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:AoE] Siphon Life [Multi-Cycle (Target)]") return true end
                 end 
-            end
-        end
-        if siphonLifeCount < ui.value("Siphon Life Count") then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
-                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:AoE] Siphon Life [Multi-Cycle]") return true end
-                end
             end
         end
     ------------------------------------------------
     -- Cycle Corruption  --------------------------
     ------------------------------------------------
+        if not debuff.corruption.exists("target") then
+            thisUnit = "target"
+        end 
         if #enemies.yards40 < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then
             if corruptionCount < ui.value("Corruption Count") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and not debuff.corruption.exists("target") and getTTD("target") > 10 then
-                        if cast.corruption("target") then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle (Target)]") return true end
-                    end
                     if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > 10 then
-                        if cast.corruption(thisUnit) then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle]") return true end
-                    end
-                end
-            end
-        end
-        if #enemies.yards40 < ui.value("Seed of Corruption Targets") and not talent.absoluteCorruption then
-            if corruptionCount < ui.value("Corruption Count") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists("target") or debuff.corruption.refresh("target")) and getTTD("target") > 10 then
-                        if cast.corruption("target") then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle (Target)]") return true end
-                    end
-                    if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and (not debuff.corruption.exists(thisUnit) or debuff.corruption.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
                         if cast.corruption(thisUnit) then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle]") return true end
                     end
                 end
@@ -1313,7 +1290,7 @@ local function actionList_AoE()
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
             if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and (debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") or debuff.seedOfCorruption.count(thisUnit) == 1) then
-                if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("[Action:AOE] Vile Taint") return true end
+                if cast.vileTaint(nil,"aoe",1,8,true) then br.addonDebug("[Action:AoE] Vile Taint") return true end
             end
         end
     end
@@ -2120,11 +2097,17 @@ local function actionList_Rotation()
             if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Soul Rot Active)") return true end 
         end				   
     end
-    if not moving and shards >= 5 and debuff.agony.remains() > getOptionValue("Agony Refresh") and debuff.corruption.remains() > getOptionValue("Corruption Refresh") and debuff.unstableAffliction.remains() > getOptionValue("UA Refresh")
-    and (talent.siphonLife and debuff.siphonLife.remains() > getOptionValue("Siphon Life Refresh") or not talent.siphonLife) and debuff.shadowEmbrace.remains() > 5 then
+    -- Max Shards
+    if not moving and shards >= 5 
+    and debuff.agony.remains("target") > cast.time.maleficRapture("target") 
+    and debuff.corruption.remains("target") > cast.time.maleficRapture("target") 
+    and debuff.unstableAffliction.remains("target") > cast.time.maleficRapture("target")
+    and (talent.siphonLife and debuff.siphonLife.remains("target") > cast.time.maleficRapture("target") or not talent.siphonLife)
+    and debuff.shadowEmbrace.stack("target") >= 3 then
         if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Max Shards)") return true end
     end
-    ------------------------------------------------
+
+------------------------------------------------
     -- Agony, Moving -------------------------------
     ------------------------------------------------
     if IsMovingTime(math.random(2.5,20)/100) then
@@ -2462,8 +2445,11 @@ local function actionList_LevelingST()
             if cast.maleficRapture("target") then br.addonDebug("[Action:Leveling ST] Malefic Rapture (Soul Rot Active)") return true end 
         end				   
     end
-    if not moving and shards >= 5 and debuff.agony.remains() > getOptionValue("Agony Refresh") and debuff.corruption.remains() > getOptionValue("Corruption Refresh") and debuff.unstableAffliction.remains() > getOptionValue("UA Refresh")
-    and (talent.siphonLife and debuff.siphonLife.remains() > getOptionValue("Siphon Life Refresh") or not talent.siphonLife) then
+    if not moving and shards >= 5 
+    and debuff.agony.remains() > cast.time.maleficRapture() 
+    and debuff.corruption.remains() > cast.time.maleficRapture() 
+    and debuff.unstableAffliction.remains() > cast.time.maleficRapture()
+    and (talent.siphonLife and debuff.siphonLife.remains() > cast.time.maleficRapture() or not talent.siphonLife) then
         if cast.maleficRapture("target") then br.addonDebug("[Action:Leveling ST] Malefic Rapture (Max Shards)") return true end
     end
     ------------------------------------------------
@@ -2659,12 +2645,12 @@ local function actionList_drainSoulST()
     end
 
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if not moving and shards >= 5 and debuff.agony.remains() > getOptionValue("Agony Refresh") 
-        and debuff.corruption.remains() > getOptionValue("Corruption Refresh") 
-        and debuff.unstableAffliction.remains() > getOptionValue("UA Refresh")
-        and (talent.siphonLife and debuff.siphonLife.remains() > getOptionValue("Siphon Life Refresh") or not talent.siphonLife) 
-        and debuff.shadowEmbrace.remains() > 5 
-        and not cd.phantomSingularity.ready() then
+        if not moving and shards >= 5 
+        and debuff.agony.remains() > cast.time.maleficRapture() 
+        and debuff.corruption.remains() > cast.time.maleficRapture() 
+        and debuff.unstableAffliction.remains() > cast.time.maleficRapture()
+        and (talent.siphonLife and debuff.siphonLife.remains() > cast.time.maleficRapture() or not talent.siphonLife)
+        and debuff.shadowEmbrace.stack("target") >= 3 then
             if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped ST] Malefic Rapture (Max Shards)") return true end
         end
     end
@@ -2849,11 +2835,11 @@ local function actionList_LevelingDsST()
     end
 
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if not moving and shards >= 5 and debuff.agony.remains() > getOptionValue("Agony Refresh") 
-        and debuff.corruption.remains() > getOptionValue("Corruption Refresh") 
-        and debuff.unstableAffliction.remains() > getOptionValue("UA Refresh")
-        and (talent.siphonLife and debuff.siphonLife.remains() > getOptionValue("Siphon Life Refresh") or not talent.siphonLife)
-        then
+        if not moving and shards >= 5 
+        and debuff.agony.remains() > cast.time.maleficRapture() 
+        and debuff.corruption.remains() > cast.time.maleficRapture() 
+        and debuff.unstableAffliction.remains() > cast.time.maleficRapture()
+        and (talent.siphonLife and debuff.siphonLife.remains() > cast.time.maleficRapture() or not talent.siphonLife) then
             if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped Leveling ST] Malefic Rapture (Max Shards)") return true end
         end
     end
