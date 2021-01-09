@@ -123,22 +123,6 @@ function BadRotationsUpdate(self)
 				if isCastingSpell(318763) then
 					return true
 				end
-				--Quaking helper
-				if getOptionCheck("Pig Catcher") then
-					-- Automatic catch the pig
-					if select(8, GetInstanceInfo()) == 1754  then
-						for i = 1, GetObjectCountBR() do
-							local ID = ObjectID(GetObjectWithIndex(i))
-							local object = GetObjectWithIndex(i)
-							local x1, y1, z1 = ObjectPosition("player")
-							local x2, y2, z2 = ObjectPosition(object)
-							local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-							if ID == 130099 and distance < 10 and br.timer:useTimer("Pig Delay", 0.5) then
-								InteractUnit(object)
-							end
-						end
-					end
-				end
 				-- Blizz CastSpellByName bug bypass
 				if br.castID then
 					-- Print("Casting by ID")
@@ -187,6 +171,11 @@ function BadRotationsUpdate(self)
 				-- Update Player
 				if br.player ~= nil and not CanExitVehicle() then
 					br.player:update()
+				end
+				-- Automatic catch the pig
+				if getOptionCheck("Freehold - Pig Catcher") or
+				   getOptionCheck("De Other Side - Bomb Snatcher") then
+					bossHelper()
 				end
 				-- Healing Engine
 				if isChecked("HE Active") then
