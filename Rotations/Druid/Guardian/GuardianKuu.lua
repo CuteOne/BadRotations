@@ -262,6 +262,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "Health Percent to Cast At")
         -- Survival Instincts
         br.ui:createSpinner(section, "Survival Instincts", 40, 0, 100, 5, "Health Percent to Cast At")
+        -- Rage Dump
+        br.ui:createSpinnerWithout(section, "Rage Dump Amount", 40, 0, 100, 5, "Rage Deficit to use Ironfur/Maul")
         -- Ironfur Stacks
         br.ui:createSpinner(section, "Ironfur", 0, 0, 10, 1, "Set max stacks of ironfur before dumping rage into maul instead (0 for no limit)")
         -- Ironfur
@@ -773,7 +775,7 @@ local function runRotation()
             end
             -- Barkskin
             if ui.checked("Barkskin") then
-                if php <= ui.value("Barkskin") and not buff.survivalInstincts.exists() and not buff.ironfur.exists() then
+                if php <= ui.value("Barkskin") and not buff.survivalInstincts.exists() and buff.ironfur.stack() < 2 then
                     if cast.barkskin() then
                         return
                     end
@@ -783,7 +785,7 @@ local function runRotation()
             if ui.checked("Ironfur") and bear then
                 if (buff.ironfur.stack() < ui.value("Ironfur") or ui.value("Ironfur") == 0) then
                     if
-                        (rageDeficit <= 12 or buff.ironfur.remain() < 2) and
+                        (rageDeficit <= ui.value("Rage Dump Amount") or buff.ironfur.remain() < 2) and
                             (hasAggro >= 2 or (ui.checked("Ironfur (No Aggro)") and not (hasAggro >= 1) and php <= ui.value("Ironfur (No Aggro)")))
                      then
                         if cast.ironfur() then
@@ -791,7 +793,7 @@ local function runRotation()
                         end
                     end
                 else
-                    if (rageDeficit <= 12) then
+                    if rageDeficit <= ui.value("Rage Dump Amount") and mode.maul == 1 then
                         if cast.maul() then
                             return
                         end
@@ -1149,22 +1151,24 @@ local function runRotation()
                 end
             end
             -- Maul
-            if conduit.savageCombatant.enabled and buff.savageCombatant.stack() == 3 and rage >= 50 and php > 75 then
-                if cast.maul() then
-                    br.addonDebug("Casting Maul (Savage Combatant)")
-                    return
+            if mode.maul == 1 then
+                if conduit.savageCombatant.enabled and buff.savageCombatant.stack() == 3 and rage >= 50 and php > 75 then
+                    if cast.maul() then
+                        br.addonDebug("Casting Maul (Savage Combatant)")
+                        return
+                    end
                 end
-            end
-            if talent.toothAndClaw and buff.toothAndClaw.exists() and not debuff.toothAndClaw.exists("target") and rage > 60 then
-                if cast.maul() then
-                    br.addonDebug("Casting Maul (Tooth and Claw)")
-                    return
+                if talent.toothAndClaw and buff.toothAndClaw.exists() and not debuff.toothAndClaw.exists("target") and rage > 60 then
+                    if cast.maul() then
+                        br.addonDebug("Casting Maul (Tooth and Claw)")
+                        return
+                    end
                 end
-            end
-            if not conduit.savageCombatant.enabled and not talent.toothAndClaw and rageDeficit < 10 and php >= 75 then
-                if cast.maul() then
-                    br.addonDebug("Casting Maul")
-                    return
+                if not conduit.savageCombatant.enabled and not talent.toothAndClaw and rageDeficit < 10 and php >= 75 then
+                    if cast.maul() then
+                        br.addonDebug("Casting Maul")
+                        return
+                    end
                 end
             end
             -- Mangle
