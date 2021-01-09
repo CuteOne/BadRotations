@@ -98,8 +98,6 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
         local X1,Y1,Z1 = GetObjectPosition(unit)
         if castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
     end
-
-
 end
 
 function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
@@ -1034,4 +1032,57 @@ function BWCheck()
             end
         end
     end
+end
+
+local function isCC(unit)
+    if getOptionCheck("Don't break CCs") then
+        return isLongTimeCCed(unit)
+    end
+    return false
+end
+
+function castGroundOnOrInfront(unitId, spell, distance, minHp, debuffId)
+    local allUnitsInRange
+    local spellName, _, _, _, _, spellMaxRange, _ = GetSpellInfo(spell)
+    if getSpellType(spellName) == "heal" then allUnitsInRange = getAllies("player",spellMaxRange) else allUnitsInRange = getEnemies("player",spellMaxRange,false) end
+    if minHp == nil then minHp = 100 end
+    if debuffId == nil then debuffId = 0 end
+
+    for _,v in pairs(allUnitsInRange) do
+        if unitId == getUnitID(v) then
+            if not isCC(v) and isInCombat("player") and getHP(v) <= minHp  then
+                if debuffId ~= 0 then
+                    if not (getDebuffDuration(v, debuffId) > 0) then return end
+                end
+                local theTarget = UnitTarget(v) -- cc target moving to its target
+                if theTarget == nil then theTarget = "player" end
+                local dist = GetDistanceBetweenObjects(theTarget, v)
+
+                if dist < spellMaxRange and not isLongTimeCCed(v) and not UnitIsDeadOrGhost(v) then
+                    distance = 0
+                    if isMoving(v) then
+                        distance = 1 + math.random(distance-1,distance+1)
+                    end
+                    local px, py, pz = ObjectPosition(theTarget)
+                    local x, y, z = GetPositionBetweenObjects(v, theTarget, distance)
+                    z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                    if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+                        if canCast(spellName) then
+                            CastSpellByName(spellName)
+                            br.addonDebug("Casting "..spellName .." on " .. ObjectName(v) .. " at (" .. x .. ", " .. y .. ", " .. z .. ")")
+                            ClickPosition(x, y, z)
+                            if mouselookActive then
+                                MouselookStart()
+                            end
+                            return
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function getCurrentZoneId()
+    return select(2, GetMapId())
 end

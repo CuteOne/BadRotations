@@ -295,7 +295,6 @@ function isKnown(spellID)
 	-- return false
 	return spellID ~= nil and (GetSpellBookItemInfo(tostring(spellName)) ~= nil or IsPlayerSpell(tonumber(spellID)) or IsSpellKnown(spellID) or hasPerk(spellID) or isSpellInSpellbook(spellID,"spell"))
 end
-
 function isActiveEssence(spellID)
 	local _, _, heartIcon = GetSpellInfo(296208) 
 	local _, _, essenceIcon = GetSpellInfo(spellID)

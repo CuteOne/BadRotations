@@ -138,6 +138,19 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
+        -- Dungeon / Raid tools
+        section = br.ui:createSection(br.ui.window.profile, "CC")
+        br.ui:createCheckbox(section, "Boss Mechanic CCs", "|cffFFFFFFCurrently supported boss mechanics:"..
+                                                           "\nCastle Nathria (Huntsman - Shade of Bargast)"..
+                                                           "\nPlaguefall (Globgrog - Slimy Smorgasbord)"..
+                                                           "\nMists of Tirna Scithe (Mistcaller - Illusionary Vulpin)"..
+                                                           "\nThe Necrotic Wake (Blightbone  - Carrion Worms)")
+        br.ui:createCheckbox(section, "Miscellaneous CCs", "|cffFFFFFFCurrently supported dungeons:"..
+                                                           "\nPlaguefall (Rotting Slimeclaw)"..
+                                                           "\nTheater of Pain (Disgusting Refuse)"..
+                                                           "\nHalls of Atonement (Vicious Gargon, Loyal Beasts)"..
+                                                           "\nPlaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)")
+        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -173,9 +186,11 @@ local conduit
 local debuff
 local enemies
 local equiped
+local maps = br.lists.maps
 local module
 local power
 local runeforge
+local spell
 local talent
 local items
 local ui
@@ -185,6 +200,7 @@ local use
 local var
 local actionList = {}
 
+
 -----------------------
 --- Local Functions ---
 -----------------------
@@ -192,6 +208,10 @@ local function alwaysCdNever(option)
     if option == "Racial" then GetSpellInfo(br.player.spell.racial) end
     local thisOption = ui.value(option)
     return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+end
+
+local function isFreezingTrapActive()
+    for _,v in pairs(enemies.get(40)) do return debuff.freezingTrap.exists(v) end
 end
 
 --------------------
@@ -203,6 +223,43 @@ actionList.Extras = function()
     if buff.feignDeath.exists() then
         StopAttack()
         ClearTarget()
+    end
+    -- CC
+    if ui.checked("Boss Mechanic CCs") then
+        if getCurrentZoneId() == maps.Revendreth.Zones.CastleNathria then
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(171557, spell.freezingTrap, 98) -- Hunstman, shade of bargast
+            end
+        end
+        -- Mythicplus
+        if getCurrentZoneId() == maps.Maldraxxus.Zones.Plaguefall then
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(165251, spell.freezingTrap) -- Globgrog, Slimy Smorgasbord
+            end
+        end
+        if getCurrentZoneId() == maps.Ardenweald.Zones.MistsOfTirnaScithe then
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(165251, spell.freezingTrap) -- Mistcaller - Illusionary Vulpin
+            end
+        end
+        if getCurrentZoneId() == maps.Bastion.Zones.TheNecroticWake then
+            castGroundOnOrInfront(164702, spell.bindingShot) -- Blightbone, Carrion Worm
+        end
+    end
+    -- M+ thingies
+    if ui.checked("Miscellaneous CCs") then
+        if select(2, GetMapId()) == maps.Maldraxxus.Zones.Plaguefall then
+            if not isFreezingTrapActive() then
+                castGroundOnOrInfront(163862, spell.freezingTrap, nil, nil, 336449) -- Defender of Many Eyes, Bulwark of Maldraxxus
+            end
+            castGroundOnOrInfront(163892, spell.bindingShot, nil, 25) -- Rotting Slimeclaw, 25% HP
+        end
+        if select(2, GetMapId()) == maps.Maldraxxus.Zones.TheaterOfPain then
+            castGroundOnOrInfront(spell.bindingShot, 163089)-- Disgusting Refuse
+        end
+        if select(2, GetMapId()) == maps.Revendreth.Zones.HallsOfAtonement then
+            castGroundOnOrInfront(spell.bindingShot, 164563, nil, nil, 326450) -- Vicious Gargon, Loyal Beasts
+        end
     end
     -- Hunter's Mark
     if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
@@ -689,6 +746,7 @@ local function runRotation()
     module                                        = br.player.module
     power                                         = br.player.power
     runeforge                                     = br.player.runeforge
+    spell                                         = br.player.spell
     talent                                        = br.player.talent
     items                                         = br.player.items
     ui                                            = br.player.ui
