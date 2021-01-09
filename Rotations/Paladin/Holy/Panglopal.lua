@@ -512,7 +512,7 @@ local function runRotation()
         end
     end
     local function spendies()
-        if isChecked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) and inCombat then
+        if isChecked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
             --Critical first
             if php <= getValue("Critical HP") then
                 if cast.wordOfGlory("player") then
@@ -526,7 +526,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and (holyPower >= 3 or buff.divinePurpose.exists()) and inCombat then
+        if isChecked("Light of Dawn") and cast.able.lightOfDawn() and (holyPower >= 3 or buff.divinePurpose.exists()) then
             local LoDHealth = getValue("Light of Dawn")
             local LoDUnits = getValue("LoD Targets")
             if holyPower == holyPowerMax then
