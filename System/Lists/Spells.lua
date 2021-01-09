@@ -1921,6 +1921,7 @@ br.lists.spells = {
                 soothingMistJadeStatue      = 198533,
                 envelopingBreath            = 3205209,
                 invokeChiJiTheRedCrane      = 343820,
+                ancientTeachingOfTheMonastery = 347553
             },
             debuffs                         = {
                 mysticTouch                 = 8647,
