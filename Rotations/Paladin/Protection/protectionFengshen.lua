@@ -1,5 +1,5 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731"
+local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886"
 local StunSpellList="332329|332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328475|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985"
 local HoJPrioList = "164702|164362|170488|165905|165251|164464|165556"
 ---------------
@@ -290,6 +290,9 @@ local function runRotation()
 	local HoJList = {}
 	for i in string.gmatch(getOptionValue("HoJ Prio Units"), "%d+") do
 		HoJList[tonumber(i)] = true
+	end
+	if (hoj_unit ~= nil and cast.last.hammerOfJustice()) or cast.last.rebuke() then
+		hoj_unit = nil
 	end
 	-- infinite Divine Steed
 	if isChecked("infinite Divine Steed key") and (SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
@@ -630,12 +633,16 @@ local function runRotation()
 		end
 	end -- End Action List - Defensive
 	local function BossEncounterCase()
+		-- Dark Exile
+		if UnitCastingInfo("boss1") == GetSpellInfo(321894) and cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
+			if cast.blessingOfProtection("boss1target") then return true end
+		end
 		-- Infectious Rain
 		if UnitChannelInfo("boss1") ~= GetSpellInfo(331399) and getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
 			if cast.cleanseToxins("player") then return true end
 		end
 		-- Will to
-		if race == "Human" and getSpellCD(59752) == 0 and getDebuffRemain("player",321893) ~= 0 and getDebuffRemain("player",3242005) ~= 0 and getDebuffRemain("player",342492) ~= 0 then
+		if race == "Human" and getSpellCD(59752) == 0 and getDebuffRemain("player",321893) ~= 0 and getDebuffRemain("player",3242005) ~= 0 and getDebuffRemain("player",342494) ~= 0 then
 			if CastSpellByName(GetSpellInfo(59752)) then return true end
 		end
 		-- Gloom Squall
@@ -719,6 +726,7 @@ local function runRotation()
 			if GetUnitExists(units.dyn5) then
 				-- Seraphim
 				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and holyPower > 2 and getOptionValue("Seraphim") <= ttd then
+					SotR = false
 					if cast.seraphim() then return true end
 				end
 				-- Avenging Wrath
@@ -780,9 +788,6 @@ local function runRotation()
 					-- Rebuke
 					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and not GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
-					end
-					if cast.last.hammerOfJustice() or cast.last.rebuke() then
-						hoj_unit = nil
 					end
 				end
 			end
