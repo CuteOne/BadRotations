@@ -207,6 +207,12 @@ local canGlory = function()
     local optionValue = ui.value("Word of Glory")
     local otherCounter = 0
     if holyPower >= 3 then
+        if #br.friend == 1 then
+            if unit.hp("player") <= optionValue then
+                var.thisGlory = "player"
+                return true
+            end
+        end
         for i = 1, #br.friend do
             local thisUnit = br.friend[i].unit
             local thisHP = unit.hp(thisUnit)
@@ -323,7 +329,7 @@ actionList.Defensive = function()
         if ui.checked("Blessing of Protection", true) then
             local thisUnit = getHealUnitOption("Blessing of Protection Target")
             if
-                cast.able.blessingOfProtection(thisUnit) and unit.inCombat(thisUnit) and not debuff.forbearance.exists(thisUnit) and
+                cast.able.blessingOfProtection(thisUnit) and unit.inCombat(thisUnit) and unit.role(thisUnit) ~= "TANK" and not debuff.forbearance.exists(thisUnit) and
                     unit.hp(thisUnit) < ui.value("Blessing of Protection") and
                     unit.distance(thisUnit) < 40
              then
