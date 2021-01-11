@@ -934,13 +934,13 @@ local function runRotation()
                 -- Outbreak
                 -- outbreak,if=dot.virulent_plague.refreshable&!talent.unholy_blight&!raid_event.adds.exists
                 if cast.able.outbreak(units.dyn25) and debuff.virulentPlague.refresh(units.dyn25)
-                    and not talent.unholyBlight and ui.useST(25,2)
+                    and (not talent.unholyBlight or not ui.alwaysCdNever("Unholy Blight")) and ui.useST(25,2)
                 then
                     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [ST]") return true end
                 end
                 -- outbreak,if=dot.virulent_plague.refreshable&(!talent.unholy_blight|talent.unholy_blight&cooldown.unholy_blight.remains)&active_enemies>=2
                 if cast.able.outbreak(units.dyn25) and debuff.virulentPlague.refresh(units.dyn25)
-                    and (not talent.unholyBlight or talent.unholyBlight and cd.unholyBlight.exists())
+                    and (not talent.unholyBlight or (talent.unholyBlight and cd.unholyBlight.exists()) or not ui.alwaysCdNever("Unholy Blight"))
                     and ui.useAOE(25,2)
                 then
                     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [AOE]") return true end

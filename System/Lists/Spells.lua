@@ -708,6 +708,7 @@ br.lists.spells = {
             covenants                       = {
                 loneEmpowerment             = 338142,
                 ravenousFrenzy              = 323546,
+                empowerBond                 = 326647,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -914,6 +915,7 @@ br.lists.spells = {
                 starsurge                   = 197626,
                 sunfire                     = 93402,
                 tranquility                 = 740,
+                typhoon                     = 132469,
                 yserasGift                  = 145108,
                 swipeResto                  = 213764,
                 naturesSwiftness            = 132158,
@@ -1921,6 +1923,7 @@ br.lists.spells = {
                 soothingMistJadeStatue      = 198533,
                 envelopingBreath            = 3205209,
                 invokeChiJiTheRedCrane      = 343820,
+                ancientTeachingOfTheMonastery = 347553
             },
             debuffs                         = {
                 mysticTouch                 = 8647,
