@@ -914,6 +914,7 @@ br.lists.spells = {
                 starsurge                   = 197626,
                 sunfire                     = 93402,
                 tranquility                 = 740,
+                typhoon                     = 132469,
                 yserasGift                  = 145108,
                 swipeResto                  = 213764,
                 naturesSwiftness            = 132158,
