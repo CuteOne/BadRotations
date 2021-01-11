@@ -4,13 +4,20 @@ br.api.items = function(item,k,v,subtable)
     if item[k] == nil then item[k] = {} end
     if subtable == "cd" then
         local cd = item
-        cd[k].exists = function(slotID)
-            if slotID == nil then slotID = v end
-            return GetItemCooldown(slotID) > 0
+        cd[k].exists = function(itemID)
+            if itemID == nil then itemID = v end
+            return GetItemCooldown(itemID) > 0
         end
-        cd[k].remain = function(slotID)
-            if slotID == nil then slotID = v end
-            return GetItemCooldown(slotID)
+        cd[k].remain = function(itemID)
+            if itemID == nil then itemID = v end
+            if GetItemCooldown(itemID) ~= 0 then
+                return (GetItemCooldown(itemID) + select(2, GetItemCooldown(itemID)) - GetTime())
+            end
+            return 0
+        end
+        cd[k].duration = function(itemID)
+            if itemID == nil then itemID = v end
+            return GetSpellBaseCooldown(select(2,GetItemSpell(itemID))) / 1000
         end
     end
     if subtable == "charges" then

@@ -1035,3 +1035,7 @@ function BWCheck()
         end
     end
 end
+
+function getCurrentZoneId()
+    return select(2, GetMapId())
+end
