@@ -708,6 +708,7 @@ br.lists.spells = {
             covenants                       = {
                 loneEmpowerment             = 338142,
                 ravenousFrenzy              = 323546,
+                empowerBond                 = 326647,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
