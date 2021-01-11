@@ -79,7 +79,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - SL 2101061802")
+        section = br.ui:createSection(br.ui.window.profile, "Forms - SL 2101102112")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "Treant Key")
@@ -1390,11 +1390,14 @@ local function runRotation()
                     --need to support fury of elune here ...at somet point
                     --fury_of_elune,if=(eclipse.in_any|eclipse.solar_in_1|eclipse.lunar_in_1)&(!covenant.night_fae|druid.no_cds|(astral_power<95&(variable.critnotup|astral_power<30|variable.is_aoe)&(variable.convoke_desync&!cooldown.convoke_the_spirits.up|!variable.convoke_desync&!cooldown.ca_inc.up)))&(cooldown.ca_inc.remains>30|druid.no_cds|astral_power>90&cooldown.ca_inc.up&(cooldown.empower_bond.remains<action.starfire.execute_time|!covenant.kyrian)|interpolated_fight_remains<10)&(dot.adaptive_swarm_damage.remains>4|!covenant.necrolord)
 
+
+
+
                     if mode.cov == 1 then
                         if cast.able.kindredSpirits() then
-                            if (eclipse_next == "lunar" or (eclipse_next == "solar" or (eclipse_next == "any"
-                                    or buff.balanceOfAllThingsNature.remains()) > 4.5
-                                    or buff.balanceOfAllThingsArcane.remains()) > 4.5
+                            if (eclipse_next == "lunar" or eclipse_next == "solar" or eclipse_next == "any"
+                                    or buff.balanceOfAllThingsNature.remains() > 4.5
+                                    or buff.balanceOfAllThingsArcane.remains() > 4.5
                                     or power > 90 and pew_remain() == 0 and useCDs())
                                     and (pew_remain() > 30 or pew_remain() == 0)
                             then
