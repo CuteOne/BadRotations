@@ -148,6 +148,10 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "target" end
         return isHumanoid(thisUnit)
     end
+    -- ID
+    unit.id = function(thisUnit)
+        return GetObjectID(thisUnit)
+    end
     --  In Combat
     unit.inCombat = function(thisUnit)
         local UnitAffectingCombat = _G["UnitAffectingCombat"]

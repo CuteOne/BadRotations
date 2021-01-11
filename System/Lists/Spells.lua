@@ -1210,6 +1210,9 @@ br.lists.spells = {
             glyphs                          = {
 
             },
+            interrupts                      = {
+                counterShot                 = 147362,
+            },
             talents                         = {
                 barrage                     = 120360,--
                 bindingShackles             = 321468,--
@@ -1487,6 +1490,9 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            interrupts                      = {
+                freezingTrap                = 187650,
             },
             runeforges                      = {
                 eagletalonsTrueFocus        = 336849,
@@ -4029,6 +4035,7 @@ br.lists.spells = {
                 flaskOfEndlessFathoms           = 251837,
                 flaskOfTheVastHorizon           = 251838,
                 flaskOfTheUndertow              = 251839,
+                flayedWingToxin                 = 345546,
                 fruitfulMachinatins             = 242623, -- Absorb Shield from Deceiver's Grand Design
                 mistcallerOcarina               = 330067, -- SL Trinket with group buff
                 greaterFlaskOfEndlessFathoms    = 298837,

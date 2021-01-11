@@ -57,10 +57,11 @@ br.api.ui = function(self)
         end
     end
     if ui.useAOE == nil then
-        ui.useAOE = function(range,minCount)
+        ui.useAOE = function(range,minCount,useTarget)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
-            return ((ui.mode.rotation == 1 and #self.enemies.get(range) >= minCount) or (ui.mode.rotation == 2 and #self.enemies.get(range) > 0))
+            if useTarget == nil then useTarget = "player" end
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range,useTarget) >= minCount) or (ui.mode.rotation == 2 and #self.enemies.get(range, useTarget) > 0))
         end
     end
     if ui.useCDs == nil then
@@ -83,10 +84,11 @@ br.api.ui = function(self)
         end
     end
     if ui.useST == nil then
-        ui.useST = function(range,minCount)
+        ui.useST = function(range,minCount,useTarget)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
-            return ((ui.mode.rotation == 1 and #self.enemies.get(range) < minCount) or (ui.mode.rotation == 3 and #self.enemies.get(range) > 0))
+            if useTarget == nil then useTarget = "player" end
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range,useTarget) < minCount) or (ui.mode.rotation == 3 and #self.enemies.get(range, useTarget) > 0))
         end
     end
     if ui.print == nil then
