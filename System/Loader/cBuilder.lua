@@ -486,33 +486,30 @@ function br.loader:new(spec,specName)
         --     return petCount
         -- end
 
-        local function createItemsApi(list)
-            for k,v in pairs(list) do --self.spell.items) do
-                if self.charges         == nil then self.charges    = {} end -- Item Charge Functions
-                if self.charges[k]      == nil then self.charges[k] = {} end -- Item Charge Subtables
-                if self.cd              == nil then self.cd         = {} end -- Item Cooldown Functions
-                if self.equiped         == nil then self.equiped    = {} end -- Use Item Debugging
-                if self.equiped.socket  == nil then self.equiped.socket = {} end -- Item Socket Info
-                if self.has             == nil then self.has        = {} end -- Item In Bags
-                if self.use             == nil then self.use        = {} end -- Use Item Functions
-                if self.use.able        == nil then self.use.able   = {} end -- Useable Item Check Functions
 
-                br.api.items(self.cd,k,v,"cd")
+        -- Cycle through Items List
+        for k,v in pairs(self.items) do --self.spell.items) do
+            if self.charges         == nil then self.charges    = {} end -- Item Charge Functions
+            if self.charges[k]      == nil then self.charges[k] = {} end -- Item Charge Subtables
+            if self.cd              == nil then self.cd         = {} end -- Item Cooldown Functions
+            if self.equiped         == nil then self.equiped    = {} end -- Use Item Debugging
+            if self.equiped.socket  == nil then self.equiped.socket = {} end -- Item Socket Info
+            if self.has             == nil then self.has        = {} end -- Item In Bags
+            if self.use             == nil then self.use        = {} end -- Use Item Functions
+            if self.use.able        == nil then self.use.able   = {} end -- Useable Item Check Functions
 
-                br.api.items(self.charges,k,v,"charges")
+            br.api.items(self.cd,k,v,"cd")
 
-                br.api.items(self.equiped,k,v,"equiped")
+            br.api.items(self.charges,k,v,"charges")
 
-                br.api.items(self.has,k,v,"has")
+            br.api.items(self.equiped,k,v,"equiped")
 
-                br.api.items(self.use,k,v,"use")
-            end
+            br.api.items(self.has,k,v,"has")
+
+            br.api.items(self.use,k,v,"use")
+
+            getHeirloomNeck()
         end
-
-        createItemsApi(self.items)
-        createItemsApi(self.items.inventory)
-
-
 
         -- Cycle through Abilities List
         for spell,id in pairs(self.spell.abilities) do
@@ -554,12 +551,11 @@ function br.loader:new(spec,specName)
     --------------
 
     function self.update()
-        if spec == GetSpecializationInfo(GetSpecialization()) then
+        if spec == GetSpecializationInfo(GetSpecialization()) then 
             -- Call baseUpdate()
             if not UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()
             self.getBleeds()
-            self.updateInventory()
             -- Update Player Info on Init, Talent, and Level Change
             if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
             self.getToggleModes()
@@ -600,16 +596,6 @@ function br.loader:new(spec,specName)
                     end
                 end
             end
-        end
-    end
-
-    -----------------
-    --- INVENTORY ---
-    -----------------
-    function self.updateInventory()
-        -- Update the equipment
-        for v,k in pairs(br.player.items.inventory) do
-            if k == nil then v = k end
         end
     end
 
