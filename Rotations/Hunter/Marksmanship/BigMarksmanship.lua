@@ -12,12 +12,12 @@ local function createToggles()
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot }
     };
     CreateButton("Rotation",1,0)
-    -- Interrupt Button
-    InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
-    };
-    CreateButton("Interrupt",2,0)
+    -- -- Interrupt Button
+    -- InterruptModes = {
+    --     [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
+    --     [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
+    -- };
+    -- CreateButton("Interrupt",2,0)
     -- MD Button
     MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
@@ -52,7 +52,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Prepull logic", "Works as opener")
             br.ui:createText(section, "Toggle options")
             br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  6)
-            br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
+            -- br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
             br.ui:createDropdownWithout(section, "Misdirection Mode", br.dropOptions.Toggle,  6)
             br.ui:createDropdownWithout(section, "Volley Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -77,20 +77,17 @@ local function createOptions()
             br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- br.ui:createCheckbox(section,"Interrupt personally Whitelisted", "Interrupt personally whitelisted mobs")
-        if br.player ~= nil and br.player.spell ~= nil and br.player.spell.interrupts ~= nil then
-            for _, v in pairs(br.player.spell.interrupts) do
-                local spellName = GetSpellInfo(v)
-                if v ~= 61304 and spellName ~= nil then
-                    br.ui:createCheckbox(section, spellName, "Interrupt with " .. spellName .. " (ID: " .. v .. ")")
-                end
-            end
-        end
-        br.ui:createSpinnerWithout(section, "Interrupts At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
-        br.ui:createCheckbox(section,"Interrupt BR Whitelisted", "Interrupt BadRotations whitelisted mobs")
-        br.ui:createScrollingEditBox(section,"Interrupt personally Whitelisted", nil, "Type spellID. Seperate items with comma (123,321)", 300, 40)
-        br.ui:checkSectionState(section)
+        -- section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+        --     if br.player ~= nil and br.player.spell ~= nil and br.player.spell.interrupts ~= nil then
+        --         for _, v in pairs(br.player.spell.interrupts) do
+        --             local spellName = GetSpellInfo(v)
+        --             if v ~= 61304 and spellName ~= nil then
+        --                 br.ui:createCheckbox(section, spellName, "Interrupt with " .. spellName .. " (ID: " .. v .. ")")
+        --             end
+        --         end
+        --     end
+        --     br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+        -- br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "CCs")
         br.ui:createText(section, "Dungeon boss mechanics")
         br.ui:createCheckbox(section,"Castle Nathria (Huntsman - Shade of Bargast)", "Cast Freezing Trap on Shade of Bargast")
@@ -122,7 +119,6 @@ local covenant
 local debuff
 local enemies
 local equiped
-local inventory = br.lists.items.inventory
 local maps = br.lists.maps
 local module
 local power
@@ -158,56 +154,21 @@ local function isBlacklistedTrinket(slot)
     return false
 end
 
-local function ccMobFinder(id, minHP, spellID)
-    local argumentsTable = {id, minHP, spellID}
-    local arguments = 0
+-- Use only one argument for now
+local function ccMobFinder(id, minHP, maxHP, spellID)
     local theUnit
-    local foundMatch
-
-    for _,v in pairs(argumentsTable) do
-        if v ~= nil then arguments = arguments + 1 end
-    end
-
-    for _,v in pairs(enemies.get(40,nil,true)) do
-        foundMatch = 0
-        if not isLongTimeCCed(v) then
-            if id ~= nil then
-                if unit.id(v) == id then
-                    foundMatch = foundMatch + 1
-                end
+    if spellID == br.player.spell.freezingTrap then if isFreezingTrapActive() then return end end
+    for _,v in pairs(enemies.yards40) do
+        if unit.id(v) == id then
+            theUnit = v
+            if not isLongTimeCCed(v) then
+                if minHP ~= nil then if minHP <= unit.hp(theUnit) then return theUnit end end
+                if maxHp ~= nil then if maxHP >= unit.hp(theUnit) then return theUnit end end
+                if spellID ~= nil then if (getDebuffDuration(theUnit,spellID,"player")) > 0 then return theUnit end end
             end
-            if minHP ~= nil then
-                if minHP <= unit.hp(v) then
-                    foundMatch = foundMatch + 1
-                end
-            end
-            if spellID ~= nil then
-                if getDebuffDuration(v,spellID,"player") > 0 then
-                    foundMatch = foundMatch + 1
-                end
-            end
-            if foundMatch == arguments then return v end
+            return theUnit
         end
     end
-end
-
-local function checkForUpdates()
-    if getOptionCheck("Interrupt BR Whitelisted") ~= oldvalueBr or getOptionCheck("Interrupt personally Whitelisted") ~= oldValuePersonal then
-        br.player.interrupts.listUpdated = false
-    end
-end
-
-function getTimeToLastInterrupt()
-	if not isTableEmpty(br.lastCast.tracker) then
-		for _, v in ipairs(br.lastCast.tracker) do
-			for _,value in pairs(br.player.spell.interrupts) do
-				if tonumber(value) == tonumber(v) then
-					return GetTime() - br.lastCast.castTime[v]
-				end
-			end
-		end
-	end
-	return 0
 end
 
 --------------------
@@ -252,7 +213,6 @@ actionList.aa = function()
     unit.startAttack("target")
 
     if ui.checked("Trinkets with Trueshot logic") then
-
         --actions+=/use_item,name=dreadfire_vessel,if=trinket.1.has_cooldown...
         if equiped.dreadfireVessel()
             and cd.trinket1.exists() or cd.trinket2.exists()
@@ -269,12 +229,12 @@ actionList.aa = function()
             and cd.trueshot.remain() > 20
             and cd.trinket2.duration() >= cd.trinket1.duration()
             and cd.trinket2.remain() - 5 < cd.trueshot.remain()
-            and inventory.trinket2 ~= items.dreadfireVessel
+            and not items.trinket2 == items.dreadfireVessel
             or (cd.trinket1.duration() -5 < cd.trueshot.remain()
             and (cd.trinket1.duration() >= cd.trinket2.duration() or cd.trinket2.exists()))
             or unit.ttd() < cd.trueshot.remain()
         then
-            if use.able.trinket1() and not isBlacklistedTrinket(13) then return use.trinket1() end
+            if use.able.trinket1() and not isBlacklistedTrinket(13) then return use.trinket1()end
         end
 
         --actions+=/use_items,slots=trinket2,if=buff.trueshot.up...
@@ -284,12 +244,12 @@ actionList.aa = function()
             and cd.trueshot.remain() > 20
             and cd.trinket1.duration() >= cd.trinket2.duration()
             and cd.trinket1.remain() - 5 < cd.trueshot.remain()
-            and not inventory.trinket1 ~= items.dreadfireVessel
+            and not items.trinket1 == items.dreadfireVessel
             or (cd.trinket2.duration() -5 < cd.trueshot.remain()
             and (cd.trinket2.duration() >= cd.trinket1.duration() or cd.trinket1.exists()))
             or unit.ttd() < cd.trueshot.remain()
         then
-            if use.able.trinket2() and not isBlacklistedTrinket(14) then return use.trinket2() end
+            if use.able.trinket2() and not isBlacklistedTrinket(14) then return use.trinket2()end
         end
     end
 end
@@ -655,7 +615,7 @@ actionList.CCs = function()
             end
             if ui.checked("Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)") then
                 if not isFreezingTrapActive() then
-                    return cast.freezingTrap(ccMobFinder(163862,_,336449),"groundCC")
+                    return cast.freezingTrap(ccMobFinder(163862,_,_,336449),"groundCC")
                 end
             end
             if ui.checked("Plaguefall (Rotting Slimeclaw)") then
@@ -681,7 +641,7 @@ actionList.CCs = function()
         end
         if getCurrentZoneId() == maps.Revendreth.Zones.HallsOfAtonement then
             if ui.checked("Halls of Atonement (Vicious Gargon, Loyal Beasts)") then
-                return cast.bindingShot(ccMobFinder(164563,_,326450),"groundCC")
+                return cast.bindingShot(ccMobFinder(164563,_,_,326450),"groundCC")
             end
         end
     end
@@ -689,92 +649,29 @@ end -- End Action List - CCs
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
-    if br.player.interrupts == nil then br.player.interrupts = {} end
-	if useInterrupts() then
-        br.player.interrupts.enabled = true
-    else
-        br.player.interrupts.enabled = false
-    end
-	if not br.player.interrupts.enabled then return end
-	if br.player.interrupts.activeList == nil then br.player.interrupts.activeList = {} end
-    br.player.interrupts.listUpdated = true
-
-    -- Form activeList for interrupting
-    checkForUpdates()
-    if not br.player.interrupts.listUpdated then
-		if getOptionCheck("Interrupt BR Whitelisted") then
-            for spellID,v in pairs(br.lists.interruptWhitelist) do
-                table.insert(br.player.interrupts.activeList, spellID, v)
-			end
-		else
-			for spellID,_ in pairs(br.lists.interruptWhitelist) do
-				if not isTableEmpty(br.player.interrupts.activeList) then
-					br.player.interrupts.activeList[spellID] = false
-				end
-			end
-		end
-        if getOptionCheck("Interrupt personally Whitelisted") then
-            for spellID in string.gmatch(tostring(getOptionValue("SpellIDs to Interrupt")),"([^,]+)") do
-                if string.len(string.trim(spellID)) >= 3 then
-                    table.insert(br.player.interrupts.activeList, tonumber(spellID), true)
-                end
-            end
-		else
-			for spellID in string.gmatch(tostring(getOptionValue("SpellIDs to Interrupt")),"([^,]+)") do
-				if not isTableEmpty(br.player.interrupts.activeList) then
-					br.player.interrupts.activeList[tonumber(spellID)] = false
-				end
-			end
-		end
-        oldvalueBr = getOptionCheck("Include BR Whitelist")
-        oldValuePersonal = getOptionCheck("Include Personal Whitelist")
-        br.player.interrupts.listUpdated = true
-    end
-
-    -- Do the actual interrupting
-	if br.player.spell.interrupts == nil then return end -- If no interruptspells are given, get the hell outta here
-	local interruptAt = 100 - br.player.ui.value("Interrupts At")
-	local range = 0
-	br.player.interrupts.enemies = {}
-
-	for _,v in pairs(br.player.spell.interrupts) do
-		if canCast(v)then
-			if getOptionCheck("Interrupt with " .. GetSpellInfo(v)) then
-				br.player.interrupts.currentSpell = v
-				range = select(6, GetSpellInfo(br.player.interrupts.currentSpell))
-				break
-			else
-				return
-			end
-		end
-    end
-
-    br.player.interrupts.enemies = br.player.enemies.get(range,nil,false,true)
-
-	for _,unit in pairs(br.player.interrupts.enemies) do
-        for spell,_ in pairs(br.player.interrupts.activeList) do
-            if isCastingSpell(spell, unit) and canInterrupt(unit) then
-                br.player.interrupts.currentUnit = unit
-                br.player.interrupts.unitSpell = spell
-			end
-        end
-    end
-
-	if isInCombat("player") and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
-		if isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
-			if (getTimeToLastInterrupt() >= 1 and GetObjectID(lastUnit) == GetObjectID(br.player.interrupts.currentUnit)) or
-		      (getTimeToLastInterrupt() < 1 and GetObjectID(lastUnit) ~= GetObjectID(br.player.interrupts.currentUnit)) then
-				RunMacroText("/stopcasting")
-				local castSuccess = createCastFunction(br.player.interrupts.currentUnit.unit, any, any, any, br.player.interrupts.currentSpell)
-				if castSuccess then
-					br.addonDebug("Casting ", tostring(GetSpellInfo(br.player.interrupts.currentSpell)))
-					lastUnit = br.player.interrupts.currentUnit
-				end
-
-			end
-		end
-	end
-end  -- End Action List - Interrupts
+    -- if ui.useInterrupt() then
+    --     for i=1, #enemies.yards40f do
+    --         local thisUnit = enemies.yards40f[i]
+    --         for k,v in pairs(br.lists.interruptWhitelist) do
+    --             if thisUnit.isUnitCasting(k) then
+    --                 local distance = unit.distance(thisUnit)
+    --                 if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+    --                     if distance < 50 then
+    --                         -- Counter Shot
+    --                         if ui.checked("Counter Shot") then
+    --                             if cast.counterShot(thisUnit) then ui.debug("Casting Counter Shot") return true end
+    --                         end
+    --                         -- Freezing Trap
+    --                         if ui.checked("Freezing Trap") then
+    --                             if cast.freezingTrap(thisUnit,ground) then ui.debug("Casting Freezing Trap") return true end
+    --                         end
+    --                     end
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end -- End useInterrupts check
+end -- End Action List - Interrupts
 
 ----------------
 --- ROTATION ---
@@ -805,7 +702,8 @@ local function runRotation()
     -- Get required enemies table
     units.get(40)
     enemies.get(8,"target")
-    enemies.get(40,nil,false,true)
+    enemies.get(40)
+    enemies.get(40,"player",false,true)
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
