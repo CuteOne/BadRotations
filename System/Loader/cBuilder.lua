@@ -554,11 +554,12 @@ function br.loader:new(spec,specName)
     --------------
 
     function self.update()
-        if spec == GetSpecializationInfo(GetSpecialization()) then 
+        if spec == GetSpecializationInfo(GetSpecialization()) then
             -- Call baseUpdate()
             if not UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()
             self.getBleeds()
+            self.updateInventory()
             -- Update Player Info on Init, Talent, and Level Change
             if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
             self.getToggleModes()
@@ -599,6 +600,16 @@ function br.loader:new(spec,specName)
                     end
                 end
             end
+        end
+    end
+
+    -----------------
+    --- INVENTORY ---
+    -----------------
+    function self.updateInventory()
+        -- Update the equipment
+        for v,k in pairs(br.player.items.inventory) do
+            if k == nil then v = k end
         end
     end
 

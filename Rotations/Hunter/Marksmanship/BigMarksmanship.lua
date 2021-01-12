@@ -253,11 +253,6 @@ actionList.aa = function()
 
     if ui.checked("Trinkets with Trueshot logic") then
 
-        -- Update the equipment
-        for v,k in pairs(inventory) do
-            if k == nil then v = k end
-        end
-
         --actions+=/use_item,name=dreadfire_vessel,if=trinket.1.has_cooldown...
         if equiped.dreadfireVessel()
             and cd.trinket1.exists() or cd.trinket2.exists()
