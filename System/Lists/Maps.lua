@@ -27,33 +27,16 @@ br.lists.maps = {
 		1033, -- Suramar
 		1018, -- Val'sharah
 	},
-	Ardenweald = {
-		1565,
-		Zones = {
-			MistsOfTirnaScithe = 13334,
-		}
-	},
-	Bastion = {
-		1533,
-		Zones = {
-			TheNecroticWake = 12916,
-		}
-	},
-	Maldraxxus = {
-		1536,
-		Zones = {
-			Plaguefall = 13228,
-			TheaterOfPain = 12841,
-		}
-	},
-	Revendreth = {
-		1525,
-		Zones = {
-			CastleNathria = 13224,
-			HallsOfAtonement = 12831,
-		}
-	},
-	TheMaw = {
-		1543,
+	-- https://wow.gamepedia.com/InstanceID
+	instanceIDs = {
+		shadowLandsGeneric 	= 2222,
+		MistsOfTirnaScithe 	= 2290,
+		TheNecroticWake 	= 2286,
+		Plaguefall 			= 2289,
+		TheaterOfPain 		= 2293,
+		CastleNathria 		= 2296,
+		HallsOfAtonement 	= 2287,
+		TheMaw 				= 2364,
 	}
 }
+
