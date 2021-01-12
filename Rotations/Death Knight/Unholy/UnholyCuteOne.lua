@@ -537,22 +537,24 @@ end -- End Action List - Covenants
 -- Action List - AOE Setup
 actionList.AOE_Setup = function()
     -- Death and Decal / Defile
-    -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
-    if var.fwoundTargets == #enemies.yards5 or (ui.mode.rotation == 2 and #enemies.yards5 <= 11) then
-        if cast.able.defile() and talent.defile then
-            if cast.defile("best",nil,2,8) then ui.debug("Casting Defile [AOE Setup]") return true end
+    if ui.mode.dnd == 1 then
+        -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
+        if var.fwoundTargets == #enemies.yards5 or (ui.mode.rotation == 2 and #enemies.yards5 <= 11) then
+            if cast.able.defile() and talent.defile then
+                if cast.defile("best",nil,2,8) then ui.debug("Casting Defile [AOE Setup]") return true end
+            end
+            if cast.able.deathAndDecay() and not talent.defile then
+                if cast.deathAndDecay("best",nil,2,8) then ui.debug("Casting Death and Decay [AOE Setup]") return true end
+            end
         end
-        if cast.able.deathAndDecay() and not talent.defile then
-            if cast.deathAndDecay("best",nil,2,8) then ui.debug("Casting Death and Decay [AOE Setup]") return true end
-        end
-    end
-    -- any_dnd,if=death_knight.fwounded_targets>=5
-    if var.fwoundTargets >= 5 then
-        if cast.able.defile() and talent.defile then
-            if cast.defile("best",nil,2,8) then ui.debug("Casting Defile [AOE Setup - 5+]") return true end
-        end
-        if cast.able.deathAndDecay() and not talent.defile then
-            if cast.deathAndDecay("best",nil,2,8) then ui.debug("Casting Death and Decay [AOE Setup - 5+]") return true end
+        -- any_dnd,if=death_knight.fwounded_targets>=5
+        if var.fwoundTargets >= 5 then
+            if cast.able.defile() and talent.defile then
+                if cast.defile("best",nil,2,8) then ui.debug("Casting Defile [AOE Setup - 5+]") return true end
+            end
+            if cast.able.deathAndDecay() and not talent.defile then
+                if cast.deathAndDecay("best",nil,2,8) then ui.debug("Casting Death and Decay [AOE Setup - 5+]") return true end
+            end
         end
     end
     -- Epidemic
@@ -658,7 +660,7 @@ actionList.Single = function()
     end
     -- Defile
     -- defile,if=cooldown.apocalypse.remains
-    if cast.able.defile() and talent.defile and (cd.apocalypse.exists() or var.apocBypass) then
+    if ui.mode.dnd == 1 and cast.able.defile() and talent.defile and (cd.apocalypse.exists() or var.apocBypass) then
         if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [ST]") return true end
     end 
     -- Scourge Strike
@@ -934,13 +936,13 @@ local function runRotation()
                 -- Outbreak
                 -- outbreak,if=dot.virulent_plague.refreshable&!talent.unholy_blight&!raid_event.adds.exists
                 if cast.able.outbreak(units.dyn25) and debuff.virulentPlague.refresh(units.dyn25)
-                    and (not talent.unholyBlight or not ui.alwaysCdNever("Unholy Blight")) and ui.useST(25,2)
+                    and (not talent.unholyBlight) and ui.useST(25,2)
                 then
                     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [ST]") return true end
                 end
                 -- outbreak,if=dot.virulent_plague.refreshable&(!talent.unholy_blight|talent.unholy_blight&cooldown.unholy_blight.remains)&active_enemies>=2
                 if cast.able.outbreak(units.dyn25) and debuff.virulentPlague.refresh(units.dyn25)
-                    and (not talent.unholyBlight or (talent.unholyBlight and cd.unholyBlight.exists()) or not ui.alwaysCdNever("Unholy Blight"))
+                    and (not talent.unholyBlight or (talent.unholyBlight and cd.unholyBlight.exists()))
                     and ui.useAOE(25,2)
                 then
                     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [AOE]") return true end
