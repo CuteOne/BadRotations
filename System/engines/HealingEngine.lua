@@ -65,7 +65,7 @@ if not metaTable1 then
 		end
 		return true
 	end
-	
+
 	-- This is for NPC units we do not want to heal. Compare to list in collections.
 	local function CheckSkipNPC(tar)
 		local npcId = (getGUID(tar))
@@ -176,7 +176,7 @@ if not metaTable1 then
 			if br.player.eID == 2343 then
 				local targetBuff = 0
 				local playerBuff = 0
-				if UnitDebuffID(o.unit,310499) then 
+				if UnitDebuffID(o.unit,310499) then
 					targetBuff = 1
 				end
 				if UnitDebuffID("player",310499) then

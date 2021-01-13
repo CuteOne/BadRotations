@@ -37,7 +37,7 @@ br.api.buffs = function(buff,v)
     -- br.player.buff.spell.remain()
     buff.remain = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
-        if sourceUnit == nil then sourceUnit = 'player' end 
+        if sourceUnit == nil then sourceUnit = 'player' end
         return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
     end
     -- br.player.buff.spell.remains()

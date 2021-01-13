@@ -82,7 +82,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Fel Rush Only In Melee")
             -- Fel Rush After Vengeful Retreat
             br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
-            -- Throw Glaive 
+            -- Throw Glaive
             br.ui:createCheckbox(section, "Throw Glaive")
             -- Vengeful Retreat
             br.ui:createCheckbox(section, "Vengeful Retreat")
@@ -296,7 +296,7 @@ actionList.Interrupts = function()
                 if canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
                     if cast.felEruption(thisUnit) then ui.debug("Casting Fel Eruption") return true end
                 end
-            end 
+            end
         end
         -- Disrupt
         if ui.checked("Disrupt") then
@@ -418,7 +418,7 @@ end -- End Action List - Essence Break
 actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=(talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)        
+    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
         and talent.unboundChaos and buff.innerDemon.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
@@ -551,7 +551,7 @@ actionList.Normal = function()
     -- Fel Barrage
     -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
     if ui.mode.felBarrage == 1 and not unit.isExplosive("target") and cast.able.felBarrage()
-        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)) 
+        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if cast.felBarrage("player","aoe",1,8) then ui.debug("Casting Fel Barrage") return true end
     end
@@ -771,11 +771,11 @@ local function runRotation()
     enemies.get(50)
     enemies.yards20r, enemies.yards20rTable = getEnemiesInRect(10,20,false)
     enemies.yards25r = getEnemiesInRect(8,25,false) or 0
-    
+
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
-        var.metaExtended = true 
+        var.metaExtended = true
     elseif not buff.metamorphosis.exists() then
-        var.metaExtended = false 
+        var.metaExtended = false
     end
 
     var.ruinedTrail = talent.trailOfRuin and 1 or 0

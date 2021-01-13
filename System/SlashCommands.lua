@@ -129,13 +129,13 @@ function handler(message, editbox)
 	local msg6 = getStringIndex(message, 6)
 	local msg7 = getStringIndex(message, 7)
 	if msg == "" or msg == nil then
--- Main On/Off		
+-- Main On/Off
 		toggleUI()
 	elseif msg == "help" then
--- Help		
+-- Help
 		SlashCommandHelp("Print Help")
 	elseif msg1 == "blacklist" then
--- Blacklist		
+-- Blacklist
 		if msg2 == "dump" then
 			Print("|cffFF0000Blacklist:")
 			if #br.data.blackList == (0 or nil) then
@@ -227,20 +227,20 @@ function handler(message, editbox)
 					"player = Target (optional), where to cast spell using standard macro targets or (nil, best, playerGround, targetGround, pettarget)\n"..
 					"aoe    = Cast Type (optional), if the spell you are queuing has special cast type, (nil, aoe, cone, rect, ground, dead)\n"..
 					"3 	   = Minimal Units to cast on (optional), specify the minimal number of units required to cast the spell or nil for none.\n"..
-					"8      = Spells effect range (optional), specify the damage effect range of the spell or nil for none.\n\n"..					
+					"8      = Spells effect range (optional), specify the damage effect range of the spell or nil for none.\n\n"..
 					"This will cast spell 123456 on \"player\" as an AOE once there are at least 3 units within 8 yards of the player.\n"
 				)
 			else
 				local spellName, _, _, _, _, _, spellId = GetSpellInfo(msg3)
-				local notOnCD = true 
+				local notOnCD = true
 				if br ~= nil and br.player ~= nil and spellName ~= nil then notOnCD = getSpellCD(spellName) <= br.player.gcdMax end
 				if msg4 ~= nil then targetUnit = tostring(msg4)	end
-				if msg5 ~= nil then specialCast = tostring(msg5) end 
-				if msg6 ~= nil then minCount = tonumber(msg6) end 
-				if msg7 ~= nil then range = tonumber(msg7) end 
+				if msg5 ~= nil then specialCast = tostring(msg5) end
+				if msg6 ~= nil then minCount = tonumber(msg6) end
+				if msg7 ~= nil then range = tonumber(msg7) end
 				if spellName == nil then
 					Print("Invalid Spell ID: |cffFFDD11 Unable to add.")
-				elseif not notOnCD then 
+				elseif not notOnCD then
 					Print("Spell |cFFFF0000" .. spellName .. "|r not added, cooldown greater than gcd.")
 				else
 					if #br.player.queue == 0 and notOnCD then
@@ -355,20 +355,20 @@ function handler(message, editbox)
 					mainButton:Show()
 				end
 			end
-		elseif msg2 == "icon" then 
-			if hiddenIcon == nil or hiddenIcon == false then 
+		elseif msg2 == "icon" then
+			if hiddenIcon == nil or hiddenIcon == false then
 				BadRotationsButton:Hide()
 				hiddenIcon = true
 			else
 				BadRotationsButton:Show()
-				hiddenIcon = false 
+				hiddenIcon = false
 			end
 		elseif msg2 == nil then
 			-- Show UI Options
-			Print("Please provide one of the following options with showUI\n" .. 
-				"|cFFFF0000 main |r - Shows/Hides main bot options\n" .. 
-				"|cFFFF0000 profile |r - Shows/Hides profile options\n" .. 
-				"|cFFFF0000 togglebar |r - Shows/Hides toggle bar\n" .. 
+			Print("Please provide one of the following options with showUI\n" ..
+				"|cFFFF0000 main |r - Shows/Hides main bot options\n" ..
+				"|cFFFF0000 profile |r - Shows/Hides profile options\n" ..
+				"|cFFFF0000 togglebar |r - Shows/Hides toggle bar\n" ..
 				"|cFFFF0000 icon |r - Shows/Hides minimap button\n"
 			)
 		end

@@ -102,7 +102,7 @@ function getDistanceCalc(Unit1,Unit2,option)
         local IfSourceAndTargetAreRunning = 0
         if isMoving(Unit1) and isMoving(Unit2) then IfSourceAndTargetAreRunning = 8/3 end
         -- Rogue Melee Range Increase Mod
-        if br.player ~= nil then            
+        if br.player ~= nil then
             if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil then
                 if br.player.talent.acrobaticStrikes and option ~= "noMod" and IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then
                     rangeMod = 3

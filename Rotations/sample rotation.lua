@@ -63,7 +63,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -78,7 +78,7 @@ local function createOptions()
             -- Interrupts Key Toggle
             br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -193,7 +193,7 @@ local function runRotation()
     -- Profile Specific Locals
 
     -- SimC specific variables
-    
+
 
     ---------------------
     --- Begin Profile ---

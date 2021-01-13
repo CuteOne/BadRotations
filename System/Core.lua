@@ -91,7 +91,7 @@ function BadRotationsUpdate(self)
 	-- Load and Cycle BR
 	elseif br.unlocked and GetObjectCountBR() ~= nil then
 		-- Check BR Out of Date
-		br:checkBrOutOfDate()		
+		br:checkBrOutOfDate()
 		-- Get Current Addon Name
 		br:setAddonName()
 		-- Load Saved Settings
@@ -101,7 +101,7 @@ function BadRotationsUpdate(self)
 			-- BR Main Toggle Off
 			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 				-- Clear Queue
-				if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then 
+				if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
 					wipe(br.player.queue)
 					if not isChecked("Mute Queue") then Print("BR Disabled! - Queue Cleared.") end
 				end
@@ -173,13 +173,13 @@ function BadRotationsUpdate(self)
 					end
 				end
 				if (not isChecked("Queue Casting") or UnitIsDeadOrGhost("player") or not UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
-					wipe(br.player.queue) 
+					wipe(br.player.queue)
 					if not isChecked("Mute Queue") then
 						if not isChecked("Queue Casting") then Print("Queue System Disabled! - Queue Cleared.") end
-						if UnitIsDeadOrGhost("player") then Print("Player Death Detected! - Queue Cleared.") end 
+						if UnitIsDeadOrGhost("player") then Print("Player Death Detected! - Queue Cleared.") end
 						if not UnitAffectingCombat("player") then Print("No Combat Detected! - Queue Cleared.") end
 					end
-				end 
+				end
 				--Smart Queue
 				if br.unlocked and isChecked("Smart Queue") then
 					br.smartQueue()

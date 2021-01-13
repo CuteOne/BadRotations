@@ -218,7 +218,7 @@ function isSafeToAttack(unit)
 					-- Not Safe with Buff/Debuff
 					if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff)
 						-- Bursting M+ Affix
-						or (unitTTD <= getDebuffRemain("player",240443) + (getGlobalCD(true) * 2) 
+						or (unitTTD <= getDebuffRemain("player",240443) + (getGlobalCD(true) * 2)
 							and getDebuffStacks("player", 240443) >= getOptionValue("Bursting Stack Limit"))
 					then
 						return false
@@ -505,7 +505,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 					inside = false
 					local pX, pY
 					if i > 0 then
-						pX, pY = GetPositionBetweenObjects(thisUnit, "player", i) 
+						pX, pY = GetPositionBetweenObjects(thisUnit, "player", i)
 					else
 						pX, pY = GetObjectPosition(thisUnit)
 					end

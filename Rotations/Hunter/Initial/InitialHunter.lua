@@ -279,7 +279,7 @@ local function runRotation()
                 if actionList.Interrupt() then return true end
                 ------------
                 --- Main ---
-                ------------              
+                ------------
                 -- Start Attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                     StartAttack(units.dyn40)
@@ -290,7 +290,7 @@ local function runRotation()
                     for i = 13, 14 do
                         thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
                         local opValue = ui.value(thisTrinket)
-                        if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i) 
+                        if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i)
                         and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
                         then
                             use.slot(i)

@@ -46,7 +46,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
             br.data.tracker[br.selectedSpec][text..'Drop'] = key
             br.data.settings[br.selectedSpec][text.."DropValue"] = value
             br.data.tracker[br.selectedSpec][text..'DropValue'] = value
-            br.data.lastProfile = key 
+            br.data.lastProfile = key
             br.selectedProfile = key
             br.selectedProfileName = value
         -- br.ui:recreateWindows()

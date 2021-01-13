@@ -93,7 +93,7 @@ function br:loadUnlockerAPI()
         UnitCombatReach = wmbapi.UnitCombatReach
         UnitTarget = wmbapi.UnitTarget
         UnitCastID = function(...) return select(7,GetSpellInfo(UnitCastingInfo(...))) , select(7,GetSpellInfo(UnitChannelInfo(...))), wmbapi.UnitCastingTarget(...), wmbapi.UnitCastingTarget(...) end
-        UnitCreator = wmbapi.UnitCreator 
+        UnitCreator = wmbapi.UnitCreator
         -- World
         TraceLine = wmbapi.TraceLine
         GetCameraPosition = wmbapi.GetCameraPosition
@@ -101,13 +101,13 @@ function br:loadUnlockerAPI()
         ClickPosition = wmbapi.ClickPosition
         IsAoEPending = wmbapi.IsAoEPending
         GetTargetingSpell = wmbapi.IsAoEPending
-        WorldToScreen = function(...) 
+        WorldToScreen = function(...)
             local scale, x, y = UIParent:GetEffectiveScale(), select(2,wmbapi.WorldToScreen(...))
             local sx = GetScreenWidth() * scale
             local sy = GetScreenHeight() * scale
             return x * sx, y * sy
         end
-        ScreenToWorld = function(X, Y) 
+        ScreenToWorld = function(X, Y)
             local scale = UIParent:GetEffectiveScale()
             local sx = GetScreenWidth() * scale
             local sy = GetScreenHeight() * scale
@@ -143,7 +143,7 @@ function br:loadUnlockerAPI()
         -- Misc
         SendHTTPRequest = wmbapi.SendHttpRequest
         GetKeyState = wmbapi.GetKeyState
-        Offsets = {            
+        Offsets = {
             ["cggameobjectdata__flags"]="CGGameObjectData__Flags",
             ["cgobjectdata__dynamicflags"]="CGObjectData__DynamicFlags"
         }
@@ -168,7 +168,7 @@ function br:loadUnlockerAPI()
             end
             F:SetPoint("TOPLEFT", UIParent, "TOPLEFT", textX-(F:GetStringWidth()*0.5), textY)
             F:Show()
-            tinsert(LibDraw.fontstrings_used, F) 
+            tinsert(LibDraw.fontstrings_used, F)
         end
         WorldToScreenRaw = function(...)
             local x, y = select(2,wmbapi.WorldToScreen(...))
@@ -245,7 +245,7 @@ function br:loadUnlockerAPI()
         -- GetKeyState = function() return false end
         unlocked = false
     end
-    -- Set Spell Queue Window 
+    -- Set Spell Queue Window
     if class == 8 or class == 9 then
         if unlocked and br.prevQueueWindow ~= 400 then RunMacroText("/console SpellQueueWindow 400") end
     else
@@ -265,7 +265,7 @@ function br:checkBrOutOfDate()
         -- Request Current Version from GitHub
         if EasyWoWToolbox ~= nil then -- EWT
             --SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-            
+
             -- Check for commit updates from System/Updater.lua, which relies on EWT
             br.updater:CheckOutdated()
             brUpdateTimer = GetTime()
@@ -287,7 +287,7 @@ function br:checkBrOutOfDate()
                 -- Print("Local: "..tostring(brlocVersion).." | Remote: "..tostring(brcurrVersion))
                 brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
                 brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-                if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+                if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then
                     local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
                     if isChecked("Overlay Messages") then
                         RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})

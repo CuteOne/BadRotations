@@ -67,7 +67,7 @@ br.lists.noTouchUnits = {
     -- Tol Dagor
     { unitID = 133972 }, -- Cannon in Tol Dagor
     { unitID = 160652 }, -- Void Tentacle
-    
+
     -- Shadowlands
     -- Dungeons
     --The Necrotic Wake

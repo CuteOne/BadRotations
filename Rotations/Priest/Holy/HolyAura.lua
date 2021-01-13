@@ -319,7 +319,7 @@ local function runRotation()
                 if Burststack >= getOptionValue("Bursting") then
                     burst = true
                     break
-                else 
+                else
                     burst = false
                 end
             end
@@ -540,7 +540,7 @@ local function runRotation()
 					if getLowAllies(getValue("Apotheosis")) >= getValue("Apotheosis Targets") or burst == true then
 						if cast.apotheosis() then br.addonDebug("Casting Apothesis") return end
 					end
-				end	
+				end
 				--  Lucid Dream
 				if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and mana <= 85 and getSpellCD(298357) <= gcdMax then
 					if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
@@ -585,7 +585,7 @@ local function runRotation()
 								useItem(165569)
 								local px,py,pz = ObjectPosition("player")
 								loc.z = select(3,TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
-								if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 collisions 
+								if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 collisions
 									ClickPosition(loc.x, loc.y, loc.z)
 									br.addonDebug("Using Ward of Envelopment")
 									return
@@ -910,13 +910,13 @@ local function runRotation()
 				if getLowAllies(getValue("Circle of Healing")) >= getValue("Circle of Healing Targets") then
 					if cast.circleOfHealing() then br.addonDebug("Casting Circle Of Healing") return end
 				end
-			end	
+			end
 			--Halo
 			if isChecked("Halo") and talent.halo and not moving then
 				if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
 					if cast.halo() then br.addonDebug("Casting Halo") return end
 				end
-			end			
+			end
 			-- Prayer of Healing
 			if isChecked("Prayer of Healing") and getDebuffRemain("player",240447) == 0 and not moving then
 				if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then br.addonDebug("Casting Prayer of Healing") return end

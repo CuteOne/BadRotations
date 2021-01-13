@@ -141,15 +141,15 @@ br.api.module = function(self)
             end
             if ui.value("Flask") == 3 then
                 if isDH then -- Greater FLask or Gaze of the Legion
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists()
                 else -- Greater Flask or Fel Focus
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.felFocus.exists()
                 end
             end
             if ui.value("Flask") == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
-                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
             end
         end
@@ -207,7 +207,7 @@ br.api.module = function(self)
                     if use.oraliusWhisperingCrystal() then ui.debug("Using Oralius's Whispering Crystal") return true end
                 end
             end
-            if opValue == 4 then 
+            if opValue == 4 then
                 if isDH and (not unit.instance("raid") or (unit.instance("raid") and not hasFlaskBuff()))
                     and use.able.oraliusWhisperingCrystal() and not buff.whispersOfInsanity.exists()
                 then

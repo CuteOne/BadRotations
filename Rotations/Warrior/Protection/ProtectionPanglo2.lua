@@ -420,7 +420,7 @@ local function runRotation()
         end
 
         local function offGCD()
-            if inCombat then 
+            if inCombat then
                 if cast.able.ignorePain() and rage >= getValue("High Rage Dump") and mainTank() and ipCapCheck() then
                     --print("dumping IP")
                     CastSpellByName(GetSpellInfo(190456))
@@ -508,7 +508,7 @@ local function runRotation()
                 end -- End Taunt
             end
         end
-        
+
         local function actionList_Interrupts()
             if useInterrupts() then
                 if isChecked("Storm Bolt Logic") then
@@ -583,7 +583,7 @@ local function runRotation()
                 end
             end
         end
-    
+
         local function actionList_Moving()
             if br.player.ui.mode.mover == 1 then
                 if cast.able.intercept("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
@@ -799,12 +799,12 @@ local function runRotation()
                             local x2, y2, z2 = ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                             if distance <= 8 and isChecked("Use Int Shout on TFTB") and cd.intimidatingShout.remains() <= gcd then
-                                if cast.intimidatingShout(object) then 
+                                if cast.intimidatingShout(object) then
                                     return true
                                 end
                             end
                             if distance < 10 and not isLongTimeCCed(object) and cd.stormBolt.remains() <= gcd then
-                                if cast.stormBolt(object) then 
+                                if cast.stormBolt(object) then
                                     return true
                                 end
                             end

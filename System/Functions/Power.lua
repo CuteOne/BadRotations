@@ -221,7 +221,7 @@ function getSpellCost(spell)
 	local t = GetSpellPowerCost(GetSpellInfo(spell))
 	if not t then
 		return 0
-	elseif not t[1] then 
+	elseif not t[1] then
 		return 0
 	elseif not t[1]["minCost"] then
 		return 0

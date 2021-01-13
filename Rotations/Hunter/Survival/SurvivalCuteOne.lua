@@ -560,8 +560,8 @@ actionList.St = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=focus+cast_regen<focus.max&refreshable&full_recharge_time<gcd&!buff.memory_of_lucid_dreams.up|focus+cast_regen<focus.max&(!dot.wildfire_bomb.ticking&(!buff.coordinated_assault.up|buff.mongoose_fury.stack<1|time_to_die<18|!dot.wildfire_bomb.ticking&azerite.wilderness_survival.rank>0))&!buff.memory_of_lucid_dreams.up
-    if cast.able.wildfireBomb() and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) and not buff.memoryOfLucidDreams.exists() 
-        or focus + cast.regen.wildfireBomb() < focusMax and (not debuff.wildfireBomb.exists(units.dyn40) and (not buff.coordinatedAssault.exists() 
+    if cast.able.wildfireBomb() and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) and not buff.memoryOfLucidDreams.exists()
+        or focus + cast.regen.wildfireBomb() < focusMax and (not debuff.wildfireBomb.exists(units.dyn40) and (not buff.coordinatedAssault.exists()
             or buff.mongooseFury.stack() < 1 or unit.ttd(units.dyn40) < 18 or not debuff.wildfireBomb.exists(units.dyn40) and traits.wildernessSurvival.rank > 0))
         and not buff.memoryOfLucidDreams.exists()
     then
@@ -606,7 +606,7 @@ actionList.St = function()
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable
     if cast.able.wildfireBomb() and debuff.wildfireBomb.refresh(units.dyn40) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [ST - Refresh]") return true end
-    end 
+    end
     -- Serpent Sting
     -- serpent_sting,if=buff.vipers_venom.up
     if cast.able.serpentSting() and buff.vipersVenom.exists() then
@@ -779,7 +779,7 @@ actionList.ApSt = function()
     -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)|time_to_die<18&!dot.wildfire_bomb.ticking
     if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
         and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists()
-        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1) or (unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)) 
+        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1) or (unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40))
     then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [AP]") return true end
     end
@@ -1250,7 +1250,7 @@ local function runRotation()
     var.lowestBloodseeker                         = debuff.bloodseeker.lowest(40,"remain") or "target"
     var.lowestSerpentSting                        = debuff.serpentSting.lowest(40,"remain") or "target"
     var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack") or "target"
-    
+
     if var.eagleUnit == nil then var.eagleUnit = "target" end
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
     var.carveCdr = #enemies.yards5 < 5 and #enemies.yards5 or 5

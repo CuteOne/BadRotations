@@ -264,7 +264,7 @@ local function runRotation()
         elseif debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and getFacing("player",thisUnit) then
             schismBuff = thisUnit
         end
-        if schismBuff == nil then 
+        if schismBuff == nil then
             if debuff.purgeTheWicked.exists("target") and ttd("target") > 4 and getFacing("player","target") then
                 ptwDebuff = "target"
             elseif debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and getFacing("player",thisUnit)then
@@ -493,7 +493,7 @@ local function runRotation()
                 local thisUnit = br.friend[i].unit
                 if not buff.atonement.exists(thisUnit) then
                     if atoneCount() >= getOptionValue("Minimum PWR Targets") and not isMoving("player") and charges.powerWordRadiance.frac() >= 1 and level >= 23 then
-                        if cast.powerWordRadiance(thisUnit) then 
+                        if cast.powerWordRadiance(thisUnit) then
                             return true
                         end
                     elseif atonementCount <= getOptionValue("Atonement for Evangelism") or (charges.powerWordRadiance.frac() < 1 or level < 23) and not debuff.weakenedSoul.exists(thisUnit) then
@@ -585,7 +585,7 @@ local function runRotation()
 
         if isChecked("Shadow Mend") and not isMoving("player") then
             for i = 1, #br.friend do
-                if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or 
+                if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or
                 (isChecked("Heal OoC") and not inCombat and lowest.hp <= getOptionValue("Heal OoC")) then
                     if cast.shadowMend(br.friend[i].unit) then
                         return true
@@ -603,8 +603,8 @@ local function runRotation()
         end
 
         for i = 1, #br.friend do
-            if (br.friend[i].hp <= getOptionValue("Party Atonement HP") or getOptionValue("Party Atonement HP") == 100) 
-                and not debuff.weakenedSoul.exists(br.friend[i].unit) and not buff.atonement.exists(br.friend[i].unit) 
+            if (br.friend[i].hp <= getOptionValue("Party Atonement HP") or getOptionValue("Party Atonement HP") == 100)
+                and not debuff.weakenedSoul.exists(br.friend[i].unit) and not buff.atonement.exists(br.friend[i].unit)
                 and (atonementCount < getOptionValue("Max Atonements") or not isChecked("Obey Atonement Limits")) then
                 if cast.powerWordShield(br.friend[i].unit) then
                     return true
@@ -646,7 +646,7 @@ local function runRotation()
                 local thisUnit = enemies.yards40[i]
                 if (getHP(thisUnit) <= 20) or UnitHealth(thisUnit) <= deathnumber then
                     if cast.shadowWordDeath(thisUnit) then
-                        return 
+                        return
                     end
                 end
             end
@@ -658,7 +658,7 @@ local function runRotation()
                     if ptwTargets() < getValue("SW:P/PtW Targets")  then
                         if not debuff.purgeTheWicked.exists("target") and ttd("target") > 6 then
                             if cast.purgeTheWicked("target") then
-                                return 
+                                return
                             end
                         elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
                             if cast.purgeTheWicked(thisUnit) then
@@ -674,7 +674,7 @@ local function runRotation()
                     if ptwTargets() < getValue("SW:P/PtW Targets") then
                         if not debuff.shadowWordPain.exists("target") and ttd("target") > 6 then
                             if cast.shadowWordPain("target") then
-                                return 
+                                return
                             end
                         elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
                             if cast.shadowWordPain(thisUnit) then
@@ -764,7 +764,7 @@ local function runRotation()
             end
         end
     end
- 
+
     local localHealingCount = discHealCount
     ------------------------------
     ------- Start the Stuff ------

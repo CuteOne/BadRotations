@@ -138,7 +138,7 @@ end
 
 totalUnits = {}
 local startUnit
-local currentJump 
+local currentJump
 local jumpFound = true
 local function chainJumps(unit,hp,range)
 	for i = 1, #br.friend do
@@ -153,7 +153,7 @@ local function chainJumps(unit,hp,range)
 			if unitFound == false then
 				currentJump = newUnit
 				tinsert(totalUnits, #totalUnits+1, {guid = newUnit.guid})
-				return 
+				return
 			end
 		end
 	end
@@ -177,7 +177,7 @@ function chainHealUnits(spell,range,hp,count)
 			elseif #totalUnits >= count then
 				totalUnits= {}
 				if castSpell(startUnit,spell,false,true) then
-					return true 
+					return true
 				end
 			end
 		end
@@ -337,7 +337,7 @@ function getUnitsInCone(length,angle,hp)
     for i = 1, #br.friend do
         local thisUnit = br.friend[i].unit
 		if thisUnit.hp <= hp then
-			if br.friend[i].distance <= Length then			
+			if br.friend[i].distance <= Length then
 		        if not GetUnitIsUnit(thisUnit,"player") and (isDummy(thisUnit) or GetUnitIsFriend(thisUnit,"player")) then
 		            local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
 		            if playerX and unitX then
@@ -365,10 +365,10 @@ function healConeAround(numUnitsp, healthp, anglep, rangeInfrontp, rangeAroundp)
     local raround       = tonumber(rangeAroundp)
     local playerX, playerY, playerZ     = GetObjectPosition('player')
     local facing         = GetObjectFacing("player")
-    
+
     for i=1,#br.friend do
 	local thisUnit = br.friend[i].unit
-        if br.friend[i].hp < health then 
+        if br.friend[i].hp < health then
             -- First check around us, light of dawn do heal 5 yards around
             if br.friend[i].distance < raround then
                 total = total +1
@@ -458,7 +458,7 @@ end
 -- <returns>Returns the distance to the closest x,y,z in the table</returns>
 function GetDistanceToClosestNeighbor(p,points)
 	local minDist = 999
-	if p ~= nil and p.x ~= nil and p.y ~= nil and p.z ~= nil then 
+	if p ~= nil and p.x ~= nil and p.y ~= nil and p.z ~= nil then
 		for i=1,#points do
 			local p1 = points[i]
 			if p1.x ~= nil and p1.y ~= nil and p1.z ~= nil then
@@ -480,7 +480,7 @@ end
 function GetNumPointsInCircle(center,radius,points)
 	if points == nil or #points < 1 then return 0 end
 	local count = 0
-	if center ~= nil and center.x ~= nil and center.y ~= nil and center.z ~= nil then 
+	if center ~= nil and center.x ~= nil and center.y ~= nil and center.z ~= nil then
 		for i=1,#points do
 			local p1 = points[i]
 			if p1.x ~= nil and p1.y ~= nil and p1.z ~= nil then
@@ -501,7 +501,7 @@ function GetCentroidOfPoints(points)
 	if points == nil then return nil end
 	if #points < 1 then return nil end
 	if #points == 1 then return points[i] end
-	
+
 	local maxX = 0
 	local maxY = 0
 	local maxZ = 0

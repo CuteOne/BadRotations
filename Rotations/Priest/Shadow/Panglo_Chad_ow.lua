@@ -55,7 +55,7 @@ local function createToggles() -- Define custom toggles
         [2] = {mode = "Off", value = 2, overlay = "Essence disabled", tip = "Will not use Essence", highlight = 0, icon = br.player.spell.voidEruption}
     }
     CreateButton("Essence", 1, 1)
-    
+
     -- Essence Button
     DotCleaveModes = {
         [1] = {mode = "Off", value = 1, overlay = "Dot Cleave Off", tip = "Normal Rotation", highlight = 0, icon = br.player.spell.shadowWordPain},
@@ -299,7 +299,7 @@ local function runRotation()
         --devouring_plague,target_if=(refreshable|insanity>75)&(!talent.searing_nightmare.enabled|(talent.searing_nightmare.enabled&!variable.searing_nightmare_cutoff))
         if power > 75 then
             if cast.devouringPlague(units.dyn40) then
-                return 
+                return
             end
         end
 
@@ -402,7 +402,7 @@ local function runRotation()
         if isChecked("SHW: Death Snipe") then
             if ttd("target") <= 5 then
                 if cast.shadowWordDeath("target") then
-                    return 
+                    return
                 end
             end
         end
@@ -414,7 +414,7 @@ local function runRotation()
 
         if power >= 60 then
             if cast.devouringPlague("target") then
-                return 
+                return
             end
         end
 
@@ -477,7 +477,7 @@ local function runRotation()
         if (select(1,UnitChannelInfo("player")) == GetSpellInfo(15407)) or (select(1,UnitChannelInfo("player")) == GetSpellInfo(48045)) then
             if buff.darkThoughts.exists() then
                 if cast.mindBlast() then
-                    return 
+                    return
                 end
             end
         end
@@ -489,7 +489,7 @@ local function runRotation()
                 local thisUnit = enemies.yards40[i]
                 if ttd(thisUnit) <= 5 then
                     if cast.shadowWordDeath(thisUnit) then
-                        return 
+                        return
                     end
                 end
             end
@@ -556,7 +556,7 @@ local function runRotation()
             local thisUnit = enemies.yards40[i]
             if power >= 65 and ttd(thisUnit) >=6 and not talent.searingNightmare then
                 if cast.devouringPlague(thisUnit) then
-                    return 
+                    return
                 end
             end
         end

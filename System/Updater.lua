@@ -89,10 +89,10 @@ local function CheckForUpdatesAsync(OnComplete)
             end
             return
          end
-               
+
          local commitSection = json:match('"Commits":%[(.-)%]')
          Print("Local version: "..purple..currentCommit:sub(1, 7).." |cffFFFFFFLatest version: "..purple..latestCommit:sub(1, 7)..".")
-         if commitSection then 
+         if commitSection then
             for commit in commitSection:gmatch("{(.-)}") do
                local author = commit:match('"Author":"(.-)",')
                local message = commit:match('"Message":"(.-)["\r\n]')

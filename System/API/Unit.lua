@@ -157,7 +157,7 @@ br.api.unit = function(self)
         local UnitAffectingCombat = _G["UnitAffectingCombat"]
         local GetNumGroupMembers = _G["GetNumGroupMembers"]
         if thisUnit == nil then thisUnit = "player" end
-        return UnitAffectingCombat(thisUnit) or self.ui.checked("Ignore Combat") 
+        return UnitAffectingCombat(thisUnit) or self.ui.checked("Ignore Combat")
             or (self.ui.checked("Tank Aggro = Player Aggro") and self.tankAggro())
             or (GetNumGroupMembers()>1 and (UnitAffectingCombat(thisUnit) or UnitAffectingCombat("target")))
     end
@@ -275,7 +275,7 @@ br.api.unit = function(self)
         -- if not IsCurrentSpell(6603) then
         StartAttack(thisUnit)
         if not autoAttackStarted then
-            if autoShoot then 
+            if autoShoot then
                 self.ui.debug("Casting Auto Shot")
             else
                 self.ui.debug("Casting Auto Attack")

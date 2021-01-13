@@ -295,7 +295,7 @@ function CreateButton(Name,x,y)
 			elseif UnitAffectingCombat("player") then
 				Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			end
-		end	 
+		end
 		SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 	end
 end

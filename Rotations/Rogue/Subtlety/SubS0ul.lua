@@ -358,7 +358,7 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit)
              and (mode.rotation ~= 2 or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
@@ -679,7 +679,7 @@ local function runRotation()
                 if cast.sepsis("target") then return true end
             elseif covenant.venthyr.active and cast.able.flagellation() then
                 if cast.flagellation("target") then return true end
-            end  
+            end
         end
         -- # Use Dance off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds=shadow_dance,use_off_gcd=1,if=!buff.shadow_dance.up&buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
@@ -716,7 +716,7 @@ local function runRotation()
             if cast.flagellationCleanse("target") then return true end
         end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin&combo_points.deficit<=1-talent.deeper_strategem.enabled|runeforge.deathly_shadows&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
-        if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.equiped and comboDeficit <= (1 - dSEnabled) or runeforge.deathlyShadows.equiped and combo < 1) 
+        if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.equiped and comboDeficit <= (1 - dSEnabled) or runeforge.deathlyShadows.equiped and combo < 1)
          and buff.symbolsOfDeath.exists() and buff.shadowDance.exists() and not buff.masterAssassinsMark.exists() and not buff.deathlyShadows.exists() then
             if cast.vanish("player") then return true end
         end
@@ -848,7 +848,7 @@ local function runRotation()
         if charges.shadowDance.frac() >= 1.75 then shdThreshold = true else shdThreshold = false end
         -- # Vanish if we are capping on Dance charges. Early before first dance if we have no Nightstalker but Dark Shadow in order to get Rupture up (no Master Assassin).
         -- actions.stealth_cds+=/vanish,if=(!variable.shd_threshold|!talent.nightstalker.enabled&talent.dark_shadow.enabled)&combo_points.deficit>1&!runeforge.mark_of_the_master_assassin.equipped
-        if cdUsage and mode.vanish == 1 and (not shdThreshold or not talent.nightstalker and talent.darkShadow) and comboDeficit > 1 and targetDistance < 5 and combatTime > 16 
+        if cdUsage and mode.vanish == 1 and (not shdThreshold or not talent.nightstalker and talent.darkShadow) and comboDeficit > 1 and targetDistance < 5 and combatTime > 16
          and not runeforge.markOfTheMasterAssassin.equiped and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.vanish("player") then return true end
         end
@@ -856,7 +856,7 @@ local function runRotation()
         -- actions.stealth_cds+=/pool_resource,for_nextement: Dance only before finishers i=1,extra_amount=40,if=race.night_elf
         -- actions.stealth_cds+=/shadowmeld,if=energy>=40&energy.deficit>=10&!variable.shd_threshold&combo_points.deficit>1&debuff.find_weakness.remains<1
         if cdUsage and isChecked("Racial") and race == "NightElf" and not cast.last.vanish() and not buff.vanish.exists() then
-            if (cast.pool.racial() or cast.able.racial()) and energy >= 40 and energyDeficit >= 10 and not shdThreshold 
+            if (cast.pool.racial() or cast.able.racial()) and energy >= 40 and energyDeficit >= 10 and not shdThreshold
              and comboDeficit > 1 and debuff.findWeakness.remain(units.dyn5) < 1 then
                 if cast.pool.racial() then return true end
                 if cast.able.racial() then
@@ -1025,7 +1025,7 @@ local function runRotation()
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
             if cast.last.vanish(1) and mode.vanish == 2 then StopAttack() end
@@ -1041,7 +1041,7 @@ local function runRotation()
                 end
             end
             --tricks
-            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") > 0 then 
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") > 0 then
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
@@ -1090,7 +1090,7 @@ local function runRotation()
                     -- # Apply Slice and Dice at 2+ CP during the first 10 seconds, after that 4+ CP if it expires within the next GCD or is not up
                     -- actions+=/slice_and_dice, if=spell_targets.shuriken_storm<6&fight_remains>6&buff.slice_and_dice.remains<gcd.max&combo_points>=4-(time<10)*2
                     local cTime = 0
-                    if (combatTime < 10 and not cd.vanish.exists()) then 
+                    if (combatTime < 10 and not cd.vanish.exists()) then
                         cTime = 1
                     end
                     if enemies10 < 6 and fightRemain > 6 and buff.sliceAndDice.remain() < gcdMax and combo >= 4-(cTime*2) and buff.sliceAndDice.remain() < 6+(combo*3) then
@@ -1115,7 +1115,7 @@ local function runRotation()
                 if animachargedCP then
                     if actionList_Finishers() then return true end
                 end
-                if gcd < getLatency() then             
+                if gcd < getLatency() then
                     -- # Finish at 4+ without DS or with SoD crit buff, 5+ with DS (outside stealth)
                     -- actions+=/call_action_list,name=finish,if=combo_points.deficit<=1|fight_remains<=1&combo_points>=3|buff.symbols_of_death_autocrit.up&combo_points>=4
                     if comboDeficit <= 1 or (fightRemain <= 1 and combo >= 3) or (buff.symbolsOfDeathCrit.exists() and combo >= 4) then
@@ -1149,7 +1149,7 @@ local function runRotation()
             end
         end -- End In Combat Rotation
     end -- Pause
-end -- End runRotation 
+end -- End runRotation
 local id = 261 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

@@ -242,18 +242,18 @@ function hasThreat(unit,playerUnit)
 	if targetUnit == "None" then targetFriend = false
 	else targetFriend = (isTargeting(unit) or UnitName(targetUnit) == UnitName("player") or (UnitExists("pet") and UnitName(targetUnit) == UnitName("pet")) or UnitInParty(targetUnit) or UnitInRaid(targetUnit))
 	end
-	
+
 	local function threatSituation(friendlyUnit,enemyUnit)
 		local _,_,threatPct = UnitDetailedThreatSituation(friendlyUnit,enemyUnit)
-		if threatPct ~= nil then 
+		if threatPct ~= nil then
 			if threatPct > 0 then
 				if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(enemyUnit).." is threatening "..UnitName(friendlyUnit).."."); end
 				return true
 			end
-		end	
+		end
 		return false
 	end
-	
+
 	-- Valididation Checks
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
 	if unit == nil --[[or (not GetObjectExists(targetUnit) and br.lists.threatBypass[unitID] == nil)]] then return false end

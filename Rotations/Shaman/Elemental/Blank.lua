@@ -63,7 +63,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -78,7 +78,7 @@ local function createOptions()
             -- Interrupts Key Toggle
             br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -122,7 +122,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.ui.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -132,7 +132,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttm                                           = br.player.timeToMax
         local units                                         = br.player.units
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -155,14 +155,14 @@ local function runRotation()
 
             end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
             if inCombat then
                 print("No up to date rotation found for this spec.")
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 local id = 0
 --local id = 262 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end

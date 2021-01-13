@@ -25,7 +25,7 @@ local targetSwitchTimer = GetTime()
 
 br.rotations.support["PetCuteOne"] = {
     options = function()
-        -- Pet Options    
+        -- Pet Options
         local section = br.ui:createSection(br.ui.window.profile, "Pet")
             -- Pet Target
             br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit", "Assist"},1,"Select how you want pet to acquire targets.")
@@ -74,7 +74,7 @@ br.rotations.support["PetCuteOne"] = {
             end
             return petMode
         end
-        
+
         local function getLootableCount()
             local count = 0
             for k, v in pairs(br.lootable) do
@@ -213,11 +213,11 @@ br.rotations.support["PetCuteOne"] = {
             end
             -- Pet Attack / Retreat
             -- if br.petTarget == nil and unit.valid("target") then br.petTarget = "target" end
-            if br.petTarget ~= "player" and not buff.playDead.exists("pet") and not var.haltPetProfile 
+            if br.petTarget ~= "player" and not buff.playDead.exists("pet") and not var.haltPetProfile
                 and (not unit.exists("pettarget") or not unit.isUnit("pettarget",br.petTarget))
-                and ((not unit.inCombat() and not unit.inCombat("pet")) 
+                and ((not unit.inCombat() and not unit.inCombat("pet"))
                     or ((unit.inCombat() or unit.inCombat("pet")) and (currentTarget == nil or not unit.isUnit(br.petTarget,currentTarget))))
-                and unit.distance("target") < 40           
+                and unit.distance("target") < 40
             then
                 ui.debug("[Pet] Pet is now attacking "..tostring(unit.name(br.petTarget)))
                 PetAttack(br.petTarget)
@@ -228,8 +228,8 @@ br.rotations.support["PetCuteOne"] = {
                 then
                     ui.debug("[Pet] Pet stopped attacking!")
                     PetStopAttack()
-                    if (#enemies.yards40 == 0 and #enemies.yards40p == 0) or var.haltPetProfile then 
-                        ui.debug("[Pet] Pet is now following, Enemies40: "..#enemies.yards40..", var.haltPetProfile : "..tostring(var.haltPetProfile )) 
+                    if (#enemies.yards40 == 0 and #enemies.yards40p == 0) or var.haltPetProfile then
+                        ui.debug("[Pet] Pet is now following, Enemies40: "..#enemies.yards40..", var.haltPetProfile : "..tostring(var.haltPetProfile ))
                         PetFollow()
                     end
                 end
@@ -277,71 +277,71 @@ br.rotations.support["PetCuteOne"] = {
             -- Defense Abilities
             if ui.checked("Use Defense Ability") and unit.inCombat("pet") and unit.hp("pet") < ui.value("Use Defense Ability") then
                 -- Agile Reflexes
-                if cast.able.agileReflexes() then 
+                if cast.able.agileReflexes() then
                     if cast.agileReflexes() then ui.debug("[Pet] Cast Agile Reflexes") return true end
                 end
                 -- Bristle
-                if cast.able.bristle() then 
+                if cast.able.bristle() then
                     if cast.bristle() then ui.debug("[Pet] Cast Bristle") return true end
                 end
                 -- Bulwark
-                if cast.able.bulwark() then 
+                if cast.able.bulwark() then
                     if cast.bulwark() then ui.debug("[Pet] Cast Bulwark") return true end
                 end
                 -- Cat-like Reflexes
-                if cast.able.catlikeReflexes() then 
+                if cast.able.catlikeReflexes() then
                     if cast.catlikeReflexes() then ui.debug("[Pet] Cast Cat-like Reflexes") return true end
                 end
                 -- Defense Matrix
-                if cast.able.defenseMatrix() then 
+                if cast.able.defenseMatrix() then
                     if cast.defenseMatrix() then ui.debug("[Pet] Cast Defense Matrix") return true end
                 end
                 -- Dragon'checkSectionState Guile
-                if cast.able.dragonsGuile() then 
+                if cast.able.dragonsGuile() then
                     if cast.dragonsGuile() then ui.debug("[Pet] Cast Dragon's Guile") return true end
                 end
                 -- Feather Flurry
-                if cast.able.featherFlurry() then 
+                if cast.able.featherFlurry() then
                     if cast.featherFlurry() then ui.debug("[Pet] Cast Feather Flurry") return true end
                 end
                 -- Fleethoof
-                if cast.able.fleethoof() then 
+                if cast.able.fleethoof() then
                     if cast.fleethoof() then ui.debug("[Pet] Cast Fleethood") return true end
                 end
                 -- Harden Carapace
-                if cast.able.hardenCarapace() then 
+                if cast.able.hardenCarapace() then
                     if cast.hardenCarapace() then ui.debug("[Pet] Cast Harden Carapace") return true end
                 end
                 -- Obsidian Skin
-                if cast.able.obsidianSkin() then 
+                if cast.able.obsidianSkin() then
                     if cast.obsidianSkin() then ui.debug("[Pet] Cast Obsidian Skin") return true end
                 end
                 -- Primal Agility
-                if cast.able.primalAgility() then 
+                if cast.able.primalAgility() then
                     if cast.primalAgility() then ui.debug("[Pet] Cast Primal Agility") return true end
                 end
                 -- Scale Shield
-                if cast.able.scaleShield() then 
+                if cast.able.scaleShield() then
                     if cast.scaleShield() then ui.debug("[Pet] Cast Scale Shield") return true end
                 end
                 -- Serpent Swiftness
-                if cast.able.serpentSwiftness() then 
+                if cast.able.serpentSwiftness() then
                     if cast.serpentSwiftness() then ui.debug("[Pet] Cast Serpent Swiftness") return true end
                 end
                 -- Shell Shield
-                if cast.able.shellShield() then 
+                if cast.able.shellShield() then
                     if cast.shellShield() then ui.debug("[Pet] Cast Shell Shield") return true end
                 end
                 -- Solid Shell
-                if cast.able.solidShell() then 
+                if cast.able.solidShell() then
                     if cast.solidShell() then ui.debug("[Pet] Cast Solid Shell") return true end
                 end
                 -- Swarm Of Flies
-                if cast.able.swarmOfFlies() then 
+                if cast.able.swarmOfFlies() then
                     if cast.swarmOfFlies() then ui.debug("[Pet] Cast Swarm of Flies") return true end
                 end
                 -- Winged Agility
-                if cast.able.wingedAgility() then 
+                if cast.able.wingedAgility() then
                     if cast.wingedAgility() then ui.debug("[Pet] Cast Winged Agility") return true end
                 end
             end
@@ -394,7 +394,7 @@ br.rotations.support["PetCuteOne"] = {
                 -- Toxic Sting
                 if cast.able.toxicSting() then
                     if cast.toxicSting(br.petTarget) then ui.debug("[Pet] Cast Toxic Sting") return true end
-                end                
+                end
             end
             -- Heal Abilities
             if ui.checked("Use Heal Ability") then

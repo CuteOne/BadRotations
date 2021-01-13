@@ -11,5 +11,5 @@ br.lists.AoEDamage = {
     282107, -- Paku's Wrath (Conclave)
     -- Crucible of Storms
     282742, -- Storm of Annihilation
-    
+
 }

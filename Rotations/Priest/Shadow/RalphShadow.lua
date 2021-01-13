@@ -116,7 +116,7 @@ local function createOptions()
             -- Interrupt Target
             --br.ui:createDropdownWithout(section,"Interrupt Unit", {"1. All in Range", "2. Target", "3. Focus"}, 1, "Interrupt your focus, your target, or all enemies in range.")
             -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  45,  0,  95,  5,  "Cast Percent to Cast At")    
+            br.ui:createSpinner(section, "Interrupt At",  45,  0,  95,  5,  "Cast Percent to Cast At")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -131,7 +131,7 @@ local function createOptions()
             -- Interrupts Key Toggle
             br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -253,7 +253,7 @@ local function CwC()
     if cast.current.mindSear() and msTicks >= 5 and cast.last.searingNightmare() and power > 30 then
         if cast.cancel.mindSear() then ui.debug("Stop Mind Sear after 2nd SnM [CwC]") return end
     end
-    
+
     -- # Use Searing Nightmare if you will hit enough targets and Power Infusion and Voidform are not ready, or to refresh SW:P on two or more targets.
     -- actions.cwc=searing_nightmare,use_while_casting=1,target_if=(variable.searing_nightmare_cutoff&!variable.pool_for_cds)|(dot.shadow_word_pain.refreshable&spell_targets.mind_sear>1)
     if (useCDs() and cd.voidEruption.exists() or not useCDs()) and ((snmCutoff and not pool) or (not swpCheck and #searEnemies > 1)) and cast.current.mindSear() then
@@ -261,7 +261,7 @@ local function CwC()
             if cast.searingNightmare("target") then ui.debug("Searing nightmare if will hit 3+ targets [CwC]") return end
         end
     end
-    
+
     -- # Short Circuit Searing Nightmare condition to keep SW:P up in AoE
     -- actions.cwc+=/searing_nightmare,use_while_casting=1,target_if=talent.searing_nightmare.enabled&dot.shadow_word_pain.refreshable&spell_targets.mind_sear>2
     if ((useCDs() and cd.voidEruption.exists()) or not useCDs()) and talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) and power > 30 then
@@ -300,7 +300,7 @@ end
 local function ToF()
     if talent.twistOfFate then
         return 1
-    else 
+    else
         return 0
     end
 end
@@ -464,7 +464,7 @@ actionList.Cooldown = function()
         end
     -- # Use Silence on CD to proc Sephuz's Proclamation.
     -- actions.cds+=/silence,target_if=runeforge.sephuzs_proclamation.equipped&(target.is_add|target.debuff.casting.react)
-    
+
     -- # Use on CD but prioritise using Void Eruption first, if used inside of VF on ST use after a voidbolt for cooldown efficiency and for hungering void uptime if talented.
     -- actions.cds+=/boon_of_the_ascended,if=!buff.voidform.up&!cooldown.void_eruption.up&spell_targets.mind_sear>1&!talent.searing_nightmare.enabled|(buff.voidform.up&spell_targets.mind_sear<2&!talent.searing_nightmare.enabled&prev_gcd.1.void_bolt)|(buff.voidform.up&talent.searing_nightmare.enabled)
         if covenant.kyrian.active then
@@ -583,7 +583,7 @@ actionList.PreCombat = function()
         end
         -- Pre-Pull
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= cast.time.vampiricTouch() then
-            if cast.vampiricTouch("target") then ui.debug("Casting Vampiric Touch [Pre-Combat]") return end 
+            if cast.vampiricTouch("target") then ui.debug("Casting Vampiric Touch [Pre-Combat]") return end
         end
 
     end
@@ -635,13 +635,13 @@ actionList.Main = function()
     if not debuff.vampiricTouch.exists() and not moving and #searEnemies < searCutoff then
         if cast.vampiricTouch("target") then ui.debug("Casting VT on target [Main]") return end
     end
-   
+
     -- # Use Void Eruption on cooldown pooling at least 40 insanity but not if you will overcap insanity in VF. Make sure shadowfiend/mindbender is on cooldown before VE.
     -- actions.main+=/void_eruption,if=variable.pool_for_cds&insanity>=40&(insanity<=85|talent.searing_nightmare.enabled&variable.searing_nightmare_cutoff)&!cooldown.fiend.up
     if useCDs() and not voidform and not moving and power >= 40 and (power <= 85 or (talent.searingNightmare and snmCutoff)) and cd.shadowfiend.exists() then
         if cast.voidEruption() then ui.debug("Casting Void Eruption [Main]") return end
     end
-    
+
     -- # Make sure you put up SW:P ASAP on the target if Wrathful Faerie isn't active.
     -- actions.main+=/shadow_word_pain,if=buff.fae_guardians.up&!debuff.wrathful_faerie.up
     if buff.faeGuardians.exists() and not debuff.wrathfulFaerie.exists('target') then
@@ -670,17 +670,17 @@ actionList.Main = function()
             end
         end
     end
-    
+
     -- actions.main+=/call_action_list,name=cds
     -- if actionList.Cooldown() then return true end
-    
-    
+
+
     -- # High Priority Mind Sear action to refresh DoTs with Searing Nightmare
     -- actions.main+=/mind_sear,target_if=talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff&!dot.shadow_word_pain.ticking&!cooldown.fiend.up
     if not moving and talent.searingNightmare and power > 30 and #searEnemies > searCutoff and not swpCheck and cd.shadowfiend.exists() then
         if cast.mindSear('target') then ui.debug("Casting Mind Sear to refresh SW:P [Main]") return end
     end
-    
+
     if debuff.vampiricTouch.count() < VTmaxTargets and not cast.last.vampiricTouch() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
@@ -691,19 +691,19 @@ actionList.Main = function()
             end
         end
     end
-    
+
     -- # Prefer to use Damnation ASAP if any DoT is not up.
     -- actions.main+=/damnation,target_if=!variable.all_dots_up
     if talent.damnation and not allDotsUp then
         if cast.damnation('target') then ui.debug("Casting Damnation on target [Main]") return end
     end
-   
+
     -- # Don't use Devouring Plague if you can get into Voidform instead, or if Searing Nightmare is talented and will hit enough targets.
     -- actions.main+=/devouring_plague,target_if=(refreshable|insanity>75)&(!variable.pool_for_cds|insanity>=85)&(!talent.searing_nightmare.enabled|(talent.searing_nightmare.enabled&!variable.searing_nightmare_cutoff))
     if (debuff.devouringPlague.refresh('target') or power > 75) and (not pool or power >= 85) and (not talent.searingNightmare or (talent.searingNightmare and not snmCutoff)) then
         if cast.devouringPlague('target') then ui.debug("Casting DP on target [Main]") return end
     end
-    
+
     -- # Use Shadow Word: Death if the target is about to die or you have Shadowflame Prism equipped with Mindbender or Shadowfiend active.
     -- actions.main+=/shadow_word_death,target_if=(target.health.pct<20&spell_targets.mind_sear<4)|(pet.fiend.active&runeforge.shadowflame_prism.equipped)
     if not talent.deathAndMadness and thp < 20 and #searEnemies < 4 or talent.deathAndMadness and ttd('target') < 7 then
@@ -717,19 +717,19 @@ actionList.Main = function()
             end
         end
     end
-    
+
     -- # Use Surrender to Madness on a target that is going to die at the right time.
     -- actions.main+=/surrender_to_madness,target_if=target.time_to_die<25&buff.voidform.down
     if ui.checked("Surrender to Madness") and talent.surrenderToMadness and ttd('target') < 25 and not buff.voidForm.exists() then
         if cast.surrenderToMadness() then ui.debug("Casting Surrender to Madness [Main]") return end
     end
-    
+
     -- # Use Void Torrent only if SW:P and VT are active and the target won't die during the channel.
     -- actions.main+=/void_torrent,target_if=variable.dots_up&target.time_to_die>3&buff.voidform.down&active_dot.vampiric_touch==spell_targets.vampiric_touch&spell_targets.mind_sear<(5+(6*talent.twist_of_fate.enabled))
     if not buff.boonOfTheAscended.exists() and not moving and dotsUp and ttd('target') > 5 and not voidform and not cast.last.voidEruption() and not vtCheck() and #searEnemies < (5 + (6 * ToF())) and power <= 60 then
         if cast.voidTorrent('target') then ui.debug("Casting Void Torrent on target [Main]") return end
     end
-    
+
     -- actions.main+=/mindbender,if=dot.vampiric_touch.ticking&(talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff|dot.shadow_word_pain.ticking)
     if useCDs() and debuff.vampiricTouch.exists('target') and (talent.searingNightmare and #searEnemies > searCutoff or debuff.shadowWordPain.exists('target')) then
         if talent.mindBender and ttd("target") >= 6 then
@@ -738,7 +738,7 @@ actionList.Main = function()
             if cast.shadowfiend('target') then ui.debug("Casting Shadowfiend [Main]") return end
         end
     end
-    
+
     -- # Use SW:D with Painbreaker Psalm unless the target will be below 20% before the cooldown comes back
     -- actions.main+=/shadow_word_death,if=runeforge.painbreaker_psalm.equipped&variable.dots_up&target.time_to_pct_20>(cooldown.shadow_word_death.duration+gcd)
 
@@ -747,20 +747,20 @@ actionList.Main = function()
     if covenant.venthyr.active and not cast.last.voidEruption() and not moving then
         if cast.mindgames('target') then ui.debug("Casting Mindgames [Main]") return end
     end
-    
+
     -- dark thoughts procs handled in cwc
     -- # Use Mind Sear to consume Dark Thoughts procs on AOE. TODO Confirm is this is a higher priority than redotting on AOE unless dark thoughts is about to time out
     -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff&buff.dark_thought.up,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
     -- # Use Mind Flay to consume Dark Thoughts procs on ST. TODO Confirm if this is a higher priority than redotting unless dark thoughts is about to time out
     -- actions.main+=/mind_flay,if=buff.dark_thought.up&variable.dots_up,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&cooldown.void_bolt.up
-    
-    
+
+
     -- # Use Mind Blast if you don't need to refresh DoTs. Stop casting at 4 or more targets with Searing Nightmare talented.
     -- actions.main+=/mind_blast,if=variable.dots_up&raid_event.movement.in>cast_time+0.5&(spell_targets.mind_sear<4&!talent.misery.enabled|spell_targets.mind_sear<6&talent.misery.enabled)
     if not moving and dotsUp and (#searEnemies < 4 and not talent.misery or #searEnemies < 6 and talent.misery) then
         if cast.mindBlast('target') then ui.debug("Casting Mind Blast on target [Main]") return end
     end
-   
+
     -- actions.main+=/vampiric_touch,target_if=refreshable&target.time_to_die>6|(talent.misery.enabled&dot.shadow_word_pain.refreshable)|buff.unfurling_darkness.up
     if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh('target') and ttd('target') > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
         --if not cast.last.vampiricTouch() then
@@ -777,7 +777,7 @@ actionList.Main = function()
             end
         end
     end
-    
+
     -- # Special condition to stop casting SW:P on off-targets when fighting 3 or more stacked mobs and using Psychic Link and NOT Misery.
     -- actions.main+=/shadow_word_pain,if=refreshable&target.time_to_die>4&!talent.misery.enabled&talent.psychic_link.enabled&spell_targets.mind_sear>2
     if debuff.shadowWordPain.refresh("target") and ttd("target") > 4 and not talent.misery and talent.psychicLink and #searEnemies > 2 then
@@ -794,7 +794,7 @@ actionList.Main = function()
             end
         end
     end
-    
+
     -- # Keep SW:P up on as many targets as possible, except when fighting 3 or more stacked mobs with Psychic Link.
     -- actions.main+=/shadow_word_pain,target_if=refreshable&target.time_to_die>4&!talent.misery.enabled&!(talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff)&(!talent.psychic_link.enabled|(talent.psychic_link.enabled&spell_targets.mind_sear<=2))
     if debuff.shadowWordPain.refresh("target") and ttd("target") > 4 and not talent.misery and not (talent.searingNightmare and #searEnemies > searCutoff) and (not talent.psychicLink or (talent.psychicLink and #searEnemies <= 2)) then
@@ -811,7 +811,7 @@ actionList.Main = function()
             end
         end
     end
-    
+
     -- actions.main+=/mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&cooldown.void_bolt.up
     if dotsUp and not moving and #searEnemies <= searCutoff then
         if cast.mindFlay('target') then ui.debug("Casting Mindflay on target [Main]") return end
@@ -821,7 +821,7 @@ actionList.Main = function()
     if not talent.searingNightmare and #searEnemies > searCutoff and not moving and cd.mindBlast.exists() and cd.voidTorrent.exists() then
         if cast.mindSear('target') then ui.debug("Casting Mind Sear on target [Main]") return end
     end
-  
+
     -- # Use SW:D as last resort if on the move
     -- actions.main+=/shadow_word_death
     if moving and cd.shadowWordDeath.ready() then
@@ -834,7 +834,7 @@ actionList.Main = function()
             end
         end
     end
-    
+
     -- # Use SW:P as last resort if on the move and SW:D is on CD
     -- actions.main+=/shadow_word_pain
     if moving then
@@ -886,7 +886,7 @@ local function runRotation()
     ui                                              = br.player.ui
     use                                             = br.player.use
     voidform                                        = buff.voidForm.exists()
-    -- General Locals   
+    -- General Locals
     hastar                                          = GetObjectExists("target")
     healPot                                         = getHealthPot()
     profileStop                                     = profileStop or false
@@ -934,7 +934,7 @@ local function runRotation()
     end
 
     -- SimC specific variables
-    
+
 
     --Clear last cast table ooc to avoid strange casts
     if not inCombat and #br.lastCast.tracker > 0 then

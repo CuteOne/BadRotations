@@ -632,7 +632,7 @@ actionList.St = function()
     -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
     if cast.able.freezingTrap() and runeforge.nesingwarysTrappingApparatus.equiped then
         if cast.freezingTrap() then ui.debug("Casting Freezing Trap [Nesingwary's Trapping Apparatus]") return true end
-    end  
+    end
 end -- End Action List - Single Target
 
 -- Action List - Cleave
@@ -815,11 +815,11 @@ local function runRotation()
     var                                = br.player.variables
 
     -- Global Functions
-    
+
     -- Get Best Unit for Range
     -- units.get(range, aoe)
     units.get(40)
-    
+
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
     enemies.get(40)
@@ -832,7 +832,7 @@ local function runRotation()
     enemies.get(8,"player",false,true)
     enemies.get(8,"target")
     enemies.get(5,"pet")
-    
+
     -- Variables
     var.getCombatTime = _G["getCombatTime"]
     var.haltProfile   = ((unit.inCombat() and var.profileStop) or IsMounted() or unit.flying() or pause() or buff.feignDeath.exists() or ui.mode.rotation==4)

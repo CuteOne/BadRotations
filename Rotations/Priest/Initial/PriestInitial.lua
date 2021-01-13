@@ -215,4 +215,4 @@ tinsert(br.rotations[id],{
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-}) 
+})

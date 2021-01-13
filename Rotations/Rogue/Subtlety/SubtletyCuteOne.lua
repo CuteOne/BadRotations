@@ -287,7 +287,7 @@ local function runRotation()
 
         -- Custom Functions
         local function timeSinceVanish()
-            return GetTime() - vanishTime 
+            return GetTime() - vanishTime
         end
         local function usePickPocket()
             if buff.stealth.exists() and not inCombat and (mode.pickPocket == 1 or mode.pickPocket == 2) then

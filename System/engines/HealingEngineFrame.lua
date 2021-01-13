@@ -241,7 +241,7 @@ function pulseNovaDebug()
  --  --           if br.classColors[thisUnit.class] ~= nil then
  --  --               color = "|"..br.classColors[thisUnit.class].hex
  --  --           end
- --  --           -- if textString == nil then 
+ --  --           -- if textString == nil then
 	-- 	-- 	textString = textString.."\nName: "..color..UnitName(br.friend[i].unit).." |r HP:"..thisUnit.hp
 	-- 	-- end
 	-- 	-- br.ui.window.healing:AddMessage(textString)

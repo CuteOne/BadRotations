@@ -110,7 +110,7 @@ local function ghostWolf()
                 if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Moving]") end
             end
        elseif ui.mode.ghostWolf == 2 then
-            if cast.able.ghostWolf() and not buff.ghostWolf.exists() and unit.moving() then 
+            if cast.able.ghostWolf() and not buff.ghostWolf.exists() and unit.moving() then
                 if ui.toggle("Ghost Wolf Key") then
                     if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Keybind]") end
                 end

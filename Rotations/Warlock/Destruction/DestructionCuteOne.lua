@@ -808,13 +808,13 @@ local function runRotation()
     lastSpell                          = lastSpellCast
     lucidDreams                        = buff.memoryOfLucidDreams.exists() and 1 or 0
     summonPet                          = option.value("Summon Pet")
-    
+
     -- Get Best Unit for Range
     -- units.get(range, aoe)
     units.get(40)
     if range == nil then range = {} end
     range.dyn40 = getDistance(units.dyn40) < 40
-    
+
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
     enemies.get(8,"target")
@@ -822,7 +822,7 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",true) -- makes enemies.yards40nc
     enemies.get(40,"player",false,true) -- makes enemies.yards40f
-    
+
     -- General Vars
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
@@ -830,7 +830,7 @@ local function runRotation()
         profileStop = false
     end
     okToDoT = debuff.immolate.count() < option.value("Multi-Dot Limit")
-    
+
     -- SimC Variables
     -- Pool Shards
     -- variable,name=pool_soul_shards,value=active_enemies>1&cooldown.havoc.remains<=10|cooldown.summon_infernal.remains<=15&(talent.grimoire_of_supremacy.enabled|talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains<=15)|talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains<=15&(cooldown.summon_infernal.remains>target.time_to_die|cooldown.summon_infernal.remains+cooldown.summon_infernal.duration>target.time_to_die)
@@ -839,7 +839,7 @@ local function runRotation()
             or talent.darkSoulInstability and cd.darkSoulInstability.remain() <= 15
             and (cd.summonInfernal.remain() > ttd(units.dyn40) or cd.summonInfernal.remain() +
             cd.summonInfernal.duration() > ttd(units.dyn40))
-    
+
     -- Pet Data
     if summonPet == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
     elseif summonPet == 1 then summonId = 416

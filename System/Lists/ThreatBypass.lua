@@ -2,7 +2,7 @@ if br.lists == nil then
 	br.lists = {}
 end
 br.lists.threatBypass = {
-    [98081] = "Bellowing Idol", -- Neltharian's Lair 
+    [98081] = "Bellowing Idol", -- Neltharian's Lair
     [100818] = "Bellowing Idol",
     [133492] = "Corruption Corpuscle",
     [135016] = "Plague Amalgam",

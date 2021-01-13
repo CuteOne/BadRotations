@@ -76,7 +76,7 @@ local function createOptions()
 			-- Condemn
 			br.ui:createCheckbox(section, "Use Condemn")
             -- Bladestorm
-            br.ui:createSpinner(section, "Bladestorm",  3,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")            
+            br.ui:createSpinner(section, "Bladestorm",  3,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")
             br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -205,7 +205,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local traits                                        = br.player.traits
         local units                                         = br.player.units
-        local use                                           = br.player.use  
+        local use                                           = br.player.use
         local ttd                                           = getTTD
 
         units.get(5)
@@ -301,7 +301,7 @@ local function runRotation()
               --              for k, v in pairs(Storm_list) do
               --                  if (Storm_unitList[GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
               --                      if cast.stormBolt(thisUnit) then debug("Casting Storm Bolt")
-              --                          return 
+              --                          return
               --                      end
               --                  end
               --              end
@@ -321,7 +321,7 @@ local function runRotation()
                             if cast.intimidatingShout() then debug("Casting Intimidating Shout") return end
                         end
                     end
-                end   
+                end
             end
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
@@ -334,7 +334,7 @@ local function runRotation()
                 -- actions+=/lights_judgment,if=debuff.colossus_smash.down
                 -- actions+=/fireblood,if=debuff.colossus_smash.up
                 -- actions+=/ancestral_call,if=debuff.colossus_smash.up
-                if isChecked("Racial") and cast.able.racial() 
+                if isChecked("Racial") and cast.able.racial()
                 and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc" or race == "Vulpera")
                 or ((race == "BloodElf" and cd.mortalStrike.remain() > 1.5 and power < 50) or race == "LightforgedDraenei")
                 then
@@ -379,7 +379,7 @@ local function runRotation()
                 -- Colossus Smash // actions.single_target+=/colossus_smash
                     if cast.able.colossusSmash() and isChecked("Colossus Smash") and not talent.warbreaker then
                         if cast.colossusSmash("target") then debug("ST Casting ColossusSmash") return end
-                    end  
+                    end
 				-- Ravager  //  actions.single_target+=/ravager,if=buff.avatar.remains<18&!dot.ravager.remains
 					if cast.able.ravager() and useCDs() then
 						if cast.ravager("target","ground") then debug("ST Casting Ravager @Target") return end
@@ -399,7 +399,7 @@ local function runRotation()
 				--  Mortal Strike with <4 seconds remaining on Deep Wounds
 					if cast.able.mortalStrike() and debuff.deepWounds.remain(units.dyn5) <= 4 then
 						if cast.mortalStrike() then debug("ST Casting Mortal Strike DW") return end
-					end 
+					end
 				-- deadly calm
 					if cast.able.deadlyCalm() then
 						if cast.deadlyCalm() then debug("ST Casting Deadly Calm") return end
@@ -408,7 +408,7 @@ local function runRotation()
 					if cast.able.overpower() then
 						if cast.overpower() then debug("ST Casting Overpower") return end
 					end
-				-- CondemnMassacre 
+				-- CondemnMassacre
 					for i = 1, #enemies.yards8 do
 						local thisUnit = enemies.yards8[i]
 							if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre then
@@ -456,7 +456,7 @@ local function runRotation()
 					if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 >= getOptionValue("Sweeping Strikes") and (cd.bladestorm.remain() > 15 or talent.ravager) then
 						if cast.sweepingStrikes() then debug("MT Casting Sweeping Strikes") return end
 					end
-					
+
 				--Warbreaker or Cleave to apply Deep Wounds
 					if cast.able.warbreaker() and isChecked("Warbreaker") and talent.warbreaker and useCDs() then
 						if cast.warbreaker("player","aoe",1,8) then debug("MT Casting Warbreaker") return end
@@ -483,7 +483,7 @@ local function runRotation()
 				--Colossus Smash on the priority target
                     if cast.able.colossusSmash() and isChecked("Colossus Smash") and not talent.warbreaker then
                         if cast.colossusSmash("target") then debug("MT Casting ColossusSmash") return end
-                    end  
+                    end
 				-- rend // actions.hac+=/rend,if=remains<=duration*0.3&buff.sweeping_strikes.up
 					if cast.able.rend() and (buff.sweepingStrikes.exists() and not debuff.rend.exists(units.dyn5) or (debuff.rend.remain(units.dyn5) < 4)) then
 						if cast.rend() then debug("MT Casting Rend")return end
@@ -491,12 +491,12 @@ local function runRotation()
 				-- mortal strike to refresh // actions.hac+=/mortal_strike,if=buff.sweeping_strikes.up|dot.deep_wounds.remains<gcd&!talent.cleave.enabled
 					if cast.able.mortalStrike() and debuff.deepWounds.remain() <= 4 or buff.sweepingStrikes.exists() then
 						if cast.mortalStrike() then debug("MT Casting Mortal Strike Deep Wounds or Sweeping Strikes") return end
-					end 
+					end
 				--Overpower if dreadnaught // actions.hac+=/overpower,if=talent.dreadnaught.enabled
 					if cast.able.overpower() and talent.dreadnaught then
 						if cast.overpower() then debug("MT Casting Overpower because dreadnaught and aoe") return end
 					end
-				-- CondemnMassacre 
+				-- CondemnMassacre
 					for i = 1, #enemies.yards8 do
 						local thisUnit = enemies.yards8[i]
 							if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre then
@@ -524,12 +524,12 @@ local function runRotation()
 					if cast.able.whirlwind() then
 						if cast.whirlwind() then debug("MT casting ww as aoe filler") return end
 					end
-				--Use Sweeping Strikes on cooldown whenever there are extra targets, and follow the single target Arms Warrior rotation listed above. 
-				--Time Rend and Colossus Smash with Sweeping Strikes to spread their debuffs onto a second target when possible. Avoid using Sweeping 
+				--Use Sweeping Strikes on cooldown whenever there are extra targets, and follow the single target Arms Warrior rotation listed above.
+				--Time Rend and Colossus Smash with Sweeping Strikes to spread their debuffs onto a second target when possible. Avoid using Sweeping
 				--Strikes with Bladestorm, since it already hits multiple targets.
 				--
-		 
-			
+
+
         end -- End Action List - Multi
 		-- Action List - Execute
 		local function actionList_Execute()
@@ -560,9 +560,9 @@ local function runRotation()
 		--actions.execute+=/colossus_smash
 			if cast.able.colossusSmash() and isChecked("Colossus Smash") and not talent.warbreaker then
 				if cast.colossusSmash("target") then debug("EXEQT Casting ColossusSmash") return end
-			end 
+			end
 		--actions.execute+=/condemn,if=debuff.colossus_smash.up|buff.sudden_death.react|rage>65
-		-- CondemnMassacre 
+		-- CondemnMassacre
 			for i = 1, #enemies.yards8 do
 				local thisUnit = enemies.yards8[i]
 					if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre and debuff.colossusSmash.exists(units.dyn5) or rage >= 65 then
@@ -587,7 +587,7 @@ local function runRotation()
 		--actions.execute+=/mortal_strike,if=dot.deep_wounds.remains<=gcd
 			if cast.able.mortalStrike() and debuff.deepWounds.remain(units.dyn5) <= 4 then
 				if cast.mortalStrike() then debug("EXEQT Casting Mortal Strike DW") return end
-			end 
+			end
 		--actions.execute+=/skullsplitter,if=rage<40
 			if cast.able.skullsplitter() and rage < 40 then
 				if cast.skullsplitter() then debug("EXEQT Casting Skullsplitter rage < 40") return end
@@ -597,7 +597,7 @@ local function runRotation()
 				if cast.overpower() then debug("EXEQT Casting Overpower") return end
 			end
 		--actions.execute+=/condemn
-		--  CondemnMassacre 
+		--  CondemnMassacre
 			for i = 1, #enemies.yards8 do
 				local thisUnit = enemies.yards8[i]
 					if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre then

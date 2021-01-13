@@ -125,7 +125,7 @@ local function createOptions()
         -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
 
-        -- Racial 
+        -- Racial
             br.ui:createCheckbox(section,"Racial")
 
         br.ui:checkSectionState(section)
@@ -219,7 +219,7 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.items
         local mode                                          = br.player.ui.mode
-        local moving                                        = isMoving("player")     
+        local moving                                        = isMoving("player")
         local php                                           = br.player.health
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -360,7 +360,7 @@ local function runRotation()
                     return true
                 end
                 i = i + 1
-                buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)            
+                buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)
             end
             return false
         end
@@ -419,8 +419,8 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUseItem(5512) then
                         useItem(5512)
@@ -490,7 +490,7 @@ local function runRotation()
         end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
-        
+
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
@@ -551,8 +551,8 @@ local function runRotation()
                     end
                 end
 
-                if buff.combustion.exists("player") then 
-                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) 
+                if buff.combustion.exists("player") then
+                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13)
                     and not equiped.azsharasFontOfPower(13) then
                         if UnitCastingInfo("player") then
                             SpellStopCasting()
@@ -562,7 +562,7 @@ local function runRotation()
                         return
                     end
 
-                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) 
+                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14)
                     and not equiped.azsharasFontOfPower(14) then
                         if UnitCastingInfo("player") then
                             SpellStopCasting()
@@ -613,14 +613,14 @@ local function runRotation()
                     var.VarDelayFlamestrike = 25
                     var.VarKindlingReduction = 0.2
                     var.VarHoldCombustionThreshold = 20
-                end -- End Pre-Pull        
+                end -- End Pre-Pull
             end -- End No Combat
         end -- End Action List - PreCombat
 
     local function actionList_ActiveTalents()
         -- living_bomb,if=active_enemies>1&buff.combustion.down&(variable.time_to_combustion>cooldown.living_bomb.duration|variable.time_to_combustion<=0|variable.disable_combustion)
         if cast.able.livingBomb() and (#enemies.yards10t > 1 and not buff.combustion.exists()) and (VarTimeToCombustion > 12 * spellHaste or VarTimeToCombustion <= 0 or IgnoreCombustion) then
-           if cast.livingBomb("target") then return true end 
+           if cast.livingBomb("target") then return true end
         end
 
         -- meteor,if=!variable.disable_combustion&variable.time_to_combustion<=0|(buff.rune_of_power.up|cooldown.rune_of_power.remains>target.time_to_die&action.rune_of_power.charges<1|!talent.rune_of_power.enabled)&(cooldown.meteor.duration<variable.time_to_combustion|target.time_to_die<variable.time_to_combustion|variable.disable_combustion)
@@ -651,7 +651,7 @@ local function runRotation()
         end
 
         if cast.able.livingBomb() and #enemies.yards10t > 1 and not buff.combustion.exists() then
-            if cast.livingBomb("target") then return true end 
+            if cast.livingBomb("target") then return true end
         end
 
         --racials
@@ -667,54 +667,54 @@ local function runRotation()
 
         -- rune_of_power,if=buff.rune_of_power.down&buff.combustion.down
         if cast.able.runeOfPower() and not buff.runeOfPower.exists() and not buff.combustion.exists() then
-            if cast.runeOfPower("player") then return true end 
+            if cast.runeOfPower("player") then return true end
         end
 
         -- call_action_list,name=active_talents
-        if actionList_ActiveTalents() then return end 
+        if actionList_ActiveTalents() then return end
 
         -- combustion,use_off_gcd=1,use_while_casting=1,if=((action.meteor.in_flight&action.meteor.in_flight_remains<=0.5)|!talent.meteor.enabled&(essence.memory_of_lucid_dreams.major|buff.hot_streak.react|action.scorch.executing&action.scorch.execute_remains<0.5|action.pyroblast.executing&action.pyroblast.execute_remains<0.5))&(buff.rune_of_power.up|!talent.rune_of_power.enabled)
         -- Increased CastRemains checks to 1s, up from 0.5s, to help visibility
         if cast.able.combustion() and cast.inFlight.metoer() and cast.last.meteor() or not talent.meteor or buff.hotStreak.exists() or cast.current.scorch() and cast.getCastTimeRemain("player") < 1 or cast.current.pyroblast() and cast.getCastTimeRemain("player")  and buff.runeOfPower.exists() or not talent.runeOfPower then
-           if cast.combustion("player") then return true end 
+           if cast.combustion("player") then return true end
         end
 
         -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>2)|active_enemies>6)&buff.hot_streak.react&!azerite.blaster_master.enabled
         if cast.able.flamestrike() and talent.flamePatch and #enemies.yards10t > 1 or #enemies.yards10t > 6 and buff.hotStreak.exists() and not traits.blasterMaster.active then
             if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
-                return true 
+                return true
             end
         end
 
         -- pyroblast,if=buff.pyroclasm.react&buff.combustion.remains>cast_time
         if cast.able.pyroblast() and not moving and buff.pyroclasm.exists() and buff.combustion.remains() > cast.time.pyroblast() then
-            if cast.pyroblast("target") then return true end 
+            if cast.pyroblast("target") then return true end
         end
 
         -- pyroblast,if=buff.hot_streak.react
         if cast.able.pyroblast() and buff.hotStreak.exists() and buff.hotStreak.remains() > cast.time.pyroblast() then
-           if cast.pyroblast("target") then return true end 
+           if cast.pyroblast("target") then return true end
         end
 
         -- pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up
         if cast.able.pyroblast() and not moving and last.cast.scorch() and buff.heatingUp.exists() then
-            if cast.pyroblast("target") then return true end 
+            if cast.pyroblast("target") then return true end
         end
 
         -- phoenix_flames
         if cast.able.phoenixFlames() then
-            if cast.phoenixflames("player") then return true end 
+            if cast.phoenixflames("player") then return true end
         end
 
         -- scorch,if=buff.combustion.remains>cast_time&buff.combustion.up|buff.combustion.down&cooldown.combustion.remains<cast_time
         if cast.able.scorch() and buff.combustion.remains() > cast.time.scorch() and buff.combustion.exists() or not buff.combustion.exists() and cd.combustion.remains() < cast.time.scorch() then
-            if cast.scorch("target") then return true end 
+            if cast.scorch("target") then return true end
         end
 
         -- living_bomb,if=buff.combustion.remains<gcd.max&active_enemies>1
         if cast.able.livingBomb() and buff.combustion.remains() < gcd and #enemies.yards10t > 1 then
-            if cast.livingBomb("target") then return true end 
+            if cast.livingBomb("target") then return true end
         end
 
         -- dragons_breath,if=buff.combustion.remains<gcd.max&buff.combustion.up
@@ -724,7 +724,7 @@ local function runRotation()
 
         -- scorch,if=target.health.pct<=30&talent.searing_touch.enabled
         if cast.able.scorch() and thp <= 30 and talent.searingTouch then
-            if cast.scorch("target") then return true end 
+            if cast.scorch("target") then return true end
         end
     end
 
@@ -733,14 +733,14 @@ local function runRotation()
         if cast.able.flamestrike() and ((#enemies.yards10t >= var.VarHotStreakFlamestrike and cast.timeSinceLast.combustion() - 10 > var.VarDelayFlamestrike or IgnoreCombustion))  and buff.hotStreak.exists() then
             if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
-                return true 
+                return true
             end
       end
 
 
       -- pyroblast,if=buff.hot_streak.react
       if cast.able.pyroblast() and buff.hotStreak.exists() then
-          if cast.pyroblast("target") then return true end 
+          if cast.pyroblast("target") then return true end
       end
 
 
@@ -753,19 +753,19 @@ local function runRotation()
       end
 
       -- call_action_list,name=active_talents
-      if actionList_ActiveTalents() then return end 
+      if actionList_ActiveTalents() then return end
 
 
       -- pyroblast,if=buff.pyroclasm.react&cast_time<buff.pyroclasm.remains&buff.rune_of_power.remains>cast_time
       if cast.able.pyroblast() and buff.pyroclasm.exists() and cast.time.pyroblast() < buff.pyroclasm.remains() and buff.runeOfPower.remains() > cast.time.pyroblast() then
-        if cast.pyroblast("target") then return true end 
+        if cast.pyroblast("target") then return true end
       end
-    
+
 
       -- fire_blast,use_off_gcd=1,use_while_casting=1,if=!(active_enemies>=variable.hard_cast_flamestrike&(time-buff.combustion.last_expire>variable.delay_flamestrike|variable.disable_combustion))&!firestarter.active&(buff.heating_up.react&spell_crit<1&(target.health.pct>=30|!talent.searing_touch.enabled))
       -- Using 85% crit, since CritChancePct() does not include Critical Mass's 15% crit
       if cast.able.fireBlast() and ( #enemies.yards10t < var.VarHardCastFlamestrike and cast.timeSinceLast.combustion()  - 10 > var.VarDelayFlamestrike or IgnoreCombustion) and firestarterInactive and buff.heatingUp.exists() and crit < 85 and thp >= 30 or not talent.searingTouch then
-         if cast.fireBlast("target") then return true end 
+         if cast.fireBlast("target") then return true end
       end
 
 
@@ -773,7 +773,7 @@ local function runRotation()
       -- Using 85% crit, since CritChancePct() does not include Critical Mass's 15% crit
 
      if cast.able.fireBlast() and #enemies.yards10t < var.VarHardCastFlamestrike and cast.timeSinceLast.combustion() - 10 > var.VarDelayFlamestrike or IgnoreCombustion and firestarterInactive and talent.searingTouch and thp <= 30 or crit >= 1 and buff.heatingUp.exists() and not cast.current.scorch() or not buff.heatingUp.exists() and not buff.hotStreak.exists() then
-         if cast.fireBlast("target") then return true end 
+         if cast.fireBlast("target") then return true end
      end
 
       -- pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up&(talent.searing_touch.enabled&target.health.pct<=30|spell_crit>=1)&!(active_enemies>=variable.hot_streak_flamestrike&(time-buff.combustion.last_expire>variable.delay_flamestrike|variable.disable_combustion))
@@ -789,13 +789,13 @@ local function runRotation()
       -- scorch,if=target.health.pct<=30&talent.searing_touch.enabled|spell_crit>=1
       -- Using 85% crit, since CritChancePct() does not include Critical Mass's 15% crit
       if cast.able.scorch() and thp <= 30 and talent.searingTouch or crit >= 85 then
-        if cast.scorch("target") then return true end 
+        if cast.scorch("target") then return true end
       end
 
 
       -- dragons_breath,if=active_enemies>2
       if cast.able.dragonsBreath() and #enemies.yards10t > 2 and getFacing("player", "target") then
-        if cast.dragonsBreath("player") then return true end 
+        if cast.dragonsBreath("player") then return true end
       end
 
 
@@ -803,14 +803,14 @@ local function runRotation()
       if cast.able.flamestrike() and #enemies.yards10t >= var.VarHardCastFlamestrike and cast.timeSinceLast.combustion() - 10 > var.VarDelayFlamestrike or IgnoreCombustion then
             if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
-                return true 
+                return true
             end
       end
 
 
       -- fireball
       if cast.able.fireball() and not moving then
-        if cast.fireball("target") then return true end 
+        if cast.fireball("target") then return true end
       end
     end -- End Action List - RoP Phase
 
@@ -819,44 +819,44 @@ local function runRotation()
         if cast.able.flamestrike() and #enemies.yards10t >= var.VarHotStreakFlamestrike and cast.timeSinceLast.combustion() - 10 > var.VarDelayFlamestrike or IgnoreCombustion and buff.hotStreak.exists() then
             if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
-                return true 
+                return true
             end
         end
 
         -- pyroblast,if=buff.hot_streak.react&buff.hot_streak.remains<action.fireball.execute_time
         if cast.able.pyroblast() and buff.hotStreak.exists() and buff.hotStreak.remains() < cast.time.fireball() then
-            if cast.pyroblast("target") then return true end 
+            if cast.pyroblast("target") then return true end
         end
 
 
         -- pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
         if cast.able.pyroblast() and buff.hotStreak.exists() and cast.last.fireball() or firestarterActive or cast.inFlight.pyroblast() then
-            if cast.pyroblast("target") then return true end 
+            if cast.pyroblast("target") then return true end
         end
 
 
        -- phoenix_flames,if=charges>=3&active_enemies>2&!variable.phoenix_pooling
        if cast.able.phoenixFlames() and charges.phoenixFlames.count() >= 3 and #enemies.yards10t > 2 and not bool(var.VarPhoenixPooling) then
-            if cast.phoenixFlames("player") then return true end 
+            if cast.phoenixFlames("player") then return true end
        end
 
 
        -- pyroblast,if=buff.hot_streak.react&(target.health.pct<=30&talent.searing_touch.enabled|spell_crit>=1)
        -- Using 85% crit, since CritChancePct() does not include Critical Mass's 15% crit
        if cast.able.pyroblast() and buff.hotStreak.exists() and thp <= 30 and talent.searingTouch or crit >= 85 then
-           if cast.pyroblast("target") then return true end 
+           if cast.pyroblast("target") then return true end
        end
 
 
        -- pyroblast,if=buff.pyroclasm.react&cast_time<buff.pyroclasm.remains
        if cast.able.pyroblast() and buff.pyroclasm.exists() and cast.time.pyroblast() < buff.pyroclasm.remains() then
-           if cast.pyroblast("target") then return true end 
+           if cast.pyroblast("target") then return true end
        end
 
        -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(buff.rune_of_power.down&!firestarter.active)&!variable.fire_blast_pooling&(((action.fireball.executing|action.pyroblast.executing)&buff.heating_up.react)|((talent.searing_touch.enabled&target.health.pct<=30|spell_crit>=1)&(buff.heating_up.react&!action.scorch.executing|!buff.hot_streak.react&!buff.heating_up.react&action.scorch.executing&!action.pyroblast.in_flight&!action.fireball.in_flight)))
        -- Using 85% crit, since CritChancePct() does not include Critical Mass's 15% crit
        if cast.able.fireBlast() and not buff.runeOfPower.exists() and firestarterInactive and not bool(var.VarFireBlastPooling) and cast.current.fireball() or cast.current.pyroblast() and buff.heatingUp.exists() or talent.searingTouch and thp <= 30 or crit >= 85 and buff.heatingUp.exists() and not cast.current.scorch() or not buff.hotStreak.exists() and not buff.heatingUp.exists() and cast.current.scorch() and not cast.inFlight.pyroblast() and not cast.inFlight.fireball() then
-           if cast.fireBlast("target") then return true end 
+           if cast.fireBlast("target") then return true end
        end
 
 
@@ -866,19 +866,19 @@ local function runRotation()
             if cast.pyroblast("target") then return true end
        end
 
-  
+
        -- phoenix_flames,if=(buff.heating_up.react|(!buff.hot_streak.react&(action.fire_blast.charges>0|talent.searing_touch.enabled&target.health.pct<=30|spell_crit>=1)))&!variable.phoenix_pooling
        -- Using 85% crit, since CritChancePct() does not include Critical Mass's 15% crit
        if cast.able.phoenixFlames() and buff.heatingUp.exists() or buff.hotStreak.exists() and charges.fireBlast.count() > 0 or talent.searingTouch and thp <= 30 or crit >= 85 and not bool(VarPhoenixPooling) and getFacing("target", "player") then
-           if cast.phoenixFlames("player") then return true end 
+           if cast.phoenixFlames("player") then return true end
        end
 
        -- call_action_list,name=active_talents
-       if actionList_ActiveTalents() then return end 
+       if actionList_ActiveTalents() then return end
 
        -- dragons_breath,if=active_enemies>1
        if cast.able.dragonsBreath() and #enemies.yards10t > 1 and getFacing("target","player") then
-           if cast.dragonsBreath("player") then return true end 
+           if cast.dragonsBreath("player") then return true end
        end
 
 
@@ -891,25 +891,25 @@ local function runRotation()
        -- scorch,if=target.health.pct<=30&talent.searing_touch.enabled|spell_crit>=1
        -- Using 85% crit, since CritChancePct() does not include Critical Mass's 15% crit
        if cast.able.scorch() and thp <= 30 and searingTouch or crit >= 85 then
-            if cast.scorch("target") then return true end 
+            if cast.scorch("target") then return true end
        end
 
        -- flamestrike,if=active_enemies>=variable.hard_cast_flamestrike&(time-buff.combustion.last_expire>variable.delay_flamestrike|variable.disable_combustion)
        if cast.able.flamestrike() and #enemies.yards10t >= var.VarHardCastFlamestrike and cast.timeSinceLast.combustion() - 10 > var.VarDelayFlamestrike or IgnoreCombustion then
             if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
-                return true 
+                return true
             end
        end
 
           -- fireball
         if cast.able.fireball() and not moving then
-             if cast.fireball("target") then return true end 
+             if cast.fireball("target") then return true end
         end
 
         -- scorch
         if cast.able.scorch() then
-             if cast.scorch("target") then return true end 
+             if cast.scorch("target") then return true end
         end
     end
 
@@ -919,8 +919,8 @@ local function runRotation()
 
         -- variable,name=time_to_combustion,op=set,value=talent.firestarter.enabled*firestarter.remains+(cooldown.combustion.remains*(1-variable.kindling_reduction*talent.kindling.enabled)-action.rune_of_power.execute_time*talent.rune_of_power.enabled)*!cooldown.combustion.ready*buff.combustion.down
 
-        
-        
+
+
         -- variable,name=time_to_combustion,op=max,value=cooldown.memory_of_lucid_dreams.remains,if=essence.memory_of_lucid_dreams.major&buff.memory_of_lucid_dreams.down&cooldown.memory_of_lucid_dreams.remains-variable.time_to_combustion<=variable.hold_combustion_threshold
        -- if (Spell:MajorEssenceEnabled(AE.MemoryofLucidDreams) and Player:BuffDownP(S.MemoryofLucidDreams) and S.MemoryofLucidDreams:CooldownRemainsP() - VarTimeToCombusion <= VarHoldCombustionThreshold) then
         --  VarTimeToCombusion = S.MemoryofLucidDreams:CooldownRemainsP()
@@ -949,7 +949,7 @@ local function runRotation()
        -- if S.ConcentratedFlame:IsCastableP() then
        --   if HR.Cast(S.ConcentratedFlame, nil, Settings.Commons.EssenceDisplayStyle, 40) then return "concentrated_flame 795"; end
       --  end
-        
+
         -- reaping_flames
       --  if (true) then
        --   local ShouldReturn = Everyone.ReapingFlamesCast(Settings.Commons.EssenceDisplayStyle); if ShouldReturn then return ShouldReturn; end
@@ -982,7 +982,7 @@ local function runRotation()
 
         -- call_action_list,name=combustion_phase,if=!variable.disable_combustion&variable.time_to_combustion<=0
         if (not IgnoreCombustion and useCDs() and not moving and (talent.runeOfPower and cd.combustion.remain() <= cast.time.runeOfPower() or cd.combustion.remain() == 0) and not firestarterActive or buff.combustion.exists()) then
-          if actionList_CombustionPhase then return true end 
+          if actionList_CombustionPhase then return true end
         end
 
         -- fire_blast,use_while_casting=1,use_off_gcd=1,if=(essence.memory_of_lucid_dreams.major|essence.memory_of_lucid_dreams.minor&azerite.blaster_master.enabled)&charges=max_charges&!buff.hot_streak.react&!(buff.heating_up.react&(buff.combustion.up&(action.fireball.in_flight|action.pyroblast.in_flight|action.scorch.executing)|target.health.pct<=30&action.scorch.executing))&!(!buff.heating_up.react&!buff.hot_streak.react&buff.combustion.down&(action.fireball.in_flight|action.pyroblast.in_flight))
@@ -992,7 +992,7 @@ local function runRotation()
 
         -- call_action_list,name=rop_phase,if=buff.rune_of_power.up&(variable.time_to_combustion>0|variable.disable_combustion)
         if buff.runeOfPower.exists() and not buff.combustion.exists() or IgnoreCombustion then
-           if actionList_RopPhase() then return end 
+           if actionList_RopPhase() then return end
         end
 
         -- variable,name=fire_blast_pooling,value=talent.rune_of_power.enabled&cooldown.rune_of_power.remains<cooldown.fire_blast.full_recharge_time&(variable.time_to_combustion>action.rune_of_power.full_recharge_time|variable.disable_combustion)&(cooldown.rune_of_power.remains<target.time_to_die|action.rune_of_power.charges>0)|!variable.disable_combustion&variable.time_to_combustion<action.fire_blast.full_recharge_time&variable.time_to_combustion<target.time_to_die
@@ -1001,12 +1001,12 @@ local function runRotation()
 
         -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(!variable.fire_blast_pooling|buff.rune_of_power.up)&(variable.time_to_combustion>0|variable.disable_combustion)&(active_enemies>=variable.hard_cast_flamestrike&(time-buff.combustion.last_expire>variable.delay_flamestrike|variable.disable_combustion))&!firestarter.active&buff.hot_streak.down&(!azerite.blaster_master.enabled|buff.blaster_master.remains<0.5)
         if cast.able.fireBlast() and not var.VarFireBlastPooling or buff.runeOfPower.exists() and var.VarTimeToCombusion > 0 or IgnoreCombustion and #enemies.yards10t >= var.VarHardCastFlamestrike and cast.timeSinceLast.combustion() - 10 > var.VarDelayFlamestrike or IgnoreCombustion and firestarterInactive and not buff.hotStreak.exists() and not traits.BlasterMaster or buff.blasterMaster.remains() < 0.5 then
-            if cast.fireBlast() then return true end 
+            if cast.fireBlast() then return true end
         end
 
         -- call_action_list,name=standard_rotation,if=variable.time_to_combustion>0|variable.disable_combustion
-        if not buff.combustion.exists() and not buff.runeOfPower.exists() or IgnoreCombustion then       
-            if actionList_Standard() then return end 
+        if not buff.combustion.exists() and not buff.runeOfPower.exists() or IgnoreCombustion then
+            if actionList_Standard() then return end
         end
     end
 
@@ -1039,7 +1039,7 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or mode.rotation == 4 then
             return true
         else
-            if isChecked("Pull OoC") and solo and not inCombat then 
+            if isChecked("Pull OoC") and solo and not inCombat then
                 if not moving then
                     if br.timer:useTimer("FB Delay", 1.5) then
                         if cast.fireball() then br.addonDebug("Casting Fireball (Pull Spell)") return end
@@ -1065,13 +1065,13 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and not profileStop then              
+            if inCombat and not profileStop then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
         -- Trinkets
-        
+
                 if actionList_Cooldowns() then return end
 
         -- The Unbound Force
@@ -1088,13 +1088,13 @@ local function runRotation()
                     end
                 end
         -- Guardian of Azeroth
-                if isChecked("Use Essence") and useCDs() and essence.condensedLifeForce.active and cd.guardianOfAzeroth.remains() <= gcd and not buff.combustion.exists("player") 
-                    and not buff.runeOfPower.exists("player") 
+                if isChecked("Use Essence") and useCDs() and essence.condensedLifeForce.active and cd.guardianOfAzeroth.remains() <= gcd and not buff.combustion.exists("player")
+                    and not buff.runeOfPower.exists("player")
                 then
                     if cast.guardianOfAzeroth() then br.addonDebug("Casting Guardian of Azeroth") return end
                 end
         -- Memory of Lucid Dreams
-                if isChecked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and cd.combustion.remains() <= gcd 
+                if isChecked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and cd.combustion.remains() <= gcd
                     and not moving and (not talent.firestarter or (talent.firestarter and (getHP("target") <= 90) or #enemies.yards8t >= 3))
                 then
                     if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return end
@@ -1118,8 +1118,8 @@ local function runRotation()
                     end
                 end
 
-                if spellQueueReady() then 
-                    if actionList_Rotation() then return end 
+                if spellQueueReady() then
+                    if actionList_Rotation() then return end
                 end
 
 

@@ -624,9 +624,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
 			if ((isChecked("Display Failcasts") and not debugOnly) or isChecked("Cast Debug")) and debug ~= "debug" then
-				if debugReason == "No Unit" then 
+				if debugReason == "No Unit" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there was not unit found in "..maxRange.."yrds.")
-				elseif debugReason == "Below Min Units" then					
+				elseif debugReason == "Below Min Units" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..thisCount.." enemies in "..maxRange.."yrds, but "..minUnits.." are needed to cast.")
 				elseif debugReason == "Below Min Units Facing" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..thisCount.." enemies in "..maxRange.."yrds in front, but "..minUnits.." are needed to cast.")
@@ -641,7 +641,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 				elseif debugReason == "Not Safe" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because it is not safe to aoe.")
 				elseif debugReason == "Invalid Unit" then
-					if br.units[thisUnit] == nil then						
+					if br.units[thisUnit] == nil then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not in br.units.")
 					end
 					if not getLineOfSight(thisUnit) then

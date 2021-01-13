@@ -394,7 +394,7 @@ actionList.Extras = function()
             --[[falling > ui.value("Fall Timer")]] and unit.level() >= 24 and not buff.prowl.exists()
         then
             if unit.form() ~= 0 and not cast.last.travelForm() then
-                unit.cancelForm()                
+                unit.cancelForm()
                 ui.debug("Cancel Form [Flying]")
             elseif unit.form() == 0 then
                 if cast.travelForm("player") then ui.debug("Casting Travel Form [Flying]") return true end
@@ -433,7 +433,7 @@ actionList.Extras = function()
         end
         -- Kindred Spirits
         if ui.alwaysCdNever("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindredSpirit) then
-            if (#br.friend > 1 and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then            
+            if (#br.friend > 1 and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then
                 if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..UnitName(var.kindredSpirit).." [Kyrian]") return true end
             end
         end
@@ -788,7 +788,7 @@ actionList.Cooldowns = function()
             if ((var.kindredSpirit ~= nil and buff.kindredSpirits.exists(var.kindredSpirit)) or buff.loneSpirit.exists())
                 and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled)
             then
-                if #br.friend == 1 then 
+                if #br.friend == 1 then
                     if cast.loneEmpowerment() then ui.debug("Casting Lone Empowerment [Kyrian]") return true end
                 else
                     if cast.empowerBond("player") then ui.debug("Casting Empower Bond [Kyrian]") return true end
@@ -894,7 +894,7 @@ actionList.Finisher = function()
     end
     -- Rip
     -- rip,target_if=refreshable&druid.rip.ticks_gained_on_refresh>variable.rip_ticks&((buff.tigers_fury.up|cooldown.tigers_fury.remains>5)&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&dot.rip.pmultiplier<=persistent_multiplier|!talent.sabertooth.enabled)
-    if cast.able.rip() and range.dyn5 and not var.noDoT 
+    if cast.able.rip() and range.dyn5 and not var.noDoT
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
         and debuff.rip.count() < ui.value("Multi-DoT Limit")
         and not usePrimalWrath()
@@ -902,7 +902,7 @@ actionList.Finisher = function()
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if canDoT(thisUnit) then
-                if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks 
+                if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks
                     and (((buff.tigersFury.exists() or cd.tigersFury.remains() > 5)
                     and (buff.bloodtalons.exists() or not talent.bloodtalons) and debuff.rip.applied(thisUnit) <= debuff.rip.calc() or not talent.sabertooth)
                     or not debuff.rip.exists(thisUnit))
@@ -963,7 +963,7 @@ actionList.Filler = function()
     -- swipe,if=variable.filler=4
     if cast.able.swipeCat() and filler == 4 and not talent.brutalSlash
         and not unit.isExplosive("target") and range.dyn8AOE
-    then       
+    then
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
     end
     -- Shred
@@ -1027,7 +1027,7 @@ actionList.Bloodtalons = function()
                 or (btGen.triggers == 2 and debuff.rake.calc() > debuff.rake.applied(thisUnit)) or (btGen.triggers == 2 and debuff.rake.refresh(thisUnit,"EXACT")))
                 and not btGen.rake and ticksGain.rake >= 2)
             then
-                if cast.rake(thisUnit) then 
+                if cast.rake(thisUnit) then
                     ui.debug("Casting Rake [BT - Ticks Gain]")
                     btGen.rake = true
                     if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
@@ -1135,12 +1135,12 @@ actionList.PreCombat = function()
                 if use.battleScarredAugmentRune() then ui.debug("Using Battle Scared Augment Rune") var.lastRune = GetTime() return true end
             end
             -- Prowl - Non-PrePull
-            if cast.able.prowl("player") 
-                and buff.catForm.exists() 
-                and autoProwl() 
+            if cast.able.prowl("player")
+                and buff.catForm.exists()
+                and autoProwl()
                 and ui.mode.prowl == 1
-                and not buff.prowl.exists() 
-                and not IsResting() 
+                and not buff.prowl.exists()
+                and not IsResting()
                 -- and GetTime() - var.leftCombat > lootDelay
             then
                 if cast.prowl("player") then ui.debug("Casting Prowl [Auto]") return true end
@@ -1313,7 +1313,7 @@ local function runRotation()
     var.brutal = talent.brutalSlash and 1 or 0
 
     -- Lunar Inspiration
-    var.lunar = talent.lunarInspiration and 1 or 0 
+    var.lunar = talent.lunarInspiration and 1 or 0
 
     -- Friends In Range
     var.solo = #br.friend < 2
@@ -1355,7 +1355,7 @@ local function runRotation()
     -- if not debuff.rake.exists(units.dyn5,"EXACT") then
     --     filler = 2
     -- end
-    -- if talent.lunarInspiration and not debuff.moonfireFeral.exists(units.dyn40) then 
+    -- if talent.lunarInspiration and not debuff.moonfireFeral.exists(units.dyn40) then
     --     filler = 3
     -- end
     -- if #enemies.yards8 > 1 then
@@ -1610,7 +1610,7 @@ local function runRotation()
                         -- brutal_slash,if=(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time)&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
                         if cast.able.brutalSlash() and talent.brutalSlash and range.dyn8AOE
                             and ((charges.brutalSlash.timeTillFull() < unit.gcd(true) and ui.useST(8,ui.value("Brutal Slash Targets")))
-                            or ui.useAOE(8,ui.value("Brutal Slash Targets"))) 
+                            or ui.useAOE(8,ui.value("Brutal Slash Targets")))
                         then
                             if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
                         end

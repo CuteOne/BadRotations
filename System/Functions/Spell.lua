@@ -297,7 +297,7 @@ function isKnown(spellID)
 end
 
 function isActiveEssence(spellID)
-	local _, _, heartIcon = GetSpellInfo(296208) 
+	local _, _, heartIcon = GetSpellInfo(296208)
 	local _, _, essenceIcon = GetSpellInfo(spellID)
 	return heartIcon == essenceIcon
 end

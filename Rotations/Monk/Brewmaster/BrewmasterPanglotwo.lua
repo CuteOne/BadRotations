@@ -81,7 +81,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial")
         -- BoB usage
             br.ui:createCheckbox(section, "Black Ox Brew")
-        -- Small Dave  
+        -- Small Dave
             br.ui:createCheckbox(section, "Summon Dave - The Statue")
             br.ui:createCheckbox(section, "Pig Catcher")
             br.ui:createSpinnerWithout(section, "Spinning Crane Cutoff", 1, 0, 2, 0.1, "How many Purifying Brews needed before SCK in AoE")
@@ -354,10 +354,10 @@ local function actionList_Extras()
         end
 
         if castOx or (bX ~= nil and getDistanceToObject("player",bX,bY,bZ) >= 20) then
-            if cast.summonBlackOxStatue("target") then 
+            if cast.summonBlackOxStatue("target") then
                 Print("Trying to cast ox")
                 bX, bY, bZ = GetObjectPosition("target")
-                return 
+                return
             end
         end
         if br.player.ui.mode.taunt == 3 then
@@ -504,7 +504,7 @@ local function actionList_Defensive()
                         local distance = getDistance(thisUnit)
                         for k,v in pairs(para_list) do
                             if (para_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) == 0 and distance <= 20 then
-                                if getDistance(thisUnit) <= 5 and cd.quakingPalm.remain() == 0 then 
+                                if getDistance(thisUnit) <= 5 and cd.quakingPalm.remain() == 0 then
                                     if cast.quakingPalm(thisUnit) then return end
                                 elseif cd.quakingPalm.remain() > 0 or getDistance(thisUnit) > 5 then
                                     if cast.paralysis(thisUnit) then return end
@@ -671,9 +671,9 @@ local function actionList_Brews()
                 if debuff.heavyStagger.exists("player") then
                     if cast.purifyingBrew("player") then return end
                 elseif staggerPct > (getValue("Stagger dmg % to purify")/2) then
-                    if cast.purifyingBrew("player") then return end 
+                    if cast.purifyingBrew("player") then return end
                 elseif buff.purifiedChi.remains("player") <= 3 and charges.purifyingBrew.frac() > 1.8 then
-                    if cast.purifyingBrew("player") then return end 
+                    if cast.purifyingBrew("player") then return end
                 end
             end
         end
@@ -704,11 +704,11 @@ else
         if actionList_Extras() then return end
         -- Defensivesp
         if actionList_Defensive() then return end
-        
+
         if actionList_Interrupts() then return end
         -- Precombat
         if actionList_PreCombat() then return end
-        
+
         if isChecked("Pig Catcher") then
             bossHelper()
         end
@@ -736,7 +736,7 @@ end
         end
     end -- end combat check
     end -- Pause
-end -- End runRotation 
+end -- End runRotation
 
 local id = 268
 if br.rotations[id] == nil then br.rotations[id] = {} end

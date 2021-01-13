@@ -179,7 +179,7 @@ local function runRotation()
                 if spell.known.shieldSlam() and cast.able.shieldSlam and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.shieldSlam() then ui.debug("Casting Shield Slam") return true end
                 end
-                -- WhirlWind            
+                -- WhirlWind
                 if spell.known.whirlwind() and cast.able.whirlwind() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     if cast.whirlwind() then ui.debug("Casting Whirlwind") return true end
                 end

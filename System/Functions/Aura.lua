@@ -45,12 +45,12 @@ function UnitDebuffID(unit, spellID, filter)
 	local spellName = GetSpellInfo(spellID)
 	-- Check Cache
 	if isChecked("Cache Debuffs") then
-		if br.enemy[thisUnit] ~= nil then 
+		if br.enemy[thisUnit] ~= nil then
 			if filter == nil then filter = "player" else filter = ObjectPointer(filter) end
-			if br.enemy[thisUnit].debuffs[filter] ~= nil then 
+			if br.enemy[thisUnit].debuffs[filter] ~= nil then
 				if br.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
 					return br.enemy[thisUnit].debuffs[filter][spellID](spellID,thisUnit)
-				else 
+				else
 					return nil
 				end
 			end
@@ -90,7 +90,7 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 		if buffSpellID == 288388 then
 			if stacks >= getOptionValue("Reaping") or not UnitAffectingCombat("player") then
 				return true
-			else 
+			else
 				return false
 			end
 		elseif buffSpellID == 282566 then
@@ -118,7 +118,7 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 					end
 					return false
 				end
-			end	
+			end
 			return false
 		end
 		return nil
@@ -238,7 +238,7 @@ function canDispel(Unit, spellID)
 				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = UnitDebuff(Unit, i)
 				local debuffRemain = debuffExpire - GetTime()
 				local dispelUnitObj
-				if (debuffType and ValidType(debuffType)) then 
+				if (debuffType and ValidType(debuffType)) then
 					if debuffid == 284663 then
 						if (GetHP(Unit) < getOptionValue("Bwonsamdi's Wrath HP") or pakuWrath == true) then
 							HasValidDispel = true
@@ -274,7 +274,7 @@ function canDispel(Unit, spellID)
 				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = UnitBuff(Unit, i)
 				local buffRemain = buffExpire - GetTime()
 				local dispelUnitObj
-				if (buffType and ValidType(buffType)) and not UnitIsPlayer(Unit) then 
+				if (buffType and ValidType(buffType)) and not UnitIsPlayer(Unit) then
 					if Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true) ~= nil then
 						dispelUnitObj = Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true)
 					end
@@ -589,11 +589,11 @@ function getDisease(range, aoe, mod)
 	end
 end
 -- TODO: update BL list
-function getLustID()	
+function getLustID()
 	for k, v in pairs(br.lists.spells.Shared.Shared.buffs["bloodLust"]) do
 		if UnitBuffID("player", v) then return v end
-	end 
-	return 0 
+	end
+	return 0
 end
 function hasBloodLust()
 	if UnitBuffID("player", 90355) or -- Ancient Hysteria

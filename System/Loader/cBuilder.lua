@@ -41,12 +41,12 @@ function br.loader.loadProfiles()
         local profile = ReadFile(path..file)
         local start = string.find(profile,"local id = ",1,true) or 0
         local profileID = 0
-        if folderSpec == "Initial" then 
+        if folderSpec == "Initial" then
             profileID = tonumber(string.sub(profile,start+10,start+14))
         else
             profileID = tonumber(string.sub(profile,start+10,start+13))
         end
-        if profileID == specID then 
+        if profileID == specID then
             loadFile(profile,file,false)
             -- -- Get Rotation Name from File
             -- start = string.find(profile,"local rotationName = ",1,true) or 0
@@ -57,7 +57,7 @@ function br.loader.loadProfiles()
             -- Print("Profile: "..profileName)
         end
     end
-    -- path = settingsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\' .. profileName .. '\\' 
+    -- path = settingsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\' .. profileName .. '\\'
     -- local settings = GetDirectoryFiles(path .. '*.lua')
     -- for _, file in pairs(settings) do
     --     Print("File: "..tostring(file).." | Profile: "..profileName)
@@ -173,7 +173,7 @@ function br.loader:new(spec,specName)
                             -- Check if spell is listed in the Shared Class Abilities / Shared Class Talents, Specializaiton Abilities / Specilization Talents tables.
                             local spellFound = false
                             -- Search Global Abilities
-                            if sharedGlobalSpells then 
+                            if sharedGlobalSpells then
                                 if sharedGlobalSpells.abilities and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.abilities) end
                                 if sharedGlobalSpells.covenants and not spellFound then spellFound = findSpellInTable(id,sharedGlobalSpells.covenants) end
                             end
@@ -230,7 +230,7 @@ function br.loader:new(spec,specName)
                 end
             end
         end
-        
+
         -- Spell Test
         -- getSpellsTest()
         -- Talent Test
@@ -534,8 +534,8 @@ function br.loader:new(spec,specName)
         if self.module == nil then self.module = {} br.api.module(self) end
     end
 
-    if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then 
-        getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false 
+    if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then
+        getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false
     end
     ------------------
     --- OOC UPDATE ---
@@ -551,7 +551,7 @@ function br.loader:new(spec,specName)
     --------------
 
     function self.update()
-        if spec == GetSpecializationInfo(GetSpecialization()) then 
+        if spec == GetSpecializationInfo(GetSpecialization()) then
             -- Call baseUpdate()
             if not UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()

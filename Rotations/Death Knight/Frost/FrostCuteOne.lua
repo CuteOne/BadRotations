@@ -215,7 +215,7 @@ actionList.Extras = function()
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
             if unit.distance(thisUnit) > 10 and not unit.isDummy(thisUnit)
-                and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))                
+                and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))
             then
                 if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Out of Melee]") return true end
             end
@@ -458,7 +458,7 @@ actionList.Covenants = function()
         if cast.swarmingMist("player","aoe",2,8) then ui.debug("Casting Swarming Mist [AOE]") return true end
     end
     -- swarming_mist,if=talent.breath_of_sindragosa&(buff.breath_of_sindragosa.up&(active_enemies=1&runic_power.deficit>40|active_enemies>=2&runic_power.deficit>60)|!buff.breath_of_sindragosa.up&cooldown.breath_of_sindragosa.remains)
-    if cast.able.swarmingMist() and talent.breathOfSindragosa 
+    if cast.able.swarmingMist() and talent.breathOfSindragosa
         and ((buff.breathOfSindragosa.exists() and ((ui.useST(8,2) and runicPowerDeficit > 40) or (ui.useAOE(8,2) and runicPowerDeficit > 60)))
             or (not buff.breathOfSindragosa.exists() and cd.breathOfSindragosa.exists()))
     then
@@ -617,7 +617,7 @@ actionList.Obliteration = function()
         and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active))
     then
         if cast.howlingBlast() then ui.debug("Casting Howling Blast [Obliteration]") return true end
-    end    
+    end
     -- Frostscythe
     -- frostscythe,if=buff.killing_machine.react&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
     if cast.able.frostscythe() and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and enemies.yards8f >= 2) or (ui.mode.rotation == 2 and enemies.yards8f > 0))
@@ -940,7 +940,7 @@ local function runRotation()
     if var.breathTimerSet then var.breathTimer = round2(GetTime() - var.currentBreathTime,2) end
     if var.profileDebug == nil or not unit.inCombat() then var.profileDebug = "None" end
     if talent.runicattenuation then var.attenuation = 1 else var.attenuation = 0 end
-    
+
     -- Runeforge Detection
     var.fallenCrusader = false
     var.razorice = false
@@ -979,7 +979,7 @@ local function runRotation()
     -- Profile Stop
     if var.profileStop == nil then var.profileStop = false end
 
-    
+
     -- Path of Frost
     if ui.checked("Path of Frost") and cast.able.pathOfFrost() then
         if not unit.inCombat() and (unit.mounted() or unit.swimming()) and not buff.pathOfFrost.exists() then
@@ -1024,7 +1024,7 @@ local function runRotation()
             if actionList.Interrupts() then return true end
             ---------------------
             --- Main Rotation ---
-            ---------------------            
+            ---------------------
             if not var.breathOfSindragosaActive then
                 -- Howling Blast
                 -- howling_blast,if=!dot.frost_fever.ticking&(talent.icecap|cooldown.breath_of_sindragosa.remains>15|talent.obliteration&cooldown.pillar_of_frost.remains<dot.frost_fever.remains)
@@ -1036,7 +1036,7 @@ local function runRotation()
                 end
                 -- Glacial Advance
                 -- glacial_advance,if=buff.icy_talons.remains<=gcd&buff.icy_talons.up&spell_targets.glacial_advance>=2&(!talent.breath_of_sindragosa|cooldown.breath_of_sindragosa.remains>15)
-                if cast.able.glacialAdvance() and (buff.icyTalons.remain() <= unit.gcd(true) and buff.icyTalons.exists() 
+                if cast.able.glacialAdvance() and (buff.icyTalons.remain() <= unit.gcd(true) and buff.icyTalons.exists()
                     and ((ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and enemies.yards20r > 0))
                     and (not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 15 or not ui.alwaysCdNever("Breath of Sindragosa")))
                 then
@@ -1075,7 +1075,7 @@ local function runRotation()
             then
                 if actionList.BoSPooling() then return true end
             end
-            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then               
+            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then
                 -- Death Strike
                 if ui.checked("Death Strike") and cast.able.deathStrike() and unit.inCombat() and buff.darkSuccor.exists() then
                     if cast.deathStrike() then ui.debug("Casting Death Strike [Dark Succor]") return true end

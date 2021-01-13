@@ -65,7 +65,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"Torment")
 		    -- Consume Magic
             br.ui:createCheckbox(section,"Consume Magic")
-            -- Throw Glaive 
+            -- Throw Glaive
             br.ui:createCheckbox(section,"Throw Glaive")
         br.ui:checkSectionState(section)
         -- Cooldown Options
@@ -476,7 +476,7 @@ local function runRotation()
     enemies.get(30)
 
     -- variable,name=brand_build,value=talent.agonizing_flames.enabled&talent.burning_alive.enabled&talent.charred_flesh.enabled
-    var.brandBuild = talent.agonizingFLames and talent.burningAlive and talent.charredFlesh 
+    var.brandBuild = talent.agonizingFLames and talent.burningAlive and talent.charredFlesh
 
     ---------------------
     --- Begin Profile ---

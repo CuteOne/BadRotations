@@ -94,7 +94,7 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Cooldowns Time To Die Limit
-            br.ui:createSpinnerWithout(section,  "Cooldowns Time To Die Limit",  30,  0,  40,  1,  "|cffFFFFFFTarget Time to die limit for using cooldowns (in sec).")        
+            br.ui:createSpinnerWithout(section,  "Cooldowns Time To Die Limit",  30,  0,  40,  1,  "|cffFFFFFFTarget Time to die limit for using cooldowns (in sec).")
             -- Augment Rune
             br.ui:createCheckbox(section, "Augment Rune")
             -- Potion
@@ -637,7 +637,7 @@ actionList.AOE = function()
         -- festering_strike,target_if=max:debuff.festering_wound.stack,if=debuff.festering_wound.stack<=3&cooldown.apocalypse.remains<3|debuff.festering_wound.stack<1
         if var.fwoundHighest <= 3 and cd.apocalypse.remains() < 3 or var.fwoundHighest < 1 then
             if cast.festeringStrike(var.fwoundHighUnit) then ui.debug("Casting Festering Strike [AOE - Max Stack Low") return true end
-        end 
+        end
         -- festering_strike,target_if=min:debuff.festering_wound.stack,if=cooldown.apocalypse.remains>5&debuff.festering_wound.stack<1
         if (cd.apocalypse.remains() > 5 or var.apocBypass) and var.fwoundLowest < 1 then
             if cast.festeringStrike(var.fwoundLowUnit) then ui.debug("Casting Festering Strike [AOE - Low Stack") return true end
@@ -662,7 +662,7 @@ actionList.Single = function()
     -- defile,if=cooldown.apocalypse.remains
     if ui.mode.dnd == 1 and cast.able.defile() and talent.defile and (cd.apocalypse.exists() or var.apocBypass) then
         if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [ST]") return true end
-    end 
+    end
     -- Scourge Strike
     if cast.able.scourgeStrike() then
         -- wound_spender,if=debuff.festering_wound.stack>4
@@ -729,12 +729,12 @@ actionList.PreCombat = function()
             if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead [Pre-Pull]") return true end
         end
         -- Azshara's Font of Power
-        if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and equiped.azsharasFontOfPower() 
+        if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and equiped.azsharasFontOfPower()
             and use.able.azsharasFontOfPower() and not unit.moving("player") and not unit.inCombat() and ui.pullTimer()<= ui.value("Pre-Pull Timer")
         then
             if use.azsharasFontOfPower() then ui.debug("Using Azshara's Font of Power [Pre-Pull]") return true end
-        end               
-    end 
+        end
+    end
     -- Pull
     if unit.valid("target") and not unit.inCombat() then
         -- Death Grip
@@ -879,7 +879,7 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
             if ui.value("APL Mode") == 1 then
-                -- Racial                    
+                -- Racial
                 if ui.checked("Racial") and cast.able.racial()
                     -- arcane_torrent,if=runic_power.deficit>65&(pet.gargoyle.active|!talent.summon_gargoyle)&rune.deficit>=5
                     and ((unit.race() == "BloodElf" and runicPowerDeficit > 65 and (pet.gargoyle.exists() or not talent.summonGargoyle) and runeDeficit >= 5)

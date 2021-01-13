@@ -1,7 +1,7 @@
 local rotationName = "KinkySpirit"
 local versionNum = "1.3.2"
 local colorPurple = "|cff8788EE"
-local colorOrange    = "|cffb28cc7"								   
+local colorOrange    = "|cffb28cc7"
 local dreadstalkersActive, grimoireActive = false, false
 local dreadstalkersTime, grimoireTime, ppDb, castSummonId, opener, summonTime
 ---------------
@@ -202,7 +202,7 @@ local function createOptions()
         -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffb28cc7SimC"}, 1, "|cffb28cc7Set APL Mode to use.")
 		-- Multi-Target Units
-		br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffb28cc7Number of Targets to use Covenant at.")        
+		br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffb28cc7Number of Targets to use Covenant at.")
 		-- Burning Rush Health Cancel Percent
 		br.ui:createSpinnerWithout(section, "Burning Rush Health", 79, 1, 100, 1, "|cffb28cc7Health Percentage to cancel at.")
 		-- Dummy DPS Test
@@ -213,10 +213,10 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Instant Corruption Torghast")
 		-- Pet Management
         br.ui:createCheckbox(section, "Pet Management", "|cffb28cc7 Select to enable/disable auto pet management")
-        
+
         -- Fel Domination on low pet health
         br.ui:createCheckbox(section, "Fel Domination New Pet", "|cffFFBB00 Toggle the auto casting of Fel Donmination when your pet is low health.")
-        -- Pet Summon 
+        -- Pet Summon
         br.ui:createSpinnerWithout(section, "FelDom Pet HP", 8, 1, 100, 0.1, "|cffFFBB00Health percent of your pet to cast Fel Domination and re-summon your pet.")
 		-- Summon Pet
 		--br.ui:createDropdownWithout(section, "Summon Pet", {"|cffb28cc7Felguard", "|cffb28cc7Imp", "|cffb28cc7Voidwalker", "|cffb28cc7Felhunter", "|cffb28cc7Succubus", "|cffb28cc7None"}, 1, "|cffb28cc7Select default pet to summon.")
@@ -230,7 +230,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Implosion Units", 2, 1, 10, 1, "|cffb28cc7Minimum units to cast Implosion")
 		-- Implosion ST
 		br.ui:createCheckbox(section, "Implosion ST", "|cffb28cc7 Will cast Implosion on ST.")
-        
+
 		-- Multi-Dot Limit
 		br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 7, 1, 10, 1, "|cffb28cc7Unit Count Limit that DoTs will be cast on.")
 		-- Bilescourge Bombers Target
@@ -297,7 +297,7 @@ local function createOptions()
             br.player.module.BasicHealing(section)
             -- Dark Pact
             br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffb28cc7Health Percent to Cast At")
-            -- Mortal Coil 
+            -- Mortal Coil
             br.ui:createSpinner(section, "Mortal Coil",  23,  0,  100,  5,  "|cffFFBB00Health Percent to Cast At")
             -- Drain Life
             br.ui:createSpinner(section, "Drain Life", 50, 0, 100, 5, "|cffb28cc7Health Percent to Cast At")
@@ -343,7 +343,7 @@ local function createOptions()
     {
         [1] = "Lists",
         [2] = listsOptions
-     
+
 	}}
 	return optionTable
 end
@@ -363,7 +363,7 @@ local function runRotation()
 	br.player.ui.mode.br = br.data.settings[br.selectedSpec].toggles["BurningRush"]
     br.player.ui.mode.petSummon = br.data.settings[br.selectedSpec].toggles["PetSummon"]
 
-																
+
     --------------
     --- Locals ---
     --------------
@@ -488,7 +488,7 @@ local function runRotation()
     end
 
     local function isExhaust(unit)
-        if isChecked("Curse of Exhaustion") and exhaustionCount < ui.value("Curse of Exhaustion") and coeUnits[GetObjectID(unit)] then return true end 
+        if isChecked("Curse of Exhaustion") and exhaustionCount < ui.value("Curse of Exhaustion") and coeUnits[GetObjectID(unit)] then return true end
         return false
     end
 
@@ -734,7 +734,7 @@ local function runRotation()
             elseif thisUnit.id == 55659 and not UnitIsDeadOrGhost(thisUnit.unit) then
                 wildImps = wildImps + 1
             elseif thisUnit.id == 135816 and not vilefiendActive and not UnitIsDeadOrGhost(thisUnit.unit) then
-                vilefiendActive = true    
+                vilefiendActive = true
             elseif thisUnit.id == 98035 and not UnitIsDeadOrGhost(thisUnit.unit) then
                 if not dreadstalkersActive then
                     dreadstalkersTime = GetTime()
@@ -805,21 +805,21 @@ local function runRotation()
         end
         -- Demonic Gateway
         if SpecificToggle("Demonic Gateway") and not GetCurrentKeyBoardFocus() then
-            if br.timer:useTimer("RoF Delay", 1) and CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
+            if br.timer:useTimer("RoF Delay", 1) and CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end
             if IsAoEPending() then CancelPendingSpell() end
         end
 
         -- Demonic Circle: Summon
-        if SpecificToggle("Demonic Circle Summon") 
-        and not GetCurrentKeyBoardFocus() 
+        if SpecificToggle("Demonic Circle Summon")
+        and not GetCurrentKeyBoardFocus()
         then
-            if br.timer:useTimer("DC Delay", 1) then cast.demonicCircle("player") br.addonDebug("Demonic Circle (Summon)") return true end 
+            if br.timer:useTimer("DC Delay", 1) then cast.demonicCircle("player") br.addonDebug("Demonic Circle (Summon)") return true end
         end
         -- Demonic Circle: Teleport
         if SpecificToggle("Demonic Circle Teleport")
-        and not GetCurrentKeyBoardFocus() 
+        and not GetCurrentKeyBoardFocus()
         then
-            if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicTeleport("player") br.addonDebug("Demonic Circle (Summon)") return true end 
+            if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicTeleport("player") br.addonDebug("Demonic Circle (Summon)") return true end
         end
         --Burn Units
         local burnUnits = {
@@ -831,7 +831,7 @@ local function runRotation()
             [165762] = true, -- Soul Infuser
             [175992] = true, -- Dutiful Attendant
             [176026] = true -- Dancing Fools
-            
+
         }
         if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
         end
@@ -852,10 +852,10 @@ local function runRotation()
         end
         -- Burning Rush
         if mode.br ~= 2 and not (IsSwimming() or IsFlying() or IsFalling())then
-            if buff.burningRush.exists() and not moving or buff.burningRush.exists() and php <= ui.value("Burning Rush Health") then RunMacroText("/cancelaura Burning Rush") br.addonDebug("Canceling Burning Rush") return true end 
+            if buff.burningRush.exists() and not moving or buff.burningRush.exists() and php <= ui.value("Burning Rush Health") then RunMacroText("/cancelaura Burning Rush") br.addonDebug("Canceling Burning Rush") return true end
             if mode.burningRush ~= 2 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and moving and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
             if mode.burningRush == 3 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
-        end    
+        end
     end -- End Action List - Extras
     -- Action List - Defensive
     local function actionList_Defensive()
@@ -935,8 +935,8 @@ local function runRotation()
                         end
                     end
                 end
-            end 
-        end 
+            end
+        end
     end -- End Action List - Interrupts
     -- Action List - Cooldowns
     local function actionList_Cooldowns()
@@ -968,9 +968,9 @@ local function runRotation()
         end -- End useCDs check
     end -- End Action List - Cooldowns
 
-    local function actionList_BuildAShard() 
+    local function actionList_BuildAShard()
         -- actions.build_a_shard=soul_strike
-        if GetPetActionInfo(4) == GetSpellInfo(30213) then 
+        if GetPetActionInfo(4) == GetSpellInfo(30213) then
             if cast.soulStrike("target")then ui.debug("[Action:BuildAShard] Soul Strike")
                 return true
             end
@@ -984,7 +984,7 @@ local function runRotation()
     end
 
     local function actionList_NetherPortalBuilding()
-        
+
 
         -- actions.nether_portal_building=nether_portal,if=so
         if not moving and shards >= 5 and (not talent.powerSiphon or buff.demonicCore.exists()) then
@@ -1064,7 +1064,7 @@ local function runRotation()
         end
         -- actions.nether_portal_active+=/call_action_list,name=build_a_shard,if=soul_shard=1&(cooldown.call_dreadstalkers.remains<action.shadow_bolt.cast_time|(talent.bilescourge_bombers.enabled&cooldown.bilescourge_bombers.remains<action.shadow_bolt.cast_time))
         if shards == 1 and (cd.callDreadstalkers.remain() < cast.time.shadowBolt() or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < cast.time.shadowBolt())) then
-            if actionList_BuildAShard() then 
+            if actionList_BuildAShard() then
                 return true
             end
         end
@@ -1224,7 +1224,7 @@ local function runRotation()
         end
 
         local casttime = select(4,GetSpellInfo(172))
-  
+
         --
         -- actions+=/hand_of_guldan,if=azerite.explosive_potential.rank&time<5&soul_shard>2&buff.explosive_potential.down&buff.wild_imps.stack<3&!prev_gcd.1.hand_of_guldan&&!prev_gcd.2.hand_of_guldan
         if combatTime < 5 and shards > 2 and wildImps < 3 and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) then
@@ -1307,7 +1307,7 @@ local function runRotation()
         -- hotkey
         if isChecked("Summon Demonic Tyrant") and SpecificToggle("Summon Demonic Tyrant") and not GetCurrentKeyBoardFocus() and not moving then
             if cast.summonDemonicTyrant("target") then br.addonDebug("[Action:Rotation] Summon Demonic Tyrant (Hotkey)") return true end
-        end 
+        end
 
         -- actions+=/power_siphon,if=buff.wild_imps.stack>=2&buff.demonic_core.stack<=2&buff.demonic_power.down&spell_targets.implosion<2
         if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
@@ -1365,7 +1365,7 @@ local function runRotation()
             ------------------------------------------------
             if covenant.necrolord.active and spellUsable(325289) and select(2,GetSpellCooldown(325289)) <= gcdMax then
                 if cast.decimatingBolt() then br.addonDebug("[Action:Rotation] Decimating Bolt") return true end
-            end    
+            end
 
             --actions.covenant+=/soul_rot,if=cooldown.summon_darkglare.remains<5|cooldown.summon_darkglare.remains>50|cooldown.summon_darkglare.remains>25&conduit.corrupting_leer.enabled
             ------------------------------------------------
@@ -1379,7 +1379,7 @@ local function runRotation()
             ------------------------------------------------
             if covenant.nightFae.active and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
                 if cast.soulRot() then br.addonDebug("[Action:AoE] Soul Rot") return true end
-            end 
+            end
             ------------------------------------------------
             -- Scouring Tithe : Kyrian ---------------------
             ------------------------------------------------
@@ -1442,7 +1442,7 @@ local function runRotation()
         if shards >= 5 and spellID == spell.shadowBolt then
             SpellStopCasting()
             return true
-            
+
         elseif shards < 3 and spellID == spell.handOfGuldan and cd.netherPortal.remain() <= 165 then
             SpellStopCasting()
             return true
@@ -1455,7 +1455,7 @@ local function runRotation()
     local function actionList_PetControl()
 
     if UnitExists("pet")
-    and not UnitIsDeadOrGhost("pet") 
+    and not UnitIsDeadOrGhost("pet")
     and not UnitExists("pettarget")
     and inCombat
     and br.timer:useTimer("Summon Pet Delay",math.random(0.5,2))
@@ -1465,57 +1465,57 @@ local function runRotation()
         RunMacroText("/petattack")
     end
 
-    if not inCombat 
+    if not inCombat
     and UnitExists("pet")
-    and not UnitIsDeadOrGhost("pet") 
+    and not UnitIsDeadOrGhost("pet")
     and UnitExists("pettarget")
-    then    
-        PetFollow()   
+    then
+        PetFollow()
         RunMacroText("/petfollow")
         br.addonDebug("PET FOLLOW!")
     end
 
     -- Legion Strike
     if UnitExists("pettarget")
-    and GetPetActionInfo(4) == GetSpellInfo(30213) 
-    and not UnitIsDeadOrGhost("pet") 
+    and GetPetActionInfo(4) == GetSpellInfo(30213)
+    and not UnitIsDeadOrGhost("pet")
     then
-        CastSpellByName(GetSpellInfo(30213),"pettarget") 
+        CastSpellByName(GetSpellInfo(30213),"pettarget")
     end
     -- Firebolt Spam
     if UnitExists("pettarget")
-    and GetPetActionInfo(4) == GetSpellInfo(3110) 
-    and not UnitIsDeadOrGhost("pet") 
+    and GetPetActionInfo(4) == GetSpellInfo(3110)
+    and not UnitIsDeadOrGhost("pet")
     then
-        CastSpellByName(GetSpellInfo(3110),"pettarget") 
+        CastSpellByName(GetSpellInfo(3110),"pettarget")
     end
     -- Consuming Shadows Spam
     if UnitExists("pettarget")
     and GetPetActionInfo(4) == GetSpellInfo(3716)
-    and not UnitIsDeadOrGhost("pet") 
+    and not UnitIsDeadOrGhost("pet")
     then
-        CastSpellByName(GetSpellInfo(3716),"pettarget") 
+        CastSpellByName(GetSpellInfo(3716),"pettarget")
     end
     -- Shadow Bite Spam
     if UnitExists("pettarget")
     and GetPetActionInfo(4) == GetSpellInfo(19505)
-    and not UnitIsDeadOrGhost("pet") 
+    and not UnitIsDeadOrGhost("pet")
     then
-        CastSpellByName(GetSpellInfo(54049),"pettarget") 
+        CastSpellByName(GetSpellInfo(54049),"pettarget")
     end
     -- Whiplash Spam
     if UnitExists("pettarget")
     and GetPetActionInfo(4) == GetSpellInfo(6360) -- Succubus Active
-    and not UnitIsDeadOrGhost("pet") 
+    and not UnitIsDeadOrGhost("pet")
     then
-        CastSpellByName(GetSpellInfo(6360),"pettarget") 
+        CastSpellByName(GetSpellInfo(6360),"pettarget")
     end
     -- Lash of Pain
     if UnitExists("pettarget")
     and GetPetActionInfo(6) == GetSpellInfo(7814) -- Succubus Active
-    and not UnitIsDeadOrGhost("pet") 
+    and not UnitIsDeadOrGhost("pet")
     then
-        CastSpellByName(GetSpellInfo(7814),"pettarget") 
+        CastSpellByName(GetSpellInfo(7814),"pettarget")
     end
 end
 
@@ -1525,9 +1525,9 @@ end
             petPadding = 5
         end
 
-        if UnitIsDeadOrGhost("pet") then RunMacroText("/petdismiss") return end 
+        if UnitIsDeadOrGhost("pet") then RunMacroText("/petdismiss") return end
 
-        if ui.checked("Fel Domination") and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax and not buff.grimoireOfSacrifice.exists() 
+        if ui.checked("Fel Domination") and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax and not buff.grimoireOfSacrifice.exists()
         then
             if cast.felDomination() then br.addonDebug("Fel Domination") return true end
         end
@@ -1537,17 +1537,17 @@ end
             if cast.felDomination() then br.addonDebug("Fel Domination Low Pet Health") return true end
         end
 
-        -- If we're casting pet summons 
+        -- If we're casting pet summons
       --  if UnitCastingInfo("Player") == GetSpellInfo() then if UnitExists("pet") and not UnitIsDeadOrGhost("pet") then SpellStopCasting()  return true end  end
 
-        local var = {} 
+        local var = {}
         var.summonImp                   = spell.summonImp
         var.summonFelhunter             = spell.summonFelhunter
         var.summonSuccubus              = spell.summonSuccubus
         var.summonFelguard              = spell.summonFelguard
         var.summonDemonicTyrant         = spell.summonDemonicTyrant
         var.summonVilefiend             = spell.summonVilefiend
-        
+
         if isChecked("Pet Management") and not (IsFlying() or IsMounted()) or (buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", 1) then
             if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0)  then
                 if mode.petSummon == 1 and (lastSpell ~= spell.summonFelguard or activePetId == 0) then
@@ -1584,13 +1584,13 @@ end
         --[[
                     -- Fel Domination on low pet health
         br.ui:createCheckbox(section, "Fel Domination Pet HP%", "|cffFFBB00 Toggle the auto casting of Fel Donmination when your pet is low health.")
-        -- Pet Summon 
+        -- Pet Summon
 
         br.ui:createSpinnerWithout(section, "FD Pet HP%", 8, 1, 100, 0.1, "|cffFFBB00Health percent of your pet to cast Fel Domination and re-summon your pet.")
 
         if Setting("Fel Domination") and not Player.Moving and (not Pet or Pet.Dead) and not Buff.DemonSac:Exist(Player) and (ShardCount > 0 or not Pet and Setting("Imp When No Shards"))
-         and Spell.FelDomination:Known() and Spell.FelDomination:IsReady() and Spell.FelDomination:Cast(Player) then 
-            debug("Fel Domination")  
+         and Spell.FelDomination:Known() and Spell.FelDomination:IsReady() and Spell.FelDomination:Cast(Player) then
+            debug("Fel Domination")
             return true
          end
         ]]
@@ -1696,9 +1696,9 @@ end
             return
         end
 
-        if UnitIsDeadOrGhost("pet") then RunMacroText("/petdismiss") return end 
+        if UnitIsDeadOrGhost("pet") then RunMacroText("/petdismiss") return end
 
-        if ui.checked("Fel Domination") and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax and not buff.grimoireOfSacrifice.exists() 
+        if ui.checked("Fel Domination") and inCombat and not GetObjectExists("pet") or UnitIsDeadOrGhost("pet") and cd.felDomination.remain() <= gcdMax and not buff.grimoireOfSacrifice.exists()
         then
             if cast.felDomination() then br.addonDebug("Fel Domination") return true end
         end
@@ -1709,9 +1709,9 @@ end
         end
 
         -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-        if (not inCombat and not moving) or buff.felDomination.exists() then 
-            if actionList_SummonPet() then return end 
-        elseif inCombat and moving and buff.felDomination.exists() then 
+        if (not inCombat and not moving) or buff.felDomination.exists() then
+            if actionList_SummonPet() then return end
+        elseif inCombat and moving and buff.felDomination.exists() then
             if actionList_SummonPet() then return end
         end
         -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled

@@ -37,7 +37,7 @@ br.api.ui = function(self)
             return pause(ignoreChannel)
         end
     end
-    if ui.pullTimer == nil then 
+    if ui.pullTimer == nil then
         ui.pullTimer = function()
             local PullTimerRemain = _G["PullTimerRemain"]
             return PullTimerRemain()

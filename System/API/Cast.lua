@@ -74,7 +74,7 @@ br.api.cast = function(self,spell,id)
     end
 
     -- br.player.cast.cost.spell() - Returns the cost of the spell
-    --[[Args: 
+    --[[Args:
         altPower = Set to "true" to return alternate power cost.
     ]]
     if cast.cost == nil then cast.cost = {} end
@@ -99,7 +99,7 @@ br.api.cast = function(self,spell,id)
         if thisUnit == nil then thisUnit = "player" end
         return isCastingSpell(id,thisUnit)
     end
-    
+
     -- br.player.cast.dispel.spell() - Returns if the spell if capable of dispelling the target.
     --[[Args:
         thisUnit - Acceptable parameters listed below
@@ -114,7 +114,7 @@ br.api.cast = function(self,spell,id)
     end
 
     -- br.player.cast.form(formIndex) - Casts the form corresponding to the provided formIndex number
-    if cast.form == nil then 
+    if cast.form == nil then
         cast.form = function(formIndex)
             local CastShapeshiftForm = _G["CastShapeshiftForm"]
             if formIndex == nil then formIndex = 0 end
@@ -182,7 +182,7 @@ br.api.cast = function(self,spell,id)
     end
 
     -- br.player.cast.openerFail("rip","RIP1",opener.count) -- Resets cast special opener condition if failed to cast
-    if cast.openerFail == nil then 
+    if cast.openerFail == nil then
         cast.openerFail = function(thisSpell,thisTracker,thisCount)
             local castOpenerFail = _G["castOpenerFail"]
             return castOpenerFail(thisSpell,thisTracker,thisCount)

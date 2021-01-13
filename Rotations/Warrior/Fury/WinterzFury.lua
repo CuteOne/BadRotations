@@ -243,7 +243,7 @@ local function runRotation()
             [134388] = "A Knot of Snakes",
             [129758] = "Irontide Grenadier",
     }
-    
+
     if profileStop == nil then
         profileStop = false
     end

@@ -2049,7 +2049,7 @@ br.lists.spells = {
                 weaponsOfOrderWW            = 310454, --311054,
             },
             conduits                        = {
-                calculatedStrikes           = 336526,                    
+                calculatedStrikes           = 336526,
             },
             covenants                       = {
                 bonedustBrew                = 325216,
@@ -3340,7 +3340,7 @@ br.lists.spells = {
                 echoesOfGreatSundering       = 336215,
                 skybreakersFieryDemise       = 336734,
                 spiritwalkersTidalTotem      = 335891,
-                deeptremorStone              = 336739,  
+                deeptremorStone              = 336739,
             },
             talents                         = {
                 naturesGuardian             = 30884,

@@ -847,14 +847,14 @@ local function runRotation()
                     StartAttack()
                 end
         -- Multi-Garrote
-                if cast.able.garrote() and buff.subterfuge.exists() and (debuff.garrote.count() < 3 or debuff.garrote.count() >= #enemies.yards5) then 
+                if cast.able.garrote() and buff.subterfuge.exists() and (debuff.garrote.count() < 3 or debuff.garrote.count() >= #enemies.yards5) then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
-                        if debuff.garrote.refresh(thisUnit) then 
-                            if cast.garrote(thisUnit) then return end 
+                        if debuff.garrote.refresh(thisUnit) then
+                            if cast.garrote(thisUnit) then return end
                         end
-                    end 
-                end 
+                    end
+                end
         -- Call Action List - Stealthed
                 -- call_action_list,name=stealthed,if=stealthed.rogue
                 if stealthedRogue then

@@ -132,7 +132,7 @@ function cl:common(...)
     end
      --
     ---------------------
-    --[[ Swing Timer ]] 
+    --[[ Swing Timer ]]
     if swingTimer == nil then
         swingTimer = 0
     end
@@ -810,7 +810,7 @@ function cl:Shaman(...) -- 7
     if br.player ~= nil and GetSpecialization() == 2 then
         if sourceName ~= nil then
             if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
-                -- Chain Lightning / Lightning Bolt 
+                -- Chain Lightning / Lightning Bolt
                 if lightningStarted == nil then lightningStarted = false end
                 if param == "SPELL_CAST_START" then
                     if (spell == br.player.spell.lightningBolt or spell == br.player.spell.chainLightning) and br.player.variables.fillLightning then
@@ -837,13 +837,13 @@ function cl:Warlock(...) -- 9
 
         -- We stopped a channel, reset counters.
         if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_STOP" then br.dsTicks = 1 end
-        
-        -- CLear dot table after each death/individual combat scenarios. 
+
+        -- CLear dot table after each death/individual combat scenarios.
         if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then  end
 
-        if param == "UNIT_DIED" then     end--if]] #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true --]]end end end 
+        if param == "UNIT_DIED" then     end--if]] #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true --]]end end end
 
-        -- Corruption was refreshed. 
+        -- Corruption was refreshed.
         if param == "SPELL_AURA_REFRESH" then
         -- Drain Soul
 		if source == br.guid and spellName == GetSpellInfo(198590) then br.dsTicks = 1 br.maxdsTicks = 5 end
@@ -852,7 +852,7 @@ function cl:Warlock(...) -- 9
     -- Successfull Spell Casts
 	if param == "SPELL_CAST_SUCCESS" then
 		if source == br.guid then
-			
+
 		end
 	end
 
@@ -870,7 +870,7 @@ function cl:Warlock(...) -- 9
         end
     end
 
-    -- Corruption was applied. 
+    -- Corruption was applied.
     if param == "SPELL_AURA_APPLIED" then
         if source == br.guid then
         end

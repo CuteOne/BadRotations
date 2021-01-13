@@ -268,7 +268,7 @@ local function runRotation()
                 and not unit.moving() and unit.distance("target") > ui.value("Cancel CJL Range")
                 then
                     if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [Pre-Pull]") return true end
-                end                
+                end
                 -- Start Attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     StartAttack(units.dyn5)
@@ -280,7 +280,7 @@ local function runRotation()
                     -- for i = 13, 14 do
                     --     thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
                     --     local opValue = ui.value(thisTrinket)
-                    --     if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i) 
+                    --     if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i)
                     --     and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
                     --     then
                     --         use.slot(i)

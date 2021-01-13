@@ -772,7 +772,7 @@ local function runRotation()
     local cat = br.player.buff.catForm.exists()
     local owl = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
-    local mount = GetShapeshiftForm() == 5 
+    local mount = GetShapeshiftForm() == 5
     local noform = GetShapeshiftForm() == 0
     local units = br.player.units
     local traits = br.player.traits
@@ -790,11 +790,11 @@ local function runRotation()
     local hasteAmount = GetHaste() / 100
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
     local freeMana = buff.innervate.exists() or buff.symbolOfHope.exists()
-    
-    
+
+
     if talent.balanceAffinity then -- BalanceAffinity adds one stance
         mount = GetShapeshiftForm() == 6
-    else 
+    else
         mount = GetShapeshiftForm() == 5
     end
 

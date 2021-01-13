@@ -692,7 +692,7 @@ actionList.Serenity = function()
     br.player.module.BasicTrinkets()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&(active_enemies>=3|active_enemies>1&!cooldown.rising_sun_kick.up)
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) 
+    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
         and ((ui.mode.rotation == 1 and (#enemies.yards8 >= 3 or (#enemies.yards8 > 1 and cd.risingSunKick.exists()))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
@@ -886,7 +886,7 @@ actionList.AoE = function()
     local startTime = debugprofilestop()
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch() and ui.checked("Whirling Dragon Punch") 
+    if cast.able.whirlingDragonPunch() and ui.checked("Whirling Dragon Punch")
         and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
         and ui.useAOE(8,ui.value("Whirling Dragon Punch Min Units")) and buff.whirlingDragonPunch.exists()
     then
@@ -1102,7 +1102,7 @@ local function runRotation()
     units             = br.player.units
     use               = br.player.use
     var               = br.player.variables
-    
+
     units.get(5)
     enemies.get(5)
     enemies.get(5,"player",false,true)
@@ -1126,7 +1126,7 @@ local function runRotation()
     var.lowestMark = debuff.markOfTheCrane.lowest(5,"remain") or units.dyn5
     var.rskDuration = 10 - (10 * (GetHaste() / 100))
     var.solo = unit.instance("none") or #br.friend == 1
-    
+
     -- Simc Variables
     -- variable,name=hold_xuen,op=set,value=cooldown.invoke_xuen_the_white_tiger.remains>fight_remains|fight_remains<120&fight_remains>cooldown.serenity.remains&cooldown.serenity.remains>10
     var.holdXuen = cd.invokeXuenTheWhiteTiger.remain() > unit.ttd(units.dyn5) or unit.ttd(unit.dyn5) < 120 and unit.ttd(unit.dyn5) > cd.serenity.remain() and cd.serenity.remain() > 10
@@ -1149,7 +1149,7 @@ local function runRotation()
     then
         if cast.stormEarthAndFireFixate("target") then var.fixateTarget = "target" ui.debug("Casting SEF [Fixate]") return true end
     end
-    
+
     -- Crackling Jade Lightning - Cancel
     if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
         if cast.cancel.cracklingJadeLightning() then ui.debug("Canceling Crackling Jade Lightning [Within "..ui.value("Cancel CJL Range").."yrds]") return true end
@@ -1161,7 +1161,7 @@ local function runRotation()
     then
         if cast.flyingSerpentKickEnd() then ui.debug("Casting Flying Serpent Kick [End]") return true end
     end
-    
+
     -- Rushing Jade Wind - Cancel
     if not unit.inCombat() and buff.rushingJadeWind.exists() then
         if buff.rushingJadeWind.cancel() then ui.debug("Canceled Rushing Jade Wind") return true end
@@ -1206,7 +1206,7 @@ local function runRotation()
             --- Start Rotation ---
             ----------------------
             -- Touch of Death
-            if cast.able.touchOfDeath("target") and ui.alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player") 
+            if cast.able.touchOfDeath("target") and ui.alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player")
                 or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
             then
                 if cast.touchOfDeath("target") then ui.debug("Casting Touch of Death - DIE!") return true end
@@ -1257,7 +1257,7 @@ local function runRotation()
             end
             -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.max-chi>=2&(energy.time_to_max<1|cooldown.serenity.remains<2|energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5|cooldown.weapons_of_order.remains<2)
-            if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2 
+            if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2
                 and (energyTTM() < 1 or cd.serenity.remain() < 2 or (energyTTM() < 4 and cd.fistsOfFury.remain() < 1.5) or cd.weaponsOfOrder.remains() < 2)
                 and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
             then

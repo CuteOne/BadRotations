@@ -19,7 +19,7 @@ local tracker = br.tracker
 
 function tracker.add(guid, name, spellId, time) --Check if exists and creates if not
 	if not tracker.units[guid] then -- Does table exists else create (same as self.(de)buff[k][thisUnit])
-		tracker.units[guid] = { 
+		tracker.units[guid] = {
 			guid = guid,
 			name = name,
 			auras = { }
@@ -124,7 +124,7 @@ function tracker.onUpdate()
 				end
 			end
 		end
-	end 
+	end
 end
 
 function tracker.stack(guid, spellId, amount)
@@ -147,7 +147,7 @@ function tracker.query(guid, spellId)
 	return false
 end
 
-function tracker.handleEvent(...) --Adjust handleEvent to CombatLogEventUnfiltered 
+function tracker.handleEvent(...) --Adjust handleEvent to CombatLogEventUnfiltered
 	local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags,
 	      sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = ...
 
@@ -158,7 +158,7 @@ function tracker.handleEvent(...) --Adjust handleEvent to CombatLogEventUnfilter
 		tracker.add(destGUID, destName, spellId, timeStamp)
 		-- tracker.duration(destGUID, spellId, destName)
 		-- tracker.remain(destGUID, spellId, destName)
-	-- remove aura 
+	-- remove aura
 	elseif event == "SPELL_AURA_REMOVED" or event == "SPELL_PERIODIC_AURA_REMOVED" then
 		local spellId, spellName, spellSchool = select(12, ...)
 		local auraType, amount = select(15, ...)

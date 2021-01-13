@@ -51,7 +51,7 @@ local function createToggles()
         [5] = { mode = "None", value = 5 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.conflagrate }
     };
     CreateButton("PetSummon",6,0)
-    
+
     -- Burning Rush button
     BurningRushModes = {
         [1] = { mode = "On", value = 1 , overlay = "Burning Rush Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.burningRush},
@@ -108,7 +108,7 @@ local function createOptions()
 
             -- Use Essence
             br.ui:createCheckbox(section, "Curse of Tongues")
-            
+
             -- Use Essence
             br.ui:createCheckbox(section, "Curse of Weakness")
 
@@ -153,7 +153,7 @@ local function createOptions()
 
             -- Healthstone
             br.ui:createSpinner(section, "Health Funnel Cancel Cast",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cancel At")
-            
+
             -- Healthstone
             br.ui:createSpinner(section, "Drain Life Cancel Cast",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cancel At")
 
@@ -165,7 +165,7 @@ local function createOptions()
 
             -- Shadow Bulwark
             br.ui:createSpinner(section, "Shadow Bulwark",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            
+
             -- Demonic Gateway
             br.ui:createDropdown(section, "Demonic Gateway", br.dropOptions.Toggle, 6)
 
@@ -185,8 +185,8 @@ local function createOptions()
 
             -- Dark Pact
             br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            
-            -- Mortal Coil 
+
+            -- Mortal Coil
             br.ui:createSpinner(section, "Mortal Coil",  23,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Drain Life
@@ -321,7 +321,7 @@ end
     end
 
 
-local diminishReturns ={} 
+local diminishReturns ={}
 if not DiminishEHTable then DiminishEHTable={} end
 if not DiminishEventHandler then DiminishEventHandler = {} end
 if not DiminishEventHandlerLog then
@@ -330,7 +330,7 @@ if not DiminishEventHandlerLog then
  function OnSuccessfulCast(self, event, ...)
   local type, _, sourceGUID, _, _, _,  destGUID, _ = select(2, ...)
   if (event=="COMBAT_LOG_EVENT_UNFILTERED") then
-  			
+
   		local castSpellID= {2139,44572,8122,5484,1499 }
   			for i=1,#castSpellID do
   			if castSpellID[i] ==select(12, ...) then
@@ -359,12 +359,12 @@ if not DiminishEventHandlerLog then
 	      	end
 	      	end
 	      	end
-	      
 
 
-	      
-	
-        			
+
+
+
+
   end
  end
 
@@ -381,7 +381,7 @@ table.sort(DiminishEHTable,function(x,y) return y.Time<x.Time end)
 for j=1,#DiminishEventHandlerDRTable do
 for i=1,#DiminishEventHandlerDRTable do
 
-	local time=DiminishEventHandlerDRTable[i].Time 
+	local time=DiminishEventHandlerDRTable[i].Time
 	if GetTime()- time > 45
 	then
 	table.remove(DiminishEventHandlerDRTable,i)
@@ -393,7 +393,7 @@ end
 for j=1,#DiminishEHTable do
 for i=1,#DiminishEHTable do
 
-	local time=DiminishEHTable[i].Time 
+	local time=DiminishEHTable[i].Time
 	if GetTime()- time > 2
 	then
 	table.remove(DiminishEHTable,i)
@@ -405,7 +405,7 @@ end
 for j=1,#DiminishEventHandlerTable do
 for i=1,#DiminishEventHandlerTable do
 
-	local time=DiminishEventHandlerTable[i].Time 
+	local time=DiminishEventHandlerTable[i].Time
 	if GetTime()-time > 60
 	then
 	table.remove(DiminishEventHandlerTable,i)
@@ -432,9 +432,9 @@ local DiminishDRtrack = {
 			{DR = "poly",SpellID={118,61305,28272,61721,61780,28271,82691,2637,99,1499,19386,113724,115078,20066,9484,1776,6770,51514,6358,115268,58963,107079}},
 			{DR = "root",SpellID={96294,339,16689,102359,136634,50245,4167,90327,54706,122,33395,116706,114404,87194,115197,64695,63685,107566}},
 			{DR = "stun",SpellID={108194,91800,91797,108200,22570,9005,5211,102795,113801,117526,24394,90337,50519,56626,44572,118271,119392,119381,122242,120086,853,119072,105593,1833,408,118905,30283,103131,22703,132168,107570,20549}},
-			{DR = "fear",SpellID={5782,1513,105421,10326,8122,113792,2094,5484,5246,115268}},	
+			{DR = "fear",SpellID={5782,1513,105421,10326,8122,113792,2094,5484,5246,115268}},
 			{DR = "disarm",SpellID={91644,50541,117368,64044,51722,118093,58960,676}},
-			{DR = "silence",SpellID={47476,81261,34490,55021,102051,116709,31935,15487,703,24259,115782,112869,6552,129597}},				
+			{DR = "silence",SpellID={47476,81261,34490,55021,102051,116709,31935,15487,703,24259,115782,112869,6552,129597}},
 			{DR = "cyclone",SpellID={33786}}
 			  }
 	for i=1,#DiminishDRtrack do
@@ -477,7 +477,7 @@ local DiminishCDtrack = {
 	for i=1,#DiminishCDtrack do
 		if whatClass(Target) == DiminishCDtrack[i].class
 		and DiminishCDtrack[i].SpellID == SpellIDs
-		then 
+		then
 		return true
 		end
     end
@@ -502,11 +502,11 @@ end
 
 
 function DiminishCDTracker(Target,SpellID)
-if type(SpellID) == "number" then SpellID = { SpellID } end 
-for i=1,#SpellID do 
+if type(SpellID) == "number" then SpellID = { SpellID } end
+for i=1,#SpellID do
  	for y=1, #DiminishEventHandlerTable do
 	if DiminishSpellInfo(Target,SpellID[i])
-	and 
+	and
 	UnitGUID(Target) == DiminishEventHandlerTable[y].UnitSource
 	and SpellID[i] == DiminishEventHandlerTable[y].SpellID
 	and GetTime() - DiminishEventHandlerTable[y].Time < DiminishSpellInfoTime(Target,SpellID[i])
@@ -551,9 +551,9 @@ function GroupInfo()
 --------------------------------------------------
 
 function CastClick()
-  if IsMouseButtonDown(1) and MainMenuBar:IsShown() then 
-    local mousefocus = GetMouseFocus() 
-    if mousefocus and mousefocus.feedback_action 
+  if IsMouseButtonDown(1) and MainMenuBar:IsShown() then
+    local mousefocus = GetMouseFocus()
+    if mousefocus and mousefocus.feedback_action
     then SpellCancelQueuedSpell() PQR_DelayRotation(1) end
   end
 end
@@ -622,17 +622,17 @@ actionList.Extras = function()
 
     -- Demonic Gateway
     if SpecificToggle("Demonic Gateway") and not GetCurrentKeyBoardFocus() then
-        if br.timer:useTimer("DG Delay", 1) and CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end 
+        if br.timer:useTimer("DG Delay", 1) and CastSpellByName(GetSpellInfo(spell.demonicGateway),"cursor") then br.addonDebug("Casting Demonic Gateway") return end
         if IsAoEPending() then CancelPendingSpell() end
     end
 
     -- Demonic Circle: Summon
     if SpecificToggle("Demonic Circle Summon") and not GetCurrentKeyBoardFocus() then
-        if br.timer:useTimer("DC Delay", 1) then cast.demonicCircle("player") br.addonDebug("Demonic Circle (Summon)") return true end 
+        if br.timer:useTimer("DC Delay", 1) then cast.demonicCircle("player") br.addonDebug("Demonic Circle (Summon)") return true end
     end
     -- Demonic Circle: Teleport
     if SpecificToggle("Demonic Circle Teleport") and not GetCurrentKeyBoardFocus() then
-        if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicTeleport("player") br.addonDebug("Demonic Circle (Summon)") return true end 
+        if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicTeleport("player") br.addonDebug("Demonic Circle (Summon)") return true end
     end
 end
 
@@ -768,13 +768,13 @@ actionList.Defensive = function()
         if isChecked("Devour Magic") and (pet.active.id() == 417 or pet.active.id() == 78158) then
             if getOptionValue("Devour Magic") == 1 then
                 if canDispel("target",spell.devourMagic) and GetObjectExists("target") then
-                    CastSpellByName(GetSpellInfo(spell.devourMagic),"target") br.addonDebug("Casting Devour Magic") return true 
+                    CastSpellByName(GetSpellInfo(spell.devourMagic),"target") br.addonDebug("Casting Devour Magic") return true
                 end
             elseif getOptionValue("Devour Magic") == 2 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if canDispel(thisUnit,spell.devourMagic) then
-                        CastSpellByName(GetSpellInfo(spell.devourMagic),thisUnit) br.addonDebug("Casting Devour Magic") return true 
+                        CastSpellByName(GetSpellInfo(spell.devourMagic),thisUnit) br.addonDebug("Casting Devour Magic") return true
                     end
                 end
             end
@@ -1036,8 +1036,8 @@ actionList.Aoe = function()
     if not moving and cast.able.immolate() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) <= 10 and (not ui.checked("Cataclysm") or not talent.cataclysm 
-            or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit))) 
+            if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) <= 10 and (not ui.checked("Cataclysm") or not talent.cataclysm
+            or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit)))
             then
                 if not GetUnitIsUnit(thisUnit,br.lastImmo) then
                     if cast.immolate(thisUnit) then debug("Cast Immolate [AOE]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
@@ -1082,7 +1082,7 @@ actionList.Aoe = function()
 
     -- Azerite Essence - Focused Azerite Beam
     -- focused_azerite_beam
-    if essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcdMax and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
+    if essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcdMax and ((essence.focusedAzeriteBeam.rank < 3 and not moving)
         or essence.focusedAzeriteBeam.rank >= 3) and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= 3 or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
     then
         if cast.focusedAzeriteBeam() then br.addonDebug("Casting Focused Azerite Beam") return end
@@ -1201,7 +1201,7 @@ actionList.GosupInfernal = function()
     if cast.able.conflagrate() and (infernalRemain < 5) then
         if cast.conflagrate() then debug("Cast Conflagrate [GosupInfernal - Infernal Low]") return true end
     end
-    
+
     -- conflagrate,if=charges>1
     if cast.able.conflagrate() and (charges.conflagrate.count() > 1) then
         if cast.conflagrate() then debug("Cast Conflagrate [GosupInfernal - More Than 1 Charge]") return true end
@@ -1277,8 +1277,8 @@ actionList.PreCombat = function()
     end
     -- Summon Pet
     -- summon_pet
-    if ui.checked("Pet Management") 
-    and not (IsFlying() or IsMounted()) 
+    if ui.checked("Pet Management")
+    and not (IsFlying() or IsMounted())
     and (not inCombat or buff.felDomination.exists())
     and (not moving or buff.felDomination.exists())
     and GetTime() - br.pauseTime > 0.5 and level >= 5
@@ -1304,14 +1304,14 @@ actionList.PreCombat = function()
 
     if solo then
         -- Burning Rush
-        if buff.burningRush.exists() and not moving or buff.burningRush.exists() and php <= ui.value("Burning Rush Health") then RunMacroText("/cancelaura Burning Rush") br.addonDebug("Canceling Burning Rush") return true end 
+        if buff.burningRush.exists() and not moving or buff.burningRush.exists() and php <= ui.value("Burning Rush Health") then RunMacroText("/cancelaura Burning Rush") br.addonDebug("Canceling Burning Rush") return true end
 
         if mode.burningRush ~= 2 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and moving and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
 
         if mode.burningRush == 3 and br.timer:useTimer("Burning Rush Delay", getOptionValue("Burning Rush Delay")) and not buff.burningRush.exists() and php > ui.value("Burning Rush Health") + 5 then if cast.burningRush() then br.addonDebug("Casting Burning Rush") return true end end
-    end  
+    end
 
-    --if UnitChannelInfo("player") == GetSpellInfo(spell.healthFunnel) and php >= ui.value ("Health Funnel Cancel Cast") then SpellStopCasting() return true end 
+    --if UnitChannelInfo("player") == GetSpellInfo(spell.healthFunnel) and php >= ui.value ("Health Funnel Cancel Cast") then SpellStopCasting() return true end
     --if UnitChannelInfo("player") == GetSpellInfo(spell.drainLife) and php >= ui.value("Drain Life Cancel Cast") then SpellStopCasting() return true end
 
 
@@ -1366,18 +1366,18 @@ actionList.ST = function()
 
         if level < 60 then
             -- Decimating Bolt
-            if spellUsable(313347) and select(2,GetSpellCooldown(313347)) <= gcdMax and not moving and ttd("target") < 15 then if CastSpellByName(GetSpellInfo(313347)) then return true end end 
+            if spellUsable(313347) and select(2,GetSpellCooldown(313347)) <= gcdMax and not moving and ttd("target") < 15 then if CastSpellByName(GetSpellInfo(313347)) then return true end end
 
                 -- Kyrian: Scouring Tithe
-            if spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax  and not moving and ttd(thisUnit) < 18 and shards >= 4.5 and debuff.havoc.exists(thisUnit) then if CastSpellByName(GetSpellInfo(313347),thisUnit) then return true end end 
+            if spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax  and not moving and ttd(thisUnit) < 18 and shards >= 4.5 and debuff.havoc.exists(thisUnit) then if CastSpellByName(GetSpellInfo(313347),thisUnit) then return true end end
         end
-           
+
             -- Curse of Weakness
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if ui.checked("Curse of Weakness") and ttd(thisUnit) >= 6 and not UnitIsDeadOrGhost(thisUnit) and isMelee(thisUnit) and GetObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and UnitIsPlayer(thisUnit) then 
-                        if cast.curseOfWeakness(thisunit) then 
-                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
+                    if ui.checked("Curse of Weakness") and ttd(thisUnit) >= 6 and not UnitIsDeadOrGhost(thisUnit) and isMelee(thisUnit) and GetObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and UnitIsPlayer(thisUnit) then
+                        if cast.curseOfWeakness(thisunit) then
+                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit)))
                     return true
                         end
                     end
@@ -1387,8 +1387,8 @@ actionList.ST = function()
             for i = 1, #enemies.yards40f do
                 local unit = enemies.yards40f[i]
                 if ui.checked("Curse of Tongues") and ttd(unit) >= 6 and not UnitIsDeadOrGhost(unit) and isMelee(thisUnit)and GetObjectExists(unit) and UnitCanAttack(unit,"player") and UnitIsPlayer(unit) then
-                    if cast.curseOfTongues(unit) then 
-                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit))) 
+                    if cast.curseOfTongues(unit) then
+                    --br.addonDebug("[Action:PvP] Curse of Tongues" .. " | Name: " .. name .. " | Class: ".. class .. " | Level:" .. UnitLevel(unit) .. " | Race: " .. select(1,UnitRace(unit)))
                     return true
                     end
                 end
@@ -1448,8 +1448,8 @@ actionList.ST = function()
             if not moving and cast.able.immolate() then
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.immolate.remain(thisUnit) < 6 and (not ui.checked("Cataclysm") or not talent.cataclysm 
-                    or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit) or #enemies.yards8t < ui.value("Cataclysm Units"))) 
+                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.immolate.remain(thisUnit) < 6 and (not ui.checked("Cataclysm") or not talent.cataclysm
+                    or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit) or #enemies.yards8t < ui.value("Cataclysm Units")))
                     then
                         if not GetUnitIsUnit(thisUnit,br.lastImmo) then
                             if cast.immolate(thisUnit) then debug("Cast Immolate [Main - Multi]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
@@ -1467,7 +1467,7 @@ actionList.ST = function()
           --[[ if not moving and cast.able.immolate() then
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.corruption.remains(thisUnit) < 7) 
+                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.corruption.remains(thisUnit) < 7)
                     then
                         if not GetUnitIsUnit(thisUnit,br.lastImmo) then
                             if cast.immolate(thisUnit) then debug("Cast Immolate [Main - Multi]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
@@ -1493,7 +1493,7 @@ actionList.ST = function()
             -- call_action_list,name=cds
             if actionList.Cooldowns() then return true end
             -- focused_azerite_beam,if=!pet.infernal.active|!talent.grimoire_of_supremacy.enabled
-            if essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcdMax and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
+            if essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcdMax and ((essence.focusedAzeriteBeam.rank < 3 and not moving)
                 or essence.focusedAzeriteBeam.rank >= 3) and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= 3 or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
                 and (not pet.infernal.active() or not talent.grimoireOfSupremacy)
             then
@@ -1530,7 +1530,7 @@ actionList.ST = function()
                 if cast.concentratedFlame("target") then debug("Cast Concentrated Flame") return true end
             end
 
-            
+
             --actions.covenant=impending_catastrophe,if=cooldown.summon_darkglare.remains<10|cooldown.summon_darkglare.remains>50
             ---------------------------0--------------------
             -- Impending Catastrophe : Venthyr -------------
@@ -1578,7 +1578,7 @@ actionList.ST = function()
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
                     if ttd(thisUnit) > 10 and (not (GetUnitIsUnit("target",thisUnit))
-                        and (debuff.immolate.remain(thisUnit) > debuff.immolate.duration() * 0.5 
+                        and (debuff.immolate.remain(thisUnit) > debuff.immolate.duration() * 0.5
                         or not talent.internalCombustion) and (cd.summonInfernal.exists()
                         or not talent.grimoireOfSupremacy or talent.grimoireOfSupremacy and infernalRemain <= 10))
                     then
@@ -1616,7 +1616,7 @@ actionList.ST = function()
             -- Chaos Bolt
             -- chaos_bolt,if=(talent.grimoire_of_supremacy.enabled|azerite.crashing_chaos.enabled)&pet.infernal.active|buff.dark_soul_instability.up|buff.reckless_force.react&buff.reckless_force.remains>cast_time
             if not moving  and cast.timeSinceLast.chaosBolt() > gcdMax
-                and ((talent.grimoireOfSupremacy or traits.crashingChaos.active) and pet.infernal.active() 
+                and ((talent.grimoireOfSupremacy or traits.crashingChaos.active) and pet.infernal.active()
                 or buff.darkSoulInstability.exists() or buff.recklessForce.exists()
                 and buff.recklessForce.remain() > cast.time.chaosBolt())
             then
@@ -1666,7 +1666,7 @@ actionList.Rotation = function()
 
     if SpellQueueReady() then
 
-       if actionList.ST() then return true end 
+       if actionList.ST() then return true end
 
     end
 
@@ -1733,13 +1733,13 @@ local function runRotation()
     lastSpell                          = lastSpellCast
     lucidDreams                        = buff.memoryOfLucidDreams.exists() and 1 or 0
     summonPet                          = ui.value("Summon Pet")
-    
+
     -- Get Best Unit for Range
     -- units.get(range, aoe)
     units.get(40)
     if range == nil then range = {} end
     range.dyn40 = getDistance("target") < 40
-    
+
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
     enemies.get(8,"target")
@@ -1747,7 +1747,7 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",true) -- makes enemies.yards40nc
     enemies.get(40,"player",false,true) -- makes enemies.yards40f
-    
+
     -- General Vars
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
@@ -1755,7 +1755,7 @@ local function runRotation()
         profileStop = false
     end
     okToDoT = debuff.immolate.count() < ui.value("Multi-Dot Limit")
-    
+
     -- spellqueue ready
     local function SpellQueueReady()
         --Check if we can queue cast
@@ -1767,7 +1767,7 @@ local function runRotation()
         end
         return true
     end
-  
+
     -- SimC Variables
     -- Pool Shards
     -- variable,name=pool_soul_shards,value=active_enemies>1&cooldown.havoc.remains<=10|cooldown.summon_infernal.remains<=15&(talent.grimoire_of_supremacy.enabled|talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains<=15)|talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains<=15&(cooldown.summon_infernal.remains>target.time_to_die|cooldown.summon_infernal.remains+cooldown.summon_infernal.duration>target.time_to_die)
@@ -1776,7 +1776,7 @@ local function runRotation()
             or talent.darkSoulInstability and cd.darkSoulInstability.remain() <= 15
             and (cd.summonInfernal.remain() > ttd("target") or cd.summonInfernal.remain() +
             cd.summonInfernal.duration() > ttd("target"))
-    
+
     -- Pet Data
     if mode.petSummon == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
     elseif mode.petSummon == 1 then summonId = 416
@@ -1849,11 +1849,11 @@ local function runRotation()
         if inCombat and isValidUnit("target") then
             if actionList.Interrupts() then return true end
             if isChecked("Shadowfury Key") and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
-                if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
+                if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end
             end
 
 
-            if actionList.Rotation() then return true end 
+            if actionList.Rotation() then return true end
 
         end -- End Combat
     end -- End Rotation Logic

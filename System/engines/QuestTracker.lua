@@ -113,7 +113,7 @@ function isQuestObject(object) --Ty Ssateneth
 	local ignoreObjects = {
 		[327571] = true,
 	}
-	if ignoreObjects[objectID] ~= nil then 
+	if ignoreObjects[objectID] ~= nil then
 		return false
 	end
     if objectID == 325958 or objectID == 325962 or objectID == 325963 or objectID == 325959 or objectID == 335703 or objectID == 152692 or objectID == 163757 or objectID == 290542 or objectID == 113768 or objectID == 113771 or objectID == 113769 or objectID == 113770 or objectID == 153290 or

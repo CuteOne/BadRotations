@@ -40,11 +40,11 @@ local function getSnapshotValue(dot)
     if GetSpecializationInfo(GetSpecialization()) == 259 then
         local multiplier = 1
         if self.buff.stealth.exists() and self.talent.nightstalker and (dot == self.spell.debuffs.rupture or dot == self.spell.debuffs.garrote) then multiplier = 1.5 end
-        if (self.buff.stealth.exists() or self.buff.vanish.exists() 
-            or (self.buff.subterfuge.exists() and self.buff.subterfuge.remain() >= 0.1 and self.buff.subterfuge.remain() >= getSpellCD(61304))) 
-            and dot == self.spell.debuffs.garrote and self.talent.subterfuge 
-        then 
-            multiplier = 1.8 
+        if (self.buff.stealth.exists() or self.buff.vanish.exists()
+            or (self.buff.subterfuge.exists() and self.buff.subterfuge.remain() >= 0.1 and self.buff.subterfuge.remain() >= getSpellCD(61304)))
+            and dot == self.spell.debuffs.garrote and self.talent.subterfuge
+        then
+            multiplier = 1.8
         end
         return multiplier
     end
@@ -52,7 +52,7 @@ local function getSnapshotValue(dot)
 end
 
 br.api.debuffs = function(debuff,k,v)
-    local spec = GetSpecializationInfo(GetSpecialization()) 
+    local spec = GetSpecializationInfo(GetSpecialization())
     debuff.exists = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
@@ -85,10 +85,10 @@ br.api.debuffs = function(debuff,k,v)
     debuff.pandemic = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if thisUnit == 'target' then thisUnit = GetObjectWithGUID(UnitGUID("target")) end 
+        if thisUnit == 'target' then thisUnit = GetObjectWithGUID(UnitGUID("target")) end
         local pandemic = debuff.duration(thisUnit,sourceUnit)
-        if br.player.pandemic[thisUnit] ~= nil and br.player.pandemic[thisUnit][k] ~= nil then 
-            pandemic = br.player.pandemic[thisUnit][k] 
+        if br.player.pandemic[thisUnit] ~= nil and br.player.pandemic[thisUnit][k] ~= nil then
+            pandemic = br.player.pandemic[thisUnit][k]
         end
         return pandemic
     end

@@ -149,7 +149,7 @@ function carapaceMath(Unit1, Unit2)
 							]] tentCheck =
 								false
 							table.insert(tentfinal, tentCheck)
-						--[[ else 
+						--[[ else
 							LibDraw.SetColor(0,255,0)
 							LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
 						]]

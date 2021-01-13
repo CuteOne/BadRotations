@@ -181,7 +181,7 @@ local function createToggles()
         }
     }
     CreateButton("WildCharge", 0, -1)
-    
+
     BristlingFurModes = {
         [1] = {
             mode = "On",
@@ -203,40 +203,40 @@ local function createToggles()
     CreateButton("BristlingFur", 5, 0)
 
     FormsModes = {
-        [1] = { 
+        [1] = {
             mode = "On",
             value = 1,
             overlay = "Auto Forms Enabled",
             tip = "Will change forms",
-            highlight = 0, icon = br.player.spell.travelForm 
+            highlight = 0, icon = br.player.spell.travelForm
         },
-        [2] = { 
-            mode = "Key", 
-            value = 2, 
-            overlay = "Auto Forms hotkey", 
-            tip = "Key triggers Auto Forms", 
+        [2] = {
+            mode = "Key",
+            value = 2,
+            overlay = "Auto Forms hotkey",
+            tip = "Key triggers Auto Forms",
             highlight = 0, icon = br.player.spell.travelForm },
-        [3] = { 
-            mode = "Off", 
-            value = 3, 
-            overlay = "Auto Forms Disabled", 
+        [3] = {
+            mode = "Off",
+            value = 3,
+            overlay = "Auto Forms Disabled",
             tip = "Will Not change forms", highlight = 0, icon = br.player.spell.travelForm }
     };
     CreateButton("Forms", 5, -1)
-    
+
     MaulModes = {
-        [1] = { 
+        [1] = {
             mode = "On",
             value = 1,
             overlay = "Auto Maul Enabled",
             tip = "Will use Maul",
-            highlight = 1, icon = br.player.spell.maul 
+            highlight = 1, icon = br.player.spell.maul
         },
-        [2] = { 
-            mode = "Off", 
-            value = 2, 
-            overlay = "Auto Maul Disabled", 
-            tip = "Will not use Maul", 
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Auto Maul Disabled",
+            tip = "Will not use Maul",
             highlight = 0, icon = br.player.spell.maul }
     };
     CreateButton("Maul", 4, -1)
@@ -286,11 +286,11 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial")
-        br.ui:createSpinner(section, "Heart of the Wild", 50, 0, 100, 5, "Use HOTW when below %hp")        
+        br.ui:createSpinner(section, "Heart of the Wild", 50, 0, 100, 5, "Use HOTW when below %hp")
         -- Trinkets
         br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")               
+        br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Radar
         section = br.ui:createSection(br.ui.window.profile, "Radar |cffFFBB00(Require Mass Entanglement)")
@@ -306,7 +306,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Ironfur (No Aggro)", 85, 0, 100, 5, "Use Ironfur on Adds/Bosses you can't aggro such as Carapace of N'Zoth if below %hp")
-        br.ui:createSpinner(section, "Incarnation", 50, 0, 100, 5, "Use Incarnation when below %hp")        
+        br.ui:createSpinner(section, "Incarnation", 50, 0, 100, 5, "Use Incarnation when below %hp")
         br.ui:createCheckbox(section, "Spam Mangle during Incarnation", "|cffFF0000 CHECK ONE OPTION ONLY")
         br.ui:createCheckbox(section, "Spam Thrash during Incarnation", "|cffFF0000 CHECK ONE OPTION ONLY")
         br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "Health Percentage to use at.")
@@ -1060,7 +1060,7 @@ local function runRotation()
         if isChecked("Spam Mangle during Incarnation") and cast.able.mangle() and #enemies.yards5 < 7 and buff.incarnationGuardianOfUrsoc.exists() and inCombat then
             if cast.mangle() then
                 return
-            end    
+            end
         end
         -- Thrash Spam
         if isChecked("Spam Thrash during Incarnation") and cast.able.thrashBear("player") and #enemies.yards8 >=1 and buff.incarnationGuardianOfUrsoc.exists() and inCombat then

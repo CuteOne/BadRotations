@@ -798,7 +798,7 @@ function br.DBM:getPulltimer(time, specificID)
     end
             -- if a time is given return true if timer and below given time
             -- else return time
-        
+
     return 999 -- return number to avoid conflicts but to high so it should never trigger
 end
 -- function br.DBM:getPulltimer(time, specificID)
@@ -906,7 +906,7 @@ end
         end
             -- if a time is given return true if timer and below given time
             -- else return time
-        
+
         return 999 -- return number to avoid conflicts but to high so it should never trigger
     end
 

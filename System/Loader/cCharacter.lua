@@ -75,7 +75,7 @@ function cCharacter:new(class)
 	self.race     	    	= select(2,UnitRace("player"))  -- Race as non-localised name (undead = Scourge) !
 	self.racial   	    	= 0     						-- Contains racial spell id
 	-- self.recharge       	= {}        					-- Time for current recharge (for spells with charges)
-	-- self.rechargeFull   	= {}							
+	-- self.rechargeFull   	= {}
 	self.selectedRotation 	= 1       						-- Default: First avaiable rotation
 	self.rotation       	= {} 							-- List of Rotations
 	self.spell	    		= {}        					-- Spells all classes may have (e.g. Racials, Mass Ressurection)
@@ -209,7 +209,7 @@ function cCharacter:new(class)
 -- Rotation selection update
     function self.getRotation()
 		self.selectedRotation = br.selectedProfile
-		
+
         if br.rotationChanged then
             self.createOptions()
 			self.createToggles()

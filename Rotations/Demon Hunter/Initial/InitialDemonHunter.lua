@@ -196,7 +196,7 @@ local function runRotation()
                 -- Immolation Aura
                 if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 then
                     if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
-                end           
+                end
                 -- Chaos Strike
                 if cast.able.chaosStrike() and furyDeficit < 30 then
                     if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end

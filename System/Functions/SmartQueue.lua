@@ -24,7 +24,7 @@ local function checkKeys(self, key)
 				br.queueSpell = spell
 				queueSpellTime = GetTime()
 				if getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
-					local x, y = GetMousePosition() 
+					local x, y = GetMousePosition()
 					queueSpellPos.x, queueSpellPos.y, queueSpellPos.z = ScreenToWorld(x, y)
 				elseif getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 4 and UnitIsVisible("mouseover") then
 					queueSpellTarget = ObjectPointer("mouseover")
@@ -120,7 +120,7 @@ function br.smartQueue()
             checkKeys(nil, "BUTTON5")
         end
     end
-    
+
     if br.queueSpell and (GetTime() - queueSpellTime) > getOptionValue("Smart Queue") then
         br.queueSpell = false
     end
@@ -150,11 +150,11 @@ function br.smartQueue()
             else
                 if IsSpellInRange(GetSpellInfo(br.queueSpell), queueSpellTarget) ~= nil then
 					if createCastFunction(queueSpellTarget,nil,nil,nil,br.queueSpell) then
-                        return true 
+                        return true
                     end
                 else
 					if createCastFunction("player",nil,nil,nil,br.queueSpell) then
-                        return true 
+                        return true
                     end
                 end
             end

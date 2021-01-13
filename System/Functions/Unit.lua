@@ -334,7 +334,7 @@ function isCritter(Unit) -- From LibBabble
 		"Critter",
 		"Kleintier",
 		"Alma",
-		"Bestiole",	
+		"Bestiole",
 		"Animale",
 		"Bicho",
 		"Существо",

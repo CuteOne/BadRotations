@@ -232,7 +232,7 @@ end
 
 local function runRotation()
     --Additional Toggles
-    
+
     --Locals
     local addsExist = false
     local addsIn = 999
@@ -345,7 +345,7 @@ local function runRotation()
 
         if runes >= 4 then
             if cast.heartStrike() then return end
-        end 
+        end
 
         --Marrowrend case 2
         if (buff.boneShield.stack() < 5 and talent.ossuary and powerDeficit >= 15) then
@@ -362,7 +362,7 @@ local function runRotation()
         end
 
         -- if runic_power.deficit<=(15+buff.dancing_rune_weapon.up*5+spell_targets.heart_strike*talent.heartbreaker.enabled*2)|target.1.time_to_die<10
-        if (powerDeficit <= (15 + (buff.dancingRuneWeapon.exists() and 1 or 0) * 5 + #enemies.yards8 * (talent.heartbreaker and 1 or 0) * 2) or ttd("target") < 10) and 
+        if (powerDeficit <= (15 + (buff.dancingRuneWeapon.exists() and 1 or 0) * 5 + #enemies.yards8 * (talent.heartbreaker and 1 or 0) * 2) or ttd("target") < 10) and
         ((php <= getOptionValue("Low Prio Deathstrike")) or not isChecked("Low Prio Deathstrike")) then
             if cast.deathStrike() then
                 return
@@ -387,7 +387,7 @@ local function runRotation()
                 return
             end
         end
-        
+
         if isChecked("Anima of Death") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= getOptionValue("Anima Units") or isBoss()) and php <= getOptionValue("Anima of Death") then
             if cast.animaOfDeath("player") then return end
         end
