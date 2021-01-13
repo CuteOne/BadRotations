@@ -14,7 +14,7 @@ function bossHelper()
         clickHelper(130099)
     end
     -- Automatic bomb catcher
-    if br.player.ui.checked("De Other Side - Bomb Snatcher") and getCurrentZoneId() == 13309 then
+    if br.player.ui.checked("De Other Side - Bomb Snatcher") and getCurrentZoneId() == 2291 then
         clickHelper(164561)
     end
 end
