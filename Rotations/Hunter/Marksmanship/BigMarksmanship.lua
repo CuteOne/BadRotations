@@ -62,10 +62,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Hunter's Mark")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-            br.ui:createCheckbox(section,"Trinkets with Trueshot logic", "|cffFFFFFFUse other cooldowns with trueshot")
-            br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createCheckbox(section,"Trinkets Logic", "|cffFFFFFFUse trinkets according to simc logic")
+            br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             br.ui:createCheckbox(section,select(1,GetItemInfo(br.player.items.potionOfSpectralAgility), "Use potion in raids with other cooldowns"))
             br.ui:createCheckbox(section,select(1,GetItemInfo(br.player.items.spectralFlaskOfPower)), "Use flask")
             br.ui:createCheckbox(section,"Racial")
@@ -207,36 +207,6 @@ function getTimeToLastInterrupt()
 	return 0
 end
 
-local function misdirectionLogic()
-    if ui.mode.misdirection == 1 then
-        local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
-            -- Misdirect to Tank
-            if ui.value("Misdirection") == 1 then
-                local tankInRange, tankUnit = isTankInRange()
-                if tankInRange then misdirectUnit = tankUnit end
-                -- Additional pre-emptive logic for MD
-                if ui.checked("Misdirection pre-emptive logic") then
-                    --TODO
-                end
-            end
-            -- Misdirect to Focus
-            if ui.value("Misdirection") == 2 and unit.friend("focus","player") then
-                misdirectUnit = "focus"
-            end
-            -- Misdirect to Pet
-            if ui.value("Misdirection") == 3 then
-                misdirectUnit = "pet"
-            end
-            -- Failsafe to Pet, if unable to misdirect to Tank or Focus
-            if misdirectUnit == nil then misdirectUnit = "pet" end
-            if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
-                return cast.misdirection(misdirectUnit)
-            end
-        end
-    end
-end
-
 local function getItemSpellCd(itemId)
     return GetItemCooldown(itemId) + 180 - GetTime()
 end
@@ -289,18 +259,18 @@ actionList.pc = function()
         --TODO!
         --actions.precombat+=/augmentation
 
-        if ui.pullTimer() <= 15 and unit.distance("target") < 45 and ui.checked("Prepull logic") and unit.isBoss("target") then
+        if ui.pullTimer() <= 15 and ui.checked("Prepull logic") and unit.valid("target") then
             -- actions.precombat+=/tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
                 return cast.tarTrap(units.dyn40,"ground")
             end
             --actions.precombat+=/double_tap,precast_time=10,if=active_enemies>1
-            if ui.alwaysCdNever("Double Tap") and cast.able.doubleTap() and ui.pullTimer() <= math.random(8,10) then
+            if ui.value("Double Tap")==1 and cast.able.doubleTap() and ui.pullTimer() <= math.random(7,10) then
                 return cast.doubleTap()
             end
             -- mdpc, doesnt affect dps
-            if ui.pullTimer() <= math.random(5,8) then
-                misdirectionLogic()
+            if ui.pullTimer() <= math.random(3,7) and cast.able.misdirection() and ui.mode.misdirection == 1 then
+                return actionList.md()
             end
             --actions.precombat+=/aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
             if cast.able.aimedShot() and ui.pullTimer() <= 2 and not unit.moving("player") and #enemies.yards8t < 3 and (#enemies.yards8t < 2 or (not covenant.kyrian.active and not talent.volley)) then
@@ -320,7 +290,7 @@ actionList.aa = function()
     --actions=auto_shot
     unit.startAttack("target")
 
-    if ui.checked("Trinkets with Trueshot logic") then
+    if ui.checked("Trinkets logic") then
 
         --actions+=/use_item,name=dreadfire_vessel,if=trinket.1.has_cooldown...
         if equiped.dreadfireVessel()
@@ -387,7 +357,7 @@ actionList.cds = function()
         end
     end
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    if ui.checked("Potion of Spectral Agility") and use.able.potionOfSpectralAgility() and unit.instance("raid") then
+    if ui.checked("Potion of Spectral Agility") and use.able.potionOfSpectralAgility() and unit.instance("raid") and unit.isBoss("target") then
         if buff.trueshot.exists() and (buff.bloodLust.exists() or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25)) then
            return use.potionOfSpectralAgility()
         end
@@ -411,9 +381,9 @@ actionList.st = function()
     --------------------------------------------------------------------------------- TODO AFTER THIS ---------------------------------------------------------------------------------
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<15
-    if ui.alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
-        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
-        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not ui.alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
+    if ui.value("Double Tap") == 1 or (ui.value("Double Tap") == 2 and buff.trueshot.exists()) and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.value("Covenant Ability")==1)) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not ui.value("Covenant Ability")==1) or cd.trueshot.remains() > 55))))
         or (unit.isBoss("target") or unit.ttd("target") < 15))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap") return true end
@@ -437,22 +407,22 @@ actionList.st = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Volley
@@ -462,7 +432,7 @@ actionList.st = function()
     end
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
-    if ui.alwaysCdNever("Trueshot") and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
+    if ui.value("Trueshot") == 1 and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
         or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards8t > 1)
     then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
@@ -530,9 +500,9 @@ actionList.aoe = function()
     end
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<10
-    if ui.alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
-        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
-        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not ui.alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
+    if ui.value("Double Tap") == 1 or (ui.value("Double Tap") == 2 and buff.trueshot.exists()) and cast.able.doubleTap() and talent.doubleTap
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.value("Covenant Ability")==1)) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not ui.value("Covenant Ability")==1) or cd.trueshot.remains() > 55))))
         or (unit.isBoss("target") and unit.ttd("target") < 10))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap [Trick Shots]") return true end
@@ -554,12 +524,12 @@ actionList.aoe = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Trick Shots Night Fae]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Trick Shots Kyrian]") return true end
     end
     -- Volley
@@ -569,7 +539,7 @@ actionList.aoe = function()
     end
     -- Trueshot
     -- trueshot
-    if ui.alwaysCdNever("Trueshot") and cast.able.trueshot() then
+    if ui.value("Trueshot") == 1 and cast.able.trueshot() then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
     end
     -- Rapid Fire
@@ -588,7 +558,7 @@ actionList.aoe = function()
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Trick Shots Necrolord]") return true end
     end
     -- Rapid Fire
@@ -616,7 +586,7 @@ actionList.aoe = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Trick Shots Venthhyr]") return true end
     end
     -- Serpent Sting
@@ -664,8 +634,6 @@ actionList.extra = function()
             end
         end
     end -- End Dummy Test
-    -- Misdirection
-    misdirectionLogic()
     -- Healing thingies
     module.BasicHealing()
     if ui.checked("Aspect Of The Turtle") and unit.hp() <= ui.value("Aspect Of The Turtle") then
@@ -727,7 +695,7 @@ actionList.CCs = function()
 end -- End Action List - CCs
 
 -- Action List - Interrupts
-actionList.Interrupts = function()
+actionList.kick = function()
     if br.player.interrupts == nil then br.player.interrupts = {} end
 	if useInterrupts() then
         br.player.interrupts.enabled = true
@@ -790,12 +758,17 @@ actionList.Interrupts = function()
 
     br.player.interrupts.enemies = br.player.enemies.get(range,nil,false,true)
 
-	for _,unit in pairs(br.player.interrupts.enemies) do
+    for _,unit in pairs(br.player.interrupts.enemies) do
+        if ui.checked("Interrupt All") then
+            if unit.isCasting() and unit.canInterrupt(unit, interruptAt) then
+                if createCastFunction(unit, any, any, any, br.player.interrupts.currentSpell) then lastUnit = br.player.interrupts.currentUnit return true end
+            end
+        end
         for spell,_ in pairs(br.player.interrupts.activeList) do
-            if (ui.checked("Interrupt All") or isCastingSpell(spell, unit)) and canInterrupt(unit) then
+            if isCastingSpell(spell, unit) and canInterrupt(unit) then
                 br.player.interrupts.currentUnit = unit
                 br.player.interrupts.unitSpell = spell
-			end
+            end
         end
     end
 
@@ -814,6 +787,35 @@ actionList.Interrupts = function()
 		end
 	end
 end  -- End Action List - Interrupts
+
+-- Action List - Misdirection
+actionList.md = function()
+    if ui.mode.misdirection == 1 then
+        print("1")
+        local misdirectUnit = nil
+        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
+            -- Misdirect to Tank
+            if ui.value("Misdirection") == 1 then
+                local tankInRange, tankUnit = isTankInRange()
+                if tankInRange then misdirectUnit = tankUnit end
+            end
+            -- Misdirect to Focus
+            if ui.value("Misdirection") == 2 and unit.friend("focus","player") then
+                misdirectUnit = "focus"
+            end
+            -- Misdirect to Pet
+            if ui.value("Misdirection") == 3 then
+                misdirectUnit = "pet"
+            end
+            -- Failsafe to Pet, if unable to misdirect to Tank or Focus
+            if misdirectUnit == nil then misdirectUnit = "pet" end
+            if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
+                print("3")
+                return cast.misdirection(misdirectUnit)
+            end
+        end
+    end
+end -- End Action List - Misdireciton
 
 ----------------
 --- ROTATION ---
@@ -889,7 +891,8 @@ local function runRotation()
             and not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot()
         then
             if actionList.CCs() then return true end
-            if actionList.Interrupts() then return true end
+            if actionList.kick() then return true end
+            if actionList.md() then return true end
             if actionList.aa() then return true end
             if actionList.cds() then return true end
             if ui.useST(8,nil,"target") then
