@@ -967,3 +967,12 @@ function br.sanguineCheck(unit)
 	end
 	return false
 end
+
+function isTableEmpty(table)
+	if table == nil then return true end
+	local retval = true
+	if next(table) ~= nil then
+		retval = false
+	end
+	return retval
+end

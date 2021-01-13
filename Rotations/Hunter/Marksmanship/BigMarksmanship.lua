@@ -1,6 +1,5 @@
 local rotationName = "Bigsie"
 local br = _G["br"]
-loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
 ---------------
@@ -12,12 +11,12 @@ local function createToggles()
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot }
     };
     CreateButton("Rotation",1,0)
-    -- -- Interrupt Button
-    -- InterruptModes = {
-    --     [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
-    --     [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
-    -- };
-    -- CreateButton("Interrupt",2,0)
+    -- Interrupt Button
+    InterruptModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
+    };
+    CreateButton("Interrupt",2,0)
     -- MD Button
     MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
@@ -52,7 +51,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Prepull logic", "Works as opener")
             br.ui:createText(section, "Toggle options")
             br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  6)
-            -- br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
             br.ui:createDropdownWithout(section, "Misdirection Mode", br.dropOptions.Toggle,  6)
             br.ui:createDropdownWithout(section, "Volley Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -77,17 +76,20 @@ local function createOptions()
             br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
-        -- section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        --     if br.player ~= nil and br.player.spell ~= nil and br.player.spell.interrupts ~= nil then
-        --         for _, v in pairs(br.player.spell.interrupts) do
-        --             local spellName = GetSpellInfo(v)
-        --             if v ~= 61304 and spellName ~= nil then
-        --                 br.ui:createCheckbox(section, spellName, "Interrupt with " .. spellName .. " (ID: " .. v .. ")")
-        --             end
-        --         end
-        --     end
-        --     br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
-        -- br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+        if br.player ~= nil and br.player.spell ~= nil and br.player.spell.interrupts ~= nil then
+            for _, v in pairs(br.player.spell.interrupts) do
+                local spellName = GetSpellInfo(v)
+                if v ~= 61304 and spellName ~= nil then
+                    br.ui:createCheckbox(section, spellName, "Interrupt with " .. spellName .. " (ID: " .. v .. ")")
+                end
+            end
+        end
+        br.ui:createSpinnerWithout(section, "Interrupts At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+        br.ui:createCheckbox(section,"Interrupt All", "Interrupt All mobs")
+        br.ui:createCheckbox(section,"Interrupt BR Whitelisted", "Interrupt BadRotations whitelisted mobs")
+        br.ui:createScrollingEditBoxWithout(section,"Interrupt Personally Whitelisted", nil, "Type spellID to interrupt. Seperate items with comma (123,321)", 300, 40)
+        br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "CCs")
         br.ui:createText(section, "Dungeon boss mechanics")
         br.ui:createCheckbox(section,"Castle Nathria (Huntsman - Shade of Bargast)", "Cast Freezing Trap on Shade of Bargast")
@@ -154,45 +156,151 @@ local function isBlacklistedTrinket(slot)
     return false
 end
 
--- Use only one argument for now
-local function ccMobFinder(id, minHP, maxHP, spellID)
-    local theUnit
-    if spellID == br.player.spell.freezingTrap then if isFreezingTrapActive() then return end end
-    for _,v in pairs(enemies.yards40) do
-        if unit.id(v) == id then
-            theUnit = v
-            if not isLongTimeCCed(v) then
-                if minHP ~= nil then if minHP <= unit.hp(theUnit) then return theUnit end end
-                if maxHp ~= nil then if maxHP >= unit.hp(theUnit) then return theUnit end end
-                if spellID ~= nil then if (getDebuffDuration(theUnit,spellID,"player")) > 0 then return theUnit end end
+local function ccMobFinder(id, minHP, spellID)
+    local argumentsTable = {id, minHP, spellID}
+    local arguments = 0
+    local foundMatch
+
+    for _,v in pairs(argumentsTable) do
+        if v ~= nil then arguments = arguments + 1 end
+    end
+
+    for _,v in pairs(enemies.get(40,nil,true)) do
+        foundMatch = 0
+        if not isLongTimeCCed(v) then
+            if id ~= nil then
+                if unit.id(v) == id then
+                    foundMatch = foundMatch + 1
+                end
             end
-            return theUnit
+            if minHP ~= nil then
+                if minHP <= unit.hp(v) then
+                    foundMatch = foundMatch + 1
+                end
+            end
+            if spellID ~= nil then
+                if getDebuffDuration(v,spellID,"player") > 0 then
+                    foundMatch = foundMatch + 1
+                end
+            end
+            if foundMatch == arguments then return v end
         end
     end
 end
 
+local function checkForUpdates()
+    if getOptionCheck("Interrupt BR Whitelisted") ~= oldvalueBr or getOptionValue("Interrupt Personally Whitelisted") ~= oldValuePersonal then
+        br.player.interrupts.listUpdated = false
+    end
+end
+
+function getTimeToLastInterrupt()
+	if not isTableEmpty(br.lastCast.tracker) then
+		for _, v in ipairs(br.lastCast.tracker) do
+			for _,value in pairs(br.player.spell.interrupts) do
+				if tonumber(value) == tonumber(v) then
+					return GetTime() - br.lastCast.castTime[v]
+				end
+			end
+		end
+	end
+	return 0
+end
+
+local function misdirectionLogic()
+    if ui.mode.misdirection == 1 then
+        local misdirectUnit = nil
+        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
+            -- Misdirect to Tank
+            if ui.value("Misdirection") == 1 then
+                local tankInRange, tankUnit = isTankInRange()
+                if tankInRange then misdirectUnit = tankUnit end
+                -- Additional pre-emptive logic for MD
+                if ui.checked("Misdirection pre-emptive logic") then
+                    --TODO
+                end
+            end
+            -- Misdirect to Focus
+            if ui.value("Misdirection") == 2 and unit.friend("focus","player") then
+                misdirectUnit = "focus"
+            end
+            -- Misdirect to Pet
+            if ui.value("Misdirection") == 3 then
+                misdirectUnit = "pet"
+            end
+            -- Failsafe to Pet, if unable to misdirect to Tank or Focus
+            if misdirectUnit == nil then misdirectUnit = "pet" end
+            if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
+                return cast.misdirection(misdirectUnit)
+            end
+        end
+    end
+end
+
+local function getItemSpellCd(itemId)
+    return GetItemCooldown(itemId) + 180 - GetTime()
+end
+
+local function getItemCooldownDuration(itemId)
+    return GetSpellBaseCooldown(select(2,GetItemSpell(itemId))) / 1000
+end
+
+local function getItemCooldownExists(itemId)
+    return GetItemCooldown(itemId) + getItemCooldownDuration(itemId) - GetTime() > 0
+end
+
+local inventory = {
+    ammo                            = GetInventoryItemID("player", 0),
+    head                            = GetInventoryItemID("player", 1),
+    neck                            = GetInventoryItemID("player", 2),
+    shoulder                        = GetInventoryItemID("player", 3),
+    shirt                           = GetInventoryItemID("player", 4),
+    chest                           = GetInventoryItemID("player", 5),
+    waist                           = GetInventoryItemID("player", 6),
+    legs                            = GetInventoryItemID("player", 7),
+    feet                            = GetInventoryItemID("player", 8),
+    wrist                           = GetInventoryItemID("player", 9),
+    hands                           = GetInventoryItemID("player", 10),
+    finger1                         = GetInventoryItemID("player", 11),
+    finger2                         = GetInventoryItemID("player", 12),
+    trinket1                        = GetInventoryItemID("player", 13),
+    trinket2                        = GetInventoryItemID("player", 14),
+    back                            = GetInventoryItemID("player", 15),
+    mainHand                        = GetInventoryItemID("player", 16),
+    offHand                         = GetInventoryItemID("player", 17),
+    ranged                          = GetInventoryItemID("player", 18),
+    tabard                          = GetInventoryItemID("player", 19),
+    firstBag                        = GetInventoryItemID("player", 20),
+    secondBag                       = GetInventoryItemID("player", 21),
+    thirdBag                        = GetInventoryItemID("player", 22),
+    fourthBag                       = GetInventoryItemID("player", 23),
+}
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - pc
 actionList.pc = function()
-    if ui.pullTimer() <= 10 and not buff.feignDeath.exists() and not unit.inCombat() then
+    if not buff.feignDeath.exists() and not unit.inCombat() then
         -- actions.precombat=flask
         if ui.checked("Spectral Flask of Power") then
             if use.spectralFlaskOfPower() then ui.debug("Using Spectral Flask of Power") end
         end
+
         --TODO!
         --actions.precombat+=/augmentation
-        --actions.precombat+=/food
 
-        if unit.valid("target") and unit.distance("target") < 40 and ui.checked("Prepull logic") then
+        if ui.pullTimer() <= 15 and unit.distance("target") < 45 and ui.checked("Prepull logic") and unit.isBoss("target") then
             -- actions.precombat+=/tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
                 return cast.tarTrap(units.dyn40,"ground")
             end
-            --actions.precombat+=/double_tap,precast_time=10,if=active_enemies>1|!covenant.kyrian&!talent.volley
-            if ui.alwaysCdNever("Double Tap") and cast.able.doubleTap() and ui.pullTimer() <= 10 and (#enemies.yards8t > 1 or not covenant.kyrian.active and not talent.volley) then
+            --actions.precombat+=/double_tap,precast_time=10,if=active_enemies>1
+            if ui.alwaysCdNever("Double Tap") and cast.able.doubleTap() and ui.pullTimer() <= math.random(8,10) then
                 return cast.doubleTap()
+            end
+            -- mdpc, doesnt affect dps
+            if ui.pullTimer() <= math.random(5,8) then
+                misdirectionLogic()
             end
             --actions.precombat+=/aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
             if cast.able.aimedShot() and ui.pullTimer() <= 2 and not unit.moving("player") and #enemies.yards8t < 3 and (#enemies.yards8t < 2 or (not covenant.kyrian.active and not talent.volley)) then
@@ -213,43 +321,44 @@ actionList.aa = function()
     unit.startAttack("target")
 
     if ui.checked("Trinkets with Trueshot logic") then
+
         --actions+=/use_item,name=dreadfire_vessel,if=trinket.1.has_cooldown...
         if equiped.dreadfireVessel()
-            and cd.trinket1.exists() or cd.trinket2.exists()
-            or cd.trinket1.remain() + cd.trinket2.remain() > 0
-            or cd.trinket1.duration() + cd.trinket2.duration() <= cd.dreadfireVessel.remain() * 2
+            and getItemCooldownExists(inventory.trinket1) or getItemCooldownExists(inventory.trinket2)
+            or getItemSpellCd(inventory.trinket1) + getItemSpellCd(inventory.trinket2) > 0
+            or getItemCooldownDuration(inventory.trinket1) + getItemCooldownDuration(inventory.trinket2) <= cd.dreadfireVessel.remain() * 2
         then
             if use.able.dreadfireVessel() then return use.dreadfireVessel() end
         end
 
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
-            and (cd.trinket1.duration() >= cd.trinket2.duration() or cd.trinket2.exists())
+            and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2))
             or not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
-            and cd.trinket2.duration() >= cd.trinket1.duration()
-            and cd.trinket2.remain() - 5 < cd.trueshot.remain()
-            and not items.trinket2 == items.dreadfireVessel
-            or (cd.trinket1.duration() -5 < cd.trueshot.remain()
-            and (cd.trinket1.duration() >= cd.trinket2.duration() or cd.trinket2.exists()))
+            and getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1)
+            and getItemSpellCd(inventory.trinket2) - 5 < cd.trueshot.remain()
+            and inventory.trinket2 ~= items.dreadfireVessel
+            or (getItemCooldownDuration(inventory.trinket1) -5 < cd.trueshot.remain()
+            and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2)))
             or unit.ttd() < cd.trueshot.remain()
         then
-            if use.able.trinket1() and not isBlacklistedTrinket(13) then return use.trinket1()end
+            if canUseItem(inventory.trinket1) and not isBlacklistedTrinket(13) then return useItem(inventory.trinket1) end
         end
 
-        --actions+=/use_items,slots=trinket2,if=buff.trueshot.up...
+        --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
-            and (cd.trinket2.duration() >= cd.trinket1.duration() or cd.trinket1.exists())
+            and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1))
             or not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
-            and cd.trinket1.duration() >= cd.trinket2.duration()
-            and cd.trinket1.remain() - 5 < cd.trueshot.remain()
-            and not items.trinket1 == items.dreadfireVessel
-            or (cd.trinket2.duration() -5 < cd.trueshot.remain()
-            and (cd.trinket2.duration() >= cd.trinket1.duration() or cd.trinket1.exists()))
+            and getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2)
+            and getItemSpellCd(inventory.trinket1) - 5 < cd.trueshot.remain()
+            and trinket2 ~= items.dreadfireVessel
+            or (getItemCooldownDuration(inventory.trinket2) -5 < cd.trueshot.remain()
+            and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1)))
             or unit.ttd() < cd.trueshot.remain()
         then
-            if use.able.trinket2() and not isBlacklistedTrinket(14) then return use.trinket2()end
+            if canUseItem(inventory.trinket2) and not isBlacklistedTrinket(14) then return useItem(inventory.trinket2) end
         end
     end
 end
@@ -279,8 +388,8 @@ actionList.cds = function()
     end
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
     if ui.checked("Potion of Spectral Agility") and use.able.potionOfSpectralAgility() and unit.instance("raid") then
-        if buff.trueshot.exists() and buff.bloodLust.exists() or buff.trueshot.exists and unit.hp() < 20 or unit.ttd(units.dyn40) < 26 then
-            return use.potionOfSpectralAgility()
+        if buff.trueshot.exists() and (buff.bloodLust.exists() or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25)) then
+           return use.potionOfSpectralAgility()
         end
     end
 end -- End Action List - cds
@@ -323,7 +432,7 @@ actionList.st = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if ui.alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+    if cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
         if cast.explosiveShot() then ui.debug("Casting Explosive Shot") return true end
     end
     -- Wild Spirits
@@ -340,11 +449,6 @@ actionList.st = function()
     -- death_chakram,if=focus+cast_regen<focus.max
     if ui.alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
-    end
-    -- A Murder of Crows
-    -- a_murder_of_crows
-    if ui.alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
-        if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
@@ -373,7 +477,7 @@ actionList.st = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
-    if ui.alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
+    if cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.trueshot.exists() or not runeforge.eagletalonsTrueFocus.equiped)
         and (not buff.doubleTap.exists() or talent.streamline))
 		and unit.ttd(units.dyn40) > cast.time.rapidFire()
@@ -401,16 +505,9 @@ actionList.st = function()
     then
         if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting") return true end
     end
-    -- Barrage
-    -- barrage,if=active_enemies>1
-    if ui.alwaysCdNever("Barrage") and cast.able.barrage() and talent.barrage
-        and ((ui.mode.rotation == 1 and #enemies.yards8t > 1) or (ui.mode.rotation == 2 and #enemies.yards8t > 0))
-    then
-        if cast.barrage() then ui.debug("Casting Barrage") return true end
-    end
     -- Rapid Fire
     -- rapid_fire,if=focus+cast_regen<focus.max&(buff.double_tap.down|talent.streamline)
-    if ui.alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
+    if cast.able.rapidFire()
         and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.doubleTap.exists() or talent.streamline))
 		and unit.ttd(units.dyn40) > cast.time.rapidFire()
@@ -452,7 +549,7 @@ actionList.aoe = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if ui.alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+    if cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
         if cast.explosiveShot() then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
     end
     -- Wild Spirits
@@ -477,7 +574,7 @@ actionList.aoe = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down
-    if ui.alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire()
+    if cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire()
         and runeforge.surgingShots.equiped and not buff.doubleTap.exists() and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots Surging Shots]") return true end
@@ -568,46 +665,28 @@ actionList.extra = function()
         end
     end -- End Dummy Test
     -- Misdirection
-    if ui.mode.misdirection == 1 then
-        local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
-            -- Misdirect to Tank
-            if ui.value("Misdirection") == 1 then
-                local tankInRange, tankUnit = isTankInRange()
-                if tankInRange then misdirectUnit = tankUnit end
-                -- Additional pre-emptive logic for MD
-                if ui.checked("Misdirection pre-emptive logic") then
-                    --TODO
-                end
-            end
-            -- Misdirect to Focus
-            if ui.value("Misdirection") == 2 and unit.friend("focus","player") then
-                misdirectUnit = "focus"
-            end
-            -- Misdirect to Pet
-            if ui.value("Misdirection") == 3 then
-                misdirectUnit = "pet"
-            end
-            -- Failsafe to Pet, if unable to misdirect to Tank or Focus
-            if misdirectUnit == nil then misdirectUnit = "pet" end
-            if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
-                if cast.misdirection(misdirectUnit) then ui.debug("Casting Misdirection on "..unit.name(misdirectUnit)) return true end
-            end
-        end
+    misdirectionLogic()
+    -- Healing thingies
+    module.BasicHealing()
+    if ui.checked("Aspect Of The Turtle") and unit.hp() <= ui.value("Aspect Of The Turtle") then
+        if cast.aspectOfTheTurtle("player") then ui.debug("Casting Aspect of the Turtle") return true end
+    end
+    if ui.checked("Exhilaration") and unit.hp() <= ui.value("Exhilaration") then
+        if cast.exhilaration("player") then ui.debug("Casting Exhilaration") return true end
     end
 end -- End Action List - Extras
 
 -- Action List - CCs
 actionList.CCs = function()
     if ui.mode.cC == 1 then
-        if getCurrentZoneId() == maps.Revendreth.Zones.CastleNathria then
+        if getCurrentZoneId() == maps.instanceIDs.CastleNathria then
             if ui.checked ("Castle Nathria (Huntsman - Shade of Bargast)") then
                 if not isFreezingTrapActive() then
                     return cast.freezingTrap(ccMobFinder(171557),"groundCC")
                 end
             end
         end
-        if getCurrentZoneId() == maps.Maldraxxus.Zones.Plaguefall then
+        if getCurrentZoneId() == maps.instanceIDs.Plaguefall then
             if ui.checked("Plaguefall (Globgrog - Slimy Smorgasbord)") then
                 if not isFreezingTrapActive() then
                     return cast.freezingTrap(ccMobFinder(171887),"groundCC")
@@ -615,33 +694,33 @@ actionList.CCs = function()
             end
             if ui.checked("Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)") then
                 if not isFreezingTrapActive() then
-                    return cast.freezingTrap(ccMobFinder(163862,_,_,336449),"groundCC")
+                    return cast.freezingTrap(ccMobFinder(163862,_,336449),"groundCC")
                 end
             end
             if ui.checked("Plaguefall (Rotting Slimeclaw)") then
                 return cast.bindingShot(ccMobFinder(163892,25),"groundCC")
             end
         end
-        if getCurrentZoneId() == maps.Ardenweald.Zones.MistsOfTirnaScithe then
+        if getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
             if ui.checked("Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)") then
                 if not isFreezingTrapActive() then
                     return cast.freezingTrap(ccMobFinder(165251),"groundCC")
                 end
             end
         end
-        if getCurrentZoneId() == maps.Bastion.Zones.TheNecroticWake then
+        if getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
             if ui.checked("The Necrotic Wake (Blightbone  - Carrion Worms)") then
                 return cast.bindingShot(ccMobFinder(164702),"groundCC")
             end
         end
-        if getCurrentZoneId() == maps.Maldraxxus.Zones.TheaterOfPain then
+        if getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
             if ui.checked("Theater of Pain (Disgusting Refuse)") then
                 return cast.bindingShot(ccMobFinder(163089),"groundCC")
             end
         end
-        if getCurrentZoneId() == maps.Revendreth.Zones.HallsOfAtonement then
+        if getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
             if ui.checked("Halls of Atonement (Vicious Gargon, Loyal Beasts)") then
-                return cast.bindingShot(ccMobFinder(164563,_,_,326450),"groundCC")
+                return cast.bindingShot(ccMobFinder(164563,_,326450),"groundCC")
             end
         end
     end
@@ -649,29 +728,92 @@ end -- End Action List - CCs
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
-    -- if ui.useInterrupt() then
-    --     for i=1, #enemies.yards40f do
-    --         local thisUnit = enemies.yards40f[i]
-    --         for k,v in pairs(br.lists.interruptWhitelist) do
-    --             if thisUnit.isUnitCasting(k) then
-    --                 local distance = unit.distance(thisUnit)
-    --                 if canInterrupt(thisUnit,ui.value("Interrupt At")) then
-    --                     if distance < 50 then
-    --                         -- Counter Shot
-    --                         if ui.checked("Counter Shot") then
-    --                             if cast.counterShot(thisUnit) then ui.debug("Casting Counter Shot") return true end
-    --                         end
-    --                         -- Freezing Trap
-    --                         if ui.checked("Freezing Trap") then
-    --                             if cast.freezingTrap(thisUnit,ground) then ui.debug("Casting Freezing Trap") return true end
-    --                         end
-    --                     end
-    --                 end
-    --             end
-    --         end
-    --     end
-    -- end -- End useInterrupts check
-end -- End Action List - Interrupts
+    if br.player.interrupts == nil then br.player.interrupts = {} end
+	if useInterrupts() then
+        br.player.interrupts.enabled = true
+    else
+        br.player.interrupts.enabled = false
+    end
+	if not br.player.interrupts.enabled then return end
+	if br.player.interrupts.activeList == nil then br.player.interrupts.activeList = {} end
+    br.player.interrupts.listUpdated = true
+
+    -- Form activeList for interrupting
+    checkForUpdates()
+    if not br.player.interrupts.listUpdated then
+		if getOptionCheck("Interrupt BR Whitelisted") then
+            for spellID,v in pairs(br.lists.interruptWhitelist) do
+                table.insert(br.player.interrupts.activeList, spellID, v)
+			end
+		else
+			for spellID,_ in pairs(br.lists.interruptWhitelist) do
+				if not isTableEmpty(br.player.interrupts.activeList) then
+					br.player.interrupts.activeList[spellID] = false
+				end
+			end
+		end
+        if getOptionValue("Interrupt Personally Whitelisted") ~= nil then
+            for spellID in string.gmatch(tostring(getOptionValue("Interrupt Personally Whitelisted")),"([^,]+)") do
+                if string.len(string.trim(spellID)) >= 3 then
+                    table.insert(br.player.interrupts.activeList, tonumber(spellID), true)
+                end
+            end
+		else
+			for spellID in string.gmatch(tostring(getOptionValue("Interrupt Personally Whitelisted")),"([^,]+)") do
+				if not isTableEmpty(br.player.interrupts.activeList) then
+					br.player.interrupts.activeList[tonumber(spellID)] = false
+				end
+			end
+		end
+        oldvalueBr = getOptionCheck("Interrupt BR Whitelisted")
+        oldValuePersonal = getOptionValue("Interrupt Personally Whitelisted")
+        br.player.interrupts.listUpdated = true
+    end
+
+    -- Do the actual interrupting
+	if br.player.spell.interrupts == nil then return end -- If no interruptspells are given, get the hell outta here
+	local interruptAt = 100 - br.player.ui.value("Interrupts At")
+	local range = 0
+    br.player.interrupts.enemies = {}
+
+	for _,v in pairs(br.player.spell.interrupts) do
+		if canCast(v)then
+			if getOptionCheck("Interrupt with " .. GetSpellInfo(v)) then
+				br.player.interrupts.currentSpell = v
+				range = select(6, GetSpellInfo(br.player.interrupts.currentSpell))
+				break
+			else
+				return
+			end
+		end
+    end
+
+    br.player.interrupts.enemies = br.player.enemies.get(range,nil,false,true)
+
+	for _,unit in pairs(br.player.interrupts.enemies) do
+        for spell,_ in pairs(br.player.interrupts.activeList) do
+            if (ui.checked("Interrupt All") or isCastingSpell(spell, unit)) and canInterrupt(unit) then
+                br.player.interrupts.currentUnit = unit
+                br.player.interrupts.unitSpell = spell
+			end
+        end
+    end
+
+	if isInCombat("player") and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
+		if isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
+			if (getTimeToLastInterrupt() >= 1 and GetObjectID(lastUnit) == GetObjectID(br.player.interrupts.currentUnit)) or
+		      (getTimeToLastInterrupt() < 1 and GetObjectID(lastUnit) ~= GetObjectID(br.player.interrupts.currentUnit)) then
+				RunMacroText("/stopcasting")
+				local castSuccess = createCastFunction(br.player.interrupts.currentUnit.unit, any, any, any, br.player.interrupts.currentSpell)
+				if castSuccess then
+					br.addonDebug("Casting ", tostring(GetSpellInfo(br.player.interrupts.currentSpell)))
+					lastUnit = br.player.interrupts.currentUnit
+				end
+
+			end
+		end
+	end
+end  -- End Action List - Interrupts
 
 ----------------
 --- ROTATION ---
@@ -688,6 +830,7 @@ local function runRotation()
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
+    module                                        = br.player.module
     power                                         = br.player.power
     runeforge                                     = br.player.runeforge
     spell                                         = br.player.spell
@@ -702,8 +845,7 @@ local function runRotation()
     -- Get required enemies table
     units.get(40)
     enemies.get(8,"target")
-    enemies.get(40)
-    enemies.get(40,"player",false,true)
+    enemies.get(40,nil,false,true)
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end

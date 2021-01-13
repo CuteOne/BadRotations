@@ -15,31 +15,6 @@ function getHeirloomNeck()
     return 0
 end
 br.lists.items = {
-    --Inventory
-    ammo                            = GetInventoryItemID("player", 0),
-    head                            = GetInventoryItemID("player", 1),
-    neck                            = GetInventoryItemID("player", 2),
-    shoulder                        = GetInventoryItemID("player", 3),
-    shirt                           = GetInventoryItemID("player", 4),
-    chest                           = GetInventoryItemID("player", 5),
-    waist                           = GetInventoryItemID("player", 6),
-    legs                            = GetInventoryItemID("player", 7),
-    feet                            = GetInventoryItemID("player", 8),
-    wrist                           = GetInventoryItemID("player", 9),
-    hands                           = GetInventoryItemID("player", 10),
-    finger1                         = GetInventoryItemID("player", 11),
-    finger2                         = GetInventoryItemID("player", 12),
-    trinket1                        = GetInventoryItemID("player", 13),
-    trinket2                        = GetInventoryItemID("player", 14),
-    back                            = GetInventoryItemID("player", 15),
-    mainHand                        = GetInventoryItemID("player", 16),
-    offHand                         = GetInventoryItemID("player", 17),
-    ranged                          = GetInventoryItemID("player", 18),
-    tabard                          = GetInventoryItemID("player", 19),
-    firstBag                        = GetInventoryItemID("player", 20),
-    secondBag                       = GetInventoryItemID("player", 21),
-    thirdBag                        = GetInventoryItemID("player", 22),
-    fourthBag                       = GetInventoryItemID("player", 23),
     -- Death Knight: Frost
     consortsColdCore                = 144293,
     koltirasNewfoundWill            = 132366,
