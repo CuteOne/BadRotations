@@ -5,18 +5,21 @@ end
 br.lists.burnUnits = {
 
     --Shadowlands dungeons
+    -- m+ stuff
+    [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
+
 
     --Plaguefall
     [164362] = { coef = 50, name = "Slimy Morsel", id = 164362 }, -- Plaguefall Dungeon - if they reach boss the heal him
     [169498] = { coef = 150, name = "Plague Bomb", id = 169498 }, -- kill before it explodes
     [164707] = { coef = 50, name = "Congealed Slime", buff = 333737, id = 164707 }, -- 75% damage reduction to boss
     [165430] = { coef = 50, name = "Malignant Spawn", id = 165430 }, -- kill add before it explodes
-	--Necrotic Wake
-	  [164702] = { coef = 100, name = "Carrion Worm", id = 164702 }, --kill before it gets 3 mele hits to explode
-	  [164427] = { coef = 100, name = "Reanimated Warrior", id = 164427 },
-	  [164414] = { coef = 100, name = "Reanimated Mage", id = 164414 },
-	  [168246] = { coef = 100, name = "Reanimated Crossbowman", id = 168246 },
-   -- Sanguine Depth
+    --Necrotic Wake
+    [164702] = { coef = 100, name = "Carrion Worm", id = 164702 }, --kill before it gets 3 mele hits to explode
+    [164427] = { coef = 100, name = "Reanimated Warrior", id = 164427 },
+    [164414] = { coef = 100, name = "Reanimated Mage", id = 164414 },
+    [168246] = { coef = 100, name = "Reanimated Crossbowman", id = 168246 },
+    -- Sanguine Depth
     [168882] = { coef = 100, name = "Fleeting Manifestation", id = 168882 }, --  168882/fleeting-manifestation - must kill fast
 
     -- old content stuff

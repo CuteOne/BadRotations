@@ -1,6 +1,6 @@
 local br = _G["br"]
 local rotationName = "Lylo"
-local version = "2.1.5"
+local version = "2.2.0"
 
 
 local colors = {
@@ -13,7 +13,8 @@ local colors = {
     aqua    = "|cff89E2C7",
     blue2   = "|cffb8d0ff",
     green2  = "|cff469a81",
-    blue3   = "|cff6c84ef"
+    blue3   = "|cff6c84ef",
+    orange  = "|cffff8000"
 }
 
 local text = {
@@ -32,13 +33,13 @@ local text = {
         weaponsOfOrder              = colors.green.."Weapons of Order",
         renewingMist                = colors.green.."Renewing Mist",
         vivify                      = colors.green.."Vivify",
-        vivifyAoE                   = colors.green.."Vivify AoE",
         envelopingBreath            = colors.green.."Enveloping Breath",
         envelopingMist              = colors.green.."Enveloping Mist",
         essenceFont                 = colors.green.."Essence Font",
         soothingMist                = {
             soothingMist            = colors.aqua.."Soothing Mist",
             vivify                  = colors.aqua.."Vivify",
+            vivifyAoE               = colors.aqua.."Vivify AoE",
             envelopingMist          = colors.aqua.."Enveloping Mist",
             expelHarm               = colors.aqua.."Expel Harm",
         },
@@ -95,6 +96,10 @@ local text = {
         chiJiDpsThreshold                           = colors.red.."Chi-Ji DPS Threshold",
         cracklingJadeLightning                      = colors.red.."Crackling Jade Lightning",
         touchOfDeath                                = colors.red.."Touch of Death",
+    },
+    legendary = {
+        options                         = colors.orange.."Legendary - Options",
+        ancientTeachingOfTheMonastery   = colors.orange.."Ancient Teachings of the Monastery",
     },
     extra = {
         options = "Extra - Options"
@@ -229,6 +234,9 @@ local function createOptions()
         br.ui:createSpinner(        section, text.heal.soothingMist.soothingMist, 85, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createSpinner(        section, text.heal.soothingMist.envelopingMist, 80, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createSpinner(        section, text.heal.soothingMist.vivify, 75, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
+        br.ui:createDoubleSpinner(  section, text.heal.soothingMist.vivifyAoE,
+                { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends with renewing mist buff" },
+                { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
         br.ui:createSpinner(        section, text.heal.soothingMist.expelHarm, 75, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createText(section, "Other - Options")
         br.ui:createSpinner(        section, text.heal.renewingMist, 94, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
@@ -246,9 +254,6 @@ local function createOptions()
                 { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
         br.ui:createDoubleSpinner(  section, text.heal.envelopingBreath,
                 { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-                { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(  section, text.heal.vivifyAoE,
-                { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends with renewing mist buff" },
                 { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
         br.ui:createText(section, "Out of Combat - Options")
         br.ui:createDoubleSpinner(  section, text.heal.outOfCombat.essenceFont,
@@ -282,9 +287,15 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, text.damage.options)
         br.ui:createSpinnerWithout( section, text.damage.dpsThreshold,           85, 1, 100, 5, "Lowest friend HP has to be higher then")
         br.ui:createSpinnerWithout( section, text.damage.chiJiDpsThreshold,      60, 1, 100, 5, "Lowest friend HP has to be higher then")
+
         br.ui:createCheckbox(       section, text.damage.cracklingJadeLightning,       "Enable auto usage of this spell")
         br.ui:createDropdown(       section, text.damage.touchOfDeath,       {colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never"}, 2, "Enable auto usage of this spell.", "Select")
         br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, text.legendary.options)
+        br.ui:createSpinner(        section, text.legendary.ancientTeachingOfTheMonastery,  60, 1, 100, 5, "Enable support of this legendary", "Lowest friend HP has to be higher then")
+        br.ui:checkSectionState(section)
+
 
         section = br.ui:createSection(br.ui.window.profile, text.manual.options)
         br.ui:createDropdown( section, text.manual.chiBurst, br.dropOptions.Toggle,                     6, "Enable usage of this spell on key press", "Select key")
@@ -504,19 +515,19 @@ local actionList = {
         vivifyAoE = function()
             if cast.active.soothingMist() and friends.lowest.unit == lastSoothingMist.unit then
                 -- Vivify AoE
-                if ui.checked(text.heal.vivifyAoE) and cd.vivify.ready() and buff.envelopingMist.exists(friends.lowest.unit) then
+                if ui.checked(text.heal.soothingMist.vivifyAoE) and cd.vivify.ready() then
                     local countUnitsWithRenewingMistUnderHealth = 0
-                    if not buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp <= ui.value(text.heal.vivifyAoE.."2") then
+                    if not buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp <= ui.value(text.heal.soothingMist.vivifyAoE.."2") then
                         countUnitsWithRenewingMistUnderHealth = 1
                     end
                     for i = 1, #friends.range40 do
                         local tempUnit = friends.range40[i]
-                        if buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.vivifyAoE.."2") then
+                        if buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.soothingMist.vivifyAoE.."2") then
                             countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
                         end
                     end
-                    if countUnitsWithRenewingMistUnderHealth >= ui.value(text.heal.vivifyAoE.."1") then
-                        if cast.vivify(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.vivifyAoE) return true else ui.debug("[AUTO - FAIL]: "..text.heal.vivifyAoE) return false end
+                    if countUnitsWithRenewingMistUnderHealth >= ui.value(text.heal.soothingMist.vivifyAoE.."1") then
+                        if cast.vivify(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.soothingMist.vivifyAoE) return true else ui.debug("[AUTO - FAIL]: "..text.heal.soothingMist.vivifyAoE) return false end
                     end
                 end
             end
@@ -915,9 +926,40 @@ local actionList = {
             end
         end,
 
+        ancientTeachingOfTheMonasteryRotation = function()
+            if ui.checked(text.legendary.ancientTeachingOfTheMonastery) then
+                if not buff.ancientTeachingOfTheMonastery.exists() and cd.essenceFont.ready() then
+                    if cast.essenceFont(player.unit) then ui.debug("[AUTO - SUCCESS]: Essence Font Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Essence Font Ancient Teaching Of The Monastery") return false end
+                end
+                if buff.ancientTeachingOfTheMonastery.exists() and dynamicTarget.range5 ~= nil and friends.lowest.hp >= ui.value(text.legendary.ancientTeachingOfTheMonastery) then
+                    -- Rising Sun Kick
+                    if cd.risingSunKick.ready() and ObjectIsFacing(player.unit, dynamicTarget.range5) then
+                        if cast.risingSunKick(dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Ancient Teaching Of The Monastery") return false end
+                    end
+                    -- Blackout Kick on 3 stacks
+                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and ObjectIsFacing(player.unit, dynamicTarget.range5) then
+                        if cast.blackoutKick(dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Ancient Teaching Of The Monastery") return false end
+                    end
+                    if #enemies.range8 >= 3 and ui.mode.dps ~= 3 then
+                        -- Tiger Palm alternate with Spinning Crane Kick
+                        if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() then
+                            if cast.spinningCraneKick(player.unit) then ui.debug("[AUTO - SUCCESS]: Spinning Crane Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Spinning Crane Kick Ancient Teaching Of The Monastery") return false end
+                        end
+                    else
+                        -- Tiger Palm alternate with Spinning Crane Kick
+                        if cd.tigerPalm.ready() and ObjectIsFacing(player.unit, dynamicTarget.range5) then
+                            if cast.tigerPalm(dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Ancient Teaching Of The Monastery") return false end
+                        end
+                    end
+                end
+            end
+        end,
+
+
+
         rangedDamage = function()
             -- Crackling Jade Lightning
-            if dynamicTarget.range40 ~= nil and not player.isMoving then
+            if dynamicTarget.range40 ~= nil and not player.isMoving and not cast.active.cracklingJadeLightning() then
                 if ui.checked(text.damage.cracklingJadeLightning) and cd.cracklingJadeLightning.ready() then
                     if cast.cracklingJadeLightning(dynamicTarget.range40) then ui.debug("[AUTO - SUCCESS]: ".. text.damage.cracklingJadeLightning) return true else ui.debug("[AUTO - FAIL]: ".. text.damage.cracklingJadeLightning) return false end
                 end
@@ -1264,6 +1306,13 @@ local function runRotation()
             end
         end
 
+        debugMessage("  Healing Thunder Focus Tea Rotation Init")
+        current = actionList.healing.thunderFocusTeaRotation()
+        debugMessage("  Healing Thunder Focus Tea Rotation End")
+        if current ~= nil then
+            return true
+        end
+
         debugMessage("  Healing Renewing Mist Init")
         current = actionList.healing.renewingMist()
         debugMessage("  Healing Renewing Mist End")
@@ -1281,13 +1330,6 @@ local function runRotation()
         debugMessage("  Healing AoE Rotation Init")
         current = actionList.healing.AoERotation()
         debugMessage("  Healing AoE Rotation End")
-        if current ~= nil then
-            return true
-        end
-
-        debugMessage("  Healing Thunder Focus Tea Rotation Init")
-        current = actionList.healing.thunderFocusTeaRotation()
-        debugMessage("  Healing Thunder Focus Tea Rotation End")
         if current ~= nil then
             return true
         end
@@ -1313,6 +1355,12 @@ local function runRotation()
             return true
         end
 
+        debugMessage("  Damage Ancient Teaching Of The Monastery Rotation Init")
+        current = actionList.damage.ancientTeachingOfTheMonasteryRotation()
+        debugMessage("  Damage Ancient Teaching Of The Monastery Rotation End")
+        if current ~= nil then
+            return true
+        end
 
         debugMessage("  Healing Soothing Mist Rotation Init")
         current = actionList.healing.soothingMistRotation()

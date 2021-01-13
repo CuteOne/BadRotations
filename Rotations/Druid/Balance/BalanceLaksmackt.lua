@@ -887,7 +887,8 @@ local function runRotation()
                     end
 
                     --dots
-                    if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
+                    if cast.able.moonfire(thisUnit) and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets")
+                            and (current_eclipse ~= "lunar" or #enemies.yards45 <= 4) then
                         for i = 1, #enemies.yards45 do
                             thisUnit = enemies.yards45[i]
                             if UnitAffectingCombat(thisUnit) then
@@ -1051,9 +1052,9 @@ local function runRotation()
                      end
      ]]
 
-                    if current_eclipse == "solar"
-                            or (eclipse_next == "lunar" and not eclipse_in)
-                            or buff.eclipse_solar.exists() then
+                    if current_eclipse == "solar" and #enemies.yards45 < 5
+                            or (eclipse_next == "lunar" and not eclipse_in) then
+                        --  or buff.eclipse_solar.exists() then
                         if cast.wrath(units.dyn45) then
                             br.addonDebug("wrath - eclipse is: " .. current_eclipse)
                             return true
@@ -1293,8 +1294,8 @@ local function runRotation()
 
                         --adaptive swarm here
                         if cast.able.adaptiveSwarm() then
-                            if not debuff.adaptiveSwarm.exists(units.dyn45) or debuff.adaptiveSwarm.exists(units.dyn45) and debuff.adaptiveSwarm.remains(units.dyn45) < 3 then
-                                if cast.adaptiveSwarm(units.dyn45) then
+                            if not debuff.adaptiveSwarm.exists("target") or debuff.adaptiveSwarm.exists("target") and debuff.adaptiveSwarm.remains("target") < 3 then
+                                if cast.adaptiveSwarm("target") then
                                     return true
                                 end
                             end
@@ -1326,7 +1327,7 @@ local function runRotation()
                                 or not cd_condition and covenant.kyrian.active
                                 or (cd.empowerBond.remains() > 7 and not buff.kindredEmpowermentEnergize.exists() and covenant.kyrian.active))
                         then
-                            if cast.starsurge(units.dyn45) then
+                            if cast.starsurge("target") then
                                 br.addonDebug("[SS] - Critting a boatload")
                                 return true
                             end
@@ -1337,7 +1338,7 @@ local function runRotation()
                                 and useCDs() and (convoke_desync or pew_remain() < 5))
                                 and power > 40 and covenant.nightFae.active and useCDs() and mode.cov == 1
                         then
-                            if cast.starsurge(units.dyn45) then
+                            if cast.starsurge("target") then
                                 br.addonDebug("[SS] - Overflow1 - cd:  " .. tostring(cd.convokeTheSpirits.remains()))
                                 return true
                             end
@@ -1354,20 +1355,20 @@ local function runRotation()
                         dot_requirements = true
                     end
 
-                    if cast.able.sunfire(units.dyn45) and dot_requirements and (not debuff.sunfire.exists(units.dyn45) or debuff.sunfire.remain(units.dyn45) < 5.4) and ttd(units.dyn45) > 16 then
-                        if cast.sunfire(units.dyn45) then
+                    if cast.able.sunfire("target") and dot_requirements and (not debuff.sunfire.exists("target") or debuff.sunfire.remain("target") < 5.4) and ttd("target") > 16 then
+                        if cast.sunfire("target") then
                             return true
                         end
                     end
 
-                    if cast.able.moonfire(units.dyn45) and dot_requirements and getTTD(units.dyn45) > 13.5 and astral_def > 8 and (not debuff.moonfire.exists(units.dyn45) or debuff.moonfire.remain(units.dyn45) < 6.6) then
-                        if cast.moonfire(units.dyn45) then
+                    if cast.able.moonfire("target") and dot_requirements and getTTD("target") > 13.5 and astral_def > 8 and (not debuff.moonfire.exists("target") or debuff.moonfire.remain("target") < 6.6) then
+                        if cast.moonfire("target") then
                             return true
                         end
                     end
 
-                    if cast.able.stellarFlare(units.dyn45) and dot_requirements and getTTD(units.dyn45) > 16 and astral_def > 8 and (not debuff.stellarFlare.exists(units.dyn45) or debuff.stellarFlare.remain(units.dyn45) < 4) then
-                        if cast.stellarFlare(units.dyn45) then
+                    if cast.able.stellarFlare("target") and dot_requirements and getTTD("target") > 16 and astral_def > 8 and (not debuff.stellarFlare.exists("target") or debuff.stellarFlare.remain("target") < 4) then
+                        if cast.stellarFlare("target") then
                             return true
                         end
                     end
@@ -1431,7 +1432,7 @@ local function runRotation()
                     --  Print("aspPerSec: " .. tostring(aspPerSec))
 
                     --Starsurge .. what is this ...  wtf
-                    if cast.able.starsurge(units.dyn45) then
+                    if cast.able.starsurge("target") then
                         if ((buff.ravenousFrenzy.remains() < gcd * math.ceil(power / 30) and buff.ravenousFrenzy.exists()))
                                 or (power + aspPerSec * buff.eclipse_solar.remains() > 120
                                 or power + aspPerSec * buff.eclipse_lunar.remains() > 120)
@@ -1443,7 +1444,7 @@ local function runRotation()
                                 or (buff.celestialAlignment.remain() > 8 or buff.incarnationChoseOfElune.remain() > 8)
                                 and not buff.ravenousFrenzy.exists() and not talent.starlord
                         then
-                            if cast.starsurge(units.dyn45) then
+                            if cast.starsurge("target") then
                                 br.addonDebug("[SS] - Overflow2")
                                 return true
                             end
@@ -1454,12 +1455,7 @@ local function runRotation()
 
 
 
-
-
-
-                    --  Print(tostring(IsSpellOverlayed(spell.starfire)))
-
-                    if cast.able.starfire(units.dyn45) then
+                    if cast.able.starfire("target") then
                         if current_eclipse == "lunar"
                                 or current_eclipse ~= "solar" and eclipse_next == "solar"
                                 or current_eclipse ~= "solar" and eclipse_next == "any"
@@ -1467,14 +1463,14 @@ local function runRotation()
                                 or ((buff.celestialAlignment.remain() < getCastTime(spell.wrath) or buff.incarnationChoseOfElune.remain() < getCastTime(spell.wrath)) and pewbuff)
                         then
                             --    if cast.starfire(getBiggestUnitCluster(45, 8)) then
-                            if cast.starfire(units.dyn45) then
+                            if cast.starfire("target") then
                                 br.addonDebug("[SFIRE] Lunar: " .. tostring(current_eclipse == "lunar") .. " Solar: " .. tostring(current_eclipse == "solar") .. " Next: " .. eclipse_next)
                                 return true
                             end
                         end
                     end
 
-                    if cast.wrath(units.dyn45) then
+                    if cast.wrath("target") then
                         br.addonDebug("[WRATH] Lunar: " .. tostring(current_eclipse == "lunar") .. " Solar: " .. tostring(current_eclipse == "solar") .. " Next: " .. eclipse_next)
                         return true
                     end

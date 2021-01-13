@@ -604,7 +604,7 @@ local function runRotation()
                     if isChecked("Kick") and distance < 5 and cast.able.kick() then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
+                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap interrupt") and noStunList[GetObjectID(interrupt_target)] == nil and getBuffRemain(interrupt_target, 226510) == 0 then
                         if cast.able.cheapShot() and getOptionValue("Kidney/Cheap interrupt") ~= 1 then
                             if cast.cheapShot(interrupt_target) then return true end
                         elseif getOptionValue("Kidney/Cheap interrupt") ~= 2 then
@@ -616,7 +616,7 @@ local function runRotation()
                     end
                 end
                 if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
-                 and noStunList[GetObjectID(interrupt_target)] == nil and (not isBoss(interrupt_target) or stunList[interruptID]) then
+                 and noStunList[GetObjectID(interrupt_target)] == nil and (not isBoss(interrupt_target) or stunList[interruptID]) and getBuffRemain(interrupt_target, 226510) == 0 then
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))

@@ -1507,7 +1507,7 @@ actionList.Interrupt = function()
             if spellname ~= nil and (select(1, UnitCastID(thisUnit)) > 0 or select(2, UnitCastID(thisUnit)) > 0) then
 
                 --   Print("--")
-                Print(tostring(GetUnitIsUnit("player", UnitTarget(thisUnit))))
+            --    Print(tostring(GetUnitIsUnit("player", UnitTarget(thisUnit))))
                 --     Print(tostring(select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5)
 
                 --    Print(GetUnitIsUnit("player", select(3, UnitCastID(thisUnit))))
