@@ -791,7 +791,6 @@ end  -- End Action List - Interrupts
 -- Action List - Misdirection
 actionList.md = function()
     if ui.mode.misdirection == 1 then
-        print("1")
         local misdirectUnit = nil
         if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
             -- Misdirect to Tank
@@ -810,7 +809,6 @@ actionList.md = function()
             -- Failsafe to Pet, if unable to misdirect to Tank or Focus
             if misdirectUnit == nil then misdirectUnit = "pet" end
             if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
-                print("3")
                 return cast.misdirection(misdirectUnit)
             end
         end
