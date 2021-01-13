@@ -233,7 +233,7 @@ local function CwC()
         end
     end
     -- Consume dark thoughts proc while channeling mindflay or mind sear
-    if (cast.current.mindFlay() or cast.current.mindSear()) and cd.mindBlast.ready() then
+    if (cast.current.mindFlay() or cast.current.mindSear()) and cd.mindBlast.ready() and (voidform and cd.voidBolt.exists() or not voidform) then
         if buff.darkThoughts.exists() and power < 30 or #searEnemies < searCutoff then
             if cast.mindBlast("target") then ui.debug("Casting Mind Blast [CwC]") return end
         end
@@ -266,12 +266,6 @@ local function CwC()
     -- actions.cwc+=/searing_nightmare,use_while_casting=1,target_if=talent.searing_nightmare.enabled&dot.shadow_word_pain.refreshable&spell_targets.mind_sear>2
     if ((useCDs() and cd.voidEruption.exists()) or not useCDs()) and talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) and power > 30 then
         if cast.searingNightmare("target") then ui.debug('SNM to refresh SW:P [CwC]') return end
-    end
-    -- Consume dark thoughts proc while channeling mindflay or mind sear
-    if (cast.current.mindFlay() or cast.current.mindSear()) then
-        if buff.darkThoughts.exists() then
-            if cast.mindBlast("target") then ui.debug("Consuming dark thoughts before SnM if insanity < 30 [CwC]") return end
-        end
     end
 end
 
@@ -818,7 +812,7 @@ actionList.Main = function()
     end
 
     -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-    if not talent.searingNightmare and #searEnemies > searCutoff and not moving and cd.mindBlast.exists() and cd.voidTorrent.exists() then
+    if not talent.searingNightmare and #searEnemies > searCutoff and not moving then
         if cast.mindSear('target') then ui.debug("Casting Mind Sear on target [Main]") return end
     end
   
@@ -833,6 +827,11 @@ actionList.Main = function()
                 end
             end
         end
+    end
+
+    -- Consume dark thoughts proc while moving
+    if moving and buff.darkThoughts.exists() then
+        if cast.mindBlast("target") then ui.debug("Consuming dark thoughts while moving [CwC]") return end
     end
     
     -- # Use SW:P as last resort if on the move and SW:D is on CD
@@ -912,7 +911,7 @@ local function runRotation()
     --actions+=/variable,name=pool_for_cds,op=set,value=cooldown.void_eruption.up&(!raid_event.adds.up|raid_event.adds.duration<=10
     --|raid_event.adds.remains>=10+5*(talent.hungering_void.enabled|covenant.kyrian))&((raid_event.adds.in>20|spell_targets.void_eruption>=5)
     --|talent.hungering_void.enabled|covenant.kyrian)
-    pool                                            = cd.voidEruption.ready()
+    pool                                            = cd.voidEruption.remain() < 5
     searCutoff                                      = 2
     searEnemies                                     = enemies.yards8t
     --# Start using Searing Nightmare at 3+ targets or 4+ if you are in Voidform
