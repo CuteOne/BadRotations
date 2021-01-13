@@ -708,6 +708,7 @@ br.lists.spells = {
             covenants                       = {
                 loneEmpowerment             = 338142,
                 ravenousFrenzy              = 323546,
+                empowerBond                 = 326647,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -914,6 +915,7 @@ br.lists.spells = {
                 starsurge                   = 197626,
                 sunfire                     = 93402,
                 tranquility                 = 740,
+                typhoon                     = 132469,
                 yserasGift                  = 145108,
                 swipeResto                  = 213764,
                 naturesSwiftness            = 132158,
@@ -1210,6 +1212,9 @@ br.lists.spells = {
             glyphs                          = {
 
             },
+            interrupts                      = {
+                counterShot                 = 147362,
+            },
             talents                         = {
                 barrage                     = 120360,--
                 bindingShackles             = 321468,--
@@ -1487,6 +1492,9 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            interrupts                      = {
+                freezingTrap                = 187650,
             },
             runeforges                      = {
                 eagletalonsTrueFocus        = 336849,
@@ -1921,6 +1929,7 @@ br.lists.spells = {
                 soothingMistJadeStatue      = 198533,
                 envelopingBreath            = 3205209,
                 invokeChiJiTheRedCrane      = 343820,
+                ancientTeachingOfTheMonastery = 347553
             },
             debuffs                         = {
                 mysticTouch                 = 8647,
@@ -4028,6 +4037,7 @@ br.lists.spells = {
                 flaskOfEndlessFathoms           = 251837,
                 flaskOfTheVastHorizon           = 251838,
                 flaskOfTheUndertow              = 251839,
+                flayedWingToxin                 = 345546,
                 fruitfulMachinatins             = 242623, -- Absorb Shield from Deceiver's Grand Design
                 mistcallerOcarina               = 330067, -- SL Trinket with group buff
                 greaterFlaskOfEndlessFathoms    = 298837,

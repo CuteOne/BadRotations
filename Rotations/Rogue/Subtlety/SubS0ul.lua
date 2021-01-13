@@ -1,7 +1,7 @@
 local rotationName = "SubS0ul - 9.0"
-local dotBlacklist = ""
-local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|164737|330586"
-local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612"
+local dotBlacklist = "168962"
+local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
+local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
 ---------------
 --- Toggles ---
 ---------------
@@ -238,6 +238,24 @@ local function runRotation()
     enemies.get(25,"player",true) -- makes enemies.yards25nc
     enemies.get(30)
 
+    local avoidUnits = {
+        -- The Necrotic Wake
+        { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
+        { unitID = 166079, buff = 321576 }, -- can't kill them with this aura up
+        { unitID = 163126, buff = 321576 }, -- can't kill them with this aura up
+        { unitID = 163122, buff = 321576 }, -- can't kill them with this aura up
+        -- Hall of Atonement
+        { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
+        -- De other side
+        { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
+        -- Mists
+        { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+        -- Castle Nathria
+        { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
+        { unitID = 165318, buff = 329636 }, -- General Kaal with Hardened Stone Form
+        { unitID = 170323, buff = 329636 }, -- General Grashaal with Hardened Stone Form
+    }
+
     if timersTable then
         wipe(timersTable)
     end
@@ -310,6 +328,7 @@ local function runRotation()
 
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
+        if getBuffRemain(unit, avoidUnits.buff) > 0 then return true end
         if isTotem(unit) then return true end
         local unitCreator = UnitCreator(unit)
         if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
@@ -386,6 +405,7 @@ local function runRotation()
             local thisUnit = enemyTable30[i]
             local sStormIgnore = {
                 [120651]=true, -- Explosive
+                [168962]=true, -- Sun King's Reborn Phoenix
             }
 
             if thisUnit.distance <= 10 then
@@ -491,6 +511,17 @@ local function runRotation()
     local function actionList_Defensive()
         if useDefensive() then
             if isChecked("Auto Defensive Unavoidables") then
+                --Frozen Binds (4th boss NW)
+                if bossID == 162693 and isCastingSpell(320788, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) and isChecked("Cloak Unavoidables") then
+                    if cd.cloakOfShadows.remain() > 2 then
+                        if cast.vanish("player") then return true end
+                    end
+                    if cast.cloakOfShadows("player") then return true end
+                end
+                --Dark Exile (4th boss NW)
+                if bossID == 162693 and isCastingSpell(321894, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) then
+                    if cast.vanish("player") then return true end
+                end
                 --Powder Shot (2nd boss freehold)
                 local bossID = GetObjectID("boss1")
                 if bossID == 126848 and isCastingSpell(256979, "target") and GetUnitIsUnit("player", UnitTarget("target")) then
@@ -526,24 +557,6 @@ local function runRotation()
                 end
             end
             module.BasicHealing()
-            -- if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
-            --     if hasEquiped(122668) then
-            --         if GetItemCooldown(122668)==0 then
-            --             useItem(122668)
-            --         end
-            --     end
-            -- end
-            -- if isChecked("Health Pot / Healthstone") and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(171267) or hasItem(177278) or has.healthstone() or hasItem(176409)) then
-            --     if use.able.healthstone() then
-            --         use.healthstone()
-            --     elseif canUseItem(177278) then
-            --         useItem(177278)
-            --     elseif canUseItem(176409) then
-            --         useItem(176409)
-            --     elseif canUseItem(171267) then
-            --         useItem(171267)
-            --     end
-            -- end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
                 if cast.cloakOfShadows("player") then return true end
             end
@@ -591,7 +604,7 @@ local function runRotation()
                     if isChecked("Kick") and distance < 5 and cast.able.kick() then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
+                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap interrupt") and noStunList[GetObjectID(interrupt_target)] == nil and getBuffRemain(interrupt_target, 226510) == 0 then
                         if cast.able.cheapShot() and getOptionValue("Kidney/Cheap interrupt") ~= 1 then
                             if cast.cheapShot(interrupt_target) then return true end
                         elseif getOptionValue("Kidney/Cheap interrupt") ~= 2 then
@@ -603,7 +616,7 @@ local function runRotation()
                     end
                 end
                 if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
-                 and noStunList[GetObjectID(interrupt_target)] == nil and (not isBoss(interrupt_target) or stunList[interruptID]) then
+                 and noStunList[GetObjectID(interrupt_target)] == nil and (not isBoss(interrupt_target) or stunList[interruptID]) and getBuffRemain(interrupt_target, 226510) == 0 then
                     local interruptID, castStartTime
                     if UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,UnitCastingInfo(interrupt_target))
@@ -766,7 +779,7 @@ local function runRotation()
             if cast.shadowDance("player") then return true end
         end
         -- actions.cds+=/potion,if=buff.bloodlust.react|fight_remains<30|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
-        if cdUsage and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or (fightRemain < 30 and isBoss()) or (buff.symbolsOfDeath.exists("target") and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10))) then
+        if cdUsage and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or (fightRemain < 30 and isBoss()) or (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10)) then
             if getOptionValue("Potion") == 1 and canUseItem(171349) then
                 useItem(171349)
             elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
@@ -821,7 +834,7 @@ local function runRotation()
             if cast.rupture(thisUnit) then return true end
         end
         -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=3
-        if not priorityRotation and enemies10 >= 3 and cast.able.blackPowder() then
+        if enemies10 >= 3 and cast.able.blackPowder() then
             if cast.blackPowder("target") then return true end
         end
         -- actions.finish+=/eviscerate

@@ -31,7 +31,6 @@ br.lists.ccUnits = {
 
     -- Plaguefall
     [171887] = { name = "Slimy Smorgasbord" }, -- Plaguefall Dungeon
-    [164737] = { name = "Enveloping Webbing", spell = 328475 }, -- Plaguefall Dungeon
     [168572] = { name = "Fungistorm", spell = 330423 }, -- big AOE, can be stunned
     [168572] = { name = "Fungistorm", spell = 328177 }, -- -- big AOE, can be stunned
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Prevent the shield from going on

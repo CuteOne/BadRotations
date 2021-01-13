@@ -101,7 +101,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 2018121510 ")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 2101081142 ")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
@@ -241,7 +241,7 @@ local dynamic_target_melee
 local dynamic_range
 local buff_rollTheBones_remain = 0
 local buff_rollTheBones_count = 0
-
+local unit
 
 -- lists ...lots of lists
 
@@ -601,6 +601,16 @@ local function int (b)
     return b and 1 or 0
 end
 
+--[[
+function getDistance(unit)
+    if unit then
+        local x2, y2, z2 = ObjectPosition("target")
+        local x1, y1, z1 = ObjectPosition("player")
+               br.addonDebug("Distance: " .. tostring(GetDistanceBetweenPositions(x1, y1, z1, x2, y2, z2)))
+        return (GetDistanceBetweenPositions(x1, y1, z1, x2, y2, z2))
+    end
+end
+]]
 local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
         return true
@@ -688,6 +698,12 @@ local function ambushCondition()
     end
 end
 
+local function echoStealth()
+    if covenant.kyrian.active and cd.echoingReprimand.ready() and mode.vanish == 1 and cd.vanish.ready() and mode.cov == 1 then
+        return true
+    end
+end
+
 local function dps_key()
 
     -- popping CD's with DPS Key
@@ -709,24 +725,6 @@ local function dps_key()
         end
     end
 
-    --marked for death
-    --[[
-      if talent.markedForDeath and cast.able.markedForDeath() then
-          --lets find the lowest health mob to cast this on
-          for i = 1, #enemies.yards25nc do
-              local unit_health = UnitHealth(enemies.yards25nc[1])
-              local mfd_target
-              if UnitHealth(enemies.yards25nc[i]) < unit_health then
-                  unit_health = UnitHealth(enemies.yards25nc[i])
-                  mfd_target = enemies.yards25nc[i]
-                  Print("mfd_target: " .. mfd_target .. " health: " .. unit_health)
-              end
-          end
-          if cast.markedForDeath(mfd_target.dyn25) then
-              return true
-          end
-      end
-    ]]
 
 end
 
@@ -777,7 +775,7 @@ function timers.time(name, fn)
     return time and (GetTime() - time) or 0
 end
 
-function getOutLaksTTD(ttd_time)
+local function getOutLaksTTD(ttd_time)
     local lowTTD = 100
     local lowTTDcount = 0
     local LowTTDtarget
@@ -798,9 +796,9 @@ function getOutLaksTTD(ttd_time)
     return tonumber(lowTTDcount)
 end
 
-function getOutLaksTTDMAX()
+local function getOutLaksTTDMAX()
     local highTTD = 0
-    local mob_count = #enemies.yards8
+    local mob_count = #enemies.yards
     if mob_count > 6 then
         mob_count = 6
     end
@@ -833,239 +831,220 @@ actionList.dps = function()
         dps_key()
     end
 
-    if stealth and (ambush_flag or mode.ambush == 1) then
+    if stealth and (ambush_flag or mode.ambush == 1 or echoStealth()) then
         if actionList.Stealth() then
             return true
         end
-    end
-
-    --Print(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
-
-    --Auto attack
-    if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
-        StartAttack(dynamic_target_melee)
-    end
-    --[[
-        --Marked for death, high priority
-        if talent.markedForDeath and cast.able.markedForDeath() then
-            local mfdhealth = 100
-            local mfdtarget
-            for i = 1, #enemies.yards8 do
-                if getTTD(enemies.yards8[i]) < mfdhealth then
-                    mfdtarget = enemies.yards8[i]
-                    mfdhealth = getTTD(enemies.yards8[i])
-                end
-                if cast.able.markedForDeath() and mfdtarget then
-                    if cast.markedForDeath(mfdtarget) then
-                    end
-                end
-            end]]
-
-    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0) then
-        --and #br.friend > 0
-        ambush_flag = true
-        if mode.vanish == 1 then
-            if cast.vanish() then
-                return true
-            end
-        end
-        if br.player.race == "NightElf" and isChecked("Use Racial") and not cast.last.vanish(1) then
-            if cast.shadowmeld() then
-                return true
-            end
-        end
-    end
-
-    --  Print(tostring(getOutLaksTTD(8)))
-    if cast.able.bladeFlurry() and mode.rotation == 1 then
-        local explosiveCount = 0
-        for i = 1, #enemies.yards8 do
-            thisUnit = enemies.yards8[i]
-            if isExplosive(thisUnit) then
-                explosiveCount = explosiveCount + 1
-            end
-        end
-        -- dps cd's
-        if (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
-            if cast.bladeFlurry() then
-                return true
-            end
-        end
-    end
-
-    if (mode.cooldown == 1 and isChecked("Level 90 talent row") or not isChecked("Level 90 talent row")) then
-        if getCombatTime() > 2 and getFacing("player", dynamic_target_melee, 45) then
-            if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee)
-                    and ((getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2)
-                    or buff.bladeFlurry.exists()) then
-                if cast.killingSpree() then
-                    return true
-                end
-            end
-            if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee)
-                    and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
-                    and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 3)
-                    and getDistance(dynamic_target_melee) <= dynamic_range then
-                if cast.bladeRush(dynamic_target_melee) then
-                    return true
-                end
-            end
-        end
-    end
-
-    --flagellation
-    --0.00	flagellation_cleanse,if=debuff.flagellation.remains<2
-
-    --    if cast.able.flagellation(dynamic_target_melee) and not debuff.flagellation.exists(dynamic_target_melee) then
-    --        if cast.flagellation(dynamic_target_melee) then
-    --            return true
-    --        end
-    --    end
-
-    if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) and getCombatTime() > 2 then
-        if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(25) > 0 then
-            if cast.adrenalineRush() then
-                return true
-            end
-        end
-    end
-
-
-    -- dps regular damage
-    --[[
-      if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
-              * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
-              * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
-              or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
-      then
-    ]]
-    if not stealth and combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw))
-            or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
-    then
-
-        if cast.able.betweenTheEyes() and ttd(units.dyn20) > combo * 3 then
-            if (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20)) then
-                if cast.betweenTheEyes(units.dyn20) then
-                    return true
-                end
-            end
-        end
-
-        --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
-        if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) then
-            if cast.able.sliceAndDice() and combo > 0 and not (combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4) then
-                if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
-                    if cast.sliceAndDice() then
-                        return true
-                    end
-                end
-            end
-        end
-
-        if cast.able.dispatch(dynamic_target_melee) and not isExplosive(dynamic_target_melee) and getDistance(dynamic_target_melee) <= dynamic_range and getFacing("player", dynamic_target_melee) then
-            if cast.dispatch(dynamic_target_melee) then
-                return true
-            end
-        end
     else
-        if not stealth and not should_pool and not cast.last.vanish(1) and not cast.able.ambush(dynamic_target_melee) then
 
-            if mode.ambush == 1 and cast.able.ambush(dynamic_target_melee) then
-                if cast.ambush(dynamic_target_melee) then
-                    return true
-                end
-            end
+        --Print(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
 
-            if talent.ghostlyStrike and cast.able.ghostlyStrike(dynamic_target_melee) then
-                if cast.ghostlyStrike(dynamic_target_melee) then
-                    return true
-                end
-            end
-
-            if mode.cov == 1 then
-                --sepsis,if=!stealthed.all
-                if cast.able.sepsis(dynamic_target_melee) and not stealth and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
-                    if cast.sepsis(dynamic_target_melee) then
-                        return true
+        --Auto attack
+        if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
+            StartAttack(dynamic_target_melee)
+        end
+        --[[
+            --Marked for death, high priority
+            if talent.markedForDeath and cast.able.markedForDeath() then
+                local mfdhealth = 100
+                local mfdtarget
+                for i = 1, #enemies.yards8 do
+                    if getTTD(enemies.yards8[i]) < mfdhealth then
+                        mfdtarget = enemies.yards8[i]
+                        mfdhealth = getTTD(enemies.yards8[i])
                     end
-                end
-                if cast.able.echoingReprimand(dynamic_target_melee) and not cast.able.ambush(dynamic_target_melee) then
-                    if cast.echoingReprimand(dynamic_target_melee) then
-                        return true
-                    end
-                end
-                if cast.able.flagellation(dynamic_target_melee) then
-                    if not debuff.flagellation.exists(dynamic_target_melee) and getTTD(dynamic_target_melee) > 10 then
-                        if cast.flagellation(dynamic_target_melee) then
-                            return true
+                    if cast.able.markedForDeath() and mfdtarget then
+                        if cast.markedForDeath(mfdtarget) then
                         end
                     end
-                    if debuff.flagellation.remain(dynamic_target_melee) < 2 and debuff.flagellation.exists(dynamic_target_melee) and cast.able.flagellationCleanse(dynamic_target_melee) then
-                        if cast.flagellationCleanse(dynamic_target_melee) then
-                            return true
-                        end
-                    end
-                end
-                if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
-                        or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
-                    if cast.serratedBoneSpike(dynamic_target_melee) then
-                        return true
-                    end
-                end
-            end
+                end]]
 
-            if cast.able.pistolShot() and not cast.able.ambush(dynamic_target_melee) and
-                    (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
-                            or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
-                            or buff.opportunity.exists() and buff.deadShot.exists()) --or buff.greenskinsWickers.exists() or buff.concealedBlunderbuss.exists())
-                    and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) then
-                --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
-                if cast.pistolShot(units.dyn20) then
+        if not stealth and (ambushCondition() or echoStealth()) and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0)
+                and #br.friend > 1 then
+            ambush_flag = true
+            if mode.vanish == 1 then
+                --and #br.friend > 0 then
+                if cast.vanish() then
                     return true
                 end
             end
-
-            if cast.able.sinisterStrike(dynamic_target_melee) and not cast.able.ambush(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
-                if cast.sinisterStrike(dynamic_target_melee) then
-                    return true
-                end
-            end
-            if mode.gouge == 4 and talent.dirtyTricks and cast.able.gouge(dynamic_target_melee) and getFacing(dynamic_target_melee, "player", 45) and br.player.power.comboPoints.deficit() >= 1 + (int(buff.broadside.exists())) then
-                if cast.gouge(dynamic_target_melee) then
+            if br.player.race == "NightElf" and isChecked("Use Racial") and not cast.last.vanish(1) then
+                if cast.shadowmeld() then
                     return true
                 end
             end
         end
-    end -- end finishers
 
+        --  Print(tostring(getOutLaksTTD(8)))
+        if cast.able.bladeFlurry() and mode.rotation == 1 then
+            local explosiveCount = 0
+            for i = 1, #enemies.yards8 do
+                thisUnit = enemies.yards8[i]
+                if isExplosive(thisUnit) then
+                    explosiveCount = explosiveCount + 1
+                end
+            end
+            -- dps cd's
+            if (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
+                if cast.bladeFlurry() then
+                    return true
+                end
+            end
+        end
+
+        if (mode.cooldown == 1 and isChecked("Level 90 talent row") or not isChecked("Level 90 talent row")) then
+            if getCombatTime() > 2 and getFacing("player", dynamic_target_melee, 45) then
+                if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee)
+                        and ((getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2)
+                        or buff.bladeFlurry.exists()) then
+                    if cast.killingSpree() then
+                        return true
+                    end
+                end
+
+
+                if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee)
+                        and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
+                        and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 3)
+                        and unit.distance(dynamic_target_melee) <= dynamic_range
+                then
+                    if cast.bladeRush(dynamic_target_melee) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        --flagellation
+        --0.00	flagellation_cleanse,if=debuff.flagellation.remains<2
+
+        --    if cast.able.flagellation(dynamic_target_melee) and not debuff.flagellation.exists(dynamic_target_melee) then
+        --        if cast.flagellation(dynamic_target_melee) then
+        --            return true
+        --        end
+        --    end
+
+        if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) and getCombatTime() > 2 then
+            if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(25) > 0 then
+                if cast.adrenalineRush() then
+                    return true
+                end
+            end
+        end
+
+
+        -- dps regular damage
+        --[[
+          if combo >= comboMax - (int(buff.broadside.exists()) + int(buff.opportunity.exists()))
+                  * int(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() < 1))
+                  * int(br.player.traits.aceupyoursleeve.rank < 2 or cd.betweenTheEyes.exists())
+                  or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
+          then
+        ]]
+        if not stealth and combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw))
+                or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
+        then
+
+            if cast.able.betweenTheEyes() and ttd(units.dyn20) > combo * 3 then
+                if (GetUnitExists(units.dyn20) and not isExplosive(units.dyn20)) then
+                    if cast.betweenTheEyes(units.dyn20) then
+                        return true
+                    end
+                end
+            end
+
+            --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
+            if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) then
+                if cast.able.sliceAndDice() and combo > 0 and not (combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4) then
+                    if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+                        if cast.sliceAndDice() then
+                            return true
+                        end
+                    end
+                end
+            end
+
+            if cast.able.dispatch(dynamic_target_melee) and not isExplosive(dynamic_target_melee) and getDistance(dynamic_target_melee) <= dynamic_range and getFacing("player", dynamic_target_melee) then
+                if cast.dispatch(dynamic_target_melee) then
+                    return true
+                end
+            end
+        else
+            if not stealth and not should_pool and not cast.last.vanish(1) and not cast.able.ambush(dynamic_target_melee) then
+
+                if mode.ambush == 1 and cast.able.ambush(dynamic_target_melee) then
+                    if cast.ambush(dynamic_target_melee) then
+                        return true
+                    end
+                end
+
+                if talent.ghostlyStrike and cast.able.ghostlyStrike(dynamic_target_melee) then
+                    if cast.ghostlyStrike(dynamic_target_melee) then
+                        return true
+                    end
+                end
+
+                if mode.cov == 1 then
+                    --sepsis,if=!stealthed.all
+                    if cast.able.sepsis(dynamic_target_melee) and not stealth and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
+                        if cast.sepsis(dynamic_target_melee) then
+                            return true
+                        end
+                    end
+
+                    --     Print(tostring((mode.vanish == 1 and echoStealth())))
+                    if cast.able.echoingReprimand(dynamic_target_melee) and not cast.able.ambush(dynamic_target_melee)
+                            and not (mode.vanish == 1 and echoStealth()) then
+                        if cast.echoingReprimand(dynamic_target_melee) then
+                            return true
+                        end
+                    end
+                    if cast.able.flagellation(dynamic_target_melee) then
+                        if not debuff.flagellation.exists(dynamic_target_melee) and getTTD(dynamic_target_melee) > 10 then
+                            if cast.flagellation(dynamic_target_melee) then
+                                return true
+                            end
+                        end
+                        if debuff.flagellation.remain(dynamic_target_melee) < 2 and debuff.flagellation.exists(dynamic_target_melee) and cast.able.flagellationCleanse(dynamic_target_melee) then
+                            if cast.flagellationCleanse(dynamic_target_melee) then
+                                return true
+                            end
+                        end
+                    end
+                    if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player") or debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
+                            or ttd(dynamic_target_melee) <= 5 or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
+                        if cast.serratedBoneSpike(dynamic_target_melee) then
+                            return true
+                        end
+                    end
+                end
+
+                if cast.able.pistolShot() and not cast.able.ambush(dynamic_target_melee) and
+                        (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
+                                or isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > getOptionValue("Pistol Spam")
+                                or buff.opportunity.exists() and buff.deadShot.exists()) --or buff.greenskinsWickers.exists() or buff.concealedBlunderbuss.exists())
+                        and not isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) and not stealth then
+                    --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
+                    if cast.pistolShot(units.dyn20) then
+                        return true
+                    end
+                end
+
+                if cast.able.sinisterStrike(dynamic_target_melee) and not stealth and not cast.able.ambush(dynamic_target_melee) and not noDamageCheck(dynamic_target_melee) and getDistance(dynamic_target_melee) < dynamic_range and getFacing("player", dynamic_target_melee) then
+                    if cast.sinisterStrike(dynamic_target_melee) then
+                        return true
+                    end
+                end
+                if mode.gouge == 4 and talent.dirtyTricks and cast.able.gouge(dynamic_target_melee) and getFacing(dynamic_target_melee, "player", 45) and br.player.power.comboPoints.deficit() >= 1 + (int(buff.broadside.exists())) then
+                    if cast.gouge(dynamic_target_melee) then
+                        return true
+                    end
+                end
+            end
+        end -- end finishers
+    end
 
     stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists() or buff.sepsis.exists()
-
-    --variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.up
-
-
-    --[[
-    vanish,if=!stealthed.all&variable.ambush_condition
-    Using Vanish/Ambush is only a very tiny increase, so in reality, you're absolutely fine to use it as a utility spell.
-    N	2.89	shadowmeld,if=!stealthed.all&variable.ambush_condition
-    ]]
-
-
-    --pots
-    --potion support
-    --[[
-    1, none, frX
-    2, battle, 163222
-    3, RisingDeath, 152559
-    4, Draenic, 109218
-    5, Prolonged, 142117
-    6, Empowered Proximity, 168529
-    7, Focused Resolve, 168506
-    8, Superior Battle, 168489
-    9, unbridal fury
-    10, Phantom Fire
-    ]]
-
 
     if mode.pots == 1 then
         local auto_pot
@@ -1101,12 +1080,6 @@ actionList.dps = function()
         end
     end -- end pots
 
-
-    --[[
-    blood_fury
-    0.00	berserking
-    0.00	fireblood
-    0.00	ancestral_call]]
 
     if (mode.cooldown == 1 and isChecked("Racial") or not isChecked("Racial")) then
         if isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
@@ -1161,29 +1134,55 @@ end
 actionList.Stealth = function()
     -- stealth()
 
-    if stealth and #br.friend > 1 and (ambush_flag or do_stun ~= nil) then
-        if isChecked("Cheap Shot") and cast.able.cheapShot() and not isBoss(dynamic_target_melee) and
-                (talent.preyOnTheWeak and not debuff.preyOnTheWeak.exists(dynamic_target_melee) or not talent.preyOnTheWeak) or do_stun ~= nil
-        then
-            if do_stun == nil then
-                do_stun = dynamic_target_melee
+    if stealth then
+        --marked for death
+        if talent.markedForDeath and cast.able.markedForDeath() and #enemies.yards25nc > 1 then
+            local mfd_target
+            --lets find the lowest health mob to cast this on
+            for i = 1, #enemies.yards25nc do
+                local unit_health = UnitHealth(enemies.yards25nc[1])
+                if UnitHealth(enemies.yards25nc[i]) < unit_health then
+                    unit_health = UnitHealth(enemies.yards25nc[i])
+                    mfd_target = enemies.yards25nc[i]
+                end
             end
-            if StunsBlackList[GetObjectID(do_stun)] == nil then
-                if cast.cheapShot(do_stun) then
-                    br.addonDebug("Cheapshot stun")
-                    do_stun = nil
+            if mfd_target then
+                if cast.markedForDeath(mfd_target.dyn25) then
+                    br.addonDebug("mfd_target: " .. mfd_target)
                     return true
                 end
             end
         end
-    end
-    if mode.ambush == 1 then
-        if cast.ambush(dynamic_target_melee) then
-            return true
+
+        if ambush_flag or do_stun ~= nil or echoStealth() then
+            if isChecked("Cheap Shot") and cast.able.cheapShot() and not isBoss(dynamic_target_melee) and
+                    (talent.preyOnTheWeak and not debuff.preyOnTheWeak.exists(dynamic_target_melee) or not talent.preyOnTheWeak) or do_stun ~= nil
+            then
+                if do_stun == nil then
+                    do_stun = dynamic_target_melee
+                end
+                if StunsBlackList[GetObjectID(do_stun)] == nil then
+                    if cast.cheapShot(do_stun) then
+                        br.addonDebug("Cheapshot stun")
+                        do_stun = nil
+                        return true
+                    end
+                end
+            end
         end
+
+        if echoStealth() then
+            if cast.echoingReprimand(dynamic_target_melee) then
+                return true
+            end
+        end
+        if mode.ambush == 1 then
+            if cast.ambush(dynamic_target_melee) then
+                return true
+            end
+        end
+
     end
-
-
 end
 actionList.Extra = function()
 
@@ -1215,7 +1214,7 @@ actionList.Extra = function()
         end
     end
 
-    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0) then
+    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) then
         local badguy = false
         if not inCombat and #enemies.yards25nc > 0 then
             for i = 1, #enemies.yards25nc do
@@ -1225,23 +1224,21 @@ actionList.Extra = function()
                     badguy = true
                 end
             end
-        else
-            if inCombat or badguy then
-                if br.timer:useTimer("check_for_buffs", 1) then
-                    buff_rollTheBones_count = 0
-                    for k, v in pairs(br.player.spell.buffs.rollTheBones) do
-                        if UnitBuffID("player", tonumber(v)) then
-                            buff_rollTheBones_remain = tonumber(getBuffRemain("player", tonumber(v)))
-                            buff_rollTheBones_count = buff_rollTheBones_count + 1
-                        end
+        end
+        if inCombat or badguy then
+            if br.timer:useTimer("check_for_buffs", 1) then
+                buff_rollTheBones_count = 0
+                for k, v in pairs(br.player.spell.buffs.rollTheBones) do
+                    if UnitBuffID("player", tonumber(v)) then
+                        buff_rollTheBones_remain = tonumber(getBuffRemain("player", tonumber(v)))
+                        buff_rollTheBones_count = buff_rollTheBones_count + 1
                     end
                 end
-
-                if (buff_rollTheBones_count == 0 or buff_rollTheBones_remain < 3 or buff_rollTheBones_count < 2 and (buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.trueBearing.exists())) then
-                    if cast.rollTheBones() then
-                        br.player.ui.debug("rolling bones!")
-                        return true
-                    end
+            end
+            if (buff_rollTheBones_count == 0 or buff_rollTheBones_remain < 3 or buff_rollTheBones_count < 2 and (buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.trueBearing.exists())) then
+                if cast.rollTheBones() then
+                    br.player.ui.debug("rolling bones!")
+                    return true
                 end
             end
         end
@@ -1305,15 +1302,6 @@ actionList.Defensive = function()
     php = br.player.health
     local should_feint
 
-
-
-
-
-    --just testing stuff
-    --[[
-       Print("Cloak mode: " .. tostring(mode.cloak))
-       Print("Stun mode: " .. tostring(mode.stun))
-    ]]
     if useDefensive() then
         -- dwarf racial
         if (br.player.race == "Dwarf" or br.player.race == "DarkIronDwarf") and isChecked("Use Racial") and cast.able.racial() then
@@ -1502,7 +1490,7 @@ actionList.Interrupt = function()
         end
         for i = 1, bosscount do
             local spellname, castEndTime, interruptID, spellnamechannel, castorchan, spellID
-            thisUnit = tostring("boss" .. i)
+            local thisUnit = tostring("boss" .. i)
             if UnitCastingInfo(thisUnit) then
                 spellname = UnitCastingInfo(thisUnit)
                 -- castStartTime = select(4,UnitCastingInfo(thisUnit)) / 1000
@@ -1516,7 +1504,14 @@ actionList.Interrupt = function()
                 interruptID = select(9, UnitChannelInfo(thisUnit))
                 castorchan = "channel"
             end
-            if spellname ~= nil then
+            if spellname ~= nil and (select(1, UnitCastID(thisUnit)) > 0 or select(2, UnitCastID(thisUnit)) > 0) then
+
+                --   Print("--")
+            --    Print(tostring(GetUnitIsUnit("player", UnitTarget(thisUnit))))
+                --     Print(tostring(select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5)
+
+                --    Print(GetUnitIsUnit("player", select(3, UnitCastID(thisUnit))))
+
                 local castleft = castEndTime - GetTime()
                 if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5 then
                     if mode.cloak == 1 and cloakList[interruptID] then
@@ -1760,6 +1755,8 @@ local function runRotation()
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists()
     dynamic_target_melee = talent.acrobaticStrikes and units.dyn8 or units.dyn5
     dynamic_range = talent.acrobaticStrikes and 8 or 5
+    unit = br.player.unit
+    ui = br.player.ui
 
     local charges = br.player.charges
 
@@ -1839,7 +1836,7 @@ local function runRotation()
                 if isChecked("[AM] - Tricks") and cast.able.tricksOfTheTrade() and #br.friend > 1 and not buff.tricksOfTheTrade.exists() then
                     for i = 1, #br.friend do
                         if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK"
-                                and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight("player", br.friend[i].unit) and getDistance("player", br.friend[i].unit) < 25 then
+                                and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight("player", br.friend[i].unit) and getDistance(br.friend[i].unit) < 25 then
                             tricksunit = br.friend[i].unit
                             break
                         end

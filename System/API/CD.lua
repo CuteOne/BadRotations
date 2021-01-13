@@ -52,4 +52,7 @@ br.api.cd = function(self,spell,id)
         local spellCD = level >= spellLevel and getSpellCD(id) or 99
         return spellCD == 0
     end
+    cd[spell].prevgcd = function()
+        return select(2, GetSpellBaseCooldown(id))
+    end
 end
