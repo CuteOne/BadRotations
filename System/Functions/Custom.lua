@@ -1035,6 +1035,7 @@ function BWCheck()
         end
     end
 end
+
 -- Check Instance IDs from https://wow.gamepedia.com/InstanceID
 function getCurrentZoneId()
     return select(8, GetInstanceInfo())
