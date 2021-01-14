@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.3.2"
+local versionNum = "1.3.3"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffb28cc7"								   
 local dreadstalkersActive, grimoireActive = false, false
@@ -901,7 +901,7 @@ local function runRotation()
                 end
             end
             -- Health Funnel
-            if solo and isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet") and not moving then
+            if (solo or GetRealZoneText() == "Torghast, Tower of the Damned") and isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet") and not moving then
                 if cast.healthFunnel("pet") then
                     return
                 end
@@ -1216,6 +1216,56 @@ local function runRotation()
         end
     end
 
+    local function actionList_CovenantSpells()
+        ------------------------------------------------
+        -- Covenants (Level 60) ------------------------
+        ------------------------------------------------
+        if level == 60 and not moving then
+            --actions.covenant=impending_catastrophe,if=cooldown.summon_darkglare.remains<10|cooldown.summon_darkglare.remains>50
+            ------------------------------------------------
+            -- Impending Catastrophe : Venthyr -------------
+            ------------------------------------------------
+            --321792
+            if covenant.venthyr.active and  ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+                if cast.impendingCatastrophe() then br.addonDebug("[Action:Rotation] Impending Catastrophe") return true end
+            end
+            ------------------------------------------------
+            -- Impending Catastrophe : Venthyr -------------
+            ------------------------------------------------
+            --321792
+            if covenant.venthyr.active and  spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+                if cast.impendingCatastrophe() then br.addonDebug("[Action:AOE] Impending Catastrophe") return true end
+            end
+            --actions.covenant+=/decimating_bolt,if=cooldown.summon_darkglare.remains>5&(debuff.haunt.remains>4|!talent.haunt.enabled)
+            ------------------------------------------------
+            -- Decimating Bolt : Necrolord -----------------
+            ------------------------------------------------
+            if covenant.necrolord.active and spellUsable(325289) and select(2,GetSpellCooldown(325289)) <= gcdMax then
+                if cast.decimatingBolt() then br.addonDebug("[Action:Rotation] Decimating Bolt") return true end
+            end    
+
+            --actions.covenant+=/soul_rot,if=cooldown.summon_darkglare.remains<5|cooldown.summon_darkglare.remains>50|cooldown.summon_darkglare.remains>25&conduit.corrupting_leer.enabled
+            ------------------------------------------------
+            -- Soul Rot : Night Fae ------------------------
+            ------------------------------------------------
+            if covenant.nightFae.active and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax and useCDs() then
+                if cast.soulRot() then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end
+            ------------------------------------------------
+            -- Soul Rot ------------------------------------
+            ------------------------------------------------
+            if covenant.nightFae.active and  ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+                if cast.soulRot() then br.addonDebug("[Action:AoE] Soul Rot") return true end
+            end 
+            ------------------------------------------------
+            -- Scouring Tithe : Kyrian ---------------------
+            ------------------------------------------------
+            if covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax then
+                if cast.scouringTithe() then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
+            end
+        end
+    end
+
     local function actionList_Rotation()
         if useCDs() then
             if actionList_Cooldowns() then
@@ -1223,8 +1273,19 @@ local function runRotation()
             end
         end
 
+        
         local casttime = select(4,GetSpellInfo(172))
-  
+                -- actions.implosion+=/doom,cycle_targets=1,max_cycle_targets=7,if=refreshable
+        if (GetRealZoneText() == "Torghast, Tower of the Damned" and casttime == 0) and debuff.corruption.count() < getOptionValue("Multi-Dot Limit") then
+            for i = 1, #enemyTable40 do
+                local thisUnit = enemyTable40[i].unit
+                if debuff.corruption.refresh(thisUnit) then
+                    if cast.corruption(thisUnit) then ui.debug("[Action:Implosion] Torghast Corruption (Spreading)")
+                        return true
+                    end
+                end
+            end
+        end
         --
         -- actions+=/hand_of_guldan,if=azerite.explosive_potential.rank&time<5&soul_shard>2&buff.explosive_potential.down&buff.wild_imps.stack<3&!prev_gcd.1.hand_of_guldan&&!prev_gcd.2.hand_of_guldan
         if combatTime < 5 and shards > 2 and wildImps < 3 and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) then
@@ -1308,7 +1369,21 @@ local function runRotation()
         if isChecked("Summon Demonic Tyrant") and SpecificToggle("Summon Demonic Tyrant") and not GetCurrentKeyBoardFocus() and not moving then
             if cast.summonDemonicTyrant("target") then br.addonDebug("[Action:Rotation] Summon Demonic Tyrant (Hotkey)") return true end
         end 
-
+        -- cooldowns hotkeys
+        if SpecificToggle("Cooldowns") and not GetCurrentKeyBoardFocus() and not moving then
+            if cast.summonDemonicTyrant("target") then br.addonDebug("[Action:Rotation] Summon Demonic Tyrant (Hotkey)") return true end
+            if cast.summonVilefiend("target") then br.addonDebug("[Action:Rotation] Summon Vilefiend (Hotkey)") return true end
+            if cast.grimoireFelguard("target") then br.addonDebug("[Action:Rotation] Grimoire Felguard (Hotkey)") return true end
+            if cast.callDreadstalkers("target") then br.addonDebug("[Action:Rotation] Call Dreadstalkers(Hotkey)") return true end
+            if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
+                if cast.powerSiphon("target") then ui.debug("[Action:Rotation] Power Siphon (Hotkey)") return true end 
+            end
+            if cast.soulStrike("target") then ui.debug("[Action:Rotation] Soul Strike") return true end
+            if buff.demonicCore.exists() and (buff.demonicCore.stack() >= 0 or buff.demonicCore.remain() <= gcdMax * 5.7) then
+                if cast.demonbolt("target") then ui.debug("[Action:Implosion] Demonbolt (Proc)") return true end
+            end
+            if actionList_CovenantSpells() then return end 
+        end 
         -- actions+=/power_siphon,if=buff.wild_imps.stack>=2&buff.demonic_core.stack<=2&buff.demonic_power.down&spell_targets.implosion<2
         if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
             if cast.powerSiphon("target") then ui.debug("[Action:Rotation] Power Sipohn")
