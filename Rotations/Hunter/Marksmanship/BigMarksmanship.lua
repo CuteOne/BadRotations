@@ -63,9 +63,10 @@ local function createOptions()
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             br.ui:createCheckbox(section,"Trinkets Logic", "|cffFFFFFFUse trinkets according to simc logic")
+            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             br.ui:createCheckbox(section,select(1,GetItemInfo(br.player.items.potionOfSpectralAgility), "Use potion in raids with other cooldowns"))
             br.ui:createCheckbox(section,select(1,GetItemInfo(br.player.items.spectralFlaskOfPower)), "Use flask")
             br.ui:createCheckbox(section,"Racial")
@@ -74,14 +75,14 @@ local function createOptions()
             br.player.module.BasicHealing(section)
             br.ui:createSpinner(section, "Aspect Of The Turtle",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-            br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
+            -- br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         if br.player ~= nil and br.player.spell ~= nil and br.player.spell.interrupts ~= nil then
             for _, v in pairs(br.player.spell.interrupts) do
                 local spellName = GetSpellInfo(v)
                 if v ~= 61304 and spellName ~= nil then
-                    br.ui:createCheckbox(section, spellName, "Interrupt with " .. spellName .. " (ID: " .. v .. ")")
+                    br.ui:createCheckbox(section, "Interrupt with " .. spellName, "Interrupt with " .. spellName .. " (ID: " .. v .. ")")
                 end
             end
         end
@@ -259,7 +260,7 @@ actionList.pc = function()
         --TODO!
         --actions.precombat+=/augmentation
 
-        if ui.pullTimer() <= 15 and ui.checked("Prepull logic") and unit.valid("target") then
+        if ui.pullTimer() <= 15 and ui.checked("Prepull logic") then
             -- actions.precombat+=/tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
                 return cast.tarTrap(units.dyn40,"ground")
@@ -269,8 +270,8 @@ actionList.pc = function()
                 return cast.doubleTap()
             end
             -- mdpc, doesnt affect dps
-            if ui.pullTimer() <= math.random(3,7) and cast.able.misdirection() and ui.mode.misdirection == 1 then
-                return actionList.md()
+            if ui.pullTimer() <= math.random(3,7) and cast.able.misdirection() then
+                return actionList.md(true)
             end
             --actions.precombat+=/aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
             if cast.able.aimedShot() and ui.pullTimer() <= 2 and not unit.moving("player") and #enemies.yards8t < 3 and (#enemies.yards8t < 2 or (not covenant.kyrian.active and not talent.volley)) then
@@ -290,7 +291,7 @@ actionList.aa = function()
     --actions=auto_shot
     unit.startAttack("target")
 
-    if ui.checked("Trinkets logic") then
+    if ui.checked("Trinkets Logic") then
 
         --actions+=/use_item,name=dreadfire_vessel,if=trinket.1.has_cooldown...
         if equiped.dreadfireVessel()
@@ -311,7 +312,7 @@ actionList.aa = function()
             and inventory.trinket2 ~= items.dreadfireVessel
             or (getItemCooldownDuration(inventory.trinket1) -5 < cd.trueshot.remain()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2)))
-            or unit.ttd() < cd.trueshot.remain()
+            or (unit.isBoss("target") or not unit.instance("raid")) and unit.ttd(enemies.yards8t) < cd.trueshot.remain()
         then
             if canUseItem(inventory.trinket1) and not isBlacklistedTrinket(13) then return useItem(inventory.trinket1) end
         end
@@ -326,7 +327,7 @@ actionList.aa = function()
             and trinket2 ~= items.dreadfireVessel
             or (getItemCooldownDuration(inventory.trinket2) -5 < cd.trueshot.remain()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1)))
-            or unit.ttd() < cd.trueshot.remain()
+            or (unit.isBoss("target") or not unit.instance("raid")) and unit.ttd(enemies.yards8t) < cd.trueshot.remain()
         then
             if canUseItem(inventory.trinket2) and not isBlacklistedTrinket(14) then return useItem(inventory.trinket2) end
         end
@@ -402,7 +403,7 @@ actionList.st = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+    if ui.value("Explosive Shot")==1 and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 4 then
         if cast.explosiveShot() then ui.debug("Casting Explosive Shot") return true end
     end
     -- Wild Spirits
@@ -519,7 +520,7 @@ actionList.aoe = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+    if ui.value("Explosive Shot")==1 and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 4 then
         if cast.explosiveShot() then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
     end
     -- Wild Spirits
@@ -642,6 +643,19 @@ actionList.extra = function()
     if ui.checked("Exhilaration") and unit.hp() <= ui.value("Exhilaration") then
         if cast.exhilaration("player") then ui.debug("Casting Exhilaration") return true end
     end
+    -- if ui.checked("Tranquilizing Shot") then
+    --     local theEnemies = enemies.get(40,_,_,true)
+    --     if #theEnemies > 0 then
+    --         for i = 1, #theEnemies do
+    --             local thisUnit = theEnemies[i]
+    --             if ui.value("Tranquilizing Shot") == 1 or (ui.value("Tranquilizing Shot") == 2 and unit.isUnit(thisUnit,"target")) then
+    --                 if unit.valid(thisUnit) and cast.dispel.tranquilizingShot(thisUnit) then
+    --                     if cast.tranquilizingShot(thisUnit) then ui.debug("Casting Tranquilizing Shot") return true end
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
 end -- End Action List - Extras
 
 -- Action List - CCs
@@ -756,12 +770,15 @@ actionList.kick = function()
 		end
     end
 
-    br.player.interrupts.enemies = br.player.enemies.get(range,nil,false,true)
+    br.player.interrupts.enemies = br.player.enemies.yards40f
 
     for _,unit in pairs(br.player.interrupts.enemies) do
         if ui.checked("Interrupt All") then
-            if unit.isCasting() and unit.canInterrupt(unit, interruptAt) then
-                if createCastFunction(unit, any, any, any, br.player.interrupts.currentSpell) then lastUnit = br.player.interrupts.currentUnit return true end
+            if castingUnit(unit) and canInterrupt(unit, interruptAt) then
+                if createCastFunction(unit.unit, any, any, any, br.player.interrupts.currentSpell) then
+                    lastUnit = br.player.interrupts.currentUnit
+                    return true
+                end
             end
         end
         for spell,_ in pairs(br.player.interrupts.activeList) do
@@ -789,11 +806,10 @@ actionList.kick = function()
 end  -- End Action List - Interrupts
 
 -- Action List - Misdirection
-actionList.md = function()
-    if ui.mode.misdirection == 1 then
-        print("1")
+actionList.md = function(skipModecheck)
+    if ui.mode.misdirection == 1 or skipModecheck then
         local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
+        if unit.distance("target") < 40 and not unit.isCasting("player") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
                 local tankInRange, tankUnit = isTankInRange()
@@ -810,7 +826,6 @@ actionList.md = function()
             -- Failsafe to Pet, if unable to misdirect to Tank or Focus
             if misdirectUnit == nil then misdirectUnit = "pet" end
             if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
-                print("3")
                 return cast.misdirection(misdirectUnit)
             end
         end
@@ -892,7 +907,7 @@ local function runRotation()
         then
             if actionList.CCs() then return true end
             if actionList.kick() then return true end
-            if actionList.md() then return true end
+            if actionList.md(false) then return true end
             if actionList.aa() then return true end
             if actionList.cds() then return true end
             if ui.useST(8,nil,"target") then
