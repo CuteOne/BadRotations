@@ -666,6 +666,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		if thisUnit == nil then
 			if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then
 				thisUnit = getSpellUnit(baseSpellID,false,minRange,maxRange,spellType)
+			elseif debug == "groundCC" then return
 			else
 				thisUnit = getSpellUnit(baseSpellID,true,minRange,maxRange,spellType)
 			end
@@ -681,8 +682,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 			return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug,castTime)
 		end
 		-- Cast Ground AOE at Player/Target Location
-		if thisUnit == "playerGround" or thisUnit == "targetGround" then
-			local targetUnit = thisUnit == "playerGround" and "player" or "target"
+		if thisUnit == "playerGround" or thisUnit == "targetGround" or debug == "groundCC" then
+			local targetUnit
+			targetUnit = thisUnit == "playerGround" and "player" or "target"
+			if debug == "groundCC" then targetUnit = thisUnit end
 			if getDistance(targetUnit) < maxRange or IsSpellInRange(spellName,targetUnit) == 1 then
 				return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,targetUnit)
 			end

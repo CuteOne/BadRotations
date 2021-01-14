@@ -1520,6 +1520,7 @@ local function runRotation()
     --- Rotations ---
     -----------------
     -- Pause
+    actionList_Interrupt()
     ghostWolf()
     if SpecificToggle("Force GW Key") and not GetCurrentKeyBoardFocus() and ui.checked("Auto Ghost Wolf") then
         if buff.ghostWolf.exists("player") then
@@ -1546,7 +1547,6 @@ local function runRotation()
         -----------------------------
         if inCombat then
             --if (buff.ghostWolf.exists() and mode.ghostWolf ~= 1) then return end
-            actionList_Interrupt()
             actionList_Defensive()
             actionList_Elementals()
             if ui.checked("Capacitor Totem - Tank Stuns") and getDistance("target") <= 40 and (inInstance or inRaid) then
