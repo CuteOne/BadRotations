@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "1.8.4"
+local VerNum  = "1.8.5"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffFFBB00"
 local colorGreen = "|cff4DDB1D"
@@ -208,14 +208,21 @@ local function createOptions ()
             -- Drain Soul Snipe
             br.ui:createCheckbox(section, "Drain Soul Snipe", "Will cast Drain Soul on dying units for shards generation.")
 
-            -- Refresh Dots for Phantom
-            br.ui:createCheckbox(section, "Refresh Dots before casting Phantom", "Will refresh dots before casting Phantom of Singularity")
 
         br.ui:checkSectionState(section)
 		-------------------------
         --- COOLDOWNS OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, colorPurple .."Affliction .:|:."..colorOrange.."Cooldowns")
+            -- Phantom of Singularity
+            br.ui:createCheckbox(section, "Phantom of Singularity", "Will cast Phantom of Singularity.")
+            
+            -- Refresh Dots for Phantom
+            br.ui:createCheckbox(section, "Refresh Dots before casting Phantom", "Will refresh dots before casting Phantom of Singularity")
+
+            -- Soul Rot
+            br.ui:createCheckbox(section, "Soul Rot", "Will cast Soul Rot.")
+
             -- FlaskUp Module
             br.player.module.FlaskUp("Intellect",section)
 
@@ -377,14 +384,14 @@ local function runRotation()
     local activePet = br.player.pet
     local activePetId = br.player.petId
     local artifact = br.player.artifact
-    local agonyCount = br.player.debuff.agony.count()
+    local agonyCount = br.player.debuff.agony.refreshCount()
     local uaCount = br.player.debuff.unstableAffliction.count()
-    local exhaustionCount = br.player.debuff.curseOfExhaustion.count()
+    local exhaustionCount = br.player.debuff.curseOfExhaustion.refreshCount()
     local buff = br.player.buff
     local cast = br.player.cast
     local castable = br.player.cast.debug
     local combatTime = getCombatTime()
-    local corruptionCount = br.player.debuff.corruption.count()
+    local corruptionCount = br.player.debuff.corruption.refreshCount()
     local cd = br.player.cd
     local charges = br.player.charges
     local deadMouse = UnitIsDeadOrGhost("mouseover")
@@ -423,7 +430,7 @@ local function runRotation()
     local shards = UnitPower("player", Enum.PowerType.SoulShards)
     local summonPet = getOptionValue("Summon Pet")
     local solo = #br.friend == 1
-    local siphonLifeCount = br.player.debuff.siphonLife.count()
+    local siphonLifeCount = br.player.debuff.siphonLife.refreshCount()
     local spell = br.player.spell
     local spellHaste = (1 + (GetHaste()/100))
     local talent = br.player.talent
@@ -891,9 +898,11 @@ end
         local burnUnits = {
             [120651]=true -- Explosive
         }
-        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
-            if cast.unstableAffliction("target") then return true end
-            if cast.shadowBolt("target") then return true end
+        if not moving and GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+            if cast.unstableAffliction("target") then br.addonDebug("[Action:BurnUnits] Unstable Affliction") return true end
+            if not talent.drainSoul then
+                if cast.shadowBolt("target") then br.addonDebug("[Action:BurnUnits] Shadow Bolt") return true end
+            end
         end
 
         -- Demonic Gateway
@@ -1242,47 +1251,60 @@ local function actionList_AoE()
     ------------------------------------------------
     -- Cycle Agony  --------------------------------
     ------------------------------------------------
-        if not debuff.agony.exists("target") then
-            thisUnit = "target"
-        end 
-        if agonyCount < ui.value("Agony Count") then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
-                    if cast.agony(thisUnit) then br.addonDebug("[Action:AoE] Agony [Multi-Cycle (Target)]") return true end
-                end
+    if agonyCount < ui.value("Agony Count") then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not debuff.agony.exists("target") or debuff.agony.refresh("target") then
+                thisUnit = "target"
+            end         
+            if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.remains(thisUnit) <= 5.4) and getTTD(thisUnit) > 10 then
+                if cast.agony(thisUnit) then br.addonDebug("[Action:AoE] Agony [Multi-Cycle]") return true end
             end
         end
+    end
     ------------------------------------------------
     -- Cycle Siphon Life  --------------------------
     ------------------------------------------------
-        if not debuff.siphonLife.exists("target") then
-            thisUnit = "target"
-        end 
-        if siphonLifeCount < ui.value("Siphon Life Count") then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not noDotCheck(thisUnit) and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
-                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:AoE] Siphon Life [Multi-Cycle (Target)]") return true end
-                end 
-            end
+    if siphonLifeCount < ui.value("Siphon Life Count") then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not debuff.siphonLife.exists("target") or debuff.siphonLife.refresh("target") then
+                thisUnit = "target"
+            end         
+            if not noDotCheck(thisUnit) and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.remains(thisUnit) <= 4.5) and getTTD(thisUnit) > 10 then
+                if cast.siphonLife(thisUnit) then br.addonDebug("[Action:AoE] Siphon Life [Multi-Cycle]") return true end
+            end 
         end
+    end
     ------------------------------------------------
     -- Cycle Corruption  --------------------------
     ------------------------------------------------
-        if not debuff.corruption.exists("target") then
-            thisUnit = "target"
-        end 
-        if #enemies.yards40 < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then
-            if corruptionCount < ui.value("Corruption Count") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > 10 then
-                        if cast.corruption(thisUnit) then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle]") return true end
-                    end
+    if #enemies.yards40 < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then 
+        if corruptionCount < ui.value("Corruption Count") then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                    thisUnit = "target"
+                end            
+                if not noDotCheck(thisUnit) and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > 10 then
+                    if cast.corruption(thisUnit) then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle]") return true end
                 end
             end
         end
+    end
+    if #enemies.yards40 < ui.value("Seed of Corruption Targets") and not talent.absoluteCorruption then
+        if corruptionCount < ui.value("Corruption Count") then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                    thisUnit = "target"
+                end            
+                if not noDotCheck(thisUnit) and (not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= 4.2) and getTTD(thisUnit) > 10 then
+                    if cast.corruption(thisUnit) then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle]") return true end
+                end
+            end
+        end
+    end
     ------------------------------------------------
     -- Vile Taint ----------------------------------
     ------------------------------------------------
@@ -1297,7 +1319,7 @@ local function actionList_AoE()
     ------------------------------------------------
     -- Phantom Singularity -------------------------
     ------------------------------------------------
-    if talent.phantomSingularity then 
+    if talent.phantomSingularity and isChecked("Phantom of Singularity") then 
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and (debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") or debuff.seedOfCorruption.count(thisUnit) == 1) then
@@ -1308,7 +1330,7 @@ local function actionList_AoE()
     ------------------------------------------------
     -- Soul Rot ------------------------------------
     ------------------------------------------------
-    if covenant.nightFae.active and not moving and getDistance(units.dyn40) < 40 and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+    if isChecked("Soul Rot") and covenant.nightFae.active and not moving and getDistance(units.dyn40) < 40 and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
         if cast.soulRot() then br.addonDebug("[Action:AOE] Soul Rot") return true end
     end
     ------------------------------------------------
@@ -1417,7 +1439,7 @@ local function actionList_AoE()
     ------------------------------------------------
     -- Racial --------------------------------------
     ------------------------------------------------
-    if isChecked("Racial") and not moving and race == "Troll" and pet.darkglare.active() then
+    if isChecked("Racial") and useCDs() and not moving and race == "Troll" and pet.darkglare.active() then
         if cast.racial("player") then br.addonDebug("[Action:AoE] Berserking")
             return true
         end
@@ -1504,43 +1526,56 @@ local function actionList_LevelingAoE()
     ------------------------------------------------
     -- Cycle Agony  --------------------------------
     ------------------------------------------------
-        if not debuff.agony.exists("target") then
-            thisUnit = "target"
-        end 
         if agonyCount < ui.value("Agony Count") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if not debuff.agony.exists("target") or debuff.agony.refresh("target") then
+                    thisUnit = "target"
+                end         
                 if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
-                    if cast.agony(thisUnit) then br.addonDebug("[Action:Leveling AoE] Agony [Multi-Cycle (Target)]") return true end
+                    if cast.agony(thisUnit) then br.addonDebug("[Action:Leveling AoE] Agony [Multi-Cycle]") return true end
                 end
             end
         end
     ------------------------------------------------
     -- Cycle Siphon Life  --------------------------
     ------------------------------------------------
-        if not debuff.siphonLife.exists("target") then
-            thisUnit = "target"
-        end 
         if siphonLifeCount < ui.value("Siphon Life Count") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not noDotCheck(thisUnit) and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
-                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:Leveling AoE] Siphon Life [Multi-Cycle (Target)]") return true end
+                if not debuff.siphonLife.exists("target") or debuff.siphonLife.refresh("target") then
+                    thisUnit = "target"
+                end         
+                if not noDotCheck(thisUnit) and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.remains(thisUnit) <= 4.5) and getTTD(thisUnit) > 10 then
+                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:Leveling AoE] Siphon Life [Multi-Cycle]") return true end
                 end 
             end
         end
     ------------------------------------------------
     -- Cycle Corruption  --------------------------
     ------------------------------------------------
-        if not debuff.corruption.exists("target") then
-            thisUnit = "target"
-        end 
         if #enemies.yards40 < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then
             if corruptionCount < ui.value("Corruption Count") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > 10 then
+                    if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                        thisUnit = "target"
+                    end             
+                    if not noDotCheck(thisUnit) and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > 10 then
                         if cast.corruption(thisUnit) then br.addonDebug("[Action:Leveling AoE] Corruption [Multi-Cycle]") return true end
+                    end
+                end
+            end
+        end
+        if #enemies.yards40 < ui.value("Seed of Corruption Targets") and not talent.absoluteCorruption then
+            if corruptionCount < ui.value("Corruption Count") then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                        thisUnit = "target"
+                    end             
+                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= 4.2) and getTTD(thisUnit) > 10 then
+                        if cast.corruption(thisUnit) then br.addonDebug("[Action:AoE] Corruption [Multi-Cycle]") return true end
                     end
                 end
             end
@@ -1559,7 +1594,7 @@ local function actionList_LevelingAoE()
     ------------------------------------------------
     -- Phantom Singularity -------------------------
     ------------------------------------------------
-    if talent.phantomSingularity then 
+    if talent.phantomSingularity and isChecked("Phantom of Singularity") then 
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and (debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") or debuff.seedOfCorruption.count(thisUnit) == 1) then
@@ -1570,7 +1605,7 @@ local function actionList_LevelingAoE()
     ------------------------------------------------
     -- Soul Rot ------------------------------------
     ------------------------------------------------
-    if covenant.nightFae.active and not moving and getDistance(units.dyn40) < 40 and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+    if isChecked("Soul Rot") and covenant.nightFae.active and not moving and getDistance(units.dyn40) < 40 and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
         if cast.soulRot() then br.addonDebug("[Action:Leveling AoE] Soul Rot") return true end
     end
     ------------------------------------------------
@@ -1679,7 +1714,7 @@ local function actionList_LevelingAoE()
     ------------------------------------------------
     -- Racial --------------------------------------
     ------------------------------------------------
-    if isChecked("Racial") and not moving and race == "Troll" and pet.darkglare.active() then
+    if isChecked("Racial") and useCDs() and not moving and race == "Troll" and pet.darkglare.active() then
         if cast.racial("player") then br.addonDebug("[Action:Leveling AoE] Berserking")
             return true
         end
@@ -1807,7 +1842,7 @@ local function actionList_Rotation()
         ------------------------------------------------
         -- Soul Rot : Night Fae ------------------------
         ------------------------------------------------
-        if (#enemies.yards40 > 0 or useCDs())
+        if isChecked("Soul Rot") and (#enemies.yards40 > 0 or useCDs())
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target"))
         or (talent.vileTaint and debuff.vileTaint.exists("target")) 
         or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget)) 
@@ -1817,7 +1852,7 @@ local function actionList_Rotation()
         ------------------------------------------------
         -- Soul Rot : Night Fae ------------------------
         ------------------------------------------------
-        if (#enemies.yards40 > 0 or useCDs()) and talent.darkCaller
+        if isChecked("Soul Rot") and (#enemies.yards40 > 0 or useCDs()) and talent.darkCaller
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45))
         or (talent.vileTaint and debuff.vileTaint.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
         or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget) and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
@@ -1869,13 +1904,16 @@ local function actionList_Rotation()
         if agonyCount < ui.value("Agony Count") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if not debuff.agony.exists("target") or debuff.agony.refresh("target") then
+                    thisUnit = "target"
+                end
                 if not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= ui.value("Agony Refresh") and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) and (not isExhaust(thisUnit)) then
                     if cast.agony(thisUnit) then br.addonDebug("[Action:Rotation] Agony [Multi-Dot-Refresh]") return true end
                 end
             end
         end
     end -- Multi-Dotting Disabled
-    if not noDotCheck("target") and debuff.agony.remain("target") <= ui.value("Agony Refresh") and getTTD("target") > debuff.agony.remain("target") + (2/spellHaste) and (not isExhaust("target")) then
+    if mode.md == 2 and not noDotCheck("target") and debuff.agony.remain("target") <= ui.value("Agony Refresh") and getTTD("target") > debuff.agony.remain("target") + (2/spellHaste) and (not isExhaust("target")) then
             if cast.agony("target") then br.addonDebug("[Action:Rotation] Agony [ST-Refresh]") return true end
     end
     ------------------------------------------------
@@ -1885,6 +1923,9 @@ local function actionList_Rotation()
         if not talent.absoluteCorruption and corruptionCount < ui.value("Corruption Count") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
+                    if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                        thisUnit = "target"
+                    end
                     if not noDotCheck(thisUnit) and debuff.corruption.remains(thisUnit) <= ui.value("Corruption Refresh") and getTTD(thisUnit) > debuff.corruption.remain(thisUnit) + (2/spellHaste) and not debuff.seedOfCorruption.exists(thisUnit) then
                         if cast.corruption(thisUnit) then br.addonDebug("[Action:Rotation] Corruption [Refresh]") return true end
                     end
@@ -1898,11 +1939,11 @@ local function actionList_Rotation()
             end
         end       
     end -- Multi-Dotting Disabled
-    if not talent.absoluteCorruption then
+    if mode.md == 2 and not talent.absoluteCorruption then
         if not noDotCheck("target") and debuff.corruption.remains("target") <= ui.value("Corruption Refresh") and getTTD("target") > debuff.corruption.remain("target") + (2/spellHaste) and not debuff.seedOfCorruption.exists("target") then
             if cast.corruption("target") then br.addonDebug("[Action:Rotation] Corruption [Refresh]") return true end
         end
-    elseif talent.absoluteCorruption then
+    elseif mode.md == 2 and talent.absoluteCorruption then
         if not noDotCheck("target") and not debuff.corruption.exists("target") and not debuff.seedOfCorruption.exists("target") then
             if cast.corruption("target") then br.addonDebug("[Action:Rotation] Corruption [Absolute Corruption]") return true end
         end
@@ -1914,13 +1955,16 @@ local function actionList_Rotation()
         if talent.siphonLife and siphonLifeCount < ui.value("Siphon Life Count") then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if not debuff.siphonLife.exists("target") or debuff.siphonLife.refresh("target") then
+                    thisUnit = "target"
+                end
                 if not noDotCheck(thisUnit) and debuff.siphonLife.remain(thisUnit) <= ui.value("Siphon Life Refresh") and getTTD(thisUnit) > debuff.siphonLife.remain(thisUnit) + (3/spellHaste) then
                     if cast.siphonLife(thisUnit) then br.addonDebug("[Action:Rotation] Siphon Life [Cycle Multi-Dot-Refresh]") return true end
                 end
             end
         end
     end -- Multi-Dotting disabled. 
-    if talent.siphonLife then
+    if mode.md == 2 and talent.siphonLife then
         if not noDotCheck("target") and debuff.siphonLife.remain("target") <= ui.value("Siphon Life Refresh") and getTTD("target") > debuff.siphonLife.remain("target") + (3/spellHaste) then
             if cast.siphonLife("target") then br.addonDebug("[Action:Rotation] Siphon Life [ST-Refresh]") return true end
         end
@@ -1944,7 +1988,8 @@ local function actionList_Rotation()
     if not moving and talent.haunt and getTTD("target") >= ui.value("Haunt TTD")
     and (talent.phantomSingularity and not debuff.phantomSingularity.exists("target") or not talent.phantomSingularity)
     and (talent.vileTaint and not debuff.vileTaint.exists("target") or not talent.vileTaint)
-    and shards < 5 then
+    and shards < 5 
+    and debuff.shadowEmbrace.remains("target") > 3 then
         if cast.haunt("target") then br.addonDebug("[Action:Rotation] Haunt") return true end
     end
     ------------------------------------------------
@@ -2019,7 +2064,7 @@ local function actionList_Rotation()
     ------------------------------------------------
     -- Phantom Singularity -------------------------
     ------------------------------------------------
-    if not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() then
+    if isChecked("Phantom of Singularity") and not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() then
         if isChecked("Refresh Dots before casting Phantom") and cd.summonDarkglare.remains() > 1 then
             if actionList_PhantomPrep() then return end
         end
@@ -2028,7 +2073,7 @@ local function actionList_Rotation()
     ------------------------------------------------
     -- Phantom Singularity (Dark Caller Talent)-----
     ------------------------------------------------
-    if talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
+    if isChecked("Phantom of Singularity") and talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
         if isChecked("Refresh Dots before casting Phantom") and cd.summonDarkglare.remains() >= gcdMax then
             if actionList_PhantomPrep() then return end
         end
@@ -2066,7 +2111,7 @@ local function actionList_Rotation()
     ------------------------------------------------
     -- Racial --------------------------------------
     ------------------------------------------------
-    if isChecked("Racial") and not moving and race == "Troll" and pet.darkglare.active() then
+    if isChecked("Racial") and useCDs() and not moving and race == "Troll" and pet.darkglare.active() then
         if cast.racial("player") then br.addonDebug("[Action:Rotation] Berserking")
             return true
         end
@@ -2087,8 +2132,14 @@ local function actionList_Rotation()
         -- actions+=/malefic_rapture,if=talent.phantom_singularity.enabled&(dot.phantom_singularity.ticking||cooldown.phantom_singularity.remains>12||soul_shard>3)
         if talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (debuff.soulRot.exists("target") or cd.soulRot.remains() >= gcdMax)
         then
+            if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (PS & SR)") return true end 
+        end
+
+        if talent.phantomSingularity and debuff.phantomSingularity.exists("target") and not isChecked("Soul Rot")
+        then
             if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Phantom Singularity)") return true end 
         end
+
         -- if talent.phantomSingularity and cd.phantomSingularity.remains() > 20 and shards > 1 then
         --     if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Waiting for Phantom of Singularity CD") return true end
         -- end
@@ -2107,7 +2158,7 @@ local function actionList_Rotation()
         if cast.maleficRapture("target") then br.addonDebug("[Action:Rotation] Malefic Rapture (Max Shards)") return true end
     end
 
-------------------------------------------------
+    ------------------------------------------------
     -- Agony, Moving -------------------------------
     ------------------------------------------------
     if IsMovingTime(math.random(2.5,20)/100) then
@@ -2193,7 +2244,7 @@ local function actionList_LevelingST()
         ------------------------------------------------
         -- Soul Rot : Night Fae ------------------------
         ------------------------------------------------
-        if (#enemies.yards40 > 0 or useCDs())
+        if isChecked("Soul Rot") and (#enemies.yards40 > 0 or useCDs())
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target"))
         or (talent.vileTaint and debuff.vileTaint.exists("target")) 
         or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget)) 
@@ -2203,7 +2254,7 @@ local function actionList_LevelingST()
         ------------------------------------------------
         -- Soul Rot : Night Fae ------------------------
         ------------------------------------------------
-        if (#enemies.yards40 > 0 or useCDs()) and talent.darkCaller
+        if isChecked("Soul Rot") and (#enemies.yards40 > 0 or useCDs()) and talent.darkCaller
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45))
         or (talent.vileTaint and debuff.vileTaint.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
         or (talent.seedOfCorruption and debuff.seedOfCorruption.exists(seedTarget) and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
@@ -2373,13 +2424,13 @@ local function actionList_LevelingST()
     ------------------------------------------------
     -- Phantom Singularity -------------------------
     ------------------------------------------------
-    if not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() then
+    if isChecked("Phantom of Singularity") and not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() then
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Leveling ST] Phantom Singularity") return true end 
     end
     ------------------------------------------------
     -- Phantom Singularity (Dark Caller Talent)-----
     ------------------------------------------------
-    if talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
+    if isChecked("Phantom of Singularity") and talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Leveling ST] Phantom Singularity") return true end 
     end
     ------------------------------------------------
@@ -2414,7 +2465,7 @@ local function actionList_LevelingST()
     ------------------------------------------------
     -- Racial --------------------------------------
     ------------------------------------------------
-    if isChecked("Racial") and not moving and race == "Troll" and pet.darkglare.active() then
+    if isChecked("Racial") and useCDs() and not moving and race == "Troll" and pet.darkglare.active() then
         if cast.racial("player") then br.addonDebug("[Action:Leveling ST] Berserking")
             return true
         end
@@ -2612,7 +2663,7 @@ local function actionList_drainSoulST()
         if cast.vileTaint("target") then br.addonDebug("[Action:Clipped ST] Vile Taint") return true end
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) 
+    if isChecked("Phantom of Singularity") and UnitChannelInfo("player") == GetSpellInfo(198590) 
     and debuff.shadowEmbrace.stack("target") >= 3
     and cd.phantomSingularity.remain() <= gcdMax
     and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)
@@ -2624,7 +2675,7 @@ local function actionList_drainSoulST()
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped ST] Phantom of Singularity") return true end
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+    if isChecked("Soul Rot") and UnitChannelInfo("player") == GetSpellInfo(198590) then
         if talent.darkCaller and (#enemies.yards40 > 0 or useCDs()) 
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45))
         or (talent.vileTaint and debuff.vileTaint.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
@@ -2634,7 +2685,7 @@ local function actionList_drainSoulST()
         end 
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+    if isChecked("Soul Rot") and  UnitChannelInfo("player") == GetSpellInfo(198590) then
         if (#enemies.yards40 > 0 or useCDs()) 
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target"))
         or (talent.vileTaint and debuff.vileTaint.exists("target")) 
@@ -2666,54 +2717,40 @@ local function actionList_drainSoulAoE()
         end
     end
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if agonyCount < ui.value("Agony Count") then
+        if not moving and agonyCount < ui.value("Agony Count") then
             for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-                if not moving and not UnitIsUnit(thisUnit,"target") and (not debuff.agony.exists(thisUnit) or debuff.agony.refresh(thisUnit)) then
-                    if cast.agony(thisUnit) then br.addonDebug("[Action:Clipped AoE] Agony [Refresh]") return true end
+                local thisUnit = enemies.yards40[i]
+                if not debuff.agony.exists("target") or debuff.agony.refresh("target") then
+                    thisUnit = "target"
+                end         
+                if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.remains(thisUnit) <= 5.4) and getTTD(thisUnit) > 10 then
+                    if cast.agony(thisUnit) then br.addonDebug("[Action:Clipped AoE] Agony [Multi-Cycle]") return true end
                 end
             end
         end
     end
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if agonyCount < ui.value("Agony Count") then
+        if not moving and siphonLifeCount < ui.value("Siphon Life Count") then
             for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-                if not moving and (not debuff.agony.exists("target") or debuff.agony.refresh("target")) then
-                    if cast.agony("target") then br.addonDebug("[Action:Clipped AoE] Agony [Refresh]") return true end
-                end
-            end
-        end
-    end
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if siphonLifeCount < ui.value("Siphon Life Count") then
-            for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-                if not moving and (not debuff.siphonLife.remains("target") or debuff.siphonLife.refresh("target")) then
-                    if cast.siphonLife("target") then br.addonDebug("[Action:Clipped AoE] Siphon Life [Refresh]") return true end
+            if not debuff.siphonLife.exists("target") or debuff.siphonLife.refresh("target") then
+                thisUnit = "target"
+            end     
+            if not noDotCheck(thisUnit) and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.remains(thisUnit) <= 4.5) and getTTD(thisUnit) > 10 then
+                if cast.siphonLife("target") then br.addonDebug("[Action:Clipped AoE] Siphon Life [Refresh]") return true end
                 end 
             end
         end
     end
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if siphonLifeCount < ui.value("Siphon Life Count") then
-            for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-                if not moving and not UnitIsUnit(thisUnit,"target") and (not debuff.siphonLife.remains(thisUnit) or debuff.siphonLife.refresh(thisUnit)) then
-                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:Clipped AoE] Siphon Life [Refresh]") return true end
-                end 
-            end
-        end
-    end
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if #enemies.yards10t < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then
+        if not moving and #enemies.yards10t < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then
             if corruptionCount < ui.value("Corruption Count") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and not debuff.corruption.exists("target") and getTTD("target") > 10 then
-                        if cast.corruption("target") then br.addonDebug("[Action:Clipped AoE] Corruption [Multi-Cycle (Target)]") return true end
-                    end
-                    if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > 10 then
+                    if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                        thisUnit = "target"
+                    end             
+                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= 4.2) and getTTD(thisUnit) > 10 then
                         if cast.corruption(thisUnit) then br.addonDebug("[Action:Clipped AoE] Corruption [Multi-Cycle]") return true end
                     end
                 end
@@ -2721,15 +2758,10 @@ local function actionList_drainSoulAoE()
             if not talent.absoluteCorruption and corruptionCount < ui.value("Corruption Count") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists("target") or debuff.corruption.refresh("target")) and getTTD("target") > 10 then
-                        if cast.corruption("target") then br.addonDebug("[Action:Clipped AoE] Corruption [Multi-Cycle (Target)]") return true end
-                    end
-                end
-            end
-            if not talent.absoluteCorruption and corruptionCount < ui.value("Corruption Count") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and (not debuff.corruption.exists(thisUnit) or debuff.corruption.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
+                    if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                        thisUnit = "target"
+                    end             
+                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= 4.2) and getTTD(thisUnit) > 10 then
                         if cast.corruption(thisUnit) then br.addonDebug("[Action:Clipped AoE] Corruption [Multi-Cycle]") return true end
                     end
                 end
@@ -2756,7 +2788,7 @@ local function actionList_drainSoulAoE()
         end
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+    if isChecked("Phantom of Singularity") and UnitChannelInfo("player") == GetSpellInfo(198590) then
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
             if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") then
@@ -2806,7 +2838,7 @@ local function actionList_LevelingDsST()
         if cast.vileTaint("target") then br.addonDebug("[Action:Clipped Leveling ST] Vile Taint") return true end
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) 
+    if isChecked("Phantom of Singularity") and UnitChannelInfo("player") == GetSpellInfo(198590) 
     and cd.phantomSingularity.remain() <= gcdMax
     and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)
     and cd.soulRot.remains() == 0
@@ -2814,7 +2846,7 @@ local function actionList_LevelingDsST()
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped Leveling ST] Phantom of Singularity") return true end
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+    if isChecked("Soul Rot") and UnitChannelInfo("player") == GetSpellInfo(198590) then
         if talent.darkCaller and (#enemies.yards40 > 0 or useCDs()) 
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45))
         or (talent.vileTaint and debuff.vileTaint.exists("target") and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)) 
@@ -2824,7 +2856,7 @@ local function actionList_LevelingDsST()
         end 
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+    if isChecked("Soul Rot") and UnitChannelInfo("player") == GetSpellInfo(198590) then
         if (#enemies.yards40 > 0 or useCDs()) 
         and (talent.phantomSingularity and debuff.phantomSingularity.exists("target"))
         or (talent.vileTaint and debuff.vileTaint.exists("target")) 
@@ -2855,54 +2887,40 @@ local function actionList_LevelingDsAoE()
         end
     end
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if agonyCount < ui.value("Agony Count") then
+        if not moving and agonyCount < ui.value("Agony Count") then
             for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-                if not moving and not UnitIsUnit(thisUnit,"target") and (not debuff.agony.exists(thisUnit) or debuff.agony.refresh(thisUnit)) then
-                    if cast.agony(thisUnit) then br.addonDebug("[Action:Clipped Leveling AoE] Agony [Refresh]") return true end
+                local thisUnit = enemies.yards40[i]
+                if not debuff.agony.exists("target") or debuff.agony.refresh("target") then
+                    thisUnit = "target"
+                end         
+                if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.remains(thisUnit) <= 5.4) and getTTD(thisUnit) > 10 then
+                    if cast.agony(thisUnit) then br.addonDebug("[Action:Clipped Leveling AoE] Agony [Multi-Cycle]") return true end
                 end
             end
         end
     end
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if agonyCount < ui.value("Agony Count") then
+        if not moving and siphonLifeCount < ui.value("Siphon Life Count") then
             for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-                if not moving and (not debuff.agony.exists("target") or debuff.agony.refresh("target")) then
-                    if cast.agony("target") then br.addonDebug("[Action:Clipped Leveling AoE] Agony [Refresh]") return true end
-                end
-            end
-        end
-    end
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if siphonLifeCount < ui.value("Siphon Life Count") then
-            for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-                if not moving and (not debuff.siphonLife.remains("target") or debuff.siphonLife.refresh("target")) then
-                    if cast.siphonLife("target") then br.addonDebug("[Action:Clipped Leveling AoE] Siphon Life [Refresh]") return true end
+            if not debuff.siphonLife.exists("target") or debuff.siphonLife.refresh("target") then
+                thisUnit = "target"
+            end     
+            if not noDotCheck(thisUnit) and (not debuff.siphonLife.exists(thisUnit) or debuff.siphonLife.remains(thisUnit) <= 4.5) and getTTD(thisUnit) > 10 then
+                if cast.siphonLife("target") then br.addonDebug("[Action:Clipped Leveling AoE] Siphon Life [Refresh]") return true end
                 end 
             end
         end
     end
     if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if siphonLifeCount < ui.value("Siphon Life Count") then
-            for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-                if not moving and not UnitIsUnit(thisUnit,"target") and (not debuff.siphonLife.remains(thisUnit) or debuff.siphonLife.refresh(thisUnit)) then
-                    if cast.siphonLife(thisUnit) then br.addonDebug("[Action:Clipped Leveling AoE] Siphon Life [Refresh]") return true end
-                end 
-            end
-        end
-    end
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
-        if #enemies.yards10t < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then
+        if not moving and #enemies.yards10t < ui.value("Seed of Corruption Targets") and talent.absoluteCorruption then
             if corruptionCount < ui.value("Corruption Count") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and not debuff.corruption.exists("target") and getTTD("target") > 10 then
-                        if cast.corruption("target") then br.addonDebug("[Action:Clipped Leveling AoE] Corruption [Multi-Cycle (Target)]") return true end
-                    end
-                    if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and not debuff.corruption.exists(thisUnit) and getTTD(thisUnit) > 10 then
+                    if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                        thisUnit = "target"
+                    end             
+                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= 4.2) and getTTD(thisUnit) > 10 then
                         if cast.corruption(thisUnit) then br.addonDebug("[Action:Clipped Leveling AoE] Corruption [Multi-Cycle]") return true end
                     end
                 end
@@ -2910,15 +2928,10 @@ local function actionList_LevelingDsAoE()
             if not talent.absoluteCorruption and corruptionCount < ui.value("Corruption Count") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists("target") or debuff.corruption.refresh("target")) and getTTD("target") > 10 then
-                        if cast.corruption("target") then br.addonDebug("[Action:Clipped Leveling AoE] Corruption [Multi-Cycle (Target)]") return true end
-                    end
-                end
-            end
-            if not talent.absoluteCorruption and corruptionCount < ui.value("Corruption Count") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not noDotCheck(thisUnit) and not UnitIsUnit(thisUnit,"target") and (not debuff.corruption.exists(thisUnit) or debuff.corruption.refresh(thisUnit)) and getTTD(thisUnit) > 10 then
+                    if not debuff.corruption.exists("target") or debuff.corruption.refresh("target") then
+                        thisUnit = "target"
+                    end             
+                    if not noDotCheck(thisUnit) and (not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= 4.2) and getTTD(thisUnit) > 10 then
                         if cast.corruption(thisUnit) then br.addonDebug("[Action:Clipped Leveling AoE] Corruption [Multi-Cycle]") return true end
                     end
                 end
@@ -2945,7 +2958,7 @@ local function actionList_LevelingDsAoE()
         end
     end
 
-    if UnitChannelInfo("player") == GetSpellInfo(198590) then
+    if isChecked("Phantom of Singularity") and UnitChannelInfo("player") == GetSpellInfo(198590) then
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
             if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") then
