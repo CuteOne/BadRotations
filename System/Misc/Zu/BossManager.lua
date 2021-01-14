@@ -3,7 +3,7 @@ function bossHelper()
         for _,v in pairs(br.player.enemies.get(40,nil,true)) do
             if ID == getUnitID(v) then
                 local distance = GetDistanceBetweenObjects("player", v)
-                if distance < 10 then
+                if distance < 10 and br.timer:useTimer("Action Delay", getOptionValue("Catcher/Snatcher Delay")) then
                     InteractUnit(v)
                 end
             end
