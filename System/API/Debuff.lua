@@ -103,6 +103,20 @@ br.api.debuffs = function(debuff,k,v)
     debuff.remainCount = function(remain)
         return tonumber(getDebuffRemainCount(v,remain))
     end
+    debuff.refreshCount = function()
+        local counter = 0
+        for l, w in pairs(br.enemy) do
+            local thisUnit = br.enemy[l].unit
+            -- check if unit is valid
+            if GetObjectExists(thisUnit) then
+                -- increase counter for each occurences
+                if UnitDebuffID(thisUnit, v, "player") and debuff.refresh(thisUnit,"player") then
+                    counter = counter + 1
+                end
+            end
+        end
+        return tonumber(counter)
+    end
     debuff.lowest = function(range,debuffType,source)
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
