@@ -310,7 +310,7 @@ actionList.aa = function()
             and inventory.trinket2 ~= items.dreadfireVessel
             or (getItemCooldownDuration(inventory.trinket1) -5 < cd.trueshot.remain()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2)))
-            or unit.instance("raid") and unit.ttd("target" < cd.trueshot.remain()
+            or unit.instance("raid") and unit.ttd("target") < cd.trueshot.remain()
         then
             if canUseItem(inventory.trinket1) and not isBlacklistedTrinket(13) then return useItem(inventory.trinket1) end
         end
