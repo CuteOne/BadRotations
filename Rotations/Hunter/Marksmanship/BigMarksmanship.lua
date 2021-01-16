@@ -60,6 +60,8 @@ local function createOptions()
                                         1, "|cffFFFFFFWho to use Misdirection on")
             br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             br.ui:createCheckbox(section,"Hunter's Mark")
+            br.ui:createDropdownWithout(section, "Kill Shot Target", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Kill Shot." )
+            br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             br.ui:createCheckbox(section,"Trinkets Logic", "|cffFFFFFFUse trinkets according to simc logic in raids, in other content use best trinket with trueshot")
@@ -67,15 +69,14 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createCheckbox(section,select(1,GetItemInfo(br.player.items.potionOfSpectralAgility), "Use potion in raids with other cooldowns"))
-            br.ui:createCheckbox(section,select(1,GetItemInfo(br.player.items.spectralFlaskOfPower)), "Use flask")
+            br.ui:createCheckbox(section, "Potion of Spectral Agility", "Use potion in raids with other cooldowns")
+            br.ui:createCheckbox(section, "Spectral Flask of Power", "Use flask")
             br.ui:createCheckbox(section,"Racial")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             br.player.module.BasicHealing(section)
             br.ui:createSpinner(section, "Aspect Of The Turtle",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-            br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         if br.player ~= nil and br.player.spell ~= nil and br.player.spell.interrupts ~= nil then
@@ -370,8 +371,13 @@ actionList.st = function()
         return cast.steadyShot()
     end
     -- kill_shot
-    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
-        return cast.killShot(var.lowestHPUnit)
+    for i=1, #enemies.get(40,_,_,false,true) do
+        local thisUnit = enemies.get(40,_,_,true)[i]
+        if ui.value("Kill Shot Target") == 1 or (ui.value("Kill Shot Target") == 2 and unit.isUnit(thisUnit,"target")) then
+            if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 then
+                if cast.killShot(thisUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
+            end
+        end
     end
     --------------------------------------------------------------------------------- TODO AFTER THIS ---------------------------------------------------------------------------------
     --------------------------------------------------------------------------------- TODO AFTER THIS ---------------------------------------------------------------------------------
@@ -578,10 +584,14 @@ actionList.aoe = function()
     if cast.able.chimaeraShot() and buff.preciseShots.exists() and power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot() and #enemies.yards8t < 4 then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot [Trick Shots]") return true end
     end
-    -- Kill Shot
     -- kill_shot,if=buff.dead_eye.down
-    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 and not buff.deadEye.exists() then
-        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
+    for i=1, #enemies.get(40,_,_,false,true) do
+        local thisUnit = enemies.get(40,_,_,true)[i]
+        if ui.value("Kill Shot Target") == 1 or (ui.value("Kill Shot Target") == 2 and unit.isUnit(thisUnit,"target")) then
+            if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 and buff.deadEye.exists() then
+                if cast.killShot(thisUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
+            end
+        end
     end
     -- Flayed Shot
     -- flayed_shot
@@ -643,7 +653,8 @@ actionList.extra = function()
     end
     -- Tranq
     if ui.checked("Tranquilizing Shot") then
-        for _k, thisUnit in pairs(enemies.get(40,_,_,true)) do
+        for i=1, #enemies.get(40,_,_,true) do
+            local thisUnit = enemies.get(40,_,_,true)[i]
             if ui.value("Tranquilizing Shot") == 1 or (ui.value("Tranquilizing Shot") == 2 and unit.isUnit(thisUnit,"target")) then
                 if unit.valid(thisUnit) and cast.dispel.tranquilizingShot(thisUnit) then
                     if cast.tranquilizingShot(thisUnit) then ui.debug("Casting Tranquilizing Shot") return true end
@@ -775,11 +786,10 @@ actionList.kick = function()
                 end
             end
         end
-        for i=1, #br.player.interrupts.activeList do
-            local spell = br.player.interrupts.activeList[i]
-            if isCastingSpell(spell, unit) and canInterrupt(unit) then
-                br.player.interrupts.currentUnit = unit
-                br.player.interrupts.unitSpell = spell
+        for id, active in pairs(br.player.interrupts.activeList) do
+            if active and isCastingSpell(id, theUnit) and canInterrupt(theUnit) then
+                br.player.interrupts.currentUnit = theUnit
+                br.player.interrupts.unitSpell = id
             end
         end
     end

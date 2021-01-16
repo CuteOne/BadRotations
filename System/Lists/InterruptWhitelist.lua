@@ -5,6 +5,7 @@ end
 br.lists.interruptWhitelist = {
 	-- Castle Nathria start
 	[333002] = true, -- Vulgar Brand
+	[265407] = true, -- Dinner Bell
 	-- Castle Nathria end
 	-- Plaguefall start
 	[328475] = true, -- Enveloping Webbing
@@ -17,6 +18,8 @@ br.lists.interruptWhitelist = {
 	[332666] = true, -- Heal
 	[332612] = true, -- Healing Wave
 	[332084] = true, -- Self Cleaning Cycle
+	[321764] = true, -- Bark Armor
+	[333875] = true, -- Deaths Embrace
 	-- De other side end
 	-- Sanguine Depths start
 	[319654] = true, -- hungering-drain
