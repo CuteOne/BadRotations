@@ -794,6 +794,7 @@ br.lists.spells = {
                 scentOfBlood                = 285646,
                 survivalInstincts           = 61336,
                 tigersFury                  = 5217,
+                stampedingRoar              = 77764,
             },
             conduits                        = {
 
@@ -1021,6 +1022,7 @@ br.lists.spells = {
                 solarWrathMoonkin           = 197629,
                 soothe                      = 2908,
                 stampedingRoar              = 106898,
+                stampedingRoarCat           = 77764,
                 starsurgeAff                = 197626,
                 sunfireMoonkin              = 197630,
                 swiftmend                   = 18562,
@@ -1060,7 +1062,8 @@ br.lists.spells = {
                 shadowmeld                  = 58984,
                 soulshape                   = 310143,
                 stagForm                    = 210053,
-                stampedingRoar              = 77764,
+                stampedingRoar              = 106898,
+                stampedingRoarCat           = 77764,
                 suddenAmbush                = 340698,
                 travelForm                  = 783,
                 treantForm                  = 114282,
