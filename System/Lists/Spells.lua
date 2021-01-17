@@ -3495,6 +3495,7 @@ br.lists.spells = {
             debuffs                         = {
                 doom                        = 603,
                 shadowflame                 = 205181,
+                corruption                  = 172,
             },
             glyphs                          = {
 
