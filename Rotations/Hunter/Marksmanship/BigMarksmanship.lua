@@ -260,7 +260,7 @@ actionList.pc = function()
 
         --TODO!
         --actions.precombat+=/augmentation
-        if ui.pullTimer() <= 15 and ui.checked("Prepull logic") then
+        if unit.valid("target") and ui.pullTimer() <= 15 and ui.checked("Prepull logic") or (not ui.checked("Do not engage OOC") and unit.valid("target") and unit.distance("target") < 40) then
             -- actions.precombat+=/tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
                 return cast.tarTrap(units.dyn40,"ground")
@@ -274,13 +274,14 @@ actionList.pc = function()
                 return actionList.md(true)
             end
             --actions.precombat+=/aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
-            if cast.able.aimedShot() and ui.pullTimer() <= 2 and not unit.moving("player") and #enemies.yards8t < 3 and (#enemies.yards8t < 2 or (not covenant.kyrian.active and not talent.volley)) then
+            if (ui.pullTimer() <= 2 or not ui.checked("Do not engage OOC")) and cast.able.aimedShot() and not unit.moving("player") and #enemies.yards8tnc < 3 and (#enemies.yards8tnc < 2 or (not covenant.kyrian.active and not talent.volley)) then
                 return cast.aimedShot("target")
             end
             --actions.precombat+=/steady_shot,if=active_enemies>2|(covenant.kyrian|talent.volley)&active_enemies=2
-            if cast.able.steadyShot() and (#enemies.yards8t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards8t == 2)) then
+            if cast.able.steadyShot() and (#enemies.yards8tnc > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards8tnc == 2)) then
                 return cast.steadyShot("target")
             end
+            if not ui.checked("Do not engage OOC") then unit.startAttack("target") end
         end
     end
 end -- End Action List - pc
@@ -866,6 +867,7 @@ local function runRotation()
     -- Get required enemies table
     units.get(40)
     enemies.get(8,"target")
+    enemies.get(8,"target",true)
     enemies.get(40,nil,false,true)
 
     -- Variables
