@@ -189,11 +189,14 @@ local buff
 local cast
 local cd
 local charges
+local conduit
+local covenant
 local debuff
 local enemies
 local holyPower
 local module
 local race
+local runeforge
 local talent
 local ui
 local unit
@@ -659,7 +662,7 @@ actionList.Finisher = function()
     -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|(cooldown.execution_sentence.remains%gcd+holy_power>7|target.time_to_die<8))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains%gcd+holy_power>7)&(!covenant.necrolord.enabled|cooldown.vanquishers_hammer.remains>gcd)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10|buff.vanquishers_hammer.up
     if cast.able.templarsVerdict() then
         if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
-            and (not talent.executionSentence or ((cd.executionSentence.remains() / unit.ttd(true)) + holyPower > 7 or not ui.alwaysCdNever("Execution Sentence")))
+            and (not talent.executionSentence or ((cd.executionSentence.remains() / unit.gcd(true)) + holyPower > 7 or not ui.alwaysCdNever("Execution Sentence")))
             and (not talent.finalReckoning or (cd.finalReckoning.remains() / unit.gcd(true)) + holyPower > 7 or not ui.alwaysCdNever("Final Reckoning"))
             and (not covenant.necrolord.active or cd.vanquishersHammer.remains() > unit.gcd(true))
                 or ((talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or buff.holyAvenger.exists()
@@ -829,11 +832,14 @@ local runRotation = function()
     cast = br.player.cast
     cd = br.player.cd
     charges = br.player.charges
+    conduit = br.player.conduit
+    covenant = br.player.covenant
     debuff = br.player.debuff
     enemies = br.player.enemies
     holyPower = br.player.power.holyPower.amount()
     module = br.player.module
     race = br.player.race
+    runeforge = br.player.runeforge
     talent = br.player.talent
     ui = br.player.ui
     unit = br.player.unit

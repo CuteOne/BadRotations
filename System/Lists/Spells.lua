@@ -2302,6 +2302,7 @@ br.lists.spells = {
                 holyAvenger                 = 105809,
                 retributionAura             = 183435,
                 seraphim                    = 152262,
+                vanquishersHammer           = 328204,
             },
             conduits                        = {
 
