@@ -550,11 +550,10 @@ actionList.Cooldowns = function()
             end
         end
         -- fireblood,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
-        if
-            race == "DarkIronDwarf" and
+        if race == "DarkIronDwarf" and
                 (unit.level() < 37 or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10) or
                     ((not ui.alwaysCdNever("Avenging Wrath") and not talent.crusade) or (talent.crusade and not ui.alwaysCdNever("Crusade"))))
-         then
+        then
             if cast.racial() then
                 ui.debug("Casting Racial: Dark Iron Dwarf")
                 return true
@@ -580,269 +579,195 @@ actionList.Cooldowns = function()
     -- Trinkets
     module.BasicTrinkets()
     -- Avenging Wrath
-    -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
-    if
-        ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath() and
-            (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists()) and
-            var.timeToHPG == 0
-     then
-        if cast.avengingWrath() then
-            ui.debug("Casting Avenging Wrath")
-            return true
-        end
+    -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&(!talent.seraphim.enabled|cooldown.seraphim.remains>0)
+    if ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
+        and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
+        and (not talent.seraphim or cd.seraphim.exists() or not ui.alwaysCdNever("Seraphim"))
+    then
+        if cast.avengingWrath() then ui.debug("Casting Avenging Wrath") return true end
     end
     -- Crusade
-    -- crusade,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&time_to_hpg=0
-    if
-        ui.alwaysCdNever("Crusade") and talent.crusade and cast.able.crusade() and
-            (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists()) and
-            var.timeToHPG == 0
-     then
-        if cast.crusade() then
-            ui.debug("Casting Crusade")
-            return true
-        end
+    -- crusade,if=(holy_power>=4&time<5|holy_power>=3&time>5|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)
+    if ui.alwaysCdNever("Crusade") and talent.crusade and cast.able.crusade()
+        and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and unit.combatTime() > 5 or talent.holyAvenger and not cd.holyAvenger.exists())
+    then
+        if cast.crusade() then ui.debug("Casting Crusade") return true end
     end
     -- Ashen Hallow
     -- ashen_hallow
     if ui.alwaysCdNever("Covenant Ability") and cast.able.ashenHallow() then
-        if cast.ashenHallow() then
-            ui.debug("Casting Ashen Hallow [Venthyr]")
-            return true
-        end
+        if cast.ashenHallow() then ui.debug("Casting Ashen Hallow [Venthyr]") return true end
     end
     -- Holy Avenger
     -- holy_avenger,if=time_to_hpg=0&((buff.avenging_wrath.up|buff.crusade.up)|(buff.avenging_wrath.down&cooldown.avenging_wrath.remains>40|buff.crusade.down&cooldown.crusade.remains>40))
-    if
-        ui.alwaysCdNever("Holy Avenger") and var.timeToHPG == 0 and
-            ((buff.avengingWrath.exists() or buff.crusade.exists()) or
-                (not buff.avengingWrath.exists() and (cd.avengingWrath.remains() > 40 or not ui.alwaysCdNever("Avenging Wrath")) or
-                    not buff.crusade.exists() and (buff.crusade.remains() > 40 or not ui.alwaysCdNever("Crusade"))))
-     then
-        if cast.holyAvenger() then
-            ui.debug("Casting Holy Avenger")
-            return true
-        end
+    if ui.alwaysCdNever("Holy Avenger") and var.timeToHPG == 0 and ((buff.avengingWrath.exists() or buff.crusade.exists())
+        or (not buff.avengingWrath.exists() and (cd.avengingWrath.remains() > 40 or not ui.alwaysCdNever("Avenging Wrath"))
+        or not buff.crusade.exists() and (buff.crusade.remains() > 40 or not ui.alwaysCdNever("Crusade"))))
+    then
+        if cast.holyAvenger() then ui.debug("Casting Holy Avenger") return true end
     end
     -- Final Reckoning
     -- final_reckoning,if=holy_power>=3&cooldown.avenging_wrath.remains>gcd&time_to_hpg=0&(!talent.seraphim.enabled|buff.seraphim.up)
-    if
-        ui.alwaysCdNever("Final Reckoning") and holyPower >= 3 and (cd.avengingWrath.remains() > unit.gcd(true) or not ui.alwaysCdNever("Avenging Wrath")) and var.timeToHPG == 0 and
-            (not talent.seraphim or buff.seraphim.exists() or not ui.alwaysCdNever("Seraphim"))
-     then
-        if cast.finalReckoning() then
-            ui.debug("Casting Final Reckoning")
-            return true
-        end
+    if ui.alwaysCdNever("Final Reckoning") and holyPower >= 3 and (cd.avengingWrath.remains() > unit.gcd(true) or not ui.alwaysCdNever("Avenging Wrath"))
+        and var.timeToHPG == 0 and (not talent.seraphim or buff.seraphim.exists() or not ui.alwaysCdNever("Seraphim"))
+    then
+        if cast.finalReckoning() then ui.debug("Casting Final Reckoning") return true end
     end
 end -- End Action List - Cooldowns
 -- Action List - Finisher
 actionList.Finisher = function()
     -- Seraphim
-    -- seraphim,if=((!talent.crusade.enabled&buff.avenging_wrath.up|cooldown.avenging_wrath.remains>25)|(buff.crusade.up|cooldown.crusade.remains>25))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains<10)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains<10)&time_to_hpg=0
-    if
-        ui.alwaysCdNever("Seraphim") and cast.able.seraphim() and
-            ((not talent.crusade and (buff.avengingWrath.exists() or cd.avengingWrath.remains() > 25 or not ui.alwaysCdNever("Avenging Wrath"))) or
-                (buff.crusade.exists() and (cd.crusade.remains() > 25 or not ui.alwaysCdNever("Crusade")))) and
-            (not talent.finalReckoning or cd.finalReckoning.remains() < 10) and
-            (not talent.executionSentence or cd.executionSentence.remains() < 10) and
-            var.timeToHPG == 0
-     then
-        if cast.seraphim() then
-            ui.debug("Casting Seraphim")
-            return true
-        end
+    -- seraphim,if=((!talent.crusade.enabled&(cooldown.avenging_wrath.remains>25|cooldown.avenging_wrath.remains=0))|(talent.execution_sentence.enabled&talent.final_reckoning.enabled)|(buff.crusade.up|cooldown.crusade.remains>25))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains<8)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains<8)&time_to_hpg=0
+    if ui.alwaysCdNever("Seraphim") and cast.able.seraphim()
+        and ((not talent.crusade and (cd.avengingWrath.remains() > 25 or cd.avengingWrath.exists() or not ui.alwaysCdNever("Avenging Wrath")))
+            or (talent.executionSentence and talent.finalReckoning) or (buff.crusade.exists() and (cd.crusade.remains() > 25 or not ui.alwaysCdNever("Crusade"))))
+        and (not talent.finalReckoning or cd.finalReckoning.remains() < 8) and (not talent.executionSentence or cd.executionSentence.remains() < 8) and var.timeToHPG == 0
+    then
+        if cast.seraphim() then ui.debug("Casting Seraphim") return true end
     end
     -- Vanquisher's Hammer
     -- vanquishers_hammer,if=(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10|debuff.final_reckoning.up)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10|debuff.execution_sentence.up)|spell_targets.divine_storm>=2
-    if
-        ui.alwaysCdNever("Covenant Ability") and cast.able.vanquishersHammer() and
-            (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10 or debuff.finalReckoning.exists(units.dyn5)) and
-            (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10 or debuff.executionSentence.exists(units.dyn5) or
-                not ui.alwaysCdNever("Execution Sentence")) or
-            var.dsUnits
-     then
-        if cast.vanquishersHammer() then
-            ui.debug("Casting Vanquisher's Hammer [Necrolord]")
-            return true
-        end
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.vanquishersHammer()
+        and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10 or debuff.finalReckoning.exists(units.dyn5))
+        and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10 or debuff.executionSentence.exists(units.dyn5)
+            or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits
+    then
+        if cast.vanquishersHammer() then ui.debug("Casting Vanquisher's Hammer [Necrolord]") return true end
     end
     -- Execution Sentence
-    -- execution_sentence,if=spell_targets.divine_storm<=3&((!talent.crusade.enabled|buff.crusade.down&cooldown.crusade.remains>10)|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10|debuff.final_reckoning.up)&time_to_hpg=0
-    if
-        ui.alwaysCdNever("Execution Sentence") and cast.able.executionSentence() and (not var.dsUnits or unit.level() < 23) and
-            ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not ui.alwaysCdNever("Crusade")) or buff.crusade.stack() >= 3) or
-                (cd.avengingWrath.remain() > 10 or not ui.alwaysCdNever("Avenging Wrath")) or
-                debuff.finalReckoning.exists(units.dyn5)) and
-            var.timeToHPG == 0
-     then
-        if cast.executionSentence() then
-            ui.debug("Casting Execution Sentence")
-            return true
-        end
+    -- execution_sentence,if=((!talent.crusade.enabled|buff.crusade.down&cooldown.crusade.remains>10)|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10|debuff.final_reckoning.up)&time_to_hpg=0&target.time_to_die>8
+    if ui.alwaysCdNever("Execution Sentence") and cast.able.executionSentence()
+        and ((not talent.crusade or not buff.crusade.exists() and (cd.crusade.remain() > 10 or not ui.alwaysCdNever("Crusade")) or buff.crusade.stack() >= 3)
+            or (cd.avengingWrath.remain() > 10 or not ui.alwaysCdNever("Avenging Wrath")) or debuff.finalReckoning.exists(units.dyn5))
+        and var.timeToHPG == 0 and unit.ttd(units.dyn5) > 8 
+    then
+        if cast.executionSentence() then ui.debug("Casting Execution Sentence") return true end
     end
     -- Divine Storm
-    -- divine_storm,if=variable.ds_castable&!buff.vanquishers_hammer.up&((!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3|spell_targets.divine_storm>=3)|spell_targets.divine_storm>=2&(talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.crusade.up&buff.crusade.stack<10))
-    if
-        cast.able.divineStorm() and var.dsCastable and --and not buff.vanquishersHammer.exists()
-            ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade")) and
-                (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) or var.dsUnits) or
-                (var.dsUnits and (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.crusade.exists() and buff.crusade.stack() < 10)))
-     then
+    -- divine_storm,if=variable.ds_castable&!buff.vanquishers_hammer.up&((!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|(cooldown.execution_sentence.remains%gcd+holy_power>7|target.time_to_die<8))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains%gcd+holy_power>7)|spell_targets.divine_storm>=2&(talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.crusade.up&buff.crusade.stack<10))
+    if cast.able.divineStorm() and var.dsCastable and not buff.vanquishersHammer.exists()
+        and (((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
+        and (not talent.executionSentence or ((cd.executionSentence.remains() / unit.gcd(true)) + holyPower > 7 or not ui.alwaysCdNever("Execution Sentence")))
+        and (not talent.finalReckoning or (cd.finalReckoning.remains() / unit.gcd(true)) + holyPower > 7 or not ui.alwaysCdNever("Final Reckoning")))
+        or var.dsUnits)
+        and ((talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or (buff.crusade.exists() and buff.crusade.stack() < 10))
+    then
         local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
-        if cast.divineStorm(nil, "aoe", theseUnits, 8) then
-            ui.debug("Casting Divine Storm")
-            return true
-        end
+        if cast.divineStorm(nil, "aoe", theseUnits, 8) then ui.debug("Casting Divine Storm") return true end
     end
     -- Templar's Verdict
-    -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*3&spell_targets.divine_storm<=3)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*3)&(!covenant.necrolord.enabled|cooldown.vanquishers_hammer.remains>gcd)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10|buff.vanquishers_hammer.up
+    -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|(cooldown.execution_sentence.remains%gcd+holy_power>7|target.time_to_die<8))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains%gcd+holy_power>7)&(!covenant.necrolord.enabled|cooldown.vanquishers_hammer.remains>gcd)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10|buff.vanquishers_hammer.up
     if cast.able.templarsVerdict() then
-        if
-            ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade")) and
-                (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Execution Sentence")) and not var.dsUnits) and
-                (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Final Reckoning")) or
-                talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or
-                buff.holyAvenger.exists() and buff.crusade.stack() < 10)
-         then
-            if cast.templarsVerdict() then
-                ui.debug("Casting Templar's Verdict")
-                return true
-            end
+        if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
+            and (not talent.executionSentence or ((cd.executionSentence.remains() / unit.ttd(true)) + holyPower > 7 or not ui.alwaysCdNever("Execution Sentence")))
+            and (not talent.finalReckoning or (cd.finalReckoning.remains() / unit.gcd(true)) + holyPower > 7 or not ui.alwaysCdNever("Final Reckoning"))
+            and (not covenant.necrolord.active or cd.vanquishersHammer.remains() > unit.gcd(true))
+                or ((talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or buff.holyAvenger.exists()
+                or (buff.crusade.exists() and buff.crusade.stack() < 10) or buff.vanquishersHammer.exists()))
+        then
+            if cast.templarsVerdict() then ui.debug("Casting Templar's Verdict") return true end
         end
     end
 end -- End Action List - Finisher
 -- Action List - Generator
 actionList.Generator = function()
     -- Call Action List - Finishers
-    -- call_action_list,name=finishers,if=holy_power>=5|buff.holy_avenger.up|debuff.final_reckoning.up|debuff.execution_sentence.up|buff.memory_of_lucid_dreams.up|buff.seething_rage.up
-    if holyPower >= 5 or buff.holyAvenger.exists() or debuff.finalReckoning.exists(units.dyn5) or debuff.executionSentence.exists(units.dyn5) or buff.memoryOfLucidDreams.exists() then
-        if actionList.Finisher() then
-            return true
-        end
+    -- call_action_list,name=finishers,if=holy_power=5|buff.holy_avenger.up|debuff.final_reckoning.up|debuff.execution_sentence.up
+    if holyPower >= 5 or buff.holyAvenger.exists() or debuff.finalReckoning.exists(units.dyn5) or debuff.executionSentence.exists(units.dyn5) then
+        if actionList.Finisher() then return true end
     end
     -- Divine Toll
-    -- divine_toll,if=!debuff.judgment.up&(!raid_event.adds.exists|raid_event.adds.in>30)&(holy_power<=2|holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*10)
-    if
-        ui.alwaysCdNever("Covenant Ability") and cast.able.divineToll() and not debuff.judgment.exists(units.dyn5) and not var.dsUnits and
-            (holyPower <= 2 or
-                holyPower <= 4 and (cd.bladeOfJustice.remains() > unit.gcd(true) * 2 or debuff.executionSentence.exists(units.dyn5) or debuff.finalReckoning.exists(units.dyn5))) and
-            (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10) and
-            (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10)
-     then
-        if cast.divineToll() then
-            ui.debug("Casting Divine Toll [Kyrian]")
-            return true
+    -- divine_toll,if=!debuff.judgment.up&(!raid_event.adds.exists|raid_event.adds.in>30)&(holy_power<=2|holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|(debuff.execution_sentence.up|target.time_to_die<8)|debuff.final_reckoning.up))&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*10)&(!talent.execution_sentence.enabled|(cooldown.execution_sentence.remains>gcd*10|target.time_to_die<8))&(cooldown.avenging_wrath.remains>0|cooldown.crusade.remains>0)
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.divineToll() then
+        if not debuff.judgment.exists(units.dyn5) and not var.dsUnits and (holyPower <= 2 or holyPower <= 4
+            and (cd.bladeOfJustice.remains() > unit.gcd(true) * 2 or (debuff.executionSentence.exists(units.dyn5) or unit.ttd(units.dyn5) < 8) or debuff.finalReckoning.exists(units.dyn5)))
+            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 10) and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 10 or unit.ttd(units.dyn5) < 8)
+            and ((cd.avengingWrath.remains() > 0 or not ui.alwaysCdNever("Avenging Wrath")) or (cd.crusade.remains() > 0 or not ui.alwaysCdNever("Crusade")))
+        then
+            if cast.divineToll() then ui.debug("Casting Divine Toll [Kyrian]") return true end
         end
     end
     -- Wake of Ashes
     -- wake_of_ashes,if=(holy_power=0|holy_power<=2&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!raid_event.adds.exists|raid_event.adds.in>20)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>15)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>15)
-    if
-        ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes() and
-            (holyPower <= 0 or
-                holyPower <= 2 and (cd.bladeOfJustice.remain() > unit.gcd(true) or debuff.executionSentence.exists(units.dyn5) or debuff.finalReckoning.exists(units.dyn5))) and
-            ui.useST() and
-            (not talent.executionSentence or cd.executionSentence.remains() > 15 or not ui.alwaysCdNever("Execution Sentence")) and
-            (not talent.finalReckoning or cd.finalReckoning.remains() > 15 or not ui.alwaysCdNever("Final Reckoning"))
-     then
-        if cast.wakeOfAshes(units.dyn12, "cone", 1, 12) then
-            ui.debug("Casting Wake of Ashes")
-            return true
+    -- wake_of_ashes,if=(holy_power=0|holy_power<=2&(cooldown.blade_of_justice.remains>gcd*2|(debuff.execution_sentence.up|target.time_to_die<8)|debuff.final_reckoning.up))&(!raid_event.adds.exists|raid_event.adds.in>20)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>15)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>15)&(cooldown.avenging_wrath.remains>0|cooldown.crusade.remains>0)
+    if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes() and (holyPower <= 0 or holyPower <= 2
+        and (cd.bladeOfJustice.remain() > unit.gcd(true) * 2 or (debuff.executionSentence.exists(units.dyn5) or unit.ttd(units.dyn5) < 8) or debuff.finalReckoning.exists(units.dyn5)))
+        and ui.useST() and (not talent.executionSentence or cd.executionSentence.remains() > 15 or not ui.alwaysCdNever("Execution Sentence"))
+        and (not talent.finalReckoning or cd.finalReckoning.remains() > 15 or not ui.alwaysCdNever("Final Reckoning"))
+        and ((cd.avengingWrath.remains() > 0 or not ui.alwaysCdNever("Avenging Wrath")) or (cd.crusade.remains() > 0 or not ui.alwaysCdNever("Crusade")))
+    then
+        if cast.wakeOfAshes(units.dyn12, "cone", 1, 12) then ui.debug("Casting Wake of Ashes") return true end
+    end
+    -- Blade of Justice
+    -- blade_of_justice,if=holy_power<=3&talent.execution_sentence.enabled&(debuff.execution_sentence.up|cooldown.execution_sentence.remains=0)
+    if cast.able.bladeOfJustice() and holyPower <= 3 and talent.executionSentence and (debuff.executionSentence.exists(units.dyn5) or not cd.executionSentence.exists()) then
+        if cast.bladeOfJustice() then ui.debug("Casting Blade of Justice [Execution Sentence]") return true end
+    end
+    -- Hammer of Wrath
+    -- hammer_of_wrath,if=holy_power<=4
+    if cast.able.hammerOfWrath() then
+        if buff.avengingWrath.exists() or buff.crusade.exists() then
+            if cast.hammerOfWrath() then ui.debug("Casting Hammer of Wrath [Avenging Wrath]") return true end
+        end
+        for i = 1, #enemies.yards30f do
+            local thisUnit = enemies.yards30f[i]
+            if unit.hp(thisUnit) < 20 then
+                if cast.hammerOfWrath(thisUnit) then ui.debug("Casting Hammer of Wrath [Less Than 20 HP]") return true end
+            end
         end
     end
     -- Blade of Justice
     -- blade_of_justice,if=holy_power<=3
     if cast.able.bladeOfJustice() and holyPower <= 3 then
-        if cast.bladeOfJustice() then
-            ui.debug("Casting Blade of Justice")
-            return true
-        end
-    end
-    -- Hammer of Wrath
-    -- hammer_of_wrath,if=holy_power<=4
-    if cast.able.hammerOfWrath() and holyPower <= 4 then
-        if buff.avengingWrath.exists() or buff.crusade.exists() then
-            if cast.hammerOfWrath() then
-                ui.debug("Casting Hammer of Wrath [Avenging Wrath]")
-                return true
-            end
-        end
-        for i = 1, #enemies.yards30f do
-            local thisUnit = enemies.yards30f[i]
-            if unit.hp(thisUnit) < 20 then
-                if cast.hammerOfWrath(thisUnit) then
-                    ui.debug("Casting Hammer of Wrath [Less Than 20 HP]")
-                    return true
-                end
-            end
-        end
+        if cast.bladeOfJustice() then ui.debug("Casting Blade of Justice") return true end
     end
     -- Judgment
-    -- judgment,if=!debuff.judgment.up&(holy_power<=2|holy_power<=4&cooldown.blade_of_justice.remains>gcd*2)
-    if cast.able.judgment() and not debuff.judgment.exists(unit.dyn5) and (holyPower <= 2 or holyPower <= 4 and cd.bladeOfJustice.remain() > unit.gcd(true) * 2) then
-        if cast.judgment() then
-            ui.debug("Casting Judgment")
-            return true
-        end
+    -- judgment,if=!debuff.judgment.up
+    if cast.able.judgment() and not debuff.judgment.exists(unit.dyn5) then
+        if cast.judgment() then ui.debug("Casting Judgment") return true end
     end
     -- Call Action List: Finishers
     -- call_action_list,name=finishers,if=(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up|buff.empyrean_power.up)
     if (unit.hp(units.dyn5) <= 20 or buff.avengingWrath.exists() or buff.crusade.exists() or buff.empyreanPower.exists() or buff.divinePurpose.exists()) then
-        if actionList.Finisher() then
-            return
-        end
+        if actionList.Finisher() then  return end
     end
     -- Crusader Strike
     -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2)
-    if
-        cast.able.crusaderStrike() and charges.crusaderStrike.frac() >= 1.75 and
-            (holyPower <= 2 or holyPower <= 3 and cd.bladeOfJustice.remain() > unit.gcd(true) * 2 or
-                holyPower == 4 and cd.bladeOfJustice.remain() > unit.gcd(true) * 2 and cd.judgment.remain() > unit.gcd(true) * 2)
-     then
-        if cast.crusaderStrike() then
-            ui.debug("Casting Crusader Strike [Cap Prevention]")
-            return true
-        end
+    if cast.able.crusaderStrike() and charges.crusaderStrike.frac() >= 1.75
+        and (holyPower <= 2 or holyPower <= 3 and cd.bladeOfJustice.remain() > unit.gcd(true) * 2 or holyPower == 4
+        and cd.bladeOfJustice.remain() > unit.gcd(true) * 2 and cd.judgment.remain() > unit.gcd(true) * 2)
+    then
+        if cast.crusaderStrike() then ui.debug("Casting Crusader Strike [Cap Prevention]") return true end
+    end
+    -- Consecration
+    -- consecration,if=!consecration.up&spell_targets.divine_storm>=2
+    if not GetTotemInfo(1) and var.dsUnits then
+        if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration [AOE]") return true end
     end
     -- Call Action List: Finishers
     -- call_action_list,name=finishers
     if actionList.Finisher() then
         return
     end
-    --actions.generators+=/consecration,if=!consecration.up
+    -- Consecration
+    -- consecration,if=!consecration.up
     if not GetTotemInfo(1) then
-        if cast.consecration("player", "aoe", 1, 8) then
-            ui.debug("Casting Consecration")
-            return true
-        end
+        if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration") return true end
     end
-    -- -- Essence: Concentrated Flame
-    -- if ui.checked("Use Essence") and cast.able.concentratedFlame() then
-    --     if cast.concentratedFlame() then ui.debug("Casting Heart Essence: Concentrated Flame") return true end
-    -- end
     -- Crusader Strike
-    -- crusader_strike,if=holy_power<=4
-    if cast.able.crusaderStrike() and holyPower <= 4 then
-        if cast.crusaderStrike() then
-            ui.debug("Casting Crusader Strike")
-            return true
-        end
+    -- crusader_strike
+    if cast.able.crusaderStrike() then
+        if cast.crusaderStrike() then ui.debug("Casting Crusader Strike") return true end
     end
     -- Arcane Torrent
-    -- arcane_torrent,if=holy_power<=4
-    if ui.checked("Racial") and cast.able.racial() and race == "BloodElf" and holyPower <= 4 then
-        if cast.racial() then
-            ui.debug("Casting Racial: Blood Elf")
-            return true
-        end
+    -- arcane_torrent
+    if ui.checked("Racial") and cast.able.racial() and race == "BloodElf" then
+        if cast.racial() then ui.debug("Casting Racial: Blood Elf") return true end
     end
     -- Consecration
     -- consecration,if=time_to_hpg>gcd
     if cast.able.consecration() and var.timeToHPG > unit.gcd(true) then
-        if cast.consecration("player", "aoe", 1, 8) then
-            ui.debug("Casting Consecration")
-            return true
-        end
+        if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration [Low HPG]") return true end
     end
 end -- End Action List - Generator
 -- Action List - PreCombat
@@ -929,11 +854,9 @@ local runRotation = function()
     enemies.get(40)
 
     -- Profile Variables
-    -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down|spell_targets.divine_storm>=2&buff.crusade.up&buff.crusade.stack<10
+    -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
     var.dsUnits = ((ui.mode.rotation == 1 and (#enemies.yards8 >= ui.value("Divine Storm Units"))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
-    var.dsCastable =
-        (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()) or
-        (var.dsUnits and buff.crusade.exists() and buff.crusade.stack() < 10))
+    var.dsCastable = (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
     var.lowestUnit = br.friend[1].unit
     var.resable = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target", "player")
     var.timeToHPG = cd.crusaderStrike.remain()
