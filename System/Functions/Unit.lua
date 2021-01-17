@@ -222,8 +222,10 @@ function getHP(Unit)
 		else
 			if not UnitIsDeadOrGhost(Unit) and GetUnitIsVisible(Unit) then
 				for i = 1,#br.friend do
-					if br.friend[i].guidsh == string.sub(UnitGUID(Unit),-5) then
-						return br.friend[i].hp
+					if br.friend[i] then
+						if br.friend[i].guidsh == string.sub(UnitGUID(Unit),-5) then
+							return br.friend[i].hp
+						end
 					end
 				end
 				if getOptionCheck("Incoming Heals") == true and UnitGetIncomingHeals(Unit,"player") ~= nil then

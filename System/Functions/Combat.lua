@@ -293,10 +293,12 @@ function hasThreat(unit,playerUnit)
 	-- Party/Raid Threat Validation
 	if #br.friend > 1 then
 		for i = 1, #br.friend do
-			local thisUnit = br.friend[i].unit
-			if threatSituation(thisUnit,unit) then
+			if br.friend[i] then
+				local thisUnit = br.friend[i].unit
+				if threatSituation(thisUnit,unit) then
 				-- Print("[Party/Raid Threat] "..UnitName(thisUnit).." has threat with "..UnitName(unit))
-				return true
+					return true
+				end
 			end
 		end
 	end
