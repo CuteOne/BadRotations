@@ -588,7 +588,7 @@ local function runRotation()
 			if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
-					if isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
+					if not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
 						if cast.hammerOfJustice(thisUnit) then return true end
 					end
 				end
@@ -643,6 +643,14 @@ local function runRotation()
 				local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
 				if ID == 164561 and distance <= 5 then
 					InteractUnit(object)
+				end
+			end
+		end
+		-- Wicked Gash or Dark Stride
+		if cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
+			for i = 1, #br.friend do
+				if getDebuffStacks(br.friend[i].unit,331415) > 1 or getDebuffStacks(br.friend[i].unit,324154) > 1 then
+					if cast.blessingOfProtection(br.friend[i].unit) then return true end
 				end
 			end
 		end
