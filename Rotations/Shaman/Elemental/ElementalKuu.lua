@@ -69,8 +69,6 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
-        -- APL
-        br.ui:createDropdownWithout(section, "APL Mode", {"|cff0070deSimC", "|cff0070deAMR"}, 1, "|cff0070deSet APL Mode to use.")
         -- Auto Engage
         br.ui:createCheckbox(section, "Auto Engage On Target", "|cff0070deCheck this to start combat upon clicking a target.", 1)
         -- Dummy DPS Test
@@ -1289,24 +1287,43 @@ local function runRotation()
                 end
             end
         end
-        -- Earth Shock
-        --actions.single_target+=/earth_shock,if=!buff.surge_of_power.up&talent.master_of_the_elements.enabled
-        --&(buff.master_of_the_elements.up|maelstrom>=92+30*talent.call_the_thunder.enabled|buff.stormkeeper.up&active_enemies<2)|!talent.master_of_the_elements.enabled
-        --&(buff.stormkeeper.up|maelstrom>=90+30*talent.call_the_thunder.enabled|!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)
-        if
-            not buff.surgeOfPower.exists() and (talent.masterOfTheElements and buff.masterOfTheElements.exists() or buff.stormKeeper.exists()) or
-                ((not talent.masterOfTheElements and buff.stormKeeper.exists()) or power >= ui.value("Earth Shock Maelstrom Dump")) and holdBreak
-         then
-            if cast.earthShock() then
-                br.addonDebug("Casting Earthshock")
-                return
-            end
-        end
         --# Cast Lightning Bolt regardless of the previous condition if you'd lose a Stormkeeper stack or have Stormkeeper and Master of the Elements active.
         -- actions.single_target+=/lightning_bolt,if=(buff.stormkeeper.remains<1.1*gcd*buff.stormkeeper.stack|buff.stormkeeper.up&buff.master_of_the_elements.up)
         if ((buff.stormKeeper.remains() < 1.1 * gcdMax * buff.stormKeeper.stack()) or buff.stormKeeper.exists() and buff.masterOfTheElements.exists()) then
             if cast.lightningBolt() then
                 br.addonDebug("Casting Lightning Bolt")
+                return
+            end
+        end
+        -- WLR Lava Surge Lava Burst
+        if runeforge.windspeakersLavaResurgence.equiped and buff.lavaSurge.exists() and holdBreak then
+            if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
+                if cast.lavaBurst() then
+                    br.addonDebug("Casting Lava Burst")
+                    return
+                end
+            else
+                for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if debuff.flameShock.remain(thisUnit) > getCastTime(spell.lavaBurst) then
+                        if cast.lavaBurst(thisUnit) then
+                            br.addonDebug("Casting Lava Burst")
+                            return
+                        end
+                    end
+                end
+            end
+        end
+        -- Earth Shock
+        --actions.single_target+=/earth_shock,if=!buff.surge_of_power.up&talent.master_of_the_elements.enabled
+        --&(buff.master_of_the_elements.up|maelstrom>=92+30*talent.call_the_thunder.enabled|buff.stormkeeper.up&active_enemies<2)|!talent.master_of_the_elements.enabled
+        --&(buff.stormkeeper.up|maelstrom>=90+30*talent.call_the_thunder.enabled|!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)
+        if
+        not buff.surgeOfPower.exists() and (talent.masterOfTheElements and buff.masterOfTheElements.exists() or buff.stormKeeper.exists()) or
+        ((not talent.masterOfTheElements and buff.stormKeeper.exists()) or power >= ui.value("Earth Shock Maelstrom Dump")) and holdBreak
+        then
+            if cast.earthShock() then
+                br.addonDebug("Casting Earthshock")
                 return
             end
         end
@@ -1451,6 +1468,26 @@ local function runRotation()
                 return
             end
         end
+        -- Lava Burst (Moving)
+        --actions.aoe+=/lava_burst,moving=1,if=talent.ascendance.enabled
+        if buff.lavaSurge.exists() and moving then
+            if getFacing("player", "target") and debuff.flameShock.exists("target") then
+                if cast.lavaBurst() then
+                    br.addonDebug("Casting Lava Burst")
+                    return
+                end
+            else
+                for i = 1, #enemies.yards40f do
+                    local thisUnit = enemies.yards40f[i]
+                    if getFacing("player", thisUnit) and debuff.flameShock.exists(thisUnit) then
+                        if cast.lavaBurst(thisUnit) then
+                            br.addonDebug("Casting Lava Burst")
+                            return
+                        end
+                    end
+                end
+            end
+        end
         -- Flame Shock (Moving)
         --actions.aoe+=/flame_shock,moving=1,target_if=refreshable
         if moving then
@@ -1558,115 +1595,113 @@ local function runRotation()
                 end
             end
             --Simc
-            if ui.value("APL Mode") == 1 then
-                --Trinkets
-                if ui.checked("Trinkets") and useCDs() then
-                    if equiped.shiverVenomRelic() and ui.checked("Shiver Venom") then
-                        if debuff.shiverVenom.stack("target") == 5 then
-                            if UnitCastingInfo("player") then
-                                SpellStopCasting()
-                            end
-                            use.shiverVenomRelic()
-                            br.addonDebug("Using Shiver Venom Relic")
+            --Trinkets
+            if ui.checked("Trinkets") and useCDs() then
+                if equiped.shiverVenomRelic() and ui.checked("Shiver Venom") then
+                    if debuff.shiverVenom.stack("target") == 5 then
+                        if UnitCastingInfo("player") then
+                            SpellStopCasting()
                         end
-                    elseif (buff.ascendance.exists("player") or #enemies.yards10t >= 3 or cast.last.fireElemental() or cast.last.stormElemental()) and holdBreak then
-                        if canUseItem(13) and not equiped.shiverVenomRelic(13) then
-                            if UnitCastingInfo("player") then
-                                SpellStopCasting()
-                            end
-                            useItem(13)
-                            br.addonDebug("Using Trinket 1")
+                        use.shiverVenomRelic()
+                        br.addonDebug("Using Shiver Venom Relic")
+                    end
+                elseif (buff.ascendance.exists("player") or #enemies.yards10t >= 3 or cast.last.fireElemental() or cast.last.stormElemental()) and holdBreak then
+                    if canUseItem(13) and not equiped.shiverVenomRelic(13) then
+                        if UnitCastingInfo("player") then
+                            SpellStopCasting()
                         end
-                        if canUseItem(14) and not equiped.shiverVenomRelic(14) then
-                            if UnitCastingInfo("player") then
-                                SpellStopCasting()
-                            end
-                            useItem(14)
-                            br.addonDebug("Using Trinket 2")
+                        useItem(13)
+                        br.addonDebug("Using Trinket 1")
+                    end
+                    if canUseItem(14) and not equiped.shiverVenomRelic(14) then
+                        if UnitCastingInfo("player") then
+                            SpellStopCasting()
                         end
+                        useItem(14)
+                        br.addonDebug("Using Trinket 2")
                     end
                 end
-                --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
-                if ui.checked("Storm Elemental/Fire Elemental") and useCDs() and holdBreak and not earthEle then
-                    if not talent.stormElemental then
-                        --actions+=/storm_elemental,if=talent.storm_elemental.enabled&(!talent.icefury.enabled|!buff.icefury.up&!cooldown.icefury.up)&(!talent.ascendance.enabled|!cooldown.ascendance.up)
-                        if cast.fireElemental() then
-                            br.addonDebug("Casting Fire Elemental")
+            end
+            --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
+            if ui.checked("Storm Elemental/Fire Elemental") and useCDs() and holdBreak and not earthEle then
+                if not talent.stormElemental then
+                    --actions+=/storm_elemental,if=talent.storm_elemental.enabled&(!talent.icefury.enabled|!buff.icefury.up&!cooldown.icefury.up)&(!talent.ascendance.enabled|!cooldown.ascendance.up)
+                    if cast.fireElemental() then
+                        br.addonDebug("Casting Fire Elemental")
+                        return
+                    end
+                elseif
+                    talent.stormElemental and (not talent.iceFury or (not buff.iceFury.exists("player") and cd.iceFury.remain() > gcd)) and
+                        (not talent.ascendance or (cd.ascendance.remain() > gcd or not useCDs()))
+                    then
+                    if cast.stormElemental() then
+                        br.addonDebug("Casting Storm Elemental")
+                        return
+                    end
+                end
+            end
+            --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
+            --actions+=/earth_elemental,if=!talent.primal_elementalist.enabled|talent.primal_elementalist.enabled&(cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled)
+            if
+                useCDs() and ui.checked("Earth Elemental") and
+                    (not talent.primalElementalist or (talent.primalElementalist and ((not fireEle and not talent.stormElemental) or (not stormEle and talent.stormElemental)))) and
+                    holdBreak
+                then
+                if cast.earthElemental() then
+                    br.addonDebug("Casting Earth Elemental (Main)")
+                    return
+                end
+            end
+            -- Racial Buffs
+            if
+                (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and ui.checked("Racial") and useCDs() and
+                    (not talent.ascendance or buff.ascendance.exists("player") or cd.ascendance.remain() > 50) and
+                    holdBreak
+                then
+                if race == "LightforgedDraenei" then
+                    if cast.racial("target", "ground") then
+                        br.addonDebug("Casting Racial")
+                        return
+                    end
+                else
+                    if cast.racial("player") then
+                        br.addonDebug("Casting Racial")
+                        return
+                    end
+                end
+            end
+            --actions+=/primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up
+            if ui.checked("Primordial Wave") and covenant.necrolord.active and not buff.primordialWave.exists() then
+                for i = 1, #enemies.yards40f do
+                    if getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 then
+                        if cast.primordialWave(enemies.yards40f[i]) then
+                            br.addonDebug("Casting Primordial Wave")
                             return
                         end
-                    elseif
-                        talent.stormElemental and (not talent.iceFury or (not buff.iceFury.exists("player") and cd.iceFury.remain() > gcd)) and
-                            (not talent.ascendance or (cd.ascendance.remain() > gcd or not useCDs()))
-                     then
-                        if cast.stormElemental() then
-                            br.addonDebug("Casting Storm Elemental")
-                            return
-                        end
                     end
                 end
-                --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
-                --actions+=/earth_elemental,if=!talent.primal_elementalist.enabled|talent.primal_elementalist.enabled&(cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled)
-                if
-                    useCDs() and ui.checked("Earth Elemental") and
-                        (not talent.primalElementalist or (talent.primalElementalist and ((not fireEle and not talent.stormElemental) or (not stormEle and talent.stormElemental)))) and
-                        holdBreak
-                 then
-                    if cast.earthElemental() then
-                        br.addonDebug("Casting Earth Elemental (Main)")
-                        return
-                    end
+            end
+            -- actions+=/vesper_totem,if=covenant.kyrian
+            if covenant.kyrian.active then
+                if cast.vesperTotem() then
+                    br.addonDebug("Casting Vesper Totem")
+                    return
                 end
-                -- Racial Buffs
-                if
-                    (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and ui.checked("Racial") and useCDs() and
-                        (not talent.ascendance or buff.ascendance.exists("player") or cd.ascendance.remain() > 50) and
-                        holdBreak
-                 then
-                    if race == "LightforgedDraenei" then
-                        if cast.racial("target", "ground") then
-                            br.addonDebug("Casting Racial")
-                            return
-                        end
-                    else
-                        if cast.racial("player") then
-                            br.addonDebug("Casting Racial")
-                            return
-                        end
-                    end
+            end
+            --actions+=/fae_transfusion,if=covenant.night_fae
+            if covenant.nightFae.active then
+                if cast.faeTransfusion() then
+                    br.addonDebug("Casting Fae Transfusion")
+                    return
                 end
-                --actions+=/primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up
-                if ui.checked("Primordial Wave") and covenant.necrolord.active and not buff.primordialWave.exists() then
-                    for i = 1, #enemies.yards40f do
-                        if getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 then
-                            if cast.primordialWave(enemies.yards40f[i]) then
-                                br.addonDebug("Casting Primordial Wave")
-                                return
-                            end
-                        end
-                    end
+            end
+            if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
+                if actionList_AoE() then
+                    return
                 end
-                -- actions+=/vesper_totem,if=covenant.kyrian
-                if covenant.kyrian.active then
-                    if cast.vesperTotem() then
-                        br.addonDebug("Casting Vesper Totem")
-                        return
-                    end
-                end
-                --actions+=/fae_transfusion,if=covenant.night_fae
-                if covenant.nightFae.active then
-                    if cast.faeTransfusion() then
-                        br.addonDebug("Casting Fae Transfusion")
-                        return
-                    end
-                end
-                if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
-                    if actionList_AoE() then
-                        return
-                    end
-                elseif (#enemies.yards10t <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
-                    if actionList_ST() then
-                        return
-                    end
+            elseif (#enemies.yards10t <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
+                if actionList_ST() then
+                    return
                 end
             end
         end
