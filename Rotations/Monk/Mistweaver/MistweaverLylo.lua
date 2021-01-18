@@ -1,6 +1,6 @@
 local br = _G["br"]
 local rotationName = "Lylo"
-local version = "2.2.0"
+local version = "2.2.1"
 
 
 local colors = {
@@ -1149,7 +1149,9 @@ end
 
 local getDebugInfo = function()
     if labels.lowest then
-        labels.lowest:SetText("   ".. UnitName(friends.lowest.unit) .. " at " .. round2(friends.lowest.hp, 2) .."%")
+        if friends.lowest then
+            labels.lowest:SetText("   ".. UnitName(friends.lowest.unit) .. " at " .. round2(friends.lowest.hp, 2) .."%")
+        end
         local tempColor = colors.red
         if friends.lowAllies.essenceFont >= ui.value(text.heal.essenceFont.."1") then
             tempColor = colors.green
