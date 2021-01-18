@@ -260,7 +260,7 @@ actionList.pc = function()
 
         --TODO!
         --actions.precombat+=/augmentation
-        if unit.valid("target") and ui.pullTimer() <= 15 and ui.checked("Prepull logic") or (not ui.checked("Do not engage OOC") and unit.valid("target") and unit.distance("target") < 40) then
+        if ui.pullTimer() <= 15 and ui.checked("Prepull logic") or (not ui.checked("Do not engage OOC") and unit.valid("target") and unit.distance("target") < 40) then
             -- actions.precombat+=/tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
                 return cast.tarTrap(units.dyn40,"ground")
