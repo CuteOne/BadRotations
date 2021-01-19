@@ -119,6 +119,7 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Free Word of Glory",  65,  0,  100,  5,  "|cffFFBB00Word of Glory to use at.")
 		-- Hand of the Protector - on others
 		br.ui:createSpinner(section, "Word of Glory - Party",  40,  0,  100,  5,  "|cffFFBB00Teammate Word of Glory to use at.")
+		br.ui:createDropdownWithout(section, "WoG - Party Target", {"|cffFFFFFFOther tanks", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 4, "|cffFFFFFFTarget for Word of Glory")
 		-- Lay On Hands
 		br.ui:createSpinner(section, "Lay On Hands", 15, 0, 100, 5, "","Health Percentage to use at")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
@@ -437,22 +438,42 @@ local function runRotation()
 				end
 			end
 			-- Word of Glory
+			if php <= getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
+				SotR = false
+				if cast.wordOfGlory("player") then return true end
+			end
 			if holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists() then
-				if isChecked("Word of Glory") and getHP("player") <= getOptionValue("Word of Glory") then
+				if isChecked("Word of Glory") and php <= getOptionValue("Word of Glory") then
 					SotR = false
 					if cast.wordOfGlory("player") then return true end
-				elseif isChecked("Word of Glory - Party") and getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") then
-					SotR = false
-					if cast.wordOfGlory(lowestUnit) then return true end
+				end
+				if isChecked("Word of Glory - Party") then
+					if getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") then
+						if getOptionValue("WoG - Party Target") == 1 then
+							if UnitGroupRolesAssigned(lowestUnit) == "TANK" and not GetUnitIsUnit(lowestUnit,"player") then
+								SotR = false
+								if cast.wordOfGlory(lowestUnit) then return true end
+							end
+						elseif getOptionValue("WoG - Party Target") == 2 then
+							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+								SotR = false
+								if cast.wordOfGlory(lowestUnit) then return true end
+							end
+						elseif getOptionValue("WoG - Party Target") == 3 then
+							if (UnitGroupRolesAssigned(lowestUnit) == "TANK" or UnitGroupRolesAssigned(lowestUnit) == "HEALER") and not GetUnitIsUnit(lowestUnit,"player") then
+								SotR = false
+								if cast.wordOfGlory(lowestUnit) then return true end
+							end
+						elseif getOptionValue("WoG - Party Target") == 4 then
+							SotR = false
+							if cast.wordOfGlory(lowestUnit) then return true end
+						end
+					end
 				end
 				if (buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcdMax) or (buff.shiningLight.exists() and buff.shiningLight.remain() < gcdMax) or (buff.royalDecree.exists() and buff.royalDecree.remain() < gcdMax) then
 					SotR = false
 					if cast.wordOfGlory(lowestUnit) then return true end
 				end
-			end
-			if getHP("player") <= getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
-				SotR = false
-				if cast.wordOfGlory("player") then return true end
 			end
 			-- Blessing of Protection
 			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss("boss1") then
@@ -689,10 +710,10 @@ local function runRotation()
 			end
 		end
 		-- Divine Toll
-		if (GetObjectID("boss1") == 165946 or GetObjectID("boss1") == 164185) and cast.able.divineToll() and getCombatTime() > 5 then
+		if (GetObjectID("boss1") == 165946 or GetObjectID("boss1") == 164185 or GetObjectID("boss1") == 167406) and cast.able.divineToll() then
 			for i = 1, #enemies.yards30 do
 			local thisUnit = enemies.yards30[i]
-				if GetObjectID(thisUnit) == 166524 or GetObjectID(thisUnit) == 164363 then
+				if GetObjectID(thisUnit) == 166524 or GetObjectID(thisUnit) == 164363 or GetObjectID(thisUnit) == 167999 then
 					if cast.divineToll(thisUnit) then return true end
 				end
 			end
@@ -887,8 +908,8 @@ local function runRotation()
 				if cast.avengersShield(units.dyn30) then return true end
 			end
 			-- Divine Toll
-			if isChecked("Divine Toll") and cast.able.divineToll() then
-				if (#enemies.yards10 >= getValue("Divine Toll") or isBoss(units.dyn30)) and GetObjectID("boss1") ~= 165946 and GetObjectID("boss1") ~= 164185 then
+			if isChecked("Divine Toll") and cast.able.divineToll() and GetObjectID("boss1") ~= 165946 and GetObjectID("boss1") ~= 164185 then
+				if (#enemies.yards10 >= getValue("Divine Toll") or (isBoss(units.dyn30) and GetObjectID("boss1") ~= 167406) or (isBoss(units.dyn30) and GetObjectID("boss1") == 167406 and getHP("boss1") <= 70)) then
 					if cast.divineToll(units.dyn30) then return true end
 				end
 			end
