@@ -161,7 +161,7 @@ local function createOptions()
 
     local function rotationOptions()
         local section
-        section = br.ui:createSection(br.ui.window.profile, "Debug Info")
+        section = br.ui:createSection(br.ui.window.profile, "Debug Info - Version " .. version)
         br.ui:createCheckbox(       section, text.debug,  "Enable Debug Info")
         br.ui:createCheckbox(       section, text.detailedDebugger,  "Enable Debug Info")
         br.ui:createText(section, "Lowest Unit")
@@ -291,7 +291,7 @@ local function createOptions()
         br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
 
-        section = br.ui:createSection(br.ui.window.profile, "Made By: Lylo - Version " .. version)
+        section = br.ui:createSection(br.ui.window.profile, "Made By: Lylo")
         br.ui:createText(section, colors.red    .. "Discord contact: " .. colors.green .. "LyLo#0253")
         br.ui:createText(section, colors.red    .. "This is not a job, it's a hobby. I don't get paid for this, I do ")
         br.ui:createText(section, colors.red    .. "it because I like it. SO if you make me hate this, I just STOP. ")
