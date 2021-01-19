@@ -459,7 +459,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Holy Shock Damage") and cast.able.holyShock() then
+        if cast.able.holyShock() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if ccDoubleCheck(thisUnit) and (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and not debuff.glimmerOfLight.exists(thisUnit, "player") and not UnitIsDeadOrGhost(thisUnit) and getLineOfSight(thisUnit, "player") then
@@ -955,11 +955,13 @@ local function runRotation()
             if getOptionValue("Divine Toll") == 1 and holyPower == 0 then
                 --Print("trying to cast")
                 CastSpellByName(GetSpellInfo(spell.divineToll), lowest.unit)
+                return true
             end
             if getOptionValue("Divine Toll") == 2 then
                 if getLowAllies(getValue("Divine Toll Health")) >= getValue("Divine Toll Units") then
                     --Print("trying to cast")
                     CastSpellByName(GetSpellInfo(spell.divineToll), lowest.unit)
+                    return true
                 end
             end
         end
@@ -1009,7 +1011,7 @@ local function runRotation()
                     end
                 end
                 --find lowest friend without glitter buff on them - tank first
-                for i = 1, #br.friend do
+                --[[ for i = 1, #br.friend do
                     if getLineOfSight(br.friend[i].unit, "player") then
                         if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not UnitIsDeadOrGhost(br.friend[i].unit) and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
                             if cast.holyShock(br.friend[i].unit) then
@@ -1019,7 +1021,7 @@ local function runRotation()
                             end
                         end
                     end
-                end
+                end ]]
                 glimmerTable = {}
                 for i = 1, #br.friend do
                     if getLineOfSight(br.friend[i].unit, "player") and not UnitIsDeadOrGhost(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
@@ -1185,7 +1187,7 @@ local function runRotation()
     end -- end healing
 
     if isChecked("Raid Boss Helper") then
-        if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577) and inCombat then
+        if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577) or GetObjectID("target") == 173112 and inCombat then
             if getHP("target") < 100 then
                 if not buff.beaconOfLight.exists("target") and GetObjectID("target") == 165759 then
                     if cast.beaconOfLight("target") then
@@ -1266,6 +1268,10 @@ local function runRotation()
                     return
                 end
 
+                if defensiveTime() then
+                    return
+                end
+
                 if isChecked("OOC Healing") then
                     if mode.beacon ~= 4 and not talent.beaconOfVirtue then
                         if Beacon() then
@@ -1312,7 +1318,7 @@ local function runRotation()
                         end
                     end
 
-                    if mode.wrath == 1 then
+                    if mode.wrath == 1 and buff.avengingWrath.exists("player") and br.player.runeforge.madParagon.equiped then
                         if getHP("target") <= 20 or IsSpellOverlayed(24275) then
                             if cast.hammerOfWrath("target") then
                                 return
@@ -1329,8 +1335,27 @@ local function runRotation()
                             end
                         end
                     end
+                    
                     if spendies() then
                         return
+                    end
+
+                    if mode.wrath == 1 then
+                        if getHP("target") <= 20 or IsSpellOverlayed(24275) then
+                            if cast.hammerOfWrath("target") then
+                                return
+                            end
+                        end
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if ccDoubleCheck(thisUnit) and (isChecked("Dev Stuff Leave off") or getFacing("player", thisUnit)) and holyPower <= 5 and lowest.hp >= getValue("Critical HP") then
+                                if getHP(thisUnit) <= 20 or IsSpellOverlayed(24275) then
+                                    if cast.hammerOfWrath(thisUnit) then
+                                        return
+                                    end
+                                end
+                            end
+                        end
                     end
 
                     if useCDs() then

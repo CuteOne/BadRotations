@@ -2340,6 +2340,9 @@ br.lists.spells = {
                 seraphim                    = 152262,
                 unbreakableSpirit           = 114154,
             },
+            runeforges                      = {
+                madParagon                  = 337594,
+            }
         },
     },
     PRIEST = {
