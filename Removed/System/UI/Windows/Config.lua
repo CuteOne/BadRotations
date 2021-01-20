@@ -1,0 +1,13 @@
+local function callOtherFeaturesEngine()
+    --br.ui:createCheckbox(section, "PokeRotation")
+    br.ui:createDropdown(section, "Anti-Afk", {"Enabled","Disabled"}, 2, "Turn EWT Anti-Afk On/Off")
+    br.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
+    br.ui:createDropdown(section, "Prospect Ores", {"SL", "BFA", "Legion", "WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores. Profession Helper must be checked.")
+    br.ui:createDropdown(section, "Mill Herbs", {"SL", "BFA", "Legion", "WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs. Profession Helper must be checked.")
+    br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens. Profession Helper must be checked.")
+    br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps. Profession Helper must be checked.")
+    br.ui:createCheckbox(section, "Lockboxes", "Unlock Lockboxes. Profession Helper must be checked.")
+    br.ui:createDropdown(section, "Fishing", {"Enabled", "Disabled"}, 2, "Turn EWT Fishing On/Off")
+    br.ui:createCheckbox(section, "Fish Oil", "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked.")
+    br.ui:createDropdown(section, "Bait", {"Lost Sole Bait","Silvergill Pike Bait","Pocked Bonefish Bait","Iridescent Amberjack Bait", "Spinefin Piranha Bait", "Elysian Thade Bait"}, 1, "Using the bait.")
+end

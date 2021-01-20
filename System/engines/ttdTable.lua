@@ -10,7 +10,6 @@ function TTDRefresh(hpLimit)
 		}
 	end
 
-	local totalUnits = enemyTable.totalUnits
 	local units = enemyTable.units
 	local ttd = enemyTable.ttd
 	local dps = enemyTable.dps

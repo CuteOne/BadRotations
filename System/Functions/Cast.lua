@@ -788,21 +788,3 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
     end
 	return false
 end
-
--- Cast Spell Queue
-function castQueue()
-	-- Catch for spells not registering on Combat log
-	if br.player ~= nil then
-		if br.player.queue ~= nil and #br.player.queue > 0 and not IsAoEPending() then
-			for i=1, #br.player.queue do
-				local thisUnit = br.player.queue[i].target
-				local debug = br.player.queue[i].debug
-				local minUnits = br.player.queue[i].minUnits
-				local effectRng = br.player.queue[i].effectRng
-				local spellID = br.player.queue[i].id
-				if createCastFunction(thisUnit,debug,minUnits,effectRng,spellID) then return end
-			end
-		end
-	end
-	return
-end

@@ -47,25 +47,6 @@ function br:getUpdateRate()
 	return updateRate
 end
 
-
-
-function br.antiAfk()
-	if br.unlocked and br.player then
-		local ui = br.player.ui
-		local IsHackEnabled = _G["IsHackEnabled"]
-		local SetHackEnabled = _G["SetHackEnabled"]
-		if ui.checked("Anti-Afk") then
-			if not IsHackEnabled("antiafk") and ui.value("Anti-Afk") == 1 then
-				SetHackEnabled("antiafk",true)
-			end
-		elseif ui.checked("Anti-Afk") and ui.value("Anti-Afk") == 2 then
-			if IsHackEnabled("antiafk") then
-				SetHackEnabled("antiafk",false)
-			end
-		end
-	end
-end
-
 local collectGarbage = true
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
@@ -91,7 +72,7 @@ function BadRotationsUpdate(self)
 	-- Load and Cycle BR
 	elseif br.unlocked and GetObjectCountBR() ~= nil then
 		-- Check BR Out of Date
-		br:checkBrOutOfDate()		
+		br:checkBrOutOfDate()
 		-- Get Current Addon Name
 		br:setAddonName()
 		-- Load Saved Settings
@@ -120,9 +101,6 @@ function BadRotationsUpdate(self)
 						RunMacroText("/stopcasting")
 					end
 				end
-				if isCastingSpell(318763) then
-					return true
-				end
 				-- Blizz CastSpellByName bug bypass
 				if br.castID then
 					-- Print("Casting by ID")
@@ -150,20 +128,6 @@ function BadRotationsUpdate(self)
 					collectGarbage = true
 					br.rotationChanged = false
 				end
-				-- Queue Casting
-				if (isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not UnitChannelInfo("player") then
-					if castQueue() then
-						return
-					end
-				end
-				if (not isChecked("Queue Casting") or UnitIsDeadOrGhost("player") or not UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
-					wipe(br.player.queue) 
-					if not isChecked("Mute Queue") then
-						if not isChecked("Queue Casting") then Print("Queue System Disabled! - Queue Cleared.") end
-						if UnitIsDeadOrGhost("player") then Print("Player Death Detected! - Queue Cleared.") end 
-						if not UnitAffectingCombat("player") then Print("No Combat Detected! - Queue Cleared.") end
-					end
-				end 
 				--Smart Queue
 				if br.unlocked and isChecked("Smart Queue") then
 					br.smartQueue()
@@ -238,16 +202,8 @@ function BadRotationsUpdate(self)
 						BWCheck()
 					end
 				end
-				-- Accept dungeon queues
-				br:AcceptQueues()
 				--Tracker
 				br.objectTracker()
-				-- Anti-Afk
-				br.antiAfk()
-				-- Fishing
-				br.fishing()
-				-- Profession Helper
-				ProfessionHelper()
 				-- Rotation Log
 				br.ui:toggleDebugWindow()
 				-- Settings Garbage Collection

@@ -85,7 +85,6 @@ Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
 
 ## Engines
 
-System\Engines\ArtifactTable.lua
 System\Engines\EnemiesEngine.lua
 System\Engines\EnemiesEngineFunctions.lua
 System\Engines\HealingEngine.lua
@@ -93,7 +92,7 @@ System\Engines\HealingEngineCollections.lua
 System\Engines\HealingEngineFrame.lua
 System\Engines\HealingEngineFunctions.lua
 #System\Engines\InterruptsFrame.lua -- Unused
-System\Engines\Interrupts.lua 
+System\Engines\Interrupts.lua
 System\Engines\ttdTable.lua
 System\Engines\QuestTracker.lua
 System\Engines\Tracker.lua
@@ -148,25 +147,9 @@ System\Loader\cBuilder.lua
 
 ## Misc
 
-## PokeRotation ----------------------------------------------
-
-System\Misc\PokeRotation\PokeAbilities.lua
-System\Misc\PokeRotation\PokeCollections.lua
-System\Misc\PokeRotation\PokeData.lua
-System\Misc\PokeRotation\PokeEngine.lua
-System\Misc\PokeRotation\PokeSwapper.lua
-System\Misc\PokeRotation\PokeUI.lua
-System\Misc\PokeRotation\PokeUnitInfo.lua
-
-## ProfessionHelper -----------------------------------------
-
-System\Misc\ProfessionHelper\ProfessionHelper.lua
-
 ## Zu BossManager -------------------------------------
 
 System\Misc\Zu\BossManager.lua
-System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
-System\Misc\Zu\MawOfSouls\Helya.lua
 
 ## Updater --------------------------------------------
 System\Updater.lua

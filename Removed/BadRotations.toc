@@ -1,0 +1,18 @@
+## ProfessionHelper -----------------------------------------
+
+System\Misc\ProfessionHelper\ProfessionHelper.lua
+
+## Misc
+System\Misc\PokeRotation\PokeAbilities.lua
+System\Misc\PokeRotation\PokeCollections.lua
+System\Misc\PokeRotation\PokeData.lua
+System\Misc\PokeRotation\PokeEngine.lua
+System\Misc\PokeRotation\PokeSwapper.lua
+System\Misc\PokeRotation\PokeUI.lua
+System\Misc\PokeRotation\PokeUnitInfo.lua
+System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
+System\Misc\Zu\MawOfSouls\Helya.lua
+
+## Engines
+System\Engines\ArtifactTable.lua
+#System\Engines\InterruptsFrame.lua -- Unused
