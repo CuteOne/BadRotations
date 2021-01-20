@@ -187,6 +187,7 @@ local buff
 local cast
 local cd
 local conduit
+local covenant
 local debuff
 local enemies
 local equiped
@@ -481,7 +482,7 @@ actionList.Cooldowns = function()
                 end
             end
             -- apocalypse,if=active_enemies=1&debuff.festering_wound.stack>=4&(!talent.unholy_blight|talent.army_of_the_damned&(!runeforge.deadliest_coil|conduit.convocation_of_the_dead.rank<5)|!talent.army_of_the_damned&conduit.convocation_of_the_dead.rank>=5|fight_remains<16)
-            if (not talent.unholyBlight or (talent.armyOfTheDamned and (not runeforge.deadliestCoil.equiped or conduit.convocationOfTheDead.rank < 5)) or (not talent.armyOfTheDamned and conduit.convocationOfTheDead >= 5)) then
+            if (not talent.unholyBlight or (talent.armyOfTheDamned and (not runeforge.deadliestCoil.equiped or conduit.convocationOfTheDead.rank < 5)) or (not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank >= 5)) then
                 if cast.apocalypse() then ui.debug("Casting Apocalypse [ST]") return true end
             end
         end
@@ -729,7 +730,7 @@ actionList.Single = function()
         -- festering_strike,if=debuff.festering_wound.stack<4&cooldown.apocalypse.remains<5&!variable.pooling_runes&(!talent.unholy_blight|talent.army_of_the_damned&conduit.convocation_of_the_dead.rank<5|!talent.army_of_the_damned&conduit.convocation_of_the_dead.rank>=5|!conduit.convocation_of_the_dead)
         if debuff.festeringWound.stack(units.dyn5) < 4 and cd.apocalypse.remains() < 5 and not var.poolingRunes
             and (not talent.unholyBlight or (talent.armyOfTheDamned and conduit.convocationOfTheDead.rank < 5)
-                or (not tlaent.armyOfTheDamned and conduit.convocationOfTheDead.rank >= 5) or not conduit.convocationOfTheDead.active)
+                or (not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank >= 5) or not conduit.convocationOfTheDead.active)
         then
             if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Apoc Soon]") return true end
         end
@@ -799,6 +800,7 @@ local function runRotation()
     cast                                          = br.player.cast
     cd                                            = br.player.cd
     conduit                                       = br.player.conduit
+    covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
