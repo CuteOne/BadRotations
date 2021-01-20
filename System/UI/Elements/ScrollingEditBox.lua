@@ -99,6 +99,7 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
     ---------------------------
     --------END input--------
     ---------------------------
+    return input, checkBox
 end
 
 function br.ui:createScrollingEditBoxWithout(parent, text, content, tooltip, width, height)

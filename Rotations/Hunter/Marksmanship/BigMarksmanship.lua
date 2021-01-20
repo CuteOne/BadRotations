@@ -45,38 +45,39 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        -- c = checkbox, d = dropdown, e = editbox, s = spinner
         section = br.ui:createSection(br.ui.window.profile, "General")
-            br.ui:createSpinner(section, "Dummy DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            br.ui:createCheckbox(section, "Do not engage OOC", "OOC=Out of combat")
-            br.ui:createCheckbox(section, "Prepull logic", "Works as opener")
+            sDummy, cDummy = br.ui:createSpinner(section, "Dummy DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            cOOC = br.ui:createCheckbox(section, "Do not engage OOC", "OOC=Out of combat")
+            cPrePull = br.ui:createCheckbox(section, "Prepull logic", "Works as opener")
             br.ui:createText(section, "Toggle options")
-            br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  6)
-            br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-            br.ui:createDropdownWithout(section, "Misdirection Mode", br.dropOptions.Toggle,  6)
-            br.ui:createDropdownWithout(section, "Volley Mode", br.dropOptions.Toggle,  6)
+            dRotationMode = br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  6)
+            dInterruptMode = br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
+            dMisdirectionMode = br.ui:createDropdownWithout(section, "Misdirection Mode", br.dropOptions.Toggle,  6)
+            dVolleyMode = br.ui:createDropdownWithout(section, "Volley Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Ability options")
-            br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"},
+            dMisdirection = br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"},
                                         1, "|cffFFFFFFWho to use Misdirection on")
-            br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
-            br.ui:createCheckbox(section,"Hunter's Mark")
-            br.ui:createDropdownWithout(section, "Kill Shot Target", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Kill Shot." )
-            br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
+            sVolley, cVolley = br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units.units to cast Volley on")
+            cHuntersMark = br.ui:createCheckbox(section,"Hunter's Mark")
+            dKillShot = br.ui:createDropdownWithout(section, "Kill Shot Target", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Kill Shot." )
+            dTranq, cTranq = br.ui:createDropdown(section, "Tranquilizing Shot", {"|cff00FF00Any","|cffFFFF00Target"}, 2,"|cffFFFFFFHow to use Tranquilizing Shot." )
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-            br.ui:createCheckbox(section,"Trinkets Logic", "|cffFFFFFFUse trinkets according to simc logic in raids, in other content use best trinket with trueshot")
-            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-            br.ui:createCheckbox(section, "Potion of Spectral Agility", "Use potion in raids with other cooldowns")
-            br.ui:createCheckbox(section, "Spectral Flask of Power", "Use flask")
-            br.ui:createCheckbox(section,"Racial")
+            cTrinkets = br.ui:createCheckbox(section,"Trinkets Logic", "|cffFFFFFFUse trinkets according to simc logic in raids, in other content use best trinket with trueshot")
+            dTrueshot = br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            dCovenant = br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            dDoubleTap = br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Trueshot Sync", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            dExplosiveShot = br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            cPotion = br.ui:createCheckbox(section, "Potion of Spectral Agility", "Use potion in raids with other cooldowns")
+            cFlask = br.ui:createCheckbox(section, "Spectral Flask of Power", "Use flask")
+            cRacial = br.ui:createCheckbox(section,"Racial")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             br.player.module.BasicHealing(section)
-            br.ui:createSpinner(section, "Aspect Of The Turtle",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-            br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            sTurtle, cTurtle = br.ui:createSpinner(section, "Aspect Of The Turtle",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            sExhilaration, cExhilaration = br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         if br.player ~= nil and br.player.spell ~= nil and br.player.spell.interrupts ~= nil then
@@ -87,22 +88,22 @@ local function createOptions()
                 end
             end
         end
-        br.ui:createSpinnerWithout(section, "Interrupts At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
-        br.ui:createCheckbox(section,"Interrupt All", "Interrupt All mobs")
-        br.ui:createCheckbox(section,"Interrupt BR Whitelisted", "Interrupt BadRotations whitelisted mobs")
-        br.ui:createScrollingEditBoxWithout(section,"Interrupt Personally Whitelisted", nil, "Type spellID to interrupt. Seperate items with comma (123,321)", 300, 40)
+        sInterruptsAt = br.ui:createSpinnerWithout(section, "Interrupts At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+        cInterruptAll = br.ui:createCheckbox(section,"Interrupt All", "Interrupt All mobs")
+        cInterruptBr = br.ui:createCheckbox(section,"Interrupt BR Whitelisted", "Interrupt BadRotations whitelisted mobs")
+        eInterruptPersonal = br.ui:createScrollingEditBoxWithout(section,"Interrupt Personally Whitelisted", nil, "Type spellID to interrupt. Seperate items with comma (123,321)", 300, 40)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "CCs")
         br.ui:createText(section, "Dungeon boss mechanics")
-        br.ui:createCheckbox(section,"Castle Nathria (Huntsman - Shade of Bargast)", "Cast Freezing Trap on Shade of Bargast")
-        br.ui:createCheckbox(section,"Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)", "Cast Freezing Trap on Illusionary Vulpin")
-        br.ui:createCheckbox(section,"Plaguefall (Globgrog - Slimy Smorgasbord)", "Cast Freezing Trap on Slimy Smorgasbord")
-        br.ui:createCheckbox(section,"The Necrotic Wake (Blightbone  - Carrion Worms)", "Cast Binding Shot on Carrion Worms")
+        cHuntsman = br.ui:createCheckbox(section,"Castle Nathria (Huntsman - Shade of Bargast)", "Cast Freezing Trap on Shade of Bargast")
+        cMistcaller = br.ui:createCheckbox(section,"Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)", "Cast Freezing Trap on Illusionary Vulpin")
+        cGlobgrog = br.ui:createCheckbox(section,"Plaguefall (Globgrog - Slimy Smorgasbord)", "Cast Freezing Trap on Slimy Smorgasbord")
+        cBlightbone =br.ui:createCheckbox(section,"The Necrotic Wake (Blightbone  - Carrion Worms)", "Cast Binding Shot on Carrion Worms")
         br.ui:createText(section, "Dungeon trash mechanics")
-        br.ui:createCheckbox(section,"Halls of Atonement (Vicious Gargon, Loyal Beasts)", "Cast Binding Shot on Vicious Gargon with Loyal Beasts")
-        br.ui:createCheckbox(section,"Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)", "Cast Freezing Trap on Defender of Many Eyes with Bulwark of Maldraxxus")
-        br.ui:createCheckbox(section,"Plaguefall (Rotting Slimeclaw)", "Cast Binding Shot on Rotting Slimeclaw with 20% hp")
-        br.ui:createCheckbox(section,"Theater of Pain (Disgusting Refuse)", "Cast Binding Shot on Disgusting Refuse to avoid jumping around")
+        cGorgon = br.ui:createCheckbox(section,"Halls of Atonement (Vicious Gargon, Loyal Beasts)", "Cast Binding Shot on Vicious Gargon with Loyal Beasts")
+        cDefender = br.ui:createCheckbox(section,"Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)", "Cast Freezing Trap on Defender of Many Eyes with Bulwark of Maldraxxus")
+        cSlimeclaw = br.ui:createCheckbox(section,"Plaguefall (Rotting Slimeclaw)", "Cast Binding Shot on Rotting Slimeclaw with 20% hp")
+        cRefuse = br.ui:createCheckbox(section,"Theater of Pain (Disgusting Refuse)", "Cast Binding Shot on Disgusting Refuse to avoid jumping around")
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -121,30 +122,54 @@ local cd
 local charges
 local covenant
 local debuff
-local enemies
 local equiped
 local maps = br.lists.maps
 local module
 local power
 local runeforge
-local spell
 local talent
 local items
 local ui
-local unit
-local units
 local use
 local var
 local actionList = {}
 local _ = nil
 
-
+-- ENUMS --
+local castLocations ={
+    ground = "ground",
+    groundCC = "groundCC"
+}
+local units = {
+    player = "player",
+    target = "target",
+    unit,
+    units,
+    enemies,
+    best = "best"
+}
+local instanceTypes = {
+    none = "none", -- when outside an instance
+    pvp = "pvp", -- when in a battleground
+    arena = "arena", -- when in an arena
+    party = "party", -- when in a 5-man instance
+    raid = "raid", -- when in a raid instance
+    scenario = "scenario" -- when in a scenario
+}
+local races = {
+    lightforgedDraenei = "LightforgedDraenei",
+    troll = "Troll",
+    orc = "Orc",
+    magharOrc = "MagharOrc",
+    DarkIronDwarf = "DarkIronDwarf",
+    vulpera = "Vulpera"
+}
 -----------------------
 --- Local Functions ---
 -----------------------
 
 local function isFreezingTrapActive()
-    for _,v in pairs(enemies.get(40, "player", true)) do if debuff.freezingTrap.exists(v, "player") then return true end end
+    for _,v in pairs(units.enemies.get(40, units.player, true)) do if debuff.freezingTrap.exists(v, units.player) then return true end end
     return false
 end
 
@@ -153,7 +178,7 @@ local function isBlacklistedTrinket(slot)
         bottledFlayedWingToxin = 178742
     }
     for _,v in pairs(trinketBlacklist) do
-        if v == GetInventoryItemID("player", slot) then return true end
+        if v == GetInventoryItemID(units.player, slot) then return true end
     end
     return false
 end
@@ -167,7 +192,7 @@ local function ccMobFinder(id, minHP, spellID)
         if v ~= nil then arguments = arguments + 1 end
     end
 
-    for _,v in pairs(enemies.get(40,nil,true)) do
+    for _,v in pairs(units.enemies.get(40,nil,true)) do
         foundMatch = 0
         if not isLongTimeCCed(v) then
             if id ~= nil then
@@ -181,7 +206,7 @@ local function ccMobFinder(id, minHP, spellID)
                 end
             end
             if spellID ~= nil then
-                if getDebuffDuration(v,spellID,"player") > 0 then
+                if getDebuffDuration(v,spellID,units.player) > 0 then
                     foundMatch = foundMatch + 1
                 end
             end
@@ -191,7 +216,7 @@ local function ccMobFinder(id, minHP, spellID)
 end
 
 local function checkForUpdates()
-    if getOptionCheck("Interrupt BR Whitelisted") ~= oldvalueBr or getOptionValue("Interrupt Personally Whitelisted") ~= oldValuePersonal then
+    if cInterruptBr.value ~= oldvalueBr or eInterruptPersonal.value ~= oldValuePersonal then
         br.player.interrupts.listUpdated = false
     end
 end
@@ -214,7 +239,10 @@ local function getItemSpellCd(itemId)
 end
 
 local function getItemCooldownDuration(itemId)
-    return GetSpellBaseCooldown(select(2,GetItemSpell(itemId))) / 1000
+    if select(2,GetItemSpell(itemId)) ~= nil then
+        return GetSpellBaseCooldown(2,GetItemSpell(itemId)) / 1000
+    end
+    return 0
 end
 
 local function getItemCooldownExists(itemId)
@@ -222,48 +250,49 @@ local function getItemCooldownExists(itemId)
 end
 
 local inventory = {
-    ammo                            = GetInventoryItemID("player", 0),
-    head                            = GetInventoryItemID("player", 1),
-    neck                            = GetInventoryItemID("player", 2),
-    shoulder                        = GetInventoryItemID("player", 3),
-    shirt                           = GetInventoryItemID("player", 4),
-    chest                           = GetInventoryItemID("player", 5),
-    waist                           = GetInventoryItemID("player", 6),
-    legs                            = GetInventoryItemID("player", 7),
-    feet                            = GetInventoryItemID("player", 8),
-    wrist                           = GetInventoryItemID("player", 9),
-    hands                           = GetInventoryItemID("player", 10),
-    finger1                         = GetInventoryItemID("player", 11),
-    finger2                         = GetInventoryItemID("player", 12),
-    trinket1                        = GetInventoryItemID("player", 13),
-    trinket2                        = GetInventoryItemID("player", 14),
-    back                            = GetInventoryItemID("player", 15),
-    mainHand                        = GetInventoryItemID("player", 16),
-    offHand                         = GetInventoryItemID("player", 17),
-    ranged                          = GetInventoryItemID("player", 18),
-    tabard                          = GetInventoryItemID("player", 19),
-    firstBag                        = GetInventoryItemID("player", 20),
-    secondBag                       = GetInventoryItemID("player", 21),
-    thirdBag                        = GetInventoryItemID("player", 22),
-    fourthBag                       = GetInventoryItemID("player", 23),
+    ammo                            = GetInventoryItemID(units.player, 0),
+    head                            = GetInventoryItemID(units.player, 1),
+    neck                            = GetInventoryItemID(units.player, 2),
+    shoulder                        = GetInventoryItemID(units.player, 3),
+    shirt                           = GetInventoryItemID(units.player, 4),
+    chest                           = GetInventoryItemID(units.player, 5),
+    waist                           = GetInventoryItemID(units.player, 6),
+    legs                            = GetInventoryItemID(units.player, 7),
+    feet                            = GetInventoryItemID(units.player, 8),
+    wrist                           = GetInventoryItemID(units.player, 9),
+    hands                           = GetInventoryItemID(units.player, 10),
+    finger1                         = GetInventoryItemID(units.player, 11),
+    finger2                         = GetInventoryItemID(units.player, 12),
+    trinket1                        = GetInventoryItemID(units.player, 13),
+    trinket2                        = GetInventoryItemID(units.player, 14),
+    back                            = GetInventoryItemID(units.player, 15),
+    mainHand                        = GetInventoryItemID(units.player, 16),
+    offHand                         = GetInventoryItemID(units.player, 17),
+    ranged                          = GetInventoryItemID(units.player, 18),
+    tabard                          = GetInventoryItemID(units.player, 19),
+    firstBag                        = GetInventoryItemID(units.player, 20),
+    secondBag                       = GetInventoryItemID(units.player, 21),
+    thirdBag                        = GetInventoryItemID(units.player, 22),
+    fourthBag                       = GetInventoryItemID(units.player, 23),
 }
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - pc
 actionList.pc = function()
+
     if not buff.feignDeath.exists() and not unit.inCombat() then
         -- actions.precombat=flask
-        if ui.checked("Spectral Flask of Power") then
-            if use.spectralFlaskOfPower() then ui.debug("Using Spectral Flask of Power") end
+        if cFlask.value and not buff.spectralFlaskOfPower.exists() then
+            return use.spectralFlaskOfPower()
         end
 
         --TODO!
         --actions.precombat+=/augmentation
-        if ui.pullTimer() <= 15 and ui.checked("Prepull logic") or (not ui.checked("Do not engage OOC") and unit.valid("target") and unit.distance("target") < 40) then
+        if ui.pullTimer() <= 15 and cPrePull.value or (not cOOC.value and unit.valid(units.target) and unit.distance(units.target) < 40) then
             -- actions.precombat+=/tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
-                return cast.tarTrap(units.dyn40,"ground")
+                return cast.tarTrap(units.units.dyn40,castLocations.ground)
             end
             --actions.precombat+=/double_tap,precast_time=10,if=active_enemies>1
             if cast.able.doubleTap() and ui.pullTimer() <= math.random(7,10) then
@@ -274,14 +303,14 @@ actionList.pc = function()
                 return actionList.md(true)
             end
             --actions.precombat+=/aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
-            if (ui.pullTimer() <= 2 or not ui.checked("Do not engage OOC")) and cast.able.aimedShot() and not unit.moving("player") and #enemies.yards8tnc < 3 and (#enemies.yards8tnc < 2 or (not covenant.kyrian.active and not talent.volley)) then
-                return cast.aimedShot("target")
+            if (ui.pullTimer() <= 2 or not cOOC.value) and cast.able.aimedShot() and not unit.moving(units.player) and #units.enemies.yards8tnc < 3 and (#units.enemies.yards8tnc < 2 or (not covenant.kyrian.active and not talent.volley)) then
+                return cast.aimedShot(units.target)
             end
             --actions.precombat+=/steady_shot,if=active_enemies>2|(covenant.kyrian|talent.volley)&active_enemies=2
-            if cast.able.steadyShot() and (#enemies.yards8tnc > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards8tnc == 2)) then
-                return cast.steadyShot("target")
+            if cast.able.steadyShot() and (#units.enemies.yards8tnc > 2 or ((covenant.kyrian.active or talent.volley) and #units.enemies.yards8tnc == 2)) then
+                return cast.steadyShot(units.target)
             end
-            if not ui.checked("Do not engage OOC") then unit.startAttack("target") end
+            if not cOOC.value then unit.startAttack(units.target) end
         end
     end
 end -- End Action List - pc
@@ -289,9 +318,9 @@ end -- End Action List - pc
 -- Action List - aa
 actionList.aa = function()
     --actions=auto_shot
-    unit.startAttack("target")
+    unit.startAttack(units.target)
 
-    if ui.checked("Trinkets Logic") then
+    if cTrinkets.value then
 
         --actions+=/use_item,name=dreadfire_vessel,if=trinket.1.has_cooldown...
         if equiped.dreadfireVessel()
@@ -306,13 +335,13 @@ actionList.aa = function()
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2))
             or not buff.trueshot.exists()
-            and cd.trueshot.remain() > 20 and unit.instance("raid")
+            and cd.trueshot.remain() > 20 and unit.instance(instanceTypes.raid)
             and getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1)
             and getItemSpellCd(inventory.trinket2) - 5 < cd.trueshot.remain()
             and inventory.trinket2 ~= items.dreadfireVessel
-            or (getItemCooldownDuration(inventory.trinket1) -5 < cd.trueshot.remain()
+            or (getItemCooldownDuration(inventory.trinket1) -5 < cd.trueshot.remain()  and unit.instance(instanceTypes.raid)
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2)))
-            or unit.instance("raid") and unit.ttd("target") < cd.trueshot.remain()
+            or unit.instance(instanceTypes.raid) and unit.isBoss(units.target) and unit.ttd(units.target) < cd.trueshot.remain()
         then
             if canUseItem(inventory.trinket1) and not isBlacklistedTrinket(13) then return useItem(inventory.trinket1) end
         end
@@ -321,13 +350,13 @@ actionList.aa = function()
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1))
             or not buff.trueshot.exists()
-            and cd.trueshot.remain() > 20 and unit.instance("raid")
+            and cd.trueshot.remain() > 20 and unit.instance(instanceTypes.raid)
             and getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2)
             and getItemSpellCd(inventory.trinket1) - 5 < cd.trueshot.remain()
-            and trinket2 ~= items.dreadfireVessel
-            or (getItemCooldownDuration(inventory.trinket2) -5 < cd.trueshot.remain()
+            and inventory.trinket2 ~= items.dreadfireVessel
+            or (getItemCooldownDuration(inventory.trinket2) -5 < cd.trueshot.remain()  and unit.instance(instanceTypes.raid)
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1)))
-            or unit.instance("raid") and unit.ttd("target") < cd.trueshot.remain()
+            or unit.instance(instanceTypes.raid) and unit.isBoss(units.target) and unit.ttd(units.target) < cd.trueshot.remain()
         then
             if canUseItem(inventory.trinket2) and not isBlacklistedTrinket(14) then return useItem(inventory.trinket2) end
         end
@@ -337,29 +366,29 @@ end
 -- Action List - cds
 actionList.cds = function()
     -- racial
-    if ui.checked("Racial") then
-        if buff.trueshot.exists() and not unit.race() == "LightforgedDraenei"
-            or (unit.race() == "Troll" and unit.ttd() < 13)
-            or ((unit.race() == "Orc" or unit.race() == "MagharOrc") and unit.ttd() < 16)
-            or (unit.race() == "DarkIronDwarf" and unit.ttd() < 9)
+    if cRacial.value then
+        if buff.trueshot.exists() and not unit.race() == races.lightforgedDraenei
+            or (unit.race() == races.troll and unit.ttd() < 13)
+            or ((unit.race() == races.orc or unit.race() == races.magharOrc) and unit.ttd() < 16)
+            or (unit.race() == races.DarkIronDwarf and unit.ttd() < 9)
         then
             return cast.racial()
         end
 
         if not buff.trueshot.exists() then
             --/lights_judgment,if=buff.trueshot.down
-            if unit.race() == "LightforgedDraenei" then
-                return cast.racial("target","ground")
+            if unit.race() == races.lightforgedDraenei then
+                return cast.racial(units.target,castLocations.ground)
             end
             --/bag_of_tricks,if=buff.trueshot.down
-            if unit.race() == "Vulpera" then
+            if unit.race() == races.vulpera then
                 return cast.racial()
             end
         end
     end
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    if ui.checked("Potion of Spectral Agility") and use.able.potionOfSpectralAgility() and unit.instance("raid") and unit.isBoss("target") then
-        if buff.trueshot.exists() and (buff.bloodLust.exists() or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25)) then
+    if cPotion.value and use.able.potionOfSpectralAgility() and unit.instance(instanceTypes.raid) and unit.isBoss(units.target) then
+        if buff.trueshot.exists() and (buff.bloodLust.exists() or buff.trueshot.exists or (unit.ttd(units.units.dyn40) < 25)) then
            return use.potionOfSpectralAgility()
         end
     end
@@ -372,11 +401,11 @@ actionList.st = function()
         return cast.steadyShot()
     end
     -- kill_shot
-    for i=1, #enemies.get(40,_,_,false,true) do
-        local thisUnit = enemies.get(40,_,_,true)[i]
-        if ui.value("Kill Shot Target") == 1 or (ui.value("Kill Shot Target") == 2 and unit.isUnit(thisUnit,"target")) then
+    for i=1, #units.enemies.get(40,_,_,false,true) do
+        local thisUnit = units.enemies.get(40,_,_,true)[i]
+        if dKillShot.value == 1 or (dKillShot.value == 2 and unit.isUnit(thisUnit,units.target)) then
             if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 then
-                if cast.killShot(thisUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
+                return cast.killShot(thisUnit)
             end
         end
     end
@@ -387,113 +416,113 @@ actionList.st = function()
     --------------------------------------------------------------------------------- TODO AFTER THIS ---------------------------------------------------------------------------------
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<15
-    if ui.value("Double Tap") == 1 or (ui.value("Double Tap") == 2 and buff.trueshot.exists()) and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
-        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.value("Covenant Ability")==1)) or not covenant.kyrian.active)
-        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not ui.value("Covenant Ability")==1) or cd.trueshot.remains() > 55))))
-        or (unit.isBoss("target") or unit.ttd("target") < 15))
+    if dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists()) and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
+        or (unit.isBoss(units.target) or unit.ttd(units.target) < 15))
     then
-        if cast.doubleTap() then ui.debug("Casting Double Tap") return true end
+        return cast.doubleTap()
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare() and debuff.tarTrap.exists(units.units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        return cast.flare(units.units.dyn40)
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
     if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped
-        and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
+        and debuff.tarTrap.remains(units.units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
     then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+        return cast.tarTrap(units.units.dyn40,castLocations.ground)
     end
     -- Explosive Shot
     -- explosive_shot
-    if ui.value("Explosive Shot")==1 and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 4 then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot") return true end
+    if dExplosiveShot.value==1 and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd("target") > 5 then
+        return cast.explosiveShot()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.wildSpirits() then
-        if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.wildSpirits() then
+        return cast.wildSpirits()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.flayedShot() then
-        if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.flayedShot() then
+        return cast.flayedShot()
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
-        if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+        return cast.deathChakram()
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.resonatingArrow() then
-        if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.resonatingArrow() then
+        return cast.resonatingArrow()
     end
     -- Volley
     -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
-    if cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
-        if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end
+    if cast.able.volley() and ui.mode.volley == 1 and cVolley.value and (not buff.preciseShots.exists() or not talent.chimaeraShot or #units.enemies.yards8t < 2) and (#units.enemies.yards8t >= sVolley.value) then
+        return cast.volley(units.best,nil,sVolley.value,8)
     end
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
-    if ui.value("Trueshot") == 1 and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
-        or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards8t > 1)
+    if dTrueshot.value == 1 and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.units.dyn40)
+        or debuff.wildMark.exists(units.units.dyn40) or buff.volley.exists() and #units.enemies.yards8t > 1)
     then
-        if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
+        return cast.trueshot(units.player)
     end
     -- Aimed Shot
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
-    if cast.able.aimedShot() and not unit.moving("player") and (not buff.preciseShots.exists()
+    if cast.able.aimedShot() and not unit.moving(units.player) and (not buff.preciseShots.exists()
         or ((buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
-        and (not talent.chimaeraShot or #enemies.yards8t < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards8t > 1)
+        and (not talent.chimaeraShot or #units.enemies.yards8t < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #units.enemies.yards8t > 1)
     then
-        if cast.aimedShot() then ui.debug("Casting Aimed Shot") return true end
+        return cast.aimedShot()
     end
     -- Rapid Fire
     -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
     if cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.trueshot.exists() or not runeforge.eagletalonsTrueFocus.equiped)
         and (not buff.doubleTap.exists() or talent.streamline))
-		and unit.ttd(units.dyn40) > cast.time.rapidFire()
+		and unit.ttd(units.units.dyn40) > cast.time.rapidFire()
     then
-        if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
+        return cast.rapidFire()
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
     if cast.able.chimaeraShot() and (buff.preciseShots.exists()
         or power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot())
     then
-        if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot") return true end
+        return cast.chimaeraShot()
     end
     -- Arcane Shot
     -- arcane_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
     if cast.able.arcaneShot() and (buff.preciseShots.exists()
         or power.focus.amount() > cast.cost.arcaneShot() + cast.cost.aimedShot())
     then
-        if cast.arcaneShot() then ui.debug("Casting Arcane Shot") return true end
+        return cast.arcaneShot()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration
     if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting)
         and unit.ttd(var.lowestSerpentSting) > debuff.serpentSting.duration(var.lowestSerpentSting)
     then
-        if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting") return true end
+        return cast.serpentSting(var.lowestSerpentSting)
     end
     -- Rapid Fire
     -- rapid_fire,if=focus+cast_regen<focus.max&(buff.double_tap.down|talent.streamline)
     if cast.able.rapidFire()
         and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.doubleTap.exists() or talent.streamline))
-		and unit.ttd(units.dyn40) > cast.time.rapidFire()
+		and unit.ttd(units.units.dyn40) > cast.time.rapidFire()
     then
-        if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
+        return cast.rapidFire()
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
-        if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
+    if cast.able.steadyShot() and unit.ttd(units.units.dyn40) > cast.time.steadyShot() and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
+        return cast.steadyShot()
     end
 end -- End Action List - st
 
@@ -502,117 +531,117 @@ actionList.aoe = function()
     -- Steady Shot
     -- steady_shot,if=talent.steady_focus&in_flight&buff.steady_focus.remains<5
     if cast.able.steadyShot() and talent.steadyFocus and cast.inFlight.steadyShot() and buff.steadyFocus.remains() < 5 then
-        if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots Steady Focus]") return true end
+        return cast.steadyShot()
     end
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<10
-    if (ui.value("Double Tap") == 1 or (ui.value("Double Tap") == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap
-        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.value("Covenant Ability")==1)) or not covenant.kyrian.active)
-        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not ui.value("Covenant Ability")==1) or cd.trueshot.remains() > 55))))
-        or (unit.isBoss("target") and unit.ttd("target") < 10))
+    if (dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
+        or (unit.isBoss(units.target) and unit.ttd(units.target) < 10))
     then
-        if cast.doubleTap() then ui.debug("Casting Double Tap [Trick Shots]") return true end
+        return cast.doubleTap()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
+    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        return cast.tarTrap(units.units.dyn40,castLocations.ground)
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") return true end
+    if cast.able.flare() and debuff.tarTrap.exists(units.units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        return cast.flare(units.units.dyn40)
     end
     -- Explosive Shot
     -- explosive_shot
-    if ui.value("Explosive Shot")==1 and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 4 then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
+    if dExplosiveShot.value==1 and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.units.dyn40) > 5 then
+        return cast.explosiveShot()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.wildSpirits() then
-        if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Trick Shots Night Fae]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.wildSpirits() then
+        return cast.wildSpirits()
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.resonatingArrow() then
-        if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Trick Shots Kyrian]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.resonatingArrow() then
+        return cast.resonatingArrow()
     end
     -- Volley
     -- volley
-    if cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units") then
-        if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
+    if cast.able.volley() and ui.mode.volley == 1 and cVolley.value and #units.enemies.yards8t >= sVolley.value then
+        return cast.volley(units.best,nil,sVolley.value,8)
     end
     -- Trueshot
     -- trueshot
-    if ui.value("Trueshot") == 1 and cast.able.trueshot() then
-        if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
+    if dTrueshot.value == 1 and cast.able.trueshot() then
+        return cast.trueshot(units.player)
     end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down
     if cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire()
-        and runeforge.surgingShots.equiped and not buff.doubleTap.exists() and unit.ttd(units.dyn40) > cast.time.rapidFire()
+        and runeforge.surgingShots.equiped and not buff.doubleTap.exists() and unit.ttd(units.units.dyn40) > cast.time.rapidFire()
     then
-        if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots Surging Shots]") return true end
+        return cast.rapidFire()
     end
     -- Aimed Shot
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|full_recharge_time<cast_time+gcd|buff.trueshot.up)
-    if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and unit.ttd(units.dyn40) > cast.time.aimedShot() and buff.trickShots.remains() >= cast.time.aimedShot()
+    if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving(units.player) and unit.ttd(units.units.dyn40) > cast.time.aimedShot() and buff.trickShots.remains() >= cast.time.aimedShot()
         and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd(true) or buff.trueshot.exists())
     then
-        if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
+        return cast.aimedShot(var.lowestAimedSerpentSting)
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
-        if cast.deathChakram() then ui.debug("Casting Death Chakram [Trick Shots Necrolord]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+        return cast.deathChakram()
     end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time
-    if cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() and unit.ttd(units.dyn40) > cast.time.rapidFire() then
-        if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots]") return true end
+    if cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() and unit.ttd(units.units.dyn40) > cast.time.rapidFire() then
+        return cast.rapidFire()
     end
     -- Multishot
     -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&focus>cost+action.aimed_shot.cost&(!talent.chimaera_shot|active_enemies>3)
     if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists()
-        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards8t > 3))
-        and #enemies.yards8t > 0
+        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #units.enemies.yards8t > 3))
+        and #units.enemies.yards8t > 0
     then
-        if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
+        return cast.multishot()
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.precise_shots.up&focus>cost+action.aimed_shot.cost&active_enemies<4
-    if cast.able.chimaeraShot() and buff.preciseShots.exists() and power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot() and #enemies.yards8t < 4 then
-        if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot [Trick Shots]") return true end
+    if cast.able.chimaeraShot() and buff.preciseShots.exists() and power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot() and #units.enemies.yards8t < 4 then
+        return cast.chimaeraShot()
     end
     -- kill_shot,if=buff.dead_eye.down
-    for i=1, #enemies.get(40,_,_,false,true) do
-        local thisUnit = enemies.get(40,_,_,true)[i]
-        if ui.value("Kill Shot Target") == 1 or (ui.value("Kill Shot Target") == 2 and unit.isUnit(thisUnit,"target")) then
+    for i=1, #units.enemies.get(40,_,_,false,true) do
+        local thisUnit = units.enemies.get(40,_,_,true)[i]
+        if dKillShot.value == 1 or (dKillShot.value == 2 and unit.isUnit(thisUnit,units.target)) then
             if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 and buff.deadEye.exists() then
-                if cast.killShot(thisUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
+                return cast.killShot(thisUnit)
             end
         end
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.value("Covenant Ability") == 1 or (ui.value("Covenant Ability") == 2 and buff.trueshot.exists()) and cast.able.flayedShot() then
-        if cast.flayedShot() then ui.debug("Casting Flayed Shot [Trick Shots Venthhyr]") return true end
+    if dCovenant.value == 1 or (dCovenant.value == 2 and buff.trueshot.exists()) and cast.able.flayedShot() then
+        return cast.flayedShot()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable
     if cast.able.serpentSting(var.lowestSerpentSting) and talent.serpentSting and debuff.serpentSting.refresh(var.lowestSerpentSting) then
-        if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [Trick Shots]") return true end
+        return cast.serpentSting(var.lowestSerpentSting)
     end
     -- Multishot
     -- multishot,if=focus>cost+action.aimed_shot.cost
-    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards8t > 0 then
-        if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
+    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #units.enemies.yards8t > 0 then
+        return cast.multishot()
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
-        if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots]") return true end
+    if cast.able.steadyShot() and unit.ttd(units.units.dyn40) > cast.time.steadyShot() and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
+        return cast.steadyShot()
     end
 end -- End Action List - aoe
 
@@ -624,41 +653,41 @@ actionList.extra = function()
         ClearTarget()
     end
     -- Hunter's Mark
-    if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
-        if cast.huntersMark() then ui.debug("Cast Hunter's Mark") return true end
+    if cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
+        return cast.huntersMark()
     end
     --  FlayedWignToxin
-    if use.able.bottledFlayedWingToxin() and not buff.flayedWingToxin.exists("player") then
+    if use.able.bottledFlayedWingToxin() and not buff.flayedWingToxin.exists(units.player) then
         use.bottledFlayedWingToxin()
     end
     --Dummy Test
-    if ui.checked("Dummy DPS Testing") then
-        if unit.exists("target") then
-            if getCombatTime() >= (tonumber(ui.value("Dummy DPS Testing"))*60) and unit.isDummy() then
+    if cDummy.value then
+        if unit.exists(units.target) then
+            if getCombatTime() >= (tonumber(sDummy.value)*60) and unit.isDummy() then
                 StopAttack()
                 ClearTarget()
                 PetStopAttack()
                 PetFollow()
-                Print(tonumber(ui.value("Dummy DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                Print(tonumber(sDummy.value) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
     end -- End Dummy Test
     -- Healing thingies
     module.BasicHealing()
-    if ui.checked("Aspect Of The Turtle") and unit.hp() <= ui.value("Aspect Of The Turtle") then
-        if cast.aspectOfTheTurtle("player") then ui.debug("Casting Aspect of the Turtle") return true end
+    if cTurtle.value and unit.hp() <= sTurtle.value then
+        return cast.aspectOfTheTurtle(units.player)
     end
-    if ui.checked("Exhilaration") and unit.hp() <= ui.value("Exhilaration") then
-        if cast.exhilaration("player") then ui.debug("Casting Exhilaration") return true end
+    if cExhilaration.value and unit.hp() <= sExhilaration.value then
+        return cast.exhilaration(units.player)
     end
     -- Tranq
-    if ui.checked("Tranquilizing Shot") then
-        for i=1, #enemies.get(40,_,_,true) do
-            local thisUnit = enemies.get(40,_,_,true)[i]
-            if ui.value("Tranquilizing Shot") == 1 or (ui.value("Tranquilizing Shot") == 2 and unit.isUnit(thisUnit,"target")) then
+    if cTranq.value then
+        for i=1, #units.enemies.get(40,_,_,true) do
+            local thisUnit = units.enemies.get(40,_,_,true)[i]
+            if dTranq.value == 1 or (dTranq.value == 2 and unit.isUnit(thisUnit,units.target)) then
                 if unit.valid(thisUnit) and cast.dispel.tranquilizingShot(thisUnit) then
-                    if cast.tranquilizingShot(thisUnit) then ui.debug("Casting Tranquilizing Shot") return true end
+                    return cast.tranquilizingShot(thisUnit)
                 end
             end
         end
@@ -669,47 +698,47 @@ end -- End Action List - Extras
 actionList.CCs = function()
     if ui.mode.cC == 1 then
         if getCurrentZoneId() == maps.instanceIDs.CastleNathria then
-            if ui.checked ("Castle Nathria (Huntsman - Shade of Bargast)") then
+            if cHuntsman.value then
                 if not isFreezingTrapActive() then
-                    return cast.freezingTrap(ccMobFinder(171557),"groundCC")
+                    return cast.freezingTrap(ccMobFinder(171557),castLocations.groundCC)
                 end
             end
         end
         if getCurrentZoneId() == maps.instanceIDs.Plaguefall then
-            if ui.checked("Plaguefall (Globgrog - Slimy Smorgasbord)") then
+            if cGlobgrog.value then
                 if not isFreezingTrapActive() then
-                    return cast.freezingTrap(ccMobFinder(171887),"groundCC")
+                    return cast.freezingTrap(ccMobFinder(171887),castLocations.groundCC)
                 end
             end
-            if ui.checked("Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)") then
+            if cDefender.value then
                 if not isFreezingTrapActive() then
-                    return cast.freezingTrap(ccMobFinder(163862,_,336449),"groundCC")
+                    return cast.freezingTrap(ccMobFinder(163862,_,336449),castLocations.groundCC)
                 end
             end
-            if ui.checked("Plaguefall (Rotting Slimeclaw)") then
-                return cast.bindingShot(ccMobFinder(163892,25),"groundCC")
+            if cSlimeclaw.value then
+                return cast.bindingShot(ccMobFinder(163892,25),castLocations.groundCC)
             end
         end
         if getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
-            if ui.checked("Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)") then
+            if cMistcaller.value then
                 if not isFreezingTrapActive() then
-                    return cast.freezingTrap(ccMobFinder(165251),"groundCC")
+                    return cast.freezingTrap(ccMobFinder(165251),castLocations.groundCC)
                 end
             end
         end
         if getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
-            if ui.checked("The Necrotic Wake (Blightbone  - Carrion Worms)") then
-                return cast.bindingShot(ccMobFinder(164702),"groundCC")
+            if cBlightbone.value then
+                return cast.bindingShot(ccMobFinder(164702),castLocations.groundCC)
             end
         end
         if getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
-            if ui.checked("Theater of Pain (Disgusting Refuse)") then
-                return cast.bindingShot(ccMobFinder(163089),"groundCC")
+            if cRefuse.value then
+                return cast.bindingShot(ccMobFinder(163089),castLocations.groundCC)
             end
         end
         if getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-            if ui.checked("Halls of Atonement (Vicious Gargon, Loyal Beasts)") then
-                return cast.bindingShot(ccMobFinder(164563,_,326450),"groundCC")
+            if cGorgon.value then
+                return cast.bindingShot(ccMobFinder(164563,_,326450),castLocations.groundCC)
             end
         end
     end
@@ -730,7 +759,7 @@ actionList.kick = function()
     -- Form activeList for interrupting
     checkForUpdates()
     if not br.player.interrupts.listUpdated then
-		if getOptionCheck("Interrupt BR Whitelisted") then
+		if cInterruptBr.value then
             for spellID,v in pairs(br.lists.interruptWhitelist) do
                 table.insert(br.player.interrupts.activeList, spellID, v)
 			end
@@ -741,27 +770,27 @@ actionList.kick = function()
 				end
 			end
 		end
-        if getOptionValue("Interrupt Personally Whitelisted") ~= nil then
-            for spellID in string.gmatch(tostring(getOptionValue("Interrupt Personally Whitelisted")),"([^,]+)") do
+        if eInterruptPersonal.value ~= nil then
+            for spellID in string.gmatch(tostring(eInterruptPersonal.value),"([^,]+)") do
                 if string.len(string.trim(spellID)) >= 3 then
                     table.insert(br.player.interrupts.activeList, tonumber(spellID), true)
                 end
             end
 		else
-			for spellID in string.gmatch(tostring(getOptionValue("Interrupt Personally Whitelisted")),"([^,]+)") do
+			for spellID in string.gmatch(tostring(eInterruptPersonal.value),"([^,]+)") do
 				if not isTableEmpty(br.player.interrupts.activeList) then
 					br.player.interrupts.activeList[tonumber(spellID)] = false
 				end
 			end
 		end
-        oldvalueBr = getOptionCheck("Interrupt BR Whitelisted")
-        oldValuePersonal = getOptionValue("Interrupt Personally Whitelisted")
+        oldvalueBr = cInterruptBr.value
+        oldValuePersonal = eInterruptPersonal.value
         br.player.interrupts.listUpdated = true
     end
 
     -- Do the actual interrupting
 	if br.player.spell.interrupts == nil then return end -- If no interruptspells are given, get the hell outta here
-	local interruptAt = 100 - br.player.ui.value("Interrupts At")
+	local interruptAt = 100 - sInterruptsAt.value
 
 	for _,v in pairs(br.player.spell.interrupts) do
 		if canCast(v)then
@@ -775,11 +804,11 @@ actionList.kick = function()
     end
 
 
-    for i=1, #br.player.enemies.yards40f do
-        local theUnit = br.player.enemies.yards40f[i]
-        if ui.checked("Interrupt All") then
+    for i=1, #units.enemies.yards40f do
+        local theUnit = units.enemies.yards40f[i]
+        if cInterruptAll.value then
             if castingUnit(theUnit) and canInterrupt(theUnit, interruptAt) then
-                if castingUnit("player") then RunMacroText("/stopcasting") end
+                if castingUnit(units.player) then RunMacroText("/stopcasting") end
                 local castSuccess = createCastFunction(theUnit, _, _, _, br.player.interrupts.currentSpell)
                 if castSuccess then
                     lastUnit = theUnit
@@ -795,11 +824,11 @@ actionList.kick = function()
         end
     end
 
-	if isInCombat("player") and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
+	if isInCombat(units.player) and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
 		if isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
 			if (getTimeToLastInterrupt() >= 1 and GetObjectID(lastUnit) == GetObjectID(br.player.interrupts.currentUnit)) or
 		      (getTimeToLastInterrupt() < 1 and GetObjectID(lastUnit) ~= GetObjectID(br.player.interrupts.currentUnit)) then
-                if castingUnit("player") then RunMacroText("/stopcasting") end
+                if castingUnit(units.player) then RunMacroText("/stopcasting") end
 				if createCastFunction(br.player.interrupts.currentUnit, _, _, _, br.player.interrupts.currentSpell) then
 					br.addonDebug("Casting ", tostring(GetSpellInfo(br.player.interrupts.currentSpell)))
 					lastUnit = br.player.interrupts.currentUnit
@@ -814,18 +843,18 @@ end  -- End Action List - Interrupts
 actionList.md = function(skipModecheck)
     if ui.mode.misdirection == 1 or skipModecheck then
         local misdirectUnit = nil
-        if unit.distance("target") < 40 and not unit.isCasting("player") then
+        if unit.distance(units.target) < 40 and not unit.isCasting(units.player) then
             -- Misdirect to Tank
-            if ui.value("Misdirection") == 1 then
+            if dMisdirection.value == 1 then
                 local tankInRange, tankUnit = isTankInRange()
                 if tankInRange then misdirectUnit = tankUnit end
             end
             -- Misdirect to Focus
-            if ui.value("Misdirection") == 2 and unit.friend("focus","player") then
+            if dMisdirection.value == 2 and unit.friend("focus",units.player) then
                 misdirectUnit = "focus"
             end
             -- Misdirect to Pet
-            if ui.value("Misdirection") == 3 then
+            if dMisdirection.value == 3 then
                 misdirectUnit = "pet"
             end
             -- Failsafe to Pet, if unable to misdirect to Tank or Focus
@@ -850,7 +879,7 @@ local function runRotation()
     charges                                       = br.player.charges
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
-    enemies                                       = br.player.enemies
+    units.enemies                                 = br.player.enemies
     equiped                                       = br.player.equiped
     module                                        = br.player.module
     power                                         = br.player.power
@@ -859,30 +888,30 @@ local function runRotation()
     talent                                        = br.player.talent
     items                                         = br.player.items
     ui                                            = br.player.ui
-    unit                                          = br.player.unit
-    units                                         = br.player.units
+    unit                                    = br.player.unit
+    units.units                                   = br.player.units
     use                                           = br.player.use
     var                                           = br.player.variables
 
-    -- Get required enemies table
-    units.get(40)
-    enemies.get(8,"target")
-    enemies.get(8,"target",true)
-    enemies.get(40,nil,false,true)
+    -- Get required units.enemies table
+    units.units.get(40)
+    units.enemies.get(8,units.target)
+    units.enemies.get(8,units.target,true)
+    units.enemies.get(40,nil,false,true)
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
     var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or pause() or buff.feignDeath.exists() or ui.mode.rotation==4
 
     -- Aimed Shots Serpent Sting spread
-    var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
+    var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or units.target
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
-    var.lowestAimedSerpentSting = "target"
+    var.lowestAimedSerpentSting = units.target
     var.lowestAimedRemain = 99
-    var.lowestHPUnit = "target"
+    var.lowestHPUnit = units.target
     var.lowestHP = 100
-    for i = 1, #enemies.yards8t do
-        local thisUnit = enemies.yards8t[i]
+    for i = 1, #units.enemies.yards8t do
+        local thisUnit = units.enemies.yards8t[i]
         local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
         if ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain then
@@ -899,7 +928,7 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not unit.inCombat() and not unit.exists("target") and var.profileStop then
+    if not unit.inCombat() and not unit.exists(units.target) and var.profileStop then
         var.profileStop = false
     elseif var.haltProfile and (not unit.isCasting() or pause(true)) then
         StopAttack()
@@ -908,7 +937,7 @@ local function runRotation()
         if actionList.extra() then return true end
         if actionList.pc() then return true end
         -- IN COMBAT
-        if unit.inCombat() and var.profileStop == false and unit.valid(units.dyn40) and unit.distance(units.dyn40) < 40
+        if unit.inCombat() and var.profileStop == false and unit.valid(units.units.dyn40) and unit.distance(units.units.dyn40) < 40
             and not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot()
         then
             if actionList.CCs() then return true end
@@ -916,10 +945,10 @@ local function runRotation()
             if actionList.md(false) then return true end
             if actionList.aa() then return true end
             if actionList.cds() then return true end
-            if ui.useST(8,nil,"target") then
+            if ui.useST(8,nil,units.target) then
                 return actionList.st()
             end
-            if ui.useAOE(8,3,"target") then
+            if ui.useAOE(8,3,units.target) then
                 return actionList.aoe()
             end
         end --End In Combat

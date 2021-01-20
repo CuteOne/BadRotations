@@ -92,6 +92,7 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     ---------------------------
     --------END Spinner--------
     ---------------------------
+    return spinner, checkBox
 end
 
 -- Spinner Object : {number, min, max, step, tooltip}
@@ -216,6 +217,7 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     ---------------------------
     --------END Spinner--------
     ---------------------------
+    return spinner1, spinner2
 end
 
 function br.ui:createSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
