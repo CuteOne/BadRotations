@@ -95,8 +95,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Earth Shield")
         -- Water Shield
         br.ui:createCheckbox(section, "Water Shield")
-        -- Temple of Seth
-        br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Seth NPC. Default: 80")
+        -- Raid Boss Helper
+        br.ui:createSpinner(section, "Raid Boss Helper", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Raid Boss. Default: 80")
         -- Bursting Stack
         br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs/AoE Healing will be triggered.")
         -- DPS Threshold
@@ -108,18 +108,18 @@ local function createOptions()
         -- Mana Tide Totem
         br.ui:createSpinner(section, "Mana Tide Totem", 30, 0, 100, 5, "|cffFFFFFFWill use mana tide if mana below this value. Default: 75")
         br.ui:checkSectionState(section)
-        -- -- Burst Damage Options
-        section = br.ui:createSection(br.ui.window.profile, "Raid Burst Damage Options")
-        br.ui:createSpinner(
-            section,
-            "Burst Count",
-            1,
-            1,
-            10,
-            1,
-            "Set which burst damage (ie. Grong Tantrum/Opulence Wail) number you need to cover with CDs.  Uncheck to use CDs whenever available."
-        )
-        br.ui:checkSectionState(section)
+        -- -- -- Burst Damage Options
+        -- section = br.ui:createSection(br.ui.window.profile, "Raid Burst Damage Options")
+        -- br.ui:createSpinner(
+        --         section,
+        --         "Burst Count",
+        --         1,
+        --         1,
+        --         10,
+        --         1,
+        --         "Set which burst damage (ie. Grong Tantrum/Opulence Wail) number you need to cover with CDs.  Uncheck to use CDs whenever available."
+        -- )
+        -- br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Racial
@@ -498,32 +498,73 @@ local function runRotation()
                 if cast.waterShield() then
                 end
             end
-            -- Temple of Seth
-            if inCombat and ui.checked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
+            -- Raid Boss
+            if inCombat and ui.checked("Raid Boss Helper") then
                 for i = 1, GetObjectCountBR() do
                     local thisUnit = GetObjectWithIndex(i)
-                    if GetObjectID(thisUnit) == 133392 then
-                        sethObject = thisUnit
-                        if getHP(sethObject) < 100 and getBuffRemain(sethObject, 274148) == 0 and lowest.hp >= ui.value("Temple of Seth") then
-                            if not buff.riptide.exists(sethObject) then
-                                CastSpellByName(GetSpellInfo(61295), sethObject)
-                                br.addonDebug("Casting Riptide")
-                                return
-                            --cast.riptide("target") then return true end
-                            end
-                            if getHP(sethObject) < 50 and movingCheck then
-                                --if cast.healingSurge("target") then return true end
-                                CastSpellByName(GetSpellInfo(8004), sethObject)
-                                br.addonDebug("Casting Healing Surge")
-                                return
-                            else
-                                --if cast.healingWave("target") then return true end
-                                if movingCheck then
-                                    CastSpellByName(GetSpellInfo(77472), sethObject)
-                                    br.addonDebug("Casting Healing Wave")
-                                    return
+                    local objectID = GetObjectID(thisUnit)
+                    if br.player.eID and (br.player.eID == 2127 or br.player.eID == 2418) then
+                        if (objectID == 133392 and getBuffRemain(thisUnit, 274148) == 0) or objectID == 171577 or objectID == 173112 then
+                            local bossObject = thisUnit
+                            if getHP(bossObject) < 100 and lowest.hp >= ui.value("Raid Boss Helper") then
+                                if not buff.riptide.exists(bossObject) then
+                                    CastSpellByName(GetSpellInfo(61295), bossObject)
+                                    br.addonDebug("Casting Riptide")
+                                    return true
+                                    --cast.riptide("target") then return true end
+                                end
+                                if getHP(bossObject) < 50 and movingCheck then
+                                    --if cast.healingSurge("target") then return true end
+                                    CastSpellByName(GetSpellInfo(8004), bossObject)
+                                    br.addonDebug("Casting Healing Surge")
+                                    return true
+                                else
+                                    --if cast.healingWave("target") then return true end
+                                    if movingCheck then
+                                        CastSpellByName(GetSpellInfo(77472), bossObject)
+                                        br.addonDebug("Casting Healing Wave")
+                                        return true
+                                    end
                                 end
                             end
+                        end
+                    elseif br.player.eID and br.player.eID == 2402 then  --Sun King (credit to Tutti and Laksmackt)
+                        if (objectID == 165759 or objectID == 165778) and not br.shadeUp and getHP(thisUnit) < 100 then
+                            local bossObject = thisUnit
+                            -- Earth Shield
+                            if not buff.earthShield.exists(bossObject) and objectID == 165759 then
+                                CastSpellByName(GetSpellInfo(974), bossObject)
+                                br.addonDebug("[Sun King] Casting Earth Shield")
+                                return true
+                            end
+                            -- Primordial Wave
+                            if ui.checked("Primordial Wave") and covenant.necrolord.active then
+                                if buff.riptide.refresh(bossObject) then
+                                    CastSpellByName(GetSpellInfo(326059), bossObject)
+                                    br.addonDebug("[Sun King] Casting Primordial Wave")
+                                    return true
+                                end
+                            end
+                            if ui.checked("Unleash Life") and talent.unleashLife then
+                                CastSpellByName(GetSpellInfo(73685), bossObject)
+                                br.addonDebug("[Sun King] Casting Unleash Life")
+                                return true
+                            end
+                            -- Riptide
+                            if ui.checked("Riptide") then
+                                if buff.riptide.refresh(bossObject) then
+                                    CastSpellByName(GetSpellInfo(61295), bossObject)
+                                    br.addonDebug("[Sun King] Casting Riptide")
+                                    return true
+                                end
+                            end
+                            -- Healing Surge
+                            if ui.checked("Healing Surge") and movingCheck then
+                                CastSpellByName(GetSpellInfo(8004), bossObject)
+                                br.addonDebug("[Sun King] Casting Healing Surge")
+                                return true
+                            end
+                            
                         end
                     end
                 end
