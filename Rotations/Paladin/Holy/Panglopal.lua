@@ -50,11 +50,11 @@ local function createToggles()
         [3] = {mode = "Off", value = 3, overlay = "HoW Enabled", tip = "HoW Disabled", highlight = 0, icon = br.player.spell.repentance}
     }
     CreateButton("Wrath", 0, 1)
-    --[[ MythicModes = {
+    MythicModes = {
         [1] = {mode = "On", value = 1, overlay = "use m+ logic", tip = "m+", highlight = 1, icon = br.player.spell.blessingOfSacrifice},
         [2] = {mode = "Off", value = 2, overlay = "Dont use m+ logic", tip = "not m+", highlight = 0, icon = br.player.spell.blessingOfSacrifice},
     }
-    CreateButton("Mythic", 1, 1) ]]
+    CreateButton("Mythic", 1, 1)
 end
 
 local function createOptions()
@@ -1186,8 +1186,37 @@ local function runRotation()
         end
     end -- end healing
 
+    local function mPlusGods() -- 99% Feng's massive brain
+        --Spiteful
+        for i = 1, GetObjectCountBR() do
+            local object = GetObjectWithIndex(i)
+            local ID = ObjectID(object)
+            if ID == 174773 and GetUnitIsUnit("player", UnitTarget(object)) and getDistance(object) <= 10 and cast.able.hammerOfJustice() then
+                if cast.hammerOfJustice(object) then
+                    return
+                end
+            end
+        end
+
+        if UnitCastingInfo("boss1") == GetSpellInfo(321894) and cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
+            if cast.blessingOfProtection("boss1target") then 
+                return true 
+            end
+        end
+        
+        if UnitCastingInfo("boss1") == GetSpellInfo(320788) and cast.able.blessingOfFreedom() then
+            if cast.blessingOfFreedom("boss1target") then
+                return true
+            end
+        end
+
+        if (UnitCastingInfo("boss1") == GetSpellInfo(317231) or UnitCastingInfo("boss1") == GetSpellInfo(320729)) and getDebuffRemain("player",331606) ~= 0 and cast.able.blessingOfFreedom() then
+            if cast.blessingOfFreedom("player") then return true end
+        end
+    end
+
     if isChecked("Raid Boss Helper") then
-        if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577) or GetObjectID("target") == 173112 and inCombat then
+        if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577 or GetObjectID("target") == 173112) and inCombat then
             if getHP("target") < 100 then
                 if not buff.beaconOfLight.exists("target") and GetObjectID("target") == 165759 then
                     if cast.beaconOfLight("target") then
@@ -1202,11 +1231,13 @@ local function runRotation()
                 if cast.holyShock("target") then
                     return true
                 end
-                if cast.bestowFaith("target") then
-                    return true
-                end
-                if cast.holyLight("target") then
-                    return true
+                if GetObjectID("target") == 165759 then
+                    if cast.bestowFaith("target") then
+                        return true
+                    end
+                    if cast.holyLight("target") then
+                        return true
+                    end
                 end
             end
         end
@@ -1296,13 +1327,12 @@ local function runRotation()
                         return true
                     end
                 elseif not isChecked("Hard DPS Key") or not (SpecificToggle("Hard DPS Key") and not GetCurrentKeyBoardFocus()) then
-                    if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
-                        if UnitCastingInfo("boss1") == GetSpellInfo(320788) then
-                            if cast.blessingOfFreedom("boss1target") then
-                                return true
-                            end
+                    if mode.mythic == 1 then
+                        if mPlusGods() then 
+                            return
                         end
-
+                    end
+                    if (isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
                         for i = 1, #br.friend do
                             local thisUnit = br.friend[i].unit
                             if UnitDebuffID(thisUnit, 341746) then
