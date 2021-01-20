@@ -652,8 +652,8 @@ actionList.Finisher = function()
         and (((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
         and (not talent.executionSentence or ((cd.executionSentence.remains() / unit.gcd(true)) + holyPower > 7 or not ui.alwaysCdNever("Execution Sentence")))
         and (not talent.finalReckoning or (cd.finalReckoning.remains() / unit.gcd(true)) + holyPower > 7 or not ui.alwaysCdNever("Final Reckoning")))
-        or var.dsUnits)
-        and ((talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or (buff.crusade.exists() and buff.crusade.stack() < 10))
+        or var.dsUnits
+        and ((talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or (buff.crusade.exists() and buff.crusade.stack() < 10)))
     then
         local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
         if cast.divineStorm(nil, "aoe", theseUnits, 8) then ui.debug("Casting Divine Storm") return true end
