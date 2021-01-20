@@ -162,7 +162,6 @@ if not metaTable1 then
 		-- end
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
-			local toxicBrand = getOptionValue("Toxic Brand")
 			local necroRot = getOptionValue("Necrotic Rot")
 			if toxicBrand == 0 or toxicBrand == nil then
 				toxicBrand = 10
@@ -174,11 +173,6 @@ if not metaTable1 then
 			-- but once I have Illidan's Sightless Gaze (241721), I can hea
 			if select(9, GetInstanceInfo()) == 1676 and UnitDebuffID("player", 236555) and not UnitDebuffID("player", 241721) then
 				return 250, 250, 250
-			end
-			if isChecked("Toxic Brand") and br.player.eID and br.player.eID == 2298 then
-				if getDebuffStacks(o.unit, 294715) > 0 and getDebuffStacks(o.unit, 294715) >= toxicBrand then
-					return 250, 250, 250
-				end
 			end
 			if isChecked("Necrotic Rot") and getDebuffStacks(o.unit, 209858) > 0 and getDebuffStacks(o.unit, 209858) >= necroRot then
 				return 250, 250, 250
@@ -207,19 +201,6 @@ if not metaTable1 then
 				end
 				if playerBuff ~= targetBuff then
 					return 250, 250, 250
-				end
-			end
-			if br.player.eID == 2331 then
-				local time_remain = br.DBM:getPulltimer(nil, 313213)
-				if time_remain < getOptionValue("Decaying Strike Timer") then
-					for i = 1, GetObjectCountBR() do
-						local thisUnit = GetObjectWithIndex(i)
-						if GetObjectID(thisUnit) == 156866 and UnitTarget(thisUnit) ~= nil then
-							if UnitTarget(thisUnit) == o.unit then
-								return 250, 250, 250
-							end
-						end
-					end
 				end
 			end
 			if UnitBuffID(o.unit, 295271) then

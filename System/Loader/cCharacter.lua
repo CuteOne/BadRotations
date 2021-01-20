@@ -122,10 +122,6 @@ function cCharacter:new(class)
 	function self.baseUpdateOOC()
 		-- Updates special Equip like set bonuses
 		self.baseGetEquip()
-		if getOptionCheck("Queue Casting") and #self.queue ~= 0 then
-			self.queue = {} -- Reset Queue Casting Table out of combat
-			Print("Out of Combat - Queue List Cleared")
-		end
 		self.ignoreCombat = getOptionCheck("Ignore Combat")
 	end
 

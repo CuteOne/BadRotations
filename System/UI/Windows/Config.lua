@@ -21,10 +21,8 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(section, "Addon Debug Messages", {"System Only", "Profile Only", "All"}, 3, "Check this to display developer debug messages.")
         targetval = br.ui:createCheckbox(section, "Target Validation Debug", "Check this to display current target's validation.")
         br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
-        br.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
         br.ui:createSpinner(section, "Auto Loot", 0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
         br.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repairs when you open a repair vendor.")
-        br.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
         br.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
         br.ui:createSpinner(section, "Notify Not Unlocked", 10, 5, 60, 5, "Will alert you at the set interval when Unlocker is not attached.")
         br.ui:createCheckbox(section, "Reset Options", "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset setting on reload!")
@@ -136,6 +134,12 @@ function br.ui:createConfigWindow()
             "Set desired dispel delay in seconds of debuff duration.\n|cffFF0000Will randomise around the value you set."
         )
         br.ui:createCheckbox(section, "Healer Line of Sight Indicator", "Draws a line to healers. Green In Line of Sight / Red Not In Line of Sight")
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.config, "Healing Options")
+        br.ui:createCheckbox(section, "Ignore Range Check", "Will ignore any range checks for dispels")
+        br.ui:createCheckbox(section, "Ignore Stack Count", "Will ignore any stack checks for dispels")
+        br.ui:createSpinnerWithout(section, "Reaping", 20, 1, 100, 5, "Set how many stacks of reaping needed to dispel.")
+        br.ui:createSpinner(section, "Necrotic Rot", 40, 1, 100, 5, "Set how many stacks of necrotic rot to stop healing party members at.")
         br.ui:checkSectionState(section)
     end
 
@@ -259,20 +263,6 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
-    local function callHealingOptions()
-        section = br.ui:createSection(br.ui.window.config, "Healing Options")
-        br.ui:createCheckbox(section, "Ignore Range Check", "Will ignore any range checks for dispels")
-        br.ui:createCheckbox(section, "Ignore Stack Count", "Will ignore any stack checks for dispels")
-        br.ui:createSpinnerWithout(section, "Bwonsamdi's Wrath HP", 30, 1, 100, 5, "Set HP to decurse Bwonsamdi's Wrath (Mythic Conclave)")
-        br.ui:createSpinnerWithout(section, "Reaping", 20, 1, 100, 5, "Set how many stacks of reaping needed to dispel.")
-        br.ui:createSpinnerWithout(section, "Promise of Power", 8, 1, 10, 1, "Set how many stacks of promise of power needed to dispel.")
-        br.ui:createSpinner(section, "Toxic Brand", 10, 1, 20, 1, "Set how many stacks of toxic brand to stop healing party members at.")
-        br.ui:createCheckbox(section, "Arcane Burst", "Will dispel Arcane Burst if checked.")
-        br.ui:createSpinner(section, "Necrotic Rot", 40, 1, 100, 5, "Set how many stacks of necrotic rot to stop healing party members at.")
-        br.ui:createSpinnerWithout(section, "Decaying Strike Timer", 5, 1, 20, 1, "Set how long to stop healing tank before Decaying Strike is cast.")
-        br.ui:checkSectionState(section)
-    end
-
     -- Add Page Dropdown
     br.ui:createPagesDropdown(
         br.ui.window.config,
@@ -288,10 +278,6 @@ function br.ui:createConfigWindow()
             {
                 [1] = "Healing Engine",
                 [2] = callHealingEngine
-            },
-            {
-                [1] = "Healing Options",
-                [2] = callHealingOptions
             },
             {
                 [1] = "Queue Engine",

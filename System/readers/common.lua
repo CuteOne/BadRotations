@@ -20,18 +20,6 @@ function br.read.commonReaders()
 		-- Print(...)
 	end
 	frame:SetScript("OnEvent", lostControl)
-	----------------
-	--[[ Auto Join]]
-	Frame = CreateFrame("Frame")
-	Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
-	local function MerchantShow(self, event, ...)
-		if getOptionCheck("Accept Queues") == true then
-			if event == "LFG_PROPOSAL_SHOW" then
-				readyToAccept = GetTime()
-			end
-		end
-	end
-	Frame:SetScript("OnEvent", MerchantShow)
 	--------------
 	-- --[[ Eclipse]] -- Errors in Patch 8.0 (BfA)
 	-- local Frame = CreateFrame('Frame')

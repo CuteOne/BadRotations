@@ -90,17 +90,9 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 		if buffSpellID == 288388 then
 			if stacks >= getOptionValue("Reaping") or not UnitAffectingCombat("player") then
 				return true
-			else 
-				return false
-			end
-		elseif buffSpellID == 282566 then
-			if stacks >= getOptionValue("Promise of Power") then
-				return true
 			else
 				return false
 			end
-		elseif buffSpellID == 303657 and isChecked("Arcane Burst") and buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
-			return true
 		elseif novaEngineTables.DispelID[buffSpellID] ~= nil then
 			if (stacks >= novaEngineTables.DispelID[buffSpellID].stacks or isChecked("Ignore Stack Count"))
 			then
@@ -240,10 +232,7 @@ function canDispel(Unit, spellID)
 				local dispelUnitObj
 				if (debuffType and ValidType(debuffType)) then 
 					if debuffid == 284663 then
-						if (GetHP(Unit) < getOptionValue("Bwonsamdi's Wrath HP") or pakuWrath == true) then
-							HasValidDispel = true
-							break
-						elseif UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+						if UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 							HasValidDispel = true
 							break
 						end
