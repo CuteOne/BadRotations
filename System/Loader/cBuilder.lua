@@ -396,7 +396,7 @@ function br.loader:new(spec,specName)
             self.baseUpdate()
             self.getBleeds()
             -- Update Player Info on Init, Talent, and Level Change
-            if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
+            if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
             self.getToggleModes()
             -- Start selected rotation
             self.startRotation()

@@ -293,7 +293,7 @@ function isKnown(spellID)
  --        return true
  --    end
 	-- return false
-	return spellID ~= nil and (GetSpellBookItemInfo(tostring(spellName)) ~= nil or IsPlayerSpell(tonumber(spellID)) or IsSpellKnown(spellID) or hasPerk(spellID) or isSpellInSpellbook(spellID,"spell"))
+	return spellID ~= nil and (GetSpellBookItemInfo(tostring(spellName)) ~= nil or IsPlayerSpell(tonumber(spellID)) or IsSpellKnown(spellID) or isSpellInSpellbook(spellID,"spell"))
 end
 
 function isActiveEssence(spellID)

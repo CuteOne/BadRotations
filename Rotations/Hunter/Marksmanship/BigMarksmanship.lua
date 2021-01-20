@@ -214,7 +214,10 @@ local function getItemSpellCd(itemId)
 end
 
 local function getItemCooldownDuration(itemId)
-    return GetSpellBaseCooldown(select(2,GetItemSpell(itemId))) / 1000
+    if select(2,GetItemSpell(itemId)) ~= nil then
+        return GetSpellBaseCooldown(select(2,GetItemSpell(itemId))) / 1000
+    end
+    return 0
 end
 
 local function getItemCooldownExists(itemId)
