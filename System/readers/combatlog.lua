@@ -417,6 +417,16 @@ function cl:common(...)
             end
         end
     end
+    if param == "SPELL_AURA_APPLIED" then
+        if spell == 323402 then
+            br.shadeUp = true
+        end
+    end
+    if param == "SPELL_AURA_REMOVED" then
+        if spell == 323402 then
+            br.shadeUp = false
+        end
+    end
 end
 function cl:Deathknight(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
