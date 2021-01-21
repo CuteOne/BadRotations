@@ -86,5 +86,4 @@ br.lists.noTouchUnits = {
     { unitID = 165318, buff = 329636 }, -- General Kaal with Hardened Stone Form
     { unitID = 170323, buff = 329636 }, -- General Grashaal with Hardened Stone Form
     { unitID = 168962}, -- Sun King's Reborn Phoenix
-    { unitID = 168156}, -- remoria
 }
