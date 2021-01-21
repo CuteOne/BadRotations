@@ -1187,7 +1187,8 @@ local function runRotation()
     end -- end healing
 
     if isChecked("Raid Boss Helper") then
-        if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577) or GetObjectID("target") == 173112 and inCombat then
+        -- Sunking & Huntsman: Heal things
+        if (GetObjectID("target") == 165759 or GetObjectID("target") == 165778 or GetObjectID("target") == 171577 or GetObjectID("target") == 173112) and inCombat then
             if getHP("target") < 100 then
                 if not buff.beaconOfLight.exists("target") and GetObjectID("target") == 165759 then
                     if cast.beaconOfLight("target") then
@@ -1205,11 +1206,31 @@ local function runRotation()
                 if cast.bestowFaith("target") then
                     return true
                 end
-                if cast.holyLight("target") then
+                if buff.holy_avenger.exists("player") or buff.innervate.exists("player") then
+                    if cast.flashOfLight("target") then
+                        return true
+                    end
+                end
+                if not buff.holy_avenger.exists("player") or buff.innervate.exists("player") then
+                    if cast.holyLight("target") then
+                        return true
+                    end
+                end       
+            end
+        end 
+        -- Sire: Freedom during March
+        if UnitCastingInfo("boss1") == GetSpellInfo(328276) and cast.able.blessingOfFreedom() then
+            if cast.blessingOfFreedom("player") then
+                return true
+            end
+        end
+        --[[for i = 1, #br.friend do
+            if getDebuffStacks(br.friend[i].unit, 329974) > 2 then
+                if cast.blessingOfProtection(br.friend[i].unit) then
                     return true
                 end
             end
-        end
+        end]]
     end
 
     --[[ if mode.mythic == 1 then
