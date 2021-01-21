@@ -34,7 +34,7 @@ br.lists.ccUnits = {
     [168572] = { name = "Fungistorm", spell = 330423 }, -- big AOE, can be stunned
     [168572] = { name = "Fungistorm", spell = 328177 }, -- -- big AOE, can be stunned
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Prevent the shield from going on
-
+    [163892] = { name = "Corroded Claws", spell = 320512 }, -- Prevent the shield from going on 
 
 
     -- Thorghast

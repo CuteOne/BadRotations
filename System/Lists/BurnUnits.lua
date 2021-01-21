@@ -7,7 +7,7 @@ br.lists.burnUnits = {
     --Shadowlands dungeons
     -- m+ stuff
     [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
-
+    [175992] = { coef = 150, name = "Dutiful Attendant", id = 175992 }, -- gives immunity to boss
 
     --Plaguefall
     [164362] = { coef = 50, name = "Slimy Morsel", id = 164362 }, -- Plaguefall Dungeon - if they reach boss the heal him

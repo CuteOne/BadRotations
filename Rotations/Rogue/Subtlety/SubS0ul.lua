@@ -1,5 +1,5 @@
 local rotationName = "SubS0ul - 9.0"
-local dotBlacklist = "168962"
+local dotBlacklist = "168962|175992"
 local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
 local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
 ---------------
@@ -338,12 +338,16 @@ local function runRotation()
 
     local function trinket_Pop()
         if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) then
+            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) and not hasEquiped(184016, 13) then
                 useItem(13)
             end
-            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) then
+            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) and not hasEquiped(184016, 14) then
                 useItem(14)
             end
+        end
+        -- Skuler's Wing
+        if isChecked("Trinkets") and (GetInventoryItemID("player", 13) == 184016 or GetInventoryItemID("player", 14) == 184016) and canUseItem(184016) and combatTime > 5 then
+            useItem(184016)
         end
     end
 
@@ -810,7 +814,7 @@ local function runRotation()
         -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=5
         local skipRupture = (buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
         -- # Keep up Rupture if it is about to run out. Don't ruptre if they die faster than debuff.
-        -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
+        -- actions.finish+=/rupture,if=(!variable.skip_rupture|variable.use_priority_rotation)&target.time_to_die-remains>6&refreshable
         if (not skipRupture or priorityRotation) and ttd("target") >= (5 + 2 * combo) and debuff.rupture.refresh("target") and shallWeDot("target") then
             if cast.rupture("target") then return true end
         end
@@ -820,10 +824,10 @@ local function runRotation()
         end
         -- # Multidotting targets that will live for the duration of Rupture, refresh during pandemic.
         -- actions.finish+=/rupture,cycle_targets=1,if=!variable.skip_rupture&!variable.use_priority_rotation&spell_targets.shuriken_storm>=2&target.time_to_die>=(5+(2*combo_points))&refreshable
-        if not skipRupture and not priorityRotation and enemies10 >= 2 and getSpellCD(spell.rupture) == 0 and ruptureCount <= getOptionValue("Multidot Limit") then
+        if not skipRupture and not priorityRotation and enemies10 >= 2 and getSpellCD(spell.rupture) == 0 and ruptureCount < getOptionValue("Multidot Limit") then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if ttd(thisUnit) >= (5 + 2 * combo) and debuff.rupture.refresh(thisUnit) and shallWeDot(thisUnit) then
+                if ttd(thisUnit) >= (5 + 2 * combo) and debuff.rupture.refresh(thisUnit) and shallWeDot(thisUnit) and getFacing("player",thisUnit) then
                     if cast.rupture(thisUnit) then return true end
                 end
             end
@@ -833,7 +837,7 @@ local function runRotation()
         if not skipRupture and ruptureRemain < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and shallWeDot("target") and ttd("target") - ruptureRemain > cd.symbolsOfDeath.remain() + 5 then
             if cast.rupture(thisUnit) then return true end
         end
-        -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=3
+        -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=4-debuff.find_weakness.down
         if enemies10 >= 3 and cast.able.blackPowder() then
             if cast.blackPowder("target") then return true end
         end
