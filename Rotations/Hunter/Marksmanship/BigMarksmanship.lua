@@ -234,19 +234,26 @@ function getTimeToLastInterrupt()
 	return 0
 end
 
-local function getItemSpellCd(itemId)
-    return GetItemCooldown(itemId) + 180 - GetTime()
-end
-
-local function getItemCooldownDuration(itemId)
-    if select(2,GetItemSpell(itemId)) ~= nil then
-        return GetSpellBaseCooldown(2,GetItemSpell(itemId)) / 1000
+function getItemCooldownDuration(itemId)
+    local _, itemSpell = GetItemSpell(itemId)
+    if itemSpell  ~= nil then
+        return GetSpellBaseCooldown(itemSpell) / 1000
+    else
+        return 0
     end
-    return 0
 end
 
-local function getItemCooldownExists(itemId)
-    return GetItemCooldown(itemId) + getItemCooldownDuration(itemId) - GetTime() > 0
+function getItemSpellCd(itemId)
+    local retVal = GetItemCooldown(itemId) + getItemCooldownDuration(itemId) - GetTime()
+    if retVal > 0 then
+        return retVal
+    else
+        return 0
+    end
+end
+
+function getItemCooldownExists(itemId)
+    return getItemSpellCd(itemId) > 0
 end
 
 local inventory = {
@@ -334,14 +341,15 @@ actionList.aa = function()
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2))
-            or not buff.trueshot.exists()
-            and cd.trueshot.remain() > 20 and unit.instance(instanceTypes.raid)
+            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
+            and not buff.trueshot.exists()
+            and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1)
             and getItemSpellCd(inventory.trinket2) - 5 < cd.trueshot.remain()
             and inventory.trinket2 ~= items.dreadfireVessel
-            or (getItemCooldownDuration(inventory.trinket1) -5 < cd.trueshot.remain()  and unit.instance(instanceTypes.raid)
+            or (getItemCooldownDuration(inventory.trinket1) -5 < cd.trueshot.remain()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2)))
-            or unit.instance(instanceTypes.raid) and unit.isBoss(units.target) and unit.ttd(units.target) < cd.trueshot.remain()
+            or unit.ttd(units.target) < cd.trueshot.remain())
         then
             if canUseItem(inventory.trinket1) and not isBlacklistedTrinket(13) then return useItem(inventory.trinket1) end
         end
@@ -349,14 +357,15 @@ actionList.aa = function()
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1))
-            or not buff.trueshot.exists()
-            and cd.trueshot.remain() > 20 and unit.instance(instanceTypes.raid)
+            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
+            and not buff.trueshot.exists()
+            and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2)
             and getItemSpellCd(inventory.trinket1) - 5 < cd.trueshot.remain()
             and inventory.trinket2 ~= items.dreadfireVessel
-            or (getItemCooldownDuration(inventory.trinket2) -5 < cd.trueshot.remain()  and unit.instance(instanceTypes.raid)
+            or (getItemCooldownDuration(inventory.trinket2) -5 < cd.trueshot.remain()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1)))
-            or unit.instance(instanceTypes.raid) and unit.isBoss(units.target) and unit.ttd(units.target) < cd.trueshot.remain()
+            or unit.ttd(units.target) < cd.trueshot.remain())
         then
             if canUseItem(inventory.trinket2) and not isBlacklistedTrinket(14) then return useItem(inventory.trinket2) end
         end
@@ -892,10 +901,12 @@ local function runRotation()
     units.units                                   = br.player.units
     use                                           = br.player.use
     var                                           = br.player.variables
+    inventory = inventory --update inventory ;)
 
     -- Get required units.enemies table
     units.units.get(40)
     units.enemies.get(8,units.target)
+    units.enemies.get(8,units.target,_,true)
     units.enemies.get(8,units.target,true)
     units.enemies.get(40,nil,false,true)
 
@@ -910,8 +921,8 @@ local function runRotation()
     var.lowestAimedRemain = 99
     var.lowestHPUnit = units.target
     var.lowestHP = 100
-    for i = 1, #units.enemies.yards8t do
-        local thisUnit = units.enemies.yards8t[i]
+    for i = 1, #units.enemies.yards8tf do
+        local thisUnit = units.enemies.yards8tf[i]
         local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
         if ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain then
