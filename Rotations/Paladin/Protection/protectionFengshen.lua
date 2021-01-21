@@ -335,7 +335,7 @@ local function runRotation()
 				end
 			end
 			-- Auto cancel Divine Shield
-			if isChecked("Auto cancel DS") and not talent.finalStand and GetObjectID("boss1") ~= 162060 then
+			if isChecked("Auto cancel DS") and not talent.finalStand and GetObjectID("boss1") ~= 162060 and GetObjectID("boss1") ~= 164261 then
 				if buff.divineShield.exists() and cast.able.handOfReckoning() then
 					if cast.handOfReckoning("target") then return true end
 				end
@@ -448,9 +448,9 @@ local function runRotation()
 					if cast.wordOfGlory("player") then return true end
 				end
 				if isChecked("Word of Glory - Party") then
-					if getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") then
+					if getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") and not GetUnitIsUnit(lowestUnit,"player") then
 						if getOptionValue("WoG - Party Target") == 1 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" and not GetUnitIsUnit(lowestUnit,"player") then
+							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
@@ -460,7 +460,7 @@ local function runRotation()
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
 						elseif getOptionValue("WoG - Party Target") == 3 then
-							if (UnitGroupRolesAssigned(lowestUnit) == "TANK" or UnitGroupRolesAssigned(lowestUnit) == "HEALER") and not GetUnitIsUnit(lowestUnit,"player") then
+							if UnitGroupRolesAssigned(lowestUnit) == "TANK" or UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
@@ -773,7 +773,7 @@ local function runRotation()
 			end
 			if GetUnitExists(units.dyn5) then
 				-- Seraphim
-				if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and holyPower > 2 and getOptionValue("Seraphim") <= ttd then
+				if isChecked("Seraphim") and talent.seraphim and holyPower > 2 and getOptionValue("Seraphim") <= ttd then
 					SotR = false
 					if cast.seraphim() then return true end
 				end
