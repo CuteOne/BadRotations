@@ -39,6 +39,12 @@ local function createToggles()
 	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.blessingOfFreedom }
 	};
 	CreateButton("BossCase",5,0)
+	-- Holy Power logic
+	HolyPowerlogicModes = {
+	[1] = { mode = "Attack", value = 1 , overlay = "Attack logic Enabled", tip = "Holy Power logic (Attack)", highlight = 1, icon = br.player.spell.shieldOfTheRighteous },
+	[2] = { mode = "Defense", value = 2 , overlay = "Defense logic Enabled", tip = "Holy Power logic (Defense)", highlight = 1, icon = br.player.spell.wordOfGlory }
+	};
+	CreateButton("HolyPowerlogic",6,0)
 end
 ---------------
 --- OPTIONS ---
@@ -178,21 +184,6 @@ local function createOptions()
 		br.ui:createScrollingEditBoxWithout(section,"Stun Spells", StunSpellList, "List of spells to stun with auto stun function", 240, 50)
 		br.ui:createScrollingEditBoxWithout(section,"HoJ Prio Units", HoJPrioList, "List of units to prioritize for Hammer of Justice", 240, 50)
 		br.ui:checkSectionState(section)
-		----------------------
-		--- TOGGLE OPTIONS ---
-		----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-		-- Single/Multi Toggle
-		br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  6)
-		--Cooldown Key Toggle
-		br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  6)
-		--Defensive Key Toggle
-		br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-		-- Interrupts Key Toggle
-		br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-		-- Pause Toggle
-		br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
-		br.ui:checkSectionState(section)
 	end
 	optionTable = {{
 	[1] = "Rotation Options",
@@ -206,17 +197,6 @@ end
 local function runRotation()
 	-- if br.timer:useTimer("debugProtection", math.random(0.1,0.2)) then
 	--Print("Running: "..rotationName)
-	---------------
-	--- Toggles ---
-	---------------
-	UpdateToggle("Rotation",0.25)
-	UpdateToggle("Cooldown",0.25)
-	UpdateToggle("Defensive",0.25)
-	UpdateToggle("Interrupt",0.25)
-	UpdateToggle("BossCase",0.25)
-	br.player.ui.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
-	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
-
 	--------------
 	--- Locals ---
 	--------------
@@ -887,7 +867,7 @@ local function runRotation()
 	else
 		if actionList_Extras() then return end
 		if actionList_Defensive() then return end
-		if br.player.ui.mode.BossCase == 1 then
+		if mode.bossCase == 1 then
 			if BossEncounterCase() then return end
 		end
 		if actionList_Opener() then return end
@@ -898,8 +878,9 @@ local function runRotation()
 			--- In Combat - Begin Rotation ---
 			----------------------------------
 			-- Shield of the Righteous
-			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and (holyPower > 2 or buff.divinePurpose.exists()) and SotR == true
-				and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2) then
+			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
+				and (mode.holyPowerlogic == 1 and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2))
+				or (mode.holyPowerlogic == 2 and holyPower == 5 and (getSpellCD(275779) <= gcdMax or getSpellCD(31935) <= gcdMax or (talent.blessedHammer and getSpellCD(204019) <= gcdMax) or (not talent.blessedHammer and getSpellCD(53595) <= gcdMax) or ((getHP(units.dyn30) <= 20 or buff.avengingWrath.exists()) and getSpellCD(24275) <= gcdMax))) then
 				if cast.shieldOfTheRighteous(units.dyn5) then return true end
 			end
 			local mob30 = GetUnitExists(units.dyn30) and getFacing("player",units.dyn30)
