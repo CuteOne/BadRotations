@@ -398,6 +398,78 @@ local function runRotation()
         end
         local movingCheck = not isMoving("player") and not IsFalling() or (isMoving("player") and buff.spiritwalkersGrace.exists("player"))
 
+        local function bossHelper()
+            -- Raid Boss
+            if ui.checked("Raid Boss Helper") and br.player.eID and (br.player.eID == 2127 or br.player.eID == 2418 or br.player.eID == 2402) then
+                for i = 1, GetObjectCountBR() do
+                    local thisUnit = GetObjectWithIndex(i)
+                    local objectID = GetObjectID(thisUnit)
+                    if br.player.eID ~= 2402 then
+                        if (objectID == 133392 and getBuffRemain(thisUnit, 274148) == 0) or objectID == 171577 or objectID == 173112 then
+                            if getHP(thisUnit) < 100 and lowest.hp >= ui.value("Raid Boss Helper") then
+                                if not buff.riptide.exists(thisUnit) then
+                                    CastSpellByName(GetSpellInfo(61295), thisUnit)
+                                    br.addonDebug("Casting Riptide")
+                                    return true
+                                    --cast.riptide("target") then return true end
+                                end
+                                if getHP(thisUnit) < 50 and movingCheck then
+                                    --if cast.healingSurge("target") then return true end
+                                    CastSpellByName(GetSpellInfo(8004), thisUnit)
+                                    br.addonDebug("Casting Healing Surge")
+                                    return true
+                                else
+                                    --if cast.healingWave("target") then return true end
+                                    if movingCheck then
+                                        CastSpellByName(GetSpellInfo(77472), thisUnit)
+                                        br.addonDebug("Casting Healing Wave")
+                                        return true
+                                    end
+                                end
+                            end
+                        end
+                    else
+                        if (objectID == 165759 or objectID == 165778) and not br.shadeUp and getHP(thisUnit) < 100 then
+                            -- Earth Shield
+                            if not buff.earthShield.exists(thisUnit) and objectID == 165759 then
+                                CastSpellByName(GetSpellInfo(974), thisUnit)
+                                br.addonDebug("[Sun King] Casting Earth Shield")
+                                return true
+                            end
+                            -- Primordial Wave
+                            if ui.checked("Primordial Wave") and covenant.necrolord.active then
+                                if buff.riptide.refresh(thisUnit) then
+                                    CastSpellByName(GetSpellInfo(326059), thisUnit)
+                                    br.addonDebug("[Sun King] Casting Primordial Wave")
+                                    return true
+                                end
+                            end
+                            if ui.checked("Unleash Life") and talent.unleashLife then
+                                CastSpellByName(GetSpellInfo(73685), thisUnit)
+                                br.addonDebug("[Sun King] Casting Unleash Life")
+                                return true
+                            end
+                            -- Riptide
+                            if ui.checked("Riptide") then
+                                if buff.riptide.refresh(thisUnit) then
+                                    CastSpellByName(GetSpellInfo(61295), thisUnit)
+                                    br.addonDebug("[Sun King] Casting Riptide")
+                                    return true
+                                end
+                            end
+                            -- Healing Surge
+                            if ui.checked("Healing Surge") and movingCheck then
+                                CastSpellByName(GetSpellInfo(8004), thisUnit)
+                                br.addonDebug("[Sun King] Casting Healing Surge")
+                                return true
+                            end
+                            
+                        end
+                    end
+                end
+            end
+        end
+
         --------------------
         --- Action Lists ---
         --------------------
@@ -496,77 +568,6 @@ local function runRotation()
             -- Water Shield
             if ui.checked("Water Shield") and not buff.waterShield.exists() then
                 if cast.waterShield() then
-                end
-            end
-            -- Raid Boss
-            if inCombat and ui.checked("Raid Boss Helper") then
-                for i = 1, GetObjectCountBR() do
-                    local thisUnit = GetObjectWithIndex(i)
-                    local objectID = GetObjectID(thisUnit)
-                    if br.player.eID and (br.player.eID == 2127 or br.player.eID == 2418) then
-                        if (objectID == 133392 and getBuffRemain(thisUnit, 274148) == 0) or objectID == 171577 or objectID == 173112 then
-                            local bossObject = thisUnit
-                            if getHP(bossObject) < 100 and lowest.hp >= ui.value("Raid Boss Helper") then
-                                if not buff.riptide.exists(bossObject) then
-                                    CastSpellByName(GetSpellInfo(61295), bossObject)
-                                    br.addonDebug("Casting Riptide")
-                                    return true
-                                    --cast.riptide("target") then return true end
-                                end
-                                if getHP(bossObject) < 50 and movingCheck then
-                                    --if cast.healingSurge("target") then return true end
-                                    CastSpellByName(GetSpellInfo(8004), bossObject)
-                                    br.addonDebug("Casting Healing Surge")
-                                    return true
-                                else
-                                    --if cast.healingWave("target") then return true end
-                                    if movingCheck then
-                                        CastSpellByName(GetSpellInfo(77472), bossObject)
-                                        br.addonDebug("Casting Healing Wave")
-                                        return true
-                                    end
-                                end
-                            end
-                        end
-                    elseif br.player.eID and br.player.eID == 2402 then  --Sun King (credit to Tutti and Laksmackt)
-                        if (objectID == 165759 or objectID == 165778) and not br.shadeUp and getHP(thisUnit) < 100 then
-                            local bossObject = thisUnit
-                            -- Earth Shield
-                            if not buff.earthShield.exists(bossObject) and objectID == 165759 then
-                                CastSpellByName(GetSpellInfo(974), bossObject)
-                                br.addonDebug("[Sun King] Casting Earth Shield")
-                                return true
-                            end
-                            -- Primordial Wave
-                            if ui.checked("Primordial Wave") and covenant.necrolord.active then
-                                if buff.riptide.refresh(bossObject) then
-                                    CastSpellByName(GetSpellInfo(326059), bossObject)
-                                    br.addonDebug("[Sun King] Casting Primordial Wave")
-                                    return true
-                                end
-                            end
-                            if ui.checked("Unleash Life") and talent.unleashLife then
-                                CastSpellByName(GetSpellInfo(73685), bossObject)
-                                br.addonDebug("[Sun King] Casting Unleash Life")
-                                return true
-                            end
-                            -- Riptide
-                            if ui.checked("Riptide") then
-                                if buff.riptide.refresh(bossObject) then
-                                    CastSpellByName(GetSpellInfo(61295), bossObject)
-                                    br.addonDebug("[Sun King] Casting Riptide")
-                                    return true
-                                end
-                            end
-                            -- Healing Surge
-                            if ui.checked("Healing Surge") and movingCheck then
-                                CastSpellByName(GetSpellInfo(8004), bossObject)
-                                br.addonDebug("[Sun King] Casting Healing Surge")
-                                return true
-                            end
-                            
-                        end
-                    end
                 end
             end
             if useDefensive() then
@@ -1697,6 +1698,9 @@ local function runRotation()
                     end
                     if ui.checked("DPS Key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
                         actionList_dpsKey()
+                    end
+                    if bossHelper() then
+                        return
                     end
                     if actionList_AMR() then
                         return
