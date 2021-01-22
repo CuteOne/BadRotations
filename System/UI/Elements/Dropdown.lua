@@ -81,7 +81,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     --------END Dropdown--------
     ----------------------------
 
-    -- return newDropdown
+    return newDropdown, checkBox
 end
 
 function br.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
