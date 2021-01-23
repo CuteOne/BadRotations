@@ -55,6 +55,11 @@ function br:checkDirectories(folder, class, spec, profile)
 	if profile == nil then
 		profile = br.selectedProfileName
 	end
+	-- Print("Profile by selectedProfileName: "..tostring(br.selectedProfileName))
+	-- if (profile == "None" or profile == nil) and br.selectedSpec ~= "None" then
+	-- 	profile = br.rotations[GetSpecializationInfo(GetSpecialization())][br.selectedProfile].name
+	-- end
+	-- Print("Profile by SpecID, selectedProfile: "..tostring(profile))
 	local profileDir = specDir .. profile .. "\\"
 	if not DirectoryExists(profileDir) then
 		CreateDirectory(profileDir)
@@ -91,7 +96,7 @@ function br:loadSettings(folder, class, spec, profile)
 			if profileFound then
 				br.profile = deepcopy(brprofile)
 			end
-			Print("Loaded Settings for Profile " .. profile)
+			Print("Loaded Settings for Profile " .. tostring(profile))
 		end
 		if not fileFound then
 			Print("No File Called 'savedSettings.lua' Found In " .. loadDir)
@@ -160,8 +165,8 @@ function br:loadLastProfileTracker()
 		if br.data.tracker[selectedProfile] == nil then
 			br.data.tracker[selectedProfile] = {}
 		end
+		local rotationFound = false
 		if br.data.tracker[br.selectedSpec]["RotationDropValue"] then
-			local rotationFound = false
 			for i = 1, #br.rotations[specID] do
 				if br.rotations[specID][i].name == br.data.tracker[br.selectedSpec]["RotationDropValue"] then
 					br.data.settings[br.selectedSpec]["RotationDropValue"] = br.data.tracker[br.selectedSpec]["RotationDropValue"]
@@ -170,10 +175,10 @@ function br:loadLastProfileTracker()
 					break
 				end
 			end
-			if not rotationFound then
-				br.data.settings[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
-				br.data.settings[br.selectedSpec]["RotationDrop"] = 1
-			end
+		end
+		if not rotationFound then
+			br.data.settings[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
+			br.data.settings[br.selectedSpec]["RotationDrop"] = 1
 		end
 		Print("Tracker Load - Last Profile: " .. tostring(br.data.settings[selectedProfile]["RotationDrop"]))
 		Print("Tracker Load - Last Profile Name: " .. tostring(br.data.settings[selectedProfile]["RotationDropValue"]))
@@ -185,7 +190,7 @@ end
 
 function br:saveLastProfileTracker()
 	local saveDir = br:checkDirectories(nil, nil, nil, "Tracker")
-	local specID = GetSpecializationInfo(GetSpecialization())
+	local specID = GetSpecializationInfo(GetSpecialization()) or br.selectedSpecID
 	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil then
 		if br.data.tracker ~= nil then
 			if br.data.tracker[br.selectedSpec] == nil then

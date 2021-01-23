@@ -74,6 +74,7 @@ function br.ui:createConfigWindow()
         )
         br.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
         br.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
+        br.ui:createCheckbox(section, "Boss Detection Only In Instance","Check to only detect Dungeon/Raid Bosses, not Open World")
         br.ui:createCheckbox(section, "Dispel Only Whitelist", "Check to only dispel debuffs listed on the whitelist.")
         br.ui:createCheckbox(section, "Purge Only Whitelist", "Check to only purge buffs listed on the whitelist.")
         br.ui:createCheckbox(section, "Interrupt Only Whitelist", "Check to only interrupt casts listed on the whitelist.")
@@ -170,37 +171,37 @@ function br.ui:createConfigWindow()
     local function callSettingsEngine()
         local profileSettings = {"Solo", "Dungeon", "M+ Dungeon", "Raid"}
         section = br.ui:createSection(br.ui.window.config, "Load Saved Profiles")
-        br.ui:createDropdownWithout(section, "Select Settings", profileSettings, 2, "Select profile to use, then click load")
-        br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
-        local saveProfile = function()
-            br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
-        end
-        local loadProfile = function()
-            br.data.loadedSettings = false
-            local loadDir =
-                br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
-            if br:findFileInFolder("savedSettings.lua", loadDir) then
-                br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
-                br.rotationChanged = true
-            else
-                Print("You don't have saved setting for :" .. profileSettings[getValue("Select Settings")])
+            br.ui:createDropdownWithout(section, "Select Settings", profileSettings, 2, "Select profile to use, then click load")
+            br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
+            local saveProfile = function()
+                br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
             end
-        end
-        local y = -5
-        for i = 1, #section.children do
-            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
-                y = y - section.children[i].frame:GetHeight() * 1.2
+            local loadProfile = function()
+                br.data.loadedSettings = false
+                local loadDir =
+                    br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
+                if br:findFileInFolder("savedSettings.lua", loadDir) then
+                    br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
+                    br.rotationChanged = true
+                else
+                    Print("You don't have saved setting for :" .. profileSettings[getValue("Select Settings")])
+                end
             end
-        end
-        y = round2(y, 1)
-        br.ui:createButton(section, "Save", 10, y, saveProfile)
-        br.ui:createButton(section, "Load", -10, y, loadProfile, true)
+            local y = -5
+            for i = 1, #section.children do
+                if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
+                    y = y - section.children[i].frame:GetHeight() * 1.2
+                end
+            end
+            y = round2(y, 1)
+            br.ui:createButton(section, "Save", 10, y, saveProfile)
+            br.ui:createButton(section, "Load", -10, y, loadProfile, true)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.config, "Export/Import from Settings Folder")
-        br.ui:createText(section, "Export/Import from Settings Folder")
-        br.ui:createExportButton(section, "Export", 40, -90)
-        br.ui:createImportButton(section, "Import", 140, -90)
-        br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
+            br.ui:createText(section, "Export/Import from Settings Folder")
+            br.ui:createExportButton(section, "Export", 40, y)-- -90)
+            br.ui:createImportButton(section, "Import", 140, y)-- -90)
+            br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
         br.ui:checkSectionState(section)
     end
 

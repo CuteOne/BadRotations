@@ -19,6 +19,7 @@ br.prevQueueWindow = GetCVar("SpellQueueWindow")
 br.profile = {}
 br.rotations = {}
 br.selectedSpec = "None"
+br.selectedSpecID = 0
 br.selectedProfile = 1
 br.selectedProfileName = "None"
 br.settingsDir = "\\"
@@ -79,6 +80,7 @@ end
 function br:Run()		
 	if br.selectedSpec == nil then 
 		br.selectedSpec =  select(2, GetSpecializationInfo(GetSpecialization()))
+		br.selectedSpecID = GetSpecializationInfo(GetSpecialization())
     	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 	end
 	-- rc = LibStub("LibRangeCheck-2.0")
@@ -186,8 +188,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			-- Save Settings
 				br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 			end
-			br.saveLastProfileTracker()		
-			
+			br.saveLastProfileTracker()
 		end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
@@ -196,7 +197,8 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
 		end
 		-- Update Selected Spec
-		br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+		br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))		
+		br.selectedSpecID = GetSpecializationInfo(GetSpecialization())
     	if br.selectedSpec == "" then br.selectedSpec = "Initial" end
 		br.activeSpecGroup = GetActiveSpecGroup()
 		br.equipHasChanged = true

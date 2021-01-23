@@ -202,6 +202,7 @@ function BadRotationsUpdate(self)
 					br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
 					-- Update Selected Spec/Profile
 					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+					br.selectedSpecID = GetSpecializationInfo(GetSpecialization())
 					br.loader.loadProfiles()
 					br.loadLastProfileTracker()
 					br.activeSpecGroup = GetActiveSpecGroup()
