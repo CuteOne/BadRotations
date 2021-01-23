@@ -249,11 +249,11 @@ actionList.PetManagement = function()
     end
     if ui.checked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if (not unit.inCombat() and petMode == "Passive") or (unit.inCombat() and (petMode == "Defensive" or petMode == "Passive")) then
+        if unit.exists("target") and ((not unit.inCombat() and petMode == "Passive") or (unit.inCombat() and (petMode == "Defensive" or petMode == "Passive"))) then
             PetAssistMode()
             ui.debug("Setting Pet to Assist")
         elseif not unit.inCombat() and petMode == "Assist" and #enemies.yards40nc > 0 then
-            PetDefensiveMode()
+            PetDefensiveAssistMode()
             ui.debug("Setting Pet to Defensive")
         elseif unit.inCombat() and petMode ~= "Passive" and #enemies.yards40 == 0 then
             PetPassiveMode()
@@ -431,18 +431,19 @@ actionList.Cooldowns = function()
     -- potion,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned&(pet.army_ghoul.active|pet.apoc_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
     -- Army of the Dead
     -- army_of_the_dead,if=cooldown.unholy_blight.remains<3&cooldown.dark_transformation.remains<3&talent.unholy_blight|!talent.unholy_blight|fight_remains<35
-    if ui.alwaysCdNever("Army of the Dead") and unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") and cast.able.armyOfTheDead()
+    if ui.alwaysCdNever("Army of the Dead") and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy()) and cast.able.armyOfTheDead()
         and ((cd.unholyBlight.remains() < 3 and cd.darkTransformation.remains() < 3 and talent.unholyBlight) or not talent.unholyBlight or not ui.alwaysCdNever("Unholy Blight"))
     then
         if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead") return true end
     end
     -- Soul Reaper
+    -- soul_reaper,target_if=target.time_to_pct_35<5&target.time_to_die>5
     if ui.alwaysCdNever("Soul Reaper") and cast.able.soulReaper() and unit.ttd(units.dyn5,35) < 5 and unit.ttd(units.dyn5) > 5 then
         if cast.soulReaper() then ui.debug("Casting Soul Reaper") return true end
     end
     -- Unholy Blight
-    if ui.alwaysCdNever("Unholy Blight") and cast.able.unholyBlight() then
-        if var.stPlanning and (cd.darkTransformation.remain() < unit.gcd(true) or buff.darkTransformation.exists()) then
+    if ui.alwaysCdNever("Unholy Blight") and cast.able.unholyBlight() and (cd.darkTransformation.remain() < unit.gcd(true) or buff.darkTransformation.exists()) then
+        if var.stPlanning then
             -- unholy_blight,if=variable.st_planning&(cooldown.dark_transformation.remains<gcd|buff.dark_transformation.up)&(!runeforge.deadliest_coil|!talent.army_of_the_damned|conduit.convocation_of_the_dead.rank<5)
             if (not runeforge.deadliestCoil.equiped or not talent.armyOfTheDamned or conduit.convocationOfTheDead.rank < 5) then
                 if cast.unholyBlight("player","aoe",1,10) then ui.debug("Casting Unholy Blight [ST]") return true end
@@ -453,7 +454,7 @@ actionList.Cooldowns = function()
             end
         end
         -- unholy_blight,if=active_enemies>=2|fight_remains<21
-        if ui.useAOE(8,2) and unit.ttdGroup(5) < 21 then
+        if ui.useAOE(8,2) and unit.ttdGroup(8) >= 21 then
             if cast.unholyBlight("player","aoe",1,10) then ui.debug("Casting Unholy Blight [AOE]") return true end
         end
     end
@@ -464,7 +465,7 @@ actionList.Cooldowns = function()
             if cast.darkTransformation() then ui.debug("Casting Dark Transformation [ST]") return true end
         end
         -- dark_transformation,if=active_enemies>=2|fight_remains<21
-        if ui.useAOE(8,2) and unit.ttdGroup(5) < 21 then
+        if ui.useAOE(8,2) and unit.ttdGroup(8) >= 21 then
             if cast.darkTransformation() then ui.debug("Casting Dark Transformation [AOE]") return true end
         end
     end
@@ -493,15 +494,17 @@ actionList.Cooldowns = function()
     end
     -- Summon Gargoyle
     -- summon_gargoyle,if=runic_power.deficit<14&(cooldown.unholy_blight.remains<10|dot.unholy_blight_dot.remains)
-    if ui.alwaysCdNever("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit")
+    if ui.alwaysCdNever("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy())
         and (cd.unholyBlight.remains() < 10 or debuff.unholyBlight.exists(units.dyn5))
     then
         if cast.summonGargoyle() then ui.debug("Casting Summon Gargoyle") return true end
     end
     -- Unholy Assault
-    if ui.alwaysCdNever("Unholy Assault") and cast.able.unholyAssault() and unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") then
+    if ui.alwaysCdNever("Unholy Assault") and cast.able.unholyAssault() and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy()) then
         -- unholy_assault,if=variable.st_planning&debuff.festering_wound.stack<2&(pet.apoc_ghoul.active|conduit.convocation_of_the_dead&buff.dark_transformation.up&!pet.army_ghoul.active)
-        if var.stPlanning and debuff.festeringWound.stack(units.dyn5) < 2 and (pet.apocalypseGhoul.active() or conduit.convocationOfTheDead.enabled and buff.darkTransformation.exists() and not pet.armyOfTheDead.active) then
+        if var.stPlanning and debuff.festeringWound.stack(units.dyn5) < 2
+            and (pet.apocalypseGhoul.active() or conduit.convocationOfTheDead.enabled and buff.darkTransformation.exists() and not pet.armyOfTheDead.active)
+        then
             if cast.unholyAssault() then ui.debug("Casting Unholy Assault [ST]") return true end
         end
         -- unholy_assault,target_if=min:debuff.festering_wound.stack,if=active_enemies>=2&debuff.festering_wound.stack<2
@@ -515,7 +518,7 @@ end -- End Action List - Cooldowns
 actionList.Covenants = function()
     -- Swarming Mist
     -- swarming_mist,if=variable.st_planning&runic_power.deficit>16&(cooldown.apocalypse.remains|!talent.army_of_the_damned&cooldown.dark_transformation.remains)|fight_remains<11
-    if cast.able.swarmingMist() and ui.useST(8,2) and runicPowerDeficit > 16 and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTrasformation.exists()) then
+    if cast.able.swarmingMist() and ui.useST(8,2) and runicPowerDeficit > 16 and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exists()) then
         if cast.swarmingMist("player","aoe",1,8) then ui.debug("Casting Swarming Mist") return true end
     end
     -- swarming_mist,if=cooldown.apocalypse.remains&(active_enemies>=2&active_enemies<=5&runic_power.deficit>10+(active_enemies*6)|active_enemies>5&runic_power.deficit>40)
@@ -535,7 +538,7 @@ actionList.Covenants = function()
     end
     -- Shackle the Unworthy
     -- shackle_the_unworthy,if=variable.st_planning&(cooldown.apocalypse.remains|!talent.army_of_the_damned&cooldown.dark_transformation.remains)|fight_remains<15
-    if cast.able.shackleTheUnworthy() and ui.useST(30,2) and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exist()) then
+    if cast.able.shackleTheUnworthy() and var.stPlanning and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exist()) then
         if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy") return true end
     end
     -- shackle_the_unworthy,if=active_enemies>=2&(death_and_decay.ticking|raid_event.adds.remains<=14)
@@ -569,12 +572,12 @@ actionList.AOE_Setup = function()
     end
     -- Death Coil
     -- death_coil,if=!variable.pooling_runic_power&(buff.dark_transformation.up&runeforge.deadliest_coil&active_enemies<=3|active_enemies=2)
-    if cast.able.deathCoil() and not var.poolingRunicPower and ((buff.darkTransformation.exists() and runeforge.deadliestCoil.equiped and ui.useST(30,3)) or #enemies.yards30 == 2) then
+    if cast.able.deathCoil() and not var.poolingRunicPower and ((buff.darkTransformation.exists() and runeforge.deadliestCoil.equiped and ui.useST(30,4)) or #enemies.yards30 == 2) then
         if cast.deathCoil() then ui.debug("Casting Death Coil [AOE Setup - Deadliest Coil]") return true end
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_runic_power
-    if cast.able.epidemic() and not var.poolingRunicPower then
+    if cast.able.epidemic() and not var.poolingRunicPower and debuff.virulentPlague.exists(units.dyn30) then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup - Low Runic or Sudden Doom]") return true end
     end
     -- Festering Strike
@@ -597,7 +600,7 @@ actionList.AOE_Setup = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and not var.poolForGargoyle and runicPower >= 30 then
+    if cast.able.epidemic() and not var.poolForGargoyle and debuff.virulentPlague.exists(units.dyn30) then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Setup]") return true end
     end
 end -- End Action List - AOE Setup
@@ -606,21 +609,23 @@ end -- End Action List - AOE Setup
 actionList.AOE_Burst = function()
     -- Death Coil
     -- death_coil,if=(buff.sudden_doom.react|!variable.pooling_runic_power)&(buff.dark_transformation.up&runeforge.deadliest_coil&active_enemies<=3|active_enemies=2)
-    if cast.able.deathCoil() and (buff.suddenDoom.exists() or not var.poolingRunicPower) and ((buff.darkTransformation.exists() and runeforge.deadliestCoil.equiped and ui.useST(30,3)) or #enemies.yards30 == 2) then
+    if cast.able.deathCoil() and (buff.suddenDoom.exists() or not var.poolingRunicPower) and ((buff.darkTransformation.exists() and runeforge.deadliestCoil.equiped and ui.useST(30,4)) or #enemies.yards30 == 2) then
         if cast.deathCoil() then ui.debug("Casting Death Coil [AOE Burst - Deadliest Coil]") return true end
     end
     -- Epidemic
-    -- epidemic,if=runic_power.deficit<(10+death_knight.fwounded_targets*3)&death_knight.fwounded_targets<6&!variable.pooling_runic_power|buff.swarming_mist.up
-    if cast.able.epidemic() and runicPowerDeficit < (10 + var.fwoundTargets * 3) and var.fwoundTargets < 6 and (not var.poolingRunicPower or buff.swarmingMist.exists()) then
-        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - Low Wounded]") return true end
-    end
-    -- epidemic,if=runic_power.deficit<25&death_knight.fwounded_targets>5&!variable.pooling_runic_power
-    if cast.able.epidemic() and runicPowerDeficit < 25 and var.fwoundTargets > 5 and not var.poolingRunicPower then
-        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - High Wounded]") return true end
-    end
-    -- epidemic,if=!death_knight.fwounded_targets&!variable.pooling_runic_power|fight_remains<5|raid_event.adds.exists&raid_event.adds.remains<5
-    if cast.able.epidemic() and var.fwoundTargets == 0 and (not var.poolingRunicPower or unit.ttdGroup(5) < 5 or ui.useAOE(8,2)) then
-        if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - No Wounded]") return true end
+    if cast.able.epidemic() and debuff.virulentPlague.exists(units.dyn30) then
+        -- epidemic,if=runic_power.deficit<(10+death_knight.fwounded_targets*3)&death_knight.fwounded_targets<6&!variable.pooling_runic_power|buff.swarming_mist.up
+        if runicPowerDeficit < (10 + var.fwoundTargets * 3) and var.fwoundTargets < 6 and (not var.poolingRunicPower or buff.swarmingMist.exists()) then
+            if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - Low Wounded]") return true end
+        end
+        -- epidemic,if=runic_power.deficit<25&death_knight.fwounded_targets>5&!variable.pooling_runic_power
+        if runicPowerDeficit < 25 and var.fwoundTargets > 5 and not var.poolingRunicPower then
+            if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - High Wounded]") return true end
+        end
+        -- epidemic,if=!death_knight.fwounded_targets&!variable.pooling_runic_power|fight_remains<5|raid_event.adds.exists&raid_event.adds.remains<5
+        if var.fwoundTargets == 0 and (not var.poolingRunicPower or unit.ttdGroup(5) < 5 or ui.useAOE(8,2)) then
+            if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst - No Wounded]") return true end
+        end
     end
     -- Scourge Strike
     -- wound_spender
@@ -629,7 +634,7 @@ actionList.AOE_Burst = function()
     end
     -- Epidemic
     -- epidemic,if=!variable.pooling_runic_power
-    if cast.able.epidemic() and not var.poolingRunicPower then
+    if cast.able.epidemic() and not var.poolingRunicPower and debuff.virulentPlague.exists(units.dyn30) then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE Burst]") return true end
     end
 end -- End Action List - AOE Burst
@@ -644,12 +649,12 @@ actionList.AOE = function()
     end
     -- Death Coil
     -- death_coil,if=(!variable.pooling_runic_power|buff.sudden_doom.react)&(buff.dark_transformation.up&runeforge.deadliest_coil&active_enemies<=3|active_enemies=2)
-    if cast.able.deathCoil() and (not var.poolingRunicPower or buff.suddenDoom.exists()) and ((buff.darkTransformation.exists() and runeforge.deadliestCoil.equiped and ui.useST(30,3)) or #enemies.yards30 == 2) then
+    if cast.able.deathCoil() and (not var.poolingRunicPower or buff.suddenDoom.exists()) and ((buff.darkTransformation.exists() and runeforge.deadliestCoil.equiped and ui.useST(30,4)) or #enemies.yards30 == 2) then
         if cast.deathCoil() then ui.debug("Casting Death Coil [AOE - Deadliest Coil]") return true end
     end
     -- Epidemic
     -- epidemic,if=buff.sudden_doom.react|!variable.pooling_for_gargoyle
-    if cast.able.epidemic() and (buff.suddenDoom.exists() or not var.poolForGargoyle) then
+    if cast.able.epidemic() and debuff.virulentPlague.exists(units.dyn30) and (buff.suddenDoom.exists() or not var.poolForGargoyle) then
         if cast.epidemic() then ui.debug("Casting Epidemic [AOE]") return true end
     end
     -- Scourge Strike
@@ -678,11 +683,11 @@ actionList.Single = function()
     if cast.able.deathCoil() then
         -- death_coil,if=buff.sudden_doom.react&!variable.pooling_runic_power|pet.gargoyle.active
         if cast.able.deathCoil() and buff.suddenDoom.exists() and (not var.poolingRunicPower or pet.gargoyle.exists()) then
-            if cast.deathCoil() then ui.debug("Death Coil [ST Sudden Doom]") return true end
+            if cast.deathCoil() then ui.debug("Casting Death Coil [ST Sudden Doom]") return true end
         end
         -- death_coil,if=runic_power.deficit<13&
         if cast.able.deathCoil() and runicPowerDeficit < 13 then
-            if cast.deathCoil() then ui.debug("Death Coil [ST High Runic Power]") return true end
+            if cast.deathCoil() then ui.debug("Casting Death Coil [ST High Runic Power]") return true end
         end
     end
     -- Any DnD
@@ -724,11 +729,11 @@ actionList.Single = function()
     -- Festering Strike
     if cast.able.festeringStrike() then
         -- festering_strike,if=debuff.festering_wound.stack<1&!variable.pooling_runes
-        if (debuff.festeringWound.stack(units.dyn5) < 1 or var.apocBypass) and not var.poolingRunes then
+        if debuff.festeringWound.stack(units.dyn5) < 1 and not var.poolingRunes then
             if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - No Wounds / No Apocalypse]") return true end
         end
         -- festering_strike,if=debuff.festering_wound.stack<4&cooldown.apocalypse.remains<5&!variable.pooling_runes&(!talent.unholy_blight|talent.army_of_the_damned&conduit.convocation_of_the_dead.rank<5|!talent.army_of_the_damned&conduit.convocation_of_the_dead.rank>=5|!conduit.convocation_of_the_dead)
-        if debuff.festeringWound.stack(units.dyn5) < 4 and cd.apocalypse.remains() < 5 and not var.poolingRunes
+        if debuff.festeringWound.stack(units.dyn5) < 4 and (cd.apocalypse.remains() < 5 or var.apocBypass) and not var.poolingRunes
             and (not talent.unholyBlight or (talent.armyOfTheDamned and conduit.convocationOfTheDead.rank < 5)
                 or (not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank >= 5) or not conduit.convocationOfTheDead.active)
         then
@@ -849,7 +854,7 @@ local function runRotation()
     -- variable,name=pooling_runes,value=talent.soul_reaper&rune<2&target.time_to_pct_35<5&fight_remains>5
     var.poolingRunes = talent.soulReaper and runes < 2 and unit.ttd(units.dyn5,30) < 5 and unit.ttdGroup(5) > 5
     -- variable,name=st_planning,value=active_enemies=1&(!raid_event.adds.exists|raid_event.adds.in>15)
-    var.stPlanning = ui.useST(8,1)
+    var.stPlanning = ui.useST(8,2)
     -- variable,name=major_cooldowns_active,value=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned&pet.apoc_ghoul.active|buff.dark_transformation.up
     var.majorCooldownsActive = pet.gargoyle.active or buff.unholyAssault.exists() or (talent.armyOfTheDamned and pet.apocGhoul.active) or buff.darkTransformation.exists()
     var.deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) > 0 and (cd.deathAndDecay.remain() - 10) or 0
