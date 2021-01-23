@@ -331,13 +331,13 @@ actionList.ColdHeart = function()
                 if cast.chainsOfIce() then ui.debug("Casting Chains of Ice [Pillar of Frost - Expire Soon]") return true end
             end
             -- chains_of_ice,if=!talent.obliteration&death_knight.runeforge.fallen_crusader&!buff.pillar_of_frost.up&(buff.cold_heart.stack>=16&buff.unholy_strength.up|buff.cold_heart.stack>=19&cooldown.pillar_of_frost.remains>10)
-            if runeforge.fallenCrusader.equiped and not buff.pillarOfFrost.exists()
+            if var.fallenCrusder and not buff.pillarOfFrost.exists()
                 and (buff.coldHeart.stack() >= 16 and buff.unholyStrength.exist() or buff.coldHeard.stack() >= 19 and cd.pillarOfFrast.remain() > 10)
             then
                 if cast.chainsOfIce() then ui.debug("Casting Chains of Ice [Fallen Crusader]") return true end
             end
             -- chains_of_ice,if=!talent.obliteration&!death_knight.runeforge.fallen_crusader&buff.cold_heart.stack>=10&!buff.pillar_of_frost.up&cooldown.pillar_of_frost.remains>20
-            if not runeforge.fallenCrusader.equiped and buff.coldHeart.stack() >= 10 and not buff.pillarOfFrost.exists() and cd.pillarOfFrost.remain() > 20 then
+            if not var.fallenCrusder and buff.coldHeart.stack() >= 10 and not buff.pillarOfFrost.exists() and cd.pillarOfFrost.remain() > 20 then
                 if cast.chainsOfIce() then ui.debug("Casting Chains of Ice [No Obliteration]") return true end
             end
         end
@@ -762,7 +762,7 @@ actionList.Aoe = function()
     end
     -- Obliterate
     -- obliterate,if=death_and_decay.ticking&covenant.night_fae&buff.deaths_due.stack>8
-    if debuff.deathAndDecay.exists(units.dyn5) and covenant.nightFae.active and buff.deathsDue.stack() > 8 then
+    if buff.deathAndDecay.exists() and covenant.nightFae.active and buff.deathsDue.stack() > 8 then
         if cast.obliterate() then ui.debug("Casting Obliterate [AOE - Death's Due") return true end
     end
     -- Frostscythe
@@ -844,7 +844,7 @@ actionList.Standard = function()
     -- Obliterate
     -- obliterate,if=!buff.frozen_pulse.up&talent.frozen_pulse|buff.killing_machine.react|death_and_decay.ticking&covenant.night_fae&buff.deaths_due.stack>8|rune.time_to_4<=gcd
     if cast.able.obliterate() and ((not buff.frozenPulse.exists() and talent.frozenPulse) or buff.killingMachine.exists()
-        or (debuff.deathAndDecay.exists(units.dyn5) and covenant.nightFae.active and buff.deathsDue.stack() > 8) or runeTTM(4) <= unit.gcd(true))
+        or (buff.deathAndDecay.exists() and covenant.nightFae.active and buff.deathsDue.stack() > 8) or runesTTM(4) <= unit.gcd(true))
     then
         if cast.obliterate() then ui.debug("Casting Obliterate [Death's Due]") return true end
     end
