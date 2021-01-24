@@ -213,7 +213,7 @@ function br.ui:createConfigWindow()
             "Enable Tracker",
             {"Default", "Alternate"},
             1,
-            "Use alternate drawing mode in DX11 if you experience issues with Default. You must type .enabledx at least once to enable EWT's DX Drawing. This is automatically saved by EWT."
+            "Use alternate drawing mode if you experience issues with Default at higher resolutions. You must type .enabledx at least once to enable EWT's DX Drawing. This is automatically saved by EWT."
         )
         br.ui:createCheckbox(section, "Draw Lines to Tracked Objects")
         br.ui:createCheckbox(section, "Auto Interact with Any Tracked Object")
