@@ -45,6 +45,12 @@ local function createToggles()
 	[2] = { mode = "Defense", value = 2 , overlay = "Defense logic Enabled", tip = "Holy Power logic (Defense)", highlight = 1, icon = br.player.spell.wordOfGlory }
 	};
 	CreateButton("HolyPowerlogic",6,0)
+	-- Auto cancel
+	AutocancelModes = {
+	[1] = { mode = "On", value = 1 , overlay = "Auto cancel Enabled", tip = "Auto cancel BoP and DS\n(Only In Instance and Raid)", highlight = 1, icon = br.player.spell.blessingOfProtection },
+	[2] = { mode = "Off", value = 2 , overlay = "Auto cancel Disabled", tip = "Auto cancel BoP and DS Disabled", highlight = 0, icon = br.player.spell.blessingOfProtection }
+	};
+	CreateButton("Autocancel",7,0)
 end
 ---------------
 --- OPTIONS ---
@@ -59,10 +65,6 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile,  "General")
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
-		-- Auto cancel Blessing of Protection
-		br.ui:createCheckbox(section, "Auto cancel BoP")
-		-- Auto cancel Divine Shield
-		br.ui:createCheckbox(section, "Auto cancel DS")
 		-- Automatic Aura replacement
 		br.ui:createCheckbox(section, "Automatic Aura replacement")
 		-- Taunt
@@ -138,7 +140,7 @@ local function createOptions()
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
 		-- Unstable Temporal Time Shifter
-		br.ui:createDropdown(section, "Engineering Revive", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
+		br.ui:createDropdown(section, "Engineering Revive", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to use on")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -290,6 +292,18 @@ local function runRotation()
 			LearnTalent(22434)
 		end
 	end
+	if isChecked("Automatic Aura replacement") and not castingUnit() then
+		if not inInstance and not inRaid then
+			if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
+				if CastSpellByName(GetSpellInfo(465)) then return true end
+			elseif not buff.crusaderAura.exists() and IsMounted() then
+				if CastSpellByName(GetSpellInfo(32223)) then return true end
+			end
+		end
+		if (inInstance or inRaid) and not buff.devotionAura.exists() then
+			if CastSpellByName(GetSpellInfo(465)) then return true end
+		end
+	end
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -304,23 +318,22 @@ local function runRotation()
 				end
 			end
 		end
-		if inInstance or inRaid then
-			-- Auto cancel Blessing of Protection
-			if isChecked("Auto cancel BoP") then
+		-- Auto cancel BoP and DS
+		if mode.autocancel == 1 then
+			if inInstance or inRaid then
 				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
 					if cast.handOfReckoning("target") then return true end
 				end
 				if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
 					CancelUnitBuffID("player", spell.blessingOfProtection)
 				end
-			end
-			-- Auto cancel Divine Shield
-			if isChecked("Auto cancel DS") and not talent.finalStand and GetObjectID("boss1") ~= 162060 and GetObjectID("boss1") ~= 164261 then
-				if buff.divineShield.exists() and cast.able.handOfReckoning() then
-					if cast.handOfReckoning("target") then return true end
-				end
-				if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
-					CancelUnitBuffID("player", spell.divineShield)
+				if not talent.finalStand and GetObjectID("boss1") ~= 162060 and GetObjectID("boss1") ~= 164261 then
+					if buff.divineShield.exists() and cast.able.handOfReckoning() then
+						if cast.handOfReckoning("target") then return true end
+					end
+					if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+						CancelUnitBuffID("player", spell.divineShield)
+					end
 				end
 			end
 		end
@@ -376,12 +389,12 @@ local function runRotation()
 					end
 					-- Target
 				elseif getOptionValue("Lay on Hands Target") == 2 then
-					if getHP("target") <= getValue("Lay On Hands") and not debuff.forbearance.exists("target") then
+					if getHP("target") <= getValue("Lay On Hands") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and GetUnitIsFriend("target","player") then
 						if cast.layOnHands("target") then return true end
 					end
 					-- Mouseover
 				elseif getOptionValue("Lay on Hands Target") == 3 then
-					if getHP("mouseover") <= getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") then
+					if getHP("mouseover") <= getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and GetUnitIsFriend("mouseover","player") then
 						if cast.layOnHands("mouseover") then return true end
 					end
 				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
@@ -464,12 +477,12 @@ local function runRotation()
 					end
 					-- Target
 				elseif getOptionValue("Blessing of Protection Target") == 2 then
-					if getHP("target") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("target") then
+					if getHP("target") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and GetUnitIsFriend("target","player") then
 						if cast.blessingOfProtection("target") then return true end
 					end
 					-- Mouseover
 				elseif getOptionValue("Blessing of Protection Target") == 3 then
-					if getHP("mouseover") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") then
+					if getHP("mouseover") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfProtection("mouseover") then return true end
 					end
 				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
@@ -503,12 +516,12 @@ local function runRotation()
 			if isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
 				-- Target
 				if getOptionValue("Blessing Of Sacrifice Target") == 1 then
-					if getHP("target") <= getValue("Blessing Of Sacrifice") then
+					if getHP("target") <= getValue("Blessing Of Sacrifice") and UnitIsPlayer("target") and GetUnitIsFriend("target","player") then
 						if cast.blessingOfSacrifice("target") then return true end
 					end
 					-- Mouseover
 				elseif getOptionValue("Blessing Of Sacrifice Target") == 2 then
-					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
+					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") and UnitIsPlayer("mouseover") and GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfSacrifice("mouseover") then return true end
 					end
 				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and not cast.last.blessingOfProtection() then
@@ -615,15 +628,11 @@ local function runRotation()
 			end
 			-- Engineering Revive
 			if isChecked("Engineering Revive") and canUseItem(184308) and not isMoving("player") and inCombat then
-				if getOptionValue("Engineering Revive") == 1
-					and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+				if getOptionValue("Engineering Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 					UseItemByName(184308,"target")
-				end
-				if getOptionValue("Engineering Revive") == 2
-					and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+				elseif getOptionValue("Engineering Revive") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
 					UseItemByName(184308,"mouseover")
-				end
-				if getOptionValue("Engineering Revive") == 3 then
+				elseif getOptionValue("Engineering Revive") == 3 then
 					for i =1, #br.friend do
 						if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
 							UseItemByName(184308,br.friend[i].unit)
@@ -634,16 +643,23 @@ local function runRotation()
 		end
 	end -- End Action List - Defensive
 	local function BossEncounterCase()
-		-- Demolition of Squirrel Bomb
+		if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577 or GetObjectID("target") == 173112) and inCombat then
+			if getHP("target") < 100 and (holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
+				SotR = false
+				if cast.wordOfGlory("target") then return true end
+			end
+		end
+		-- Atal'ai Devoted logic
 		if select(8, GetInstanceInfo()) == 2291 then
-			for i = 1, GetObjectCountBR() do
-				local ID = ObjectID(GetObjectWithIndex(i))
-				local object = GetObjectWithIndex(i)
-				local x1, y1, z1 = ObjectPosition("player")
-				local x2, y2, z2 = ObjectPosition(object)
-				local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-				if ID == 164561 and distance <= 5 then
-					InteractUnit(object)
+			for i = 1, #enemies.yards10 do
+			local thisUnit = enemies.yards10[i]
+				if UnitCastingInfo(thisUnit) == GetSpellInfo(332329) and getCastTimeRemain(thisUnit) ~=0 and getCastTimeRemain(thisUnit) < 2 and getBuffRemain(thisUnit,343503) == 0 then
+					if cast.able.hammerOfJustice() then
+						if cast.hammerOfJustice(thisUnit) then return true end
+					end
+					if cast.able.blindingLight() and talent.blindingLight then
+						if cast.blindingLight() then return true end
+					end
 				end
 			end
 		end
@@ -664,7 +680,7 @@ local function runRotation()
 			if cast.cleanseToxins("player") then return true end
 		end
 		-- Will to
-		if race == "Human" and getSpellCD(59752) == 0 and (getDebuffRemain("player",321893) ~= 0 or getDebuffRemain("player",331847) ~= 0) then
+		if race == "Human" and getSpellCD(59752) == 0 and (getDebuffRemain("player",321893) ~= 0 or getDebuffRemain("player",331847) ~= 0 or getDebuffRemain("player",319611) ~= 0) then
 			if CastSpellByName(GetSpellInfo(59752)) then return true end
 		end
 		-- Gloom Squall
@@ -799,20 +815,9 @@ local function runRotation()
 						if cast.blindingLight() then return true end
 					end
 				end
-				-- Atal'ai Devoted logic
-				if select(8, GetInstanceInfo()) == 2291 and getBuffRemain(thisUnit,343503) == 0 then
-					if UnitCastingInfo(thisUnit) == GetSpellInfo(332329) and getCastTimeRemain(thisUnit) ~=0 and getCastTimeRemain(thisUnit) < 2 then
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
-							if cast.hammerOfJustice(thisUnit) then return true end
-						end
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
-							if cast.blindingLight() then return true end
-						end
-					end
-				end
 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 					-- Blinding Light
-					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and getBuffRemain(thisUnit,343503) == 0 then
 						if not isBoss(thisUnit) and noStunsUnits[GetObjectID(thisUnit)] == nil then
 							BL_Unit = BL_Unit + 1
 							if BL_Unit >= getOptionValue("Blinding Light - INT") then
@@ -821,11 +826,13 @@ local function runRotation()
 						end
 					end
 					-- Hammer of Justice
-					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
-						if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
+					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
+						if not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and getBuffRemain(thisUnit,343503) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
+							if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
+						end
 					end
 					-- Rebuke
-					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and not GetUnitIsUnit(hoj_unit,thisUnit) then
+					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and getFacing("player",thisUnit) and not GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
 					end
 				end
@@ -847,18 +854,6 @@ local function runRotation()
 	---------------------
 	--- Begin Profile ---
 	---------------------
-	if isChecked("Automatic Aura replacement") and not castingUnit() then
-		if not inInstance and not inRaid then
-			if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
-				if CastSpellByName(GetSpellInfo(465)) then return true end
-			elseif not buff.crusaderAura.exists() and IsMounted() then
-				if CastSpellByName(GetSpellInfo(32223)) then return true end
-			end
-		end
-		if (inInstance or inRaid) and not buff.devotionAura.exists() then
-			if CastSpellByName(GetSpellInfo(465)) then return true end
-		end
-	end
 	--Profile Stop | Pause
 	if not inCombat and not hastar and profileStop == true then
 		profileStop = false
@@ -871,7 +866,7 @@ local function runRotation()
 			if BossEncounterCase() then return end
 		end
 		if actionList_Opener() then return end
-		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false and BoF == true then
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false and BoF == true and not castingUnit() then
 			if actionList_Interrupts() then return end
 			if actionList_Cooldowns() then return end
 			----------------------------------
