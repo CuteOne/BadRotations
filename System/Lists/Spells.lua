@@ -4105,6 +4105,7 @@ br.lists.spells = {
                 conductiveInk                   = 302565,
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
+                necroticWound                   = 209858,
                 razorCoral                      = 303568, --304877,
                 repeatPerformance               = 304409,
                 shiverVenom                     = 301624,

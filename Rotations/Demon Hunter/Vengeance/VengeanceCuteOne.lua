@@ -85,6 +85,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Basic Healing Module
             br.player.module.BasicHealing(section)
+            br.ui:createSpinnerWithout(section, "PoS removes Necrotic", 20, 0, 50, 1, "","|cffFFFFFFNecrotic stacks Phial of Serenity to use at")
 		    -- Fiery Brand
             br.ui:createSpinner(section, "Fiery Brand",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Demon Spikes
@@ -234,6 +235,9 @@ actionList.Defensive = function()
         end
         -- Basic Healing Module
         module.BasicHealing()
+        if ui.checked("PoS removes Necrotic") and unit.instance() and debuff.necroticWound.stacks() >= ui.value("PoS removes Necrotic") and use.able.phialOfSerenity() then
+            if use.phialOfSerenity() then return true end
+        end
         -- Sigil of Misery
         if ui.checked("Sigil of Misery - HP") and cast.able.sigilOfMisery()
             and unit.hp() <= ui.value("Sigil of Misery - HP") and unit.inCombat() and #enemies.yards8 > 0
