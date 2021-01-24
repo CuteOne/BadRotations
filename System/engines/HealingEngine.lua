@@ -102,13 +102,11 @@ if not metaTable1 then
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
 		if
-			(((UnitIsVisible(tar) and not UnitIsCharmed(tar) and GetUnitReaction("player", tar) > 4 and UnitIsConnected(tar) and not UnitIsDeadOrGhost(tar)) or
-				(getOptionCheck("Heal Pets") and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet"))) and
-				CheckBadDebuff(tar) and
-				CheckCreatureType(tar) and
-				not UnitPhaseReason(tar) or
-				novaEngineTables.SpecialHealUnitList[tonumber(select(2, getGUID(tar)))] ~= nil) and
-				getLineOfSight("player", tar)
+			(UnitIsVisible(tar) and GetUnitReaction("player", tar) > 4 and not UnitIsDeadOrGhost(tar) and getLineOfSight("player", tar) and CheckCreatureType(tar) and
+				not UnitPhaseReason(tar)) and
+				((UnitIsPlayer(tar) and UnitIsConnected(tar) and CheckBadDebuff(tar) and not UnitIsCharmed(tar) and not UnitIsOtherPlayersPet(tar)) or
+					((UnitIsUnit(tar,"pet") or UnitIsOtherPlayersPet(tar)) and getOptionCheck("Heal Pets")) or
+					novaEngineTables.SpecialHealUnitList[tonumber(select(2, getGUID(tar)))] ~= nil)
 		 then
 			return true
 		else
@@ -125,41 +123,6 @@ if not metaTable1 then
 		if unit and type(unit) == "string" then
 			o.unit = unit
 		end
-		-- This is the function for Dispel checking built into the player itself.
-		-- function o:Dispel()
-		-- 	if not UnitInPhase(o.unit) then
-		-- 		return false
-		-- 	end
-		-- 	for i=1,40 do
-		-- 		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitAura(o.unit,i,"HELPFUL|HARMFUL")
-		-- 		if buffName then
-		-- 			if (buffSpellID == 288388 and select(3,UnitDebuffID(o.unit,buffSpellID)) >= getOptionValue("Reaping")) or (buffSpellID == 282562 and select(3,UnitDebuffID(o.unit,buffSpellID)) >= getOptionValue("Promise of Power")) then
-		-- 				return true
-		-- 			end
-		-- 			if novaEngineTables.DispelID[buffSpellID] ~= nil then
-		-- 				if select(3,UnitDebuffID(o.unit,buffSpellID)) >= novaEngineTables.DispelID[buffSpellID].stacks
-		-- 				then
-		-- 					if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
-		-- 						return true
-		-- 					else
-		-- 						if (isChecked("Dispel delay") and
-		-- 						(getDebuffDuration(o.unit, buffSpellID) - getDebuffRemain(o.unit,buffSpellID)) > (getDebuffDuration(o.unit, buffSpellID) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) )) then -- Dispel Delay then
-		-- 							if novaEngineTables.DispelID[buffSpellID].range ~= nil then
-		-- 								if #getAllies(o.unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
-		-- 									return false
-		-- 								end
-		-- 								return true
-		-- 							end
-		-- 							return true
-		-- 						end
-		-- 						return false
-		-- 					end
-		-- 				end
-		-- 			end
-		-- 		end
-		-- 		return nil
-		-- 	end
-		-- end
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
 			local toxicBrand = getOptionValue("Toxic Brand")
@@ -172,7 +135,10 @@ if not metaTable1 then
 			end
 			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
 			-- but once I have Illidan's Sightless Gaze (241721), I can hea
-			if select(9, GetInstanceInfo()) == 1676 and UnitDebuffID("player", 236555) and not UnitDebuffID("player", 241721) then
+			if isChecked("Necrotic Rot") and getDebuffStacks(o.unit, 209858) > 0 and getDebuffStacks(o.unit, 209858) >= necroRot then
+				return 250, 250, 250
+			end
+			if UnitBuffID(o.unit, 295271) then
 				return 250, 250, 250
 			end
 			if isChecked("Toxic Brand") and br.player.eID and br.player.eID == 2298 then
@@ -180,19 +146,19 @@ if not metaTable1 then
 					return 250, 250, 250
 				end
 			end
-			if isChecked("Necrotic Rot") and getDebuffStacks(o.unit, 209858) > 0 and getDebuffStacks(o.unit, 209858) >= necroRot then
+			if select(9, GetInstanceInfo()) == 1676 and UnitDebuffID("player", 236555) and not UnitDebuffID("player", 241721) then
 				return 250, 250, 250
 			end
-			local chiJiSong = {
-				286367,
-				286369,
-				284453,
-				284451
-			}
-			if (br.player.eID == 2266 or br.player.eID == 2285) or (GetUnitExists("target") and (GetObjectID("target") == 144691 or GetObjectID("target") == 144690)) then -- Jadefire Masters
-				for i = 1, #chiJiSong do
-					if UnitDebuffID(o.unit, chiJiSong[i]) and not UnitDebuffID("player", chiJiSong[i]) then
-						return 250, 250, 250
+			if br.player.eID == 2331 then
+				local time_remain = br.DBM:getPulltimer(nil, 313213)
+				if time_remain < getOptionValue("Decaying Strike Timer") then
+					for i = 1, GetObjectCountBR() do
+						local thisUnit = GetObjectWithIndex(i)
+						if GetObjectID(thisUnit) == 156866 and UnitTarget(thisUnit) ~= nil then
+							if UnitTarget(thisUnit) == o.unit then
+								return 250, 250, 250
+							end
+						end
 					end
 				end
 			end
@@ -209,22 +175,6 @@ if not metaTable1 then
 					return 250, 250, 250
 				end
 			end
-			if br.player.eID == 2331 then
-				local time_remain = br.DBM:getPulltimer(nil, 313213)
-				if time_remain < getOptionValue("Decaying Strike Timer") then
-					for i = 1, GetObjectCountBR() do
-						local thisUnit = GetObjectWithIndex(i)
-						if GetObjectID(thisUnit) == 156866 and UnitTarget(thisUnit) ~= nil then
-							if UnitTarget(thisUnit) == o.unit then
-								return 250, 250, 250
-							end
-						end
-					end
-				end
-			end
-			if UnitBuffID(o.unit, 295271) then
-				return 250, 250, 250
-			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
 			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then
 				return 250, 250, 250
@@ -232,15 +182,11 @@ if not metaTable1 then
 			-- Place Dead players at the end of the list
 			if o.hcRefresh == nil or o.hcRefresh < GetTime() - 1 then
 				startTime = debugprofilestop()
-				if HealCheck(o.unit) ~= true then
+				if HealCheck(o.unit) ~= true or UnitHealth(o.unit) == 0 then
 					return 250, 250, 250
 				end
 				br.debug.cpu.healingEngine.HealCheck = debugprofilestop() - startTime
 				o.hcRefresh = GetTime()
-			end
-			-- Place blacklisted spearOfAngush players at the end of the list
-			if o.spearOfAnguishState == 2 then
-				return 250, 250, 250
 			end
 			-- incoming heals
 			local incomingheals
@@ -257,7 +203,7 @@ if not metaTable1 then
 				nAbsorbs = 0
 			end
 			-- calc base + absorbs + incomings
-			local PercentWithIncoming = (100 * (UnitHealth(o.unit) + incomingheals + nAbsorbs) / UnitHealthMax(o.unit)) - (5 * getDebuffStacks(o.unit, 240559))
+			local PercentWithIncoming = 100 * (UnitHealth(o.unit) + incomingheals + nAbsorbs) / UnitHealthMax(o.unit)
 			if getOptionCheck("Prioritize Tank") then
 				-- Using the group role assigned to the Unit
 				if o.role == "TANK" then
@@ -503,9 +449,9 @@ if not metaTable1 then
 				if selectedMode == 1 then
 					SpecialTargets = {"target"}
 				elseif selectedMode == 2 then
-					SpecialTargets = {"target", "mouseover", "focus"}
-				elseif selectedMode == 3 then
 					SpecialTargets = {"target", "mouseover"}
+				elseif selectedMode == 3 then
+					SpecialTargets = {"target", "mouseover", "focus"}
 				else
 					SpecialTargets = {"target", "focus"}
 				end
@@ -537,16 +483,9 @@ if not metaTable1 then
 			end
 			for p = 1, #SpecialTargets do
 				local removedTarget = false
-				local focus = GetUnitExists("focus")
-				local target = GetUnitExists("target")
-				local mouseover = GetUnitExists("mouseover")
 				for j = 1, #br.friend do
 					-- Trying to find a case of the unit inside the Main Table to remove
-					if
-						(br.friend[j].unit == SpecialTargets[p] and (br.friend[j].guid ~= 0 and br.friend[j].guid ~= UnitGUID(SpecialTargets[p]))) or (br.friend[j].unit == "focus" and not focus) or
-							(br.friend[j].unit == "mouseover" and not mouseover) or
-							(br.friend[j].unit == "target" and not target)
-					 then
+					if br.friend[j].unit == SpecialTargets[p] and (br.friend[j].guid ~= 0 and br.friend[j].guid ~= UnitGUID(SpecialTargets[p])) then
 						tremove(br.friend, j)
 						removedTarget = true
 						break
@@ -555,7 +494,7 @@ if not metaTable1 then
 				if removedTarget == true then
 					for k, v in pairs(br.memberSetup.cache) do
 						-- Now we're trying to find that unit in the Cache table to remove
-						if SpecialTargets[p] == v.unit or (v.unit == "focus" and not focus) or (v.unit == "mouseover" and not mouseover) or (v == "target" and not target) then
+						if SpecialTargets[p] == v.unit then
 							br.memberSetup.cache[k] = nil
 						end
 					end
@@ -564,36 +503,12 @@ if not metaTable1 then
 			for i = 1, #br.friend do
 				-- We are updating all of the User Info (Health/Range/Name)
 				br.friend[i]:UpdateUnit()
-				if br.friend[i] == nil then
-					tremove(br.friend, i)
-					return
-				end
-				-- special handling for Spear of Anguish debuff (Engine of Souls)
-				if select(8, GetInstanceInfo()) == 1676 then -- Are we really in ToS?
-					if
-						(UnitDebuffID(br.friend[i].unit, 235933) or UnitDebuffID(br.friend[i].unit, 238442) or UnitDebuffID(br.friend[i].unit, 242796)) and -- if unit is afflicted by spear of anguish
-							UnitAuraID(br.friend[i].unit, 235621) and
-							UnitAuraID("player", 235621)
-					 then -- and both the Unit and "player" are in the spirit realm
-						br.friend[i].spearOfAnguishState = 1 -- set state to 1, indicating the player has spearOfAnguish
-						Print("Spear of Anguish on " .. br.friend[i].name)
-					elseif br.friend[i].spearOfAnguishState == 1 then -- if no spear debuff, but had it before
-						br.friend[i].spearOfAnguishState = 2 -- then set state to 2, which will blacklist for healing
-						br.friend[i].spearOfAnguishBlacklistTime = GetTime()
-						Print("Spear of Anguish Blacklisting " .. br.friend[i].name)
-					elseif br.friend[i].spearOfAnguishState == 2 and GetTime() - br.friend[i].spearOfAnguishBlacklistTime > 10 then -- if blacklisted more than 10 seconds
-						br.friend[i].spearOfAnguishState = 0 -- remove from blacklist
-						Print("Blacklist expired for " .. br.friend[i].name)
-					end
-				end
 			end
 			-- We are sorting by Health first
 			table.sort(
 				br.friend,
 				function(x, y)
-					if (x and y) then
-						return x.hp < y.hp
-					end
+					return x.hp < y.hp
 				end
 			)
 			if getOptionCheck("Prioritize Special Targets") == true then
@@ -601,12 +516,10 @@ if not metaTable1 then
 					table.sort(
 						br.friend,
 						function(x)
-							if (x) then
-								if GetUnitIsUnit(x.unit, "focus") then
-									return true
-								else
-									return false
-								end
+							if x.unit == "focus" then
+								return true
+							else
+								return false
 							end
 						end
 					)
@@ -615,12 +528,10 @@ if not metaTable1 then
 					table.sort(
 						br.friend,
 						function(x)
-							if (x) then
-								if GetUnitIsUnit(x.unit, "target") then
-									return true
-								else
-									return false
-								end
+							if x.unit == "target" then
+								return true
+							else
+								return false
 							end
 						end
 					)
@@ -629,12 +540,10 @@ if not metaTable1 then
 					table.sort(
 						br.friend,
 						function(x)
-							if (x) then
-								if GetUnitIsUnit(x.unit, "mouseover") then
-									return true
-								else
-									return false
-								end
+							if x.unit == "mouseover" then
+								return true
+							else
+								return false
 							end
 						end
 					)
