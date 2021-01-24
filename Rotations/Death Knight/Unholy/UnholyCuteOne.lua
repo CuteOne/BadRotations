@@ -527,7 +527,7 @@ actionList.Covenants = function()
     end
     -- Abomination Limb
     -- abomination_limb,if=variable.st_planning&!soulbind.lead_by_example&(cooldown.apocalypse.remains|!talent.army_of_the_damned&cooldown.dark_transformation.remains)&rune.time_to_4>(3+buff.runic_corruption.remains)|fight_remains<21
-    if cast.able.abominationLimb() and var.stPlanning and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exist()) and runesTTM(4) > (3 + buff.runicCorruption.remains()) then
+    if cast.able.abominationLimb() and var.stPlanning and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exists()) and runesTTM(4) > (3 + buff.runicCorruption.remains()) then
         if cast.abominationLimb("player","aoe",1,20) then ui.debug("Casting Abomination Limb") return true end
     end
     -- abomination_limb,if=variable.st_planning&soulbind.lead_by_example&(dot.unholy_blight_dot.remains>11|!talent.unholy_blight&cooldown.dark_transformation.remains)
@@ -538,7 +538,7 @@ actionList.Covenants = function()
     end
     -- Shackle the Unworthy
     -- shackle_the_unworthy,if=variable.st_planning&(cooldown.apocalypse.remains|!talent.army_of_the_damned&cooldown.dark_transformation.remains)|fight_remains<15
-    if cast.able.shackleTheUnworthy() and var.stPlanning and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exist()) then
+    if cast.able.shackleTheUnworthy() and var.stPlanning and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exists()) then
         if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy") return true end
     end
     -- shackle_the_unworthy,if=active_enemies>=2&(death_and_decay.ticking|raid_event.adds.remains<=14)
