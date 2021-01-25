@@ -1138,16 +1138,9 @@ local function runRotation()
             end
             -- Moonfire
             if talent.galacticGuardian and buff.galacticGuardian.exists() then
-                if debuff.moonfire.count() < ui.value("Max Moonfire Targets") then
-                    for i = 1, #enemies.yards8 do
-                        local thisUnit = enemies.yards8[i]
-                        if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit) then
-                            if cast.moonfire(thisUnit) then
-                                br.addonDebug("Casting Moonfire (Galactic Guardian)")
-                                return
-                            end
-                        end
-                    end
+                if cast.moonfire(thisUnit) then
+                    br.addonDebug("Casting Moonfire (Galactic Guardian)")
+                    return
                 end
             end
             -- Maul
@@ -1212,8 +1205,8 @@ local function runRotation()
             end
             -- Moonfire
             if debuff.moonfire.count() < ui.value("Max Moonfire Targets") then
-                for i = 1, #enemies.yards8 do
-                    local thisUnit = enemies.yards8[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit) then
                         if cast.moonfire(thisUnit) then
                             br.addonDebug("Casting Moonfire (Refresh)")
