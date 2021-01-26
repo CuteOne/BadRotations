@@ -79,7 +79,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.21")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.22")
         br.ui:createCheckbox(section, "Disable Auto Ground Cast Circle Cancel")
         br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
@@ -95,6 +95,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Earth Shield")
         -- Water Shield
         br.ui:createCheckbox(section, "Water Shield")
+        -- Chain Lightning
+        br.ui:createCheckbox(section, "Chain Lightning")
         -- Temple of Seth
         br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Seth NPC. Default: 80")
         -- Bursting Stack
@@ -755,7 +757,7 @@ local function runRotation()
                 end
             end
             -- Chain Lightning
-            if #enemies.yards10t >= 2 and movingCheck and getFacing("player", "target") then
+            if ui.checked("Chain Lightning") and #enemies.yards10t >= 2 and movingCheck and getFacing("player", "target") then
                 if cast.chainLightning() then
                     br.addonDebug("Casting Chain Lightning")
                     return
