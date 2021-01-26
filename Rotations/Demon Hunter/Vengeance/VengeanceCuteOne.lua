@@ -495,6 +495,12 @@ local function runRotation()
         --- Extras Rotation ---
         -----------------------
         if actionList.Extras() then return true end
+        --------------------------
+        --- Defensive Rotation ---
+        --------------------------
+        if not unit.inCombat() then
+            if actionList.Defensive() then return true end
+        end
         ------------------------------
         --- Out of Combat Rotation ---
         ------------------------------
