@@ -11,6 +11,9 @@ end
 if br.shaman.resto["Earthen Wall Totem"] == nil then
     br.shaman.resto["Earthen Wall Totem"] = 0
 end
+if br.shaman.resto["Earth Shield"] == nil then
+    br.shaman.resto["Earth Shield"] = "none"
+end
 
 ---------------
 --- Toggles ---
@@ -79,7 +82,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.02")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.03")
         br.ui:createCheckbox(section, "Disable Auto Ground Cast Circle Cancel")
         br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
@@ -95,6 +98,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Earth Shield")
         -- Water Shield
         br.ui:createCheckbox(section, "Water Shield")
+        -- Chain Lightning
+        br.ui:createCheckbox(section, "Chain Lightning")
         -- Raid Boss Helper
         br.ui:createSpinner(section, "Raid Boss Helper", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Raid Boss. Default: 80")
         -- Bursting Stack
@@ -398,12 +403,21 @@ local function runRotation()
         end
         local movingCheck = not isMoving("player") and not IsFalling() or (isMoving("player") and buff.spiritwalkersGrace.exists("player"))
 
-        local function bossHelper()
+        local function bossEncounterHelper()
             -- Raid Boss
             if ui.checked("Raid Boss Helper") and br.player.eID and (br.player.eID == 2127 or br.player.eID == 2418 or br.player.eID == 2402) then
                 for i = 1, GetObjectCountBR() do
                     local thisUnit = GetObjectWithIndex(i)
                     local objectID = GetObjectID(thisUnit)
+                    if br.player.eID == nil then 
+                        if objectID == 165759 then
+                            br.player.eID = 2402
+                        elseif objectID == 133392 then
+                            br.player.eID = 2127
+                        elseif objectID == 171577 or objectID == 173112 then
+                            br.player.eID = 2418
+                        end
+                    end
                     if br.player.eID ~= 2402 then
                         if (objectID == 133392 and getBuffRemain(thisUnit, 274148) == 0) or objectID == 171577 or objectID == 173112 then
                             if getHP(thisUnit) < 100 and lowest.hp >= ui.value("Raid Boss Helper") then
@@ -431,26 +445,27 @@ local function runRotation()
                     else
                         if (objectID == 165759 or objectID == 165778) and not br.shadeUp and getHP(thisUnit) < 100 then
                             -- Earth Shield
-                            if not buff.earthShield.exists(thisUnit) and objectID == 165759 then
+                            if not buff.earthShield.exists(thisUnit) and objectID == 165759 and cd.earthShield.remains() < gcdMax then
+                                br.shaman.resto["Earth Shield"] = "Kael"
                                 CastSpellByName(GetSpellInfo(974), thisUnit)
                                 br.addonDebug("[Sun King] Casting Earth Shield")
                                 return true
                             end
                             -- Primordial Wave
-                            if ui.checked("Primordial Wave") and covenant.necrolord.active then
+                            if ui.checked("Primordial Wave") and covenant.necrolord.active and cd.primordialWave.remains() < gcdMax then
                                 if buff.riptide.refresh(thisUnit) then
                                     CastSpellByName(GetSpellInfo(326059), thisUnit)
                                     br.addonDebug("[Sun King] Casting Primordial Wave")
                                     return true
                                 end
                             end
-                            if ui.checked("Unleash Life") and talent.unleashLife then
+                            if ui.checked("Unleash Life") and talent.unleashLife and cd.unleashLife.remains() < gcdMax then
                                 CastSpellByName(GetSpellInfo(73685), thisUnit)
                                 br.addonDebug("[Sun King] Casting Unleash Life")
                                 return true
                             end
                             -- Riptide
-                            if ui.checked("Riptide") then
+                            if ui.checked("Riptide") and charges.riptide.count() > 0 then
                                 if buff.riptide.refresh(thisUnit) then
                                     CastSpellByName(GetSpellInfo(61295), thisUnit)
                                     br.addonDebug("[Sun King] Casting Riptide")
@@ -535,29 +550,33 @@ local function runRotation()
         local function actionList_Defensive()
             -- Earth Shield
             if cast.able.earthShield() then
-                -- check if shield already exists
-                local foundShield = false
-                if ui.checked("Earth Shield") then
-                    for i = 1, #br.friend do
-                        if buff.earthShield.exists(br.friend[i].unit) then
-                            foundShield = true
-                        end
-                    end
-                    -- if no shield found, apply to focus if exists
-                    if foundShield == false then
-                        if GetUnitExists("focus") == true then
-                            if not buff.earthShield.exists("focus") and not UnitIsDeadOrGhost("focus") then
-                                if cast.earthShield("focus") then
-                                    br.addonDebug("Casting Earth Shield")
-                                    return
-                                end
+                if not br.player.eID or br.player.eID ~= 2402 or (br.shaman.resto["Earth Shield"] ~= "Kael" or br.shadeUp) then
+                    br.shaman.resto["Earth Shield"] = "None"
+                    -- check if shield already exists
+                    if ui.checked("Earth Shield") then
+                        for i = 1, #br.friend do
+                            if buff.earthShield.exists(br.friend[i].unit) then
+                                br.shaman.resto["Earth Shield"] = "Tank"
                             end
-                        else
-                            for i = 1, #tanks do
-                                if not buff.earthShield.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 and not UnitIsDeadOrGhost(tanks[i].unit) then
-                                    if cast.earthShield(tanks[i].unit) then
+                        end
+                        -- if no shield found, apply to focus if exists
+                        if br.shaman.resto["Earth Shield"] ~= "Tank" and br.shaman.resto["Earth Shield"] ~= "Focus" then
+                            if GetUnitExists("focus") == true then
+                                if not buff.earthShield.exists("focus") and not UnitIsDeadOrGhost("focus") then
+                                    if cast.earthShield("focus") then
+                                        br.shaman.resto["Earth Shield"] = "Focus"
                                         br.addonDebug("Casting Earth Shield")
                                         return
+                                    end
+                                end
+                            else
+                                for i = 1, #tanks do
+                                    if not buff.earthShield.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 and not UnitIsDeadOrGhost(tanks[i].unit) then
+                                        if cast.earthShield(tanks[i].unit) then
+                                            br.shaman.resto["Earth Shield"] = "Tank"
+                                            br.addonDebug("Casting Earth Shield")
+                                            return
+                                        end
                                     end
                                 end
                             end
@@ -797,7 +816,7 @@ local function runRotation()
                 end
             end
             -- Chain Lightning
-            if #enemies.yards10t >= 2 and movingCheck and getFacing("player", "target") then
+            if ui.checked("Chain Lightning") and #enemies.yards10t >= 2 and movingCheck and getFacing("player", "target") then
                 if cast.chainLightning() then
                     br.addonDebug("Casting Chain Lightning")
                     return
@@ -1674,6 +1693,9 @@ local function runRotation()
             -----------------------------
             if inCombat and not IsMounted() and not drinking then
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
+                    if bossEncounterHelper() then
+                        return
+                    end
                     actionList_Defensive()
                     -- Purge
                     if ui.checked("Purge") and lowest.hp > ui.value("DPS Threshold") and power >= ui.value("Purge Min Mana") then
@@ -1699,7 +1721,7 @@ local function runRotation()
                     if ui.checked("DPS Key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
                         actionList_dpsKey()
                     end
-                    if bossHelper() then
+                    if bossEncounterHelper() then
                         return
                     end
                     if actionList_AMR() then
