@@ -108,7 +108,6 @@ function br:loadUnlockerAPI()
                 return 0
             end
         end
-        ObjectDescriptor = function(obj,offset,type) return UnitIsVisible(obj) and wmbapi.ObjectDescriptor(obj,offset,type) end
         ObjectIsUnit = function(obj) return UnitIsVisible(obj) and wmbapi.ObjectIsType(obj,wmbapi.GetObjectTypeFlagsTable().Unit) end
         GetDistanceBetweenPositions = function(...) return (... and wmbapi.GetDistanceBetweenPositions(...)) or 0 end
         GetDistanceBetweenObjects = function(obj1,obj2) 
@@ -234,31 +233,6 @@ function br:loadUnlockerAPI()
         }
         GetOffset = function(offset)
             return wmbapi.GetObjectDescriptorsTable()[Offsets[string.lower(offset)]]
-        end
-        CAST_SPELL_BY_NAME = CastSpellByName
-        CastSpellByName = function(spell,unit) 
-            if select(3,UnitClass("player")) == 11 and GetShapeshiftForm() ~= 0 then
-                if unit then
-                    RunMacroText("/cast [@"..unit.."] "..spell)
-                else
-                    RunMacroText("/cast "..spell)
-                end
-            else
-                CAST_SPELL_BY_NAME(spell,unit)
-            end
-        end
-        CAST_SPELL_BY_ID = CastSpellByID
-        CastSpellByID = function(spell,unit) 
-            if select(3,UnitClass("player")) == 11 and GetShapeshiftForm() ~= 0 then
-                local spellName = GetSpellInfo(spell)
-                if unit then
-                    RunMacroText("/cast [@"..unit.."] "..spellName)
-                else
-                    RunMacroText("/cast "..spellName)
-                end
-            else
-                CAST_SPELL_BY_ID(spell,unit)
-            end
         end
         -- Drawing
         GetWoWWindow = GetPhysicalScreenSize
