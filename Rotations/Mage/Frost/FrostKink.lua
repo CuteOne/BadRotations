@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.1.4"
+local rotationVer  = "v1.2.1"
 local colorBlue     = "|cff3FC7EB"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
@@ -127,6 +127,8 @@ local function createOptions()
 
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+
+
 
         -- Ice Floes Delay
         br.ui:createSpinnerWithout(section, "Ice Floes Delay", 1.5, 0, 10, 0.1, "|cffFFBB00Delay between casting Ice Floes.")
@@ -352,6 +354,8 @@ local function runRotation()
     local cast = br.player.cast
     local castable = br.player.cast.debug
     local combatTime = getCombatTime()
+    local conduit = br.player.conduit
+    local covenant = br.player.covenant
     local cd = br.player.cd
     local charges = br.player.charges
     local deadMouse = UnitIsDeadOrGhost("mouseover")
@@ -385,6 +389,7 @@ local function runRotation()
     local playerMouse = UnitIsPlayer("mouseover")
     local power, powmax, powgen, powerDeficit = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
     local pullTimer = PullTimerRemain()
+    local runeforge = br.player.runeforge
     local race = br.player.race
     local solo = br.player.instance == "none"
     local spell = br.player.spell
@@ -436,6 +441,15 @@ local function runRotation()
             buttonEbonbolt:Show()
         end
     end
+
+    local function UnitCastID(obj)
+            if UnitIsVisible(obj) then
+                local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitCastingInfo(obj)
+                return spellId or 0,spellId or 0 or ""
+            else
+                return 0,0,"",""
+            end
+        end
 
     -- spellqueue ready
     local function spellQueueReady()
@@ -888,7 +902,7 @@ local function runRotation()
         end
 
         -- Arcane Intellect
-        if isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
+        if br.timer:useTimer("AI Delay", math.random(15, 30)) then
             for i = 1, #br.friend do
                 if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                     if cast.arcaneIntellect() then return true end
@@ -902,7 +916,7 @@ local function runRotation()
                 if cast.focusMagic("player") then return true end
             end
         end
-
+        
         -- Trinkets
             -- Trinket 1
             if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
@@ -1016,92 +1030,72 @@ local function runRotation()
         end
     end
 
-    local function actionList_RoP()
-        -- # With Glacial Spike, Rune of Power should be used right before the Glacial Spike combo (i.e. with 5 Icicles and a Brain Freeze). When Ebonbolt is off cooldown, Rune of Power can also be used just with 5 Icicles.
-        -- actions.talent_rop=rune_of_power,if=talent.glacial_spike.enabled&buff.icicles.stack=5&(buff.brain_freeze.react|talent.ebonbolt.enabled&cooldown.ebonbolt.remains<cast_time)
-        -- # Without Glacial Spike, Rune of Power should be used before any bigger cooldown (Ebonbolt, Comet Storm, Ray of Frost) or when Rune of Power is about to reach 2 charges.
-        -- actions.talent_rop+=/rune_of_power,if=!talent.glacial_spike.enabled&(talent.ebonbolt.enabled&cooldown.ebonbolt.remains<cast_time|talent.comet_storm.enabled&cooldown.comet_storm.remains<cast_time|talent.ray_of_frost.enabled&cooldown.ray_of_frost.remains<cast_time|charges_fractional>1.9)
-    end
+    --[[
+Simc Action list Date: 01/28/2021
+-----------------------------------
+actions.cds=potion,if=prev_off_gcd.icy_veins|fight_remains<30
+actions.cds+=/deathborne
+actions.cds+=/mirrors_of_torment,if=active_enemies<3&(conduit.siphoned_malice|soulbind.wasteland_propriety)
+actions.cds+=/rune_of_power,if=cooldown.icy_veins.remains>12&buff.rune_of_power.down
+actions.cds+=/icy_veins,if=buff.rune_of_power.down&(buff.icy_veins.down|talent.rune_of_power)&(buff.slick_ice.down|active_enemies>=2)
+actions.cds+=/time_warp,if=runeforge.temporal_warp&buff.exhaustion.up&(prev_off_gcd.icy_veins|fight_remains<30)
+actions.cds+=/use_items
+actions.cds+=/blood_fury
+actions.cds+=/berserking
+actions.cds+=/lights_judgment
+actions.cds+=/fireblood
+actions.cds+=/ancestral_call
+actions.cds+=/bag_of_tricks
+    ]]
 
-    -- Essences
-    local function actionList_Essences()
-        -- actions.cooldowns=guardian_of_azeroth
-        if isChecked("Guardian of Azeroth") and cast.able.guardianOfAzeroth() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) then
-            if cast.guardianOfAzeroth() then return true end
-        end
-        -- actions.essences=focused_azerite_beam,if=buff.rune_of_power.down|active_enemies>3
-        if standingTime > 1 and isChecked("Focused Azerite Beam") and cast.able.focusedAzeriteBeam() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
-        or essence.focusedAzeriteBeam.rank >= 3) and not buff.runeOfPower.exists("player") and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= getOptionValue("Focused Azerite Beam") or ((getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
-        then
-            if cast.focusedAzeriteBeam() then return true end
-        end
-        -- actions.essences+=/memory_of_lucid_dreams,if=active_enemies<5&(buff.icicles.stack<=1|!talent.glacial_spike.enabled)&cooldown.frozen_orb.remains>10
-        if isChecked("Memory of Lucid Dreams") and cast.able.memoryOfLucidDreams() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits < 5 and (iciclesStack <= 1 or not talent.glacialSpike) and cd.frozenOrb.remain() > 10 and useCDs() then
-            if cast.memoryOfLucidDreams("player") then return true end
-        end
-        -- actions.essences+=/blood_of_the_enemy,if=(talent.glacial_spike.enabled&buff.icicles.stack=5&(buff.brain_freeze.react|prev_gcd.1.ebonbolt))|((active_enemies>3|!talent.glacial_spike.enabled)&(prev_gcd.1.frozen_orb|ground_aoe.frozen_orb.remains>5))
-        
-        if isChecked("Purifying Blast") and cast.able.purifyingBlast() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
-            -- actions.essences+=/purifying_blast,if=buff.rune_of_power.down|active_enemies>3
-            if cast.purifyingBlast("target") then return true end
-        end
-                -- actions.essences+=/ripple_in_space,if=buff.rune_of_power.down|active_enemies>3
-        if isChecked("Ripple in Space") and cast.able.rippleInSpace() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
-            if cast.rippleInSpace("target") then return true end 
-        end
-                -- actions.essences+=/worldvein_resonance,if=buff.rune_of_power.down|active_enemies>3
-        if isChecked("Worldvein Resonance") and cast.able.worldveinResonance() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
-            if cast.worldveinResonance("target") then return true end
-        end
-            -- actions.essences+=/concentrated_flame,line_cd=6,if=buff.rune_of_power.down
-        if isChecked("Concentrated Flame DPS") and cast.able.concentratedFlame() and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and (not debuff.concentratedFlame.exists("target") and not cast.last.concentratedFlame()
-        or charges.concentratedFlame.timeTillFull() < gcd) and not buff.runeOfPower.exists("player") then
-            if cast.concentratedFlame("target") then return true end
-        end
-        if isChecked("Concentrated Flame HP") and cast.able.concentratedFlame() and cd.concentratedFlame.remain() <= gcd and php <= getValue("Concentrated Flame HP") then
-            if cast.concentratedFlame("player") then return true end
-        end
-        -- actions.essences+=/the_unbound_force,if=buff.reckless_force.up
-        if isChecked("The Unbound Force") and cast.able.theUnboundForce() and buff.recklessForce.exists() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) then
-            if cast.theUnboundForce("target") then return true end
-        end
-        --actions.essences+=/reaping_flames,if=buff.rune_of_power.down
-		for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            local distance = getDistance(thisUnit)
-                if isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and not buff.runeOfPower.exists("player") and (getOptionValue("Reaping Flames") == 1) then
-                    if cast.reapingFlames(thisUnit) then
-                        br.addonDebug("Reaping 1")
-                        return
-                    end
-                elseif isChecked("Reaping Flames") and cast.able.reapingFlames(thisUnit) and not buff.runeOfPower.exists("player") and getOptionValue("Reaping Flames") == 2 and (buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage*2)) or (not buff.reapingFlames.exists("player") and (UnitHealth(thisUnit) <= reapingDamage)) then
-                    if cast.reapingFlames(thisUnit) then
-                        br.addonDebug("Reaping Snipe")
-                        return
-                    end
-                end
-        end     
-    end
 
     local function actionList_Cooldowns()
-        if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") then
-            -- actions.cooldowns=icy_veins
-
-            --CastSpellByName(GetSpellInfo(spell.arcaneExplosion))
-           -- if talent.iceForm and cd.iceForm.remain() <= gcdMax 
-
-            if cast.able.icyVeins() and not buff.iceForm.exists() and not buff.runeOfPower.exists() then CastSpellByName(GetSpellInfo(spell.icyVeins)) return true end
-
-           -- if cast.icyVeins("player") then return true end
-
-            -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
+        if useCDs() and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") then
+            -- actions.cds=potion,if=prev_off_gcd.icy_veins|fight_remains<30
             if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (cast.last.icyVeins() or ttd("target") < 30) then
+                br.addonDebug("[Action:Cooldowns] Damage Potion")
                 use.battlePotionOfIntellect()
                 return true
             end
+        ------------------------------------------------
+        -- Covenants (Level 60) ------------------------
+        ------------------------------------------------
+        if level == 60 and not moving then
+            ------------------------------------------------
+            -- Deathborne : Necrolord ----------------------
+            ------------------------------------------------
+            if covenant.necrolord.active and spellUsable(307443) and select(2,GetSpellCooldown(307443)) <= gcdMax then
+                if cast.deathborne() then br.addonDebug("[Action:Cooldowns] Deathborne") return true end
+            end
+            ------------------------------------------------
+            -- Mirrors of Torment : Venthyr ----------------
+            ------------------------------------------------
+            -- actions.aoe+=/mirrors_of_torment
+            if covenant.venthyr.active and spellUsable(314793) and select(2,GetSpellCooldown(314793)) <= gcdMax 
+            and blizzardUnits < 3 and (conduit.siphonedMalice or soulbind.wastelandPropriety) then
+                if cast.mirrorsOfTorment() then br.addonDebug("[Action:Cooldowns] Mirrors Of Torment") return true end
+            end
+            ------------------------------------------------
+            -- Shifting Power : Night Fae ------------------
+            ------------------------------------------------
+            -- actions.aoe+=/shifting_power
+            if covenant.nightFae.active and spellUsable(314791) and select(2,GetSpellCooldown(314791)) <= gcdMax then
+                if cast.shiftingPower() then br.addonDebug("[Action:Cooldowns] Shifting Power") return true end
+            end
+            ------------------------------------------------
+            -- Radiant Spark : Kyrian ----------------------
+            ------------------------------------------------
+            -- actions.aoe+=/radiant_spark
+            if covenant.kyrian.active and spellUsable(307443) and select(2,GetSpellCooldown(307443)) <= gcdMax then 
+                if cast.radiantSpark() then br.addonDebug("[Action:Cooldowns] Radiant Spark") return true end
+            end
+        end
 
-            -- -- actions.cooldowns+=/mirror_image
-            if cast.able.mirrorImage() and ui.checked("Mirror Image") and cast.mirrorImage("player") then return true end
+            -- actions.cds+=/icy_veins,if=buff.rune_of_power.down&(buff.icy_veins.down|talent.rune_of_power)&(buff.slick_ice.down|active_enemies>=2)
+            if cast.able.icyVeins() and not buff.iceForm.exists() and not buff.runeOfPower.exists() and (not buff.icyVeins.exists() or talent.runeOfpower) and (not buff.slickIce.exists() or blizzardUnits >= 2) then CastSpellByName(GetSpellInfo(spell.icyVeins)) br.addonDebug("[Action:Cooldowns] Icy Veins") return true end
+
+            -- actions.cooldowns+=/mirror_image
+            if cast.able.mirrorImage() and ui.checked("Mirror Image") and cast.mirrorImage("player") then br.addonDebug("[Action:Cooldowns] Mirror Image") return true end
 
             -- # Rune of Power is always used with Frozen Orb. Any leftover charges at the end of the fight should be used, ideally if the boss doesn't die in the middle of the Rune buff.
             -- actions.cooldowns+=/rune_of_power,if=prev_gcd.1.frozen_orb|target.time_to_die>10+cast_time&target.time_to_die<20
@@ -1119,6 +1113,21 @@ local function runRotation()
                 end
             end
         end
+
+        -- Trinkets
+        -- Trinket 1
+        if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
+            if use.able.slot(13) then
+                use.slot(13)
+            end
+        end
+
+        -- Trinket 2
+        if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
+            if use.able.slot(14) then
+                use.slot(14)
+            end
+        end     
     end
 
     local function actionList_Leveling()
@@ -1508,14 +1517,144 @@ local function runRotation()
 
     end
 
+    --[[
+Simc Action list Date: 01/28/2021
+-----------------------------------
+actions.aoe=frozen_orb
+actions.aoe+=/blizzard
+actions.aoe+=/flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&buff.fingers_of_frost.react=0)
+actions.aoe+=/ice_nova
+actions.aoe+=/comet_storm
+actions.aoe+=/ice_lance,if=buff.fingers_of_frost.react|debuff.frozen.remains>travel_time|remaining_winters_chill&debuff.winters_chill.remains>travel_time
+actions.aoe+=/radiant_spark
+actions.aoe+=/mirrors_of_torment
+actions.aoe+=/shifting_power
+actions.aoe+=/fire_blast,if=runeforge.disciplinary_command&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
+actions.aoe+=/arcane_explosion,if=mana.pct>30&active_enemies>=6&!runeforge.glacial_fragments
+actions.aoe+=/ebonbolt
+actions.aoe+=/ice_lance,if=runeforge.glacial_fragments&talent.splitting_ice&travel_time<ground_aoe.blizzard.remains
+actions.aoe+=/wait,sec=0.1,if=runeforge.glacial_fragments&talent.splitting_ice
+actions.aoe+=/frostbolt
+     ]]
+
+    local function actionList_AoE_SL() 
+        -- actions.aoe=frozen_orb
+        if mode.frozenOrb == 1 and not moving and targetMoveCheck then
+            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                if castFrozenOrb(1, true, 4) then r.addonDebug("[Action:AoE] Frozen Orb") return true end
+            else
+                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then br.addonDebug("[Action:AoE] Frozen Orb") return true end
+            end
+        else
+        -- Frozen Orb Key
+            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                br.addonDebug("[Action:AoE] Frozen Orb")
+                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+                return 
+            end
+        end
+        -- actions.aoe+=/blizzard
+        if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
+            if buff.freezingRain.exists() then
+                if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                        return true
+                    end
+                else
+                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                        return true
+                    end
+                end
+            else
+                if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                        return true
+                    end
+                else
+                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                        return true
+                    end
+                end
+            end
+        end
+        -- actions.aoe+=/flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&buff.fingers_of_frost.react=0)
+        if (debuff.wintersChill.remain() <= 0 or not debuff.wintersChill.exists())
+        and (cast.last.ebonbolt() or buff.brainFreeze.exists() and buff.fingersOfFrost.exists())
+        then
+            if cast.flurry("target") then br.addonDebug("[Action:AoE] Flurry") return true end
+        end
+        -- actions.aoe+=/ice_nova
+        if cast.able.iceNova() then 
+            if cast.iceNova("target") then br.addonDebug("[Action:AoE] Ice Nova") return true end 
+        end
+        -- actions.aoe+=/comet_storm
+        if cast.cometStorm("target") then
+            if UnitIsVisible("pet") and not isBoss("target") then
+                C_Timer.After(playerCastRemain + 0.4, function()
+                    if UnitIsVisible("target") then
+                        local x,y,z = ObjectPosition("target")
+                        castAtPosition(x,y,z, spell.petFreeze)
+                    end
+                end)
+            end
+            return true 
+        end
+        -- actions.aoe+=/ice_lance,if=buff.fingers_of_frost.react|debuff.frozen.remains>travel_time|remaining_winters_chill&debuff.winters_chill.remains>travel_time
+        if buff.fingersOfFrost.exists() or isFrozen("target") or debuff.wintersChill.exists("target") and debuff.wintersChill.remains("target") > travelTime then
+            if cast.iceLance("target") then br.addonDebug("[Action:AoE] Ice Lance (Frozen or Winters Chill)") return true end 
+        end
+        ------------------------------------------------
+        -- Covenants (Level 60) ------------------------
+        ------------------------------------------------
+        if level == 60 and not moving then
+            ------------------------------------------------
+            -- Mirrors of Torment : Venthyr ----------------
+            ------------------------------------------------
+            -- actions.aoe+=/mirrors_of_torment
+            if covenant.venthyr.active and spellUsable(314793) and select(2,GetSpellCooldown(314793)) <= gcdMax then
+                if cast.mirrorsOfTorment() then br.addonDebug("[Action:AoE] Mirrors Of Torment") return true end
+            end
+            ------------------------------------------------
+            -- Shifting Power : Night Fae ------------------
+            ------------------------------------------------
+            -- actions.aoe+=/shifting_power
+            if covenant.nightFae.active and spellUsable(314791) and select(2,GetSpellCooldown(314791)) <= gcdMax then
+                if cast.shiftingPower() then br.addonDebug("[Action:AoE] Shifting Power") return true end
+            end
+            ------------------------------------------------
+            -- Radiant Spark : Kyrian ----------------------
+            ------------------------------------------------
+            -- actions.aoe+=/radiant_spark
+            if covenant.kyrian.active and spellUsable(307443) and select(2,GetSpellCooldown(307443)) <= gcdMax  then 
+                if cast.radiantSpark() then br.addonDebug("[Action:AoE] Radiant Spark") return true end
+            end
+            ------------------------------------------------
+            -- Radiant Spark : Kyrian ----------------------
+            ------------------------------------------------
+
+        end
+        -- actions.aoe+=/fire_blast,if=runeforge.disciplinary_command&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
+        -- actions.aoe+=/arcane_explosion,if=mana.pct>30&active_enemies>=6&!runeforge.glacial_fragments
+        if not isTotem("target") and mode.ae ~= 2 and mode.rotation ~= 2 
+        and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and blizzardUnits >= 6 and not runeforge.glacialFragments.equiped then
+            if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion") return true end 
+        end
+        -- actions.aoe+=/ebonbolt
+        if mode.ebonbolt ~= 2 and not moving and targetUnit.ttd > 5 and targetUnit.facing then 
+            if cast.ebonbolt("target") then br.addonDebug("[Action:AoE] Ebonbolt") return true end
+        end 
+        -- actions.aoe+=/ice_lance,if=runeforge.glacial_fragments&talent.splitting_ice&travel_time<ground_aoe.blizzard.remains
+        -- actions.aoe+=/wait,sec=0.1,if=runeforge.glacial_fragments&talent.splitting_ice
+        -- actions.aoe+=/frostbolt
+        if not moving then if cast.frostbolt("target") then br.addonDebug("[Action:AoE] Frostbolt") return true end end 
+    end
 
     --[[
-
-Simc Action list Date: 11/14/2020
+Simc Action list Date: 01/28/2021
 -----------------------------------
-actions.st=flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.glacial_spike|prev_gcd.1.frostbolt|prev_gcd.1.radiant_spark|buff.fingers_of_frost.react=0&(debuff.mirrors_of_torment.up|buff.freezing_winds.up|buff.expanded_potential.react)))
+actions.st=flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.glacial_spike|prev_gcd.1.frostbolt&(!conduit.ire_of_the_ascended|cooldown.radiant_spark.remains|runeforge.freezing_winds)|prev_gcd.1.radiant_spark|buff.fingers_of_frost.react=0&(debuff.mirrors_of_torment.up|buff.freezing_winds.up|buff.expanded_potential.react)))
 actions.st+=/frozen_orb
-actions.st+=/blizzard,if=buff.freezing_rain.up|active_enemies>=2
+actions.st+=/blizzard,if=buff.freezing_rain.up|active_enemies>=2|runeforge.glacial_fragments&remaining_winters_chill=2
 actions.st+=/ray_of_frost,if=remaining_winters_chill=1&debuff.winters_chill.remains
 actions.st+=/glacial_spike,if=remaining_winters_chill&debuff.winters_chill.remains>cast_time+travel_time
 actions.st+=/ice_lance,if=remaining_winters_chill&remaining_winters_chill>buff.fingers_of_frost.react&debuff.winters_chill.remains>travel_time
@@ -1524,26 +1663,166 @@ actions.st+=/ice_nova
 actions.st+=/radiant_spark,if=buff.freezing_winds.up&active_enemies=1
 actions.st+=/ice_lance,if=buff.fingers_of_frost.react|debuff.frozen.remains>travel_time
 actions.st+=/ebonbolt
-actions.st+=/radiant_spark,if=(!runeforge.freezing_winds.equipped|active_enemies>=2)&buff.brain_freeze.react
+actions.st+=/radiant_spark,if=(!runeforge.freezing_winds|active_enemies>=2)&buff.brain_freeze.react
 actions.st+=/mirrors_of_torment
-actions.st+=/shifting_power,if=buff.rune_of_power.down&(!cooldown.rune_of_power.ready|soulbind.grove_invigoration.enabled|soulbind.field_of_blossoms.enabled|runeforge.freezing_winds.equipped|active_enemies>=2)
-actions.st+=/frost_nova,if=runeforge.grisly_icicle.equipped&target.level<=level&debuff.frozen.down
-actions.st+=/arcane_explosion,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_arcane.down
-actions.st+=/fire_blast,if=runeforge.disciplinary_command.equipped&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
+actions.st+=/shifting_power,if=buff.rune_of_power.down&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies>=2)
+actions.st+=/arcane_explosion,if=runeforge.disciplinary_command&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_arcane.down
+actions.st+=/fire_blast,if=runeforge.disciplinary_command&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
 actions.st+=/glacial_spike,if=buff.brain_freeze.react
 actions.st+=/frostbolt
     ]]
+    local function actionList_ST_SL()
+       -- if spellQueueReady() then
 
-    local function actionList_ST2()
+        -- actions.st=flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.glacial_spike|prev_gcd.1.frostbolt&(!conduit.ire_of_the_ascended|cooldown.radiant_spark.remains|runeforge.freezing_winds)
+        --|prev_gcd.1.radiant_spark|buff.fingers_of_frost.react=0&(debuff.mirrors_of_torment.up|buff.freezing_winds.up|buff.expanded_potential.react)))
+        if (debuff.wintersChill.remain() >= gcdMax or not debuff.wintersChill.exists())
+        and cast.last.ebonbolt() or buff.brainFreeze.exists() 
+        and (cast.last.glacialSpike() or cast.last.frostbolt())
+        and (not IsSpellKnown(337058) or cd.radiantSpark.remains() >= gcdMax or runeforge.freezingWinds.equiped) or cast.last.radiantSpark() or buff.fingersOfFrost.exists() 
+        and (debuff.mirrorsOfTorment.exists("target") or buff.freezingWinds.exists() or buff.expandedPotential.exists()) 
+        then
+            if cast.flurry("target") then return true end
+        end
+        
+        -- actions.st+=/frozen_orb
+        if mode.frozenOrb == 1 and not moving and targetMoveCheck then
+            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                if castFrozenOrb(1, true, 4) then return true end
+            else
+                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
+            end
+        else
+        -- Frozen Orb Key
+            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                CastSpellByName(GetSpellInfo(spell.frozenOrb), "cursor")
+                return
+            end
+        end
+            
+        -- actions.st+=/blizzard,if=buff.freezing_rain.up|active_enemies>=2|runeforge.glacial_fragments&remaining_winters_chill=2
+        if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
+            if buff.freezingRain.exists() or blizzardUnits >= 2 or debuff.wintersChill.remain() >= 2 then
+                if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then
+                        return true
+                    end
+                else
+                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then
+                        return true
+                    end
+                end
+            else
+                if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then
+                        return true
+                    end
+                else
+                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
+                        return true
+                    end
+                end
+            end
+        end
+        -- actions.st+=/ray_of_frost,if=remaining_winters_chill=1&debuff.winters_chill.remains
+        if standingTime > 1 and debuff.wintersChill.exists("target") and debuff.wintersChill.remain() >= 1 then 
+            if cast.rayOfFrost("target") then br.addonDebug("[Action:ST] Ray Of Frost (Winters Chill)") return true end 
+        end
 
+        -- actions.st+=/glacial_spike,if=remaining_winters_chill&debuff.winters_chill.remains>cast_time+travel_time
+        if debuff.wintersChill.exists("target") and debuff.wintersChill.remains("target") > cast.time.glacialSpike()+travelTime then
+            if cast.glacialSpike("target") then br.addonDebug("[Action:ST] Glacial Spike (Winters Chill)") return true end 
+        end
 
+        -- actions.st+=/ice_lance,if=remaining_winters_chill&remaining_winters_chill>buff.fingers_of_frost.react&debuff.winters_chill.remains>travel_time
+        if debuff.wintersChill.exists("target") and debuff.wintersChill.remains("target") > buff.fingersOfFrost.remains() and debuff.wintersChill.remains("target") > travelTime then
+            if cast.iceLance("target") then br.addonDebug("[Action:ST] Ice Lance (Winters Chill > Fingers of Frost)") return true end 
+        end
+
+        -- actions.st+=/comet_storm
+        if cast.cometStorm("target") then
+            if UnitIsVisible("pet") and not isBoss("target") then
+                C_Timer.After(playerCastRemain + 0.4, function()
+                    if UnitIsVisible("target") then
+                        local x,y,z = ObjectPosition("target")
+                        castAtPosition(x,y,z, spell.petFreeze)
+                    end
+                end)
+            end
+            return true 
+        end
+        
+
+        -- actions.st+=/ice_nova
+        if cast.able.iceNova() then 
+            if cast.iceNova("target") then br.addonDebug("[Action:ST] Ice Nova") return true end 
+        end
+ 
+        -- actions.st+=/ice_lance,if=buff.fingers_of_frost.react|debuff.frozen.remains>travel_time
+        if buff.fingersOfFrost.exists() or isFrozen("target") then
+            if cast.iceLance("target") then br.addonDebug("[Action:Rotation] Ice Lance FoF or Frozen") return true end 
+        end 
+
+        -- actions.st+=/ebonbolt
+        --if cast.able.ebonbolt() then if cast.ebonbolt("target") then return true end end 
+        -- actions.aoe+=/ebonbolt
+        if mode.ebonbolt == 1 and not moving and targetUnit.ttd > 5 and targetUnit.facing and not bfExists then 
+            if cast.ebonbolt("target") then return true end
+        end 
+            -- actions.st+=/radiant_spark,if=(!runeforge.freezing_winds|active_enemies>=2)&buff.brain_freeze.react
+        ------------------------------------------------
+        -- Covenants (Level 60) ------------------------
+        ------------------------------------------------
+        if level == 60 and not moving then
+            ------------------------------------------------
+            -- Mirrors of Torment : Venthyr ----------------
+            ------------------------------------------------
+            -- actions.st+=/mirrors_of_torment
+            if covenant.venthyr.active and spellUsable(314793) and select(2,GetSpellCooldown(314793)) <= gcdMax then
+                if cast.mirrorsOfTorment() then br.addonDebug("[Action:Rotation] Mirrors Of Torment") return true end
+            end
+            ------------------------------------------------
+            -- Shifting Power : Night Fae ------------------
+            ------------------------------------------------
+            -- actions.st+=/shifting_power,if=buff.rune_of_power.down&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies>=2)
+            if covenant.nightFae.active and spellUsable(314791) and select(2,GetSpellCooldown(314791)) <= gcdMax 
+            and not buff.runeOfPower.exists() 
+            and (IsSpellKnown(322721) or IsSpellKnown(319191) or blizzardUnits >= 2)
+            then
+                if cast.shiftingPower() then br.addonDebug("[Action:Rotation] Shifting Power") return true end
+            end
+            ------------------------------------------------
+            -- Radiant Spark : Kyrian ----------------------
+            ------------------------------------------------
+            -- actions.st+=/radiant_spark,if=buff.freezing_winds.up&active_enemies=1
+            --  local spellId = (select(1,...))\n    \n    if (subEvent == \"SPELL_AURA_APPLIED\" or subEvnet == \"SPELL_AURA_REFRESH\")\n    and spellId == 327478 then\n        aura_env.Repeat = aura_env.config.rep\n        WeakAuras.ScanEvents(\"FW_REFIRE\")
+            if covenant.kyrian.active and spellUsable(307443) and select(2,GetSpellCooldown(307443)) <= gcdMax 
+            and buff.freezingWinds.exists() and blizzardUnits == 1 then 
+                if cast.radiantSpark() then br.addonDebug("[Action:Rotation] Radiant Spark (ST-Freezing Winds)") return true end
+            end
+            -- actions.st+=/radiant_spark,if=(!runeforge.freezing_winds|active_enemies>=2)&buff.brain_freeze.react
+            if covenant.kyrian.active and spellUsable(307443) and select(2,GetSpellCooldown(307443)) <= gcdMax 
+            and (not runeforge.freezingWinds.equiped or blizzardUnits >= 2) and buff.brainFreeze.exists() then 
+                if cast.radiantSpark() then br.addonDebug("[Action:Rotation] Radiant Spark (Brain Freeze-Enemies >= 2)") return true end
+            end 
+            ------------------------------------------------
+            -- Radiant Spark : Kyrian ----------------------
+            ------------------------------------------------
+        end
+
+            -- actions.st+=/arcane_explosion,if=runeforge.disciplinary_command&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_arcane.down
+
+            -- actions.st+=/fire_blast,if=runeforge.disciplinary_command&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
+           --[[ if runeforge.disciplinaryCommand.equiped and cd.disciplinaryCommand.remains() <= gcdMax and not buff.disciplinaryCommand.exists() then
+                if cast.fireBlast("target") then br.addonDebug("[Action:ST] Fire Blast - Disciplinary Command") return true end 
+            end]]
     
-        -- actions.st+=/glacial_spike,if=buff.brain_freeze.react
-        if cast.able.glacialSpike() and buff.brainFreeze.exists() then br.addonDebug("[Action:ST] Glacial Spike (Brain Freeze React)") return true end 
+            -- actions.st+=/glacial_spike,if=buff.brain_freeze.react
+            if buff.brainFreeze.exists() and not moving then if cast.glacialSpike("target") then br.addonDebug("[Action:ST] Glacial Spike (Brain Freeze React)") return true end end
 
-        -- actions.st+=/frostbolt
-        if cast.able.frostbolt() then if cast.frostbolt() then br.addonDebug("[Action:ST] Frostbolt") return true end end 
-
+            -- actions.st+=/frostbolt
+            if cast.frostbolt("target") and not moving then br.addonDebug("[Action:ST] Frostbolt") return true end 
+        --end
     end
 
     local function actionList_Rotation()
@@ -1551,15 +1830,30 @@ actions.st+=/frostbolt
             SpellStopCasting()
             return true
         end
+        --if (((buff.fingersOfFrost.count() > 1 and not isChecked("No Ice Lance")) or ((ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (buff.fingersOfFrost.count() > 1 or ifCheck() and interruptCast(spell.ebonbolt)) then
+         --   SpellStopCasting()
+         --   return true
+       -- end
 
         if spellQueueReady() then
-            -- # If the mage has FoF after casting instant Flurry, we can delay the Ice Lance and use other high priority action, if available.
-            -- actions+=/ice_lance,if=prev_gcd.1.flurry&!buff.fingers_of_frost.react
-            if not isChecked("No Ice Lance") and cast.last.flurry() and not fofExists then
-                if cast.iceLance("target") then return true end
+
+
+            if moving then
+                -- actions.movement+=/ice_floes,if=buff.ice_floes.down
+                if talent.iceFloes and not buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
+                    if cast.iceFloes("player") then return true end
+                end
+                
+                if not isTotem("target") and mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= 2 then
+                    if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
+                end
+
+                if mode.fb ~= 2 and cast.fireBlast("target") then return true end 
+
+                if cast.iceLance("target") then return true end 
             end
 
-            -- Cone of Cold, Nigga
+            -- Cone of Cold
             if mode.coc == 1 then
                 if getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
                    if cast.coneOfCold("player") then return true end
@@ -1569,7 +1863,6 @@ actions.st+=/frostbolt
             -- actions+=/call_action_list,name=cooldowns
             if actionList_Cooldowns() then return true end
 
-
             if mode.rop ~= 2 and cast.able.runeofPower() and not moving and not buff.runeOfPower.exists() and not buff.icyVeins.exists() and cast.timeSinceLast.icyVeins() >= 10 then 
                 if cast.runeofPower() then return true end 
             end
@@ -1578,17 +1871,14 @@ actions.st+=/frostbolt
                 if cast.runeofPower() then return true end 
             end
 
-            -- essences
-            if actionList_Essences() then return true end
-
             -- # The target threshold isn't exact. Between 3-5 targets, the differences between the ST and AoE action lists are rather small. However, Freezing Rain prefers using AoE action list sooner as it benefits greatly from the high priority Blizzard action.
             -- actions+=/call_action_list,name=aoe,if=active_enemies>3&talent.freezing_rain.enabled|active_enemies>4
             if ((blizzardUnits > 3 and talent.freezingRain) or blizzardUnits > 4) and (not inInstance or targetMoveCheck) then
-                if actionList_AoE() then return true end
+                if actionList_AoE_SL() then return true end
             end
 
             -- actions+=/call_action_list,name=single
-            if actionList_ST() then return true end
+            if actionList_ST_SL() then return true end
         end
     end
 
@@ -1653,9 +1943,9 @@ actions.st+=/frostbolt
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not hastar and profileStop == true then
+    if not UnitIsAFK("player") and not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or pause(true) or isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
+    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or UnitIsAFK("player") or pause(true) or isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
         if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
