@@ -38,19 +38,25 @@ local function createToggles()
 	[1] = { mode = "On", value = 1 , overlay = "BossCase Enabled", tip = "Boss Encounter Case Enabled.", highlight = 1, icon = br.player.spell.blessingOfFreedom },
 	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.blessingOfFreedom }
 	};
-	CreateButton("BossCase",5,0)
+	CreateButton("BossCase",0,1)
 	-- Holy Power logic
 	HolyPowerlogicModes = {
 	[1] = { mode = "Attack", value = 1 , overlay = "Attack logic Enabled", tip = "Holy Power logic (Attack)", highlight = 1, icon = br.player.spell.shieldOfTheRighteous },
 	[2] = { mode = "Defense", value = 2 , overlay = "Defense logic Enabled", tip = "Holy Power logic (Defense)", highlight = 1, icon = br.player.spell.wordOfGlory }
 	};
-	CreateButton("HolyPowerlogic",6,0)
+	CreateButton("HolyPowerlogic",1,1)
 	-- Auto cancel
 	AutocancelModes = {
 	[1] = { mode = "On", value = 1 , overlay = "Auto cancel Enabled", tip = "Auto cancel BoP and DS\n(Only In Instance and Raid)", highlight = 1, icon = br.player.spell.blessingOfProtection },
 	[2] = { mode = "Off", value = 2 , overlay = "Auto cancel Disabled", tip = "Auto cancel BoP and DS Disabled", highlight = 0, icon = br.player.spell.blessingOfProtection }
 	};
-	CreateButton("Autocancel",7,0)
+	CreateButton("Autocancel",2,1)
+	-- Blessed Hammer
+	BlessedHammerModes = {
+	[1] = { mode = "On", value = 1 , overlay = "Blessed Hammer Enabled", tip = "Use Blessed Hammer to get Holy Power when you are free\nEnabled", highlight = 1, icon = br.player.spell.blessedHammer },
+	[2] = { mode = "Off", value = 2 , overlay = "Blessed Hammer Disabled", tip = "Use Blessed Hammer to get Holy Power when you are free\nDisabled", highlight = 0, icon = br.player.spell.blessedHammer }
+	};
+	CreateButton("BlessedHammer",3,1)
 end
 ---------------
 --- OPTIONS ---
@@ -716,7 +722,7 @@ local function runRotation()
 		end
 		-- Blessing of Freedom
 		if cast.able.blessingOfFreedom() then
-			if UnitCastingInfo("boss1") == GetSpellInfo(320788) or UnitCastingInfo("boss1") == GetSpellInfo(324608) then
+			if UnitCastingInfo("boss1") == GetSpellInfo(320788) or UnitCastingInfo("boss1") == GetSpellInfo(324608) or UnitCastingInfo("boss1") == GetSpellInfo(319941) then
 				BoF = false
 				if cast.blessingOfFreedom("boss1target") then return true end
 			end
@@ -725,7 +731,7 @@ local function runRotation()
 				if cast.blessingOfFreedom("player") then return true end
 			end
 			-- Debuff
-			local BoFDebuff = {330810,326827,324608,334926,292942,329326,295929,292910}
+			local BoFDebuff = {330810,326827,324608,334926,292942,329326,295929,292910,329905}
 			for k,v in pairs(BoFDebuff) do
 				if getDebuffRemain("player",v) ~= 0 then
 					if cast.blessingOfFreedom("player") then return true end
@@ -841,6 +847,12 @@ local function runRotation()
 	end -- End Action List - Interrupts
 	-- Action List - Opener
 	local function actionList_Opener()
+		-- Blessed Hammer
+		if mode.blessedHammer == 1 and not inCombat then
+			if cast.able.blessedHammer() and talent.blessedHammer and charges.blessedHammer.frac() == 3 and holyPower < 5 then
+				if cast.blessedHammer() then return true end
+			end
+		end
 		if isValidUnit("target") and getFacing("player","target") then
 			if isChecked("Judgment") and getDistance("target") <= 30 and not inCombat and cast.able.judgment() then
 				if cast.judgment("target") then return true end
