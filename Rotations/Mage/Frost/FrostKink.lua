@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.2.1"
+local rotationVer  = "v1.2.2"
 local colorBlue     = "|cff3FC7EB"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
@@ -178,44 +178,6 @@ local function createOptions()
         -- Auto target
         br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
         br.ui:checkSectionState(section)
-
-        -- ------------------------
-        -- ---     ESSENCES     ---
-        -- ------------------------
-        section = br.ui:createSection(br.ui.window.profile, colorBlue .. "AZI" .. ".:|:. " ..colorBlue .. " Essences")
-        -- Essences Usage
-        br.ui:createDropdownWithout(section, "Use Essences", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use Essences.")
-
-        -- Focused Azerite Beam
-        br.ui:createSpinner(section, "Focused Azerite Beam",  3,  1,  10,  1,  "|cffFFBB00 Min. units hit to use Focused Azerite Beam")
-
-        -- Guardian of Azeroth
-        br.ui:createCheckbox(section, "Guardian of Azeroth", "|cffFFBB00 Use Guardian of Azeroth (During CDs)")
-
-        -- Memory of Lucid Dreams
-        br.ui:createCheckbox(section, "Memory of Lucid Dreams", "|cffFFBB00 Use Memory of Lucid Dreams as per SimC Logic")
-
-        -- Purifying Blast
-        br.ui:createCheckbox(section, "Purifying Blast", "|cffFFBB00 Use Purifying Blast as per SimC Logic")
-
-        -- Ripple in Space
-        br.ui:createCheckbox(section, "Ripple in Space", "|cffFFBB00 Use Ripple in Space as per SimC Logic")
-
-        -- Concentrated Flame
-        br.ui:createCheckbox(section, "Concentrated Flame DPS", "|cffFFBB00 Use Concentrated Flame for DPS")
-        br.ui:createSpinner(section, "Concentrated Flame HP", 30, 0, 100, 5, "|cffFFBB00 Use Concentrated Flame for healing")
-        -- The Unbound Force
-        br.ui:createCheckbox(section, "The Unbound Force", "|cffFFBB00 Use The Unbound Force as per SimC Logic")   
-
-        -- Worldvein Resonance    
-        br.ui:createCheckbox(section, "Worldvein Resonance", "|cffFFBB00 Use Worldvein Resonance as per SimC Logic")   
-
-        -- Reaping Flames
-        br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only"}, 1)
-        br.ui:createSpinnerWithout(section, "Reaping Flames Damage", 30, 10, 100, 1)
-
-        br.ui:checkSectionState(section)
-
         ------------------------
         ---     UTILITY      ---
         ------------------------
