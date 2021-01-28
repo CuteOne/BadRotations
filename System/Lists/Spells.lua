@@ -1801,10 +1801,14 @@ br.lists.spells = {
             },
             buffs                           = {
                 arcaneIntellect             = 1459,
+                disciplinaryCommand         = 327365,
+                expandedPotential           = 327489,
                 focusMagic                  = 321358,
+                freezingWinds               = 327364,
                 iceBlock                    = 45438,
                 incantersFlow               = 1463,
-         		slowFall	                = 130,
+                slowFall	                = 130,
+                slickIce                    = 327509,
                 runeOfPower                 = 116014,
             },
             conduits                        = {
@@ -1818,7 +1822,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 frostNova                   = 122,
-            },
+                mirrorsOfTorment            = 314793,
             glyphs                          = {
 
             },
