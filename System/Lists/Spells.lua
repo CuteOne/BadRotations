@@ -1823,6 +1823,7 @@ br.lists.spells = {
             debuffs                         = {
                 frostNova                   = 122,
                 mirrorsOfTorment            = 314793,
+            },
             glyphs                          = {
 
             },
