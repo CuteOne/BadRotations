@@ -198,10 +198,8 @@ function br:loadUnlockerAPI()
             return wmbapi.ScreenToWorld(X / sx, Y / sy)
         end
         GetMousePosition = function()
-            local def_x, def_y, real_x, real_y = 768*(GetScreenWidth()/GetScreenHeight()), 768, GetPhysicalScreenSize()
             local cur_x, cur_y = GetCursorPosition()
-            local res_x, res_y = cur_x*(real_x/def_x), real_y-cur_y*(real_y/def_y)
-            return res_x, res_y, res_x, res_y
+            return cur_x, cur_y
         end
         -- Hacks
         IsHackEnabled = function() return end
