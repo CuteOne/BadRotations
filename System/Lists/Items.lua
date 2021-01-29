@@ -66,7 +66,11 @@ br.lists.items = {
     greaterFlaskOfTheVastHorizon    = 168653,
     -- Healing Items
     kyrianBell                      = 179982,
-    phialOfSerenity                  = 177278,
+    benevolentGong                  = 179977,
+    heavenlyDrum                    = 180062,
+    unearthlyChime                  = 180063,
+    ascendedFlute                   = 180064,
+    phialOfSerenity                 = 177278,
     -- Healthstones
     healthstone                     = 5512,
     legionHealthstone               = 129196,

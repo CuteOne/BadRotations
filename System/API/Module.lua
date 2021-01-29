@@ -66,10 +66,22 @@ br.api.module = function(self)
                 if cast.racial() then ui.debug("Casting Gift of the Naaru") return true end
             end
             -- Kyrian Bell
-            if ui.checked("Kyrian Bell") and (isInArdenweald() or isInBastion() or isInMaldraxxus() or isInRevendreth())-- or isInTheMaw())
-                and use.able.kyrianBell() and has.kyrianBell()
-            then
-                if use.kyrianBell() then ui.debug("Using Kyrian Bell") return true end
+            if ui.checked("Kyrian Bell") and (isInArdenweald() or isInBastion() or isInMaldraxxus() or isInRevendreth()) then -- or isInTheMaw())
+                if use.able.kyrianBell() and has.kyrianBell() then
+                    if use.kyrianBell() then ui.debug("Using Kyrian Bell") return true end
+                end
+                if use.able.benevolentGong() and has.benevolentGong() then
+                    if use.benevolentGong() then ui.debug("Using Kyrian Bell") return true end
+                end
+                if use.able.heavenlyDrum() and has.heavenlyDrum() then
+                    if use.heavenlyDrum() then ui.debug("Using Kyrian Bell") return true end
+                end
+                if use.able.unearthlyChime() and has.unearthlyChime() then
+                    if use.unearthlyChime() then ui.debug("Using Kyrian Bell") return true end
+                end
+                if use.able.ascendedFlute() and has.ascendedFlute() then
+                    if use.ascendedFlute() then ui.debug("Using Kyrian Bell") return true end
+                end
             end
             -- Phial of Serenity
             if ui.checked("Phial of Serenity") then
