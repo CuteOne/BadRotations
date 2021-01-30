@@ -66,9 +66,11 @@ end
 function br:updateOM()
 	local om = br.om
 	local startTime = debugprofilestop()
-	local _, updated, added, removed = GetObjectCountBR(true,"BR")
+	local count, updated, added, removed = GetObjectCountBR(true,"BR")
 	if updated and #added > 0 then
-		for _, v in pairs(added) do
+		--for _, v in pairs(added) do
+		for i = 1, count do
+			local v = GetObjectWithIndex(i)
 			if ObjectIsUnit(v) then
 				local enemyUnit = br.unitSetup:new(v)
 				if enemyUnit then
@@ -404,6 +406,7 @@ function dynamicTarget(range,facing)
 	local facing = facing or false
 	local bestUnit = bestUnit or nil
 	local tarDist = GetObjectExists("target") and getDistance("target") or 99
+	local bestDist = 99
 	if isChecked("Dynamic Targetting") then
 		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1)
 			and (bestUnit == nil or (UnitIsUnit(bestUnit,"target") and tarDist >= range))
@@ -416,13 +419,16 @@ function dynamicTarget(range,facing)
 	then
 		bestUnit = "target"
 	end
-	if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
-		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
-		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and UnitExists(bestUnit) and getDistance(bestUnit) < range
-			and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
-		or (getOptionCheck("Safe Damage Check") and not GetUnitIsUnit(bestUnit,"target") and not isSafeToAttack("target"))
-	then
-		TargetUnit(bestUnit)
+	bestDist = getDistance(bestUnit) or 99
+	if bestDist < range then
+		if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
+			or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
+			or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and UnitExists(bestUnit)
+				and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
+			or (getOptionCheck("Safe Damage Check") and not GetUnitIsUnit(bestUnit,"target") and not isSafeToAttack("target"))
+		then
+			TargetUnit(bestUnit)
+		end
 	end
 	-- Debugging
 	br.debug.cpu:updateDebug(startTime,"enemiesEngine.dynamicTarget")
