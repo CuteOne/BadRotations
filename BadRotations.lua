@@ -136,7 +136,8 @@ function br:defaultSettings()
 end
 -- Load Saved Settings
 function br:loadSavedSettings()
-	if br.initalizeSettings then
+	if br.initalizeSettings then		
+		br.initOM = true
 		br:defaultSettings()
 		br.loader.loadProfiles()
 		br:loadLastProfileTracker()

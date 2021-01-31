@@ -14,8 +14,10 @@ function br:ObjectManager()
 		if br.unlocked then
 			if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
-					br:updateOM()
-					br.om:Update()
+					if br.timer:useTimer("omUpdate", 1) then
+						br:updateOM()
+						br.om:Update()
+					end
 				end
 			end
 		end
@@ -143,6 +145,7 @@ function BadRotationsUpdate(self)
 					br.ui:closeWindow("profile")
 					br.player:createOptions()
 					br.player:createToggles()
+					
 					br.player:update()
 					if br.player ~= nil and br.rotationChanged then
 					 	br:saveLastProfileTracker()
@@ -169,7 +172,7 @@ function BadRotationsUpdate(self)
 					br.smartQueue()
 				end
 				-- Update Player
-				if br.player ~= nil and not CanExitVehicle() then
+				if br.player ~= nil and (not CanExitVehicle() or (UnitExists("target") and getDistance("target") < 5)) then
 					br.player:update()
 				end
 				-- Automatic catch the pig

@@ -26,6 +26,10 @@ function br:loadUnlockerAPI()
         GetObjectCountBR = GetObjectCount
         GetObjectWithIndex = GetObjectWithIndex
         GetObjectWithGUID = GetObjectWithGUID
+        GetNpcCount = GetObjectCount
+        GetPlayerCount = GetObjectCount
+        GetNpcWithIndex = GetObjectWithIndex
+        GetPlayerWithIndex = GetObjectWithIndex
         -- Unit
         UnitBoundingRadius = UnitBoundingRadius
         UnitCombatReach = UnitCombatReach
@@ -108,6 +112,7 @@ function br:loadUnlockerAPI()
                 return 0
             end
         end
+        ObjectDescriptor = function(obj,offset,type) return UnitIsVisible(obj) and wmbapi.ObjectDescriptor(obj,offset,type) end
         ObjectIsUnit = function(obj) return UnitIsVisible(obj) and wmbapi.ObjectIsType(obj,wmbapi.GetObjectTypeFlagsTable().Unit) end
         GetDistanceBetweenPositions = function(...) return (... and wmbapi.GetDistanceBetweenPositions(...)) or 0 end
         GetDistanceBetweenObjects = function(obj1,obj2) 
@@ -133,7 +138,11 @@ function br:loadUnlockerAPI()
         ObjectInteract = InteractUnit
         -- Object Manager
         GetObjectCountBR = wmbapi.GetObjectCount
+        GetNpcCount = wmbapi.GetNpcCount
+        GetPlayerCount = wmbapi.GetPlayerCount
         GetObjectWithIndex = wmbapi.GetObjectWithIndex
+        GetNpcWithIndex = wmbapi.GetNpcWithIndex
+        GetPlayerWithIndex = wmbapi.GetPlayerWithIndex
         GetObjectWithGUID = function(GUID)
             if GUID and #GUID > 1 then
                 return wmbapi.GetObjectWithGUID(GUID)

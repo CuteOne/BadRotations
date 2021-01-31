@@ -268,7 +268,7 @@ function isInside(x,y,ax,ay,bx,by,dx,dy)
 	local bay = by - ay
 	local dax = dx - ax
 	local day = dy - ay
-
+	if (x == nil or y == nil) then return false end 
 	if ((x - ax) * bax + (y - ay) * bay <= 0.0) then return false end
 	if ((x - bx) * bax + (y - by) * bay >= 0.0) then return false end
 	if ((x - ax) * dax + (y - ay) * day <= 0.0) then return false end

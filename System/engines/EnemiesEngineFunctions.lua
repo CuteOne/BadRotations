@@ -64,39 +64,89 @@ end
 
 --Update OM
 function br:updateOM()
-	local om = br.om
-	local startTime = debugprofilestop()
-	local count, updated, added, removed = GetObjectCountBR(true,"BR")
-	if updated and #added > 0 then
-		--for _, v in pairs(added) do
-		for i = 1, count do
-			local v = GetObjectWithIndex(i)
-			if ObjectIsUnit(v) then
-				local enemyUnit = br.unitSetup:new(v)
-				if enemyUnit then
-					tinsert(om, enemyUnit)
-				end
-			end
-			-- Horrific Vision Object Tracking
-			if br.lists ~= nil and br.lists.horrificVision ~= nil then
-				for objType, w in pairs(br.lists.horrificVision) do
-					for _, id in pairs(w) do
-						if br.objects[v] == nil then
-							local objectID = ObjectID(v) or 0
-							local name = ObjectName(v) or ""
-							if ObjectIsVisible(v) and ObjectExists(v) and objectID > 0 and (objectID == id or (objType == "chest" and (string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest"))))) then
-								AddObject(v,br.objects,objType)
-							end
-						end
-					end
-				end
-			end
-		end
-	end
+    local om = br.om
+    local startTime = debugprofilestop()
+    local total, updated, added, removed = GetObjectCountBR(true,"BR")
+    if br.initOM then
+        br.initOM = false
+        for i = 1,total do
+            local thisUnit = GetObjectWithIndex(i)  -- thisUnit contains the '0x' string representing the object address 
+            if ObjectIsUnit(thisUnit)  then
+                local enemyUnit = br.unitSetup:new(thisUnit)
+                if enemyUnit then
+                    tinsert(om, enemyUnit)
+                end
+            end
+        end
+    end
+    if updated and #added > 0 then
+        for _, v in pairs(added) do
+            if ObjectIsUnit(v) then
+                local enemyUnit = br.unitSetup:new(v)
+                if enemyUnit then
+                    tinsert(om, enemyUnit)
+                end
+            end
+            -- Horrific Vision Object Tracking
+            if br.lists ~= nil and br.lists.horrificVision ~= nil then
+                for objType, w in pairs(br.lists.horrificVision) do
+                    for _, id in pairs(w) do
+                        if br.objects[v] == nil then
+                            local objectID = ObjectID(v) or 0
+                            local name = ObjectName(v) or ""
+                            if ObjectIsVisible(v) and ObjectExists(v) and objectID > 0 and (objectID == id or (objType == "chest" and (string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest"))))) then
+                                AddObject(v,br.objects,objType)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for k,v in pairs(removed) do
+        --print('Removed ' .. v)
+        om[v] = nil
+    end
     refreshStored = true
-	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
+    -- Debugging
+    br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
 end
+-- function br:updateOM()
+-- 	local om = br.om
+-- 	local startTime = debugprofilestop()
+-- 	--local count, updated, added, removed = GetObjectCountBR(true,"BR")
+-- 	local count = GetNpcCount("player", 50)
+-- 	--if updated and #added > 0 then
+-- 		--for _, v in pairs(added) do
+-- 		for i = 1, count do
+-- 			--local v = GetObjectWithIndex(i)
+-- 			local v = GetNpcWithIndex(i)
+-- 			--if ObjectIsUnit(v) then
+-- 				local enemyUnit = br.unitSetup:new(v)
+-- 				if enemyUnit then
+-- 					tinsert(om, enemyUnit)
+-- 				end
+-- 			--end
+-- 			-- Horrific Vision Object Tracking
+-- 			-- if br.lists ~= nil and br.lists.horrificVision ~= nil then
+-- 			-- 	for objType, w in pairs(br.lists.horrificVision) do
+-- 			-- 		for _, id in pairs(w) do
+-- 			-- 			if br.objects[v] == nil then
+-- 			-- 				local objectID = ObjectID(v) or 0
+-- 			-- 				local name = ObjectName(v) or ""
+-- 			-- 				if ObjectIsVisible(v) and ObjectExists(v) and objectID > 0 and (objectID == id or (objType == "chest" and (string.match(strupper(name),strupper("cache")) or string.match(strupper(name),strupper("chest"))))) then
+-- 			-- 					AddObject(v,br.objects,objType)
+-- 			-- 				end
+-- 			-- 			end
+-- 			-- 		end
+-- 			-- 	end
+-- 			-- end
+-- 		end
+-- 	-- end
+--     refreshStored = true
+-- 	-- Debugging
+-- 	br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
+-- end
 
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkNoCombat,facing)
