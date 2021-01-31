@@ -65,12 +65,7 @@ br.lists.items = {
     greaterFlaskOfTheUndertow       = 168654,
     greaterFlaskOfTheVastHorizon    = 168653,
     -- Healing Items
-    kyrianBell                      = 179982,
-    benevolentGong                  = 179977,
-    heavenlyDrum                    = 180062,
-    unearthlyChime                  = 180063,
-    ascendedFlute                   = 180064,
-    phialOfSerenity                 = 177278,
+    phialOfSerenity                  = 177278,
     -- Healthstones
     healthstone                     = 5512,
     legionHealthstone               = 129196,
@@ -151,4 +146,10 @@ br.lists.items = {
     potionOfSpectralAgility         = 171270,
     shadowCoreOil                   = 171285,
     spectralFlaskOfPower            = 171276,
+    -- Music of Bastion
+    ascendedFlute                   = 180064,
+    benevolentGong                  = 179977,
+    heavenlyDrum                    = 180062,
+    kyrianBell                      = 179982,
+    unearthlyChime                  = 180063,
 }
