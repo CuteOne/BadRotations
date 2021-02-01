@@ -88,7 +88,11 @@ function br:updateOM()
 		end
 	end
 	for k,v in pairs(removed) do
-		om[v] = nil
+		for i = #om, 1, -1 do
+			if om[i].unit == v then
+				tremove(om, i)
+			end
+		end
 	end
     refreshStored = true
     -- Debugging
