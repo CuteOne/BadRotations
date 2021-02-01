@@ -80,7 +80,9 @@ function br:updateOM()
         end
     end
     if updated and #added > 0 then
-        for _, v in pairs(added) do
+		-- for _, v in pairs(added) do
+		for i = 1,total do
+			local v = GetObjectWithIndex(i)
             if ObjectIsUnit(v) then
                 local enemyUnit = br.unitSetup:new(v)
                 if enemyUnit then
