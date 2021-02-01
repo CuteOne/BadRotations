@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.33.7
+## Version: 1.33.8
 
 BadRotations.lua
 bindings.xml
