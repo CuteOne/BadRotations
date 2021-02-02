@@ -66,38 +66,90 @@ end
 function br:updateOM()
 	local om = br.om
 	local startTime = debugprofilestop()
-	local total, updated, added, removed = GetObjectCountBR(true,"BR")
-	if br.initOM then
-		br.initOM = false
-		for i = 1,total do
-			local thisUnit = GetObjectWithIndex(i)  -- thisUnit contains the '0x' string representing the object address 
-			if ObjectIsUnit(thisUnit)  then
-				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit then
-					tinsert(om, enemyUnit)
-				end
-			end
-		end
-	end
-	for _, v in pairs(added) do
-		if ObjectIsUnit(v) then
-			local enemyUnit = br.unitSetup:new(v)
+	local total, updated, added, removed = GetObjectCountBR()
+	--Print(tostring(total)..", "..tostring(updated)..", "..tostring(added)..", "..tostring(removed))
+	-- Just loop until issues with updated, added, and removed are resolved
+	for i = 1,total do
+		local thisUnit = GetObjectWithIndex(i)  -- thisUnit contains the '0x' string representing the object address
+		if ObjectIsUnit(thisUnit)  then
+			local enemyUnit = br.unitSetup:new(thisUnit)
 			if enemyUnit then
 				tinsert(om, enemyUnit)
 			end
 		end
 	end
-	for k,v in pairs(removed) do
-		for i = #om, 1, -1 do
-			if om[i].unit == v then
-				tremove(om, i)
-			end
-		end
-	end
+	-- if br.initOM then
+	-- 	br.initOM = false
+	-- 	Print("OM Initialized")
+	-- 	for i = 1,total do
+	-- 		local thisUnit = GetObjectWithIndex(i)  -- thisUnit contains the '0x' string representing the object address 
+	-- 		if ObjectIsUnit(thisUnit)  then
+	-- 			local enemyUnit = br.unitSetup:new(thisUnit)
+	-- 			if enemyUnit then
+	-- 				tinsert(om, enemyUnit)
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
+	-- --if updated then
+	-- 	-- Print("OM Updated")
+	-- 	for _, v in pairs(added) do
+	-- 		if ObjectIsUnit(v) then
+	-- 			local enemyUnit = br.unitSetup:new(v)
+	-- 			if enemyUnit then
+	-- 				Print("Unit Added")
+	-- 				tinsert(om, enemyUnit)
+	-- 			end
+	-- 		end
+	-- 	end
+	-- 	for _,v in pairs(removed) do
+	-- 		for i = #om, 1, -1 do
+	-- 			if om[i].unit == v then
+	-- 				Print("Unit Removed")
+	-- 				tremove(om, i)
+	-- 			end
+	-- 		end
+	-- 	end
+	--end
     refreshStored = true
     -- Debugging
     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
 end
+-- function br:updateOM()
+-- 	local om = br.om
+-- 	local startTime = debugprofilestop()
+-- 	local total, updated, added, removed = GetObjectCountBR(true,"BR")
+-- 	if br.initOM then
+-- 		br.initOM = false
+-- 		for i = 1,total do
+-- 			local thisUnit = GetObjectWithIndex(i)  -- thisUnit contains the '0x' string representing the object address 
+-- 			if ObjectIsUnit(thisUnit)  then
+-- 				local enemyUnit = br.unitSetup:new(thisUnit)
+-- 				if enemyUnit then
+-- 					tinsert(om, enemyUnit)
+-- 				end
+-- 			end
+-- 		end
+-- 	end
+-- 	for _, v in pairs(added) do
+-- 		if ObjectIsUnit(v) then
+-- 			local enemyUnit = br.unitSetup:new(v)
+-- 			if enemyUnit then
+-- 				tinsert(om, enemyUnit)
+-- 			end
+-- 		end
+-- 	end
+-- 	for k,v in pairs(removed) do
+-- 		for i = #om, 1, -1 do
+-- 			if om[i].unit == v then
+-- 				tremove(om, i)
+-- 			end
+-- 		end
+-- 	end
+--     refreshStored = true
+--     -- Debugging
+--     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
+-- end
 
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkNoCombat,facing)
