@@ -343,7 +343,7 @@ if not metaTable2 then
 						if br.pet[thisUnit] ~= nil then
 							br.pet[thisUnit] = nil
 						end
-						tremove(br.om, i)
+						--tremove(br.om, i)
 					else
 						--Update unit and move to next
 						br.om[i]:UpdateUnit()
