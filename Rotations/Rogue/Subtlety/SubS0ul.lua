@@ -1,5 +1,5 @@
 local rotationName = "SubS0ul - 9.0"
-local dotBlacklist = "168962|175992"
+local dotBlacklist = "168962|175992|171557|175992"
 local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
 local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
 ---------------
@@ -78,6 +78,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Rupture HP Limit", "Will try to calculate if we should rupture units, based on their HP")
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "Max units to dot with rupture.")
             br.ui:createSpinner(section, "Shuriken Toss out of range", 90,  1,  100,  5,  "Use Shuriken Toss out of range")
+            br.ui:createCheckbox(section, "Spread Find Weakness", "Will shadowstrike to apply find weakness on multiple enemies, I advise uncheking that in raids.")
             br.ui:createCheckbox(section, "Ignore Blacklist for SS", "Ignore blacklist for Shrukien Storm usage.")
             br.ui:createSpinner(section,  "Save SD Charges for CDs",  0.75,  0,  1,  0.05,  "Shadow Dance charges to save for CDs. (Use toggle to disable SD for saving all)")
             br.ui:createDropdownWithout(section, "MfD Target", {"Lowest TTD", "Always Target"},  1, "MfD Target.")
@@ -238,24 +239,6 @@ local function runRotation()
     enemies.get(25,"player",true) -- makes enemies.yards25nc
     enemies.get(30)
 
-    local avoidUnits = {
-        -- The Necrotic Wake
-        { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
-        { unitID = 166079, buff = 321576 }, -- can't kill them with this aura up
-        { unitID = 163126, buff = 321576 }, -- can't kill them with this aura up
-        { unitID = 163122, buff = 321576 }, -- can't kill them with this aura up
-        -- Hall of Atonement
-        { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
-        -- De other side
-        { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
-        -- Mists
-        { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
-        -- Castle Nathria
-        { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
-        { unitID = 165318, buff = 329636 }, -- General Kaal with Hardened Stone Form
-        { unitID = 170323, buff = 329636 }, -- General Grashaal with Hardened Stone Form
-    }
-
     if timersTable then
         wipe(timersTable)
     end
@@ -328,7 +311,6 @@ local function runRotation()
 
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
-        if getBuffRemain(unit, avoidUnits.buff) > 0 then return true end
         if isTotem(unit) then return true end
         local unitCreator = UnitCreator(unit)
         if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
@@ -362,7 +344,7 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and isSafeToAttack(thisUnit)
              and (mode.rotation ~= 2 or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
@@ -837,8 +819,9 @@ local function runRotation()
         if not skipRupture and ruptureRemain < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and shallWeDot("target") and ttd("target") - ruptureRemain > cd.symbolsOfDeath.remain() + 5 then
             if cast.rupture(thisUnit) then return true end
         end
+        local skipPowder = getUnitID("target") == 166969 or getUnitID("target") == 175992 or false
         -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=4-debuff.find_weakness.down
-        if enemies10 >= 3 and cast.able.blackPowder() then
+        if enemies10 >= 3 and cast.able.blackPowder() and not skipPowder then
             if cast.blackPowder("target") then return true end
         end
         -- actions.finish+=/eviscerate
@@ -879,8 +862,8 @@ local function runRotation()
         -- Added vanish checks, coming off gcd to prevent casting after finisher and on GCD
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
         if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3 or charges.shadowDance.frac() >= 1.75) and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
-         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target") or not talent.premeditation)
-         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo < (4 + dSEnabled) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
+         and shdComboPoints and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target") or not talent.premeditation)
+         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -928,7 +911,7 @@ local function runRotation()
         end
         -- # Up to 3 targets (no prio) keep up Find Weakness by cycling Shadowstrike.
         -- actions.stealthed+=/shadowstrike,cycle_targets=1,if=!variable.use_priority_rotation&debuff.find_weakness.remains<1&spell_targets.shuriken_storm<=3&target.time_to_die-remains>6
-        if enemies10 <= 3 and not priorityRotation then
+        if enemies10 <= 3 and not priorityRotation and isChecked("Spread Find Weakness") then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 if debuff.findWeakness.remain(thisUnit) < 1 and ttd(thisUnit) > 6 then
