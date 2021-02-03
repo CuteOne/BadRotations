@@ -4,6 +4,7 @@ end
 -- burnUnits = List of UnitID/Names we should have highest prio on.
 br.lists.burnUnits = {
 
+    [169498] = { coef = 150, name = "Dutiful Attendant", id = 175992 }, -- kill before it explodes
     --Shadowlands dungeons
     -- m+ stuff
     [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
