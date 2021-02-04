@@ -174,7 +174,6 @@ local function runRotation()
     br.player.ui.mode.sd = br.data.settings[br.selectedSpec].toggles["SD"]
     br.player.ui.mode.sod = br.data.settings[br.selectedSpec].toggles["SoD"]
     br.player.ui.mode.st = br.data.settings[br.selectedSpec].toggles["ST"]
-    br.player.ui.mode.sap = br.data.settings[br.selectedSpec].toggles["Sap"]
     br.player.ui.mode.vanish = br.data.settings[br.selectedSpec].toggles["Vanish"]
     if not UnitAffectingCombat("player") then
         if not br.player.talent.secretTechnique then
@@ -320,10 +319,10 @@ local function runRotation()
 
     local function trinket_Pop()
         if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) and not hasEquiped(184016, 13) then
+            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) and not hasEquiped(184016, 13) and not hasEquiped(181333, 13) then
                 useItem(13)
             end
-            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) and not hasEquiped(184016, 14) then
+            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) and not hasEquiped(184016, 14) and not hasEquiped(181333, 14) then
                 useItem(14)
             end
         end
@@ -434,7 +433,7 @@ local function runRotation()
     if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = true else priorityRotation = false end
     if hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4 then animachargedCP = true else animachargedCP = false end
 
-    if isChecked("Ignore Blacklist for SS") then
+    if isChecked("Ignore Blacklist for SS") and mode.rotation ~= 2 then
         enemies10 = #enemies.get(10)
     end
 --------------------
@@ -650,7 +649,7 @@ local function runRotation()
             if cast.sliceAndDice("player") then return true end
         end
         -- # Rupture condition for opener with MA
-        if talent.premeditation and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 4 and cd.vanish.remain() < 118) then
+        if talent.premeditation and isBoss() and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 4 and cd.vanish.remain() < 118) then
             if cast.rupture("target") then return true end
         end
         -- Kyrian opener
@@ -794,7 +793,7 @@ local function runRotation()
         end
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
         -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=5
-        local skipRupture = (buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
+        local skipRupture = (ttd("target") == 999 or not isBoss() or buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
         -- # Keep up Rupture if it is about to run out. Don't ruptre if they die faster than debuff.
         -- actions.finish+=/rupture,if=(!variable.skip_rupture|variable.use_priority_rotation)&target.time_to_die-remains>6&refreshable
         if (not skipRupture or priorityRotation) and ttd("target") >= (5 + 2 * combo) and debuff.rupture.refresh("target") and shallWeDot("target") then
