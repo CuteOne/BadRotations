@@ -229,6 +229,7 @@ local hastar
 local healPot
 local profileStop
 local ttd
+local lastSpell
 local stealth
 local combo, comboDeficit, comboMax
 local ambush_flag = false
@@ -831,7 +832,7 @@ actionList.dps = function()
         dps_key()
     end
 
-    if stealth and (ambush_flag or mode.ambush == 1 or echoStealth()) then
+    if (stealth or lastSpellCast == spell.vanish) and (ambush_flag or mode.ambush == 1 or echoStealth()) then
         if actionList.Stealth() then
             return true
         end
@@ -863,7 +864,6 @@ actionList.dps = function()
                 and #br.friend > 1 then
             ambush_flag = true
             if mode.vanish == 1 then
-                --and #br.friend > 0 then
                 if cast.vanish() then
                     return true
                 end
@@ -880,7 +880,7 @@ actionList.dps = function()
             local explosiveCount = 0
             for i = 1, #enemies.yards8 do
                 thisUnit = enemies.yards8[i]
-                if isExplosive(thisUnit) then
+                if isExplosive(thisUnit) or getUnitID(thisUnit) == 166969 or getUnitID(thisUnit) == 166970 or getUnitID(thisUnit) == 175992 then
                     explosiveCount = explosiveCount + 1
                 end
             end
@@ -902,10 +902,9 @@ actionList.dps = function()
                     end
                 end
 
-
                 if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee)
                         and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
-                        and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 3)
+                        --and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 3)
                         and unit.distance(dynamic_target_melee) <= dynamic_range
                 then
                     if cast.bladeRush(dynamic_target_melee) then
@@ -924,7 +923,7 @@ actionList.dps = function()
         --        end
         --    end
 
-        if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) and getCombatTime() > 2 then
+        if (mode.cooldown == 1 and isChecked("Adrenaline Rush") or not isChecked("Adrenaline Rush")) and getCombatTime() > 2 or isBoss() then
             if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(25) > 0 then
                 if cast.adrenalineRush() then
                     return true
@@ -941,8 +940,8 @@ actionList.dps = function()
                   or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
           then
         ]]
-        if not stealth and combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw))
-                or hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4
+        if not stealth and ((combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw)))
+                or (hasBuff(323558) and combo == 2) or (hasBuff(323559) and combo == 3) or (hasBuff(323560) and combo == 4))
         then
 
             if cast.able.betweenTheEyes() and ttd(units.dyn20) > combo * 3 then
@@ -954,8 +953,8 @@ actionList.dps = function()
             end
 
             --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
-            if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) then
-                if cast.able.sliceAndDice() and combo > 0 and not (combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4) then
+            if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) and not buff.grandMelee.exists() then
+                if cast.able.sliceAndDice() and combo > 0 and not ((hasBuff(323558) and combo == 2) or (hasBuff(323559) and combo == 3) or (hasBuff(323560) and combo == 4)) then
                     if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                         if cast.sliceAndDice() then
                             return true
@@ -973,6 +972,11 @@ actionList.dps = function()
             if not stealth and not should_pool and not cast.last.vanish(1) and not cast.able.ambush(dynamic_target_melee) then
 
                 if mode.ambush == 1 and cast.able.ambush(dynamic_target_melee) then
+                    if cast.able.echoingReprimand(dynamic_target_melee) then
+                        if cast.echoingReprimand(dynamic_target_melee) then
+                            return true
+                        end
+                    end
                     if cast.ambush(dynamic_target_melee) then
                         return true
                     end
@@ -1099,6 +1103,11 @@ actionList.dps = function()
 
         local hold13, hold14
 
+        -- Skuler's Wing
+        if (GetInventoryItemID("player", 13) == 184016 or GetInventoryItemID("player", 14) == 184016)
+                and canUseItem(184016) and getCombatTime() > 5 then
+            useItem(184016)
+        end
         --darkmoon trinket
         if (GetInventoryItemID("player", 13) == 173087 or GetInventoryItemID("player", 14) == 173087)
                 and canUseItem(173087) and inCombat and not stealth then
@@ -1154,7 +1163,7 @@ actionList.Stealth = function()
             end
         end
 
-        if ambush_flag or do_stun ~= nil or echoStealth() then
+        if do_stun ~= nil then
             if isChecked("Cheap Shot") and cast.able.cheapShot() and not isBoss(dynamic_target_melee) and
                     (talent.preyOnTheWeak and not debuff.preyOnTheWeak.exists(dynamic_target_melee) or not talent.preyOnTheWeak) or do_stun ~= nil
             then
@@ -1176,7 +1185,7 @@ actionList.Stealth = function()
                 return true
             end
         end
-        if mode.ambush == 1 then
+        if ambush_flag and mode.ambush == 1 then
             if cast.ambush(dynamic_target_melee) then
                 return true
             end
@@ -1195,7 +1204,7 @@ actionList.Extra = function()
         return
     end
 
-    if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) then
+    if (mode.cooldown == 1 and isChecked("Slice and Dice") or not isChecked("Slice and Dice")) and not buff.grandMelee.exists() then
         if cast.able.sliceAndDice() and combo > 0 then
             if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                 if cast.sliceAndDice() then
@@ -1267,6 +1276,7 @@ actionList.Extra = function()
             return true
         end
 
+        --[[
         if (GetInventoryItemID("player", 13) == 184016 or GetInventoryItemID("player", 14) == 184016) and canUseItem(184016) then
             if #enemies.yards25nc > 0 then
                 for i = 1, #enemies.yards25nc do
@@ -1291,7 +1301,7 @@ actionList.Extra = function()
                     end
                 end
             end
-        end
+        end]]
     end
 end -- End Action List - Extra
 
@@ -1507,10 +1517,9 @@ actionList.Interrupt = function()
             if spellname ~= nil and (select(1, UnitCastID(thisUnit)) > 0 or select(2, UnitCastID(thisUnit)) > 0) then
 
                 --   Print("--")
-            --    Print(tostring(GetUnitIsUnit("player", UnitTarget(thisUnit))))
-                --     Print(tostring(select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5)
-
-                --    Print(GetUnitIsUnit("player", select(3, UnitCastID(thisUnit))))
+                --   Print(tostring(GetUnitIsUnit("player", UnitTarget(thisUnit))))
+                --   Print(tostring(select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5)
+                --   Print(GetUnitIsUnit("player", select(3, UnitCastID(thisUnit))))
 
                 local castleft = castEndTime - GetTime()
                 if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 1.5 then
@@ -1741,6 +1750,7 @@ local function runRotation()
     mode = br.player.ui.mode
     php = br.player.health
     spell = br.player.spell
+    lastSpell = lastSpellCast
     talent = br.player.talent
     combo, comboDeficit, comboMax = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
     units = br.player.units
