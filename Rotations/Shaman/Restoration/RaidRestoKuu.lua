@@ -100,6 +100,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Water Shield")
         -- Chain Lightning
         br.ui:createCheckbox(section, "Chain Lightning")
+        -- Flametongue Weapon
+        br.ui:createCheckbox(section, "Flametongue Weapon", "Apply Flametongue Weapon when using DPS key")
         -- Raid Boss Helper
         br.ui:createSpinner(section, "Raid Boss Helper", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Raid Boss. Default: 80")
         -- Bursting Stack
@@ -922,7 +924,7 @@ local function runRotation()
                 end
             end
             -- Flametongue Weapon
-            if not br.player.unit.weaponImbue.exists(5400) then
+            if ui.checked("Flametongue Weapon") and not br.player.unit.weaponImbue.exists(5400) then
                 if cast.flametongueWeapon("player") then
                     br.addonDebug("Casting Flametongue Weapon")
                     return
