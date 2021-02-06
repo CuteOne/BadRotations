@@ -375,6 +375,9 @@ local function runRotation()
                 if thisUnit.facing then enemyScore = enemyScore + 30 end
                 if thisUnit.distance <= 5 then enemyScore = enemyScore + 30 end
                 if GetUnitIsUnit(thisUnit.unit, "target") then enemyScore = enemyScore + 100 end
+                if getUnitID(thisUnit) == 166969 then enemyScore = enemyScore + 500 end
+                if getUnitID(thisUnit) == 166970 then enemyScore = enemyScore + 150 end
+                if getUnitID(thisUnit) == 166971 then enemyScore = enemyScore + 50 end
                 local raidTarget = GetRaidTargetIndex(thisUnit.unit)
                 if raidTarget ~= nil then
                     enemyScore = enemyScore + raidTarget * 3
@@ -391,6 +394,7 @@ local function runRotation()
             local sStormIgnore = {
                 [120651]=true, -- Explosive
                 [168962]=true, -- Sun King's Reborn Phoenix
+                [166969]=true, -- Baroness Frieda
             }
 
             if thisUnit.distance <= 10 then
@@ -401,6 +405,7 @@ local function runRotation()
                     tinsert(enemyTable5, thisUnit)
                 end
                 if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
+                if getUnitID(thisUnit) == 175992 and inCombat and thisUnit.distance <= 5 then TargetUnit(thisUnit) end
             end
         end
         if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
@@ -475,6 +480,7 @@ local function runRotation()
             [164414] = true, -- NW Reanimated Mage
             [168246] = true, -- NW Reanimated Crossbowman
             [164702] = true, -- NW Carrion Worm
+            [175992] = true, -- Dutiful Attendant
         }
         if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
             if combo >= 4 then
@@ -818,9 +824,9 @@ local function runRotation()
         if not skipRupture and ruptureRemain < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and shallWeDot("target") and ttd("target") - ruptureRemain > cd.symbolsOfDeath.remain() + 5 then
             if cast.rupture(thisUnit) then return true end
         end
-        local skipPowder = getUnitID("target") == 166969 or getUnitID("target") == 175992 or false
+        local skipPowder = (getUnitID("target") == 166969 or getUnitID("target") == 175992) or false
         -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=4-debuff.find_weakness.down
-        if enemies10 >= 3 and cast.able.blackPowder() and not skipPowder then
+        if (enemies10 >= 3 and not priorityRotation or enemies10 >= 5) and cast.able.blackPowder() and not skipPowder then
             if cast.blackPowder("target") then return true end
         end
         -- actions.finish+=/eviscerate
@@ -920,7 +926,7 @@ local function runRotation()
         end
         -- # For priority rotation, use Shadowstrike over Storm 1) with WM against up to 4 targets, 2) if FW is running off (on any amount of targets), or 3) to maximize SoD extension with Inevitability on 3 targets (4 with BitS).
         -- actions.stealthed+=/shadowstrike,if=variable.use_priority_rotation&(debuff.find_weakness.remains<1|talent.weaponmaster.enabled&spell_targets.shuriken_storm<=4)
-        if priorityRotation and (debuff.findWeakness.remain("target")<1 or talent.weaponmaster and enemies10 <= 4) and targetDistance < 5 then
+        if priorityRotation and (debuff.findWeakness.remain("target") < 1 or talent.weaponmaster and enemies10 <= 4) and targetDistance < 5 then
             if cast.shadowstrike("target") then return true end
         end
         -- actions.stealthed+=/shuriken_storm,if=spell_targets>=3+(buff.the_rotten.up|runeforge.akaaris_soul_fragment&conduit.deeper_daggers.rank>=7)&(buff.symbols_of_death_autocrit.up|!buff.premeditation.up|spell_targets>=5)
