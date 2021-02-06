@@ -122,9 +122,9 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
-        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
-        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
+        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Exorcism", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
+        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Exorcism", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
+        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Exorcism", "Unbridled Fury", "Phantom fire" }, 1, "", "Use Pot when Adrenaline is up")
         br.ui:createCheckbox(section, "Use Racial", "Use your racial")
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "Minimum Torrent Targets")
@@ -702,6 +702,8 @@ end
 local function echoStealth()
     if covenant.kyrian.active and cd.echoingReprimand.ready() and mode.vanish == 1 and cd.vanish.ready() and mode.cov == 1 then
         return true
+    else
+        return false
     end
 end
 
@@ -827,6 +829,11 @@ end
 --dps()
 actionList.dps = function()
 
+    if mode.vanish == 1 and cast.able.vanish() and isBoss() then
+        cast.adrenalineRush()
+        cast.vanish()
+        return true
+    end
 
     if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
         dps_key()
@@ -837,6 +844,12 @@ actionList.dps = function()
             return true
         end
     else
+
+    if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and getCombatTime() > 4 or isBoss() then
+        if cast.vanish() then
+            return true
+        end
+    end
 
         --Print(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
 
@@ -860,7 +873,7 @@ actionList.dps = function()
                     end
                 end]]
 
-        if not stealth and (ambushCondition() or echoStealth()) and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and getBuffRemain(units.dyn5, 226510) == 0)
+        if not stealth and (ambushCondition() and not echoStealth()) and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and (getBuffRemain(units.dyn5, 226510) == 0 or not isChecked("Cheap Shot")))
                 and #br.friend > 1 then
             ambush_flag = true
             if mode.vanish == 1 then
@@ -1074,8 +1087,8 @@ actionList.dps = function()
                 useItem(168529)
             elseif auto_pot == 7 and canUseItem(168506) then
                 useItem(168506)
-            elseif auto_pot == 8 and canUseItem(168489) then
-                useItem(168489)
+            elseif auto_pot == 8 and canUseItem(171352) then
+                useItem(171352)
             elseif auto_pot == 9 and canUseItem(169299) then
                 useItem(169299)
             elseif auto_pot == 10 and canUseItem(171349) then
@@ -1185,7 +1198,10 @@ actionList.Stealth = function()
                 return true
             end
         end
-        if ambush_flag and mode.ambush == 1 then
+        if mode.ambush == 1 then
+            if cast.able.echoingReprimand(dynamic_target_melee) then
+                if cast.echoingReprimand(dynamic_target_melee) then return true end
+            end 
             if cast.ambush(dynamic_target_melee) then
                 return true
             end
