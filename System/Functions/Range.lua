@@ -84,6 +84,7 @@ function getDistanceCalc(Unit1,Unit2,option)
         else
           X1,Y1,Z1 = GetObjectPosition(Unit1)
         end
+        if not X1 then return 999 end
         --Unit2 Position
         local unit2GUID = select(2,getGUID(Unit2))
         if br.unitSetup ~= nil and br.unitSetup.cache[Unit2] ~= nil and br.unitSetup.cache[Unit2].posX ~= nil then
@@ -95,6 +96,7 @@ function getDistanceCalc(Unit1,Unit2,option)
         else
           X2,Y2,Z2 = GetObjectPosition(Unit2)
         end
+        if not X2 then return 999 end
         -- Get the distance
         local TargetCombatReach = UnitCombatReach(Unit2) or 0
         local PlayerCombatReach = UnitCombatReach(Unit1) or 0
