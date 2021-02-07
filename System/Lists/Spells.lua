@@ -2177,6 +2177,7 @@ br.lists.spells = {
             buffs                           = {
                 ardentDefender              = 31850,
                 avengingWrath               = 31884,
+                blessingOfSpellwarding      = 204018,
                 bulwarkOfOrder              = 209388,
                 consecration                = 188370,
                 divineShield                = 642,

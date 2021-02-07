@@ -1,6 +1,6 @@
 ﻿local rotationName = "Feng"
-local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886"
-local StunSpellList="332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328475|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
+local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
+local StunSpellList="332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
 local HoJPrioList = "164702|164362|170488|165905|165251|165556"
 ---------------
 --- Toggles ---
@@ -242,6 +242,7 @@ local function runRotation()
 	local use           = br.player.use
 	local SotR          = true
 	local BoF           = true
+	local RInterrupts   = true
 
 	units.get(5)
 	units.get(10)
@@ -280,9 +281,7 @@ local function runRotation()
 	for i in string.gmatch(getOptionValue("HoJ Prio Units"), "%d+") do
 		HoJList[tonumber(i)] = true
 	end
-	if (hoj_unit ~= nil and cast.last.hammerOfJustice()) or cast.last.rebuke() then
-		hoj_unit = nil
-	end
+
 	-- infinite Divine Steed
 	if isChecked("infinite Divine Steed key") and (SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
 		if getBuffRemain("player", 254474) <= 0.5 and not UnitAffectingCombat("player") then
@@ -558,7 +557,7 @@ local function runRotation()
 				end
 			end
 			-- Cleanse Toxins
-			if isChecked("Clease Toxin") and cast.able.cleanseToxins() and GetObjectID("boss1") ~= 164267 then
+			if isChecked("Clease Toxin") and cast.able.cleanseToxins() and (GetObjectID("boss1") ~= 164267 or buff.divineShield.exists() or buff.blessingOfSpellwarding.exists()) then
 				if getOptionValue("Clease Toxin")==1 then
 					if canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return true end
@@ -686,8 +685,13 @@ local function runRotation()
 			if cast.cleanseToxins("player") then return true end
 		end
 		-- Will to
-		if race == "Human" and getSpellCD(59752) == 0 and (getDebuffRemain("player",321893) ~= 0 or getDebuffRemain("player",331847) ~= 0 or getDebuffRemain("player",319611) ~= 0) then
-			if CastSpellByName(GetSpellInfo(59752)) then return true end
+		if race == "Human" and getSpellCD(59752) == 0 then
+			local STUN_Debuff = {321893,331847,319611,331818}
+			for k,v in pairs(STUN_Debuff) do
+				if getDebuffRemain("player",v) ~= 0 then
+					if CastSpellByName(GetSpellInfo(59752)) then return true end
+				end
+			end
 		end
 		-- Gloom Squall
 		if getBuffRemain("player",324089) ~= 0 then
@@ -731,10 +735,27 @@ local function runRotation()
 				if cast.blessingOfFreedom("player") then return true end
 			end
 			-- Debuff
-			local BoFDebuff = {330810,326827,324608,334926,292942,329326,295929,292910,329905}
+			local BoFDebuff = {330810,326827,324608,292942,329326,295929,292910,329905}
 			for k,v in pairs(BoFDebuff) do
 				if getDebuffRemain("player",v) ~= 0 then
 					if cast.blessingOfFreedom("player") then return true end
+				end
+			end
+			-- Wretched Phlegm
+			if select(8, GetInstanceInfo()) == 2289 then
+				for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+					if UnitCastingInfo(thisUnit) == GetSpellInfo(334926) then
+						if cast.blessingOfFreedom("player") then return true end
+					end
+				end
+			end
+			-- Rooted in Anima
+			if GetObjectID("boss1") == 165521 then
+				for i = 1, #br.friend do
+					if getDebuffRemain(br.friend[i].unit,341746) ~= 0 then
+						if cast.blessingOfFreedom(br.friend[i].unit) then return true end
+					end
 				end
 			end
 		end
@@ -797,7 +818,8 @@ local function runRotation()
 			if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
-					if canInterrupt(thisUnit,100) and getFacing("player",thisUnit) then
+					if (select(8,UnitCastingInfo(thisUnit)) == false or select(7,UnitChannelInfo(thisUnit)) == false) and getFacing("player",thisUnit) then
+						RInterrupts = false
 						if cast.avengersShield(thisUnit) then return true end
 					end
 				end
@@ -827,6 +849,7 @@ local function runRotation()
 						if not isBoss(thisUnit) and noStunsUnits[GetObjectID(thisUnit)] == nil then
 							BL_Unit = BL_Unit + 1
 							if BL_Unit >= getOptionValue("Blinding Light - INT") then
+								RInterrupts = false
 								if cast.blindingLight() then return true end
 							end
 						end
@@ -834,11 +857,12 @@ local function runRotation()
 					-- Hammer of Justice
 					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
 						if not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and getBuffRemain(thisUnit,343503) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
-							if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
+							RInterrupts = false
+							if cast.hammerOfJustice(thisUnit) then return true end
 						end
 					end
 					-- Rebuke
-					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and getFacing("player",thisUnit) and not GetUnitIsUnit(hoj_unit,thisUnit) then
+					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and getFacing("player",thisUnit) and RInterrupts == true then
 						if cast.rebuke(thisUnit) then return true end
 					end
 				end
