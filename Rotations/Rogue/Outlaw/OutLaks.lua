@@ -874,7 +874,7 @@ actionList.dps = function()
                 end]]
 
         if not stealth and (ambushCondition() and not echoStealth()) and cd.vanish.remain() <= 0.2 and getDistance(units.dyn5) <= 5 and useCDs() and not cast.last.shadowmeld(1) and (GetUnitExists(units.dyn5) and (getBuffRemain(units.dyn5, 226510) == 0 or not isChecked("Cheap Shot")))
-                and #br.friend > 1 then
+                and #br.friend > 1 and mode.vanish == 1 then
             ambush_flag = true
             if mode.vanish == 1 then
                 if cast.vanish() then
@@ -1555,7 +1555,7 @@ actionList.Interrupt = function()
                             should_pool = false
                             return true
                         end
-                    elseif vanishList[interruptID] then
+                    elseif vanishList[interruptID] and mode.vanish == 1 then
                         if cast.vanish() then
                             return true
                         end
