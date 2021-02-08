@@ -233,7 +233,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy("target") then
+            if br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy("target") then
                 StopAttack()
                 ClearTarget()
                 Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -277,7 +277,7 @@ actionList.Defensive = function()
             for i=1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if cast.able.consumeMagic(thisUnit) and cast.dispel.consumeMagic(thisUnit)
-                    and not unit.isBoss(thisUnit) and unit.exists(thisUnit)
+                    and not unit.br.isBoss(thisUnit) and unit.exists(thisUnit)
                 then
                     if cast.consumeMagic(thisUnit) then ui.debug("Casting Consume Magic") return true end
                 end
@@ -330,7 +330,7 @@ actionList.Cooldowns = function()
         if ui.alwaysCdNever("Metamorphosis") then
             -- metamorphosis,if=!(talent.demonic.enabled|variable.pooling_for_meta)&cooldown.eye_beam.remains>20&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|fight_remains<25
             if cast.able.metamorphosis() and #enemies.yards8 > 0 and (not (talent.demonic or var.poolForMeta) and cd.eyeBeam.remains() > 20
-                and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5) or (unit.isBoss("target") and unit.ttdGroup(5) < 25)))
+                and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5) or (unit.br.isBoss("target") and unit.ttdGroup(5) < 25)))
             then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis") return true end
             end
@@ -435,7 +435,7 @@ actionList.Demonic = function()
     end
     -- Glaive Tempest
     -- glaive_tempest,if=active_enemies>desired_targets|raid_event.adds.in>10
-    if cast.able.glaiveTempest() and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
+    if cast.able.glaiveTempest() and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.br.isBoss(units.dyn5)) then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
     -- Throw Glaive
@@ -450,7 +450,7 @@ actionList.Demonic = function()
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam() and not unit.moving() and enemies.yards20r > 0
         and ((ui.value("Eye Beam Usage") == 1 and ui.mode.rotation == 1)
             or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Units To AoE"))
-            or ui.mode.rotation == 2) and (eyebeamTTD() or unit.isDummy(units.dyn8))
+            or ui.mode.rotation == 2) and (eyebeamTTD() or unit.br.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
     end
@@ -568,7 +568,7 @@ actionList.Normal = function()
     -- Glaive Tempest
     -- glaive_tempest,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>10)
     if cast.able.glaiveTempest() and not var.waitingForMomentum
-        and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
+        and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.br.isBoss(units.dyn5))
     then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
@@ -580,7 +580,7 @@ actionList.Normal = function()
     -- Eye Beam
     -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15)
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam() and enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
-        and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and (eyebeamTTD() or unit.br.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
     end
@@ -612,7 +612,7 @@ actionList.Normal = function()
     -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam()
         and enemies.yards20r > 0 and not unit.moving() and talent.blindFury
-        and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.br.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Blind Fury]") return true end
     end
@@ -706,7 +706,7 @@ actionList.PreCombat = function()
             -- Start Attack
             -- auto_attack
             if unit.distance("target") < 5 then
-                StartAttack()
+                br._G.StartAttack()
             end
         end
     end -- End No Combat
@@ -744,7 +744,7 @@ local function runRotation()
     --- Vars ---
     ------------
 
-    var.combatTime                                  = getCombatTime()
+    var.combatTime                                  = br.getCombatTime()
     var.falling                                     = getFallTime()
     var.flood                                       = (equiped.soulOfTheSlayer() or talent.firstBlood) and 1 or 0
     var.getHealPot                                  = getHealthPot()
@@ -850,7 +850,7 @@ local function runRotation()
             if ui.value("APL Mode") == 1 then
                 -- Start Attack
                 if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack()
+                    br._G.StartAttack()
                 end
                 -- Cooldowns
                 -- call_action_list,name=cooldown,if=gcd.remains=0

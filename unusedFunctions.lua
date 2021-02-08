@@ -1,17 +1,17 @@
 -- Currently not used functions
 
 function IGetLocation(Unit)
-    return GetObjectPosition(Unit)
+    return br.GetObjectPosition(Unit)
 end
 
 -- if canPrepare() then
 function canPrepare()
-    if UnitBuffID("player",104934) -- Eating (Feast)
-            or UnitBuffID("player",80169) -- Eating
-            or UnitBuffID("player",87959) -- Drinking
-            or UnitBuffID("player",11392) -- 18 sec Invis Pot
-            or UnitBuffID("player",3680) -- 15 sec Invis pot
-            or UnitBuffID("player",5384) -- Feign Death
+    if br.UnitBuffID("player",104934) -- Eating (Feast)
+            or br.UnitBuffID("player",80169) -- Eating
+            or br.UnitBuffID("player",87959) -- Drinking
+            or br.UnitBuffID("player",11392) -- 18 sec Invis Pot
+            or br.UnitBuffID("player",3680) -- 15 sec Invis pot
+            or br.UnitBuffID("player",5384) -- Feign Death
             or IsMounted() then
         return false
     else
@@ -21,20 +21,20 @@ end
 
 function getAccDistance(Unit1,Unit2)
     -- If both units are visible
-    if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true)) then
+    if br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) == true and (Unit2 == nil or (br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2) == true)) then
         -- If Unit2 is nil we compare player to Unit1
         if Unit2 == nil then
             Unit2 = Unit1
             Unit1 = "player"
         end
         -- if unit1 is player, we can use our lib to get precise range
-        if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+        if Unit1 == "player" and (br.isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
             -- 	return rc:GetRange(Unit2) or 1000
             -- 		-- else, we use FH positions
             -- else
-            local X1,Y1,Z1 = GetObjectPosition(Unit1)
-            local X2,Y2,Z2 = GetObjectPosition(Unit2)
-            return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (math.max(UnitCombatReach(Unit2) + UnitCombatReach(Unit1) + 4 / 3 + ((isMoving(Unit2) and isMoving(Unit1)) and 8 / 3 or 0), 5)) --(UnitCombatReach(Unit2)+UnitBoundingRadius(Unit2))
+            local X1,Y1,Z1 = br.GetObjectPosition(Unit1)
+            local X2,Y2,Z2 = br.GetObjectPosition(Unit2)
+            return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (math.max(br._G.UnitCombatReach(Unit2) + br._G.UnitCombatReach(Unit1) + 4 / 3 + ((isMoving(Unit2) and isMoving(Unit1)) and 8 / 3 or 0), 5)) --(br._G.UnitCombatReach(Unit2)+UnitBoundingRadius(Unit2))
         end
     else
         return 100
@@ -46,7 +46,7 @@ function findTarget(range,facingCheck,minimumHealth)
     if br.enemy ~= nil then
         for k, v in pairs(br.enemy) do
             if br.enemy[k].distance <= range then
-                if FacingCheck == false or getFacing("player",br.enemy[k].unit) == true then
+                if FacingCheck == false or br.getFacing("player",br.enemy[k].unit) == true then
                     if not minimumHealth or minimumHealth and minimumHealth >= br.enemy[k].hp then
                         TargetUnit(br.enemy[k].unit)
                     end
@@ -77,12 +77,12 @@ function getLoot2()
     if looted == nil then looted = 0 end
     if lM:emptySlots() then
         for i=1,GetObjectCountBR() do
-            if GetObjectExists(i) and bit.band(GetObjectType(i), ObjectType.Unit) == 8 then
+            if br.GetObjectExists(i) and bit.band(GetObjectType(i), ObjectType.Unit) == 8 then
                 local thisUnit = GetObjectIndex(i)
                 local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-                local inRange = getDistance("player",thisUnit) < 2
+                local inRange = br.getDistance("player",thisUnit) < 2
                 if UnitIsDeadOrGhost(thisUnit) then
-                    if hasLoot and canLoot and inRange and (canLootTimer == nil or canLootTimer <= GetTime()-0.5)--[[getOptionValue("Auto Loot"))]] then
+                    if hasLoot and canLoot and inRange and (canLootTimer == nil or canLootTimer <= GetTime()-0.5)--[[br.getOptionValue("Auto Loot"))]] then
                         if GetCVar("autoLootDefault") == "0" then
                             SetCVar("autoLootDefault", "1")
                             InteractUnit(thisUnit)
@@ -105,12 +105,12 @@ function getLoot2()
                 end
             end
         end
-        if GetUnitExists("target") and UnitIsDeadOrGhost("target") and looted==1 and not isLooting() then
+        if br.GetUnitExists("target") and UnitIsDeadOrGhost("target") and looted==1 and not isLooting() then
             ClearTarget()
             looted=0
         end
     else
-        ChatOverlay("Bags are full, nothing will be looted!")
+        br.ChatOverlay("Bags are full, nothing will be looted!")
     end
 end
 
@@ -138,7 +138,7 @@ function nDbDmg(tar,spellID,player)
     end
 end
 
--- useItem(12345)
+-- br.useItem(12345)
 function useItem_old(itemID)
     if GetItemCount(itemID) > 0 then
         if select(2,GetItemCooldown(itemID))==0 then
@@ -169,9 +169,9 @@ tauntsTable = {
 --[[Taunt function!! load once]]
 function ShouldTaunt()
     --[[Normal boss1 taunt method]]
-    if not GetUnitIsUnit("player","boss1target") then
+    if not br.GetUnitIsUnit("player","boss1target") then
         for i = 1,#tauntsTable do
-            if not UnitDebuffID("player",tauntsTable[i].spell) and UnitDebuffID("boss1target",tauntsTable[i].spell) and getDebuffStacks("boss1target",tauntsTable[i].spell) >= tauntsTable[i].stacks then
+            if not br.UnitDebuffID("player",tauntsTable[i].spell) and br.UnitDebuffID("boss1target",tauntsTable[i].spell) and br.getDebuffStacks("boss1target",tauntsTable[i].spell) >= tauntsTable[i].stacks then
                 TargetUnit("boss1")
                 return true
             end
@@ -179,7 +179,7 @@ function ShouldTaunt()
     end
     --[[Swap back to Wavebinder Kardris]]
     if getBossID("target") ~= 71858 then
-        if UnitDebuffID("player",144215) and getDebuffStacks("player",144215) >= 6 then
+        if br.UnitDebuffID("player",144215) and br.getDebuffStacks("player",144215) >= 6 then
             if getBossID("boss1") == 71858 then
                 TargetUnit("boss1")
                 return true

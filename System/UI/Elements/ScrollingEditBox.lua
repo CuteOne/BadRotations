@@ -2,7 +2,7 @@ local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalTools = LibStub("DiesalTools-1.0")
 local DiesalStyle = LibStub("DiesalStyle-1.0")
 local Colors = DiesalStyle.Colors
-
+local addonName, br = ...
 function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, height, hideCheckbox)
     if width == nil then width = 240 end
     if height == nil then height = 50 end

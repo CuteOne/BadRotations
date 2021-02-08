@@ -1,3 +1,4 @@
+local addonName, br = ...
 -- Sell Greys Macros
 SLASH_Greys1 = "/grey"
 SLASH_Greys2 = "/greys"
@@ -22,7 +23,7 @@ function SellGreys()
 	end
 	RepairAllItems(1)
 	RepairAllItems(0)
-	ChatOverlay("Sold Greys.")
+	br.ChatOverlay("Sold Greys.")
 end
 -- Dump Greys Macros
 SLASH_DumpGrey1 = "/dumpgreys"
@@ -69,11 +70,9 @@ br.lootManager = {}
 lM = br.lootManager
 -- Debug
 function br.lootManager:debug(message)
-	if lM.showDebug then
-		if message and lM.oldMessage ~= message then
-			Print("<lootManager> " .. (math.floor(GetTime() * 1000) / 1000) .. " " .. message)
-			lM.oldMessage = message
-		end
+	if message and lM.oldMessage ~= message then
+		br.addonDebug("<lootManager> " .. (math.floor(GetTime() * 1000) / 1000) .. " " .. message, true)
+		lM.oldMessage = message
 	end
 end
 -- Check if availables bag slots, return true if at least 1 free bag space
@@ -89,29 +88,39 @@ function br.lootManager:emptySlots()
 end
 
 local looting = false
+local fetching = false
 function br.lootManager:getLoot(lootUnit)
-	local looting = false
 	-- if we have a unit to loot, check if its time to
-	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) and getDistance(lootUnit) < 5 then
-		if not looting then
-			looting = true
-			lM:debug("Looting " .. UnitName(lootUnit))
-			InteractUnit(lootUnit)
-			-- Manually loot if Auto Loot Interface Option not set
-			if GetCVar("AutoLootDefault") == "0" then
-				if LootFrame:IsShown() then
-					for l = 1, GetNumLootItems() do
-						if LootSlotHasItem(l) then
-							LootSlot(l)
+	if br.timer:useTimer("getLoot", br.getOptionValue("Auto Loot")) then
+		if br.getDistance(lootUnit) < 7 then
+			if not looting then
+				looting = true
+				lM:debug("Looting " .. UnitName(lootUnit))
+				InteractUnit(lootUnit)
+				-- Manually loot if Auto Loot Interface Option not set
+				if GetCVar("AutoLootDefault") == "0" then
+					if LootFrame:IsShown() then
+						for l = 1, GetNumLootItems() do
+							if LootSlotHasItem(l) then
+								LootSlot(l)
+							end
 						end
+						CloseLoot()
 					end
-					CloseLoot()
 				end
 			end
+		elseif br.isChecked("Fetch") and (not isInCombat("player") or br.player.enemies.get(40)[1] == nil) and UnitExists("pet") and not deadPet and br.getDistance(lootUnit) > 7 and br.getDistance(lootUnit) < 40 then
+			if not fetching then
+				fetching = true
+				lM:debug("Looting " .. UnitName(lootUnit))
+				br._G.CastSpellByName(GetSpellInfo(125050))
+			end
 		end
-		-- Clean Up
-		ClearTarget()
+		if not isInCombat("player") and looting then
+			ClearTarget()
+		end
 		looting = false
+		fetching = false
 		lM.lootUnit = nil
 		br.lootable = {}
 		return
@@ -120,7 +129,7 @@ end
 -- function br.lootManager:getLoot(lootUnit)
 -- 	local looting = false
 -- 	-- if we have a unit to loot, check if its time to
--- 	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
+-- 	if br.timer:useTimer("getLoot", br.getOptionValue("Auto Loot")) then
 -- 		if not looting then
 -- 			looting = true
 -- 			--Print("Looting "..UnitName(lootUnit))
@@ -147,12 +156,12 @@ end
 -- 	end
 -- end
 -- function br.lootManager:findLoot()
--- 	if br.timer:useTimer("findLoot", getOptionValue("Auto Loot")) then
+-- 	if br.timer:useTimer("findLoot", br.getOptionValue("Auto Loot")) then
 -- 		lM:debug("Find Unit")
 -- 		for k, v in pairs(br.lootable) do
 -- 			local thisUnit = br.lootable[k].unit
 -- 			local hasLoot, canLoot = CanLootUnit(thisUnit)
--- 			if GetObjectExists(thisUnit) and canLoot then
+-- 			if br.GetObjectExists(thisUnit) and canLoot then
 -- 				--Print("Should loot "..UnitName(thisUnit))
 -- 				lM:debug("Should loot " .. UnitName(thisUnit))
 -- 				lM:getLoot(thisUnit)
@@ -168,7 +177,7 @@ function br.lootManager:lootCount()
 		if br.lootable[k] ~= nil then
 			local thisUnit = br.lootable[k].unit
 			local hasLoot, canLoot = CanLootUnit(br.lootable[k].guid)
-			if GetObjectExists(thisUnit) and canLoot then
+			if br.GetObjectExists(thisUnit) and hasLoot then
 				lootCount = lootCount + 1
 				lM.lootUnit = br.lootable[k].unit
 				break
@@ -178,17 +187,18 @@ function br.lootManager:lootCount()
 	return lootCount
 end
 function autoLoot()
-	if getOptionCheck("Auto Loot") then
-		if not isInCombat("player") then
+	if br.getOptionCheck("Auto Loot") then
+		--br.player.enemies.get(40)
+		if (not isInCombat("player") or br.player.enemies.get(10)[1] == nil) then
 			-- start loot manager
 			if lM and lM:lootCount() > 0 then
 				if lM:emptySlots() ~= 0 then
-					if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and not IsMounted("player") and GetUnitSpeed("player") == 0 then
+					if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and not IsMounted("player") then
 						-- Print("Getting Loot")
 						lM:getLoot(lM.lootUnit)
 					end
 				else
-					ChatOverlay("Bags are full, nothing will be looted!")
+					br.ChatOverlay("Bags are full, nothing will be looted!")
 				end
 			end
 		end

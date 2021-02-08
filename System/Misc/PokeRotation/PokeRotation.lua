@@ -480,7 +480,7 @@ function PokeEngine()
       inBattleTimer = GetTime()
     end
   elseif inBattleTimer ~= 0 then
-    ChatOverlay("\124cFF9999FFBattle Ended "..GetBattleTime().." Min. "..select(2,GetBattleTime()).." Secs.")
+    br.ChatOverlay("\124cFF9999FFBattle Ended "..GetBattleTime().." Min. "..select(2,GetBattleTime()).." Secs.")
     inBattleTimer = 0
   end
   -- Out of Battle timer
@@ -714,7 +714,7 @@ function PokeEngine()
           and C_PetBattles.IsTrapAvailable() then
           br.data.pokeAttack = 8;
           br.data.wait = 0
-          ChatOverlay("\124cFFFFFFFFTrapping pet")
+          br.ChatOverlay("\124cFFFFFFFFTrapping pet")
         elseif NmeactivePetHP <= 65 then
           if Stun ~= nil then Stun() end
           if SimplePunch ~= nil then SimplePunch(3) end

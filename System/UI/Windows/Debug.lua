@@ -1,3 +1,4 @@
+local addonName, br = ...
 -- TODO: create new debug frame
 br.ui.window.debug = {}
 function br.ui:createDebugWindow()
@@ -19,7 +20,7 @@ function br.ui:toggleDebugWindow()
         br.ui:createDebugWindow()
         br.ui:closeWindow("debug")
     end
-    if getOptionCheck("Rotation Log") then
+    if br.getOptionCheck("Rotation Log") then
         if not br.ui.window['debug']['parent'] then br.ui:createDebugWindow() end
         br.ui:showWindow("debug")
     elseif br.data.settings[br.selectedSpec]["debug"] == nil then

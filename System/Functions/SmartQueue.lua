@@ -1,3 +1,4 @@
+local addonName, br = ...
 br.queueSpell = false
 local queueSpellTime
 local queueSpellPos = {x = 0, y = 0, z = 0}
@@ -6,7 +7,7 @@ local smartQueueFrame
 local ignoreKeys = {["LALT"] = true, ["LSHIFT"] = true, ["LCTRL"] = true}
 
 local function checkKeys(self, key)
-	if br.player ~= nil and br.player.spell ~= nil and br.player.spell.bindings ~= nil and ignoreKeys[key] == nil and isChecked("Smart Queue") and UnitAffectingCombat("player") then
+	if br.player ~= nil and br.player.spell ~= nil and br.player.spell.bindings ~= nil and ignoreKeys[key] == nil and br.isChecked("Smart Queue") and UnitAffectingCombat("player") then
 		local pressedKey = ""
 		if IsLeftShiftKeyDown() then
 			pressedKey = "SHIFT-"
@@ -19,19 +20,19 @@ local function checkKeys(self, key)
 		local spell = br.player.spell.bindings[pressedKey]
 		if spell ~= nil then
 			if GetSpecializationInfo(GetSpecialization()) == 258 and spell == 2061 then spell = 186263 end
-			local cd = getSpellCD(spell)
-			if GetSpellInfo(GetSpellInfo(spell)) and cd <= getOptionValue("Smart Queue") and isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false or UnitCastingInfo("player")) then
+			local cd = br.getSpellCD(spell)
+			if GetSpellInfo(GetSpellInfo(spell)) and cd <= br.getOptionValue("Smart Queue") and br.isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false or UnitCastingInfo("player")) then
 				br.queueSpell = spell
 				queueSpellTime = GetTime()
-				if getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
+				if br.getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
 					local x, y = GetMousePosition() 
 					queueSpellPos.x, queueSpellPos.y, queueSpellPos.z = ScreenToWorld(x, y)
-				elseif getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 4 and UnitIsVisible("mouseover") then
-					queueSpellTarget = ObjectPointer("mouseover")
+				elseif br.getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 4 and UnitIsVisible("mouseover") then
+					queueSpellTarget = br._G.ObjectPointer("mouseover")
 				else
 					queueSpellTarget = "target"
 				end
-				ChatOverlay("Queued: " .. GetSpellInfo(br.queueSpell))
+				br.ChatOverlay("Queued: " .. GetSpellInfo(br.queueSpell))
 			end
 		end
 	end
@@ -95,7 +96,7 @@ local function spellSuccess(self, event, ...)
 		local spellID = select(3, ...)
 		if sourceUnit == "player" then
 			if spellID == br.queueSpell then
-				ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(spellID))
+				br.ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(spellID))
 				br.queueSpell = false
 			end
 		end
@@ -113,47 +114,47 @@ function br.smartQueue()
     GetKeyBindings()
 
     -- Fix capturing mousebuttons
-    if isChecked("Smart Queue") then
-        if GetKeyState(0x05) then
+    if br.isChecked("Smart Queue") then
+        if br._G.GetKeyState(0x05) then
             checkKeys(nil, "BUTTON4")
-        elseif GetKeyState(0x06) then
+        elseif br._G.GetKeyState(0x06) then
             checkKeys(nil, "BUTTON5")
         end
     end
     
-    if br.queueSpell and (GetTime() - queueSpellTime) > getOptionValue("Smart Queue") then
+    if br.queueSpell and (GetTime() - queueSpellTime) > br.getOptionValue("Smart Queue") then
         br.queueSpell = false
     end
 
-    if ((br.queueSpell and isChecked("Smart Queue") and (GetTime() - queueSpellTime) <= getOptionValue("Smart Queue") and not UnitChannelInfo("player") and (UnitIsVisible(queueSpellTarget) or getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2) and UnitAffectingCombat("player")) or
-    (IsAoEPending() and isChecked("Smart Queue") and isChecked(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") and UnitAffectingCombat("player"))) and (br.queueSpell ~= 1776 or getFacing("target", "player")) then
-		if IsAoEPending() and getOptionValue(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") ~= 3 then
+    if ((br.queueSpell and br.isChecked("Smart Queue") and (GetTime() - queueSpellTime) <= br.getOptionValue("Smart Queue") and not UnitChannelInfo("player") and (UnitIsVisible(queueSpellTarget) or br.getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2) and UnitAffectingCombat("player")) or
+    (br._G.IsAoEPending() and br.isChecked("Smart Queue") and br.isChecked(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") and UnitAffectingCombat("player"))) and (br.queueSpell ~= 1776 or br.getFacing("target", "player")) then
+		if br._G.IsAoEPending() and br.getOptionValue(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") ~= 3 then
             local pendingSpell = GetTargetingSpell()
             CancelPendingSpell()
-            CastSpellByName(GetSpellInfo(pendingSpell), "cursor")
+            br._G.CastSpellByName(GetSpellInfo(pendingSpell), "cursor")
             return true
         end
         if br.queueSpell and not UnitCastingInfo("player") then
-            if getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
-                if createCastFunction("player","debug",nil,nil,br.queueSpell) then
+            if br.getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
+                if br.createCastFunction("player","debug",nil,nil,br.queueSpell) then
 					if castAtPosition(queueSpellPos.x, queueSpellPos.y, queueSpellPos.z, br.queueSpell) then
-						ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(br.queueSpell))
+						br.ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(br.queueSpell))
 						return true
 					end
                 end
-            elseif getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 3 then
-                if createCastFunction("player","debug",nil,nil,br.queueSpell) then
-					CastSpellByName(GetSpellInfo(br.queueSpell))
-					ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(br.queueSpell))
+            elseif br.getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 3 then
+                if br.createCastFunction("player","debug",nil,nil,br.queueSpell) then
+					br._G.CastSpellByName(GetSpellInfo(br.queueSpell))
+					br.ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(br.queueSpell))
                     return true
                 end
             else
                 if IsSpellInRange(GetSpellInfo(br.queueSpell), queueSpellTarget) ~= nil then
-					if createCastFunction(queueSpellTarget,nil,nil,nil,br.queueSpell) then
+					if br.createCastFunction(queueSpellTarget,nil,nil,nil,br.queueSpell) then
                         return true 
                     end
                 else
-					if createCastFunction("player",nil,nil,nil,br.queueSpell) then
+					if br.createCastFunction("player",nil,nil,nil,br.queueSpell) then
                         return true 
                     end
                 end

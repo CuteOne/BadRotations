@@ -1,5 +1,6 @@
+local addonName, br = ...
 local rotationName = "CuteOne"
-local br = _G["br"]
+
 
 ---------------
 --- Toggles ---
@@ -190,7 +191,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
                 var.profileStop = true
                 StopAttack()
                 ClearTarget()
@@ -214,7 +215,7 @@ actionList.Extras = function()
     if ui.checked("Death Grip") and cast.able.deathGrip() and unit.inCombat() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if unit.distance(thisUnit) > 10 and not unit.isDummy(thisUnit)
+            if unit.distance(thisUnit) > 10 and not unit.br.isDummy(thisUnit)
                 and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))                
             then
                 if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Out of Melee]") return true end
@@ -233,7 +234,7 @@ actionList.Defensive = function()
         if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if unit.isCasting(thisUnit) and unit.isUnit(UnitTarget(thisUnit),"player")
+                if unit.isCasting(thisUnit) and unit.isUnit(br._G.UnitTarget(thisUnit),"player")
                     and cast.timeRemain(thisUnit) < unit.gcd(true) * 2
                 then
                     if cast.antiMagicShell("player") then ui.debug("Casting Anti-Magic Shell") return true end

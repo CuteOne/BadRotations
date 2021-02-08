@@ -199,7 +199,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if var.br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -343,14 +343,14 @@ actionList.Opener = function()
     -- auto_attack
     if ui.checked("Opener") and ui.useCDs() and not opener.complete then
         if unit.valid("target") and unit.distance("target") < 40
-            and unit.facing("player","target") and getSpellCD(61304) == 0
+            and unit.facing("player","target") and br.getSpellCD(61304) == 0
         then
             -- Begin
             if not opener.OPN1 then
                 Print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
-                StartAttack()
+                br._G.StartAttack()
                 return
             -- Aspect of the Wild - No Primal Instincts
             elseif opener.OPN1 and not opener.AOW1 then
@@ -834,7 +834,7 @@ local function runRotation()
     enemies.get(5,"pet")
     
     -- Variables
-    var.getCombatTime = _G["getCombatTime"]
+    var.br.getCombatTime = _G["br.getCombatTime"]
     var.haltProfile   = ((unit.inCombat() and var.profileStop) or IsMounted() or unit.flying() or pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
 
     --wipe timers table
@@ -902,7 +902,7 @@ local function runRotation()
         --     if cast.playDead() then ui.debug("") return true end
         -- end
         StopAttack()
-        if unit.isDummy() then ClearTarget() end
+        if unit.br.isDummy() then ClearTarget() end
         return true
     else
         -----------------

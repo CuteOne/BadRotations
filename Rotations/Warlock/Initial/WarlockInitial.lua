@@ -208,7 +208,7 @@ local function runRotation()
                 -- Start Attack
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 --Corruption
                 if cast.able.corruption() and ui.checked("Use Corruption")

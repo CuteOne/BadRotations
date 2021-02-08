@@ -232,7 +232,7 @@ end
 
 -- Multi-Dot HP Limit Set
 local function canDoT(thisUnit)
-    if not unit.isBoss(thisUnit) then ui.debug("") return true end
+    if not unit.br.isBoss(thisUnit) then ui.debug("") return true end
     local unitHealthMax = unit.healthMax(thisUnit)
     local maxHealth = 0
     for i = 1, #enemies.yards40 do
@@ -250,7 +250,7 @@ actionList.Extra = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -702,7 +702,7 @@ actionList.Cleave = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.react
-    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.isDummy()) and (buff.vipersVenom.exists()) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.br.isDummy()) and (buff.vipersVenom.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [AOE - Viper's Venom]") return true end
     end
     -- Carve
@@ -717,7 +717,7 @@ actionList.Cleave = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=refreshable&buff.tip_of_the_spear.stack<3&next_wi_bomb.volatile|refreshable&azerite.latent_poison.rank>0
-    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.isDummy())
+    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.br.isDummy())
         and (debuff.serpentSting.refresh(var.lowestSerpentSting) and buff.tipOfTheSpear.stack() < 3
         and nextBomb(spell.volatileBomb) or debuff.serpentSting.refresh(var.lowestSerpentSting) and traits.latentPoison.rank > 0)
     then
@@ -1087,14 +1087,14 @@ actionList.Opener = function()
     -- auto_attack
     if (ui.value("Opener") == 1 or (ui.value("Opener") == 2 and ui.useCDs())) and not opener.complete then
         if unit.valid("target") and unit.distance("target") < var.eagleRange
-            and unit.facing("player","target") and getSpellCD(61304) == 0
+            and unit.facing("player","target") and br.getSpellCD(61304) == 0
         then
             -- Begin
             if not opener.OPN1 then
                 Print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
-                StartAttack()
+                br._G.StartAttack()
                 return
             -- Coordinated Assault
             elseif opener.OPN1 and not opener.CA1 then
@@ -1165,7 +1165,7 @@ actionList.PreCombat = function()
             if cast.steelTrap("target") then ui.debug("Casting Steel Trap [Pre-Combat]") return true end
         end
         -- Serpent Sting
-        if cast.able.serpentSting("target") and (unit.ttd("target") > 3 or unit.isDummy()) and not debuff.serpentSting.exists("target") then
+        if cast.able.serpentSting("target") and (unit.ttd("target") > 3 or unit.br.isDummy()) and not debuff.serpentSting.exists("target") then
             if cast.serpentSting("target") then ui.debug("Casting Serpent Sting [Pre-Combat]") return true end
         end
         -- Start Attack
@@ -1281,7 +1281,7 @@ local function runRotation()
             if cast.playDead() then ui.debug("Casting Play Dead [Pet]") return true end
         end
         StopAttack()
-        if unit.isDummy() then ClearTarget() end
+        if unit.br.isDummy() then ClearTarget() end
         return true
     else
         ---------------------------------

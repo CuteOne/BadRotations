@@ -2,7 +2,7 @@ local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalStyle = LibStub("DiesalStyle-1.0")
 local DiesalTools = LibStub("DiesalTools-1.0")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
-
+local addonName, br = ...
 br.ui.window = {}
 
 -- Window creators

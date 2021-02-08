@@ -6,7 +6,7 @@
 --   for i = 1,GetObjectCountBR() do
 --     local name = ObjectName(ObjectWithIndex(i))
 --     local object = ObjectWithIndex(i)
---     if name == "Helya" and GetObjectExists(object) then
+--     if name == "Helya" and br.GetObjectExists(object) then
 --       coverThatHole()
 --     else
 --       end

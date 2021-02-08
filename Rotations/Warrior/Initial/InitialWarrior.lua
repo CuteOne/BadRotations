@@ -159,13 +159,13 @@ local function runRotation()
                 ------------------------------
                 -- Start Attack
                 if mode.mover == 1 and spell.known.charge() then
-                    if cast.able.charge("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
+                    if cast.able.charge("target") and br.getDistance("player", "target") >= 8 and br.getDistance("player", "target") <= 25 then
                         if cast.charge("target") then ui.debug("Casting Charge") return true end
                     end
                 end
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 -- Execute
                 if unit.hp("target") < 20 and spell.known.execute() and cast.able.execute and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then

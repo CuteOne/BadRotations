@@ -160,7 +160,7 @@ local function runRotation()
         spell                                         = br.player.spell
         talent                                        = br.player.talent
         traits                                        = br.player.traits
-        tanks                                         = getTanksTable()
+        tanks                                         = br.getTanksTable()
         units                                         = br.player.units
         use                                           = br.player.use
         inInstance                                    = br.player.unit.instance() == "party"
@@ -179,7 +179,7 @@ local function runRotation()
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
-        local combatTime                                    = getCombatTime()
+        local combatTime                                    = br.getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
@@ -233,7 +233,7 @@ local function runRotation()
 --- Cooldowns ---
 --------------------
 
-        if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
+        if br.isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
           if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then
             if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") HTTimer = GetTime() return end
           end
@@ -246,7 +246,7 @@ local function runRotation()
 --------------------
 --- Water Shield ---
 --------------------
-        if isChecked("Water Shield") and not buff.waterShield.exists() then
+        if br.isChecked("Water Shield") and not buff.waterShield.exists() then
           if cast.waterShield() then br.addonDebug("Upkeep Water Shield") return end
         end
 
@@ -267,14 +267,14 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat and not IsMounted() and not IsFlying() then
-              if isChecked("Auto Ghost Wolf") and not IsMounted() and not IsFlying() and isMoving("player") and not buff.ghostWolf.exists() then
+              if br.isChecked("Auto Ghost Wolf") and not IsMounted() and not IsFlying() and isMoving("player") and not buff.ghostWolf.exists() then
                 if cast.ghostWolf() then br.addonDebug("Casting Ghost Wolf") end
-              elseif isChecked("Auto Ghost Wolf") and not isMoving("player") and buff.ghostWolf.exists() then
+              elseif br.isChecked("Auto Ghost Wolf") and not isMoving("player") and buff.ghostWolf.exists() then
                 RunMacroText("/cancelAura Ghost Wolf")
               end
 
 
-              if isChecked("OOC Healing") and isChecked("Riptide") and not IsMounted() and not IsFlying() then
+              if br.isChecked("OOC Healing") and br.isChecked("Riptide") and not IsMounted() and not IsFlying() then
                 for i = 1, #br.friend do
                   if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
                     if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
@@ -284,14 +284,14 @@ local function runRotation()
 
 
               -- upkeep riptide start
-              if isChecked("OOC Healing") and isChecked("Upkeep Riptide") and not IsMounted() and not IsFlying() then
-                if getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
+              if br.isChecked("OOC Healing") and br.isChecked("Upkeep Riptide") and not IsMounted() and not IsFlying() then
+                if br.getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
                     if cast.riptide("target") then br.addonDebug("Upkeep Riptide Target") return end
                 end
 
-                if getOptionValue("Upkeep Riptide") == 2 then -- Tank
+                if br.getOptionValue("Upkeep Riptide") == 2 then -- Tank
                     for i = 1, #tanks do
-                        if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
+                        if UnitIsPlayer(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
                             if cast.riptide(tanks[i].unit) then
                                 br.addonDebug("Upkeep Riptide Tank")
                                 return true
@@ -301,7 +301,7 @@ local function runRotation()
                 end
 
 
-                if getOptionValue("Upkeep Riptide") == 3 then -- Player
+                if br.getOptionValue("Upkeep Riptide") == 3 then -- Player
                   if not UnitIsDeadOrGhost("player") and not buff.riptide.exists("player") and not IsMounted() and not IsFlying() then
                     if cast.riptide("player") then br.addonDebug("Upkeep Riptide Tank" )return true end
                   end
@@ -309,14 +309,14 @@ local function runRotation()
               end -- end of riptide upkeep
 
               -- start of ES upkeep
-              if isChecked("OOC Healing") and isChecked("Upkeep Earth Shield") and not IsMounted() and not IsFlying() then
-                if getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
+              if br.isChecked("OOC Healing") and br.isChecked("Upkeep Earth Shield") and not IsMounted() and not IsFlying() then
+                if br.getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
                     if cast.earthShield("target") then br.addonDebug("Upkeep Earth Shield Target") return end
                 end
 
-                if isChecked("OOC Healing") and getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
+                if br.isChecked("OOC Healing") and br.getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
                     for i = 1, #tanks do
-                        if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
+                        if UnitIsPlayer(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
                             if cast.earthShield(tanks[i].unit) then
                                 br.addonDebug("Upkeep Earth Shield Tank")
                                 return true
@@ -329,20 +329,20 @@ local function runRotation()
 
 
 
-              if isChecked("OOC Healing") and isChecked("Healing Wave") and not isMoving("player") and not isChecked("HW Buff") then
+              if br.isChecked("OOC Healing") and br.isChecked("Healing Wave") and not isMoving("player") and not br.isChecked("HW Buff") then
                 if lowest.hp <= getValue("Healing Wave") then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end
                 end
               end
 
-              if isChecked("OOC Healing") and isChecked("Healing Wave") and not isMoving("player") and isChecked("HW Buff") then
+              if br.isChecked("OOC Healing") and br.isChecked("Healing Wave") and not isMoving("player") and br.isChecked("HW Buff") then
                 if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave with buff") return end
                 end
               end
 
 
-              if isChecked("OOC Healing") and isChecked("Healing Surge") and not isMoving("player") then
+              if br.isChecked("OOC Healing") and br.isChecked("Healing Surge") and not isMoving("player") then
                 if lowest.hp <= getValue("Healing Surge") then
                   if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end
                 end
@@ -350,14 +350,14 @@ local function runRotation()
 
 
 
-              if isChecked("OOC Healing") and isChecked("Chain Heal") and not isMoving("player") then
+              if br.isChecked("OOC Healing") and br.isChecked("Chain Heal") and not isMoving("player") then
                 if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
               end
 
 
-              if isChecked("OOC Healing") and isChecked("Purify Spirit") and cast.able.purifySpirit() then
+              if br.isChecked("OOC Healing") and br.isChecked("Purify Spirit") and cast.able.purifySpirit() then
                   for i = 1, #br.friend do
-                      if canDispel(br.friend[i].unit,spell.purifySpirit) then
+                      if br.canDispel(br.friend[i].unit,spell.purifySpirit) then
                           if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
                       end
                   end
@@ -365,19 +365,19 @@ local function runRotation()
 
 
 
-              if isChecked("OOC Healing") and not isMoving("player") and cd.healingRain.remain() <= gcd and br.timer:useTimer("HR Delay",5) then
-                  if isChecked("Healing Rain") and not buff.healingRain.exists() then
-                      if isChecked("Healing Rain") then
+              if br.isChecked("OOC Healing") and not isMoving("player") and cd.healingRain.remain() <= gcd and br.timer:useTimer("HR Delay",5) then
+                  if br.isChecked("Healing Rain") and not buff.healingRain.exists() then
+                      if br.isChecked("Healing Rain") then
                           -- get melee players
                           for i=1, #tanks do
                               -- get the tank's target
-                              local tankTarget = UnitTarget(tanks[i].unit)
-                              if tankTarget ~= nil and getDistance(tankTarget,"player") < 40 then
+                              local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                              if tankTarget ~= nil and br.getDistance(tankTarget,"player") < 40 then
                                   -- get players in melee range of tank's target
                                   local meleeFriends = getAllies(tankTarget,5)
                                   -- get the best ground circle to encompass the most of them
                                   local loc = nil
-                                  if isChecked("Healing Rain") then
+                                  if br.isChecked("Healing Rain") then
                                       -- CastGroundHeal(spell.healingRain, meleeFriends)
                                       -- return
                                       if #meleeFriends >= getValue("Healing Rain Targets") then
@@ -406,14 +406,14 @@ local function runRotation()
 -----------------------------
             if inCombat and not IsMounted() and not IsFlying() then
 
-              if isChecked("Auto Ghost Wolf") and not IsMounted() and not IsFlying() and isMoving("player") and not buff.ghostWolf.exists() then
+              if br.isChecked("Auto Ghost Wolf") and not IsMounted() and not IsFlying() and isMoving("player") and not buff.ghostWolf.exists() then
                 if cast.ghostWolf() then br.addonDebug("Casting Ghost Wolf") end
-              elseif isChecked("Auto Ghost Wolf") and not isMoving("player") and buff.ghostWolf.exists() then
+              elseif br.isChecked("Auto Ghost Wolf") and not isMoving("player") and buff.ghostWolf.exists() then
                 RunMacroText("/cancelAura Ghost Wolf")
               end
 
 
-              if isChecked("Riptide") and not IsMounted() and not IsFlying() then
+              if br.isChecked("Riptide") and not IsMounted() and not IsFlying() then
                 for i = 1, #br.friend do
                   if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
                     if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
@@ -423,14 +423,14 @@ local function runRotation()
 
 
               -- upkeep riptide start
-              if isChecked("Upkeep Riptide") and not IsMounted() and not IsFlying() then
-                if getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
+              if br.isChecked("Upkeep Riptide") and not IsMounted() and not IsFlying() then
+                if br.getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
                     if cast.riptide("target") then br.addonDebug("Upkeep Riptide Target") return end
                 end
 
-                if getOptionValue("Upkeep Riptide") == 2 then -- Tank
+                if br.getOptionValue("Upkeep Riptide") == 2 then -- Tank
                     for i = 1, #tanks do
-                        if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
+                        if UnitIsPlayer(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
                             if cast.riptide(tanks[i].unit) then
                                 br.addonDebug("Upkeep Riptide Tank")
                                 return true
@@ -440,7 +440,7 @@ local function runRotation()
                 end
 
 
-                if getOptionValue("Upkeep Riptide") == 3 then -- Player
+                if br.getOptionValue("Upkeep Riptide") == 3 then -- Player
                   if not UnitIsDeadOrGhost("player") and not buff.riptide.exists("player") and not IsMounted() and not IsFlying() then
                     if cast.riptide("player") then br.addonDebug("Upkeep Riptide Tank" )return true end
                   end
@@ -448,14 +448,14 @@ local function runRotation()
               end -- end of riptide upkeep
 
               -- start of ES upkeep
-              if isChecked("Upkeep Earth Shield") and not IsMounted() and not IsFlying() then
-                if getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
+              if br.isChecked("Upkeep Earth Shield") and not IsMounted() and not IsFlying() then
+                if br.getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
                     if cast.earthShield("target") then br.addonDebug("Upkeep Earth Shield Target") return end
                 end
 
-                if getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
+                if br.getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
                     for i = 1, #tanks do
-                        if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
+                        if UnitIsPlayer(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) and not IsMounted() and not IsFlying() then
                             if cast.earthShield(tanks[i].unit) then
                                 br.addonDebug("Upkeep Earth Shield Tank")
                                 return true
@@ -468,20 +468,20 @@ local function runRotation()
 
 
 
-              if isChecked("Healing Wave") and not isMoving("player") and not isChecked("HW Buff") then
+              if br.isChecked("Healing Wave") and not isMoving("player") and not br.isChecked("HW Buff") then
                 if lowest.hp <= getValue("Healing Wave") then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end
                 end
               end
 
-              if isChecked("Healing Wave") and not isMoving("player") and isChecked("HW Buff") then
+              if br.isChecked("Healing Wave") and not isMoving("player") and br.isChecked("HW Buff") then
                 if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave with buff") return end
                 end
               end
 
 
-              if isChecked("Healing Surge") and not isMoving("player") then
+              if br.isChecked("Healing Surge") and not isMoving("player") then
                 if lowest.hp <= getValue("Healing Surge") then
                   if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end
                 end
@@ -489,14 +489,14 @@ local function runRotation()
 
 
 
-              if isChecked("Chain Heal") and not isMoving("player") then
+              if br.isChecked("Chain Heal") and not isMoving("player") then
                 if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
               end
 
 
-              if isChecked("Purify Spirit") and cast.able.purifySpirit() then
+              if br.isChecked("Purify Spirit") and cast.able.purifySpirit() then
                   for i = 1, #br.friend do
-                      if canDispel(br.friend[i].unit,spell.purifySpirit) then
+                      if br.canDispel(br.friend[i].unit,spell.purifySpirit) then
                           if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
                       end
                   end
@@ -505,18 +505,18 @@ local function runRotation()
 
 
               if not isMoving("player") and cd.healingRain.remain() <= gcd and br.timer:useTimer("HR Delay",5) then
-                  if isChecked("Healing Rain") and not buff.healingRain.exists() then
-                      if isChecked("Healing Rain") then
+                  if br.isChecked("Healing Rain") and not buff.healingRain.exists() then
+                      if br.isChecked("Healing Rain") then
                           -- get melee players
                           for i=1, #tanks do
                               -- get the tank's target
-                              local tankTarget = UnitTarget(tanks[i].unit)
-                              if tankTarget ~= nil and getDistance(tankTarget,"player") < 40 then
+                              local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                              if tankTarget ~= nil and br.getDistance(tankTarget,"player") < 40 then
                                   -- get players in melee range of tank's target
                                   local meleeFriends = getAllies(tankTarget,5)
                                   -- get the best ground circle to encompass the most of them
                                   local loc = nil
-                                  if isChecked("Healing Rain") then
+                                  if br.isChecked("Healing Rain") then
                                       -- CastGroundHeal(spell.healingRain, meleeFriends)
                                       -- return
                                       if #meleeFriends >= getValue("Healing Rain Targets") then

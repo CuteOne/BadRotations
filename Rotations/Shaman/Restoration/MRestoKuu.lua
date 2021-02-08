@@ -316,9 +316,9 @@ local function runRotation()
         local buff = br.player.buff
         local cast = br.player.cast
         local charges = br.player.charges
-        local deadMouse, hasMouse, playerMouse = UnitIsDeadOrGhost("mouseover"), GetObjectExists("mouseover"), UnitIsPlayer("mouseover")
+        local deadMouse, hasMouse, playerMouse = UnitIsDeadOrGhost("mouseover"), br.GetObjectExists("mouseover"), UnitIsPlayer("mouseover")
         local deadtar, playertar = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
-        local combatTime = getCombatTime()
+        local combatTime = br.getCombatTime()
         local covenant = br.player.covenant
         local cd = br.player.cd
         local debuff = br.player.debuff
@@ -342,9 +342,9 @@ local function runRotation()
         local runeforge = br.player.runeforge
         local spell = br.player.spell
         local talent = br.player.talent
-        local tanks = getTanksTable()
+        local tanks = br.getTanksTable()
         local wolf = br.player.buff.ghostWolf.exists()
-        local ttd = getTTD
+        local ttd = br.getTTD
         local ttm = br.player.power.mana.ttm()
         local ui = br.player.ui
         local units = br.player.units
@@ -375,7 +375,7 @@ local function runRotation()
         if inInstance and select(3, GetInstanceInfo()) == 8 then
             for i = 1, #tanks do
                 local ourtank = tanks[i].unit
-                local Burststack = getDebuffStacks(ourtank, 240443)
+                local Burststack = br.getDebuffStacks(ourtank, 240443)
                 if Burststack >= ui.value("Bursting") then
                     burst = true
                     break
@@ -395,7 +395,7 @@ local function runRotation()
         local dpsSpells = {spell.lightningBolt, spell.chainLightning, spell.lavaBurst, spell.flameShock}
         local function castingDPSSpells()
             for i = 1, #dpsSpells do
-                if isCastingSpell(dpsSpells[i]) and isChecked("Critical HP") and lowest.hp <= getValue("Critical HP") then
+                if br.isCastingSpell(dpsSpells[i]) and br.isChecked("Critical HP") and lowest.hp <= getValue("Critical HP") then
                     return true
                 end
             end
@@ -409,8 +409,8 @@ local function runRotation()
         local function actionList_Extras()
             -- Dummy Test
             if ui.checked("DPS Testing") then
-                if GetObjectExists("target") then
-                    if getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and isDummy() then
+                if br.GetObjectExists("target") then
+                    if br.getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and br.isDummy() then
                         StopAttack()
                         ClearTarget()
                         Print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
@@ -430,13 +430,13 @@ local function runRotation()
             end
             -- Ancestral Spirit
             if ui.checked("Ancestral Spirit") and not inCombat and movingCheck and br.timer:useTimer("Resurrect", 4) then
-                if ui.value("Ancestral Spirit") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+                if ui.value("Ancestral Spirit") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
                     if cast.ancestralSpirit("target", "dead") then
                         br.addonDebug("Casting Ancestral Spirit")
                         return true
                     end
                 end
-                if ui.value("Ancestral Spirit") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+                if ui.value("Ancestral Spirit") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
                     if cast.ancestralSpirit("mouseover", "dead") then
                         br.addonDebug("Casting Ancestral Spirit")
                         return true
@@ -477,7 +477,7 @@ local function runRotation()
                     end
                     -- if no shield found, apply to focus if exists
                     if foundShield == false then
-                        if GetUnitExists("focus") == true then
+                        if br.GetUnitExists("focus") == true then
                             if not buff.earthShield.exists("focus") and not UnitIsDeadOrGhost("focus") then
                                 if cast.earthShield("focus") then
                                     br.addonDebug("Casting Earth Shield")
@@ -486,7 +486,7 @@ local function runRotation()
                             end
                         else
                             for i = 1, #tanks do
-                                if not buff.earthShield.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 and not UnitIsDeadOrGhost(tanks[i].unit) then
+                                if not buff.earthShield.exists(tanks[i].unit) and br.getDistance(tanks[i].unit) <= 40 and not UnitIsDeadOrGhost(tanks[i].unit) then
                                     if cast.earthShield(tanks[i].unit) then
                                         br.addonDebug("Casting Earth Shield")
                                         return
@@ -506,24 +506,24 @@ local function runRotation()
             if inCombat and ui.checked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
                 for i = 1, GetObjectCountBR() do
                     local thisUnit = GetObjectWithIndex(i)
-                    if GetObjectID(thisUnit) == 133392 then
+                    if br.GetObjectID(thisUnit) == 133392 then
                         sethObject = thisUnit
-                        if getHP(sethObject) < 100 and getBuffRemain(sethObject, 274148) == 0 and lowest.hp >= ui.value("Temple of Seth") then
+                        if br.getHP(sethObject) < 100 and br.getBuffRemain(sethObject, 274148) == 0 and lowest.hp >= ui.value("Temple of Seth") then
                             if not buff.riptide.exists(sethObject) then
-                                CastSpellByName(GetSpellInfo(61295), sethObject)
+                                br._G.CastSpellByName(GetSpellInfo(61295), sethObject)
                                 br.addonDebug("Casting Riptide")
                                 return
                             --cast.riptide("target") then return true end
                             end
-                            if getHP(sethObject) < 50 and movingCheck then
+                            if br.getHP(sethObject) < 50 and movingCheck then
                                 --if cast.healingSurge("target") then return true end
-                                CastSpellByName(GetSpellInfo(8004), sethObject)
+                                br._G.CastSpellByName(GetSpellInfo(8004), sethObject)
                                 br.addonDebug("Casting Healing Surge")
                                 return
                             else
                                 --if cast.healingWave("target") then return true end
                                 if movingCheck then
-                                    CastSpellByName(GetSpellInfo(77472), sethObject)
+                                    br._G.CastSpellByName(GetSpellInfo(77472), sethObject)
                                     br.addonDebug("Casting Healing Wave")
                                     return
                                 end
@@ -534,20 +534,20 @@ local function runRotation()
             end
             if useDefensive() then
                 -- Healthstone
-                if ui.checked("Healthstone") and php <= ui.value("Healthstone") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
-                    if canUseItem(5512) then
+                if ui.checked("Healthstone") and php <= ui.value("Healthstone") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+                    if br.canUseItem(5512) then
                         br.addonDebug("Using Healthstone")
-                        useItem(5512)
-                    elseif canUseItem(healPot) then
+                        br.useItem(5512)
+                    elseif br.canUseItem(healPot) then
                         br.addonDebug("Using Health Pot")
-                        useItem(healPot)
+                        br.useItem(healPot)
                     end
                 end
                 -- Heirloom Neck
                 if ui.checked("Heirloom Neck") and php <= ui.value("Heirloom Neck") then
                     if hasEquiped(122668) then
                         if GetItemCooldown(122668) == 0 then
-                            useItem(122668)
+                            br.useItem(122668)
                             br.addonDebug("Using Heirloom Neck")
                             return
                         end
@@ -591,7 +591,7 @@ local function runRotation()
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit, ui.value("Interrupt At")) then
                         -- Wind Shear
-                        if ui.checked("Wind Shear") and getFacing("player", thisUnit) then
+                        if ui.checked("Wind Shear") and br.getFacing("player", thisUnit) then
                             if cast.windShear(thisUnit) then
                                 br.addonDebug("Casting Wind Shear")
                                 return
@@ -650,7 +650,7 @@ local function runRotation()
             -- Healing Rain
             if movingCheck and cd.healingRain.remain() <= gcd then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Healing Rain Key") then
-                    if CastSpellByName(GetSpellInfo(spell.healingRain), "cursor") then
+                    if br._G.CastSpellByName(GetSpellInfo(spell.healingRain), "cursor") then
                         br.addonDebug("Casting Healing Rain")
                         return
                     end
@@ -724,7 +724,7 @@ local function runRotation()
         local function actionList_DPS()
             -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
-                if debuff.flameShock.exists("target") and getFacing("player", "target") then
+                if debuff.flameShock.exists("target") and br.getFacing("player", "target") then
                     if cast.lavaBurst() then
                         br.addonDebug("Casting Lava Burst (Lava Surge)")
                         return true
@@ -752,21 +752,21 @@ local function runRotation()
                 end
             end
             -- Lava Burst
-            if (debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) or level < 20) and movingCheck and getFacing("player", "target") then
+            if (debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) or level < 20) and movingCheck and br.getFacing("player", "target") then
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
                     return
                 end
             end
             -- Chain Lightning
-            if ui.checked("Chain Lightning") and #enemies.yards10t >= 2 and movingCheck and getFacing("player", "target") then
+            if ui.checked("Chain Lightning") and #enemies.yards10t >= 2 and movingCheck and br.getFacing("player", "target") then
                 if cast.chainLightning() then
                     br.addonDebug("Casting Chain Lightning")
                     return
                 end
             end
             -- Lightning Bolt
-            if movingCheck and getFacing("player", "target") then
+            if movingCheck and br.getFacing("player", "target") then
                 if cast.lightningBolt() then
                     br.addonDebug("Casting Lightning Bolt")
                     return
@@ -775,14 +775,14 @@ local function runRotation()
         end -- End Action List - DPS
         local function actionList_Explosive()
             --Flameshock
-            if not debuff.flameShock.exists("target") and getFacing("player", "target") then
+            if not debuff.flameShock.exists("target") and br.getFacing("player", "target") then
                 if cast.flameShock() then
                     br.addonDebug("Casting Flame Shock")
                     return
                 end
             end
             --Lavaburst (Lava Surge Buff)
-            if buff.lavaSurge.exists() and debuff.flameShock.exists("target") and getFacing("player", "target") then
+            if buff.lavaSurge.exists() and debuff.flameShock.exists("target") and br.getFacing("player", "target") then
                 if cast.Lavaburst then
                     br.addonDebug("Casting Lava Burst")
                     return
@@ -794,17 +794,17 @@ local function runRotation()
             --Healing Rain
             if mode.healingR == 1 and movingCheck and GetTime() - br.shaman.resto["Healing Rain"] >= 2 then
                 if not buff.healingRain.exists() then
-                    if isChecked("Healing Rain on Melee") then
+                    if br.isChecked("Healing Rain on Melee") then
                         -- get melee players
                         for i = 1, #tanks do
                             -- get the tank's target
-                            local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
+                            local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil and br.getDistance(tankTarget, "player") < 30 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
                                 -- get the best ground circle to encompass the most of them
                                 local loc = nil
-                                if isChecked("Healing Rain on CD") then
+                                if br.isChecked("Healing Rain on CD") then
                                     -- return
                                     if #meleeFriends >= getValue("Healing Rain Targets") then
                                         if #meleeFriends < 12 then
@@ -845,7 +845,7 @@ local function runRotation()
                                     end
                                 end
                                 if loc ~= nil then
-                                    local px, py, pz = ObjectPosition("player")
+                                    local px, py, pz = br._G.ObjectPosition("player")
                                     loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                                     if
                                         loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
@@ -936,9 +936,9 @@ local function runRotation()
                     end
                 end
                 -- Spiritual Mana Potion
-                if ui.checked("Mana Pot") and power <= ui.value("Mana Pot") and inCombat and hasItem(171268) then
-                    if canUseItem(171268) then
-                        useItem(171268)
+                if ui.checked("Mana Pot") and power <= ui.value("Mana Pot") and inCombat and br.hasItem(171268) then
+                    if br.canUseItem(171268) then
+                        br.useItem(171268)
                         br.addonDebug("Using Spiritual Mana Pot")
                         return
                     end
@@ -964,20 +964,20 @@ local function runRotation()
                  then
                     if ui.value("Trinket 1 Mode") == 1 then
                         if getLowAllies(ui.value("Trinket 1")) >= ui.value("Min Trinket 1 Targets") or burst == true then
-                            useItem(13)
+                            br.useItem(13)
                             br.addonDebug("Using Trinket 1")
                             return true
                         end
                     elseif ui.value("Trinket 1 Mode") == 2 then
                         if (lowest.hp <= ui.value("Trinket 1") or burst == true) and lowest.hp ~= 250 then
-                            UseItemByName(GetInventoryItemID("player", 13), lowest.unit)
+                            UseItemByName(_G.GetInventoryItemID("player", 13), lowest.unit)
                             br.addonDebug("Using Trinket 1 (Target)")
                             return true
                         end
                     elseif ui.value("Trinket 1 Mode") == 3 and #tanks > 0 then
                         for i = 1, #tanks do
                             -- get the tank's target
-                            local tankTarget = UnitTarget(tanks[i].unit)
+                            local tankTarget = br._G.UnitTarget(tanks[i].unit)
                             if tankTarget ~= nil then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
@@ -997,9 +997,9 @@ local function runRotation()
                                     end
                                 end
                                 if loc ~= nil then
-                                    useItem(13)
+                                    br.useItem(13)
                                     br.addonDebug("Using Trinket 1 (Ground)")
-                                    local px, py, pz = ObjectPosition("player")
+                                    local px, py, pz = br._G.ObjectPosition("player")
                                     loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                                     if
                                         loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
@@ -1019,20 +1019,20 @@ local function runRotation()
                  then
                     if ui.value("Trinket 2 Mode") == 1 then
                         if getLowAllies(ui.value("Trinket 2")) >= ui.value("Min Trinket 2 Targets") or burst == true then
-                            useItem(14)
+                            br.useItem(14)
                             br.addonDebug("Using Trinket 2")
                             return true
                         end
                     elseif ui.value("Trinket 2 Mode") == 2 then
                         if (lowest.hp <= ui.value("Trinket 2") or burst == true) and lowest.hp ~= 250 then
-                            UseItemByName(GetInventoryItemID("player", 14), lowest.unit)
+                            UseItemByName(_G.GetInventoryItemID("player", 14), lowest.unit)
                             br.addonDebug("Using Trinket 2 (Target)")
                             return true
                         end
                     elseif ui.value("Trinket 2 Mode") == 3 and #tanks > 0 then
                         for i = 1, #tanks do
                             -- get the tank's target
-                            local tankTarget = UnitTarget(tanks[i].unit)
+                            local tankTarget = br._G.UnitTarget(tanks[i].unit)
                             if tankTarget ~= nil then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
@@ -1052,7 +1052,7 @@ local function runRotation()
                                     end
                                 end
                                 if loc ~= nil then
-                                    useItem(14)
+                                    br.useItem(14)
                                     br.addonDebug("Using Trinket 2 (Ground)")
                                     ClickPosition(loc.x, loc.y, loc.z)
                                     return true
@@ -1117,7 +1117,7 @@ local function runRotation()
             -- Healing Rain Key
             if movingCheck and cd.healingRain.remain() <= gcd then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Healing Rain Key") then
-                    if CastSpellByName(GetSpellInfo(spell.healingRain), "cursor") then
+                    if br._G.CastSpellByName(GetSpellInfo(spell.healingRain), "cursor") then
                         br.addonDebug("Casting Healing Rain")
                         return true
                     end
@@ -1125,7 +1125,7 @@ local function runRotation()
             end
             --Spirit Link Key
             if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and ui.checked("Spirit Link Totem Key") then
-                if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem), "cursor") then
+                if br._G.CastSpellByName(GetSpellInfo(spell.spiritLinkTotem), "cursor") then
                     br.addonDebug("Casting Spirit Link Totem")
                     return true
                 end
@@ -1157,8 +1157,8 @@ local function runRotation()
                     -- get melee players
                     for i = 1, #tanks do
                         -- get the tank's target
-                        local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
+                        local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil and br.getDistance(tankTarget, "player") < 30 then
                             -- get players in melee range of tank's target
                             local meleeFriends = getAllies(tankTarget, 5)
                             -- get the best ground circle to encompass the most of them
@@ -1212,7 +1212,7 @@ local function runRotation()
             -- Purify Spirit
             if mode.decurse == 1 and cd.purifySpirit.remain() <= gcd and lowest.hp > 30 then
                 for i = 1, #friends.yards40 do
-                    if canDispel(br.friend[i].unit, spell.purifySpirit) then
+                    if br.canDispel(br.friend[i].unit, spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then
                             br.addonDebug("Casting Purify Spirit")
                             return true
@@ -1229,15 +1229,15 @@ local function runRotation()
                     -- get melee players
                     for i = 1, #tanks do
                         -- get the tank's target
-                        local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
+                        local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil and br.getDistance(tankTarget, "player") < 30 then
                             -- get players in melee range of tank's target
                             local meleeFriends = getAllies(tankTarget, 5)
                             -- get the best ground circle to encompass the most of them
                             local loc = nil
                             if not isMoving(tanks[i].unit) then
                                 if #meleeFriends < 12 then
-                                    local x, y, z = GetObjectPosition(tanks[i].unit)
+                                    local x, y, z = br.GetObjectPosition(tanks[i].unit)
                                     loc = {
                                         ["x"] = x + math.random(-2, 2),
                                         ["y"] = y + math.random(-2, 2),
@@ -1322,7 +1322,7 @@ local function runRotation()
                 if getLowAllies(ui.value("Cloudburst Totem")) >= ui.value("Cloudburst Totem Targets") then
                     if cast.cloudburstTotem("player") then
                         br.addonDebug("Casting Cloud Burst Totem")
-                        ChatOverlay(colorGreen .. "Cloudburst Totem!")
+                        br.ChatOverlay(colorGreen .. "Cloudburst Totem!")
                         return true
                     end
                 end
@@ -1365,8 +1365,8 @@ local function runRotation()
                         -- get melee players
                         for i = 1, #tanks do
                             -- get the tank's target
-                            local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil and getDistance(tankTarget, "player") < 30 then
+                            local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil and br.getDistance(tankTarget, "player") < 30 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
                                 -- get the best ground circle to encompass the most of them
@@ -1507,8 +1507,8 @@ local function runRotation()
                         -- get melee players
                         for i = 1, #tanks do
                             -- get the tank's target
-                            local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil and getDistance(tankTarget) <= 40 then
+                            local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil and br.getDistance(tankTarget) <= 40 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget, 5)
                                 -- get the best ground circle to encompass the most of them
@@ -1638,7 +1638,7 @@ local function runRotation()
                     -- Purify Spirit
                     if mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                         for i = 1, #friends.yards40 do
-                            if canDispel(br.friend[i].unit, spell.purifySpirit) then
+                            if br.canDispel(br.friend[i].unit, spell.purifySpirit) then
                                 if cast.purifySpirit(br.friend[i].unit) then
                                     br.addonDebug("Casting Purify Spirit")
                                     return
@@ -1657,7 +1657,7 @@ local function runRotation()
                     -- Purge
                     if ui.checked("Purge") and lowest.hp > ui.value("DPS Threshold") and power >= ui.value("Purge Min Mana") then
                         if ui.value("Purge") == 1 then
-                            if canDispel("target", spell.purge) and GetObjectExists("target") then
+                            if br.canDispel("target", spell.purge) and br.GetObjectExists("target") then
                                 if cast.purge("target") then
                                     br.addonDebug("Casting Purge")
                                     return true
@@ -1666,7 +1666,7 @@ local function runRotation()
                         elseif ui.value("Purge") == 2 then
                             for i = 1, #enemies.yards30 do
                                 local thisUnit = enemies.yards30[i]
-                                if canDispel(thisUnit, spell.purge) then
+                                if br.canDispel(thisUnit, spell.purge) then
                                     if cast.purge(thisUnit) then
                                         br.addonDebug("Casting Purge")
                                         return true
@@ -1684,7 +1684,7 @@ local function runRotation()
                         return
                     end
                     --if not ui.checked("Healing Rain on CD") or buff.healingRain.exists() or mode.healingR ~= 1 or not tankIsNotMoving then
-                    if mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player", "target") and getFacing("player", "target") and lowest.hp > ui.value("DPS Threshold") then
+                    if mode.dPS == 1 and br.GetUnitExists("target") and UnitCanAttack("player", "target") and br.getFacing("player", "target") and lowest.hp > ui.value("DPS Threshold") then
                         br.addonDebug("Using DPS APL as lowest unit is at " .. tostring(lowest.hp))
                         if isExplosive("target") then
                             actionList_Explosive()

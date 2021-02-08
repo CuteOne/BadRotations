@@ -103,7 +103,7 @@ local function ferociousBiteFinish(thisUnit)
     local damage = 0
     local finishHim = false
     if thisUnit == nil then thisUnit = units.dyn5 end
-    if comboPoints > 0 and not unit.isDummy(thisUnit) then
+    if comboPoints > 0 and not unit.br.isDummy(thisUnit) then
         local comboStart = desc:find(" "..comboPoints.." ",1,true)
         if comboStart ~= nil then
             comboStart = comboStart + 2
@@ -196,7 +196,7 @@ actionList.PreCombat = function()
                 end
                 -- Auto Attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
             end
         end
@@ -276,7 +276,7 @@ local function runRotation()
             if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 -- Start Attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 -- Bear Form
                 if buff.bearForm.exists() then

@@ -234,13 +234,13 @@ actionList.Extras = function()
     -- Provoke
     if ui.checked("Provoke") and cast.able.provoke() and var.solo and not unit.inCombat()
         and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green"
-        and unit.valid("target") and not unit.isBoss("target")
+        and unit.valid("target") and not unit.br.isBoss("target")
         and cd.flyingSerpentKick.remain() > 1 and unit.distance("target") > 10
     then
         if cast.provoke() then ui.debug("Casting Provoke [Extras]") return true end
     end
     -- Disable
-    if ui.checked("Disable") and unit.valid("target") and not unit.isBoss("target")
+    if ui.checked("Disable") and unit.valid("target") and not unit.br.isBoss("target")
         and (not debuff.disable.exists("target") or (debuff.disable.exists("target") and unit.level() > 41 and not debuff.disableRoot.exists("target")))
     then
         if cast.disable() then ui.debug("Casting Disable [Extras]") return true end
@@ -257,7 +257,7 @@ actionList.Extras = function()
         end
     end
     -- Dummy Test
-    if ui.checked("DPS Testing") and unit.isDummy() then
+    if ui.checked("DPS Testing") and unit.br.isDummy() then
         if unit.exists("target") then
             if var.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) then
                 if buff.stormEarthAndFire.exists() then
@@ -838,7 +838,7 @@ actionList.SingleTarget = function()
     if cast.able.spinningCraneKick() and (buff.chiEnergy.stack() > 30 - 5 * #enemies.yards5 --and not wasLastCombo(spell.spinningCraneKick)
         and not buff.stormEarthAndFire.exists() and (((cd.risingSunKick.remain() > 2 and cd.fistsOfFury.remain() > 2) or (cd.risingSunKick.remain() < 3
         and cd.fistsOfFury.remain() > 3 and chi > 3) or (cd.risingSunKick.remain() > 3 and cd.fistsOfFury.remain() < 3 and chi > 4) or (chiMax - chi <= 1
-        and energyTTM() < 2)) or buff.chiEnergy.stack() > 10) and (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 7))
+        and energyTTM() < 2)) or buff.chiEnergy.stack() > 10) and (unit.br.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 7))
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick(nil,"aoe") then ui.debug("Casting Spinning Crane Kick [ST]") return true end
@@ -1050,7 +1050,7 @@ actionList.PreCombat = function()
                 -- Start Attack
                 -- auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                    StartAttack("target")
+                    br._G.StartAttack("target")
                 end
             end
             -- Crackling Jade Lightning
@@ -1061,7 +1061,7 @@ actionList.PreCombat = function()
             end
             -- Provoke
             if ui.checked("Provoke") and var.solo and unit.exists("target") and unit.distance("target") < 30 then
-                if cast.provoke("target") then StartAttack(); ui.debug("Casting Provoke [Pre-Pull]") return true end
+                if cast.provoke("target") then br._G.StartAttack(); ui.debug("Casting Provoke [Pre-Pull]") return true end
             end
         end
     end -- End No Combat Check
@@ -1115,7 +1115,7 @@ local function runRotation()
 
     -- Profile Variables
     if var.castFSK          == nil then var.castFSK         = false                 end
-    if var.combatTime       == nil then var.combatTime      = _G["getCombatTime"]   end
+    if var.combatTime       == nil then var.combatTime      = _G["br.getCombatTime"]   end
     if var.comboCounter     == nil then var.comboCounter    = 0                     end
     if var.fixateTarget     == nil then var.fixateTarget    = "player"              end
     if var.lowestMark       == nil then var.lowestMark      = 99                    end
@@ -1214,18 +1214,18 @@ local function runRotation()
             -- Auto Attack
             -- auto_attack
             if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack()
+                br._G.StartAttack()
             end
             -- Potion
             -- potion,if=(buff.serenity.up|buff.storm_earth_and_fire.up)&pet.xuen_the_white_tiger.active|fight_remains<=60
             -- if unit.instance("raid") and ui.checked("Potion") and useCDs() and unit.distance("target") < 5 then
             --     if buff.serenity.exists() or buff.stormEarthAndFire.exists() or talent.serenity or buff.bloodLust.exists() or unit.ttd(units.dyn5) <= 60 then
-            --         if canUseItem(127844) then
-            --             useItem(127844)
+            --         if br.canUseItem(127844) then
+            --             br.useItem(127844)
             --             ui.debug("Using Potion [127844]")
             --         end
-            --         if canUseItem(142117) then
-            --             useItem(142117)
+            --         if br.canUseItem(142117) then
+            --             br.useItem(142117)
             --             ui.debug("Using Potion [142117]")
             --         end
             --     end

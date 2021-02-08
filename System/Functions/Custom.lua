@@ -1,3 +1,4 @@
+local _, br = ...
 -- Functions from coders for public use
 local sqrt, cos, sin = math.sqrt, math.cos, math.sin
 --[[                                                                                                ]]
@@ -23,7 +24,7 @@ function getUnitCount(ID,maxRange,tapped)
         local thisUnit = br.enemy[k].unit
         local thisUnitID = br.enemy[k].id
         if thisUnitID == ID then
-            if getDistance(thisUnit) < maxRange then
+            if br.getDistance(thisUnit) < maxRange then
                 if (tapped == true and UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
                     counter = counter + 1
                 end
@@ -36,7 +37,7 @@ end
 function isCCed(Unit)
     local CCTable = {84868, 3355, 19386, 118, 28272, 28271, 61305, 61721, 161372, 61780, 161355, 126819, 161354, 115078, 20066, 9484, 6770, 1776, 51514, 107079, 10326, 8122, 154359, 2094, 5246, 5782, 5484, 6358, 115268, 339};
     for i=1, #CCTable do
-        if UnitDebuffID(Unit,CCTable[i]) then
+        if br.UnitDebuffID(Unit,CCTable[i]) then
             return true
         end
     end
@@ -47,20 +48,20 @@ end
 function castAtPosition(X,Y,Z, SpellID)
     local i = -100
     local mouselookActive = false
-    if IsMouselooking() then
-        mouselookActive = true
-        MouselookStop()
-    end
-    CastSpellByName(GetSpellInfo(SpellID))
-    while IsAoEPending() and i <= 100 do
+    -- if IsMouselooking() then
+    --     mouselookActive = true
+    --     MouselookStop()
+    -- end
+    br._G.CastSpellByName(GetSpellInfo(SpellID))
+    while br._G.IsAoEPending() and i <= 100 do
         ClickPosition(X,Y,Z)
         Z = i
         i = i + 1
     end
-    if mouselookActive then
-        MouselookStart()
-    end
-    if i >= 100 and IsAoEPending() then return false end
+    -- if mouselookActive then
+    --     MouselookStart()
+    -- end
+    if i >= 100 and br._G.IsAoEPending() then return false end
     return true
 end
 
@@ -69,7 +70,7 @@ function getUnits(thisUnit, allUnitsInRange, radius)
     local unitsAroundThisUnit = {}
     for j=1,#allUnitsInRange do
         local checkUnit = allUnitsInRange[j]
-        if getDistance(thisUnit,checkUnit) < radius then
+        if br.getDistance(thisUnit,checkUnit) < radius then
             table.insert(unitsAroundThisUnit,checkUnit)
         end
     end
@@ -81,7 +82,7 @@ function isNotBlacklisted(checkUnit)
     local blacklistUnitID = {}
     if checkUnit == nil then return false end
     for i = 1, #blacklistUnitID do
-        if GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
+        if br.GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
     end
     return true
 end
@@ -92,10 +93,10 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
     if radius == nil then radius = maxRange end
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = getAllies("player",40) else allUnitsInRange = getEnemies("player",maxRange,true) end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",40) else allUnitsInRange = br.getEnemies("player",maxRange,true) end
 
-    if getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and #getEnemies(unit,radius) >= #getEnemies(unit,radius,true) then
-        local X1,Y1,Z1 = GetObjectPosition(unit)
+    if getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and #br.getEnemies(unit,radius) >= #br.getEnemies(unit,radius,true) then
+        local X1,Y1,Z1 = br.GetObjectPosition(unit)
         if castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
     end
 
@@ -144,7 +145,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     local function unitInCircle(unit, cx, cy, radius, castTime)
         local uX, uY = 0, 0
         if castTime == nil or castTime == 0 then
-          uX, uY = GetObjectPosition(unit)
+          uX, uY = br.GetObjectPosition(unit)
         else
           uX, uY = GetFuturePostion(unit, castTime)
         end
@@ -156,7 +157,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     local function unitDistanceCenter(unit, cx, cy, castTime)
         local uX, uY = 0, 0
         if castTime == nil or castTime == 0 then
-            uX, uY = GetObjectPosition(unit)
+            uX, uY = br.GetObjectPosition(unit)
         else
             uX, uY = GetFuturePostion(unit, castTime)
         end
@@ -166,7 +167,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = getEnemies("player",maxRange,false) end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = br.getEnemies("player",maxRange,false) end
 
     local testCircles = {}
     --for every combination of units make 2 circles, and put in testCircles
@@ -177,7 +178,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
             for j, combination in pairs(val) do
                 local tX, tY, tZ = 0,0,0
                 if castTime == nil or castTime == 0 then
-                  tX, tY, tZ = GetObjectPosition(combination)
+                  tX, tY, tZ = br.GetObjectPosition(combination)
                 else
                   tX, tY, tZ = GetFuturePostion(combination, castTime)
                 end
@@ -281,7 +282,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     -- end
 
     --check with minUnits
-    if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
+    if minUnits == 1 and bestCircle.nro == 0 and br.GetUnitExists("target") then
         if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end
@@ -321,8 +322,8 @@ function isUnitThere(unitNameOrID,distance)
     if type(unitNameOrID)=="number" then
         for k, v in pairs(br.enemy) do
             local thisUnit = br.enemy[k].unit
-            if GetObjectID(thisUnit) then
-                if distance==nil or getDistance("player",thisUnit) < distance then
+            if br.GetObjectID(thisUnit) then
+                if distance==nil or br.getDistance("player",thisUnit) < distance then
                     return true
                 end
             end
@@ -332,7 +333,7 @@ function isUnitThere(unitNameOrID,distance)
         for k, v in pairs(br.enemy) do
             local thisUnit = br.enemy[k].unit
             if UnitName(thisUnit)==unitNameOrID then
-                if distance==nil or getDistance("player",thisUnit) < distance then
+                if distance==nil or br.getDistance("player",thisUnit) < distance then
                     return true
                 end
             end
@@ -454,8 +455,8 @@ function RaidBuff(BuffSlot,myBuffSpellID)
                 if online and not isDead and 1==IsSpellInRange(select(1,GetSpellInfo(SpellID)), "raid"..index) then
                     local playerBuffed=false
                     for auraIndex=1,#chosenTable do
-                        if getBuffRemain("raid"..index,chosenTable[auraIndex])>0 then break end
-                        if getBuffRemain("raid"..index,chosenTable[auraIndex])<=0 then
+                        if br.getBuffRemain("raid"..index,chosenTable[auraIndex])>0 then break end
+                        if br.getBuffRemain("raid"..index,chosenTable[auraIndex])<=0 then
                             if castSpell("player",spellID,true,false) then return true end
                         end
                     end
@@ -486,8 +487,8 @@ function getUnitCluster(minUnits,maxRange,radius)
     for k, v in pairs(br.enemy) do
         local thisUnit = br.enemy[k].unit
         local thisEnemies = getNumEnemies(thisUnit,radius)
-        if getLineOfSight(thisUnit) == true then
-            if getDistance(thisUnit) < maxRange then
+        if br.getLineOfSight(thisUnit) == true then
+            if br.getDistance(thisUnit) < maxRange then
                 if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
                     theReturnUnit = thisUnit
                 end
@@ -518,8 +519,8 @@ function getBiggestUnitCluster(maxRange,radius,minCount)
 
     for k, v in pairs(br.enemy) do
         local thisUnit = br.enemy[k].unit
-        local thisRange = getDistance(thisUnit) or 99
-        if getLineOfSight(thisUnit) == true then
+        local thisRange = br.getDistance(thisUnit) or 99
+        if br.getLineOfSight(thisUnit) == true then
             if thisRange < maxRange then
                 local enemyCount = getNumEnemies(thisUnit,radius)
                 if enemyCount >= enemiesInRange then
@@ -548,7 +549,7 @@ function SalvageHelper()
     -- Returns:
     -- nothing
 
-    if isChecked("Salvage") and GetMinimapZoneText() == "Salvage Yard" then
+    if br.isChecked("Salvage") and GetMinimapZoneText() == "Salvage Yard" then
 
         local salvageWaiting = getValue("Salvage")
 
@@ -593,7 +594,7 @@ function SalvageHelper()
                 -- TEMP !
             end -- freeSlots
         end -- gettime()
-    end -- isChecked()
+    end -- br.isChecked()
 end -- salvage()
 
 -- Used to merge two tables
@@ -665,7 +666,7 @@ end
 --- Returns if specified trinket is equipped in either slot
 -- if isTrinketEquipped(124518) then trinket = "Libram of Vindication" end
 function isTrinketEquipped(trinket)
-    if (GetInventoryItemID("player", 13) == trinket or GetInventoryItemID("player", 14) == trinket) then
+    if (_G.GetInventoryItemID("player", 13) == trinket or _G.GetInventoryItemID("player", 14) == trinket) then
         return true
     else
         return false
@@ -914,23 +915,23 @@ end
 function GetFuturePostion(unit, castTime)
     local distance = GetUnitSpeed(unit) * castTime
     if distance > 0 then
-        local x,y,z = GetObjectPosition(unit)
+        local x,y,z = br.GetObjectPosition(unit)
         local angle = ObjectFacing(unit)
         --If Unit have a target, let's make sure they don't collide
-        local unitTarget = UnitTarget(unit)
+        local unitTarget = br._G.UnitTarget(unit)
         local unitTargetDist = 0
         if unitTarget ~= nil then
-            local tX, tY, tZ = GetObjectPosition(unitTarget)
+            local tX, tY, tZ = br.GetObjectPosition(unitTarget)
             --Lets get predicted position of unit target aswell
             if GetUnitSpeed(unitTarget) > 0 then
                 local tDistance = GetUnitSpeed(unitTarget) * castTime
                 local tAngle = ObjectFacing(unitTarget)
                 tX = tX + cos(tAngle) * tDistance
                 tY = tY + sin(tAngle) * tDistance
-                unitTargetDist = sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((UnitCombatReach(unit) or 0) + (UnitCombatReach(unitTarget) or 0))
+                unitTargetDist = sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((br._G.UnitCombatReach(unit) or 0) + (br._G.UnitCombatReach(unitTarget) or 0))
                 if unitTargetDist < distance then distance = unitTargetDist end
             else
-                unitTargetDist = getDistance(unitTarget, unit, "dist")
+                unitTargetDist = br.getDistance(unitTarget, unit, "dist")
                 if unitTargetDist < distance then distance = unitTargetDist end
             end
             -- calculate angle based on target position/future position
@@ -943,7 +944,7 @@ function GetFuturePostion(unit, castTime)
         y = y + sin(angle) * distance
         return x, y, z
     end
-    return GetObjectPosition(unit)
+    return br.GetObjectPosition(unit)
 end
 
 function PullTimerRemain(returnBool)
@@ -1037,6 +1038,6 @@ function BWCheck()
 end
 
 -- Check Instance IDs from https://wow.gamepedia.com/InstanceID
-function getCurrentZoneId()
+function br.getCurrentZoneId()
     return select(8, GetInstanceInfo())
 end

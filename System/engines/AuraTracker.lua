@@ -1,3 +1,4 @@
+local _, br = ...
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
@@ -19,32 +20,32 @@ local tracker = br.tracker
 
 function tracker.add(guid, name, spellId, time) --Check if exists and creates if not
 	if not tracker.units[guid] then -- Does table exists else create (same as self.(de)buff[k][thisUnit])
-		tracker.units[guid] = { 
+		tracker.units[guid] = {
 			guid = guid,
 			name = name,
 			auras = { }
 		}
 	end
 	local unit = tracker.units[guid] -- unit shortcut
-	if GetObjectExists(unit.guid) then
-        objectID = GetObjectWithGUID(unit.guid)
-    elseif GetObjectExists("target") then
-        objectID = GetObjectWithGUID(UnitGUID("target"))
+	if br.GetObjectExists(unit.guid) then
+        br.objectID = br._G.GetObjectWithGUID(unit.guid)
+    elseif br.GetObjectExists("target") then
+        br.objectID = br._G.GetObjectWithGUID(br._G.UnitGUID("target"))
     else
-    	objectID = GetObjectWithGUID(UnitGUID("player"))
+		br.objectID = br._G.GetObjectWithGUID(br._G.UnitGUID("player"))
     end
 	if not unit.auras[spellId] then
 		unit.auras[spellId] = {
-			spellName = GetSpellInfo(spellId), --GetSpellName(spellId),
+			spellName = _G.GetSpellInfo(spellId), --GetSpellName(spellId),
 			id = spellId,
-			duration = getAuraDuration(objectID, spellId),
-			remain = getAuraRemain(objectID, spellId),
-			refresh = getAuraRemain(objectID, spellId) < getAuraDuration(objectID, spellId) * 0.3,
-			stacks = getAuraStacks(objectID, spellId),
+			duration = br.getAuraDuration(br.objectID, spellId),
+			remain = br.getAuraRemain(br.objectID, spellId),
+			refresh = br.getAuraRemain(br.objectID, spellId) < br.getAuraDuration(br.objectID, spellId) * 0.3,
+			stacks = br.getAuraStacks(br.objectID, spellId),
 			stack = 0,
 			time = time
 		}
-		if explore then explore:BuildTree() end
+		if br.explore then br.explore:BuildTree() end
 	end
 end
 
@@ -53,7 +54,7 @@ function tracker.remove(guid, spellId)
 		local unit = tracker.units[guid]
 		if unit.auras[spellId] then
 			unit.auras[spellId] = nil
-			if explore then explore:BuildTree() end
+			if br.explore then br.explore:BuildTree() end
 		end
 	end
 end
@@ -98,33 +99,33 @@ function tracker.update(type, guid, spellId, amount, crit, name)
 			else
 				track.crit = false
 			end
-			if explore then explore:BuildTree() end
+			if br.explore then br.explore:BuildTree() end
 		end
 	end
 end
 
 function tracker.onUpdate()
 	if tracker.units ~= nil then
-		for k, v in pairs(tracker.units) do
+		for k, _ in pairs(tracker.units) do
 			local unit = tracker.units[k]
 			local name = unit.name
 			local auras = unit.auras
-			if GetObjectExists(unit.guid) then
-                objectID = GetObjectWithGUID(unit.guid)
-            elseif GetObjectExists("target") then
-                objectID = GetObjectWithGUID(UnitGUID("target"))
+			if br.GetObjectExists(unit.guid) then
+                br.objectID = br._G.GetObjectWithGUID(unit.guid)
+            elseif br.GetObjectExists("target") then
+                br.objectID = br._G.GetObjectWithGUID(br._G.UnitGUID("target"))
             else
-            	objectID = GetObjectWithGUID(UnitGUID("player"))
+				br.objectID = br._G.GetObjectWithGUID(br._G.UnitGUID("player"))
             end
 			if auras ~= nil then
-				for c, b in pairs(auras) do
+				for c, _ in pairs(auras) do
 					local spell = auras[c]
-					spell.remain = getAuraRemain(objectID,c)
+					spell.remain = br.getAuraRemain(br.objectID,c)
 					spell.refresh = spell.remain < spell.duration * 0.3
 				end
 			end
 		end
-	end 
+	end
 end
 
 function tracker.stack(guid, spellId, amount)
@@ -132,7 +133,7 @@ function tracker.stack(guid, spellId, amount)
 		local unit = tracker.units[guid]
 		if unit.auras[spellId] then
 			unit.auras[spellId].stacks = amount
-			if explore then explore:BuildTree() end
+			if br.explore then br.explore:BuildTree() end
 		end
 	end
 end
@@ -147,7 +148,7 @@ function tracker.query(guid, spellId)
 	return false
 end
 
-function tracker.handleEvent(...) --Adjust handleEvent to CombatLogEventUnfiltered 
+function tracker.handleEvent(...) --Adjust handleEvent to CombatLogEventUnfiltered
 	local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags,
 	      sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = ...
 
@@ -158,7 +159,7 @@ function tracker.handleEvent(...) --Adjust handleEvent to CombatLogEventUnfilter
 		tracker.add(destGUID, destName, spellId, timeStamp)
 		-- tracker.duration(destGUID, spellId, destName)
 		-- tracker.remain(destGUID, spellId, destName)
-	-- remove aura 
+	-- remove aura
 	elseif event == "SPELL_AURA_REMOVED" or event == "SPELL_PERIODIC_AURA_REMOVED" then
 		local spellId, spellName, spellSchool = select(12, ...)
 		local auraType, amount = select(15, ...)

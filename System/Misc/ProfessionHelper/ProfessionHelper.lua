@@ -1,5 +1,6 @@
+local addonName, br = ...
 function ProfessionHelper()
-	if isChecked("Profession Helper") then
+	if br.isChecked("Profession Helper") then
 		if not isInCombat("player") and not (IsMounted() or IsFlying()) then
 			local lootDelay = getValue("Profession Helper")
 			local function processThatTable(thisTable, spell)
@@ -35,7 +36,7 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Milling -------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Mill Herbs") and IsSpellKnown(51005) then
+			if br.isChecked("Mill Herbs") and IsSpellKnown(51005) then
 				local millMode = getValue("Mill Herbs")
 				if millMode == 7 or millMode == 1 then
 					local tableMillSL = {
@@ -106,7 +107,7 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Prospecting ---------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Prospect Ores") and IsSpellKnown(31252) then
+			if br.isChecked("Prospect Ores") and IsSpellKnown(31252) then
 				local prospectMode = getValue("Prospect Ores")
 				if prospectMode == 7 or prospectMode == 1 then
 					local tableProspectSL = {
@@ -162,7 +163,7 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Disenchant ----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Disenchant") and IsSpellKnown(13262) then
+			if br.isChecked("Disenchant") and IsSpellKnown(13262) then
 				-- list of items to me DE
 				local tableDisenchant = {
 				90905, -- JC Blue Neck ilvl 415
@@ -193,7 +194,7 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Leather Scraps-------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Leather Scraps") then
+			if br.isChecked("Leather Scraps") then
 				-- Raw Beast Hide Scraps
 				if GetItemCount(110610, false, false) >= 10 then
 					if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
@@ -207,7 +208,7 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Lockboxes -----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Lockboxes") then
+			if br.isChecked("Lockboxes") then
 				local tableLockBox = {
 				121331 -- Leystone Lockbox
 				}
@@ -215,7 +216,7 @@ function ProfessionHelper()
 					local thisItem = tableLockBox[i]
 					if GetItemCount(thisItem, false, false) >= 1 then
 						if lootTimer == nil or lootTimer <= GetTime() - lootDelay and not LootFrame:IsShown() then
-							CastSpellByName(GetSpellInfo(1804), "player")
+							br._G.CastSpellByName(GetSpellInfo(1804), "player")
 							UseItemByName(tostring(select(1, GetItemInfo(thisItem))))
 							C_Timer.After(1.5, function() UseItemByName(tostring(select(1, GetItemInfo(thisItem)))) end)
 							lootTimer = GetTime()
@@ -234,7 +235,7 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Fish Oil ------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Fish Oil") then
+			if br.isChecked("Fish Oil") then
 				local tableFish = {
 				152545, -- Frenzied Fangtooth
 				152547, -- Great Sea Catfish
@@ -262,11 +263,11 @@ function ProfessionHelper()
 end
 
 function br.fishing()
-	if isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and getOptionValue("Fishing") == 1 then
+	if br.isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.getOptionValue("Fishing") == 1 then
 		if not IsHackEnabled("fish") then
 			SetHackEnabled("fish",true)
 		end
-	elseif isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and getOptionValue("Fishing") == 2 then
+	elseif br.isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.getOptionValue("Fishing") == 2 then
 		if IsHackEnabled("fish") then
 			SetHackEnabled("fish",false)
 		end
@@ -274,47 +275,47 @@ function br.fishing()
 	------------------------------------------------------------------------------------------------------
 	-- Bait ----------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-	if isChecked("Bait") then
+	if br.isChecked("Bait") then
 		local bait = getValue("Bait")
 		if bait == 1 then -- Lost Sole Bait
-			if hasItem(173038) and getBuffRemain("player",331688) == 0 then
-				if canUseItem(173038) then
-					useItem(173038)
+			if br.hasItem(173038) and br.getBuffRemain("player",331688) == 0 then
+				if br.canUseItem(173038) then
+					br.useItem(173038)
 				end
 			end
 		end
 		if bait == 2 then -- Silvergill Pike Bait
-			if hasItem(173040) and getBuffRemain("player",331690) == 0 then
-				if canUseItem(173040) then
-					useItem(173040)
+			if br.hasItem(173040) and br.getBuffRemain("player",331690) == 0 then
+				if br.canUseItem(173040) then
+					br.useItem(173040)
 				end
 			end
 		end
 		if bait == 3 then -- Pocked Bonefish Bait
-			if hasItem(173041) and getBuffRemain("player",331695) == 0 then
-				if canUseItem(173041) then
-					useItem(173041)
+			if br.hasItem(173041) and br.getBuffRemain("player",331695) == 0 then
+				if br.canUseItem(173041) then
+					br.useItem(173041)
 				end
 			end
 		end
 		if bait == 4 then -- Iridescent Amberjack Bait
-			if hasItem(173039) and getBuffRemain("player",331692) == 0 then
-				if canUseItem(173039) then
-					useItem(173039)
+			if br.hasItem(173039) and br.getBuffRemain("player",331692) == 0 then
+				if br.canUseItem(173039) then
+					br.useItem(173039)
 				end
 			end
 		end
 		if bait == 5 then -- Spinefin Piranha Bait
-			if hasItem(173042) and getBuffRemain("player",331699) == 0 then
-				if canUseItem(173042) then
-					useItem(173042)
+			if br.hasItem(173042) and br.getBuffRemain("player",331699) == 0 then
+				if br.canUseItem(173042) then
+					br.useItem(173042)
 				end
 			end
 		end
 		if bait == 6 then -- Elysian Thade Bait
-			if hasItem(173043) and getBuffRemain("player",331698) == 0 then
-				if canUseItem(173043) then
-					useItem(173043)
+			if br.hasItem(173043) and br.getBuffRemain("player",331698) == 0 then
+				if br.canUseItem(173043) then
+					br.useItem(173043)
 				end
 			end
 		end

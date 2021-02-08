@@ -1,6 +1,6 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalTools = LibStub("DiesalTools-1.0")
-
+local addonName, br = ...
 function br.ui:createButton(parent, buttonName, x, y, onClickFunction, alignRight)
     if y == nil then
         y = -5
@@ -294,7 +294,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
             -- end
             -- if fileFound then
             --     br.ui:closeWindow("all")
-            --     mainButton:Hide()
+            --     br.mainButton:Hide()
             --     br.data = deepcopy(brdata)
             --     if profileFound then br.profile = deepcopy(brprofile) end
             --     br.ui:recreateWindows()
@@ -402,16 +402,16 @@ br.tableSave = function(tbl, filename)
             end
         end
         -- file:write( "},"..charE )
-        WriteFile(filename, "}," .. charE, true)
+        br._G.WriteFile(filename, "}," .. charE, true)
     end
     -- file:write( "}" )
-    WriteFile(filename, "}", true)
+    br._G.WriteFile(filename, "}", true)
     -- file:close()
 end
 
 --// The Load Function
 br.tableLoad = function(sfile)
-    local file = ReadFile(sfile)
+    local file = br._G.ReadFile(sfile)
     if file == nil or file == "" then
         return
     end

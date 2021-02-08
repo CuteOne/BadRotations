@@ -83,23 +83,23 @@ local function runRotation()
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local castable                                      = br.player.cast.debug
-        local combatTime                                    = getCombatTime()
+        local combatTime                                    = br.getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
+        local friendly                                      = friendly or br.GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
-        local hasMouse                                      = GetObjectExists("mouseover")
+        local hasMouse                                      = br.GetObjectExists("mouseover")
         local hasPet                                        = IsPetActive()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
+        local lootDelay                                     = br.getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.ui.mode
         local moveIn                                        = 999
@@ -114,7 +114,7 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local ttd                                           = getTTD
+        local ttd                                           = br.getTTD
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
         local dt                                            = date("%H:%M:%S")
@@ -165,15 +165,15 @@ local function runRotation()
             if cast.iceLance() then return end
         end
         -- Cast Mirror Image if CDs are enabled
-        if cast.able.mirrorImage() and useCDs() and isChecked("Mirror Image") then
+        if cast.able.mirrorImage() and useCDs() and br.isChecked("Mirror Image") then
             if cast.mirrorImage() then return end
         end
         -- Cast Icy Veins if CDs are enabled
-        if cast.able.icyVeins() and useCDs() and isChecked("Icy Veins") then
+        if cast.able.icyVeins() and useCDs() and br.isChecked("Icy Veins") then
             if cast.icyVeins() then return end
         end
         -- Cast Frozen Orb on Cooldown
-        if isChecked("Use Frozen Orb") then
+        if br.isChecked("Use Frozen Orb") then
             if cast.frozenOrb() then return end
         end
         -- Blizzard with 3 targets
@@ -214,11 +214,11 @@ local function runRotation()
             if actionList_move() then return end
         end
         -- Cast Mirror Image if CDs are enabled
-        if cast.able.mirrorImage() and useCDs() and isChecked("Mirror Image") then
+        if cast.able.mirrorImage() and useCDs() and br.isChecked("Mirror Image") then
             if cast.mirrorImage() then return end
         end
         -- Cast Icy Veins if CDs are enabled
-        if cast.able.icyVeins() and useCDs() and isChecked("Icy Veins") then
+        if cast.able.icyVeins() and useCDs() and br.isChecked("Icy Veins") then
             if cast.icyVeins() then return end
         end
         -- Flurry on Brain Freeze Proc
@@ -230,7 +230,7 @@ local function runRotation()
 		    if cast.flurry() then return end
 		end	
         -- Frozen Orb
-         if isChecked("Use Frozen Orb") then
+         if br.isChecked("Use Frozen Orb") then
             if cast.frozenOrb() then return end
         end
         -- Blizzard with 3 targets
@@ -275,11 +275,11 @@ local function runRotation()
             if actionList_move() then return end
         end
         -- Cast Mirror Image if CDs are enabled
-        if cast.able.mirrorImage() and useCDs() and isChecked("Mirror Image") then
+        if cast.able.mirrorImage() and useCDs() and br.isChecked("Mirror Image") then
             if cast.mirrorImage() then return end
         end
         -- Cast Icy Veins if CDs are enabled
-        if cast.able.icyVeins() and useCDs() and isChecked("Icy Veins") then
+        if cast.able.icyVeins() and useCDs() and br.isChecked("Icy Veins") then
             if cast.icyVeins() then return end
         end
         -- Flurry on Brain Freeze Proc
@@ -287,7 +287,7 @@ local function runRotation()
             if cast.flurry() then return end
         end
         -- Cast Frozen Orb on Cooldown
-         if isChecked("Use Frozen Orb") then
+         if br.isChecked("Use Frozen Orb") then
             if cast.frozenOrb() then return end
         end
         -- Blizzard with 3 targets
@@ -297,7 +297,7 @@ local function runRotation()
         -- Blizzard with 2 targets and Freezing Rain
         if #enemies.yards8t == 2 and buff.freezingRain.exists() then
             cast.blizzard("target")
-            local X,Y,Z = ObjectPosition("target")
+            local X,Y,Z = br._G.ObjectPosition("target")
             ClickPosition(X,Y,Z)
         end
         -- Ice lance with Fingers of Frost
@@ -318,7 +318,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            if not inCombat and br.GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
 
             end -- End Out of Combat Rotation
 -----------------------------
@@ -334,12 +334,12 @@ local function runRotation()
                 if actionList_AOE() then return end
             end
 			--trinket
-			if isChecked("Trinket 1") and canUseItem(13) then
-                        useItem(13)
+			if br.isChecked("Trinket 1") and br.canUseItem(13) then
+                        br.useItem(13)
                         return true
             end
-            if isChecked("Trinket 2") and canUseItem(14) then
-                        useItem(14)
+            if br.isChecked("Trinket 2") and br.canUseItem(14) then
+                        br.useItem(14)
                         return true
             end
             -- Glacial Spike Rotation

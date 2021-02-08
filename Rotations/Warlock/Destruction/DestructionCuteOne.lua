@@ -201,8 +201,8 @@ local actionList = {}
 actionList.Extras = function()
     -- Dummy Test
     if option.checked("DPS Testing") then
-        if GetObjectExists("target") then
-            if getCombatTime() >= (tonumber(option.value("DPS Testing"))*60) and isDummy() then
+        if br.GetObjectExists("target") then
+            if br.getCombatTime() >= (tonumber(option.value("DPS Testing"))*60) and br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 if option.checked("Pet Management") then
@@ -219,13 +219,13 @@ end
 actionList.Defensive = function()
     if useDefensive() then
         -- Pot/Stoned
-        if option.checked("Pot/Stoned") and inCombat and (use.able.healthstone() or canUseItem(healPot))
+        if option.checked("Pot/Stoned") and inCombat and (use.able.healthstone() or br.canUseItem(healPot))
             and (hasHealthPot() or has.healthstone()) and php <= option.value("Pot/Stoned")
         then
             if use.able.healthstone() then
                 if use.healthstone() then debug("Using Healthstone") return true end
-            elseif canUseItem(healPot) then
-                useItem(healPot)
+            elseif br.canUseItem(healPot) then
+                br.useItem(healPot)
                 debug("Using Health Potion")
             end
         end
@@ -248,11 +248,11 @@ actionList.Defensive = function()
             if cast.darkPact() then debug("Casting Dark Pact") return true end
         end
         -- Drain Life
-        if option.checked("Drain Life") and php <= option.value("Drain Life") and isValidTarget("target") and not isCastingSpell(spell.drainLife) then
+        if option.checked("Drain Life") and php <= option.value("Drain Life") and isValidTarget("target") and not br.isCastingSpell(spell.drainLife) then
             if cast.drainLife() then debug("Casting Drain Life") return true end
         end
         -- Health Funnel
-        if option.checked("Health Funnel") and getHP("pet") <= option.value("Health Funnel") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+        if option.checked("Health Funnel") and br.getHP("pet") <= option.value("Health Funnel") and br.GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
             if cast.healthFunnel() then debug("Casting Health Funnel") return true end
         end
         -- Unending Resolve
@@ -507,7 +507,7 @@ actionList.Aoe = function()
         local lastImmo = "player"
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if okToDoT and not GetUnitIsUnit(thisUnit,lastImmo) and (debuff.immolate.remain(thisUnit) < 5
+            if okToDoT and not br.GetUnitIsUnit(thisUnit,lastImmo) and (debuff.immolate.remain(thisUnit) < 5
                 and (not option.checked("Cataclysm") or not talent.cataclysm or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit)))
             then
                 if cast.immolate(thisUnit) then debug("Cast Immolate [AOE]") lastImmo = thisUnit return true end
@@ -522,7 +522,7 @@ actionList.Aoe = function()
     if cast.able.havoc() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if (not (GetUnitIsUnit(units.dyn40,thisUnit)) and #enemies.yards40f < 4) then
+            if (not (br.GetUnitIsUnit(units.dyn40,thisUnit)) and #enemies.yards40f < 4) then
                 if cast.havoc(thisUnit) then debug("Cast Havoc [AOE - Less than 4]") return true end
             end
         end
@@ -555,7 +555,7 @@ actionList.Aoe = function()
     if cast.able.havoc() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if (not (GetUnitIsUnit(units.dyn40,thisUnit)) and (not talent.grimoireOfSupremacy
+            if (not (br.GetUnitIsUnit(units.dyn40,thisUnit)) and (not talent.grimoireOfSupremacy
                 or not talent.inferno or talent.grimoireOfSupremacy and infernalRemain <= 10))
             then
                 if cast.havoc(thisUnit) then debug("Cast Rain Of Fire [AOE]") return true end
@@ -726,7 +726,7 @@ actionList.PreCombat = function()
             end
         end
     end
-    if not inCombat and isValidUnit("target") and getDistance("target") < 40 then
+    if not inCombat and br.isValidUnit("target") and br.getDistance("target") < 40 then
         -- Grimoire Of Sacrifice
         -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
         if cast.able.grimoireOfSacrifice() and (talent.grimoireOfSacrifice) then
@@ -796,12 +796,12 @@ local function runRotation()
     spell                              = br.player.spell
     talent                             = br.player.talent
     traits                             = br.player.traits
-    ttd                                = getTTD
+    ttd                                = br.getTTD
     units                              = br.player.units
     use                                = br.player.use
 
     -- General API
-    combatTime                         = getCombatTime()
+    combatTime                         = br.getCombatTime()
     flashover                          = talent.flashover and 1 or 0
     inferno                            = talent.inferno and 1 or 0
     internalInferno                    = (talent.inferno and talent.internalCombustion) and 1 or 0
@@ -813,7 +813,7 @@ local function runRotation()
     -- units.get(range, aoe)
     units.get(40)
     if range == nil then range = {} end
-    range.dyn40 = getDistance(units.dyn40) < 40
+    range.dyn40 = br.getDistance(units.dyn40) < 40
     
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
@@ -865,15 +865,15 @@ local function runRotation()
     if lastTargetX == nil then lastTargetX, lastTargetY, lastTargetZ = 0,0,0 end
     targetMoveCheck = targetMoveCheck or false
     if br.timer:useTimer("targetMove", 0.8) or combatTime < 0.2 then
-        if GetObjectExists("target") then
-            local currentX, currentY, currentZ = GetObjectPosition("target")
+        if br.GetObjectExists("target") then
+            local currentX, currentY, currentZ = br.GetObjectPosition("target")
             local targetMoveDistance = math.sqrt(((currentX-lastTargetX)^2)+((currentY-lastTargetY)^2)+((currentZ-lastTargetZ)^2))
-            lastTargetX, lastTargetY, lastTargetZ = GetObjectPosition("target")
+            lastTargetX, lastTargetY, lastTargetZ = br.GetObjectPosition("target")
             if targetMoveDistance < 3 then targetMoveCheck = true else targetMoveCheck = false end
         end
     end
 
-    -- ChatOverlay("Shards: "..tostring(shards))
+    -- br.ChatOverlay("Shards: "..tostring(shards))
 
     ---------------------
     --- Begin Profile ---
@@ -903,7 +903,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if inCombat and isValidUnit(units.dyn40) then
+        if inCombat and br.isValidUnit(units.dyn40) then
             -- Havoc
             -- call_action_list,name=havoc,if=havoc_active&active_enemies<5-talent.inferno.enabled+(talent.inferno.enabled&talent.internal_combustion.enabled)
             if debuff.havoc.count() > 0 and #enemies.yards40f < 5 - inferno + internalInferno then
@@ -965,7 +965,7 @@ local function runRotation()
                 local lastImmo = "player"
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if okToDoT and not GetUnitIsUnit(thisUnit,lastImmo) and (debuff.immolate.refresh(thisUnit)
+                    if okToDoT and not br.GetUnitIsUnit(thisUnit,lastImmo) and (debuff.immolate.refresh(thisUnit)
                         and (not option.checked("Cataclysm") or not talent.cataclysm
                             or cd.cataclysm.remain() > debuff.immolate.remain(units.dyn40)))
                     then
@@ -1013,7 +1013,7 @@ local function runRotation()
             if cast.able.havoc() then
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if (not (GetUnitIsUnit(units.dyn40,thisUnit))
+                    if (not (br.GetUnitIsUnit(units.dyn40,thisUnit))
                         and (debuff.immolate.remain(thisUnit) > debuff.immolate.duration() * 0.5
                         or not talent.internalCombustion) and (cd.summonInfernal.exists()
                         or not talent.grimoireOfSupremacy or talent.grimoireOfSupremacy and infernalRemain <= 10))

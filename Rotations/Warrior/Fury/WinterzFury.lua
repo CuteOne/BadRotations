@@ -193,10 +193,10 @@ local function runRotation()
 
     local buff = br.player.buff
     local cast = br.player.cast
-    local combatTime = getCombatTime()
+    local combatTime = br.getCombatTime()
     local cd = br.player.cd
     local charges = br.player.charges
-    local hastar = hastar or GetObjectExists("target")
+    local hastar = hastar or br.GetObjectExists("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
     local equiped = br.player.equiped
@@ -216,11 +216,11 @@ local function runRotation()
     local racial = br.player.getRacial()
     local spell = br.player.spell
     local talent = br.player.talent
-    local thp = getHP("target")
+    local thp = br.getHP("target")
     local traits = br.player.traits
     local units = br.player.units
-	local ttd = getTTD
-    local reapingDamage = getOptionValue("Reaping Flame Damage") * 1000
+	local ttd = br.getTTD
+    local reapingDamage = br.getOptionValue("Reaping Flame Damage") * 1000
     local massacreTalent = talent.massacre and 1.5 or 0
     local condemnCDdur = (6 - massacreTalent) - ((6 - massacreTalent) * (GetHaste() / 100))
 
@@ -255,10 +255,10 @@ local function runRotation()
     end
     local function extralist()
         -- Battle Shout
-        if isChecked("Battle Shout") and cast.able.battleShout() then
+        if br.isChecked("Battle Shout") and cast.able.battleShout() then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and getBuffRemain(thisUnit, spell.battleShout) < 60 then
+                if not UnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
                     if cast.battleShout() then
                         return
                     end
@@ -267,7 +267,7 @@ local function runRotation()
         end
 
         -- Berserker Rage
-        if isChecked("Berserker Rage") and cast.able.berserkerRage() and hasNoControl(spell.berserkerRage) then
+        if br.isChecked("Berserker Rage") and cast.able.berserkerRage() and hasNoControl(spell.berserkerRage) then
             if cast.berserkerRage() then
                 return
             end
@@ -278,62 +278,62 @@ local function runRotation()
     local function defensivelist()
         if useDefensive() then
             -- Healthstone/Health Potion
-            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(177278) or hasItem(166799)) then
-                if canUseItem(5512) then
-                    useItem(5512)
-                elseif canUseItem(healPot) then
-                    useItem(healPot)
-                elseif hasItem(166799) and canUseItem(166799) then
-                    useItem(166799)
-                elseif canUseItem(177278) then
-                    useItem(177278)
+            if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(177278) or br.hasItem(166799)) then
+                if br.canUseItem(5512) then
+                    br.useItem(5512)
+                elseif br.canUseItem(healPot) then
+                    br.useItem(healPot)
+                elseif br.hasItem(166799) and br.canUseItem(166799) then
+                    br.useItem(166799)
+                elseif br.canUseItem(177278) then
+                    br.useItem(177278)
                 end
             end
 
             -- Enraged Regeneration
-            if isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and php <= getOptionValue("Enraged Regeneration") then
+            if br.isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and php <= br.getOptionValue("Enraged Regeneration") then
                 if cast.enragedRegeneration() then
                     return
                 end
             end
 
             -- Intimidating Shout
-            if isChecked("Intimidating Shout") and cast.able.intimidatingShout() and php <= getOptionValue("Intimidating Shout") then
+            if br.isChecked("Intimidating Shout") and cast.able.intimidatingShout() and php <= br.getOptionValue("Intimidating Shout") then
                 if cast.intimidatingShout() then
                     return
                 end
             end
 
             -- Rallying Cry
-            if isChecked("Rallying Cry Units") and cast.able.rallyingCry() and getLowAllies(getValue("Rallying Cry HP")) >= getValue("Rallying Cry Units") then
+            if br.isChecked("Rallying Cry Units") and cast.able.rallyingCry() and getLowAllies(getValue("Rallying Cry HP")) >= getValue("Rallying Cry Units") then
                 if cast.rallyingCry() then
                     return
                 end
             end
 
             -- Storm Bolt
-            if isChecked("Storm Bolt") and cast.able.stormBolt() and php <= getOptionValue("Storm Bolt") then
+            if br.isChecked("Storm Bolt") and cast.able.stormBolt() and php <= br.getOptionValue("Storm Bolt") then
                 if cast.stormBolt() then
                     return
                 end
             end
 
             -- Ignore Pain
-            if isChecked("Ignore Pain") and cast.able.ignorePain() and rage > 60 and php <= getOptionValue("Ignore Pain") and not buff.ignorePain.exists("player") then
+            if br.isChecked("Ignore Pain") and cast.able.ignorePain() and rage > 60 and php <= br.getOptionValue("Ignore Pain") and not buff.ignorePain.exists("player") then
                 if cast.ignorePain("player") then
                     return
                 end
             end
 
             -- Piercing Howl
-            if isChecked("Piercing Howl") and php <= getOptionValue("Piercing Howl") and inCombat then
+            if br.isChecked("Piercing Howl") and php <= br.getOptionValue("Piercing Howl") and inCombat then
                 if cast.piercingHowl("player") then
                     return
                 end
             end
 
             -- Victory Rush
-            if isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush") and buff.victorious.exists("player") then
+            if br.isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= br.getOptionValue("Victory Rush") and buff.victorious.exists("player") then
                 if talent.impendingVictory then
                     if cast.impendingVictory() then
                         return
@@ -349,15 +349,15 @@ local function runRotation()
 
     local function interruptlist()
         if useInterrupts() then
-			if isChecked("Storm Bolt Logic") then
+			if br.isChecked("Storm Bolt Logic") then
                     if cast.able.stormBolt() then
                         local Storm_list = {
                         }
                         for i = 1, #enemies.yards20 do
                             local thisUnit = enemies.yards20[i]
-                            local distance = getDistance(thisUnit)
+                            local distance = br.getDistance(thisUnit)
                             for k, v in pairs(Storm_list) do
-                                if (Storm_unitList[GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+                                if (Storm_unitList[br.GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
                                     if cast.stormBolt(thisUnit) then
                                         return
                                     end
@@ -368,22 +368,22 @@ local function runRotation()
             end
             for i = 1, #enemies.yards20 do
                 thisUnit = enemies.yards20[i]
-                distance = getDistance(thisUnit)
-                if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
+                distance = br.getDistance(thisUnit)
+                if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     -- Pummel
-                    if isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
+                    if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
                         if cast.pummel(thisUnit) then
                             return
                         end
                     end
                     -- Intimidating Shout
-                    if isChecked("Intimidating Shout - Int") and cast.able.intimidatingShout() and distance < 8 then
+                    if br.isChecked("Intimidating Shout - Int") and cast.able.intimidatingShout() and distance < 8 then
                         if cast.intimidatingShout() then
                             return
                         end
                     end
                     -- Storm Bolt
-                    if isChecked("Storm Bolt - Int") and cast.able.stormBolt(thisUnit) and distance < 20 then
+                    if br.isChecked("Storm Bolt - Int") and cast.able.stormBolt(thisUnit) and distance < 20 then
                         if cast.stormBolt(thisUnit) then
                             return
                         end
@@ -404,14 +404,14 @@ local function runRotation()
 
         -- Recklessness
 		-- actions+=/recklessness,if=!essence.condensed_lifeforce.major&!essence.blood_of_the_enemy.major|cooldown.guardian_of_azeroth.remains>20|buff.guardian_of_azeroth.up|cooldown.blood_of_the_enemy.remains<gcd
-        if not buff.recklessness.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
         end
 
         -- Siegebreaker
-        if br.player.ui.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
+        if br.player.ui.mode.cooldown ~= 3 and (br.getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (br.getOptionValue("Recklessness") == 2 and not useCDs())) then
             if cast.siegebreaker() then
                 return
             end
@@ -420,8 +420,8 @@ local function runRotation()
         -- condemn test
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35))) then
-                if CastSpellByName(GetSpellInfo(330325)) then
+            if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35))) then
+                if br._G.CastSpellByName(GetSpellInfo(330325)) then
                     return
                 end
             end
@@ -430,7 +430,7 @@ local function runRotation()
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
+            if br.getFacing("player",thisUnit) and cast.able.execute() and (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
                 if cast.execute(thisUnit) then
                     return
                 end
@@ -464,7 +464,7 @@ local function runRotation()
         end
 
         -- Dragon Roar
-        if buff.enrage.exists("player") and isChecked("Dragon Roar") then
+        if buff.enrage.exists("player") and br.isChecked("Dragon Roar") then
             if cast.dragonRoar() then
                 return
             end
@@ -476,7 +476,7 @@ local function runRotation()
         end
 
         -- Bladestorm Single target
-        if buff.enrage.exists("player") and isChecked("Bladestorm Units") and br.player.ui.mode.cooldown ~= 3 and isBoss("target") then
+        if buff.enrage.exists("player") and br.isChecked("Bladestorm Units") and br.player.ui.mode.cooldown ~= 3 and br.isBoss("target") then
             if cast.bladestorm() then
                 return
             end
@@ -496,7 +496,7 @@ local function runRotation()
                 return
             end
         end
-        if cast.able.execute() and (getHP("target") <= 20 or (talent.massacre and getHP("target") <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
+        if cast.able.execute() and (br.getHP("target") <= 20 or (talent.massacre and br.getHP("target") <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
             if cast.execute("target") then
                 return
             end
@@ -526,21 +526,21 @@ local function runRotation()
         end
 
         -- Recklessness
-        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
         end
 
         -- Siegebreaker
-        if buff.whirlwind.exists("player") and (br.player.ui.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs()))) then
+        if buff.whirlwind.exists("player") and (br.player.ui.mode.cooldown ~= 3 and (br.getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (br.getOptionValue("Recklessness") == 2 and not useCDs()))) then
             if cast.siegebreaker() then
                 return
             end
         end
 
         -- Dragon Roar
-        if buff.enrage.exists("player") and isChecked("Dragon Roar") then
+        if buff.enrage.exists("player") and br.isChecked("Dragon Roar") then
             if cast.dragonRoar() then
                 return
             end
@@ -553,7 +553,7 @@ local function runRotation()
             end
         end
         -- Bladestorm
-        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
+        if br.isChecked("Bladestorm Units") and #enemies.yards8 >= br.getOptionValue("Bladestorm Units") and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
             if cast.bladestorm() then
                 return
             end
@@ -562,8 +562,8 @@ local function runRotation()
                 -- condemn test
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35))) then
-                if CastSpellByName(GetSpellInfo(330325)) then
+            if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35))) then
+                if br._G.CastSpellByName(GetSpellInfo(330325)) then
                     return
                 end
             end
@@ -572,7 +572,7 @@ local function runRotation()
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if buff.whirlwind.exists("player") and getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
+            if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
                 if cast.execute(thisUnit) then
                     return
                 end
@@ -611,13 +611,13 @@ local function runRotation()
     local function cooldownlist()
 
         -- Bloodrage
-        --if isChecked("Bloodrage") and inCombat and IsSpellKnown(329038) and cast.able.bloodrage()then
+        --if br.isChecked("Bloodrage") and inCombat and IsSpellKnown(329038) and cast.able.bloodrage()then
         --    if cast.bloodrage("player") then
         --        return
         --    end
         --end
         --racials
-        if isChecked("Racials") and br.player.ui.mode.cooldown ~= 3 then
+        if br.isChecked("Racials") and br.player.ui.mode.cooldown ~= 3 then
             if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race=="MagharOrc" then
                 if cast.racial("player") then
                     return
@@ -636,8 +636,8 @@ local function runRotation()
             return
         end
         if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards5 >= 1 then
-            if getDistance(units.dyn5) < 6 then
-                StartAttack()
+            if br.getDistance(units.dyn5) < 6 then
+                br._G.StartAttack()
             end
             if isExplosive("target") then
                 if explosivelist() then
@@ -653,14 +653,14 @@ local function runRotation()
             if cooldownlist() then
                 return
             end
-            if #enemies.yards8 > 1 and level >= 40 --[[ and (not isChecked("Dont kill your friends with bursting") or getDebuffStacks("player", 240443) >= getOptionValue("Dont kill your friends with bursting")) ]] then
+            if #enemies.yards8 > 1 and level >= 40 --[[ and (not br.isChecked("Dont kill your friends with bursting") or br.getDebuffStacks("player", 240443) >= br.getOptionValue("Dont kill your friends with bursting")) ]] then
                 --Print("Multi")
                 if multilist() then
                     return
                 end
             else
                 --Print("Single")
-                if singlelist() --[[ and (not isChecked("Dont kill your friends with bursting") or getDebuffStacks("player", 240443) >= getOptionValue("Dont kill your friends with bursting")) ]] then
+                if singlelist() --[[ and (not br.isChecked("Dont kill your friends with bursting") or br.getDebuffStacks("player", 240443) >= br.getOptionValue("Dont kill your friends with bursting")) ]] then
                     return
                 end
             end

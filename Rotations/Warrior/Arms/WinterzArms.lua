@@ -178,7 +178,7 @@ local function runRotation()
 --------------
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
-        local combatTime                                    = getCombatTime()
+        local combatTime                                    = br.getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
@@ -188,14 +188,14 @@ local function runRotation()
         local essence                                       = br.player.essence
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
-        local hastar                                        = hastar or GetObjectExists("target")
+        local hastar                                        = hastar or br.GetObjectExists("target")
         local heirloomNeck                                  = 122667 or 122668
         local inCombat                                      = br.player.inCombat
         local inRaid                                        = br.player.instance == "raid"
         local level                                         = br.player.level
         local mode                                          = br.player.ui.mode
         local opener                                        = br.player.opener
-        local php                                           = getHP("player")
+        local php                                           = br.getHP("player")
 		local covenant 										= br.player.covenant
         local power                                         = br.player.power.rage.amount()
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -206,7 +206,7 @@ local function runRotation()
         local traits                                        = br.player.traits
         local units                                         = br.player.units
         local use                                           = br.player.use  
-        local ttd                                           = getTTD
+        local ttd                                           = br.getTTD
 
         units.get(5)
         units.get(8)
@@ -227,10 +227,10 @@ local function runRotation()
     -- Action list - Extras
        local function actionList_Extra()
         -- Battle Shout
-        if isChecked("Battle Shout") and cast.able.battleShout() then
+        if br.isChecked("Battle Shout") and cast.able.battleShout() then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and getBuffRemain(thisUnit, spell.battleShout) < 60 then
+                if not UnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
                     if cast.battleShout() then
                         return
                     end
@@ -238,47 +238,47 @@ local function runRotation()
             end
         end
         -- Berserker Rage
-            if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
+            if br.isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then debug("Casting Berserker Rage") return end
             end
         end -- End Action List - Extra
     -- Action List - Defensive
        local function actionList_Defensive()
             -- Healthstone/Health Potion
-                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
+                if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion")
+                    and inCombat and (hasHealthPot() or br.hasItem(5512))
                 then
-                    if canUseItem(5512) then debug("Using Healthstone")
-                        useItem(5512)
-                    elseif canUseItem(getHealthPot()) then debug("Using Health Potion")
-                        useItem(getHealthPot())
+                    if br.canUseItem(5512) then debug("Using Healthstone")
+                        br.useItem(5512)
+                    elseif br.canUseItem(getHealthPot()) then debug("Using Health Potion")
+                        br.useItem(getHealthPot())
                     end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and cast.able.racial() and php <= getOptionValue("Gift of the Naaru") and race=="Draenei" and cd.giftOfTheNaaru.remain() == 0 then
+                if br.isChecked("Gift of the Naaru") and cast.able.racial() and php <= br.getOptionValue("Gift of the Naaru") and race=="Draenei" and cd.giftOfTheNaaru.remain() == 0 then
                     if cast.racial() then debug("Casting Gift of the Naaru") return end
                 end
             -- Defensive Stance
-                if isChecked("Defensive Stance") and cast.able.defensiveStance() then
-                    if php <= getOptionValue("Defensive Stance") and not buff.defensiveStance.exists() then
+                if br.isChecked("Defensive Stance") and cast.able.defensiveStance() then
+                    if php <= br.getOptionValue("Defensive Stance") and not buff.defensiveStance.exists() then
                         if cast.defensiveStance() then debug("Casting Defensive Stance") return end
-                    elseif buff.defensiveStance.exists() and php > getOptionValue("Defensive Stance") then
+                    elseif buff.defensiveStance.exists() and php > br.getOptionValue("Defensive Stance") then
                         if cast.defensiveStance() then debug("Casting Defensive Stance") return end
                     end
                 end
             -- Die By The Sword
-                if isChecked("Die By The Sword") and cast.able.dieByTheSword() and inCombat and php <= getOptionValue("Die By The Sword") then
+                if br.isChecked("Die By The Sword") and cast.able.dieByTheSword() and inCombat and php <= br.getOptionValue("Die By The Sword") then
                     if cast.dieByTheSword() then debug("Casting Die By The Sword") return end
                 end
             -- Intimidating Shout
-                if isChecked("Intimidating Shout") and cast.able.intimidatingShout() and inCombat and php <= getOptionValue("Intimidating Shout") then
+                if br.isChecked("Intimidating Shout") and cast.able.intimidatingShout() and inCombat and php <= br.getOptionValue("Intimidating Shout") then
                     if cast.intimidatingShout() then debug("Casting Intimidating Shout") return end
                 end
             -- Rallying Cry
-                if isChecked("Rallying Cry") and cast.able.rallyingCry() and inCombat and php <= getOptionValue("Rallying Cry") then
+                if br.isChecked("Rallying Cry") and cast.able.rallyingCry() and inCombat and php <= br.getOptionValue("Rallying Cry") then
                     if cast.rallyingCry() then debug("Rallying Cry") return end
                 end
             -- Victory Rush
-                if isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and inCombat and php <= getOptionValue("Victory Rush") and buff.victorious.exists() then
+                if br.isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and inCombat and php <= br.getOptionValue("Victory Rush") and buff.victorious.exists() then
                     if talent.impendingVictory then
                         if cast.impendingVictory() then debug("Casting Impending Victory") return end
                     else
@@ -290,16 +290,16 @@ local function runRotation()
     -- Action List - Interrupts
        local function actionList_Interrupts()
             if useInterrupts() then
-              --  if isChecked("Storm Bolt Logic") then
+              --  if br.isChecked("Storm Bolt Logic") then
               --      if cast.able.stormBolt() then
               --          local Storm_list = {
               --              257739
               --          }
               --          for i = 1, #enemies.yards20 do
               --              local thisUnit = enemies.yards20[i]
-              --              local distance = getDistance(thisUnit)
+              --              local distance = br.getDistance(thisUnit)
               --              for k, v in pairs(Storm_list) do
-              --                  if (Storm_unitList[GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+              --                  if (Storm_unitList[br.GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
               --                      if cast.stormBolt(thisUnit) then debug("Casting Storm Bolt")
               --                          return 
               --                      end
@@ -310,14 +310,14 @@ local function runRotation()
               --  end
                 for i=1, #enemies.yards20 do
                     thisUnit = enemies.yards20[i]
-                    distance = getDistance(thisUnit)
-                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                    distance = br.getDistance(thisUnit)
+                    if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     -- Pummel
-                        if isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
+                        if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
                             if cast.pummel(thisUnit) then debug("Casting Pummel") return end
                         end
                     -- Intimidating Shout
-                        if isChecked("Intimidating Shout - Int") and cast.able.intimidatingShout() and distance < 8 then
+                        if br.isChecked("Intimidating Shout - Int") and cast.able.intimidatingShout() and distance < 8 then
                             if cast.intimidatingShout() then debug("Casting Intimidating Shout") return end
                         end
                     end
@@ -326,7 +326,7 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
        local function actionList_Cooldowns()
-            if getDistance(units.dyn5) < 5 and useCDs() then
+            if br.getDistance(units.dyn5) < 5 and useCDs() then
             -- Racials
                 -- actions+=/blood_fury,if=debuff.colossus_smash.up
                 -- actions+=/berserking,if=debuff.colossus_smash.up
@@ -334,7 +334,7 @@ local function runRotation()
                 -- actions+=/lights_judgment,if=debuff.colossus_smash.down
                 -- actions+=/fireblood,if=debuff.colossus_smash.up
                 -- actions+=/ancestral_call,if=debuff.colossus_smash.up
-                if isChecked("Racial") and cast.able.racial() 
+                if br.isChecked("Racial") and cast.able.racial() 
                 and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc" or race == "Vulpera")
                 or ((race == "BloodElf" and cd.mortalStrike.remain() > 1.5 and power < 50) or race == "LightforgedDraenei")
                 then
@@ -346,7 +346,7 @@ local function runRotation()
                 end
             -- Avatar
                 -- avatar,if=cooldown.colossus_smash.remains<8|(talent.warbreaker.enabled&cooldown.warbreaker.remains<8)
-                if isChecked("Avatar") and cast.able.avatar() then
+                if br.isChecked("Avatar") and cast.able.avatar() then
                     if (talent.warbreaker and cd.warbreaker.remain() < 8) or talent.cleave or talent.collateralDamage then
                         if cast.avatar() then debug("Casting Avatar") return end
                     end
@@ -354,15 +354,15 @@ local function runRotation()
             end
         -- Trinkets
 		    -- Trinket 1
-            if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and inCombat then
-                if isChecked("Trinket 1") and use.able.slot(13)
+            if (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and useCDs())) and inCombat then
+                if br.isChecked("Trinket 1") and use.able.slot(13)
                  then br.addonDebug("Using Trinket 1")
-                        useItem(13)
+                        br.useItem(13)
                  end
             -- Trinket 2
-                if isChecked("Trinket 2") and use.able.slot(14)
+                if br.isChecked("Trinket 2") and use.able.slot(14)
                 then br.addonDebug("Using Trinket 2")
-                    useItem(14)
+                    br.useItem(14)
                 end
             end
         end -- End Action List - Cooldowns
@@ -373,11 +373,11 @@ local function runRotation()
        local function actionList_Single()
             -- Warbreaker // actions.single_target+=/warbreaker
                 if (mode.rotation ~= 2 and #enemies.yards8 >= 1) then
-                    if cast.able.warbreaker() and isChecked("Warbreaker") and talent.warbreaker and useCDs() then
+                    if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and useCDs() then
                         if cast.warbreaker("player","aoe",1,8) then debug("ST Casting Warbreaker") return end
                     end
                 -- Colossus Smash // actions.single_target+=/colossus_smash
-                    if cast.able.colossusSmash() and isChecked("Colossus Smash") and not talent.warbreaker then
+                    if cast.able.colossusSmash() and br.isChecked("Colossus Smash") and not talent.warbreaker then
                         if cast.colossusSmash("target") then debug("ST Casting ColossusSmash") return end
                     end  
 				-- Ravager  //  actions.single_target+=/ravager,if=buff.avatar.remains<18&!dot.ravager.remains
@@ -393,7 +393,7 @@ local function runRotation()
 						if cast.rend() then debug("Casting Rend")return end
 					end
 				--  Skullsplitter if < 60 rage, and you're not about to use Bladestorm // actions.single_target+=/skullsplitter,if=rage<60&buff.deadly_calm.down
-					if cast.able.skullsplitter() and (rage < getOptionValue("Skullsplitter Rage") and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
+					if cast.able.skullsplitter() and (rage < br.getOptionValue("Skullsplitter Rage") and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
 						if cast.skullsplitter() then debug("ST Casting Skullsplitter") return end
 					end
 				--  Mortal Strike with <4 seconds remaining on Deep Wounds
@@ -411,19 +411,19 @@ local function runRotation()
 				-- CondemnMassacre 
 					for i = 1, #enemies.yards8 do
 						local thisUnit = enemies.yards8[i]
-							if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre then
+							if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 35)) and talent.massacre then
 								if cast.condemnMassacre() then debug("ST Casting condemnMassacre") return end
 							end
 					end
 				--  Condemn on Sudden Death proc, target above 80%, or below 20% health (35% with Massacre)
 					for i = 1, #enemies.yards8 do
 						local thisUnit = enemies.yards8[i]
-							if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20)) and not talent.massacre then
+							if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20)) and not talent.massacre then
 								if cast.condemn() then debug("ST Casting condemn") return end
 							end
 					end
 				-- execute
-                    if talent.massacre and getHP(units.dyn5) <= 35 or not talent.massacre and getHP(units.dyn5) <= 20 then
+                    if talent.massacre and br.getHP(units.dyn5) <= 35 or not talent.massacre and br.getHP(units.dyn5) <= 20 then
                         if cast.able.execute() and (buff.suddenDeath.exists() or not buff.suddenDeath.exists()) then
                             if cast.execute() then debug("ST Casting Execute @Rage: " .. power) return end
                         end
@@ -433,7 +433,7 @@ local function runRotation()
 						if cast.mortalStrike() then debug("ST Casting Mortal Strike normal") return end
 					end
 				--  Bladestorm during Colossus Smash // actions.single_target+=/bladestorm,if=buff.deadly_calm.down&(debuff.colossus_smash.up&rage<30|rage<70)
-					if #enemies.yards8 >= getOptionValue("Bladestorm") and cast.able.bladestorm() and isChecked("Bladestorm") and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) and debuff.colossusSmash.remain(units.dyn5) > 4.5 and not talent.ravager then
+					if #enemies.yards8 >= br.getOptionValue("Bladestorm") and cast.able.bladestorm() and br.isChecked("Bladestorm") and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) and debuff.colossusSmash.remain(units.dyn5) > 4.5 and not talent.ravager then
 						if cast.bladestorm("player","aoe",1,8) then debug("ST Bladestorm @Rage: ".. power) return end
 					end
 				-- whirlwind // actions.single_target+=/whirlwind,if=talent.fervor_of_battle.enabled
@@ -449,30 +449,30 @@ local function runRotation()
         -- Action List - MultiTarget
 		local function actionList_Multi()
 				-- actions.hac=skullsplitter,if=rage<60&buff.deadly_calm.down
-					if cast.able.skullsplitter() and (rage < getOptionValue("Skullsplitter Rage") and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
+					if cast.able.skullsplitter() and (rage < br.getOptionValue("Skullsplitter Rage") and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
 						if cast.skullsplitter() then debug("Casting Skullsplitter MT") return end
 					end
 				-- sweeping strikes // actions+=/sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>15|talent.ravager.enabled)
-					if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 >= getOptionValue("Sweeping Strikes") and (cd.bladestorm.remain() > 15 or talent.ravager) then
+					if br.isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 >= br.getOptionValue("Sweeping Strikes") and (cd.bladestorm.remain() > 15 or talent.ravager) then
 						if cast.sweepingStrikes() then debug("MT Casting Sweeping Strikes") return end
 					end
 					
 				--Warbreaker or Cleave to apply Deep Wounds
-					if cast.able.warbreaker() and isChecked("Warbreaker") and talent.warbreaker and useCDs() then
+					if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and useCDs() then
 						if cast.warbreaker("player","aoe",1,8) then debug("MT Casting Warbreaker") return end
 					end
 				--Bladestorm
-					if #enemies.yards8 >= getOptionValue("Bladestorm") and cast.able.bladestorm() and isChecked("Bladestorm") and useCDs() and not talent.ravager then
+					if #enemies.yards8 >= br.getOptionValue("Bladestorm") and cast.able.bladestorm() and br.isChecked("Bladestorm") and useCDs() and not talent.ravager then
 						if cast.bladestorm("player","aoe",1,8) then debug("MT Bladestorm @Rage: ".. power) return end
 					end
 				-- Ravager
-                    if cast.able.ravager() and (getOptionValue("Ravager") == 1 or (getOptionValue("Ravager") == 2 and useCDs())) then
+                    if cast.able.ravager() and (br.getOptionValue("Ravager") == 1 or (br.getOptionValue("Ravager") == 2 and useCDs())) then
                         -- Best Location
-                        if getOptionValue("Ravager") == 1 then
+                        if br.getOptionValue("Ravager") == 1 then
                             if cast.ravager("best",nil,1,8) then debug("MT Casting Ravager @Best")return end
                         end
                         -- Target
-                        if getOptionValue("Ravager") == 2 then
+                        if br.getOptionValue("Ravager") == 2 then
                             if cast.ravager("target","ground") then debug("MT Casting Ravager @Target") return end
                         end
                     end
@@ -481,7 +481,7 @@ local function runRotation()
                         if cast.cleave(nil,"aoe") then debug("MT Casting Cleave") return end
                     end
 				--Colossus Smash on the priority target
-                    if cast.able.colossusSmash() and isChecked("Colossus Smash") and not talent.warbreaker then
+                    if cast.able.colossusSmash() and br.isChecked("Colossus Smash") and not talent.warbreaker then
                         if cast.colossusSmash("target") then debug("MT Casting ColossusSmash") return end
                     end  
 				-- rend // actions.hac+=/rend,if=remains<=duration*0.3&buff.sweeping_strikes.up
@@ -499,19 +499,19 @@ local function runRotation()
 				-- CondemnMassacre 
 					for i = 1, #enemies.yards8 do
 						local thisUnit = enemies.yards8[i]
-							if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre then
+							if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 35)) and talent.massacre then
 								if cast.condemnMassacre() then debug("MT Casting condemnMassacre") return end
 							end
 					end
 				--  Condemn on Sudden Death proc, target above 80%, or below 20% health (35% with Massacre)
 					for i = 1, #enemies.yards8 do
 						local thisUnit = enemies.yards8[i]
-							if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20)) and not talent.massacre then
+							if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20)) and not talent.massacre then
 								if cast.condemn() then debug("MT Casting condemn") return end
 							end
 					end
 				-- execute // actions.hac+=/execute,if=buff.sweeping_strikes.up
-					if talent.massacre and getHP(units.dyn5) <= 35 or not talent.massacre and getHP(units.dyn5) <= 20 then
+					if talent.massacre and br.getHP(units.dyn5) <= 35 or not talent.massacre and br.getHP(units.dyn5) <= 20 then
                         if cast.able.execute() and (buff.suddenDeath.exists() or not buff.suddenDeath.exists()) and buff.sweepingStrikes.exists() then
                             if cast.execute() then debug("MT Casting Execute @Rage: " .. power) return end
                         end
@@ -542,7 +542,7 @@ local function runRotation()
 				if cast.rend() then debug("EXEQT Casting Rend")return end
 			end
 		--actions.execute+=/skullsplitter,if=rage<60&(!talent.deadly_calm.enabled|buff.deadly_calm.down)
-			if cast.able.skullsplitter() and (rage < getOptionValue("Skullsplitter Rage") and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
+			if cast.able.skullsplitter() and (rage < br.getOptionValue("Skullsplitter Rage") and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
 				if cast.skullsplitter() then debug("EXEQT Casting Skullsplitter") return end
 			end
 		--actions.execute+=/ravager,if=buff.avatar.remains<18&!dot.ravager.remains
@@ -554,25 +554,25 @@ local function runRotation()
 				if cast.cleave(nil,"aoe") then debug("EXEQT Casting Cleave for DW") return end
 			end
 		--actions.execute+=/warbreaker
-			if cast.able.warbreaker() and isChecked("Warbreaker") and talent.warbreaker and useCDs() then
+			if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and useCDs() then
 				if cast.warbreaker("player","aoe",1,8) then debug("EXEQT Casting Warbreaker") return end
             end
 		--actions.execute+=/colossus_smash
-			if cast.able.colossusSmash() and isChecked("Colossus Smash") and not talent.warbreaker then
+			if cast.able.colossusSmash() and br.isChecked("Colossus Smash") and not talent.warbreaker then
 				if cast.colossusSmash("target") then debug("EXEQT Casting ColossusSmash") return end
 			end 
 		--actions.execute+=/condemn,if=debuff.colossus_smash.up|buff.sudden_death.react|rage>65
 		-- CondemnMassacre 
 			for i = 1, #enemies.yards8 do
 				local thisUnit = enemies.yards8[i]
-					if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre and debuff.colossusSmash.exists(units.dyn5) or rage >= 65 then
+					if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 35)) and talent.massacre and debuff.colossusSmash.exists(units.dyn5) or rage >= 65 then
 						if cast.condemnMassacre() then debug("EXEQT Casting condemnMassacre rage65 or colsmash") return end
 					end
 			end
 		--  Condemn on Sudden Death proc, target above 80%, or below 20% health (35% with Massacre)
 			for i = 1, #enemies.yards8 do
 				local thisUnit = enemies.yards8[i]
-					if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20)) and not talent.massacre and debuff.colossusSmash.exists(units.dyn5) or rage >= 65 then
+					if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20)) and not talent.massacre and debuff.colossusSmash.exists(units.dyn5) or rage >= 65 then
 						if cast.condemn() then debug("EXEQT Casting condemn rage65 or colsmash") return end
 					end
 			end
@@ -581,7 +581,7 @@ local function runRotation()
 				if cast.overpower() then debug("EXEQT Casting Overpower 2stacks") return end
             end
 		--actions.execute+=/bladestorm,if=buff.deadly_calm.down&rage<50
-			if #enemies.yards8 >= getOptionValue("Bladestorm") and cast.able.bladestorm() and isChecked("Bladestorm") and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) and rage <= 50 and not talent.ravager then
+			if #enemies.yards8 >= br.getOptionValue("Bladestorm") and cast.able.bladestorm() and br.isChecked("Bladestorm") and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) and rage <= 50 and not talent.ravager then
 				if cast.bladestorm("player","aoe",1,8) then debug("EXEQT Bladestorm @Rage: ".. power) return end
 			end
 		--actions.execute+=/mortal_strike,if=dot.deep_wounds.remains<=gcd
@@ -600,19 +600,19 @@ local function runRotation()
 		--  CondemnMassacre 
 			for i = 1, #enemies.yards8 do
 				local thisUnit = enemies.yards8[i]
-					if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 35)) and talent.massacre then
+					if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 35)) and talent.massacre then
 						if cast.condemnMassacre() then debug("EXEQT Casting condemnMassacre fallback") return end
 					end
 			end
 		--  Condemn on Sudden Death proc, target above 80%, or below 20% health (35% with Massacre)
 			for i = 1, #enemies.yards8 do
 				local thisUnit = enemies.yards8[i]
-					if isChecked("Use Condemn") and (getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (getHP(thisUnit) <= 20)) and not talent.massacre then
+					if br.isChecked("Use Condemn") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20)) and not talent.massacre then
 						if cast.condemn() then debug("EXEQT Casting condemn fallback") return end
 					end
 			end
 		--actions.execute+=/execute
-			if talent.massacre and getHP(units.dyn5) <= 35 or not talent.massacre and getHP(units.dyn5) <= 20 then
+			if talent.massacre and br.getHP(units.dyn5) <= 35 or not talent.massacre and br.getHP(units.dyn5) <= 20 then
                if cast.able.execute() and (buff.suddenDeath.exists() or not buff.suddenDeath.exists()) then
                     if cast.execute() then debug("ST Casting Execute @Rage: " .. power) return end
                 end
@@ -637,15 +637,15 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and isValidUnit("target") then
-                if getDistance("target")<5 then
+            if not inCombat and br.isValidUnit("target") then
+                if br.getDistance("target")<5 then
                     if not IsCurrentSpell(6603) then
-                        StartAttack("target")
+                        br._G.StartAttack("target")
                     end
                 else
             -- Action List - Movement
-                    -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-                    -- if getDistance("target") >= 8 then
+                    -- run_action_list,name=movement,if=movement.br.getDistance(units.dyn5)>5
+                    -- if br.getDistance("target") >= 8 then
                         if actionList_Movement() then return end
                     -- end
                 end
@@ -653,20 +653,20 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and isValidUnit(units.dyn5) then
+            if inCombat and br.isValidUnit(units.dyn5) then
             -- Auto Attack
             --auto_attack
-            -- if IsCurrentSpell(6603) and not GetUnitIsUnit(units.dyn5,"target") then
+            -- if IsCurrentSpell(6603) and not br.GetUnitIsUnit(units.dyn5,"target") then
             --     StopAttack()
             -- else
-            --     StartAttack(units.dyn5)
+            --     br._G.StartAttack(units.dyn5)
             -- end
             if not IsCurrentSpell(6603) then
-                StartAttack(units.dyn5)
+                br._G.StartAttack(units.dyn5)
             end
             -- Action List - Movement
-            -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-            -- if getDistance(units.dyn8) > 8 then
+            -- run_action_list,name=movement,if=movement.br.getDistance(units.dyn5)>5
+            -- if br.getDistance(units.dyn8) > 8 then
             if actionList_Movement() then return end
             -- end
             -- Action List - Interrupts
@@ -674,7 +674,7 @@ local function runRotation()
             -- Action List - Cooldowns
             if actionList_Cooldowns() then return end
 			-- Action List - Execute
-				if getHP(units.dyn5) <= 35 or not talent.massacre and getHP(units.dyn5) <= 20 or (covenant.venthyr.active and getHP(units.dyn5) >= 80) then
+				if br.getHP(units.dyn5) <= 35 or not talent.massacre and br.getHP(units.dyn5) <= 20 or (covenant.venthyr.active and br.getHP(units.dyn5) >= 80) then
 					if actionList_Execute() then return end
 				end
             -- -- Action List - Multi

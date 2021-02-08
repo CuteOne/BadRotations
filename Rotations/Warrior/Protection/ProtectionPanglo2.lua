@@ -169,7 +169,7 @@ local function ipCapCheck()
     if br.player.buff.ignorePain.exists() then
         local ipValue = tonumber((select(1, GetSpellDescription(190456):match("%d+%S+%d"):gsub("%D", ""))), 10)
         local ipMax = math.floor(ipValue * 1.3)
-        local ipCurrent = tonumber((select(16, UnitBuffID("player", 190456))), 10)
+        local ipCurrent = tonumber((select(16, br.UnitBuffID("player", 190456))), 10)
         if ipCurrent == nil then
             ipCurrent = 0
             return
@@ -213,15 +213,15 @@ local function runRotation()
         --------------
         local buff = br.player.buff
         local cast = br.player.cast
-        local combatTime = getCombatTime()
+        local combatTime = br.getCombatTime()
         local cd = br.player.cd
         local charges = br.player.charges
         local deadMouse = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+        local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
         local debuff = br.player.debuff
         local enemies = br.player.enemies
         local falling, swimming, flying, moving = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
-        local friendly = friendly or GetUnitIsFriend("target", "player")
+        local friendly = friendly or br.GetUnitIsFriend("target", "player")
         local gcd = br.player.gcd
         local gcdMax = br.player.gcdMax
         local healPot = getHealthPot()
@@ -241,8 +241,8 @@ local function runRotation()
         local solo = br.player.instance == "none"
         local spell = br.player.spell
         local talent = br.player.talent
-        local thp = getHP("target")
-        local ttd = getTTD
+        local thp = br.getHP("target")
+        local ttd = br.getTTD
         local ttm = br.player.power.rage.ttm()
         local units = br.player.units
         local hasAggro = UnitThreatSituation("player")
@@ -367,7 +367,7 @@ local function runRotation()
         }
         --- Quick maths ---
         local function mainTank()
-            if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or isChecked("Open World Defensives") then
+            if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or br.isChecked("Open World Defensives") then
                 return true
             else
                 return false
@@ -386,34 +386,34 @@ local function runRotation()
         ------Stuff with the things ------
 
         local function actionList_Extras()
-            if isChecked("Charge OoC") then
-                if cast.able.intercept("target") and getDistance("player", "target") <= 25 and not inCombat then
+            if br.isChecked("Charge OoC") then
+                if cast.able.intercept("target") and br.getDistance("player", "target") <= 25 and not inCombat then
                     if cast.intercept("target") then
                         return
                     end
                 end
             end
 
-            if isChecked("Battle Shout") and cast.able.battleShout() then
+            if br.isChecked("Battle Shout") and cast.able.battleShout() then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
-                    if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and getBuffRemain(thisUnit, spell.battleShout) < 60 then
+                    if not UnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
                         if cast.battleShout() then
                             return
                         end
                     end
                 end
             end
-            if inCombat and (getOptionValue("Trinkets") == 1 or (buff.avatar.exists() and getOptionValue("Trinkets") == 4)) then
-                if canTrinket(13) and getOptionValue("Trinket 1 Mode") == 1 then
-                    useItem(13)
-                elseif canTrinket(13) and getOptionValue("Trinket 1 Mode") == 2 then
+            if inCombat and (br.getOptionValue("Trinkets") == 1 or (buff.avatar.exists() and br.getOptionValue("Trinkets") == 4)) then
+                if canTrinket(13) and br.getOptionValue("Trinket 1 Mode") == 1 then
+                    br.useItem(13)
+                elseif canTrinket(13) and br.getOptionValue("Trinket 1 Mode") == 2 then
                     useItemGround("target", 13, 40, 0, nil)
                 end
 
-                if canTrinket(14) and getOptionValue("Trinket 2 Mode") == 1 then
-                    useItem(14)
-                elseif canTrinket(14) and getOptionValue("Trinket 2 Mode") == 2 then
+                if canTrinket(14) and br.getOptionValue("Trinket 2 Mode") == 1 then
+                    br.useItem(14)
+                elseif canTrinket(14) and br.getOptionValue("Trinket 2 Mode") == 2 then
                     useItemGround("target", 14, 40, 0, nil)
                 end
             end
@@ -423,16 +423,16 @@ local function runRotation()
             if inCombat then 
                 if cast.able.ignorePain() and rage >= getValue("High Rage Dump") and mainTank() and ipCapCheck() then
                     --print("dumping IP")
-                    CastSpellByName(GetSpellInfo(190456))
+                    br._G.CastSpellByName(GetSpellInfo(190456))
                 end
 
                 if useDefensive() then
-                    if mode.reflect == 1 and isChecked("Smart Spell Reflect") then
+                    if mode.reflect == 1 and br.isChecked("Smart Spell Reflect") then
                         for i = 1, #enemies.yards30 do
                             local thisUnit = enemies.yards30[i]
                             local _, _, _, startCast, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
 
-                            if UnitTarget("player") and reflectID[spellcastID] and (((GetTime() * 1000) - startCast) / (endCast - startCast) * 100) > getOptionValue("Smart Spell Reflect Percent") then
+                            if br._G.UnitTarget("player") and reflectID[spellcastID] and (((GetTime() * 1000) - startCast) / (endCast - startCast) * 100) > br.getOptionValue("Smart Spell Reflect Percent") then
                                 if cast.spellReflection() then
                                     return
                                 end
@@ -446,7 +446,7 @@ local function runRotation()
                         end
                     end
 
-                    if talent.bolster and isChecked("Last Stand Filler") and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
+                    if talent.bolster and br.isChecked("Last Stand Filler") and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
                         if cast.lastStand() then
                             return
                         end
@@ -454,21 +454,21 @@ local function runRotation()
 
                     if cast.able.ignorePain() and mainTank() and ipCapCheck() then
                         if buff.vengeanceIgnorePain.exists() and rage >= 42 then
-                            CastSpellByName(GetSpellInfo(190456))
+                            br._G.CastSpellByName(GetSpellInfo(190456))
                         end
                         if rage >= 55 and not buff.vengeanceRevenge.exists() then
-                            CastSpellByName(GetSpellInfo(190456))
+                            br._G.CastSpellByName(GetSpellInfo(190456))
                         end
                     end
 
-                    if isChecked("Shield Wall") and php <= getOptionValue("Shield Wall") and cd.lastStand.remain() > 0 and not buff.lastStand.exists() then
+                    if br.isChecked("Shield Wall") and php <= br.getOptionValue("Shield Wall") and cd.lastStand.remain() > 0 and not buff.lastStand.exists() then
                         if cast.shieldWall() then
                             return
                         end
                     end
                 end
 
-                if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
+                if br.isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
                     if cast.berserkerRage() then
                         return
                     end
@@ -476,9 +476,9 @@ local function runRotation()
 
                 for i = 1, #enemies.yards20 do
                     local thisUnit = enemies.yards20[i]
-                    local unitDist = getDistance(thisUnit)
-                    if not isExplosive(thisUnit) and canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
-                        if isChecked("Pummel") and unitDist < 6 then
+                    local unitDist = br.getDistance(thisUnit)
+                    if not isExplosive(thisUnit) and canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                        if br.isChecked("Pummel") and unitDist < 6 then
                             if cast.pummel(thisUnit) then
                                 return
                             end
@@ -511,7 +511,7 @@ local function runRotation()
         
         local function actionList_Interrupts()
             if useInterrupts() then
-                if isChecked("Storm Bolt Logic") then
+                if br.isChecked("Storm Bolt Logic") then
                     if cast.able.stormBolt() then
                         local Storm_list = {
                             274400,
@@ -553,9 +553,9 @@ local function runRotation()
                         }
                         for i = 1, #enemies.yards20 do
                             local thisUnit = enemies.yards20[i]
-                            local distance = getDistance(thisUnit)
+                            local distance = br.getDistance(thisUnit)
                             for k, v in pairs(Storm_list) do
-                                if (Storm_unitList[GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+                                if (Storm_unitList[br.GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
                                     if cast.stormBolt(thisUnit) then
                                         return
                                     end
@@ -566,15 +566,15 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards20 do
                     local thisUnit = enemies.yards20[i]
-                    local unitDist = getDistance(thisUnit)
+                    local unitDist = br.getDistance(thisUnit)
                     local targetMe = UnitIsUnit("player", thisUnit) or false
-                    if not isExplosive(thisUnit) and canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
-                        if isChecked("Intimidating Shout - Int") and unitDist <= 8 then
+                    if not isExplosive(thisUnit) and canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                        if br.isChecked("Intimidating Shout - Int") and unitDist <= 8 then
                             if cast.intimidatingShout() then
                                 return
                             end
                         end
-                        if isChecked("Shockwave - Int") and unitDist < 10 then
+                        if br.isChecked("Shockwave - Int") and unitDist < 10 then
                             if cast.shockwave() then
                                 return
                             end
@@ -586,21 +586,21 @@ local function runRotation()
     
         local function actionList_Moving()
             if br.player.ui.mode.mover == 1 then
-                if cast.able.intercept("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
-                    CastSpellByName(GetSpellInfo(spell.intercept))
+                if cast.able.intercept("target") and br.getDistance("player", "target") >= 8 and br.getDistance("player", "target") <= 25 then
+                    br._G.CastSpellByName(GetSpellInfo(spell.intercept))
                 end
             end
         end
 
         local function actionList_Cooldowns()
             if useCDs() and #enemies.yards5 >= 1 then
-                if isChecked("Avatar") then
+                if br.isChecked("Avatar") then
                     --print("cd avatar")
                     if cast.avatar() then
                         return
                     end
                 end
-                if rage <= 100 and not moving and getOptionValue("Demoralizing Shout - CD") == 2 then
+                if rage <= 100 and not moving and br.getOptionValue("Demoralizing Shout - CD") == 2 then
                     if cast.demoralizingShout() then
                         return
                     end
@@ -610,25 +610,25 @@ local function runRotation()
                         return
                     end
                 end
-                if isChecked("Racial") and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei") and useCDs() and buff.avatar.exists() then
+                if br.isChecked("Racial") and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei") and useCDs() and buff.avatar.exists() then
                     if cast.racial("player") then
                         return
                     end
                 end
-                if isChecked("Racial") and useCDs() and buff.avatar.exists() then
-                    CastSpellByName("Berserking")
+                if br.isChecked("Racial") and useCDs() and buff.avatar.exists() then
+                    br._G.CastSpellByName("Berserking")
                 end
                 --Use Trinkets
-                if inCombat and (getOptionValue("Trinkets") == 2 or (buff.avatar.exists() and getOptionValue("Trinkets") == 4)) then
-                    if canTrinket(13) and getOptionValue("Trinket 1 Mode") == 1 then
-                        useItem(13)
-                    elseif canTrinket(13) and getOptionValue("Trinket 1 Mode") == 2 then
+                if inCombat and (br.getOptionValue("Trinkets") == 2 or (buff.avatar.exists() and br.getOptionValue("Trinkets") == 4)) then
+                    if canTrinket(13) and br.getOptionValue("Trinket 1 Mode") == 1 then
+                        br.useItem(13)
+                    elseif canTrinket(13) and br.getOptionValue("Trinket 1 Mode") == 2 then
                         useItemGround("target", 13, 40, 0, nil)
                     end
 
-                    if canTrinket(14) and getOptionValue("Trinket 2 Mode") == 1 then
-                        useItem(14)
-                    elseif canTrinket(14) and getOptionValue("Trinket 2 Mode") == 2 then
+                    if canTrinket(14) and br.getOptionValue("Trinket 2 Mode") == 1 then
+                        br.useItem(14)
+                    elseif canTrinket(14) and br.getOptionValue("Trinket 2 Mode") == 2 then
                         useItemGround("target", 14, 40, 0, nil)
                     end
                 end
@@ -643,44 +643,44 @@ local function runRotation()
                         return
                     end
                 end
-                if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUseItem(6) then
-                    useItem(6)
+                if br.isChecked("Engineering Belt") and php <= br.getOptionValue("Engineering Belt") and br.canUseItem(6) then
+                    br.useItem(6)
                 end
-                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
-                    if canUseItem(5512) then
-                        useItem(5512)
-                    elseif canUseItem(healPot) then
-                        useItem(healPot)
-                    elseif hasItem(166799) and canUseItem(166799) then
-                        useItem(166799)
+                if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+                    if br.canUseItem(5512) then
+                        br.useItem(5512)
+                    elseif br.canUseItem(healPot) then
+                        br.useItem(healPot)
+                    elseif br.hasItem(166799) and br.canUseItem(166799) then
+                        br.useItem(166799)
                     end
                 end
-                if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") and getOptionValue("Demoralizing Shout - CD") == 1 then
+                if br.isChecked("Demoralizing Shout") and php <= br.getOptionValue("Demoralizing Shout") and br.getOptionValue("Demoralizing Shout - CD") == 1 then
                     if cast.demoralizingShout() then
                         return
                     end
                 end
-                if isChecked("Last Stand") and php <= getOptionValue("Last Stand") then
+                if br.isChecked("Last Stand") and php <= br.getOptionValue("Last Stand") then
                     if cast.lastStand() then
                         return
                     end
                 end
-                if isChecked("Rallying Cry") and php <= getOptionValue("Rallying Cry") then
+                if br.isChecked("Rallying Cry") and php <= br.getOptionValue("Rallying Cry") then
                     if cast.rallyingCry() then
                         return
                     end
                 end
-                if ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards8 >= getOptionValue("Shockwave - Units") and not moving)) then
+                if ((br.isChecked("Shockwave - HP") and php <= br.getOptionValue("Shockwave - HP")) or (br.isChecked("Shockwave - Units") and #enemies.yards8 >= br.getOptionValue("Shockwave - Units") and not moving)) then
                     if cast.shockwave() then
                         return
                     end
                 end
-                if mode.reflect == 1 and isChecked("Spell Reflection") and php <= getOptionValue("Spell Reflection") then
+                if mode.reflect == 1 and br.isChecked("Spell Reflection") and php <= br.getOptionValue("Spell Reflection") then
                     if cast.spellReflection() then
                         return
                     end
                 end
-                if isChecked("Storm Bolt") and php <= getOptionValue("Storm Bolt") then
+                if br.isChecked("Storm Bolt") and php <= br.getOptionValue("Storm Bolt") then
                     if cast.stormBolt() then
                         return
                     end
@@ -690,7 +690,7 @@ local function runRotation()
 
         local function actionList_Single()
             --Avatar units
-            if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) and br.player.ui.mode.cooldown == 1 then
+            if br.isChecked("Avatar") and (#enemies.yards8 >= br.getOptionValue("Avatar Mob Count")) and br.player.ui.mode.cooldown == 1 then
                 ---print("norm avatar")
                 if cast.avatar() then
                     return
@@ -698,28 +698,28 @@ local function runRotation()
             end
 
             -- Heroic Throw
-            if not isExplosive("target") and #enemies.yards10 == 0 and isChecked("Use Heroic Throw") then
+            if not isExplosive("target") and #enemies.yards10 == 0 and br.isChecked("Use Heroic Throw") then
                 if cast.heroicThrow("target") then
                     return
                 end
             end
 
             --Use Demo Shout on CD
-            if getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 100 and not moving then
+            if br.getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 100 and not moving then
                 if cast.demoralizingShout() then
                     return
                 end
             end
 
             -- Ravager Usage
-            if not isExplosive("target") and isChecked("Ravager") then
+            if not isExplosive("target") and br.isChecked("Ravager") then
                 if cast.ravager("target", "ground") then
                     return
                 end
             end
 
             --Dragon Roar
-            if not isExplosive("target") and isChecked("Dragon Roar") and not moving then
+            if not isExplosive("target") and br.isChecked("Dragon Roar") and not moving then
                 if cast.dragonRoar() then
                     return
                 end
@@ -782,23 +782,23 @@ local function runRotation()
         end
 
         local function corruptionstuff()
-            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak") or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+            if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) then
+                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or getValue("Use Cloak") == 2 and br.getDebuffStacks("player", 315161) >= br.getOptionValue("Eye Of Corruption Stacks - Cloak") or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then
                         return
                     end
                 end
             end
-            if isChecked("Corruption Radar On") then
+            if br.isChecked("Corruption Radar On") then
                 for i = 1, GetObjectCountBR() do
                     local object = GetObjectWithIndex(i)
-                    local ID = ObjectID(object)
-                    if isChecked("Use Storm Bolt on TFTB") then
+                    local ID = br._G.ObjectID(object)
+                    if br.isChecked("Use Storm Bolt on TFTB") then
                         if ID == 161895 then
-                            local x1, y1, z1 = ObjectPosition("player")
-                            local x2, y2, z2 = ObjectPosition(object)
+                            local x1, y1, z1 = br._G.ObjectPosition("player")
+                            local x2, y2, z2 = br._G.ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                            if distance <= 8 and isChecked("Use Int Shout on TFTB") and cd.intimidatingShout.remains() <= gcd then
+                            if distance <= 8 and br.isChecked("Use Int Shout on TFTB") and cd.intimidatingShout.remains() <= gcd then
                                 if cast.intimidatingShout(object) then 
                                     return true
                                 end
@@ -816,7 +816,7 @@ local function runRotation()
 
         local function technoViking()
             --Use Demo Shout on CD
-            if getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 100 then
+            if br.getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 100 then
                 if cast.demoralizingShout() then
                     return
                 end
@@ -852,7 +852,7 @@ local function runRotation()
             end
             -- Drink
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) and ipCapCheck() and rage >= 55 then
-                CastSpellByName(GetSpellInfo(190456))
+                br._G.CastSpellByName(GetSpellInfo(190456))
             end
             if not cast.able.shieldSlam() or (isExplosive("target") or cast.able.thunderClap()) then
                 if cast.devastate() then
@@ -869,7 +869,7 @@ local function runRotation()
         else
             -- combat check
             if not inCombat and not IsMounted() then
-                if isChecked("Pig Catcher") then
+                if br.isChecked("Pig Catcher") then
                     bossHelper()
                 end
                 if actionList_Extras() then
@@ -877,8 +877,8 @@ local function runRotation()
                 end
             end
             if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards8 >= 1 then
-                if getDistance(units.dyn5) < 5 then
-                    StartAttack()
+                if br.getDistance(units.dyn5) < 5 then
+                    br._G.StartAttack()
                 end
 
                 if corruptionstuff() then

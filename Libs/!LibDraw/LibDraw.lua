@@ -6,7 +6,7 @@ local tinsert, tremove = tinsert, tremove
 
 
 local function WorldToScreen (wX, wY, wZ)
-	if wZ == nil then wZ = select(3,GetObjectPosition("player")) end
+	if wZ == nil then wZ = select(3,br.GetObjectPosition("player")) end
 	local sX, sY = _G.WorldToScreen(wX, wY, wZ);
 	if sX and sY then
 		return sX, -(WorldFrame:GetTop() - sY);
@@ -349,7 +349,7 @@ local arrowZ = {
 }
 
 function LibDraw.DrawHelper()
-	local playerX, playerY, playerZ = ObjectPosition("player")
+	local playerX, playerY, playerZ = br._G.ObjectPosition("player")
 	local old_red, old_green, old_blue, old_alpha, old_width = LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a, LibDraw.line.w
 
 	-- X
@@ -376,7 +376,7 @@ function LibDraw.Distance(ax, ay, az, bx, by, bz)
 end
 
 function LibDraw.Camera()
-	local fX, fY, fZ = ObjectPosition("player")
+	local fX, fY, fZ = br._G.ObjectPosition("player")
 	local sX, sY, sZ = GetCameraPosition()
 	return sX, sY, sZ, atan2(sY - fY, sX - fX), atan((sZ - fZ) / sqrt(((fX - sX) ^ 2) + ((fY - sY) ^ 2)))
 end

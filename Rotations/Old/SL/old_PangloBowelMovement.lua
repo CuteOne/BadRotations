@@ -184,8 +184,8 @@ local function runRotation()
     local flying                             = IsFlying()
     local healPot                            = getHealthPot()
     local pullTimer                          = PullTimerRemain()
-    local thp                                = getHP
-    local ttd                                = getTTD
+    local thp                                = br.getHP
+    local ttd                                = br.getTTD
     local haltProfile                        = ((inCombat and profileStop) or IsMounted() or flying
                                             or pause() or buff.feignDeath.exists() or mode.rotation==4)
 
@@ -195,8 +195,8 @@ local function runRotation()
 
     local function ttd(unit)
         if UnitIsPlayer(unit) then return 999 end
-        local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
+        local ttdSec = br.getTTD(unit)
+        if br.getOptionCheck("Enhanced Time to Die") then return ttdSec end
         if ttdSec == -1 then return 999 end
         return ttdSec
     end
@@ -218,7 +218,7 @@ local function runRotation()
 
     if mode.misdirection == 1 then
         local misdirectUnit
-        if getOptionValue("Misdirection") == 1 then
+        if br.getOptionValue("Misdirection") == 1 then
             for i = 1, #br.friend do
                 local thisFriend = br.friend[i].unit
                 if (thisFriend == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
@@ -228,10 +228,10 @@ local function runRotation()
                 end
             end
         end
-        if getOptionValue("Misdirection") == 2 and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player") then
+        if br.getOptionValue("Misdirection") == 2 and not UnitIsDeadOrGhost("focus") and br.GetUnitIsFriend("focus","player") then
             misdirectUnit = "focus"
         end
-        if getOptionValue("Misdirection") == 3 then
+        if br.getOptionValue("Misdirection") == 3 then
             misdirectUnit = "pet"
         end
         if misdirectUnit ~= nil then
@@ -260,12 +260,12 @@ local function runRotation()
                 bestUnit = thisUnit
             end
         end
-        if br.timer:useTimer("Hunter Burn Timer", getOptionValue("Humanize Switching for Burn")) then
+        if br.timer:useTimer("Hunter Burn Timer", br.getOptionValue("Humanize Switching for Burn")) then
             for i = 1, GetObjectCountBR() do
                 local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                local distance = getDistance(object,"pet")
-                if ObjectID("target") ~= 120651 and ObjectID(object) == 120651 and distance <= 8 and getHP(object) > 0 and not UnitIsDeadOrGhost(object)then 
+                local ID = br._G.ObjectID(object)
+                local distance = br.getDistance(object,"pet")
+                if br._G.ObjectID("target") ~= 120651 and br._G.ObjectID(object) == 120651 and distance <= 8 and br.getHP(object) > 0 and not UnitIsDeadOrGhost(object)then 
                     TargetUnit(object) 
                 else
                     TargetUnit(bestUnit)
@@ -302,10 +302,10 @@ local function runRotation()
 
     local petActive = IsPetActive()
     local petCombat = UnitAffectingCombat("pet")
-    local petDistance = getDistance(petTarget,"pet") or 99
+    local petDistance = br.getDistance(petTarget,"pet") or 99
     local petExists = UnitExists("pet")
-    local petHealth = getHP("pet")
-    local validTarget = UnitExists(petTarget) and (isValidUnit(petTarget) or isDummy()) --or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
+    local petHealth = br.getHP("pet")
+    local validTarget = UnitExists(petTarget) and (br.isValidUnit(petTarget) or br.isDummy()) --or (not UnitExists("pettarget") and br.isValidUnit("target")) or br.isDummy()
 
     if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
@@ -329,7 +329,7 @@ local function runRotation()
         end
     end
 
-    if isChecked("Enemy Target Lock") and inCombat and UnitIsFriend("target", "player") then
+    if br.isChecked("Enemy Target Lock") and inCombat and UnitIsFriend("target", "player") then
         TargetLastEnemy()
     end
 
@@ -341,7 +341,7 @@ local function runRotation()
     local function hunterTTD()
         for i = 1, #enemies.yards20p do
             local thisUnit = enemies.yards20p[i]
-            if ttd(thisUnit) >= 7 or not isChecked("Use TTD for Aspect and Bestial") then
+            if ttd(thisUnit) >= 7 or not br.isChecked("Use TTD for Aspect and Bestial") then
                 return true
             else 
                 return false
@@ -350,45 +350,45 @@ local function runRotation()
     end
 
     local function Shadowshit()
-        if isChecked("Enable Corruption") then
+        if br.isChecked("Enable Corruption") then
             for i = 1, GetObjectCountBR() do
                 local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
+                local ID = br._G.ObjectID(object)
                 if ID == 161895 then
-                    local x1, y1, z1 = ObjectPosition("player")
-                    local x2, y2, z2 = ObjectPosition(object)
+                    local x1, y1, z1 = br._G.ObjectPosition("player")
+                    local x2, y2, z2 = br._G.ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                     if not (debuff.freezingTrap.exists(object) or debuff.intimidation.exists(object)) 
                     and not (cast.last.freezingTrap() or cast.last.bindingShot() or cast.last.intimidation() or cast.last.feignDeath()) then
-                        if cast.able.freezingTrap() and isChecked("Ice Trap") then
+                        if cast.able.freezingTrap() and br.isChecked("Ice Trap") then
                             if distance <= 40 then
                                 if cast.freezingTrap(object) then
                                     return true
                                 end
                             end
-                        elseif cast.able.bindingShot() and isChecked("Binding Shot") then
+                        elseif cast.able.bindingShot() and br.isChecked("Binding Shot") then
                             if distance < 30 then
                                 if cast.bindingShot(object) then
                                     return true
                                 end
                             end
-                        elseif cast.able.intimidation() and getDistance(object,"pet") <= 8 and isChecked("Intimidation") then
+                        elseif cast.able.intimidation() and br.getDistance(object,"pet") <= 8 and br.isChecked("Intimidation") then
                             if cast.intimidation(object) then
                                 return true
                             end
-                        elseif cast.able.concussiveShot() and isChecked("Conc Shot") then
+                        elseif cast.able.concussiveShot() and br.isChecked("Conc Shot") then
                             if distance < 40 then
                                 if cast.concussiveShot(object) then
                                     return true
                                 end
                             end
-                        elseif cast.able.tarTrap() and isChecked("Tar Trap") then
+                        elseif cast.able.tarTrap() and br.isChecked("Tar Trap") then
                             if distance < 40 then
                                 if cast.tarTrap(object) then
                                     return true
                                 end
                             end
-                        --[[ elseif cast.able.disengage() and isChecked("Disengage?") then
+                        --[[ elseif cast.able.disengage() and br.isChecked("Disengage?") then
                             if distance < 30 then
                                 local facing = ObjectFacing("Player")
                                 local mouselookActive = false
@@ -397,7 +397,7 @@ local function runRotation()
                                     MouselookStop()
                                 end
                                 FaceDirection(object, true)
-                                CastSpellByName(GetSpellInfo(781))
+                                br._G.CastSpellByName(GetSpellInfo(781))
                                 FaceDirection(facing)
                                 if mouselookActive then
                                     MouselookStart()
@@ -406,7 +406,7 @@ local function runRotation()
                                     FaceDirection(ObjectFacing("player"), true)
                                 end)
                             end ]]
-                        elseif (cd.freezingTrap.remains() > gcdFixed or not isChecked("Ice Trap")) and cast.able.feignDeath() and isChecked("Feign Thing") then
+                        elseif (cd.freezingTrap.remains() > gcdFixed or not br.isChecked("Ice Trap")) and cast.able.feignDeath() and br.isChecked("Feign Thing") then
                             if cast.feignDeath() then
                                 feignTime = GetTime()
                             end
@@ -418,19 +418,19 @@ local function runRotation()
     end
 
     local function actionlist_Pet()
-        if isChecked("Spirit Mend") and cast.able.spiritmend() and getHP("player") <= getOptionValue("Spirit Mend") then
+        if br.isChecked("Spirit Mend") and cast.able.spiritmend() and br.getHP("player") <= br.getOptionValue("Spirit Mend") then
             if cast.spiritmend("player") then return end
         end
-        if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and petHealth <= getOptionValue("Cat-like Reflexes") then
+        if br.isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and petHealth <= br.getOptionValue("Cat-like Reflexes") then
             if cast.catlikeReflexes() then return end
         end
-        if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
-            --[[and petCombat ]]and (petHealth <= getOptionValue("Survival of the Fittest") or php <= getOptionValue("Survival of the Fittest"))
+        if br.isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
+            --[[and petCombat ]]and (petHealth <= br.getOptionValue("Survival of the Fittest") or php <= br.getOptionValue("Survival of the Fittest"))
         then
             if cast.survivalOfTheFittest() then return end
         end
         -- Bite/Claw
-        if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem(petTarget) then
+        if br.isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not br.isTotem(petTarget) then
             if cast.able.bite() then
                 if cast.bite(petTarget,"pet") then return end
             end
@@ -439,18 +439,18 @@ local function runRotation()
             end
         end
         -- Dash
-        if isChecked("Dash") and cast.able.dash() and inCombat and validTarget and petDistance > 10 and getDistance(petTarget) < 40 then
+        if br.isChecked("Dash") and cast.able.dash() and inCombat and validTarget and petDistance > 10 and br.getDistance(petTarget) < 40 then
             if cast.dash("pet") then return end
         end
         -- Purge
-        if isChecked("Purge") and inCombat then
+        if br.isChecked("Purge") and inCombat then
             if #enemies.yards40f > 0 then
                 local dispelled = false
                 local dispelledUnit = "player"
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
-                        if isValidUnit(thisUnit) and canDispel(thisUnit,spell.spiritPulse) then
+                    if br.getOptionValue("Purge") == 1 or (br.getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
+                        if br.isValidUnit(thisUnit) and br.canDispel(thisUnit,spell.spiritPulse) then
                             if cast.able.tranquilizingShot(thisUnit) then
                                 if cast.tranquilizingShot(thisUnit) then return end
                             end
@@ -475,11 +475,11 @@ local function runRotation()
             end
         end
         -- Growl
-        if isChecked("Auto Growl") and inCombat then
+        if br.isChecked("Auto Growl") and inCombat then
             local _, autoCastEnabled = GetSpellAutocast(spell.growl)
             if autoCastEnabled then DisableSpellAutocast(spell.growl) end
             if not isTankInRange() and not buff.prowl.exists("pet") then
-                if getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
+                if br.getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                     if cast.misdirection("pet") then return end
                 end
                 if cast.able.growl() then
@@ -493,7 +493,7 @@ local function runRotation()
             end
         end
         -- Prowl
-        if isChecked("Prowl / Spirit Walk") and not petCombat and (not IsResting() or isDummy()) and #enemies.yards40nc > 0 then
+        if br.isChecked("Prowl / Spirit Walk") and not petCombat and (not IsResting() or br.isDummy()) and #enemies.yards40nc > 0 then
             if cast.able.spiritWalk() and not buff.spiritWalk.exists("pet") then
                 if cast.spiritWalk("pet") then return end
             end
@@ -502,15 +502,15 @@ local function runRotation()
             end
         end
         -- Mend Pet
-        if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not br.deadPet
-            and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile and not pause()
+        if br.isChecked("Mend Pet") and cast.able.mendPet() and petExists and not br.deadPet
+            and not buff.mendPet.exists("pet") and petHealth < br.getOptionValue("Mend Pet") and not haltProfile and not pause()
         then
             if cast.mendPet() then return end
         end
     end
 
     local function ST()
-        if (useCDs() and isChecked("Aspect of the Wild") and cd.aspectOfTheWild.remains() <= 2) and 
+        if (useCDs() and br.isChecked("Aspect of the Wild") and cd.aspectOfTheWild.remains() <= 2) and 
         ((not cast.able.bestialWrath() and (mode.bestialWrath == 1 or mode.bestialWrath == 2 and useCDs())) or mode.bestialWrath == 3)
         and (not cast.able.killCommand() or buff.frenzy.stack("pet")< 3) then
             if cast.barbedShot("target") then return end
@@ -526,7 +526,7 @@ local function runRotation()
             end
         end
 
-        if hunterTTD() and not buff.aspectOfTheWild.exists() and isChecked("Aspect of the Wild") and useCDs() and ((charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) or buff.frenzy.stack("pet")< 3) then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and br.isChecked("Aspect of the Wild") and useCDs() and ((charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) or buff.frenzy.stack("pet")< 3) then
             if cast.aspectOfTheWild() then return end
         end
 
@@ -553,7 +553,7 @@ local function runRotation()
     end
 
     local function AOE()
-        if (useCDs() and isChecked("Aspect of the Wild") and cd.aspectOfTheWild.remains() <= 2) and ((not cast.able.bestialWrath() and (mode.bestialWrath == 1 or mode.bestialWrath == 2 and useCDs())) or mode.bestialWrath == 3) then
+        if (useCDs() and br.isChecked("Aspect of the Wild") and cd.aspectOfTheWild.remains() <= 2) and ((not cast.able.bestialWrath() and (mode.bestialWrath == 1 or mode.bestialWrath == 2 and useCDs())) or mode.bestialWrath == 3) then
             if cast.barbedShot("target") then return end
         end
         if (((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= 2) or charges.barbedShot.frac() >= 1.8 or not buff.frenzy.exists("pet"))
@@ -570,7 +570,7 @@ local function runRotation()
             if AoEBarbed() then return end
         end
 
-        if hunterTTD() and not buff.aspectOfTheWild.exists() and isChecked("Aspect of the Wild") and useCDs() and ((charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) or buff.frenzy.stack("pet")< 3)then
+        if hunterTTD() and not buff.aspectOfTheWild.exists() and br.isChecked("Aspect of the Wild") and useCDs() and ((charges.barbedShot.frac() <= 1.2 or not traits.primalInstincts.active) or buff.frenzy.stack("pet")< 3)then
             if cast.aspectOfTheWild() then return end
         end
 
@@ -597,21 +597,21 @@ local function runRotation()
 
     local function defensive()
         if useDefensive() then
-            if isChecked("Pot/Stoned") and (use.able.healthstone() or canUseItem(healPot))
-            and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or has.healthstone()) 
+            if br.isChecked("Pot/Stoned") and (use.able.healthstone() or br.canUseItem(healPot))
+            and php <= br.getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or has.healthstone()) 
             then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUseItem(healPot) then
-                    useItem(healPot)
+                elseif br.canUseItem(healPot) then
+                    br.useItem(healPot)
                 end
             end
 
-            if isChecked("Aspect Of The Turtle") and php <= getOptionValue("Aspect Of The Turtle") then
+            if br.isChecked("Aspect Of The Turtle") and php <= br.getOptionValue("Aspect Of The Turtle") then
                 if cast.aspectOfTheTurtle("player") then return end
             end
 
-            if isChecked("Exhilaration") and php <= getOptionValue("Exhilaration") then
+            if br.isChecked("Exhilaration") and php <= br.getOptionValue("Exhilaration") then
                 if cast.exhilaration("player") then return end
             end
         end
@@ -619,10 +619,10 @@ local function runRotation()
 
     local function interrupt()
         if useInterrupts() then
-            if isChecked("Counter Shot") then
+            if br.isChecked("Counter Shot") then
                 for i=1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                         if cast.counterShot(thisUnit) then return end
                     end
                 end
@@ -635,7 +635,7 @@ local function runRotation()
         if interrupt() then return end
         if inCombat and #enemies.yards40 >= 1 then
                 PetAttack("target") 
-                StartAttack()
+                br._G.StartAttack()
         end
     end
     if feignTime == nil or (feignTime ~= nil and (GetTime() - feignTime > 1.2)) then
@@ -648,9 +648,9 @@ local function runRotation()
             return true
         else
             if inCombat then
-                if (unitcount >= getOptionValue("Units To AoE")) and (mode.rotation == 2 or mode.rotation == 1) then
+                if (unitcount >= br.getOptionValue("Units To AoE")) and (mode.rotation == 2 or mode.rotation == 1) then
                     if AOE() then return end
-                elseif unitcount < getOptionValue("Units To AoE") or mode.rotation == 3 then
+                elseif unitcount < br.getOptionValue("Units To AoE") or mode.rotation == 3 then
                     if ST() then return end
                 end
             end

@@ -167,8 +167,8 @@ var.stopAttack      = _G["StopAttack"]
 var.tonumber        = _G["tonumber"]
 -- BR Globals to Variables
 var.canInterrupt    = _G["canInterrupt"]
-var.getCombatTime   = _G["getCombatTime"]
-var.hasThreat       = _G["hasThreat"]
+var.br.getCombatTime   = _G["br.getCombatTime"]
+var.br.hasThreat       = _G["br.hasThreat"]
 var.isTanking       = _G["isTanking"]
 var.pause           = _G["pause"]
 -- Profile Variables
@@ -185,7 +185,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if var.br.getCombatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
                 var.stopAttack()
                 var.clearTarget()
                 ui.print(var.tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -197,7 +197,7 @@ actionList.Extras = function()
     if ui.checked("Torment") and cast.able.torment() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if not var.isTanking(thisUnit) and var.hasThreat(thisUnit) and not unit.isExplosive(thisUnit) then
+            if not var.isTanking(thisUnit) and var.br.hasThreat(thisUnit) and not unit.isExplosive(thisUnit) then
                 if cast.torment(thisUnit) then ui.debug("Casting Torment [Not Tanking]") return true end
             end
         end
@@ -437,7 +437,7 @@ actionList.PreCombat = function()
             -- Start Attack
             -- auto_attack
             if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+                br._G.StartAttack(units.dyn5)
             end
         end -- End Pull
     end -- End No Combat
@@ -491,6 +491,7 @@ local function runRotation()
     elseif (unit.inCombat() and var.profileStop==true) or unit.mounted() or unit.flying() or var.pause() or ui.mode.rotation==4 then
         return true
     else
+        if actionList.Defensive() then return true end
         -----------------------
         --- Extras Rotation ---
         -----------------------
@@ -519,10 +520,10 @@ local function runRotation()
             -- Start Attack
             -- auto_attack
             if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+                br._G.StartAttack(units.dyn5)
             end
             -- Consume Magic
-            if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.isBoss("target") and unit.exists("target") then
+            if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.br.isBoss("target") and unit.exists("target") then
                 if cast.consumeMagic("target") then ui.debug("Casting Consume Magic") return true end
             end
             -- Throw Glaive

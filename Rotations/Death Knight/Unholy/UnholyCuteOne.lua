@@ -1,5 +1,5 @@
+local addonName, br = ...
 local rotationName = "CuteOne"
-local br = _G["br"]
 ---------------
 --- Toggles ---
 ---------------
@@ -234,7 +234,7 @@ actionList.PetManagement = function()
     local petCombat = unit.inCombat("pet")
     local petExists = br.player.pet.active.exists()
     local petMode = getCurrentPetMode()
-    local validTarget = unit.exists("pettarget") or (not unit.exists("pettarget") and unit.valid("target")) or unit.isDummy("target")
+    local validTarget = unit.exists("pettarget") or (not unit.exists("pettarget") and unit.valid("target")) or unit.br.isDummy("target")
     if petExists and br.deadPet then br.deadPet = false end
     if waitForPetToAppear == nil or IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
@@ -268,10 +268,10 @@ actionList.PetManagement = function()
             elseif ui.value("Pet Target") == 3 then
                 for i=1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if (unit.valid(thisUnit) or unit.isDummy(thisUnit)) then PetAttack(thisUnit); break end
+                    if (unit.valid(thisUnit) or unit.br.isDummy(thisUnit)) then PetAttack(thisUnit); break end
                 end
             end
-        elseif (not unit.inCombat() or (unit.inCombat() and not validTarget and not unit.valid("target") and not unit.isDummy("target"))) and IsPetAttackActive() then
+        elseif (not unit.inCombat() or (unit.inCombat() and not validTarget and not unit.valid("target") and not unit.br.isDummy("target"))) and IsPetAttackActive() then
             PetStopAttack()
             PetFollow()
         end
@@ -306,7 +306,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -329,7 +329,7 @@ actionList.Extras = function()
     if ui.checked("Control Undead") and cast.able.controlUndead() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if isUndead(thisUnit) and not unit.isDummy(thisUnit) and not unit.isBoss(thisUnit) and unit.level(thisUnit) <= unit.level() + 1 then
+            if isUndead(thisUnit) and not unit.br.isDummy(thisUnit) and not unit.br.isBoss(thisUnit) and unit.level(thisUnit) <= unit.level() + 1 then
                 if cast.controlUndead(thisUnit) then ui.debug("Casting Control Undead") return true end
             end
         end
@@ -337,7 +337,7 @@ actionList.Extras = function()
     -- Death Grip
     if ui.checked("Death Grip") and cast.able.deathGrip() then
         local thisUnit = talent.deathsReach and units.dyn40 or units.dyn30
-        if unit.inCombat() and unit.distance(thisUnit) > 10 and ((talent.deathsReach and unit.distance(thisUnit) < 40) or unit.distance(thisUnit) < 30) and not unit.isDummy(thisUnit) then
+        if unit.inCombat() and unit.distance(thisUnit) > 10 and ((talent.deathsReach and unit.distance(thisUnit) < 40) or unit.distance(thisUnit) < 30) and not unit.br.isDummy(thisUnit) then
             if cast.deathGrip() then ui.debug("Casting Death Grip") return true end
         end
     end
@@ -431,7 +431,7 @@ actionList.Cooldowns = function()
     -- potion,if=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned&(pet.army_ghoul.active|pet.apoc_ghoul.active|cooldown.army_of_the_dead.remains>target.time_to_die)
     -- Army of the Dead
     -- army_of_the_dead,if=cooldown.unholy_blight.remains<3&cooldown.dark_transformation.remains<3&talent.unholy_blight|!talent.unholy_blight|fight_remains<35
-    if ui.alwaysCdNever("Army of the Dead") and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy()) and cast.able.armyOfTheDead()
+    if ui.alwaysCdNever("Army of the Dead") and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.br.isDummy()) and cast.able.armyOfTheDead()
         and ((cd.unholyBlight.remains() < 3 and cd.darkTransformation.remains() < 3 and talent.unholyBlight) or not talent.unholyBlight or not ui.alwaysCdNever("Unholy Blight"))
     then
         if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead") return true end
@@ -494,13 +494,13 @@ actionList.Cooldowns = function()
     end
     -- Summon Gargoyle
     -- summon_gargoyle,if=runic_power.deficit<14&(cooldown.unholy_blight.remains<10|dot.unholy_blight_dot.remains)
-    if ui.alwaysCdNever("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy())
+    if ui.alwaysCdNever("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.br.isDummy())
         and (cd.unholyBlight.remains() < 10 or debuff.unholyBlight.exists(units.dyn5))
     then
         if cast.summonGargoyle() then ui.debug("Casting Summon Gargoyle") return true end
     end
     -- Unholy Assault
-    if ui.alwaysCdNever("Unholy Assault") and cast.able.unholyAssault() and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy()) then
+    if ui.alwaysCdNever("Unholy Assault") and cast.able.unholyAssault() and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.br.isDummy()) then
         -- unholy_assault,if=variable.st_planning&debuff.festering_wound.stack<2&(pet.apoc_ghoul.active|conduit.convocation_of_the_dead&buff.dark_transformation.up&!pet.army_ghoul.active)
         if var.stPlanning and debuff.festeringWound.stack(units.dyn5) < 2
             and (pet.apocalypseGhoul.active() or conduit.convocationOfTheDead.enabled and buff.darkTransformation.exists() and not pet.armyOfTheDead.active)
@@ -779,7 +779,7 @@ actionList.PreCombat = function()
     -- Pull
     if unit.valid("target") and not unit.inCombat() then
         -- Death Grip
-        if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not unit.isDummy("target")
+        if ui.checked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not unit.br.isDummy("target")
             and unit.distance("target") > 10 and ((talent.deathsReach and unit.distance("target") < 40) or unit.distance("target") < 30)
         then
             if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end

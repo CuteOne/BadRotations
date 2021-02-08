@@ -1,3 +1,4 @@
+local addonName, br = ...
 function br.read.commonReaders()
 	---------------
 	--[[ Readers ]]
@@ -25,7 +26,7 @@ function br.read.commonReaders()
 	Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
 	local function MerchantShow(self, event, ...)
-		if getOptionCheck("Accept Queues") == true then
+		if br.getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
 				readyToAccept = GetTime()
 			end
@@ -86,7 +87,7 @@ function br.read.commonReaders()
 	Frame:RegisterEvent("MERCHANT_SHOW")
 	local function MerchantShow(self, event, ...)
 		if event == "MERCHANT_SHOW" then
-			if getOptionCheck("Auto-Sell/Repair") then
+			if br.getOptionCheck("Auto-Sell/Repair") then
 				SellGreys()
 			end
 		end
@@ -104,7 +105,7 @@ function br.read.commonReaders()
 			if br.data.settings ~= nil then
 				br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
 			end
-			ChatOverlay("|cffFF0000Entering Combat")
+			br.ChatOverlay("|cffFF0000Entering Combat")
 		end
 	end
 	Frame:SetScript("OnEvent", EnteringCombat)
@@ -130,7 +131,7 @@ function br.read.commonReaders()
 			if br.data.settings ~= nil then
 				br.data.settings[br.selectedSpec]["Combat Started"] = 0
 			end
-			ChatOverlay("|cff00FF00Leaving Combat")
+			br.ChatOverlay("|cff00FF00Leaving Combat")
 			-- clean up out of combat
 			Rip_sDamage = {}
 			Rake_sDamage = {}
@@ -252,35 +253,35 @@ function br.read.commonReaders()
 	end
 	--Frame:SetScript("OnEvent", addonReader)
 	GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-		if br.unlocked --[[EWT]] and GetObjectCountBR() ~= nil then
+		if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
 			local name,lunit = self:GetUnit()
 			if not UnitIsVisible(lunit) then
 				return
 			end
-			local unit = ObjectPointer(lunit)
-			local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(unit) > 0
-			local playerTarget = GetUnitIsUnit(unit, "target")
-			local targeting = isTargeting(unit)
-			local hasThreat = hasThreat(unit) or targeting or isInProvingGround() or burnUnit
-			local reaction = GetUnitReaction(unit, "player") or 10
-			if isChecked("Target Validation Debug") and (not UnitIsPlayer(unit) or UnitIsCharmed(unit) or UnitDebuffID("player", 320102)) then
-				if isValidUnit(unit) then
+			local unit = br._G.ObjectPointer(lunit)
+			local burnUnit = br.getOptionCheck("Forced Burn") and isBurnTarget(unit) > 0
+			local playerTarget = br.GetUnitIsUnit(unit, "target")
+			local targeting = br.isTargeting(unit)
+			local hasThreat = br.hasThreat(unit) or targeting or isInProvingGround() or burnUnit
+			local reaction = br.GetUnitReaction(unit, "player") or 10
+			if br.isChecked("Target Validation Debug") and (not UnitIsPlayer(unit) or UnitIsCharmed(unit) or br.UnitDebuffID("player", 320102)) then
+				if br.isValidUnit(unit) then
 					self:AddLine("Unit is Valid",0,1,0)
-				elseif not getLineOfSight("player",unit) then
+				elseif not br.getLineOfSight("player",unit) then
 					self:AddLine("LoS Fail",1,0,0)
-				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or br.lists.threatBypass[GetObjectID(unit)] ~= nil or burnUnit) then
+				elseif not (br.units[unit] ~= nil or br.GetUnitIsUnit(unit,"target") or br.lists.threatBypass[br.GetObjectID(unit)] ~= nil or burnUnit) then
 					self:AddLine("Not in Units Table",1,0,0)
 				elseif not (not UnitIsTapDenied(unit) or dummy) then
 					self:AddLine("Unit is Tap Denied",1,0,0)
-				elseif not (isSafeToAttack(unit) or burnUnit) then
+				elseif not (br.isSafeToAttack(unit) or burnUnit) then
 					self:AddLine("Safe Attack Fail",1,0,0)
-				elseif not ((reaction < 5 and not isChecked("Hostiles Only")) or (isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or dummy or burnUnit) then
+				elseif not ((reaction < 5 and not br.isChecked("Hostiles Only")) or (br.isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or dummy or burnUnit) then
 					self:AddLine("Reaction Value Fail",1,0,0)
-				elseif not ((isChecked("Attack MC Targets") and (not GetUnitIsFriend(unit, "player") or (UnitIsCharmed(unit) and UnitCanAttack("player", unit)))) or not GetUnitIsFriend(unit, "player")) then
+				elseif not ((br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(unit, "player") or (UnitIsCharmed(unit) and UnitCanAttack("player", unit)))) or not br.GetUnitIsFriend(unit, "player")) then
 					self:AddLine("MC Check Fail",1,0,0)
-				elseif getOptionCheck("Don't break CCs") and isLongTimeCCed(unit) then
+				elseif br.getOptionCheck("Don't break CCs") and isLongTimeCCed(unit) then
 					self:AddLine("CC Check Fail",1,0,0)
-				elseif not hasThreat then
+				elseif not br.hasThreat then
 					self:AddLine("Threat Fail",1,0,0)
 				end
 			end
@@ -354,7 +355,7 @@ function br.read.commonReaders()
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
 			local MyClass = select(2, UnitClass("player"))
 			if SourceUnit == "player" then
-				-- Blizz CastSpellByName bug bypass
+				-- Blizz br._G.CastSpellByName bug bypass
 				if spell == "Metamorphosis" then
 					CastSpellByID(191427, "player")
 				end
@@ -453,7 +454,7 @@ function br.read.commonReaders()
 				botCast = false
 			end
 			if sourceName ~= nil then
-				if GetUnitIsUnit(sourceName, "player") then
+				if br.GetUnitIsUnit(sourceName, "player") then
 				end
 			end
 			if SourceUnit == "player" then
@@ -464,10 +465,10 @@ function br.read.commonReaders()
 						for i = 1, #br.player.queue do
 							if GetSpellInfo(spell) == GetSpellInfo(br.player.queue[i].id) then
 								tremove(br.player.queue, i)
-								if IsAoEPending() then
+								if br._G.IsAoEPending() then
 									SpellStopTargeting()
 								end
-								if not isChecked("Mute Queue") then
+								if not br.isChecked("Mute Queue") then
 									Print("Cast Success! - Removed |cFFFF0000" .. GetSpellInfo(spell) .. "|r from the queue.")
 								end
 								break
@@ -509,7 +510,7 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
 			local MyClass = UnitClass("player")
-			if SourceUnit == "player" and isKnown(SpellID) then
+			if SourceUnit == "player" and br.isKnown(SpellID) then
 				-- Kill Command
 				if SpellID == 34026 then
 				---Print("Kill Command FAILED")
@@ -530,7 +531,7 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
 			local isDisarmed = false
-			if SourceUnit == "player" and isKnown(SpellID) then
+			if SourceUnit == "player" and br.isKnown(SpellID) then
 				-- Disarm - Warrior
 				if SpellID == 676 then
 					isDisarmed = true
@@ -603,7 +604,7 @@ function br.read.commonReaders()
 			if not UnitIsDeadOrGhost("player") and (UnitIsDeadOrGhost("pet") or not UnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
 				br.deadPet = true
 				-- if deadPet == false then
-				-- elseif deadPet == true and UnitHealth("pet") > 0 then
+				-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
 				-- 	deadPet = false
 				-- end
 			end

@@ -1,7 +1,8 @@
+local addonName, br = ...
 local function flipRace()
     local race = select(2,UnitRace("player"))
     local class = select(3,UnitClass("player"))
-    if UnitBuffID("player",193863) then
+    if br.UnitBuffID("player",193863) then
         if race == "Orc" then
             return "Dwarf"
         elseif race == "Undead" then
@@ -49,7 +50,7 @@ local function flipRace()
         elseif race == "MagharOrc" then
             return "DarkIronDwarf"
         end
-    elseif UnitBuffID("player", 193864) then
+    elseif br.UnitBuffID("player", 193864) then
         if race == "Worgen" then
             return "Troll"
         elseif race == "DarkIronDwarf" then
@@ -105,8 +106,8 @@ local function flipRace()
 end
 
 function br.getRacial(thisRace)
-    local forTheAlliance = UnitBuffID("player",193863) or false
-    local forTheHorde = UnitBuffID("player", 193864) or false
+    local forTheAlliance = br.UnitBuffID("player",193863) or false
+    local forTheHorde = br.UnitBuffID("player", 193864) or false
     local race = select(2,UnitRace("player"))
     if forTheAlliance or forTheHorde then
         race = flipRace()

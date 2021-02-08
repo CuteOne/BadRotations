@@ -1,3 +1,4 @@
+local addonName, br = ...
 local runeTable = {}
 function getChi(Unit)
 	return UnitPower(Unit, 12)
@@ -19,11 +20,11 @@ end
 function getMana(Unit)
 	return 100 * UnitPower(Unit, 0) / UnitPowerMax(Unit, 0)
 end
--- if getPower("target") <= 15 then
-function getPower(Unit, index)
+-- if br.getPower("target") <= 15 then
+function br.getPower(Unit, index)
 	local value = value
 	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
-		if --[[UnitBuffID("player", 106951) or]] UnitBuffID("player", 102543) then
+		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
 			value = UnitPower(Unit, index) * 1.2
 		else
 			value = UnitPower(Unit, index)
@@ -33,10 +34,10 @@ function getPower(Unit, index)
 	end
 	return UnitPower(Unit, index)
 end
-function getPowerMax(Unit, index)
+function br.getPowerMax(Unit, index)
 	local value = value
 	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
-		if --[[UnitBuffID("player", 106951) or]] UnitBuffID("player", 102543) then
+		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
 			value = UnitPowerMax(Unit, index) * 1.2
 		else
 			value = UnitPowerMax(Unit, index)
@@ -191,7 +192,7 @@ function getTimeToMax(Unit,Limit)
 	local curr = UnitPower(Unit)
 	local curr2 = curr
 	local _, regen = GetPowerRegen(Unit)
-	if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 and isKnown(114107) then
+	if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 and br.isKnown(114107) then
 		curr2 = curr + 4 * getCombo()
 	end
 	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
@@ -204,7 +205,7 @@ function getCastRegen(spellId)
 
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = getCastTime(spellId) or 0
-	local gcd = getSpellCD(61304)
+	local gcd = br.getSpellCD(61304)
 	if gcd == 0 then
 		gcd = max(1, 1.5 / (1 + UnitSpellHaste("player") / 100))
 	end
@@ -213,8 +214,8 @@ function getCastRegen(spellId)
 
 	return power
 end
--- if getRegen("player") > 15 then
-function getRegen(Unit)
+-- if br.getRegen("player") > 15 then
+function br.getRegen(Unit)
 	return select(2, GetPowerRegen(Unit))
 end
 function getSpellCost(spell)

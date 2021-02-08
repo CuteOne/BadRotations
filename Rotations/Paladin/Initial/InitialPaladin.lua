@@ -219,7 +219,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+                br._G.StartAttack(units.dyn5)
             end
         end
     end
@@ -305,7 +305,7 @@ local function runRotation()
                 if var.range5 then
                     -- Start Attack
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                        StartAttack(units.dyn5)
+                        br._G.StartAttack(units.dyn5)
                     end
                     -- Trinket - Non-Specific
                     local thisTrinket

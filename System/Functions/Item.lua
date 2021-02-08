@@ -1,3 +1,4 @@
+local addonName, br = ...
 -- item charges
 function itemCharges(itemID)
 	local charges = GetItemCount(itemID, false, true)
@@ -6,20 +7,20 @@ function itemCharges(itemID)
 	end
 	return charges
 end
--- if canUseItem(1710) then
-function canUseItem(itemID)
-	if itemID == 0 or getHP("player") == 0 then
+-- if br.canUseItem(1710) then
+function br.canUseItem(itemID)
+	if itemID == 0 or br.getHP("player") == 0 then
 		return false
 	end
 	if itemID <= 19 then
-		local slotItemID = GetInventoryItemID("player", itemID)
+		local slotItemID = _G.GetInventoryItemID("player", itemID)
 		if GetItemSpell(slotItemID) ~= nil then
 			if GetItemCooldown(slotItemID) == 0 and IsUsableItem(slotItemID) then
 				return true
 			end
 		end
 	elseif (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID)) and
-		((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and hasItem(itemID)))
+		((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and br.hasItem(itemID)))
 	then 
 		if itemID > 19 and GetItemCooldown(itemID) == 0 and (IsUsableItem(itemID) or IsUsableSpell(select(2,GetItemSpell(itemID)))) then
 			return true
@@ -40,8 +41,8 @@ function canTrinket(trinketSlot)
 		return false
 	end
 end
--- if hasItem(1234) == true then
-function hasItem(itemID)
+-- if br.hasItem(1234) == true then
+function br.hasItem(itemID)
 	if PlayerHasToy(itemID) then
 		return true
 	end
@@ -59,16 +60,16 @@ function hasItem(itemID)
 	end
 	return itemFound
 end
--- useItem(12345)
-function useItem(itemID,thisUnit)
+-- br.useItem(12345)
+function br.useItem(itemID,thisUnit)
 	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID <= 19 then
-		if GetItemSpell(GetInventoryItemID("player", itemID)) ~= nil then
-			local slotItemID = GetInventoryItemID("player", itemID)
+		if GetItemSpell(_G.GetInventoryItemID("player", itemID)) ~= nil then
+			local slotItemID = _G.GetInventoryItemID("player", itemID)
 			if GetItemCooldown(slotItemID) == 0 then
 				if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
 					-- RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
-					UseItemByName(select(1,GetItemInfo(slotItemID)),thisUnit);
+					br._G.UseItemByName(select(1,GetItemInfo(slotItemID)),thisUnit);
 					br.itemSpamDelay = GetTime() + 1
 					return true
 				end
@@ -93,12 +94,12 @@ function useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	if minDistance == nil then
 		minDistance = 0
 	end
-	if GetUnitExists(Unit) and getLineOfSight("player", Unit) and getDistance("player", Unit) < maxDistance and
-		getDistance("player", Unit) >= minDistance and
-		#getEnemies(Unit, radius) >= #getEnemies(Unit, radius, true)
+	if br.GetUnitExists(Unit) and br.getLineOfSight("player", Unit) and br.getDistance("player", Unit) < maxDistance and
+		br.getDistance("player", Unit) >= minDistance and
+		#br.getEnemies(Unit, radius) >= #br.getEnemies(Unit, radius, true)
 	 then
-		useItem(itemID)
-		local X, Y, Z = GetObjectPosition(Unit)
+		br.useItem(itemID)
+		local X, Y, Z = br.GetObjectPosition(Unit)
 		--local distanceToGround = getGroundDistance(Unit) or 0
 		ClickPosition(X, Y, Z) --distanceToGround
 		return true
@@ -108,7 +109,7 @@ end
 function hasHealthPot()
 	local locale = GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
-		if hasItem(169451) then
+		if br.hasItem(169451) then
 			return true
 		end
 	end
@@ -125,7 +126,7 @@ end
 function getHealthPot()
 	local locale = GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
-		if hasItem(171267) then
+		if br.hasItem(171267) then
 			return 171267
 		end
 	end
@@ -171,9 +172,9 @@ function hasEquiped(ItemID, Slot)
 	local foundItem = false
 	for i = 1, 19 do
 		-- if there is an item in that slot
-		if GetInventoryItemID("player", i) ~= nil then
+		if _G.GetInventoryItemID("player", i) ~= nil then
 			-- check if it matches
-			if GetInventoryItemID("player", i) == ItemID then
+			if _G.GetInventoryItemID("player", i) == ItemID then
 				if i == Slot or Slot == nil then
 					foundItem = true
 					break

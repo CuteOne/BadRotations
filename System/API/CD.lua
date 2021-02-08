@@ -1,3 +1,4 @@
+local _, br = ...
 if br.api == nil then br.api = {} end
 
 ----------------------
@@ -21,38 +22,38 @@ br.api.cd = function(self,spell,id)
     
     -- cd.spell.exists() - returns if spell is on cooldown or not
     cd[spell].exists = function()
-        local level = UnitLevel("player")
-        local spellLevel = GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        local level = _G.UnitLevel("player")
+        local spellLevel = _G.GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD > 0
     end
     -- cd.spell.remain() - return the time remaining on spell cooldown or 0 if not
     cd[spell].remain = function()
-        local level = UnitLevel("player")
-        local spellLevel = GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        local level = _G.UnitLevel("player")
+        local spellLevel = _G.GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD
     end
     -- cd.spell.remains() - return the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo)
     cd[spell].remains = function()
-        local level = UnitLevel("player")
-        local spellLevel = GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        local level = _G.UnitLevel("player")
+        local spellLevel = _G.GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD
     end
     -- cd.spell.duration() - returns the total time of the spell cooldown
     cd[spell].duration = function()
-        local _, CD = GetSpellCooldown(id)
+        local _, CD = _G.GetSpellCooldown(id)
         return CD
     end
     -- cd.spell.ready() - returns if the spell is not on cooldown or is (opposite of cd.spell.exists())
     cd[spell].ready = function()
-        local level = UnitLevel("player")
-        local spellLevel = GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and getSpellCD(id) or 99
+        local level = _G.UnitLevel("player")
+        local spellLevel = _G.GetSpellLevelLearned(id)
+        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD == 0
     end
     cd[spell].prevgcd = function()
-        return select(2, GetSpellBaseCooldown(id))
+        return select(2, _G.GetSpellBaseCooldown(id))
     end
 end

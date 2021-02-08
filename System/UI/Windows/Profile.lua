@@ -1,3 +1,4 @@
+local addonName, br = ...
 br.ui.window.profile = {}
 function br.ui:createProfileWindow(spec)
     if spec == "Initial" then spec = UnitClass("player") end

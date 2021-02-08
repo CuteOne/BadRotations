@@ -1,3 +1,4 @@
+local addonName, br = ...
 -- This creates the normal BadRotations Configuration Window
 br.ui.window.config = {}
 function br.ui:createConfigWindow()
@@ -39,18 +40,18 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(
             section,
             "Dynamic Targetting",
-            {"Only In Combat", "Default" --[["Lite"--]]},
+            {"Only In Combat", "Default", "Lite"},
             2,
             "Check this to allow dynamic targetting. If unchecked, profile will only attack current target."
         )
-        --br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
+        br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
         br.ui:createCheckbox(section, "Target Dynamic Target", "Check this will target the current dynamic target.")
         br.ui:createCheckbox(section, "Tank Aggro = Player Aggro", "If checked, when tank gets aggro, player will go into combat")
         br.ui:createCheckbox(section, "Hostiles Only", "Checking this will target only units hostile to you.")
         br.ui:createCheckbox(section, "Attack MC Targets", "Check this to allow addon to attack charmed/mind controlled targets.")
         br.ui:createCheckbox(section, "Enhanced Time to Die", "A more precise time to die check, but can be ressource heavy.")
         br.ui:createCheckbox(section, "Prioritize Totems", "Check this to target totems first.")
-        --br.ui:createCheckbox(section, "Darter Targeter", "Auto target Darters on Hivemind")
+        br.ui:createCheckbox(section, "Darter Targeter", "Auto target Darters on Hivemind")
         br.ui:createDropdown(
             section,
             "Wise Target",
@@ -99,14 +100,7 @@ function br.ui:createConfigWindow()
         --br.ui:createCheckbox(section, "Disable Object Manager", "Check to disable OM. Will disable dynamic targetting. Will prevent all spells that require OM from working correctly.")
         br.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
         br.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
-        br.ui:createDropdown(
-            section,
-            "Prioritize Special Targets",
-            {"Special", "All"},
-            1,
-            "Prioritize Special targets(mouseover/target/focus).",
-            "Choose Which Special Units to consider."
-        )
+        br.ui:createCheckbox(section, "Prioritize Special Targets", "Prioritize Special targets(mouseover/target/focus).")
         br.ui:createSpinner(
             section,
             "Blacklist",
@@ -125,7 +119,7 @@ function br.ui:createConfigWindow()
         )
         br.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Check this if you want to prevent overhealing units.")
         br.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts. CURRENTLY NOT IMPLEMENTED!")
-        --healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
+        healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
         --br.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
         br.ui:createSpinner(
             section,
@@ -154,11 +148,10 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(section, "Fishing", {"Enabled", "Disabled"}, 2, "Turn EWT Fishing On/Off")
         br.ui:createCheckbox(section, "Fish Oil", "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked.")
         br.ui:createDropdown(section, "Bait", {"Lost Sole Bait","Silvergill Pike Bait","Pocked Bonefish Bait","Iridescent Amberjack Bait", "Spinefin Piranha Bait", "Elysian Thade Bait"}, 1, "Using the bait.")
-        br.ui:createDropdown(section, "Anti-Afk", {"Enabled","Disabled"}, 2, "Turn EWT Anti-Afk On/Off")
         br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
         br.ui:createCheckbox(section, "Cache Debuffs", "Experimental feature still in testing")
         br.ui:createCheckbox(section, "Unit ID In Tooltip", "Show/Hide Unit IDs in Tooltip")
-        --br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
+        br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.config, "Dungeon Helpers")
         br.ui:createCheckbox(section, "Quaking Helper", "Auto cancel channeling and block casts during mythic+ affix quaking")

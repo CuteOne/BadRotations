@@ -1,5 +1,5 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
-
+local addonName, br = ...
 -- Dropdown for pages
 -- todo: save last active page and restore
 function br.ui:createPagesDropdown(window, menuPages)

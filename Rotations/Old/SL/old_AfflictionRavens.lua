@@ -184,7 +184,7 @@ local function runRotation ()
 		local buff												= br.player.buff
 		local canAttackTarget									= UnitCanAttack("target","player")
 		local cast												= br.player.cast
-		local combatTime										= getCombatTime()
+		local combatTime										= br.getCombatTime()
 		local corruptionCount									= br.player.debuff.corruption.count()
 		local corruptionTick 									= 2 / (1 + (GetHaste()/100))
 		local cd												= br.player.cd
@@ -218,10 +218,10 @@ local function runRotation ()
 		local talent											= br.player.talent
 		local time_to_shard										= time_to_shard or 10000
 		local traits                                        	= br.player.traits
-		local ttd                                           	= getTTD
+		local ttd                                           	= br.getTTD
 		local units												= br.player.units
 		local use_seed											= use_seed or false
-        local validTarget                                   	= isValidUnit("target")
+        local validTarget                                   	= br.isValidUnit("target")
         
         local agonyDuration                                     = 18
         local corruptionDuration                                = 14
@@ -277,18 +277,18 @@ local function runRotation ()
 		--- See if the current unit is really a boss
 		-- @return Wether the boss is a boss1-2-3-4-5
 		local function isTargetUnitEqualBossFrameUnit_local (thisUnit)
-			if isDummy() then return true end
+			if br.isDummy() then return true end
 			return UnitIsUnit(thisUnit, "Boss1") or UnitIsUnit(thisUnit, "Boss2") or UnitIsUnit(thisUnit, "Boss3") or UnitIsUnit(thisUnit, "Boss4") or UnitIsUnit(thisUnit, "Boss5")
 		end
 
 		--- Get whether the unit is a boss.
 		local function isBoss_local (thisUnit)
 			if thisUnit == nil then thisUnit = "target" end
-			if isValidUnit(thisUnit) then
+			if br.isValidUnit(thisUnit) then
 				-- Check if the target is boss1 - boss5
 				if isTargetUnitEqualBossFrameUnit_local(thisUnit) then return true end
-				-- check classic isBoss()
-				if isBoss(thisUnit) then return true end
+				-- check classic br.isBoss()
+				if br.isBoss(thisUnit) then return true end
 			end
 			return false
 		end
@@ -301,18 +301,18 @@ local function runRotation ()
 		--- Check Cooldown toggle value and if unit is a boss
 		local function useCDs_local ()
 			local cooldown = mode.cooldown
-			if cooldown == 1 and isDummy() then return true end
+			if cooldown == 1 and br.isDummy() then return true end
 			-- 1 = auto, 2 = on, 3 = off
 			return (cooldown == 1 and isBoss_local("target")) or (cooldown == 2 and hasBloodLust())
 		end
 		
 		function CDOptionEnabled (OptionName)
-			local OptionValue = getOptionValue(OptionName)
+			local OptionValue = br.getOptionValue(OptionName)
 			-- Always				Will use the ability even if CDs are disabled.
 			-- Always Boss			Will use the ability even if CDs are disabled as long as the current target is a Boss.
 			-- OnCooldown			Will only use the ability if the Cooldown Toggle is Enabled.
 			-- OnCooldown Boss		Will only use the ability if the Cooldown Toggle is Enabled and Target is a Boss.
-			if isChecked(OptionName) then
+			if br.isChecked(OptionName) then
 				if OptionValue == 1 then
 					return true
 				end
@@ -338,14 +338,14 @@ local function runRotation ()
 		function debuff.unstableAffliction.stack(unit)
 			local uaStack = 0
 			if unit == nil then
-				if GetUnitExists("target") then unit = "target"
+				if br.GetUnitExists("target") then unit = "target"
 				else unit = units.dyn40
 				end
 			end
 			for i=1,40 do
 				local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 				if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
-				buffSpellID == 233498 or buffSpellID == 233499) and GetUnitIsUnit(buffCaster, "player") then uaStack = uaStack + 1 end
+				buffSpellID == 233498 or buffSpellID == 233499) and br.GetUnitIsUnit(buffCaster, "player") then uaStack = uaStack + 1 end
 			end
 			return uaStack
 		end
@@ -353,14 +353,14 @@ local function runRotation ()
 		function debuff.unstableAffliction.remain(unit)
 			local remain = 0
 			if unit == nil then
-				if GetUnitExists("target") then unit = "target"
+				if br.GetUnitExists("target") then unit = "target"
 				else unit = units.dyn40
 				end
 			end
 			for i=1,40 do
 				local _,_,_,_,_,buffExpire,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 				if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
-				buffSpellID == 233498 or buffSpellID == 233499) and GetUnitIsUnit(buffCaster, "player") then
+				buffSpellID == 233498 or buffSpellID == 233499) and br.GetUnitIsUnit(buffCaster, "player") then
 					if (buffExpire - GetTime()) > remain then remain = (buffExpire - GetTime()) end
 				end
 			end
@@ -371,7 +371,7 @@ local function runRotation ()
 
 
 		function SeedTravelTime(thisUnit)
-			return getDistance(thisUnit) / 30
+			return br.getDistance(thisUnit) / 30
 		end
         
         seedTarget = seedTarget or "target"
@@ -384,20 +384,20 @@ local function runRotation ()
     
 		local inBossFight = false
 		
-		if getOptionValue("Seed Target") == 1 then 
+		if br.getOptionValue("Seed Target") == 1 then 
 			seedTarget = "target"
-			if mode.rotation<=2 or mode.rotation==3 and isChecked("Seed on ST") then
-				if mode.seed == 1 and getFacing("player",seedTarget,180) and ttd(seedTarget) > 8 then
-					seedTargetsHit = #getEnemies(seedTarget, 9, true)
+			if mode.rotation<=2 or mode.rotation==3 and br.isChecked("Seed on ST") then
+				if mode.seed == 1 and br.getFacing("player",seedTarget,180) and ttd(seedTarget) > 8 then
+					seedTargetsHit = #br.getEnemies(seedTarget, 9, true)
 				end
 			end
 		end
 		
 		
-		if getOptionValue("Seed Target") == 2 then 
+		if br.getOptionValue("Seed Target") == 2 then 
 			for i = 1, #enemies.yards40 do
 				local thisUnit = enemies.yards40[i]
-				if isBoss(thisUnit) then
+				if br.isBoss(thisUnit) then
 					inBossFight = true
 				end
 				-- if talent.shadowEmbrace and debuff.shadowEmbrace.exists(thisUnit) then
@@ -410,9 +410,9 @@ local function runRotation ()
 				--         lowestShadowEmbrace = thisUnit
 				--     end
 				-- end
-				local unitAroundUnit = getEnemies(thisUnit, 9, true)
-				if mode.rotation<=2 or mode.rotation==3 and isChecked("Seed on ST") then
-					if mode.seed == 1 and getFacing("player",thisUnit,180) and #unitAroundUnit > seedTargetsHit and ttd(thisUnit) > 8 then
+				local unitAroundUnit = br.getEnemies(thisUnit, 9, true)
+				if mode.rotation<=2 or mode.rotation==3 and br.isChecked("Seed on ST") then
+					if mode.seed == 1 and br.getFacing("player",thisUnit,180) and #unitAroundUnit > seedTargetsHit and ttd(thisUnit) > 8 then
 						seedHit = 0
 						seedCorruptionExist = 0
 						for q = 1, #unitAroundUnit do
@@ -420,14 +420,14 @@ local function runRotation ()
 							if ttd(seedAoEUnit) > cast.time.seedOfCorruption()+3 then seedHit = seedHit + 1 end
 							if debuff.corruption.exists(seedAoEUnit) then seedCorruptionExist = seedCorruptionExist + 1 end
 						end
-						if seedHit > seedTargetsHit or (GetUnitIsUnit(thisUnit, "target") and seedHit >= seedTargetsHit) then
+						if seedHit > seedTargetsHit or (br.GetUnitIsUnit(thisUnit, "target") and seedHit >= seedTargetsHit) then
 							seedTarget = thisUnit
 							seedTargetsHit = seedHit
 							seedTargetCorruptionExist = seedCorruptionExist
 						end
 					end
 				end
-				-- if getFacing("player",thisUnit) and ttd(thisUnit) <= gcd and getHP(thisUnit) < 80 then
+				-- if br.getFacing("player",thisUnit) and ttd(thisUnit) <= gcd and br.getHP(thisUnit) < 80 then
 				--     dsTarget = thisUnit
 				-- end
 			end
@@ -443,7 +443,7 @@ local function runRotation ()
                 [146731] = "Zombie Dust Totem"
             }
             local creatureType = UnitCreatureType(unit)
-            local objectID = GetObjectID(unit)
+            local objectID = br.GetObjectID(unit)
             if creatureType ~= nil and eliteTotems[objectID] == nil then
                 if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
             end
@@ -462,11 +462,11 @@ local function runRotation ()
 			[120651]=true, -- Explosive
 		}
 		local function noDotCheck(unit)
-			if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
-			if isTotem(unit) then return true end
-			unitCreator = UnitCreator(unit)
+			if br.isChecked("Dot Blacklist") and (noDotUnits[br.GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
+			if br.isTotem(unit) then return true end
+			unitCreator = br._G.UnitCreator(unit)
 			if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
-			--if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
+			--if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then return true end
 			return false
 		end
 
@@ -482,11 +482,11 @@ local function runRotation ()
 			-- actions.cooldowns=potion,if=(talent.dark_soul_misery.enabled&cooldown.summon_darkglare.up&cooldown.dark_soul.up)|cooldown.summon_darkglare.up|target.time_to_die<30
 			-- actions.cooldowns+=/use_items,if=!cooldown.summon_darkglare.up,if=cooldown.summon_darkglare.remains>70|time_to_die<20|((buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)&(!talent.deathbolt.enabled|cooldown.deathbolt.remains<=gcd|!cooldown.deathbolt.remains)&!cooldown.summon_darkglare.remains)
 			if cd.summonDarkglare.remain() > 0 then
-				if canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
-					if useItem(13) then return true end
+				if br.canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
+					if br.useItem(13) then return true end
 				end
-				if canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
-					if useItem(14) then return true end
+				if br.canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
+					if br.useItem(14) then return true end
 				end
 			end
             -- actions.cooldowns+=/fireblood,if=!cooldown.summon_darkglare.up
@@ -496,20 +496,20 @@ local function runRotation ()
 		local function actionList_Defensive ()
 			if useDefensive() then
 				-- Healthstone
-				if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasItem(5512) then
-					if canUseItem(5512) then useItem(5512) return true end
+				if br.isChecked("Healthstone") and php <= br.getOptionValue("Healthstone") and inCombat and br.hasItem(5512) then
+					if br.canUseItem(5512) then br.useItem(5512) return true end
 				end
 				-- Health Pot
-				if isChecked("Healing Potion") and php <= getOptionValue("Healing Potion") and inCombat and hasHealthPot() then
-					if canUseItem(healPot) then useItem(healPot) return true end
+				if br.isChecked("Healing Potion") and php <= br.getOptionValue("Healing Potion") and inCombat and hasHealthPot() then
+					if br.canUseItem(healPot) then br.useItem(healPot) return true end
 				end
 
 				-- Dark Pact
-				if isChecked("Dark Pact") and php <= getOptionValue("Dark Pact") then
+				if br.isChecked("Dark Pact") and php <= br.getOptionValue("Dark Pact") then
 					if cast.darkPact() then return true end
 				end
 				-- Unending gResolve
-				if isChecked("Unending Resolve") and php <= getOptionValue("Unending Resolve") and inCombat then
+				if br.isChecked("Unending Resolve") and php <= br.getOptionValue("Unending Resolve") and inCombat then
 					if cast.unendingResolve() then return true end
 				end
 			end
@@ -553,7 +553,7 @@ local function runRotation ()
 				end
 			end
 			-- actions.dots+=/agony,target_if=min:remains,if=talent.creeping_death.enabled&active_dot.agony<6&target.time_to_die>10&(remains<=gcd|cooldown.summon_darkglare.remains>10&(remains<5|!azerite.pandemic_invocation.rank&refreshable))
-			if talent.creepingDeath and agonyCount < getOptionValue("Agony Count") then
+			if talent.creepingDeath and agonyCount < br.getOptionValue("Agony Count") then
 				-- target
 				if not noDotCheck("target") and ttd("target") > 10 and (debuff.agony.remain("target") <= gcd or cd.summonDarkglare.remain() > 10 and (debuff.agony.remain("target") < 5 or not traits.pandemicInvocation.active and debuff.agony.remain("target") <= 5.4)) then
 					if cast.able.agony() then
@@ -563,7 +563,7 @@ local function runRotation ()
 				-- maintain
 				if mode.rotation==1
 					or mode.rotation==2
-					or mode.rotation==3 and isChecked("Spread Agony on ST") and agonyCount <= 1+getOptionValue("Spread Agony on ST") then
+					or mode.rotation==3 and br.isChecked("Spread Agony on ST") and agonyCount <= 1+br.getOptionValue("Spread Agony on ST") then
 					for i = 1, #enemyTable40 do
 						local thisUnit = enemyTable40[i]
 						local agonyRemain = debuff.agony.remain(thisUnit)
@@ -580,7 +580,7 @@ local function runRotation ()
 				-- 1 = Auto, 2 = Mult, 3 = Sing, 4 = Off
 				if mode.rotation==1
 					or mode.rotation==2
-					or mode.rotation==3 and isChecked("Spread Agony on ST") and agonyCount < 1+getOptionValue("Spread Agony on ST") then
+					or mode.rotation==3 and br.isChecked("Spread Agony on ST") and agonyCount < 1+br.getOptionValue("Spread Agony on ST") then
 					for i = 1, #enemyTable40 do
 						local thisUnit = enemyTable40[i]
 						local agonyRemain = debuff.agony.remain(thisUnit)
@@ -595,7 +595,7 @@ local function runRotation ()
 				end
 			end
 			-- actions.dots+=/agony,target_if=min:remains,if=!talent.creeping_death.enabled&active_dot.agony<8&target.time_to_die>10&(remains<=gcd|cooldown.summon_darkglare.remains>10&(remains<5|!azerite.pandemic_invocation.rank&refreshable))
-			if not talent.creepingDeath and agonyCount <= getOptionValue("Agony Count") then
+			if not talent.creepingDeath and agonyCount <= br.getOptionValue("Agony Count") then
 				-- target
 				if ttd(thisUnit) > 10 and not noDotCheck("target") and (debuff.agony.remain("target") <= gcd or (cd.summonDarkglare.remain() > 10 or not CDOptionEnabled("Darkglare")) and (debuff.agony.remain("target") <= 5.4 or not traits.pandemicInvocation.active and debuff.agony.remain("target") <= 5.4)) then
 					if cast.able.agony() then
@@ -605,7 +605,7 @@ local function runRotation ()
 				-- maintain
 				if mode.rotation==1
 					or mode.rotation==2
-					or mode.rotation==3 and isChecked("Spread Agony on ST") and agonyCount <= 1+getOptionValue("Spread Agony on ST") then
+					or mode.rotation==3 and br.isChecked("Spread Agony on ST") and agonyCount <= 1+br.getOptionValue("Spread Agony on ST") then
 					for i = 1, #enemyTable40 do
 						local thisUnit = enemyTable40[i]
 						local agonyRemain = debuff.agony.remain(thisUnit)
@@ -621,7 +621,7 @@ local function runRotation ()
 				-- cycle
 				if mode.rotation==1
 					or mode.rotation==2
-					or mode.rotation==3 and isChecked("Spread Agony on ST") and agonyCount < 1+getOptionValue("Spread Agony on ST") then
+					or mode.rotation==3 and br.isChecked("Spread Agony on ST") and agonyCount < 1+br.getOptionValue("Spread Agony on ST") then
 					for i = 1, #enemyTable40 do
 						local thisUnit = enemyTable40[i]
 						local agonyRemain = debuff.agony.remain(thisUnit)
@@ -636,7 +636,7 @@ local function runRotation ()
 				end
 			end
 			-- actions.dots+=/siphon_life,target_if=min:remains,if=(active_dot.siphon_life<8-talent.creeping_death.enabled-spell_targets.sow_the_seeds_aoe)&target.time_to_die>10&refreshable&(!remains&spell_targets.seed_of_corruption_aoe=1|cooldown.summon_darkglare.remains>soul_shard*action.unstable_affliction.execute_time)
-			if (siphonLifeCount < getOptionValue("Siphon Life Count") - (talent.creepingDeath and 1 or 0) - seedTargetsHit) then
+			if (siphonLifeCount < br.getOptionValue("Siphon Life Count") - (talent.creepingDeath and 1 or 0) - seedTargetsHit) then
 				-- target
 				if ttd("target") > 10 and not noDotCheck("target") and debuff.siphonLife.remain("target") <= 4.5 and (not debuff.siphonLife.exists("target") and seedTargetsHit==1 or ((cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) or not CDOptionEnabled("Darkglare"))) then
 					if cast.able.siphonLife() then
@@ -644,7 +644,7 @@ local function runRotation ()
 					end
 				end
 			end
-			if (siphonLifeCount <= getOptionValue("Siphon Life Count") - (talent.creepingDeath and 1 or 0) - seedTargetsHit) then
+			if (siphonLifeCount <= br.getOptionValue("Siphon Life Count") - (talent.creepingDeath and 1 or 0) - seedTargetsHit) then
 				-- maintain
 				if mode.rotation==1 or mode.rotation==2 then
 					for i = 1, #enemyTable40 do
@@ -660,7 +660,7 @@ local function runRotation ()
 					end
 				end
 			end
-			if (siphonLifeCount < getOptionValue("Siphon Life Count") - (talent.creepingDeath and 1 or 0) - seedTargetsHit) then
+			if (siphonLifeCount < br.getOptionValue("Siphon Life Count") - (talent.creepingDeath and 1 or 0) - seedTargetsHit) then
 				-- cycle
 				if mode.rotation==1 or mode.rotation==2 then
 					for i = 1, #enemyTable40 do
@@ -687,7 +687,7 @@ local function runRotation ()
 			end
 			-- maintain
 			if mode.rotation==1 or mode.rotation==2 then
-				if corruptionCount <= getOptionValue("Corruption Count") then
+				if corruptionCount <= br.getOptionValue("Corruption Count") then
 					if seedTargetsHit < 3 --[[ + raid_event.invulnerable.up ]] + (talent.writheInAgony and 1 or 0) then
 						for i = 1, #enemyTable40 do
 							local thisUnit = enemyTable40[i]
@@ -705,7 +705,7 @@ local function runRotation ()
 			end
 			-- cycle
 			if mode.rotation==1 or mode.rotation==2 then
-				if corruptionCount < getOptionValue("Corruption Count") then
+				if corruptionCount < br.getOptionValue("Corruption Count") then
 					if seedTargetsHit < 3 --[[ + raid_event.invulnerable.up ]] + (talent.writheInAgony and 1 or 0) then
 						for i = 1, #enemyTable40 do
 							local thisUnit = enemyTable40[i]
@@ -771,7 +771,7 @@ local function runRotation ()
 				end
 			end
 			-- actions.fillers+=/drain_life,if=(buff.inevitable_demise.stack>=40-(spell_targets.seed_of_corruption_aoe-raid_event.invulnerable.up>2)*20&(cooldown.deathbolt.remains>execute_time|!talent.deathbolt.enabled)&(cooldown.phantom_singularity.remains>execute_time|!talent.phantom_singularity.enabled)&(cooldown.dark_soul.remains>execute_time|!talent.dark_soul_misery.enabled)&(cooldown.vile_taint.remains>execute_time|!talent.vile_taint.enabled)&cooldown.summon_darkglare.remains>execute_time+10|buff.inevitable_demise.stack>10&target.time_to_die<=10)
-			if isChecked("Drain Life Trait") and not cast.last.drainLife(1) and not isCastingSpell(234153) then
+			if br.isChecked("Drain Life Trait") and not cast.last.drainLife(1) and not br.isCastingSpell(234153) then
 				if (buff.inevitableDemise.stack() >= (40 - (seedTargetsHit > 2 and 1 or 0) * 20)
 					and ((cd.deathbolt.remain() > drainLifeTime or not talent.deathbolt) or not CDOptionEnabled("Darkglare"))
 					and (cd.phantomSingularity.remain() > drainLifeTime or not talent.phantomSingularity) 
@@ -853,8 +853,8 @@ local function runRotation ()
 		local function actionList_PreCombat ()
 			if not inCombat 
 				and not (IsFlying() or IsMounted()) 
-				and isValidUnit("target") 
-				and getDistance("target") < 40 then
+				and br.isValidUnit("target") 
+				and br.getDistance("target") < 40 then
 				-- actions.precombat=flask
 				-- actions.precombat+=/food
 				-- actions.precombat+=/augmentation
@@ -863,7 +863,7 @@ local function runRotation ()
 				-- actions.precombat+=/snapshot_stats
 				-- actions.precombat+=/potion
 				-- pet
-				if isChecked("Pet Management") and GetUnitExists("target") and not UnitAffectingCombat("pet") then
+				if br.isChecked("Pet Management") and br.GetUnitExists("target") and not UnitAffectingCombat("pet") then
 					PetAssistMode()
 					PetAttack("target")
 				end
@@ -906,7 +906,7 @@ local function runRotation ()
 		if not inCombat and not hastar and profileStop==true then
 			profileStop = false
 		elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or (pause(true) and not cast.current.drainSoul()) or mode.rotation==4 then
-			if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
+			if not pause() and IsPetAttackActive() and br.isChecked("Pet Management") then
 				PetStopAttack()
 				PetFollow()
 			end
@@ -933,11 +933,11 @@ local function runRotation ()
 			----------------------------------
 			--- AUTO ENGANGE COMBAT TOGGLE ---
 			----------------------------------
-			--if not inCombat and not isChecked("Auto Engange") then return end
+			--if not inCombat and not br.isChecked("Auto Engange") then return end
 			-----------------------
 			--- Opener Rotation ---
 			-----------------------
-			if opener == false --[[ and isChecked("Opener") ]] and isBoss("target") then
+			if opener == false --[[ and br.isChecked("Opener") ]] and br.isBoss("target") then
 				if actionList_Opener() then return true end
 			end
 			
@@ -945,7 +945,7 @@ local function runRotation ()
 			--- In Combat Rotation ---
 			--------------------------
 			if inCombat and profileStop==false and #enemyTable40 > 0
-            	and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
+            	and (opener == true or not br.isChecked("Opener") or not br.isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
 				------------------------------
 				--- In Combat - Interrupts ---
 				------------------------------
@@ -958,16 +958,16 @@ local function runRotation ()
 				--- In Combat - "actionList_Main()" ---
 				---------------------------------------
 				-- -- Auto Attack
-				-- if inCombat and isValidUnit(meleeUnit) then
+				-- if inCombat and br.isValidUnit(meleeUnit) then
 				-- 	if not IsCurrentSpell(6603) then
-				-- 		StartAttack(meleeUnit)
+				-- 		br._G.StartAttack(meleeUnit)
 				-- 	end
 				-- end
-				if --[[ getOptionValue("APL Mode") == 1 and ]] not pause() then
+				if --[[ br.getOptionValue("APL Mode") == 1 and ]] not pause() then
 					
 
 					-- Pet Attack
-					if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") and isValidUnit("target") then
+					if br.isChecked("Pet Management") and not br.GetUnitIsUnit("pettarget","target") and br.isValidUnit("target") then
 						PetAttack()
 					end
 					-- # Executed every time the actor is available.
@@ -993,7 +993,7 @@ local function runRotation ()
 							and (not talent.phantomSingularity or debuff.phantomSingularity.exists()) 
 							and (not talent.deathbolt or cd.deathbolt.remain() <= gcd or cd.deathbolt.remain() <= 0 or seedTargetsHit > 1) then
 							if cast.able.summonDarkglare() then
-								CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+								br._G.CastSpellByName(GetSpellInfo(spell.summonDarkglare))
 								--if cast.summonDarkglare() then return true end
 								return true
 							end
@@ -1027,7 +1027,7 @@ local function runRotation ()
 					end
 					-- actions+=/vile_taint,target_if=max:target.time_to_die,if=time>15&target.time_to_die>=10
 					-- actions+=/unstable_affliction,target_if=min:contagion,if=!variable.use_seed&soul_shard=5
-					if not use_seed and shards >= getOptionValue("UA Shards") then
+					if not use_seed and shards >= br.getOptionValue("UA Shards") then
 						if cast.able.unstableAffliction() then
 							if cast.unstableAffliction() then return true end
 						end

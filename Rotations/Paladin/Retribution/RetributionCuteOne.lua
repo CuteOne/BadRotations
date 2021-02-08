@@ -292,7 +292,7 @@ local actionList = {}
 -- Action List - Extras
 actionList.Extras = function()
     -- Dummy Test
-    if ui.checked("DPS Testing") and unit.isDummy() then
+    if ui.checked("DPS Testing") and unit.br.isDummy() then
         if unit.exists("target") then
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) then
                 StopAttack()
@@ -785,8 +785,8 @@ actionList.PreCombat = function()
         -- augmentation,type=defiled
         -- Potion
         -- potion,name=old_war
-        -- if ui.checked("Potion") and canUseItem(127844) and unit.instance("raid") then
-        --     useItem(127844)
+        -- if ui.checked("Potion") and br.canUseItem(127844) and unit.instance("raid") then
+        --     br.useItem(127844)
         -- end
         if unit.valid("target") then --and opener.complete then
             -- Judgment

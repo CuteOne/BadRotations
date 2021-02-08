@@ -40,12 +40,12 @@ function coverThatHole()
   for i = 1,GetObjectCountBR() do
     local name = ObjectName(GetObjectWithIndex(i))
     local object = GetObjectWithIndex(i)
-    local x,y,z = ObjectPosition(object)
-    if name == "Swirling Pool" and GetObjectExists(object) and not blackasfuck(x,y,z) then
+    local x,y,z = br._G.ObjectPosition(object)
+    if name == "Swirling Pool" and br.GetObjectExists(object) and not blackasfuck(x,y,z) then
       blacklistthatshit(x,y,z)
       placeMarker()
       Print(x,y,z)
-      ClickPosition(ObjectPosition(object))
+      ClickPosition(br._G.ObjectPosition(object))
     else
     end
   end

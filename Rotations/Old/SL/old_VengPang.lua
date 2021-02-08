@@ -161,9 +161,9 @@ local function runRotation()
     local castable = br.player.cast.debug
     local cd = br.player.cd
     local charges = br.player.charges
-    local combatTime = getCombatTime()
+    local combatTime = br.getCombatTime()
     local debuff = br.player.debuff
-    local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+    local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
     local enemies = br.player.enemies
     local equiped = br.player.equiped
     local gcd = br.player.gcd
@@ -190,8 +190,8 @@ local function runRotation()
     local solo = select(2, IsInInstance()) == "none"
     local spell = br.player.spell
     local talent = br.player.talent
-    local thp = getHP("target")
-    local ttd = getTTD
+    local thp = br.getHP("target")
+    local ttd = br.getTTD
     local ttm = br.player.power.fury.ttm()
     local units = br.player.units
     if leftCombat == nil then
@@ -218,7 +218,7 @@ local function runRotation()
     end
 
     local function mainTank()
-        if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or isChecked(yellow .. "I" .. green .. "g" .. blue .. "n" .. indigo .. "o" .. violet .. "r" .. red .. "e" .. orange .. " T" .. yellow .. "h" .. green .. "r" .. blue .. "e" .. indigo .. "a" .. violet .. "t" .. red .. " C" .. orange .. "h" .. yellow .. "e" .. green .. "c" .. blue .. "k") then
+        if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or br.isChecked(yellow .. "I" .. green .. "g" .. blue .. "n" .. indigo .. "o" .. violet .. "r" .. red .. "e" .. orange .. " T" .. yellow .. "h" .. green .. "r" .. blue .. "e" .. indigo .. "a" .. violet .. "t" .. red .. " C" .. orange .. "h" .. yellow .. "e" .. green .. "c" .. blue .. "k") then
             return true
         else
             return false
@@ -226,16 +226,16 @@ local function runRotation()
     end
 
     local function coolies()
-        if inCombat and getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 2 then
-            if canTrinket(13) and getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 1 then
-                useItem(13)
-            elseif canTrinket(13) and getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 2 then
+        if inCombat and br.getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 2 then
+            if canTrinket(13) and br.getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 1 then
+                br.useItem(13)
+            elseif canTrinket(13) and br.getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 2 then
                 useItemGround("target", 13, 40, 0, nil)
             end
 
-            if canTrinket(14) and getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 1 then
-                useItem(14)
-            elseif canTrinket(14) and getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 2 then
+            if canTrinket(14) and br.getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 1 then
+                br.useItem(14)
+            elseif canTrinket(14) and br.getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 2 then
                 useItemGround("target", 14, 40, 0, nil)
             end
         end
@@ -246,7 +246,7 @@ local function runRotation()
             return
         end
 
-        if isChecked(orange .. "T" .. yellow .. "a" .. green .. "u" .. blue .. "n" .. indigo .. "t") and inInstance or solo then
+        if br.isChecked(orange .. "T" .. yellow .. "a" .. green .. "u" .. blue .. "n" .. indigo .. "t") and inInstance or solo then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -257,24 +257,24 @@ local function runRotation()
             end
         end
 
-        if inCombat and getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 1 then
-            if canTrinket(13) and getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 1 then
-                useItem(13)
-            elseif canTrinket(13) and getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 2 then
+        if inCombat and br.getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 1 then
+            if canTrinket(13) and br.getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 1 then
+                br.useItem(13)
+            elseif canTrinket(13) and br.getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 2 then
                 useItemGround("target", 13, 40, 0, nil)
             end
 
-            if canTrinket(14) and getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 1 then
-                useItem(14)
-            elseif canTrinket(14) and getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 2 then
+            if canTrinket(14) and br.getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 1 then
+                br.useItem(14)
+            elseif canTrinket(14) and br.getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 2 then
                 useItemGround("target", 14, 40, 0, nil)
             end
         end
 
-        if isChecked(red .. "C" .. orange .. "o" .. yellow .. "n" .. green .. "s" .. blue .. "u" .. indigo .. "m" .. violet .. "e" .. red .. " M" .. orange .. "a" .. yellow .. "g" .. green .. "i" .. blue .. "c") then
+        if br.isChecked(red .. "C" .. orange .. "o" .. yellow .. "n" .. green .. "s" .. blue .. "u" .. indigo .. "m" .. violet .. "e" .. red .. " M" .. orange .. "a" .. yellow .. "g" .. green .. "i" .. blue .. "c") then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if canDispel(thisUnit, spell.consumeMagic) then
+                if br.canDispel(thisUnit, spell.consumeMagic) then
                     if cast.consumeMagic(thisUnit) then
                         return
                     end
@@ -312,7 +312,7 @@ local function runRotation()
             end
         end
 
-        if getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 1 or (getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 3 and php > getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l")) then
+        if br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 1 or (br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 3 and php > getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l")) then
             if cast.concentratedFlame("target") then
                 return
             end
@@ -339,53 +339,53 @@ local function runRotation()
 
     local function dontDie()
         if useDefensive() then
-            if isChecked("S" .. red .. "o" .. orange .. "u" .. yellow .. "l" .. green .. " B" .. blue .. "a" .. indigo .. "r" .. violet .. "r" .. red .. "i" .. orange .. "e" .. yellow .. "r") and inCombat and cast.able.soulBarrier() and php < getOptionValue("S" .. red .. "o" .. orange .. "u" .. yellow .. "l" .. green .. " B" .. blue .. "a" .. indigo .. "r" .. violet .. "r" .. red .. "i" .. orange .. "e" .. yellow .. "r") then
+            if br.isChecked("S" .. red .. "o" .. orange .. "u" .. yellow .. "l" .. green .. " B" .. blue .. "a" .. indigo .. "r" .. violet .. "r" .. red .. "i" .. orange .. "e" .. yellow .. "r") and inCombat and cast.able.soulBarrier() and php < br.getOptionValue("S" .. red .. "o" .. orange .. "u" .. yellow .. "l" .. green .. " B" .. blue .. "a" .. indigo .. "r" .. violet .. "r" .. red .. "i" .. orange .. "e" .. yellow .. "r") then
                 if cast.soulBarrier() then
                     return
                 end
             end
-            if isChecked(red.."H"..orange.."e"..yellow.."a"..green.."l"..blue.."t"..indigo.."h"..violet.."s"..red.."t"..orange.."o"..yellow.."n"..green.."e"..blue.." /"..indigo.." P"..violet.."o"..red.."t"..orange.."i"..yellow.."o"..green.."n") and php <= getOptionValue(red.."H"..orange.."e"..yellow.."a"..green.."l"..blue.."t"..indigo.."h"..violet.."s"..red.."t"..orange.."o"..yellow.."n"..green.."e"..blue.." /"..indigo.." P"..violet.."o"..red.."t"..orange.."i"..yellow.."o"..green.."n") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
-                if canUseItem(5512) then
-                    useItem(5512)
-                elseif canUseItem(healPot) then
-                    useItem(healPot)
-                elseif hasItem(166799) and canUseItem(166799) then
-                    useItem(166799)
+            if br.isChecked(red.."H"..orange.."e"..yellow.."a"..green.."l"..blue.."t"..indigo.."h"..violet.."s"..red.."t"..orange.."o"..yellow.."n"..green.."e"..blue.." /"..indigo.." P"..violet.."o"..red.."t"..orange.."i"..yellow.."o"..green.."n") and php <= br.getOptionValue(red.."H"..orange.."e"..yellow.."a"..green.."l"..blue.."t"..indigo.."h"..violet.."s"..red.."t"..orange.."o"..yellow.."n"..green.."e"..blue.." /"..indigo.." P"..violet.."o"..red.."t"..orange.."i"..yellow.."o"..green.."n") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+                if br.canUseItem(5512) then
+                    br.useItem(5512)
+                elseif br.canUseItem(healPot) then
+                    br.useItem(healPot)
+                elseif br.hasItem(166799) and br.canUseItem(166799) then
+                    br.useItem(166799)
                 end
             end
-            if isChecked(red .. "F" .. orange .. "i" .. yellow .. "e" .. green .. "r" .. blue .. "y" .. indigo .. " B" .. violet .. "r" .. red .. "a" .. orange .. "n" .. yellow .. "d") and inCombat and php <= getOptionValue(red .. "F" .. orange .. "i" .. yellow .. "e" .. green .. "r" .. blue .. "y" .. indigo .. " B" .. violet .. "r" .. red .. "a" .. orange .. "n" .. yellow .. "d") then
+            if br.isChecked(red .. "F" .. orange .. "i" .. yellow .. "e" .. green .. "r" .. blue .. "y" .. indigo .. " B" .. violet .. "r" .. red .. "a" .. orange .. "n" .. yellow .. "d") and inCombat and php <= br.getOptionValue(red .. "F" .. orange .. "i" .. yellow .. "e" .. green .. "r" .. blue .. "y" .. indigo .. " B" .. violet .. "r" .. red .. "a" .. orange .. "n" .. yellow .. "d") then
                 if not buff.metamorphosis.exists() then
                     if cast.fieryBrand() then
                         return
                     end
                 end
             end
-            if --[[ inCombat and  ]] (getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 1 or getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 2) then
-                if canTrinket(13) and getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 3 and php <= getOptionValue(green .. "T" .. blue .. "r" .. indigo .. "i" .. violet .. "n" .. red .. "k" .. orange .. "e" .. yellow .. "t" .. green .. " 1" .. blue .. " H" .. indigo .. "P") then
-                    useItem(13)
+            if --[[ inCombat and  ]] (br.getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 1 or br.getOptionValue(red .. "T" .. orange .. "r" .. yellow .. "i" .. green .. "n" .. blue .. "k" .. indigo .. "e" .. violet .. "t" .. red .. "s") == 2) then
+                if canTrinket(13) and br.getOptionValue(orange .. "T" .. yellow .. "r" .. green .. "i" .. blue .. "n" .. indigo .. "k" .. violet .. "e" .. red .. "t" .. orange .. " 1" .. yellow .. " M" .. green .. "o" .. blue .. "d" .. indigo .. "e") == 3 and php <= br.getOptionValue(green .. "T" .. blue .. "r" .. indigo .. "i" .. violet .. "n" .. red .. "k" .. orange .. "e" .. yellow .. "t" .. green .. " 1" .. blue .. " H" .. indigo .. "P") then
+                    br.useItem(13)
                 end
-                if canTrinket(14) and getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 3 and php <= getOptionValue(blue .. "T" .. indigo .. "r" .. violet .. "i" .. red .. "n" .. orange .. "k" .. yellow .. "e" .. green .. "t" .. blue .. " 2" .. indigo .. " H" .. violet .. "P") then
-                    useItem(14)
+                if canTrinket(14) and br.getOptionValue(yellow .. "T" .. green .. "r" .. blue .. "i" .. indigo .. "n" .. violet .. "k" .. red .. "e" .. orange .. "t" .. yellow .. " 2" .. green .. " M" .. blue .. "o" .. indigo .. "d" .. violet .. "e") == 3 and php <= br.getOptionValue(blue .. "T" .. indigo .. "r" .. violet .. "i" .. red .. "n" .. orange .. "k" .. yellow .. "e" .. green .. "t" .. blue .. " 2" .. indigo .. " H" .. violet .. "P") then
+                    br.useItem(14)
                 end
             end
-            if isChecked(orange .. "D" .. yellow .. "e" .. green .. "m" .. blue .. "o" .. indigo .. "n" .. violet .. " S" .. red .. "p" .. orange .. "i" .. yellow .. "k" .. green .. "e" .. blue .. "s") and inCombat and charges.demonSpikes.count() > getOptionValue(blue .. "H" .. indigo .. "o" .. violet .. "l" .. red .. "d" .. orange .. " D" .. yellow .. "e" .. green .. "m" .. blue .. "o" .. indigo .. "n" .. violet .. " S" .. red .. "p" .. orange .. "i" .. yellow .. "k" .. green .. "e" .. blue .. "s") and ((php <= getOptionValue(yellow .. "D" .. green .. "e" .. blue .. "m" .. indigo .. "o" .. violet .. "n" .. red .. " S" .. orange .. "p" .. yellow .. "i" .. green .. "k" .. blue .. "e" .. indigo .. "s" .. violet .. " -" .. red .. " 2") and charges.demonSpikes.count() == 2) or (php <= getOptionValue(green .. "D" .. blue .. "e" .. indigo .. "m" .. violet .. "o" .. red .. "n" .. orange .. " S" .. yellow .. "p" .. green .. "i" .. blue .. "k" .. indigo .. "e" .. violet .. "s" .. red .. " -" .. orange .. " 1") and charges.demonSpikes.count() == 1)) then
+            if br.isChecked(orange .. "D" .. yellow .. "e" .. green .. "m" .. blue .. "o" .. indigo .. "n" .. violet .. " S" .. red .. "p" .. orange .. "i" .. yellow .. "k" .. green .. "e" .. blue .. "s") and inCombat and charges.demonSpikes.count() > br.getOptionValue(blue .. "H" .. indigo .. "o" .. violet .. "l" .. red .. "d" .. orange .. " D" .. yellow .. "e" .. green .. "m" .. blue .. "o" .. indigo .. "n" .. violet .. " S" .. red .. "p" .. orange .. "i" .. yellow .. "k" .. green .. "e" .. blue .. "s") and ((php <= br.getOptionValue(yellow .. "D" .. green .. "e" .. blue .. "m" .. indigo .. "o" .. violet .. "n" .. red .. " S" .. orange .. "p" .. yellow .. "i" .. green .. "k" .. blue .. "e" .. indigo .. "s" .. violet .. " -" .. red .. " 2") and charges.demonSpikes.count() == 2) or (php <= br.getOptionValue(green .. "D" .. blue .. "e" .. indigo .. "m" .. violet .. "o" .. red .. "n" .. orange .. " S" .. yellow .. "p" .. green .. "i" .. blue .. "k" .. indigo .. "e" .. violet .. "s" .. red .. " -" .. orange .. " 1") and charges.demonSpikes.count() == 1)) then
                 if not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
                     if cast.demonSpikes() then
                         return
                     end
                 end
             end
-            if getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") ~= 1 and php <= getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l") then
+            if br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") ~= 1 and php <= getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l") then
                 if cast.concentratedFlame("player") then
                     return
                 end
             end
-            if isChecked(indigo .. "M" .. violet .. "e" .. red .. "t" .. orange .. "a" .. yellow .. "m" .. green .. "o" .. blue .. "r" .. indigo .. "p" .. violet .. "h" .. red .. "o" .. orange .. "s" .. yellow .. "i" .. green .. "s") and inCombat and cast.able.metamorphosis() and not buff.demonSpikes.exists() and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() and php <= getOptionValue(indigo .. "M" .. violet .. "e" .. red .. "t" .. orange .. "a" .. yellow .. "m" .. green .. "o" .. blue .. "r" .. indigo .. "p" .. violet .. "h" .. red .. "o" .. orange .. "s" .. yellow .. "i" .. green .. "s") then
+            if br.isChecked(indigo .. "M" .. violet .. "e" .. red .. "t" .. orange .. "a" .. yellow .. "m" .. green .. "o" .. blue .. "r" .. indigo .. "p" .. violet .. "h" .. red .. "o" .. orange .. "s" .. yellow .. "i" .. green .. "s") and inCombat and cast.able.metamorphosis() and not buff.demonSpikes.exists() and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() and php <= br.getOptionValue(indigo .. "M" .. violet .. "e" .. red .. "t" .. orange .. "a" .. yellow .. "m" .. green .. "o" .. blue .. "r" .. indigo .. "p" .. violet .. "h" .. red .. "o" .. orange .. "s" .. yellow .. "i" .. green .. "s") then
                 if cast.metamorphosis() then
                     return
                 end
             end
-            if isChecked(yellow .. "A" .. green .. "n" .. blue .. "i" .. indigo .. "m" .. violet .. "a" .. red .. " o" .. orange .. "f" .. yellow .. " D" .. green .. "e" .. blue .. "a" .. indigo .. "t" .. violet .. "h") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= 3 or isBoss()) and php <= getOptionValue(yellow .. "A" .. green .. "n" .. blue .. "i" .. indigo .. "m" .. violet .. "a" .. red .. " o" .. orange .. "f" .. yellow .. " D" .. green .. "e" .. blue .. "a" .. indigo .. "t" .. violet .. "h") then
+            if br.isChecked(yellow .. "A" .. green .. "n" .. blue .. "i" .. indigo .. "m" .. violet .. "a" .. red .. " o" .. orange .. "f" .. yellow .. " D" .. green .. "e" .. blue .. "a" .. indigo .. "t" .. violet .. "h") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= 3 or br.isBoss()) and php <= br.getOptionValue(yellow .. "A" .. green .. "n" .. blue .. "i" .. indigo .. "m" .. violet .. "a" .. red .. " o" .. orange .. "f" .. yellow .. " D" .. green .. "e" .. blue .. "a" .. indigo .. "t" .. violet .. "h") then
                 if cast.animaOfDeath("player") then
                     return
                 end
@@ -398,32 +398,32 @@ local function runRotation()
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
                 -- Disrupt
-                if canInterrupt(thisUnit, getOptionValue(green .. "I" .. blue .. "n" .. indigo .. "t" .. violet .. "e" .. red .. "r" .. orange .. "r" .. yellow .. "u" .. green .. "p" .. blue .. "t" .. indigo .. " A" .. violet .. "t")) and (sigilDelay == nil or GetTime() - sigilDelay > 2) then
-                    if isChecked(red .. "D" .. orange .. "i" .. yellow .. "s" .. green .. "r" .. blue .. "u" .. indigo .. "p" .. violet .. "t") and getDistance(thisUnit) < 20 and getFacing("player", thisUnit) and cd.disrupt.remain() <= gcd then
+                if canInterrupt(thisUnit, br.getOptionValue(green .. "I" .. blue .. "n" .. indigo .. "t" .. violet .. "e" .. red .. "r" .. orange .. "r" .. yellow .. "u" .. green .. "p" .. blue .. "t" .. indigo .. " A" .. violet .. "t")) and (sigilDelay == nil or GetTime() - sigilDelay > 2) then
+                    if br.isChecked(red .. "D" .. orange .. "i" .. yellow .. "s" .. green .. "r" .. blue .. "u" .. indigo .. "p" .. violet .. "t") and br.getDistance(thisUnit) < 20 and br.getFacing("player", thisUnit) and cd.disrupt.remain() <= gcd then
                         -- Sigil of Silence
                         if cast.disrupt(thisUnit) then
                             return
                         end
-                    elseif isChecked(orange .. "S" .. yellow .. "i" .. green .. "g" .. blue .. "i" .. indigo .. "l" .. violet .. " o" .. red .. "f" .. orange .. " S" .. yellow .. "i" .. green .. "l" .. blue .. "e" .. indigo .. "n" .. violet .. "c" .. red .. "e") and cd.sigilOfSilence.remain() <= gcd then
+                    elseif br.isChecked(orange .. "S" .. yellow .. "i" .. green .. "g" .. blue .. "i" .. indigo .. "l" .. violet .. " o" .. red .. "f" .. orange .. " S" .. yellow .. "i" .. green .. "l" .. blue .. "e" .. indigo .. "n" .. violet .. "c" .. red .. "e") and cd.sigilOfSilence.remain() <= gcd then
                         -- Sigil of Misery
                         if not talent.concentratedSigils then
                             if cast.sigilOfSilence(thisUnit, "ground", 1, 8) then
                                 sigilDelay = GetTime()
                                 return
                             end
-                        elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
+                        elseif talent.concentratedSigils and br.getDistance(thisUnit) <= 8 then
                             if cast.sigilOfSilence() then
                                 sigilDelay = GetTime()
                                 return
                             end
                         end
-                    elseif isChecked(yellow .. "S" .. green .. "i" .. blue .. "g" .. indigo .. "i" .. violet .. "l" .. red .. " o" .. orange .. "f" .. yellow .. " M" .. green .. "i" .. blue .. "s" .. indigo .. "e" .. violet .. "r" .. red .. "y") and cd.sigilOfMisery.remain() <= gcd then
+                    elseif br.isChecked(yellow .. "S" .. green .. "i" .. blue .. "g" .. indigo .. "i" .. violet .. "l" .. red .. " o" .. orange .. "f" .. yellow .. " M" .. green .. "i" .. blue .. "s" .. indigo .. "e" .. violet .. "r" .. red .. "y") and cd.sigilOfMisery.remain() <= gcd then
                         if not talent.concentratedSigils then
                             if cast.sigilOfMisery(thisUnit, "ground", 1, 8) then
                                 sigilDelay = GetTime()
                                 return
                             end
-                        elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
+                        elseif talent.concentratedSigils and br.getDistance(thisUnit) <= 8 then
                             if cast.sigilOfMisery() then
                                 sigilDelay = GetTime()
                                 return
@@ -437,13 +437,13 @@ local function runRotation()
 
     if not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002) < 10 or mode.rotation == 2 then
+    elseif (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and br.getBuffRemain("player", 192002) < 10 or mode.rotation == 2 then
         return
     else
         ---------------------------------
         --- Out Of Combat - Rotations ---
         ---------------------------------
-        if mainTank() or isChecked(yellow .. "I" .. green .. "g" .. blue .. "n" .. indigo .. "o" .. violet .. "r" .. red .. "e" .. orange .. " T" .. yellow .. "h" .. green .. "r" .. blue .. "e" .. indigo .. "a" .. violet .. "t" .. red .. " C" .. orange .. "h" .. yellow .. "e" .. green .. "c" .. blue .. "k") then
+        if mainTank() or br.isChecked(yellow .. "I" .. green .. "g" .. blue .. "n" .. indigo .. "o" .. violet .. "r" .. red .. "e" .. orange .. " T" .. yellow .. "h" .. green .. "r" .. blue .. "e" .. indigo .. "a" .. violet .. "t" .. red .. " C" .. orange .. "h" .. yellow .. "e" .. green .. "c" .. blue .. "k") then
             if dontDie() then
                 return
             end
@@ -460,8 +460,8 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards20 >= 1 then
-            if getDistance(units.dyn5) < 5 then
-                StartAttack()
+            if br.getDistance(units.dyn5) < 5 then
+                br._G.StartAttack()
             end
             if coolies() then
                 return

@@ -1,3 +1,4 @@
+local addonName, br = ...
 if br.lists == nil then br.lists = {} end
 
 br.lists.horrificVision = {
@@ -49,7 +50,7 @@ br.lists.horrificVision = {
 		158565, -- Naros
         161140, -- Bwemba
         340451, -- Warpweaver Dushar Portal
-		161198, -- Warpweaver Dushar (Need ObjectID of the gate that summons him)
+		161198, -- Warpweaver Dushar (Need br._G.ObjectID of the gate that summons him)
     },
     oddCrystal = {
         341367,

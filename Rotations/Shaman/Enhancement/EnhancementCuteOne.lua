@@ -200,7 +200,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -215,7 +215,7 @@ actionList.Extras = function()
         end
     end
     -- Purge
-    if ui.checked("Purge") and cast.able.purge() and cast.dispel.purge("target") and not unit.isBoss() and unit.exists("target") then
+    if ui.checked("Purge") and cast.able.purge() and cast.dispel.purge("target") and not unit.br.isBoss() and unit.exists("target") then
         if cast.purge() then ui.debug("Casting Purge") return true end
     end
     -- Spirit Walk
@@ -422,7 +422,7 @@ actionList.AOE = function()
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
-    if ui.alwaysCdNever("Covenant Ability") and (unit.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
+    if ui.alwaysCdNever("Covenant Ability") and (unit.br.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
         if cast.chainHarvest() then ui.debug("Casting Chain Harvest [AOE]") return true end
     end
     -- Elemental Blast
@@ -606,7 +606,7 @@ actionList.Single = function()
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
-    if ui.alwaysCdNever("Covenant Ability") and (unit.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
+    if ui.alwaysCdNever("Covenant Ability") and (unit.br.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
         if cast.chainHarvest() then ui.debug("Casting Chain Harvest [ST]") return true end
     end
     -- Lightning Bolt
@@ -729,9 +729,9 @@ actionList.PreCombat = function()
             end
             -- Potion
             -- potion
-            -- if ui.checked("Potion") and canUseItem(142117) and unit.instance("raid") then
+            -- if ui.checked("Potion") and br.canUseItem(142117) and unit.instance("raid") then
             --     if feralSpiritRemain > 5 and not buff.prolongedPower.exists() then
-            --         useItem(142117)
+            --         br.useItem(142117)
             --     end
             -- end
         end -- End Pre-Pull
@@ -820,7 +820,7 @@ local function runRotation()
     end
 
     var.unitsNeedingHealing = 0
-    if ui.checked("Use HST While Solo") and getHP("player") <= ui.value("Healing Stream Totem") then
+    if ui.checked("Use HST While Solo") and br.getHP("player") <= ui.value("Healing Stream Totem") then
         var.unitsNeedingHealing = var.unitsNeedingHealing + 1
     end
     if #br.friend > 1 then

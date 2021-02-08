@@ -209,7 +209,7 @@ local petPadding = 2
 local poolShards = false
 local summonId = 0
 local summonPet
-local tanks = getTanksTable()
+local tanks = br.getTanksTable()
 local targetMoveCheck = false
 local notallowed = (select(2, IsInInstance()) == "arena" or select(2, IsInInstance()) == "pvp")
 
@@ -237,8 +237,8 @@ local actionList = {}
 actionList.Extras = function()
     -- Dummy Test
     if option.checked("DPS Testing") then
-        if GetObjectExists("target") then
-            if getCombatTime() >= (tonumber(option.value("DPS Testing"))*60) and isDummy() then
+        if br.GetObjectExists("target") then
+            if br.getCombatTime() >= (tonumber(option.value("DPS Testing"))*60) and br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 if option.checked("Pet Management") then
@@ -250,7 +250,7 @@ actionList.Extras = function()
             end
         end
     end -- End Dummy Test
-    if isChecked("Pig Catcher") then
+    if br.isChecked("Pig Catcher") then
         bossHelper()
     end
 end
@@ -258,23 +258,23 @@ end
 actionList.Defensive = function()
     if useDefensive() then
         -- Pot/Stoned
-        if option.checked("Pot/Stoned") and inCombat and (use.able.healthstone() or canUseItem(healPot))
+        if option.checked("Pot/Stoned") and inCombat and (use.able.healthstone() or br.canUseItem(healPot))
             and (hasHealthPot() or has.healthstone()) and php <= option.value("Pot/Stoned")
         then
             if use.able.healthstone() then
                 if use.healthstone() then debug("Using Healthstone") return true end
-            elseif canUseItem(healPot) then
-                useItem(healPot)
+            elseif br.canUseItem(healPot) then
+                br.useItem(healPot)
                 debug("Using Health Potion")
             end
         end
         -- Soulstone
-        if isChecked("Soulstone") and not moving and inCombat and br.timer:useTimer("Soulstone", 4) then
+        if br.isChecked("Soulstone") and not moving and inCombat and br.timer:useTimer("Soulstone", 4) then
             if
-                getOptionValue("Soulstone") == 1 and -- Target
+                br.getOptionValue("Soulstone") == 1 and -- Target
                     UnitIsPlayer("target") and
                     UnitIsDeadOrGhost("target") and
-                    GetUnitIsFriend("target", "player")
+                    br.GetUnitIsFriend("target", "player")
                 then
                 if cast.soulstone("target", "dead") then
                     br.addonDebug("Casting Soulstone")
@@ -282,19 +282,19 @@ actionList.Defensive = function()
                 end
             end
             if
-                getOptionValue("Soulstone") == 2 and -- Mouseover
+                br.getOptionValue("Soulstone") == 2 and -- Mouseover
                     UnitIsPlayer("mouseover") and
                     UnitIsDeadOrGhost("mouseover") and
-                    GetUnitIsFriend("mouseover", "player")
+                    br.GetUnitIsFriend("mouseover", "player")
                 then
                 if cast.soulstone("mouseover", "dead") then
                     br.addonDebug("Casting Soulstone")
                     return true
                 end
             end
-            if getOptionValue("Soulstone") == 3 then -- Tank
+            if br.getOptionValue("Soulstone") == 3 then -- Tank
                 for i = 1, #tanks do
-                    if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 then
+                    if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 then
                         if cast.soulstone(tanks[i].unit, "dead") then
                             br.addonDebug("Casting Soulstone")
                             return true
@@ -302,10 +302,10 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if getOptionValue("Soulstone") == 4 then -- Healer
+            if br.getOptionValue("Soulstone") == 4 then -- Healer
                 for i = 1, #br.friend do
                     if
-                        UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and
+                        UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
                             (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER")
                         then
                         if cast.soulstone(br.friend[i].unit, "dead") then
@@ -315,10 +315,10 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if getOptionValue("Soulstone") == 5 then -- Tank/Healer
+            if br.getOptionValue("Soulstone") == 5 then -- Tank/Healer
                 for i = 1, #br.friend do
                     if
-                        UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and
+                        UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
                             (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
                         then
                         if cast.soulstone(br.friend[i].unit, "dead") then
@@ -328,9 +328,9 @@ actionList.Defensive = function()
                     end
                 end
             end
-            if getOptionValue("Soulstone") == 6 then -- Any
+            if br.getOptionValue("Soulstone") == 6 then -- Any
                 for i = 1, #br.friend do
-                    if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
+                    if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
                         if cast.soulstone(br.friend[i].unit, "dead") then
                             br.addonDebug("Casting Soulstone")
                             return true
@@ -358,11 +358,11 @@ actionList.Defensive = function()
             if cast.darkPact() then debug("Casting Dark Pact") return true end
         end
         -- Drain Life
-        if option.checked("Drain Life") and php <= option.value("Drain Life") and isValidTarget("target") and not isCastingSpell(spell.drainLife) then
+        if option.checked("Drain Life") and php <= option.value("Drain Life") and isValidTarget("target") and not br.isCastingSpell(spell.drainLife) then
             if cast.drainLife() then debug("Casting Drain Life") return true end
         end
         -- Health Funnel
-        if not moving and option.checked("Health Funnel (Demon)") and getHP("pet") <= option.value("Health Funnel (Demon)") and getHP("player") >= option.value("Health Funnel (Player)") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+        if not moving and option.checked("Health Funnel (Demon)") and br.getHP("pet") <= option.value("Health Funnel (Demon)") and br.getHP("player") >= option.value("Health Funnel (Player)") and br.GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
             if cast.healthFunnel() then debug("Casting Health Funnel") return true end
         end
         -- Unending Resolve
@@ -370,16 +370,16 @@ actionList.Defensive = function()
             if cast.unendingResolve() then debug("Casting Unending Resolve") return true end
         end
         -- Devour Magic
-        if isChecked("Devour Magic") and (pet.active.id() == 417 or pet.active.id() == 78158) then
-            if getOptionValue("Devour Magic") == 1 then
-                if canDispel("target",spell.devourMagic) and GetObjectExists("target") then
-                    CastSpellByName(GetSpellInfo(spell.devourMagic),"target") br.addonDebug("Casting Devour Magic") return true 
+        if br.isChecked("Devour Magic") and (pet.active.id() == 417 or pet.active.id() == 78158) then
+            if br.getOptionValue("Devour Magic") == 1 then
+                if br.canDispel("target",spell.devourMagic) and br.GetObjectExists("target") then
+                    br._G.CastSpellByName(GetSpellInfo(spell.devourMagic),"target") br.addonDebug("Casting Devour Magic") return true 
                 end
-            elseif getOptionValue("Devour Magic") == 2 then
+            elseif br.getOptionValue("Devour Magic") == 2 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if canDispel(thisUnit,spell.devourMagic) then
-                        CastSpellByName(GetSpellInfo(spell.devourMagic),thisUnit) br.addonDebug("Casting Devour Magic") return true 
+                    if br.canDispel(thisUnit,spell.devourMagic) then
+                        br._G.CastSpellByName(GetSpellInfo(spell.devourMagic),thisUnit) br.addonDebug("Casting Devour Magic") return true 
                     end
                 end
             end
@@ -406,7 +406,7 @@ actionList.Cooldowns = function()
     if useCDs() then
         -- Immolate
         -- immolate,if=talent.grimoire_of_supremacy.enabled&remains<8&cooldown.summon_infernal.remains<4.5
-        if UnitHealth("target") >= immoTick and ttd("target") >= 9 and not moving and cast.able.immolate() and okToDoT and not cast.last.immolate() and (talent.grimoireOfSupremacy
+        if br._G.UnitHealth("target") >= immoTick and ttd("target") >= 9 and not moving and cast.able.immolate() and okToDoT and not cast.last.immolate() and (talent.grimoireOfSupremacy
             and debuff.immolate.remain("target") < 8 and cd.summonInfernal.remain() < 4.5)
         then
             if cast.immolate() then debug("Cast Immolate [CD]") return true end
@@ -427,7 +427,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal
-        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and br.getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -453,7 +453,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=target.time_to_die>cooldown.summon_infernal.duration+30
-        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (ttd("target") > cd.summonInfernal.duration() + 30) and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (ttd("target") > cd.summonInfernal.duration() + 30) and br.getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - High TTD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -464,7 +464,7 @@ actionList.Cooldowns = function()
         -- Summon Infernal
         -- summon_infernal,if=talent.dark_soul_instability.enabled&cooldown.dark_soul_instability.remains>target.time_to_die
         if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (talent.darkSoulInstability
-            and cd.darkSoulInstability.remain() > ttd("target")) and getDistance("target") <= 30
+            and cd.darkSoulInstability.remain() > ttd("target")) and br.getDistance("target") <= 30
         then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - Dark Soul]") return true end
         end
@@ -489,7 +489,7 @@ actionList.Cooldowns = function()
         end
         -- Summon Infernal
         -- summon_infernal,if=target.time_to_die<30
-        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (ttd("target") < 30) and getDistance("target") <= 30 then
+        if br.timer:useTimer("Infernal Delay", 2) and option.checked("Summon Infernal") and (ttd("target") < 30) and br.getDistance("target") <= 30 then
             if cast.summonInfernal(nil,"aoe",1,8) then infernalCast = GetTime() debug("Cast Summon Infernal [CD - Low TTD]") return true end
         end
         -- Azerite Essence - Guardian of Azeroth
@@ -558,7 +558,7 @@ actionList.Cooldowns = function()
         -- use_items,if=pet.infernal.active&(!talent.grimoire_of_supremacy.enabled|pet.infernal.remains<=20)|target.time_to_die<=20
         if option.checked("Trinkets") then
             local mainHand = GetInventorySlotInfo("MAINHANDSLOT")
-            if canUseItem(mainHand) and equiped.neuralSynapseEnhancer(mainHand) then
+            if br.canUseItem(mainHand) and equiped.neuralSynapseEnhancer(mainHand) then
                 use.slot(mainHand)
                 br.addonDebug("Using Neural Synapse Enhancer")
             end
@@ -622,7 +622,7 @@ actionList.Aoe = function()
     -- rain_of_fire,if=pet.infernal.active&(buff.crashing_chaos.down|!talent.grimoire_of_supremacy.enabled)&(!cooldown.havoc.ready|active_enemies>3)
     if (pet.infernal.active()
         and (not buff.crashingChaos.exists() or not talent.grimoireOfSupremacy)
-        and (cd.havoc.exists())) and getDistance("target") <= 40
+        and (cd.havoc.exists())) and br.getDistance("target") <= 40
     then
         if br.timer:useTimer("RoF Delay", 1) and cast.rainOfFire(nil,"aoe",1,8,true) then debug("Cast Rain Of Fire [AOE - Infernal]") return true end
     end
@@ -636,10 +636,10 @@ actionList.Aoe = function()
     if not moving and cast.able.immolate() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) < 6 and (not option.checked("Cataclysm") or not talent.cataclysm 
+            if okToDoT and br._G.UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and  (debuff.immolate.remain(thisUnit) < 6 and (not option.checked("Cataclysm") or not talent.cataclysm 
             or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit))) 
             then
-                if not GetUnitIsUnit(thisUnit,br.lastImmo) then
+                if not br.GetUnitIsUnit(thisUnit,br.lastImmo) then
                     if cast.immolate(thisUnit) then debug("Cast Immolate [AOE]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
                 else
                     if br.lastImmoCast == nil or GetTime() - br.lastImmoCast > 4.5 then
@@ -657,7 +657,7 @@ actionList.Aoe = function()
     if cast.able.havoc() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if ttd(thisUnit) > 10 and (not (GetUnitIsUnit("target",thisUnit)) and #enemies.yards40f < 4) then
+            if ttd(thisUnit) > 10 and (not (br.GetUnitIsUnit("target",thisUnit)) and #enemies.yards40f < 4) then
                 if cast.havoc(thisUnit) then debug("Cast Havoc [AOE - Less than 4]") return true end
             end
         end
@@ -672,13 +672,13 @@ actionList.Aoe = function()
     end
     -- Rain of Fire
     -- rain_of_fire
-    if option.checked("Rain of Fire") and getDistance("target") <= 40 and #enemies.yards8t >= option.value("Rain of Fire") then
+    if option.checked("Rain of Fire") and br.getDistance("target") <= 40 and #enemies.yards8t >= option.value("Rain of Fire") then
         if br.timer:useTimer("RoF Delay", 1) and cast.rainOfFire(nil,"aoe",1,8,true) then debug("Cast Rain Of Fire [AOE]") return true end
     end
     -- Azerite Essence - Focused Azerite Beam
     -- focused_azerite_beam
     if essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcdMax and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
-        or essence.focusedAzeriteBeam.rank >= 3) and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= 3 or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
+        or essence.focusedAzeriteBeam.rank >= 3) and br.getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= 3 or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (br.getDistance("target") < 6 and br.isBoss("target")))))
     then
         if cast.focusedAzeriteBeam() then br.addonDebug("Casting Focused Azerite Beam") return end
     end
@@ -692,7 +692,7 @@ actionList.Aoe = function()
     if cast.able.havoc() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if ttd(thisUnit) > 10 and (not (GetUnitIsUnit("target",thisUnit)) and (not talent.grimoireOfSupremacy
+            if ttd(thisUnit) > 10 and (not (br.GetUnitIsUnit("target",thisUnit)) and (not talent.grimoireOfSupremacy
                 or not talent.inferno or talent.grimoireOfSupremacy and infernalRemain <= 10))
             then
                 if cast.havoc(thisUnit) then debug("Cast Rain Of Fire [AOE]") return true end
@@ -740,7 +740,7 @@ actionList.GosupInfernal = function()
     -- rain_of_fire,if=soul_shard=5&!buff.backdraft.up&buff.memory_of_lucid_dreams.up&buff.grimoire_of_supremacy.stack<=10
     if option.checked("Rain of Fire") and #enemies.yards8t >= option.value("Rain of Fire")
         and (shards == 5 and not buff.backdraft.exists() and buff.memoryOfLucidDreams.exists()
-        and buff.grimoireOfSupremacy.stack() <= 10) and getDistance("target") <= 40
+        and buff.grimoireOfSupremacy.stack() <= 10) and br.getDistance("target") <= 40
     then
         if br.timer:useTimer("RoF Delay", 1) and cast.rainOfFire(nil,"aoe",1,8,true) then debug("Cast Rain Of Fire [GosupInfernal]") return true end
     end
@@ -811,7 +811,7 @@ actionList.Havoc = function()
     end
     -- Immolate
     -- immolate,if=talent.internal_combustion.enabled&remains<duration*0.5|!talent.internal_combustion.enabled&refreshable
-    if not moving and UnitHealth("target") >= immoTick and ttd("target") >= 9 and cast.able.immolate() and okToDoT and not cast.last.immolate()
+    if not moving and br._G.UnitHealth("target") >= immoTick and ttd("target") >= 9 and cast.able.immolate() and okToDoT and not cast.last.immolate()
         and (talent.internalCombustion and debuff.immolate.remain("target") < debuff.immolate.duration() * 0.5
             or not talent.internalCombustion and debuff.immolate.refresh("target"))
     then
@@ -866,7 +866,7 @@ actionList.PreCombat = function()
             end
         end
     end
-    if not inCombat and isValidUnit("target") and getDistance("target") < 40 and getFacing("player","target") then
+    if not inCombat and br.isValidUnit("target") and br.getDistance("target") < 40 and br.getFacing("player","target") then
         -- Grimoire Of Sacrifice
         -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
         if cast.able.grimoireOfSacrifice() and (talent.grimoireOfSacrifice) then
@@ -937,12 +937,12 @@ local function runRotation()
     spell                              = br.player.spell
     talent                             = br.player.talent
     traits                             = br.player.traits
-    ttd                                = getTTD
+    ttd                                = br.getTTD
     units                              = br.player.units
     use                                = br.player.use
 
     -- General API
-    combatTime                         = getCombatTime()
+    combatTime                         = br.getCombatTime()
     flashover                          = talent.flashover and 1 or 0
     inferno                            = talent.inferno and 1 or 0
     internalInferno                    = (talent.inferno and talent.internalCombustion) and 1 or 0
@@ -954,7 +954,7 @@ local function runRotation()
     -- units.get(range, aoe)
     units.get(40)
     if range == nil then range = {} end
-    range.dyn40 = getDistance("target") < 40
+    range.dyn40 = br.getDistance("target") < 40
     
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
@@ -1006,15 +1006,15 @@ local function runRotation()
     if lastTargetX == nil then lastTargetX, lastTargetY, lastTargetZ = 0,0,0 end
     targetMoveCheck = targetMoveCheck or false
     if br.timer:useTimer("targetMove", 0.8) or combatTime < 0.2 then
-        if GetObjectExists("target") then
-            local currentX, currentY, currentZ = GetObjectPosition("target")
+        if br.GetObjectExists("target") then
+            local currentX, currentY, currentZ = br.GetObjectPosition("target")
             local targetMoveDistance = math.sqrt(((currentX-lastTargetX)^2)+((currentY-lastTargetY)^2)+((currentZ-lastTargetZ)^2))
-            lastTargetX, lastTargetY, lastTargetZ = GetObjectPosition("target")
+            lastTargetX, lastTargetY, lastTargetZ = br.GetObjectPosition("target")
             if targetMoveDistance < 3 then targetMoveCheck = true else targetMoveCheck = false end
         end
     end
 
-    -- ChatOverlay("Shards: "..tostring(shards))
+    -- br.ChatOverlay("Shards: "..tostring(shards))
 
     ---------------------
     --- Begin Profile ---
@@ -1022,7 +1022,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop==true then
         profileStop = false
-    elseif inCombat and IsAoEPending() then
+    elseif inCombat and br._G.IsAoEPending() then
         SpellStopTargeting()
         br.addonDebug("Canceling Spell")
         return false
@@ -1050,10 +1050,10 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if inCombat and isValidUnit("target") then
+        if inCombat and br.isValidUnit("target") then
             if actionList.Interrupts() then return true end
-            if isChecked("Shadowfury Key") and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
-                if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
+            if br.isChecked("Shadowfury Key") and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
+                if br._G.CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
             end
             -- Havoc
             -- call_action_list,name=havoc,if=havoc_active&active_enemies<5-talent.inferno.enabled+(talent.inferno.enabled&talent.internal_combustion.enabled)
@@ -1111,10 +1111,10 @@ local function runRotation()
             if not moving and cast.able.immolate() then
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if okToDoT and UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.immolate.remain(thisUnit) < 6 and (not option.checked("Cataclysm") or not talent.cataclysm 
+                    if okToDoT and br._G.UnitHealth(thisUnit) >= immoTick and ttd(thisUnit) >= 9 and (debuff.immolate.remain(thisUnit) < 6 and (not option.checked("Cataclysm") or not talent.cataclysm 
                     or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit) or #enemies.yards8t < option.value("Cataclysm Units"))) 
                     then
-                        if not GetUnitIsUnit(thisUnit,br.lastImmo) then
+                        if not br.GetUnitIsUnit(thisUnit,br.lastImmo) then
                             if cast.immolate(thisUnit) then debug("Cast Immolate [Main - Multi]") br.lastImmo = thisUnit; br.lastImmoCast = GetTime() return true end
                         else
                             if br.lastImmoCast == nil or GetTime() - br.lastImmoCast > 4.5 then
@@ -1125,7 +1125,7 @@ local function runRotation()
                 end
             end
             -- immolate,if=talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains<duration*0.5
-            if not moving and UnitHealth("target") >= immoTick and ttd("target") >= 9 and cast.able.immolate() and okToDoT and not cast.last.immolate() and (talent.internalCombustion
+            if not moving and br._G.UnitHealth("target") >= immoTick and ttd("target") >= 9 and cast.able.immolate() and okToDoT and not cast.last.immolate() and (talent.internalCombustion
                 and cast.inFlight.chaosBolt() and debuff.immolate.remain("target") < debuff.immolate.duration() * 0.5)
             then
                 if cast.immolate() then debug("Cast Immolate [Main]") return true end
@@ -1135,7 +1135,7 @@ local function runRotation()
             if actionList.Cooldowns() then return true end
             -- focused_azerite_beam,if=!pet.infernal.active|!talent.grimoire_of_supremacy.enabled
             if essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcdMax and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
-                or essence.focusedAzeriteBeam.rank >= 3) and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= 3 or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
+                or essence.focusedAzeriteBeam.rank >= 3) and br.getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= 3 or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (br.getDistance("target") < 6 and br.isBoss("target")))))
                 and (not pet.infernal.active() or not talent.grimoireOfSupremacy)
             then
                 if cast.focusedAzeriteBeam() then br.addonDebug("Casting Focused Azerite Beam") return end
@@ -1153,8 +1153,8 @@ local function runRotation()
             if essence.reapingFlames.active and cd.reapingFlames.remain() <= gcdMax then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    local thisHP = getHP(thisUnit)
-                    if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                    local thisHP = br.getHP(thisUnit)
+                    if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or br.getTTD(thisUnit,20) > 30) then
                         if cast.reapingFlames(thisUnit) then debug("Casting Reaping Flames") return true end
                     end
                 end
@@ -1177,7 +1177,7 @@ local function runRotation()
             if cast.able.havoc() then
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if ttd(thisUnit) > 10 and (not (GetUnitIsUnit("target",thisUnit))
+                    if ttd(thisUnit) > 10 and (not (br.GetUnitIsUnit("target",thisUnit))
                         and (debuff.immolate.remain(thisUnit) > debuff.immolate.duration() * 0.5
                         or not talent.internalCombustion) and (cd.summonInfernal.exists()
                         or not talent.grimoireOfSupremacy or talent.grimoireOfSupremacy and infernalRemain <= 10))

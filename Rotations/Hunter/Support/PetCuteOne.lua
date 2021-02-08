@@ -121,7 +121,7 @@ br.rotations.support["PetCuteOne"] = {
         local petExists                                     = unit.exists("pet")
         local petHealth                                     = unit.hp("pet")
         local petMode                                       = getCurrentPetMode()
-        local validTarget                                   = unit.exists(br.petTarget) and (unit.valid(br.petTarget) or unit.isDummy()) --or (not unit.exists(br.petTarget) and unit.valid("target")) or unit.isDummy()
+        local validTarget                                   = unit.exists(br.petTarget) and (unit.valid(br.petTarget) or unit.br.isDummy()) --or (not unit.exists(br.petTarget) and unit.valid("target")) or unit.br.isDummy()
 
         -- Units
         units.get(5)
@@ -252,7 +252,7 @@ br.rotations.support["PetCuteOne"] = {
                 end
             end
             -- Attack Abilities
-            if ui.checked("Use Attack Ability") and unit.inCombat("pet") and validTarget and petDistance < 5 and not isTotem(br.petTarget) then
+            if ui.checked("Use Attack Ability") and unit.inCombat("pet") and validTarget and petDistance < 5 and not br.isTotem(br.petTarget) then
                 -- Bite
                 if cast.able.bite() then
                     if cast.bite(br.petTarget,"pet") then ui.debug("[Pet] Cast Bite") return true end
@@ -346,7 +346,7 @@ br.rotations.support["PetCuteOne"] = {
                 end
             end
             -- Debuff Abilities
-            if ui.checked("Use Debuff Ability") and unit.inCombat("pet") and validTarget and petDistance < 5 and not isTotem(br.petTarget) and debuff.mortalWounds.refresh(br.petTarget) then
+            if ui.checked("Use Debuff Ability") and unit.inCombat("pet") and validTarget and petDistance < 5 and not br.isTotem(br.petTarget) and debuff.mortalWounds.refresh(br.petTarget) then
                 -- Acid Bite
                 if cast.able.acidBite() then
                     if cast.acidBite(br.petTarget) then ui.debug("[Pet] Cast Acid Bite") return true end
@@ -424,7 +424,7 @@ br.rotations.support["PetCuteOne"] = {
                     for i = 1, #enemies.yards5p do
                         local thisUnit = enemies.yards5p[i]
                         if ui.value("Purge") == 1 or (ui.value("Purge") == 2 and unit.isUnit(thisUnit,"target")) then
-                            if unit.valid(thisUnit) and cast.dispel.spiritPulse(thisUnit) then --canDispel(thisUnit,spell.spiritPulse) then
+                            if unit.valid(thisUnit) and cast.dispel.spiritPulse(thisUnit) then --br.canDispel(thisUnit,spell.spiritPulse) then
                                 if cast.able.spiritPulse(thisUnit,"pet") then
                                     if cast.spiritPulse(thisUnit,"pet") then ui.debug("[Pet] Cast Spirit Pulse") dispelled = true; dispelledUnit = thisUnit; break end
                                 elseif cast.able.chiJiTranq(thisUnit,"pet") then
@@ -514,7 +514,7 @@ br.rotations.support["PetCuteOne"] = {
                 end
             end
             -- Stealth
-            if ui.checked("Stealth") and not unit.inCombat("pet") and not unit.inCombat("player") and (not IsResting() or unit.isDummy())
+            if ui.checked("Stealth") and not unit.inCombat("pet") and not unit.inCombat("player") and (not IsResting() or unit.br.isDummy())
                 and #enemies.yards40nc > 0 and not fetching and not pause()
             then
                 if cast.able.spiritWalk() and not buff.spiritWalk.exists("pet") and not cd.spiritWalk.exists() then

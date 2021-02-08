@@ -23,22 +23,22 @@ function PokeEngine()
   -- Revive Pets --
   -----------------
   if not inBattle then
-    if isChecked("Revive Battle Pets") then
-      if getSpellCD(125439) == 0 then
+    if br.isChecked("Revive Battle Pets") then
+      if br.getSpellCD(125439) == 0 then
         if castSpell("player",125439,true) then return; end
       end
-      ChatOverlay("Healed pets ")
+      br.ChatOverlay("Healed pets ")
     end
-    if isChecked("Auto Clicker Range") then
+    if br.isChecked("Auto Clicker Range") then
       PetSwapper()
       if startWaiting == nil then startWaiting = GetTime() end
       if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
-        if GetUnitExists("target") == false then
+        if br.GetUnitExists("target") == false then
 
           for i = 1, GetObjectCountBR() do
             local thisPet = GetObjectIndex(i)
-            if GetObjectExists(thisPet) and GetUnitIsVisible(thisPet) and
-              getDistance("player",thisPet) < getValue("Auto Clicker Range") then
+            if br.GetObjectExists(thisPet) and br.GetUnitIsVisible(thisPet) and
+              br.getDistance("player",thisPet) < getValue("Auto Clicker Range") then
 
               for j = 1, #MopList do
                 if UnitName(thisPet) == MopList[j] then

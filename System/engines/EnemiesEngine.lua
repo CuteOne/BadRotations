@@ -1,8 +1,9 @@
+local _, br = ...
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 --Modified to enemies engine by fisker
-if not metaTable2 then
+if not br.metaTable2 then
 	-- localizing the commonly used functions while inside loops
-	local tinsert,tremove,GetTime = tinsert,tremove,GetTime
+	local tinsert,tremove,GetTime = _G.tinsert,_G.tremove,_G.GetTime
 	local pX, pY, pZ, pCR, autoLoot
 	br.om = {} -- This is our main Table that the world will see
 	br.ttd = {} -- Time to die table
@@ -13,8 +14,8 @@ if not metaTable2 then
         [129448]=true, -- Hammer Shark
 		[144942]=true, -- Spark Bot
 	}
-	metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
-	metaTable2.__index =  {-- Setting the Metamethod of Index for our Main Table
+	br.metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
+	br.metaTable2.__index =  {-- Setting the Metamethod of Index for our Main Table
 		name = "Enemies Table",
 		author = "Bubba",
 	}
@@ -31,12 +32,12 @@ if not metaTable2 then
 	}
 
 	function br.unitSetup:new(unit)
-		local startTime = debugprofilestop()
+		local startTime = _G.debugprofilestop()
 		-- Seeing if we have already cached this unit before
 		if br.unitSetup.cache[unit] then return false end
-		if UnitDebuffID("player",295249) and UnitIsPlayer(unit) then return false end
-		if br.unitBlacklist[GetObjectID(unit)] then return false end
-		if UnitIsUnit("player", unit) then return false end
+		if br.UnitDebuffID("player",295249) and br._G.UnitIsPlayer(unit) then return false end
+		if br.unitBlacklist[br.GetObjectID(unit)] then return false end
+		if br._G.UnitIsUnit("player", unit) then return false end
 		local o = {}
 		setmetatable(o, br.unitSetup)
 		if unit and type(unit) == "string" then
@@ -44,11 +45,11 @@ if not metaTable2 then
 		end
 		--Function time to die
 		function o:unitTtd(targetPercentage)
-			local startTime = debugprofilestop()
+			local startTime = _G.debugprofilestop()
 			if targetPercentage == nil then targetPercentage = 0 end
 			local value
 			if o.hp == 0 then return -1 end
-			if o.hp == 100 or isDummy(o.unit) then return 999 end
+			if o.hp == 100 or br.isDummy(o.unit) then return 999 end
 			local timeNow = GetTime()
 			-- Reset unit if HP is higher
 			if br.ttd[o.unit] ~= nil and (br.ttd[o.unit].lasthp < o.hp or #br.ttd[o.unit].values == 0) then
@@ -117,13 +118,13 @@ if not metaTable2 then
 				return 99
 			else
 				return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
-				((pCR or 0) + (UnitCombatReach(o.unit) or 0)), z2 - z1
+				((pCR or 0) + (br._G.UnitCombatReach(o.unit) or 0)), z2 - z1
 			end
 		end
 		--Add unit to table
 		function o:AddUnit(table)
 			local thisUnit
-			if UnitIsOtherPlayersPet(o.unit) then
+			if br._G.UnitIsOtherPlayersPet(o.unit) then
 				thisUnit = {
 					unit = o.unit,
 				}
@@ -142,8 +143,8 @@ if not metaTable2 then
 		end
 		--Debuffs
 		function o:UpdateDebuffs(debuffList,unit)
-			local startTime = debugprofilestop()
-			if not isChecked("Cache Debuffs") then
+			local startTime = _G.debugprofilestop()
+			if not br.isChecked("Cache Debuffs") then
 				debuffList = {}
 				return debuffList
 			end
@@ -160,16 +161,16 @@ if not metaTable2 then
 					if debuffList[buffCaster][buffName] == nil then
 						-- Print("Adding player debuff")
 						debuffList[buffCaster][buffName] = function(buffName, unit)
-							return AuraUtil.FindAuraByName(GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
+							return br._G.AuraUtil.FindAuraByName(_G.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
 						end
 						if debuffList[buffCaster][buffName] ~= nil then br.read.debuffTracker[unit][buffName] = nil end
 					end
 				end
 			end
 			-- Get the Info from Combat Log
-			for k,v in pairs(br.read.debuffTracker) do
+			for k,_ in pairs(br.read.debuffTracker) do
 				tracker = br.read.debuffTracker[k]
-				for j, u in pairs(tracker) do
+				for j, _ in pairs(tracker) do
 					buffCaster = tracker[j][1]
 					buffName = tracker[j][2]
 					buffUnit = tracker[j][3]
@@ -180,7 +181,7 @@ if not metaTable2 then
 			end
 			-- Remove Debuffs
 			for buffCaster, buffs in pairs(debuffList) do
-				for buffName, buff in pairs(buffs) do
+				for buffName, _ in pairs(buffs) do
 					if debuffList[buffCaster][buffName] ~= nil then
 						if debuffList[buffCaster][buffName](buffName,unit) == nil then
 							-- Print("Removing player expired - "..buffName)
@@ -198,24 +199,24 @@ if not metaTable2 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-			local startTime = debugprofilestop()
-			o.posX, o.posY, o.posZ = ObjectPosition(o.unit)
-			o.name = UnitName(o.unit)
-			o.guid = UnitGUID(o.unit)
+			local startTime = _G.debugprofilestop()
+			o.posX, o.posY, o.posZ = br._G.ObjectPosition(o.unit)
+			o.name = br._G.UnitName(o.unit)
+			o.guid = br._G.UnitGUID(o.unit)
 			o.distance = o:RawDistance()
-			o.hpabs = UnitHealth(o.unit)
-			o.hpmax = UnitHealthMax(o.unit)
+			o.hpabs = br._G.UnitHealth(o.unit)
+			o.hpmax = br._G.UnitHealthMax(o.unit)
 			o.hp = o.hpabs / o.hpmax * 100
-			o.objectID = ObjectID(o.unit)
+			o.objectID = br._G.ObjectID(o.unit)
 			o.range = o.range
 			o.debuffs = o.debuffs
-			if o.distance <= 50 and not UnitIsDeadOrGhost(o.unit) then
+			if o.distance <= 50 and not br.GetUnitIsDeadOrGhost(o.unit) then
 				-- EnemyListCheck
 				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
-					o.enemyListCheck = enemyListCheck(o.unit)
+					o.enemyListCheck = br.enemyListCheck(o.unit)
 					o.enemyRefresh = GetTime()
 					if o.enemyListCheck == true then
-						o.range = getDistanceCalc(o.unit)
+						o.range = br.getDistanceCalc(o.unit)
 						if br.units[o.unit] == nil then
 							o:AddUnit(br.units)
 						end
@@ -234,14 +235,14 @@ if not metaTable2 then
 			end
 			-- Is valid unit - only check if enemyList checks out
 			if o.enemyListCheck == true then
-				o.isValidUnit = isValidUnit(o.unit)
-				if o.isValidUnit == true then
+				o.br.isValidUnit = br.isValidUnit(o.unit)
+				if o.br.isValidUnit == true then
 					o.debuffs = o:UpdateDebuffs(o.debuffs,o.unit)
 					-- o.range = getDistanceCalc(o.unit)
 					if br.enemy[o.unit] == nil then
 						o:AddUnit(br.enemy)
 					end
-					-- br.enemy[o.unit].range = o.range
+					-- br.enemy[o.unit].range = o.
 					br.enemy[o.unit].debuffs = o.debuffs
 				else
 					if br.enemy[o.unit] ~= nil then
@@ -257,7 +258,7 @@ if not metaTable2 then
 				if br.damaged ~= nil and br.damaged[o.unit] ~= nil then br.damaged[o.unit] = nil end
 			end
 			-- TTD
-			if getOptionCheck("Enhanced Time to Die") then
+			if br.getOptionCheck("Enhanced Time to Die") then
 				if o.objectID == 140853 then -- If mother, TTD is 10 pct
 					o.ttd = o:unitTtd(10)
 				elseif o.objectID == 149684 then -- Jaina tps out at 5%
@@ -267,18 +268,18 @@ if not metaTable2 then
 				end
 			end
 			-- Check for loots
-			if autoLoot and br.lootable[o.unit] == nil and UnitIsDeadOrGhost(o.unit) then
-				local hasLoot, canLoot = CanLootUnit(o.guid)
-				if hasLoot then --and (canLoot or isKnown(125050)) then
+			if autoLoot and br.lootable[o.unit] == nil and br.GetUnitIsDeadOrGhost(o.unit) then
+				local hasLoot, canLoot = _G.CanLootUnit(o.guid)
+				if hasLoot then --and (canLoot or br.isKnown(125050)) then
 					o:AddUnit(br.lootable)
 				end
 			end
 			-- Add pets
-			if br.player ~= nil and br.player.pet.list[o.unit] == nil and (o.objectID == 11492 or GetUnitIsUnit(UnitCreator(o.unit), "player")) then
+			if br.player ~= nil and br.player.pet.list[o.unit] == nil and (o.objectID == 11492 or br.GetUnitIsUnit(br._G.UnitCreator(o.unit), "player")) then
 				o:AddUnit(br.player.pet.list)
 			end
 			-- Add other player pets
-			if br.pet ~= nil and br.pet[o.unit] == nil and (UnitIsOtherPlayersPet(o.unit)) then
+			if br.pet ~= nil and br.pet[o.unit] == nil and (br._G.UnitIsOtherPlayersPet(o.unit)) then
 				o:AddUnit(br.pet)
 			end
 
@@ -295,15 +296,15 @@ if not metaTable2 then
 		return o
 	end
 	-- Setting up the tables on either Wipe or Initial Setup
-	function SetupEnemyTables() -- Creating the cache (we use this to check if some1 is already in the table)
-		local startTime = debugprofilestop()
-		setmetatable(br.om, metaTable2) -- Set the metaTable of Main to Meta
+	function br.SetupEnemyTables() -- Creating the cache (we use this to check if some1 is already in the table)
+		local startTime = _G.debugprofilestop()
+		setmetatable(br.om, br.metaTable2) -- Set the metaTable of Main to Meta
 		function br.om:Update()
 			br.omTableTimer = GetTime()
 			--Set variables we don't need to update for each unit
-			pX, pY, pZ = ObjectPosition("player")
-			pCR = UnitCombatReach("player")
-			autoLoot = isChecked("Auto Loot")
+			pX, pY, pZ = br._G.ObjectPosition("player")
+			pCR = br._G.UnitCombatReach("player")
+			autoLoot = br.isChecked("Auto Loot")
 			if br.pet == nil then
 				br.pet = {}
 			end
@@ -322,7 +323,7 @@ if not metaTable2 then
 				if br.om[i].pulseTime == nil or GetTime() >= (br.om[i].pulseTime + (math.random(1,12)/100)) then
 					br.om[i].pulseTime = GetTime()
 					local thisUnit = br.om[i].unit
-					if not GetUnitIsVisible(thisUnit) then
+					if not br.GetUnitIsVisible(thisUnit) then
 						--Delete units no longer in OM
 						br.unitSetup.cache[thisUnit] = nil
 						if br.ttd[thisUnit] ~= nil then
@@ -355,8 +356,8 @@ if not metaTable2 then
 			end
 			-- clean our loots
 			if autoLoot then
-				for k, v in pairs(br.lootable) do
-					if not CanLootUnit(br.lootable[k].guid) or not GetObjectExists(br.lootable[k].unit) then
+				for k, _ in pairs(br.lootable) do
+					if not _G.CanLootUnit(br.lootable[k].guid) or not br.GetObjectExists(br.lootable[k].unit) then
 						br.lootable[k] = nil
 					end
 				end
@@ -366,5 +367,5 @@ if not metaTable2 then
 		br.debug.cpu:updateDebug(startTime,"enemiesEngine.enemySetup")
 	end
 	-- We are setting up the Tables for the first time
-	SetupEnemyTables()
+	br.SetupEnemyTables()
 end

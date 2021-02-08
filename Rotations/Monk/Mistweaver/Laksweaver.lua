@@ -199,11 +199,11 @@ local function runRotation()
     ---
     local buff = br.player.buff
     local cast = br.player.cast
-    local combatTime = getCombatTime()
+    local combatTime = br.getCombatTime()
     local cd = br.player.cd
     local charges = br.player.charges
     local debuff = br.player.debuff
-    local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
+    local drinking = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0
     local enemies = br.player.enemies
     local falling, swimming, flying, moving = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
     local gcd = br.player.gcd
@@ -215,7 +215,7 @@ local function runRotation()
     local BleedFriend = nil
     local BleedFriendCount = 0
     local BleedStack = 0
-    local ttd = getTTD
+    local ttd = br.getTTD
     local essence = br.player.essence
     local mana = br.player.power.mana.percent()
     local mode = br.player.ui.mode
@@ -227,7 +227,7 @@ local function runRotation()
     local racial = br.player.getRacial()
     local spell = br.player.spell
     local talent = br.player.talent
-    local ttd = getTTD
+    local ttd = br.getTTD
     local ttm = br.player.power.mana.ttm()
     local units = br.player.units
     local lowest = {}    --Lowest Unit
@@ -238,11 +238,11 @@ local function runRotation()
     lowest.guid = br.friend[1].guid
     local enemies = br.player.enemies
     local lastSpell = lastSpellCast
-    local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player")
+    local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player")
     local mode = br.player.ui.mode
     local pullTimer = br.DBM:getPulltimer()
     local units = br.player.units
-    local tanks = getTanksTable()
+    local tanks = br.getTanksTable()
 
     if leftCombat == nil then
         leftCombat = GetTime()
@@ -316,7 +316,7 @@ local function runRotation()
     end
 
     local function risingSunKickFunc()
-        if cast.able.risingSunKick() and isChecked("Rising Sun Kick") then
+        if cast.able.risingSunKick() and br.isChecked("Rising Sun Kick") then
             if #enemy_count_facing_5 > 0 then
                 if (talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")
                         or focustea == "kick" and buff.thunderFocusTea.exists()
@@ -330,7 +330,7 @@ local function runRotation()
                 end
             end
         end
-        if not cast.able.risingSunKick() and getHP(br.friend[1]) > getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
+        if not cast.able.risingSunKick() and br.getHP(br.friend[1]) > getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
             if cast.able.blackoutKick() and not buff.thunderFocusTea.exists()
                     and (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
                 if cast.blackoutKick(units.dyn5) then
@@ -355,31 +355,31 @@ local function runRotation()
 
         -- Print(hotcountFunc())
         -- auto mode
-        if isChecked("Thunder Focus Tea") and cast.able.thunderFocusTea() and not buff.thunderFocusTea.exists() then
-            if cast.able.envelopingMist() and getOptionValue("Thunder Focus Mode") == 1 and burst == false and getLowAllies(70) < 3 and lowest.hp < 50 or getOptionValue("Thunder Focus Mode") == 2 then
+        if br.isChecked("Thunder Focus Tea") and cast.able.thunderFocusTea() and not buff.thunderFocusTea.exists() then
+            if cast.able.envelopingMist() and br.getOptionValue("Thunder Focus Mode") == 1 and burst == false and getLowAllies(70) < 3 and lowest.hp < 50 or br.getOptionValue("Thunder Focus Mode") == 2 then
                 focustea = "singleHeal"
             end
             if cast.able.renewingMist()
-                    and (getOptionValue("Thunder Focus Mode") == 1 and (burst == true or getLowAllies(70) > 3 and not talent.risingMist)
-                    or getOptionValue("Thunder Focus Mode") == 3) then
+                    and (br.getOptionValue("Thunder Focus Mode") == 1 and (burst == true or getLowAllies(70) > 3 and not talent.risingMist)
+                    or br.getOptionValue("Thunder Focus Mode") == 3) then
                 focustea = "AOEHeal"
             end
-            if getOptionValue("Thunder Focus Mode") == 1 and mana <= getValue("Thunder Focus Tea") or getOptionValue("Thunder Focus Mode") == 4 and cast.able.vivify() then
+            if br.getOptionValue("Thunder Focus Mode") == 1 and mana <= getValue("Thunder Focus Tea") or br.getOptionValue("Thunder Focus Mode") == 4 and cast.able.vivify() then
                 focustea = "manaEffiency"
             end
             if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and
                     (hotcountFunc() >= getValue("Fistweave Hots")
-                            and ((getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist)
-                            or getOptionValue("Thunder Focus Mode") == 5))
+                            and ((br.getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist)
+                            or br.getOptionValue("Thunder Focus Mode") == 5))
                     or #br.friend == 1 then
                 focustea = "kick"
             end
         end
 
         if focustea ~= nil and not buff.thunderFocusTea.exists() and cast.able.thunderFocusTea() then
-            if (focustea == "singleHeal" and cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist"))
-                    or (focustea == "AOEHeal" and cast.able.renewingMist() and getHP(br.friend[1]) <= getValue("Renewing Mist"))
-                    or (focustea == "manaEffiency" and cast.able.vivify() and getHP(br.friend[1]) < getValue("Vivify"))
+            if (focustea == "singleHeal" and cast.able.envelopingMist() and br.getHP(healUnit) <= getValue("Enveloping Mist"))
+                    or (focustea == "AOEHeal" and cast.able.renewingMist() and br.getHP(br.friend[1]) <= getValue("Renewing Mist"))
+                    or (focustea == "manaEffiency" and cast.able.vivify() and br.getHP(br.friend[1]) < getValue("Vivify"))
                     or (focustea == "kick" and cast.able.risingSunKick() and #enemy_count_facing_5 > 0)
             then
                 if cast.thunderFocusTea() then
@@ -409,7 +409,7 @@ local function runRotation()
                     return true
                 end
             end
-            if focustea == "kick" and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick") then
+            if focustea == "kick" and #enemy_count_facing_5 > 0 and br.isChecked("Rising Sun Kick") then
                 if risingSunKickFunc() then
                     return true
                 end
@@ -440,9 +440,9 @@ local function runRotation()
             end
             if statue_buff_check == 0 then
                 if #tanks > 0 then
-                    px, py, pz = GetObjectPosition(tanks[1].unit)
+                    px, py, pz = br.GetObjectPosition(tanks[1].unit)
                 else
-                    px, py, pz = GetObjectPosition("player")
+                    px, py, pz = br.GetObjectPosition("player")
                 end
 
                 px = px + math.random(-2, 2)
@@ -459,7 +459,7 @@ local function runRotation()
     local function tigers_lust()
         -- Tiger's Lust
         --[[ 1 = any, 2 = self, 3 == CD]]
-        if br.player.talent.tigersLust and br.player.cast.able.tigersLust() and isChecked("Tiger's Lust") then
+        if br.player.talent.tigersLust and br.player.cast.able.tigersLust() and br.isChecked("Tiger's Lust") then
             if getValue("Tiger's Lust") == 1 then
                 for i = 1, #br.friend do
                     thisUnit = br.friend[i].unit
@@ -501,14 +501,14 @@ local function runRotation()
     }
 
     local function isCC(unit)
-        if getOptionCheck("Don't break CCs") then
+        if br.getOptionCheck("Don't break CCs") then
             return isLongTimeCCed(Unit)
         end
         return false
     end
 
     local function noDamageCheck(unit)
-        if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
+        if br.isChecked("Dont DPS spotter") and br.GetObjectID(unit) == 135263 then
             return true
         end
         if isCC(unit) then
@@ -539,13 +539,13 @@ local function runRotation()
         -- Print("Number of enemies: "  .. tostring(#br.enemies))
 
         if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and essence.conflict.active then
-            if isChecked("WotC as part of DPS") then
-                if talent.manaTea and cast.able.manaTea() and getSpellCD(216113) == 0 then
+            if br.isChecked("WotC as part of DPS") then
+                if talent.manaTea and cast.able.manaTea() and br.getSpellCD(216113) == 0 then
                     if cast.manaTea() then
                         return true
                     end
                 end
-                if getSpellCD(216113) == 0 then
+                if br.getSpellCD(216113) == 0 then
                     CastSpellByID(216113, "player")
                     return true
                 end
@@ -564,8 +564,8 @@ local function runRotation()
                 dps_mode = "multi"
             end
 
-            if getDistance(units.dyn5) < 5 and #enemies.yards5 > 0 then
-                StartAttack(units.dyn5)
+            if br.getDistance(units.dyn5) < 5 and #enemies.yards5 > 0 then
+                br._G.StartAttack(units.dyn5)
             end
 
 
@@ -574,8 +574,8 @@ local function runRotation()
 
             --Print("dps_mode: " .. dps_mode)
             --[[
-                        if inCombat and (isInMelee() and getFacing("player", "target") == true) then
-                            StartAttack()
+                        if inCombat and (isInMelee() and br.getFacing("player", "target") == true) then
+                            br._G.StartAttack()
                         end
             ]]
             --lets check for mysticTouch debuff
@@ -589,7 +589,7 @@ local function runRotation()
                     end
                 end
 
-                if br.player.ui.mode.dps ~= 2 and isChecked("Spinning Crane Kick") and not isCastingSpell(spell.spinningCraneKick) and
+                if br.player.ui.mode.dps ~= 2 and br.isChecked("Spinning Crane Kick") and not br.isCastingSpell(spell.spinningCraneKick) and
                         ((mysticTouchCounter > 0 and #enemies.yards8 > 1)
                                 or #enemies.yards8 >= 4
                                 or #enemy_count_facing_5 == 0) then
@@ -601,7 +601,7 @@ local function runRotation()
 
             if #enemy_count_facing_5 > 0 and not noDamageCheck(units.dyn5) then
                 --- single target DPS
-                if isChecked("Rising Sun Kick") and cast.able.risingSunKick() then
+                if br.isChecked("Rising Sun Kick") and cast.able.risingSunKick() then
                     if risingSunKickFunc() then
                         return true
                     end
@@ -615,7 +615,7 @@ local function runRotation()
                 ]]
 
 
-                if cast.able.touchOfDeath("target") and getHP("target") < getHP("player") then
+                if cast.able.touchOfDeath("target") and br.getHP("target") < br.getHP("player") then
                     if cast.touchOfDeath("target") then
                         --      ui.debug("Casting Touch of Death - DIE! [Pull]")
                         return true
@@ -630,7 +630,7 @@ local function runRotation()
                     end
                 end
 
-                if isChecked("ChiBurst/ChiWave") then
+                if br.isChecked("ChiBurst/ChiWave") then
                     if talent.chiBurst then
                         if cast.chiBurst("player") then
                             return
@@ -649,7 +649,7 @@ local function runRotation()
 
             end
 
-            if #enemies.yards10 == 0 and not isCastingSpell(spell.cracklingJadeLightning) and isChecked("Crackling Jade Lightning") and not isMoving("player") then
+            if #enemies.yards10 == 0 and not br.isCastingSpell(spell.cracklingJadeLightning) and br.isChecked("Crackling Jade Lightning") and not isMoving("player") then
                 if cast.cracklingJadeLightning() then
                     return true
                 end
@@ -675,10 +675,10 @@ local function runRotation()
         healUnit = lowest.unit
 
 
-        --       Print("LH: " .. lowest.hp .. tostring(cast.able.vivify()) .. "  setting:  " .. getOptionValue("Vivify"))
+        --       Print("LH: " .. lowest.hp .. tostring(cast.able.vivify()) .. "  setting:  " .. br.getOptionValue("Vivify"))
 
         -- Renewing Mists
-        if isChecked("Renewing Mist")
+        if br.isChecked("Renewing Mist")
                 and cast.able.renewingMist()
                 and not cast.last.thunderFocusTea(1)
                 and not buff.thunderFocusTea.exists()
@@ -691,14 +691,14 @@ local function runRotation()
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) and not isMoving("player") then
             if #tanks > 0 then
                 for i = 1, #tanks do
-                    if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) and cast.able.envelopingMist(tanks[i].unit) then
-                        if getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(tanks[i].unit, "exact") then
+                    if br.getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) and cast.able.envelopingMist(tanks[i].unit) then
+                        if br.getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(tanks[i].unit, "exact") then
                             if cast.soothingMist(tanks[i].unit) then
                                 br.addonDebug("[EM-PRE]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
                                 return true
                             end
                         end
-                        if buff.soothingMist.exists(tanks[i].unit, "EXACT") or getOptionValue("EM Casts") == 2 then
+                        if buff.soothingMist.exists(tanks[i].unit, "EXACT") or br.getOptionValue("EM Casts") == 2 then
                             if cast.envelopingMist(tanks[i].unit) then
                                 br.addonDebug("[EM]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
                                 return true
@@ -707,7 +707,7 @@ local function runRotation()
                     end
                 end
             end
-            if lowest.hp < getOptionValue("Enveloping Mist") and not buff.envelopingMist.exists(lowest.unit) then
+            if lowest.hp < br.getOptionValue("Enveloping Mist") and not buff.envelopingMist.exists(lowest.unit) then
                 if cast.envelopingMist(lowest.unit) then
                     return true
                 end
@@ -715,18 +715,18 @@ local function runRotation()
         end
 
 
-        --  Print(getHP(healUnit))
+        --  Print(br.getHP(healUnit))
         -- Vivify
-        if not isMoving("player") and (getHP(healUnit) <= getValue("Vivify") or specialHeal) then
-            if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                if getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
-                    --  if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
+        if not isMoving("player") and (br.getHP(healUnit) <= getValue("Vivify") or specialHeal) then
+            if talent.lifecycle and br.isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not br.isChecked("Enforce Lifecycles buff") then
+                if br.getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
+                    --  if br.isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
                     if cast.soothingMist(healUnit) then
                         --      br.addonDebug("[pre-soothe]:" .. UnitName(healUnit) .. " - VIVIFY")
                         return true
                     end
                 end
-                if buff.soothingMist.exists(healUnit, "EXACT") or getOptionValue("Vivify Casts") == 2 then
+                if buff.soothingMist.exists(healUnit, "EXACT") or br.getOptionValue("Vivify Casts") == 2 then
                     if cast.vivify(healUnit) then
                         --    br.addonDebug("[Vivify]: " .. UnitName(healUnit))
                         return
@@ -737,7 +737,7 @@ local function runRotation()
 
 
 
-        if cast.able.vivify() and isChecked("Vivify") and lowest.hp < getOptionValue("Vivify") then
+        if cast.able.vivify() and br.isChecked("Vivify") and lowest.hp < br.getOptionValue("Vivify") then
             if cast.vivify(lowest.unit) then
                 return true
             end
@@ -745,11 +745,11 @@ local function runRotation()
 
         if 1 == 2 then
             --Bursting
-            --Print("Check" ..isChecked("Bursting").."#: "..getOptionValue("Bursting"))
-            if isChecked("Bursting") and inInstance and #tanks > 0 then
+            --Print("Check" ..br.isChecked("Bursting").."#: "..br.getOptionValue("Bursting"))
+            if br.isChecked("Bursting") and inInstance and #tanks > 0 then
                 local ourtank = tanks[1].unit
-                local Burststack = getDebuffStacks(ourtank, 240443)
-                if Burststack >= getOptionValue("Bursting") then
+                local Burststack = br.getDebuffStacks(ourtank, 240443)
+                if Burststack >= br.getOptionValue("Bursting") then
                     burst = true
                     why = "burst"
                 else
@@ -761,11 +761,11 @@ local function runRotation()
 
             -- Determining heal target / healUnit
 
-            if isChecked("Grievous Wounds") then
+            if br.isChecked("Grievous Wounds") then
                 for i = 1, #br.friend do
                     local GrievUnit = br.friend[i].unit
-                    CurrentBleedstack = getDebuffStacks(GrievUnit, 240559)
-                    if getDebuffStacks(GrievUnit, 240559) > 0 then
+                    CurrentBleedstack = br.getDebuffStacks(GrievUnit, 240559)
+                    if br.getDebuffStacks(GrievUnit, 240559) > 0 then
                         -- Print(GrievUnit.unit)
                         BleedFriendCount = BleedFriendCount + 1
                     end
@@ -789,26 +789,26 @@ local function runRotation()
 
             --instance logic
             if inInstance and inCombat then
-                if isChecked("Temple of Seth heal logic") and br.player.eID and br.player.eID == 2127 then
+                if br.isChecked("Temple of Seth heal logic") and br.player.eID and br.player.eID == 2127 then
                     for i = 1, GetObjectCountBR() do
                         local sethObject = GetObjectWithIndex(i)
-                        if GetObjectID(sethObject) == 133392 then
-                            if getHP(sethObject) < 100 and getBuffRemain(sethObject, 274148) == 0 then
+                        if br.GetObjectID(sethObject) == 133392 then
+                            if br.getHP(sethObject) < 100 and br.getBuffRemain(sethObject, 274148) == 0 then
                                 healUnit = sethObject
                             end
                         end
                     end
-                    if healUnit ~= nil and getHP(thisUnit) < 100 then
+                    if healUnit ~= nil and br.getHP(thisUnit) < 100 then
                         specialHeal = true
                         why = "Seth-Logic"
                     end
                     -- Jagged Nettles and Dessication logic / triad in WM and mummy dude in KR
                 elseif (select(8, GetInstanceInfo()) == 1862 or select(8, GetInstanceInfo()) == 1762) then
                     for i = 1, #br.friend do
-                        if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
+                        if br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or br.getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
                             healUnit = br.friend[i].unit
                         end
-                        if healUnit ~= nil and getHP(healUnit) < 90 then
+                        if healUnit ~= nil and br.getHP(healUnit) < 90 then
                             specialHeal = true
                             why = "Jagged/Dessication"
                         end
@@ -817,10 +817,10 @@ local function runRotation()
                     -- Devour
                 elseif select(8, GetInstanceInfo()) == 1763 then
                     for i = 1, #br.friend do
-                        if (getDebuffRemain(br.friend[i].unit, 255421) or getDebuffRemain(br.friend[i].unit, 255434)) ~= 0 then
+                        if (br.getDebuffRemain(br.friend[i].unit, 255421) or br.getDebuffRemain(br.friend[i].unit, 255434)) ~= 0 then
                             healUnit = br.friend[i].unit
                         end
-                        if healUnit ~= nil and getHP(healUnit) < 90 then
+                        if healUnit ~= nil and br.getHP(healUnit) < 90 then
                             specialHeal = true
                             why = "Devour"
                         end
@@ -843,7 +843,7 @@ local function runRotation()
                             why = "[CRITICAL]"
                         end
                     end
-                    if crit_count >= getOptionValue("Bursting") then
+                    if crit_count >= br.getOptionValue("Bursting") then
                         burst = true
                         why = "[GROUP CRITICAL]"
                     end
@@ -854,8 +854,8 @@ local function runRotation()
 
 
             --single heal on mouseover target override - old "HAM" mode
-            if SpecificToggle("Heal Key") and GetUnitExists("mouseover") then
-                healUnit = GetUnit("mouseover")
+            if SpecificToggle("Heal Key") and br.GetUnitExists("mouseover") then
+                healUnit = br.GetUnit("mouseover")
                 specialHeal = true
                 why = "Heal Key"
             end
@@ -867,7 +867,7 @@ local function runRotation()
                 healUnit = br.friend[1].unit
                 why = "[STD]"
             end
-            --br.addonDebug("Heal Target: " .. healUnit .. " at: " .. getHP(healUnit))
+            --br.addonDebug("Heal Target: " .. healUnit .. " at: " .. br.getHP(healUnit))
 
             --[[
                         --always kick with rising  -- fist weaving
@@ -885,20 +885,20 @@ local function runRotation()
                         end
             ]]
             --Life Cocoon
-            if isChecked("Life Cocoon") and cast.able.lifeCocoon() and inCombat then
-                if (isChecked("Bursting") and burst and getDebuffStacks("player", 240443) >= getOptionValue("Bursting"))
-                        or (isChecked("Grievous Wounds") and getDebuffStacks("player", 240559) > 3)
+            if br.isChecked("Life Cocoon") and cast.able.lifeCocoon() and inCombat then
+                if (br.isChecked("Bursting") and burst and br.getDebuffStacks("player", 240443) >= br.getOptionValue("Bursting"))
+                        or (br.isChecked("Grievous Wounds") and br.getDebuffStacks("player", 240559) > 3)
                 then
                     if cast.lifeCocoon("player") then
                         br.addonDebug(tostring(burst) .. "[LifCoc]:" .. "SELF" .. " / " .. why)
                         return true
                     end
                 end
-                if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 3 or BleedStack == 99) or not isChecked("Grievous Wounds") then
+                if br.isChecked("Grievous Wounds") and (br.getDebuffStacks(healUnit, 240559) > 3 or BleedStack == 99) or not br.isChecked("Grievous Wounds") then
                     --override cause people leave settings on in non griev weeks
-                    if (getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
+                    if (br.getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
                         if cast.lifeCocoon(healUnit) then
-                            br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why .. " HP: " .. tostring(getHP(healUnit)))
+                            br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why .. " HP: " .. tostring(br.getHP(healUnit)))
                             --  Print("Bleedstack: " .. tostring(BleedStack))
                             return true
                         end
@@ -912,7 +912,7 @@ local function runRotation()
             if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
 
                 for i = 1, #br.friend do
-                    if select(7, UnitBuffID(br.friend[i].unit, 198533, "exact")) == "player" then
+                    if select(7, br.UnitBuffID(br.friend[i].unit, 198533, "exact")) == "player" then
                         soothing_counter = soothing_counter + 1
                     end
                     --[[if buff.soothingMistJadeStatue.exists(br.friend[i].unit,"exact") then
@@ -928,10 +928,10 @@ local function runRotation()
                 end
             end
 
-            if not isMoving("player") and cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
-                if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                    if getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
-                        -- if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
+            if not isMoving("player") and cast.able.envelopingMist() and br.getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
+                if talent.lifecycle and br.isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not br.isChecked("Enforce Lifecycles buff") then
+                    if br.getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
+                        -- if br.isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
                         if not buff.soothingMist.exists(healUnit, "exact") then
                             if cast.soothingMist(healUnit) then
                                 br.addonDebug("[pre-soothe]:" .. UnitName(healUnit) .. " EM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
@@ -942,7 +942,7 @@ local function runRotation()
                                 br.addonDebug("[EM1]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                             end
                         end
-                    elseif (getOptionValue("EM Casts") == 2 or buff.soothingMist.exists(healUnit, "exact")) and buff.envelopingMist.remains(healUnit) < 2 then
+                    elseif (br.getOptionValue("EM Casts") == 2 or buff.soothingMist.exists(healUnit, "exact")) and buff.envelopingMist.remains(healUnit) < 2 then
                         if cast.envelopingMist(healUnit) then
                             br.addonDebug("[EM2]:" .. UnitName(healUnit) .. " SM: " .. tostring(buff.soothingMist.exists(healUnit, "EXACT")))
                             return
@@ -953,11 +953,11 @@ local function runRotation()
 
 
             --Revival
-            if isChecked("Revival") and cast.able.revival() then
-                if isChecked("Use Revival as detox") and br.player.ui.mode.detox == 1 and not cast.last.detox() and cd.detox.exists() then
+            if br.isChecked("Revival") and cast.able.revival() then
+                if br.isChecked("Use Revival as detox") and br.player.ui.mode.detox == 1 and not cast.last.detox() and cd.detox.exists() then
                     local detoxCounter = 0
                     for i = 1, #br.friend do
-                        if canDispel(br.friend[i].unit, spell.detox) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
+                        if br.canDispel(br.friend[i].unit, spell.detox) and br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 then
                             detoxCounter = detoxCounter + 1
                         end
                     end
@@ -981,14 +981,14 @@ local function runRotation()
 
 
             --vivify on targets with essence font hot
-            if isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(healUnit) and getHP(healUnit) < 80 then
-                if getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
-                    --   if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
+            if br.isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(healUnit) and br.getHP(healUnit) < 80 then
+                if br.getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
+                    --   if br.isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
                     if cast.soothingMist(healUnit) then
                         br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                         return true
                     end
-                elseif buff.soothingMist.exists(healUnit, "EXACT") or getOptionValue("Vivify Casts") == 2 then
+                elseif buff.soothingMist.exists(healUnit, "EXACT") or br.getOptionValue("Vivify Casts") == 2 then
                     if cast.vivify(healUnit) then
                         br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                         return true
@@ -998,7 +998,7 @@ local function runRotation()
 
 
             --vivify if hotcount >= 5
-            if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < getValue("Vivify Spam Health") and buff.renewingMist.exists(healUnit) or specialHeal then
+            if br.isChecked("Vivify") and cast.able.vivify() and br.getHP(healUnit) < getValue("Vivify Spam Health") and buff.renewingMist.exists(healUnit) or specialHeal then
                 RM_counter = 0
                 -- local SM_counter = 0
                 for i = 1, #br.friend do
@@ -1013,14 +1013,14 @@ local function runRotation()
                 end
                 if RM_counter >= getValue("Vivify Spam") then
                     -- do we have a soothing mist rolling
-                    if getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists("player", "exact") then
-                        --  if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists("player", "EXACT") then
+                    if br.getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists("player", "exact") then
+                        --  if br.isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists("player", "EXACT") then
                         if cast.soothingMist("player") then
                             br.addonDebug("[SooMist]:" .. UnitName("player") .. " / " .. "VIVIFY-SPAM - presoothe (" .. tostring(RM_counter) .. ")")
                             return true
                         end
                     end
-                    if getOptionValue("Vivify Casts") == 2 or buff.soothingMist.exists("player", "exact") then
+                    if br.getOptionValue("Vivify Casts") == 2 or buff.soothingMist.exists("player", "exact") then
                         if cast.vivify("player") then
                             br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName("player") .. " / " .. "VIVIFY-SPAM")
                             return true
@@ -1032,7 +1032,7 @@ local function runRotation()
 
 
             --Essence Font
-            if isChecked("Essence Font") then
+            if br.isChecked("Essence Font") then
                 if talent.upwelling and br.timer:useTimer("EssenceFont Seconds", getValue("Essence Font delay(Upwelling)")) or not talent.upwelling then
                     if getLowAllies(getValue("Essence Font")) >= getValue("Essence Font targets") or burst then
                         if cast.essenceFont() then
@@ -1044,10 +1044,10 @@ local function runRotation()
             end
 
             --Surging Mist
-            if isChecked("Surging Mist") then
-                if getHP(healUnit) <= getValue("Surging Mist") or specialHeal then
+            if br.isChecked("Surging Mist") then
+                if br.getHP(healUnit) <= getValue("Surging Mist") or specialHeal then
                     if cast.surgingMist(healUnit) then
-                        br.addonDebug(tostring(burst) .. "[SurgMist]:" .. UnitName(healUnit) .. " / " .. why .. math.floor(tostring(getHP(healUnit))) .. "/ " .. getValue("Surging Mist"))
+                        br.addonDebug(tostring(burst) .. "[SurgMist]:" .. UnitName(healUnit) .. " / " .. why .. math.floor(tostring(br.getHP(healUnit))) .. "/ " .. getValue("Surging Mist"))
                         return true
                     end
                 end
@@ -1058,9 +1058,9 @@ local function runRotation()
 
 
 
-            if isChecked("Soothing Mist") and not isMoving("player") then
-                if getHP(healUnit) <= getValue("Soothing Mist") or specialHeal then
-                    if getBuffRemain(healUnit, spell.soothingMist, "EXACT") == 0 then
+            if br.isChecked("Soothing Mist") and not isMoving("player") then
+                if br.getHP(healUnit) <= getValue("Soothing Mist") or specialHeal then
+                    if br.getBuffRemain(healUnit, spell.soothingMist, "EXACT") == 0 then
                         --  and not buff.soothingMist.exists(healUnit, "exact") then
                         if cast.soothingMist(healUnit) then
                             br.addonDebug("[Sooth] Fallback: " .. UnitName(healUnit))
@@ -1074,9 +1074,9 @@ local function runRotation()
     end
 
     local function cooldowns()
-        if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
+        if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and br.isChecked("Ring of Peace") then
             if cast.able.ringOfPeace() then
-                if CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
+                if br._G.CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
                     return true
                 end
             end
@@ -1084,14 +1084,14 @@ local function runRotation()
 
         -- item support
         --Wraps of wrapsOfElectrostaticPotential
-        if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
+        if br.player.equiped.wrapsOfElectrostaticPotential and br.canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
             if br.player.use.wrapsOfElectrostaticPotential() then
                 br.addonDebug("Using HBracers")
             end
         end
         --staff of neural
-        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
-                and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
+        if br.player.equiped.neuralSynapseEnhancer and br.canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15
+                and br.getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
         then
             if br.player.use.neuralSynapseEnhancer() then
                 br.addonDebug("Using neuralSynapseEnhancer ")
@@ -1099,7 +1099,7 @@ local function runRotation()
         end
         -- Corruption stuff
         -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+        if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) then
             if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                     or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
                     or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
@@ -1111,7 +1111,7 @@ local function runRotation()
 
 
         --jade statue
-        if isChecked("Summon Jade Serpent") and talent.summonJadeSerpentStatue and not isMoving("player") then
+        if br.isChecked("Summon Jade Serpent") and talent.summonJadeSerpentStatue and not isMoving("player") then
             if jadestatue() then
                 return true
             end
@@ -1122,7 +1122,7 @@ local function runRotation()
 
 
         --Chi Ji
-        if talent.invokeChiJiTheRedCrane and isChecked("Chi Ji") then
+        if talent.invokeChiJiTheRedCrane and br.isChecked("Chi Ji") then
             if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") or burst == true then
                 if cast.invokeChiJi() then
                     br.addonDebug(tostring(burst) .. "[ChiJi]")
@@ -1131,12 +1131,12 @@ local function runRotation()
             end
         end
         --Refreshing Jade Wind
-        if talent.refreshingJadeWind and isChecked("Refreshing Jade Wind") and cast.able.refreshingJadeWind() and not buff.refreshingJadeWind.exists() then
+        if talent.refreshingJadeWind and br.isChecked("Refreshing Jade Wind") and cast.able.refreshingJadeWind() and not buff.refreshingJadeWind.exists() then
             local refreshJadeFriends = getAllies("player", 10)
             if #refreshJadeFriends > 0 then
                 for i = 1, #refreshJadeFriends do
                     jadeUnits = refreshJadeFriends[i].unit
-                    if getHP(jadeUnits) < getValue("Refreshing Jade Wind") then
+                    if br.getHP(jadeUnits) < getValue("Refreshing Jade Wind") then
                         jadeUnitsCount = jadeUnitsCount + 1
                         if jadeUnitsCount >= getValue("RJW Targets") or burst then
                             if cast.refreshingJadeWind() then
@@ -1152,23 +1152,23 @@ local function runRotation()
 
 
         -- Trinkets
-        if isChecked("Trinket 1") and canUseItem(13) then
-            if getOptionValue("Trinket 1 Mode") == 1 then
+        if br.isChecked("Trinket 1") and br.canUseItem(13) then
+            if br.getOptionValue("Trinket 1 Mode") == 1 then
                 if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-                    useItem(13)
+                    br.useItem(13)
                     return true
                 end
-            elseif getOptionValue("Trinket 1 Mode") == 2 then
+            elseif br.getOptionValue("Trinket 1 Mode") == 2 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Trinket 1") then
-                        UseItemByName(select(1, GetInventoryItemID("player", 13)), br.friend[i].unit)
+                        UseItemByName(select(1, _G.GetInventoryItemID("player", 13)), br.friend[i].unit)
                         return true
                     end
                 end
-            elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
+            elseif br.getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
                 for i = 1, #tanks do
                     -- get the tank's target
-                    local tankTarget = UnitTarget(tanks[i].unit)
+                    local tankTarget = br._G.UnitTarget(tanks[i].unit)
                     if tankTarget ~= nil then
                         -- get players in melee range of tank's target
                         local meleeFriends = getAllies(tankTarget, 5)
@@ -1188,11 +1188,11 @@ local function runRotation()
                             end
                         end
                         if loc ~= nil then
-                            local px, py, pz = ObjectPosition("player")
+                            local px, py, pz = br._G.ObjectPosition("player")
                             loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                             if loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil then
                                 -- Check z and LoS, ignore terrain and m2 collisions
-                                useItem(13)
+                                br.useItem(13)
                                 ClickPosition(loc.x, loc.y, loc.z)
                                 return true
                             end
@@ -1202,23 +1202,23 @@ local function runRotation()
 
             end
         end
-        if isChecked("Trinket 2") and canUseItem(14) then
-            if getOptionValue("Trinket 2 Mode") == 1 then
+        if br.isChecked("Trinket 2") and br.canUseItem(14) then
+            if br.getOptionValue("Trinket 2 Mode") == 1 then
                 if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-                    useItem(14)
+                    br.useItem(14)
                     return true
                 end
-            elseif getOptionValue("Trinket 2 Mode") == 2 then
+            elseif br.getOptionValue("Trinket 2 Mode") == 2 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Trinket 2") then
-                        UseItemByName(select(1, GetInventoryItemID("player", 14)), br.friend[i].unit)
+                        UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), br.friend[i].unit)
                         return true
                     end
                 end
-            elseif getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
+            elseif br.getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
                 for i = 1, #tanks do
                     -- get the tank's target
-                    local tankTarget = UnitTarget(tanks[i].unit)
+                    local tankTarget = br._G.UnitTarget(tanks[i].unit)
                     if tankTarget ~= nil then
                         -- get players in melee range of tank's target
                         local meleeFriends = getAllies(tankTarget, 5)
@@ -1238,40 +1238,40 @@ local function runRotation()
                             end
                         end
                         if loc ~= nil then
-                            local px, py, pz = ObjectPosition("player")
+                            local px, py, pz = br._G.ObjectPosition("player")
                             loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                             if loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil then
                                 -- Check z and LoS, ignore terrain and m2 collisions
-                                useItem(13)
+                                br.useItem(13)
                                 ClickPosition(loc.x, loc.y, loc.z)
                                 return true
                             end
                         end
                     end
                 end
-            elseif getOptionValue("Trinket 2 Mode") == 5 then
+            elseif br.getOptionValue("Trinket 2 Mode") == 5 then
                 -- Generic fallback
                 if Trinket13 ~= 168905 and Trinket13 ~= 167555 then
-                    if canUseItem(13) then
-                        useItem(13)
+                    if br.canUseItem(13) then
+                        br.useItem(13)
                     end
                 end
                 if Trinket14 ~= 168905 and Trinket14 ~= 167555 then
-                    if canUseItem(14) then
-                        useItem(14)
+                    if br.canUseItem(14) then
+                        br.useItem(14)
                     end
                 end
             end
         end
 
         --pocket size computing device
-        if isChecked("Trinket 1") and canUseItem(13) and getOptionValue("Trinket 1 Mode") == 4
-                or isChecked("Trinket 2") and canUseItem(14) and getOptionValue("Trinket 2 Mode") == 4 then
-            local Trinket13 = GetInventoryItemID("player", 13)
-            local Trinket14 = GetInventoryItemID("player", 14)
+        if br.isChecked("Trinket 1") and br.canUseItem(13) and br.getOptionValue("Trinket 1 Mode") == 4
+                or br.isChecked("Trinket 2") and br.canUseItem(14) and br.getOptionValue("Trinket 2 Mode") == 4 then
+            local Trinket13 = _G.GetInventoryItemID("player", 13)
+            local Trinket14 = _G.GetInventoryItemID("player", 14)
             if (Trinket13 == 167555 or Trinket14 == 167555) and lowest.hp >= 60 and ttd("target") > 10
                     and not isMoving("player") and not noDamageCheck("target") and not buff.innervate.exists("player") and burst == false then
-                if canUseItem(167555) then
+                if br.canUseItem(167555) then
                     br.player.use.pocketSizedComputationDevice()
                 end
             end
@@ -1279,49 +1279,49 @@ local function runRotation()
 
 
         -- Mana Potion
-        if isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
-            if hasItem(152495) and canUseItem(152495) then
-                useItem(152495)
-                if hasItem(127835) and canUseItem(127835) then
-                    useItem(127835)
+        if br.isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
+            if br.hasItem(152495) and br.canUseItem(152495) then
+                br.useItem(152495)
+                if br.hasItem(127835) and br.canUseItem(127835) then
+                    br.useItem(127835)
                 end
             end
 
-            if isChecked("Auto use Pots") and burst == true then
-                if hasItem(169300) and canUseItem(169300) then
-                    useItem(169300)
+            if br.isChecked("Auto use Pots") and burst == true then
+                if br.hasItem(169300) and br.canUseItem(169300) then
+                    br.useItem(169300)
                 end
             end
         end
 
         -- essences/        --Essence Support
-        if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
+        if br.isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
             if cast.concentratedFlame(lowest.unit) then
                 return true
             end
         end
-        if isChecked("ConcentratedFlame - DPS") and ttd("target") > 5 and not debuff.concentratedFlame.exists("target") then
+        if br.isChecked("ConcentratedFlame - DPS") and ttd("target") > 5 and not debuff.concentratedFlame.exists("target") then
             if cast.concentratedFlame("target") then
                 return true
             end
         end
 
         --overchargeMana
-        if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd then
-            if getOptionValue("Ever Rising Tide") == 1 then
+        if br.isChecked("Ever Rising Tide") and essence.overchargeMana.active and br.getSpellCD(296072) <= gcd then
+            if br.getOptionValue("Ever Rising Tide") == 1 then
                 if cast.overchargeMana() then
                     return
                 end
             end
-            if getOptionValue("Ever Rising Tide") == 2 then
+            if br.getOptionValue("Ever Rising Tide") == 2 then
                 if cd.lifeCocoon.exists() or buff.manaTea.exists() or cd.revival.exists() or burst == true then
                     if cast.overchargeMana() then
                         return
                     end
                 end
             end
-            if getOptionValue("Ever Rising Tide") == 3 then
-                if lowest.hp < getOptionValue("Ever Rising Tide - Health") or burst == true then
+            if br.getOptionValue("Ever Rising Tide") == 3 then
+                if lowest.hp < br.getOptionValue("Ever Rising Tide - Health") or burst == true then
                     if cast.overchargeMana() then
                         return
                     end
@@ -1329,7 +1329,7 @@ local function runRotation()
             end
         end
         --lucid dreams
-        if isChecked("Memory of Lucid Dreams") and getSpellCD(298357) <= gcd
+        if br.isChecked("Memory of Lucid Dreams") and br.getSpellCD(298357) <= gcd
                 and mana <= getValue("Memory of Lucid Dreams") then
             if cast.memoryOfLucidDreams() then
                 return
@@ -1337,15 +1337,15 @@ local function runRotation()
         end
 
         --"Well of Existence  - Health"
-        if isChecked("Well of Existence  - Health") and essence.refreshment.active and getSpellCD(296197) <= gcd then
-            if lowest.hp < getOptionValue("Well of Existence  - Health") or burst == true then
+        if br.isChecked("Well of Existence  - Health") and essence.refreshment.active and br.getSpellCD(296197) <= gcd then
+            if lowest.hp < br.getOptionValue("Well of Existence  - Health") or burst == true then
                 if cast.refreshment(lowest.unit) then
                     return true
                 end
             end
         end
         --Seed of Eonar
-        if isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
+        if br.isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
                     local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Seed of Eonar"), #br.friend)
@@ -1359,7 +1359,7 @@ local function runRotation()
         end
 
         --Mana Tea
-        if isChecked("Mana Tea") and talent.manaTea and not buff.wayOfTheCrane.exists() then
+        if br.isChecked("Mana Tea") and talent.manaTea and not buff.wayOfTheCrane.exists() then
             if (mana <= getValue("Mana Tea") or getValue("Mana Tea") == 0) then
                 if cast.manaTea("player") then
                     return
@@ -1372,17 +1372,17 @@ local function runRotation()
 
         for i = 1, GetObjectCount() do
             local object = GetObjectWithIndex(i)
-            local ID = ObjectID(object)
+            local ID = br._G.ObjectID(object)
 
             local stun = 115078
 
             if stun ~= 0 then
                 if ID == 161895 and not isLongTimeCCed(object) then
-                    local x1, y1, z1 = ObjectPosition("player")
-                    local x2, y2, z2 = ObjectPosition(object)
+                    local x1, y1, z1 = br._G.ObjectPosition("player")
+                    local x2, y2, z2 = br._G.ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                     if distance < 10 then
-                        CastSpellByName(GetSpellInfo(stun), object)
+                        br._G.CastSpellByName(GetSpellInfo(stun), object)
                         return true
                     end
                 end
@@ -1392,7 +1392,7 @@ local function runRotation()
         if useDefensive() then
 
 
-            if isChecked("Healing Elixir /Dampen Harm / Diffuse Magic") and php <= getValue("Healing Elixir /Dampen Harm / Diffuse Magic") then
+            if br.isChecked("Healing Elixir /Dampen Harm / Diffuse Magic") and php <= getValue("Healing Elixir /Dampen Harm / Diffuse Magic") then
                 --Healing Elixir
                 if talent.healingElixir then
                     if cast.healingElixir("player") then
@@ -1411,19 +1411,19 @@ local function runRotation()
             end
 
             --Fortifying Brew
-            if isChecked("Fortifying Brew") and php <= getValue("Fortifying Brew") and cd.fortifyingBrew.remain() == 0 then
+            if br.isChecked("Fortifying Brew") and php <= getValue("Fortifying Brew") and cd.fortifyingBrew.remain() == 0 then
                 if cast.fortifyingBrew() then
                     return
                 end
             end
             --Healthstone
-            if isChecked("Health stone/pot") and php <= getOptionValue("Health stone/pot") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
-                if canUseItem(5512) then
-                    useItem(5512)
-                elseif canUseItem(healPot) then
-                    useItem(healPot)
-                elseif hasItem(166799) and canUseItem(166799) then
-                    useItem(166799)
+            if br.isChecked("Health stone/pot") and php <= br.getOptionValue("Health stone/pot") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+                if br.canUseItem(5512) then
+                    br.useItem(5512)
+                elseif br.canUseItem(healPot) then
+                    br.useItem(healPot)
+                elseif br.hasItem(166799) and br.canUseItem(166799) then
+                    br.useItem(166799)
                 end
             end
         end --End defensive check
@@ -1431,7 +1431,7 @@ local function runRotation()
 
         if br.player.ui.mode.detox == 1 and cast.able.detox() and not cast.last.detox() then
             for i = 1, #br.friend do
-                if canDispel(br.friend[i].unit, spell.detox) and (getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
+                if br.canDispel(br.friend[i].unit, spell.detox) and (br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
                     if cast.detox(br.friend[i].unit) then
                         return true
                     end
@@ -1451,25 +1451,25 @@ local function runRotation()
         for i = 1, #enemies.yards20 do
             thisUnit = enemies.yards20[i]
 
-            if isChecked("Paralysis") and (HOJ_unitList[GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+            if br.isChecked("Paralysis") and (HOJ_unitList[br.GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
                 if cast.paralysis(thisUnit) then
                     return true
                 end
             end
 
             if useInterrupts() then
-                distance = getDistance(thisUnit)
-                if canInterrupt(thisUnit, getOptionValue("InterruptAt")) then
+                distance = br.getDistance(thisUnit)
+                if canInterrupt(thisUnit, br.getOptionValue("InterruptAt")) then
 
                     -- Leg Sweep
-                    if isChecked("Leg Sweep") and not isCastingSpell(spell.essenceFont) then
+                    if br.isChecked("Leg Sweep") and not br.isCastingSpell(spell.essenceFont) then
                         if cast.legSweep(thisUnit) then
                             return
                         end
                     end
                     --[[
                              -- Paralysis
-                             if isChecked("Paralysis") and not isCastingSpell(spell.essenceFont) then
+                             if br.isChecked("Paralysis") and not br.isCastingSpell(spell.essenceFont) then
                                  if cast.paralysis(thisUnit) then
                                      return
                                  end
@@ -1484,7 +1484,7 @@ local function runRotation()
     --- Rotations ---
     -----------------
 
-    if pause(true) or IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or isCasting(212051) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) then
+    if pause(true) or IsMounted() or flying or drinking or br.isCastingSpell(spell.essenceFont) or isCasting(293491) or isCasting(212051) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) then
         return true
     else
 
@@ -1497,25 +1497,25 @@ local function runRotation()
 
             --[[
                         Print("-------------")
-                        Print("My Soothe: " .. tostring(select(7, UnitBuffID("target", 115175, "exact")) == "player"))
-                        Print("My Statue: " .. tostring(select(7, UnitBuffID("target", 198533, "exact")) == "player"))
+                        Print("My Soothe: " .. tostring(select(7, br.UnitBuffID("target", 115175, "exact")) == "player"))
+                        Print("My Statue: " .. tostring(select(7, br.UnitBuffID("target", 198533, "exact")) == "player"))
 
                         Print(tostring(buff.soothingMist.exists("target","exact")))
                         Print(tostring(buff.soothingMist.exists("target")))
-                        Print("Target has my sooth - method 1: " .. tostring(getBuffRemain("target", 115175, "EXACT") ~= 0))
+                        Print("Target has my sooth - method 1: " .. tostring(br.getBuffRemain("target", 115175, "EXACT") ~= 0))
                         Print("Target has my sooth - method 2: " .. tostring(buff.soothingMist.exists("target")))
-                        Print("Target has other sooth - method 1: " .. tostring(getBuffRemain("target", 115175) ~= 0))
-                        Print("Target has STATUE sooth - method 1: " .. tostring(getBuffRemain("target", 198533, "EXACT") ~= 0))
-                        Print("Target has STATUE sooth - method 2: " .. tostring(getBuffRemain("target", 198533) ~= 0))
-                        --       Print("Target has STATUE sooth - method 3 - time remains: " .. getBuffRemain("target", 198533, "player"))
+                        Print("Target has other sooth - method 1: " .. tostring(br.getBuffRemain("target", 115175) ~= 0))
+                        Print("Target has STATUE sooth - method 1: " .. tostring(br.getBuffRemain("target", 198533, "EXACT") ~= 0))
+                        Print("Target has STATUE sooth - method 2: " .. tostring(br.getBuffRemain("target", 198533) ~= 0))
+                        --       Print("Target has STATUE sooth - method 3 - time remains: " .. br.getBuffRemain("target", 198533, "player"))
             ]]
 
             --    Print(hotcountFunc())
             --Print(tostring(mode.prehot))
 
 
-            if isChecked("OOC Healing")
-                    and not (IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or isLooting()) then
+            if br.isChecked("OOC Healing")
+                    and not (IsMounted() or flying or drinking or br.isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or isLooting()) then
 
                 if mode.prehot == 1 then
                     if renewingMistFunc() then
@@ -1528,16 +1528,16 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Tiger's Lust") then
+            if br.isChecked("Tiger's Lust") then
                 if tigers_lust() then
                     return true
                 end
             end
 
-            if isChecked("Freehold - pig") then
+            if br.isChecked("Freehold - pig") then
                 bossHelper()
             end
-            if isChecked("Auto Drink") and mana <= getOptionValue("Auto Drink") and not moving and getDebuffStacks("player", 240443) == 0 then
+            if br.isChecked("Auto Drink") and mana <= br.getOptionValue("Auto Drink") and not moving and br.getDebuffStacks("player", 240443) == 0 then
                 --240443 == bursting
                 --drink list
                 --[[
@@ -1547,24 +1547,24 @@ local function runRotation()
                 item=113509/conjured-mana-bun
                 item=126936/sugar-crusted-fish-feast ff
                 ]]
-                if hasItem(65499) and canUseItem(65499) then
-                    useItem(65499)
+                if br.hasItem(65499) and br.canUseItem(65499) then
+                    br.useItem(65499)
                 end
-                if hasItem(113509) and canUseItem(113509) then
-                    useItem(113509)
+                if br.hasItem(113509) and br.canUseItem(113509) then
+                    br.useItem(113509)
                 end
-                if hasItem(159867) and canUseItem(159867) then
-                    useItem(159867)
+                if br.hasItem(159867) and br.canUseItem(159867) then
+                    br.useItem(159867)
                 end
-                if hasItem(163784) and canUseItem(163784) then
-                    useItem(163784)
+                if br.hasItem(163784) and br.canUseItem(163784) then
+                    br.useItem(163784)
                 end
             end -- end auto-drink
 
             --ring out of combat
-            if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
+            if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and br.isChecked("Ring of Peace") then
                 if cast.able.ringOfPeace() then
-                    if CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
+                    if br._G.CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
                         return true
                     end
                 end
@@ -1587,7 +1587,7 @@ local function runRotation()
             end
 
             -- dps key
-            if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (buff.wayOfTheCrane.exists() and #enemies.yards8 > 0 and getHP(healUnit) >= getValue("Critical HP")) then
+            if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (buff.wayOfTheCrane.exists() and #enemies.yards8 > 0 and br.getHP(healUnit) >= getValue("Critical HP")) then
                 if dps() then
                     return true
                 end
@@ -1606,11 +1606,11 @@ local function runRotation()
             if interrupts() then
                 return true
             end
-            if talent.risingMist and cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and isChecked("Rising Sun Kick") then
+            if talent.risingMist and cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and br.isChecked("Rising Sun Kick") then
                 risingSunKickFunc()
                 return true
             end
-            if isChecked("Freehold - pig") then
+            if br.isChecked("Freehold - pig") then
                 bossHelper()
             end
             if heal() then

@@ -169,7 +169,7 @@ local function runRotation()
         ------------------
         if actionList.PreCombat() then return true end
             --Stealth
-            if unit.level() >= 3 and not unit.inCombat() and unit.valid("target") and cast.able.stealth() and getDistance("player", "target") <= 20 and not buff.stealth.exists("player") then
+            if unit.level() >= 3 and not unit.inCombat() and unit.valid("target") and cast.able.stealth() and br.getDistance("player", "target") <= 20 and not buff.stealth.exists("player") then
                 if cast.stealth() then ui.debug("Casting Stealth") return true end
             end
         -----------------------------
@@ -184,7 +184,7 @@ local function runRotation()
                 -- Start Attack
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 --Ambush
                 if buff.stealth.exists() and unit.exists("target") and unit.distance("target") < 5 then

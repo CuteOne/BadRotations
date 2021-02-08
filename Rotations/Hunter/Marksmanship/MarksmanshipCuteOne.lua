@@ -211,7 +211,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if var.br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 PetStopAttack()
@@ -373,7 +373,7 @@ actionList.TrickShots = function()
     if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
-        or (unit.isBoss("target") and unit.ttd("target") < 10))
+        or (unit.br.isBoss("target") and unit.ttd("target") < 10))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap [Trick Shots]") return true end
     end
@@ -503,7 +503,7 @@ actionList.SingleTarget = function()
     if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
-        or (unit.isBoss("target") or unit.ttd("target") < 15))
+        or (unit.br.isBoss("target") or unit.ttd("target") < 15))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap") return true end
     end
@@ -711,7 +711,7 @@ local function runRotation()
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
-    var.getCombatTime = _G["getCombatTime"]
+    var.br.getCombatTime = _G["br.getCombatTime"]
     var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or pause() or buff.feignDeath.exists() or ui.mode.rotation==4
     var.role = _G["UnitGroupRolesAssigned"]
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
@@ -743,7 +743,7 @@ local function runRotation()
         var.profileStop = false
     elseif var.haltProfile and (not unit.isCasting() or pause(true)) then
         StopAttack()
-        if unit.isDummy() then ClearTarget() end
+        if unit.br.isDummy() then ClearTarget() end
         return true
     else
         -----------------------

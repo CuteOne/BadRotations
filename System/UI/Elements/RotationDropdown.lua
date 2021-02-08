@@ -1,5 +1,5 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
-
+local addonName, br = ...
 function br.ui:createRotationDropdown(parent, itemlist, tooltip)
     local newDropdown = DiesalGUI:Create('Dropdown')
     local parent = parent

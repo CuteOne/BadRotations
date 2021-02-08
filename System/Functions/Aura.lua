@@ -1,10 +1,11 @@
-function CancelUnitBuffID(unit, spellID, filter)
+local _, br = ...
+function br.CancelUnitBuffID(unit, spellID, filter)
 	-- local spellName = GetSpellInfo(spellID)
 	for i = 1, 40 do
-		local _, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitBuff(unit, i)
+		local _, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
 		if buffSpellID ~= nil then
 			if buffSpellID == spellID then
-				CancelUnitBuff(unit, i)
+				_G.CancelUnitBuff(unit, i)
 				return true
 			end
 		else
@@ -12,8 +13,8 @@ function CancelUnitBuffID(unit, spellID, filter)
 		end
 	end
 end
-function UnitAuraID(unit, spellID, filter)
-	return UnitBuffID(unit, spellID, filter)
+function br.UnitAuraID(unit, spellID, filter)
+	return br.UnitBuffID(unit, spellID, filter)
 	-- local spellName = GetSpellInfo(spellID)
 	-- if UnitAura(unit,spellName) ~= nil then
 	-- 	return UnitAura(unit,spellName)
@@ -23,34 +24,34 @@ function UnitAuraID(unit, spellID, filter)
 	-- 	return nil
 	-- end
 end
-function UnitBuffID(unit, spellID, filter)
-	local spellName = GetSpellInfo(spellID)
-	local exactSearch = filter ~= nil and strfind(strupper(filter), "EXACT")
+function br.UnitBuffID(unit, spellID, filter)
+	local spellName = _G.GetSpellInfo(spellID)
+	local exactSearch = filter ~= nil and _G.strfind(_G.strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitBuff(unit, i)
+			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
 			if buffName == nil then	return nil end
 			if buffSpellID == spellID then
-				return UnitBuff(unit, i)
+				return br._G.UnitBuff(unit, i)
 			end
 		end
 	else
-		if filter ~= nil and strfind(strupper(filter), "PLAYER") then return AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER") end
-		return AuraUtil.FindAuraByName(spellName, unit, "HELPFUL")
+		if filter ~= nil and _G.strfind(_G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER") end
+		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL")
 	end
 end
 
-function UnitDebuffID(unit, spellID, filter)
-	local thisUnit = ObjectPointer(unit)
-	local spellName = GetSpellInfo(spellID)
+function br.UnitDebuffID(unit, spellID, filter)
+	local thisUnit = br._G.ObjectPointer(unit)
+	local spellName = _G.GetSpellInfo(spellID)
 	-- Check Cache
-	if isChecked("Cache Debuffs") then
-		if br.enemy[thisUnit] ~= nil then 
-			if filter == nil then filter = "player" else filter = ObjectPointer(filter) end
-			if br.enemy[thisUnit].debuffs[filter] ~= nil then 
+	if br.isChecked("Cache Debuffs") then
+		if br.enemy[thisUnit] ~= nil then
+			if filter == nil then filter = "player" else filter = br._G.ObjectPointer(filter) end
+			if br.enemy[thisUnit].debuffs[filter] ~= nil then
 				if br.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
 					return br.enemy[thisUnit].debuffs[filter][spellID](spellID,thisUnit)
-				else 
+				else
 					return nil
 				end
 			end
@@ -58,18 +59,18 @@ function UnitDebuffID(unit, spellID, filter)
 	end
 
 	-- Failsafe if not cached
-	local exactSearch = filter ~= nil and strfind(strupper(filter), "EXACT")
+	local exactSearch = filter ~= nil and _G.strfind(_G.strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitDebuff(unit, i, "player")
+			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
 			if buffName == nil then	return nil end
 			if buffSpellID == spellID then
-				return UnitDebuff(unit, i, "player")
+				return br._G.UnitDebuff(unit, i, "player")
 			end
 		end
 	else
-		if filter ~= nil and strfind(strupper(filter), "PLAYER") then return AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")	end
-		return AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
+		if filter ~= nil and _G.strfind(_G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")	end
+		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
 	end
 end
 -- 	local spellName = GetSpellInfo(spellID)
@@ -88,28 +89,28 @@ end
 local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 	if not buff then
 		if buffSpellID == 288388 then
-			if stacks >= getOptionValue("Reaping") or not UnitAffectingCombat("player") then
-				return true
-			else 
-				return false
-			end
-		elseif buffSpellID == 282566 then
-			if stacks >= getOptionValue("Promise of Power") then
+			if stacks >= br.getOptionValue("Reaping") or not _G.UnitAffectingCombat("player") then
 				return true
 			else
 				return false
 			end
-		elseif buffSpellID == 303657 and isChecked("Arcane Burst") and buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+		elseif buffSpellID == 282566 then
+			if stacks >= br.getOptionValue("Promise of Power") then
+				return true
+			else
+				return false
+			end
+		elseif buffSpellID == 303657 and br.isChecked("Arcane Burst") and buffDuration - buffRemain > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 			return true
-		elseif novaEngineTables.DispelID[buffSpellID] ~= nil then
-			if (stacks >= novaEngineTables.DispelID[buffSpellID].stacks or isChecked("Ignore Stack Count"))
+		elseif br.novaEngineTables.DispelID[buffSpellID] ~= nil then
+			if (stacks >= br.novaEngineTables.DispelID[buffSpellID].stacks or br.isChecked("Ignore Stack Count"))
 			then
-				if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
+				if br.novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and br.novaEngineTables.DispelID[buffSpellID].range == nil then
 					return true
 				else
-					if buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then -- Dispel Delay then
-						if novaEngineTables.DispelID[buffSpellID].range ~= nil then
-							if not isChecked("Ignore Range Check") and #getAllies(unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
+					if buffDuration - buffRemain > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then -- Dispel Delay then
+						if br.novaEngineTables.DispelID[buffSpellID].range ~= nil then
+							if not br.isChecked("Ignore Range Check") and #br.getAllies(unit,br.novaEngineTables.DispelID[buffSpellID].range) > 1 then
 								return false
 							end
 							return true
@@ -118,13 +119,13 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 					end
 					return false
 				end
-			end	
+			end
 			return false
 		end
 		return nil
 	elseif buff then
-		if novaEngineTables.PurgeID[buffSpellID] ~= nil then
-			if (buffDuration - buffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+		if br.novaEngineTables.PurgeID[buffSpellID] ~= nil then
+			if (buffDuration - buffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 				return true
 			end
 			return false
@@ -133,17 +134,17 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 	end
 end
 
--- if canDispel("target",SpellID) == true then
-function canDispel(Unit, spellID)
+-- if br.canDispel("target",SpellID) == true then
+function br.canDispel(Unit, spellID)
 	-- first, check DoNotDispell list
-	for i = 1, #novaEngineTables.DoNotDispellList do
-		if novaEngineTables.DoNotDispellList[i].id == spellID then
+	for i = 1, #br.novaEngineTables.DoNotDispellList do
+		if br.novaEngineTables.DoNotDispellList[i].id == spellID then
 			return false
 		end
 	end
 	local typesList = {}
 	local HasValidDispel = false
-	local ClassNum = select(3, UnitClass("player"))
+	local ClassNum = select(3, br._G.UnitClass("player"))
 	if ClassNum == 1 then --Warrior
 		typesList = {}
 	end
@@ -214,8 +215,9 @@ function canDispel(Unit, spellID)
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
-		if spellID == select(7, GetSpellInfo(GetSpellInfo(69179))) then typesList = {"Magic"} end
+		if spellID == select(7, _G.GetSpellInfo(69179)) then typesList = {"Magic"} end
 	end
+	if br.hasItem(177278) then typesList = {"Disease", "Poison", "Curse", } end
 	local function ValidType(debuffType)
 		local typeCheck = false
 		if typesList == nil then
@@ -230,34 +232,33 @@ function canDispel(Unit, spellID)
 		end
 		return typeCheck
 	end
-	local ValidDebuffType = false
 	local i = 1
-	if not UnitPhaseReason(Unit) then
-		if GetUnitIsFriend("player", Unit) then
-			while UnitDebuff(Unit, i) do
-				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = UnitDebuff(Unit, i)
-				local debuffRemain = debuffExpire - GetTime()
+	if not br._G.UnitPhaseReason(Unit) then
+		if br.GetUnitIsFriend("player", Unit) then
+			while br._G.UnitDebuff(Unit, i) do
+				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = br._G.UnitDebuff(Unit, i)
+				local debuffRemain = debuffExpire - _G.GetTime()
 				local dispelUnitObj
-				if (debuffType and ValidType(debuffType)) then 
+				if (debuffType and ValidType(debuffType)) then
 					if debuffid == 284663 then
-						if (GetHP(Unit) < getOptionValue("Bwonsamdi's Wrath HP") or pakuWrath == true) then
+						if br.GetHP(Unit) < br.getOptionValue("Bwonsamdi's Wrath HP") then
 							HasValidDispel = true
 							break
-						elseif UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+						elseif br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 							HasValidDispel = true
 							break
 						end
 					end
-					for i = 1, #br.friend do
-						local thisUnit = br.friend[i].unit
+					for j = 1, #br.friend do
+						local thisUnit = br.friend[j].unit
 						if Unit == thisUnit then
 							if Dispel(thisUnit,stacks,debuffDuration,debuffRemain,debuffid) ~= nil then
 								dispelUnitObj = Dispel(thisUnit,stacks,debuffDuration,debuffRemain,debuffid)
 							end
 						end
 					end
-					if dispelUnitObj == nil and not isChecked("Dispel Only Whitelist") then
-						if (debuffDuration - debuffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+					if dispelUnitObj == nil and not br.isChecked("Dispel Only Whitelist") then
+						if (debuffDuration - debuffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 							HasValidDispel = true
 							break
 						end
@@ -270,16 +271,16 @@ function canDispel(Unit, spellID)
 				i = i + 1
 			end
 		else
-			while UnitBuff(Unit, i) do
-				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = UnitBuff(Unit, i)
-				local buffRemain = buffExpire - GetTime()
+			while br._G.UnitBuff(Unit, i) do
+				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = br._G.UnitBuff(Unit, i)
+				local buffRemain = buffExpire - _G.GetTime()
 				local dispelUnitObj
-				if (buffType and ValidType(buffType)) and not UnitIsPlayer(Unit) then 
+				if (buffType and ValidType(buffType)) and not br._G.UnitIsPlayer(Unit) then
 					if Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true) ~= nil then
 						dispelUnitObj = Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true)
 					end
-					if dispelUnitObj == nil and not isChecked("Purge Only Whitelist") then
-						if (buffDuration - buffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+					if dispelUnitObj == nil and not br.isChecked("Purge Only Whitelist") then
+						if (buffDuration - buffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 							HasValidDispel = true
 							break
 						end
@@ -295,8 +296,8 @@ function canDispel(Unit, spellID)
 	end
 	return HasValidDispel
 end
-function getAuraDuration(Unit, AuraID, Source)
-	local duration = select(5, UnitAuraID(Unit, AuraID, Source))
+function br.getAuraDuration(Unit, AuraID, Source)
+	local duration = select(5, br.UnitAuraID(Unit, AuraID, Source))
 	if duration ~= nil then
 		duration = duration * 1
 		return duration
@@ -306,10 +307,10 @@ function getAuraDuration(Unit, AuraID, Source)
 	--end
 	return 0
 end
-function getAuraRemain(Unit, AuraID, Source)
-	local remain = select(6, UnitAuraID(Unit, AuraID, Source))
+function br.getAuraRemain(Unit, AuraID, Source)
+	local remain = select(6, br.UnitAuraID(Unit, AuraID, Source))
 	if remain ~= nil then
-		remain = remain - GetTime()
+		remain = remain - _G.GetTime()
 		return remain
 	end
 	-- if UnitAuraID(Unit,AuraID,Source) ~= nil then
@@ -317,8 +318,8 @@ function getAuraRemain(Unit, AuraID, Source)
 	-- end
 	return 0
 end
-function getAuraStacks(Unit, AuraID, Source)
-	local stacks = select(3, UnitAuraID(Unit, AuraID, Source))
+function br.getAuraStacks(Unit, AuraID, Source)
+	local stacks = select(3, br.UnitAuraID(Unit, AuraID, Source))
 	if stacks ~= nil then return stacks end
 	-- if UnitAuraID(Unit,AuraID,Source) ~= nil then
 	-- 	return select(3,UnitAuraID(Unit,AuraID,Source))
@@ -326,82 +327,82 @@ function getAuraStacks(Unit, AuraID, Source)
 	return 0
 end
 
--- if getDebuffDuration("target",12345) < 3 then
-function getDebuffDuration(Unit, DebuffID, Source)
-	local duration = select(5, UnitDebuffID(Unit, DebuffID, Source))
+-- if br.getDebuffDuration("target",12345) < 3 then
+function br.getDebuffDuration(Unit, DebuffID, Source)
+	local duration = select(5, br.UnitDebuffID(Unit, DebuffID, Source))
 	if duration ~= nil then
 		duration = duration * 1
 		return duration
 	end
-	-- if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-	-- 	return select(5,UnitDebuffID(Unit,DebuffID,Source))*1
+	-- if br.UnitDebuffID(Unit,DebuffID,Source) ~= nil then
+	-- 	return select(5,br.UnitDebuffID(Unit,DebuffID,Source))*1
 	-- end
 	return 0
 end
--- if getDebuffRemain("target",12345) < 3 then
-function getDebuffRemain(Unit, DebuffID, Source)
-	local remain = select(6, UnitDebuffID(Unit, DebuffID, Source))
+-- if br.getDebuffRemain("target",12345) < 3 then
+function br.getDebuffRemain(Unit, DebuffID, Source)
+	local remain = select(6, br.UnitDebuffID(Unit, DebuffID, Source))
 	if remain ~= nil then
-		remain = remain - GetTime()
+		remain = remain - _G.GetTime()
 		-- Print(GetSpellInfo(DebuffID)..": "..remain)
 		return remain
 	end
-	-- if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-	-- 	return (select(6,UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
+	-- if br.UnitDebuffID(Unit,DebuffID,Source) ~= nil then
+	-- 	return (select(6,br.UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
 	-- end
 	return 0
 end
--- if getDebuffStacks("target",138756) > 0 then
-function getDebuffStacks(Unit, DebuffID, Source)
-	local stacks = select(3, UnitDebuffID(Unit, DebuffID, Source))
+-- if br.getDebuffStacks("target",138756) > 0 then
+function br.getDebuffStacks(Unit, DebuffID, Source)
+	local stacks = select(3, br.UnitDebuffID(Unit, DebuffID, Source))
 	if stacks ~= nil then
 		return stacks
 	end
 	return 0
-	-- if UnitDebuffID(Unit,DebuffID,Source) then
-	-- 	return (select(3,UnitDebuffID(Unit,DebuffID,Source)))
+	-- if br.UnitDebuffID(Unit,DebuffID,Source) then
+	-- 	return (select(3,br.UnitDebuffID(Unit,DebuffID,Source)))
 	-- else
 	-- 	return 0
 	-- end
 end
-function getDebuffCount(spellID)
+function br.getDebuffCount(spellID)
 	local counter = 0
-	for k, v in pairs(br.enemy) do
+	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
 		-- check if unit is valid
-		if GetObjectExists(thisUnit) then
+		if br.GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
-			if UnitDebuffID(thisUnit, spellID, "player") then
+			if br.UnitDebuffID(thisUnit, spellID, "player") then
 				counter = counter + 1
 			end
 		end
 	end
 	return tonumber(counter)
 end
-function getDebuffRemainCount(spellID, remain)
+function br.getDebuffRemainCount(spellID, remain)
 	local counter = 0
-	for k, v in pairs(br.enemy) do
+	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
 		-- check if unit is valid
-		if GetObjectExists(thisUnit) then
+		if br.GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
-			if UnitDebuffID(thisUnit, spellID, "player") and getDebuffRemain(thisUnit, spellID, "player") >= remain then
+			if br.UnitDebuffID(thisUnit, spellID, "player") and br.getDebuffRemain(thisUnit, spellID, "player") >= remain then
 				counter = counter + 1
 			end
 		end
 	end
 	return tonumber(counter)
 end
-function getDebuffMinMax(spell, range, debuffType, returnType, source)
+function br.getDebuffMinMax(spell, range, debuffType, returnType, source)
 	local thisMin = 99
 	local thisMax = 0
 	local lowestUnit = "target"
 	local maxUnit = "target"
-	for k, v in pairs(br.enemy) do
+	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
-		local distance = getDistance(thisUnit,source)
+		local distance = br.getDistance(thisUnit,source)
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if getFacing("player",thisUnit) and distance < range and thisDebuff >= 0
+		if br.getFacing("player",thisUnit) and distance < range and thisDebuff >= 0
 			and ((returnType == "min" and thisDebuff < thisMin) or (returnType == "max" and thisDebuff > thisMax))
 		then
 			if returnType == "min" then
@@ -421,14 +422,14 @@ function getDebuffMinMax(spell, range, debuffType, returnType, source)
 		return maxUnit
 	end
 end
-function getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
+function br.getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
 	local thisMin = 99
 	local lowestUnit = "target"
-	for k, v in pairs(br.enemy) do
+	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
-		local distance = getDistance(thisUnit,"pet")
+		local distance = br.getDistance(thisUnit,"pet")
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if getFacing("player",thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
+		if br.getFacing("player",thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
 			if returnType == "min" or returnType == nil then
 				lowestUnit = thisUnit
 				thisMin = thisDebuff
@@ -438,65 +439,65 @@ function getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
 	return lowestUnit
 end
 -- if getBuffDuration("target",12345) < 3 then
-function getBuffDuration(Unit, BuffID, Source)
-	local duration = select(5, UnitBuffID(Unit, BuffID, Source))
+function br.getBuffDuration(Unit, BuffID, Source)
+	local duration = select(5, br.UnitBuffID(Unit, BuffID, Source))
 	if duration ~= nil then
 		duration = duration * 1
 		return duration
 	end
-	-- if UnitBuffID(Unit,BuffID,Source) ~= nil then
-	-- 	return select(5,UnitBuffID(Unit,BuffID,Source))*1
+	-- if br.UnitBuffID(Unit,BuffID,Source) ~= nil then
+	-- 	return select(5,br.UnitBuffID(Unit,BuffID,Source))*1
 	-- end
 	return 0
 end
--- if getBuffRemain("target",12345) < 3 then
-function getBuffRemain(Unit, BuffID, Source)
-	local remain = select(6, UnitBuffID(Unit, BuffID, Source))
+-- if br.getBuffRemain("target",12345) < 3 then
+function br.getBuffRemain(Unit, BuffID, Source)
+	local remain = select(6, br.UnitBuffID(Unit, BuffID, Source))
 	if remain ~= nil then
-		remain = remain - GetTime()
+		remain = remain - _G.GetTime()
 		return remain
 	end
-	-- if UnitBuffID(Unit,BuffID,Source) ~= nil then
-	-- 	return (select(6,UnitBuffID(Unit,BuffID,Source)) - GetTime())
+	-- if br.UnitBuffID(Unit,BuffID,Source) ~= nil then
+	-- 	return (select(6,br.UnitBuffID(Unit,BuffID,Source)) - GetTime())
 	-- end
 	return 0
 end
--- if getBuffStacks(138756) > 0 then
-function getBuffStacks(Unit, BuffID, Source)
-	local stacks = select(3, UnitBuffID(Unit, BuffID, Source))
+-- if br.getBuffStacks(138756) > 0 then
+function br.getBuffStacks(Unit, BuffID, Source)
+	local stacks = select(3, br.UnitBuffID(Unit, BuffID, Source))
 	if stacks ~= nil then
 		return stacks
 	end
 	return 0
-	-- if UnitBuffID(unit,BuffID,Source) then
-	-- 	return (select(3,UnitBuffID(unit,BuffID,Source)))
+	-- if br.UnitBuffID(unit,BuffID,Source) then
+	-- 	return (select(3,br.UnitBuffID(unit,BuffID,Source)))
 	-- else
 	-- 	return 0
 	-- end
 end
-function getBuffCount(spellID)
+function br.getBuffCount(spellID)
 	local counter = 0
 	for i= 1, #br.friend do
 		local thisUnit = br.friend[i].unit
 		-- check if unit is valid
-		if GetObjectExists(thisUnit) then
+		if br.GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
-			if UnitBuffID(thisUnit, spellID, "player") then
+			if br.UnitBuffID(thisUnit, spellID, "player") then
 				counter = counter + 1
 			end
 		end
 	end
 	return tonumber(counter)
 end
-function getBuffReact(Unit, BuffID, Source)
-	local _, _, _, _, duration, expire = UnitBuffID(Unit, BuffID, Source)
+function br.getBuffReact(Unit, BuffID, Source)
+	local _, _, _, _, duration, expire = br.UnitBuffID(Unit, BuffID, Source)
 	if duration ~= nil then
-		return (GetTime() - (expire - duration)) > 0.5
+		return (_G.GetTime() - (expire - duration)) > 0.5
 	end
 	return false
 end
 -- if getDisease(30,true,min) < 2 then
-function getDisease(range, aoe, mod)
+function br.getDisease(range, aoe, mod)
 	if mod == nil then
 		mod = "min"
 	end
@@ -506,18 +507,18 @@ function getDisease(range, aoe, mod)
 	if aoe == nil then
 		aoe = false
 	end
-	local range = tonumber(range)
-	local mod = tostring(mod)
-	local dynTar = dynamicTarget(range, true)
-	local dynTarAoE = dynamicTarget(range, false)
-	local dist = getDistance("player", dynTar)
-	local distAoE = getDistance("player", dynTarAoE)
-	local ff = getDebuffRemain(dynTar, 55095, "player") or 0
-	local ffAoE = getDebuffRemain(dynTarAoE, 55095, "player") or 0
-	local bp = getDebuffRemain(dynTar, 55078, "player") or 0
-	local bpAoE = getDebuffRemain(dynTarAoE, 55078, "player") or 0
-	local np = getDebuffRemain(dynTar, 155159, "player") or 0
-	local npAoE = getDebuffRemain(dynTarAoE, 155159, "player") or 0
+	range = tonumber(range)
+	mod = tostring(mod)
+	local dynTar = br.dynamicTarget(range, true)
+	local dynTarAoE = br.dynamicTarget(range, false)
+	local dist = br.getDistance("player", dynTar)
+	local distAoE = br.getDistance("player", dynTarAoE)
+	local ff = br.getDebuffRemain(dynTar, 55095, "player") or 0
+	local ffAoE = br.getDebuffRemain(dynTarAoE, 55095, "player") or 0
+	local bp = br.getDebuffRemain(dynTar, 55078, "player") or 0
+	local bpAoE = br.getDebuffRemain(dynTarAoE, 55078, "player") or 0
+	local np = br.getDebuffRemain(dynTar, 155159, "player") or 0
+	local npAoE = br.getDebuffRemain(dynTarAoE, 155159, "player") or 0
 	local diseases = {ff, bp}
 	local diseasesAoE = {ffAoE, bpAoE}
 	local minD = 99
@@ -525,7 +526,7 @@ function getDisease(range, aoe, mod)
 	if mod == "min" then
 		if aoe == false then
 			if dist < range then
-				if getTalent(7, 1) then
+				if br.getTalent(7, 1) then
 					return np
 				else
 					for i = 1, #diseases do
@@ -540,7 +541,7 @@ function getDisease(range, aoe, mod)
 			end
 		elseif aoe == true then
 			if distAoE < range then
-				if getTalent(7, 1) then
+				if br.getTalent(7, 1) then
 					return npAoE
 				else
 					for i = 1, #diseasesAoE do
@@ -557,7 +558,7 @@ function getDisease(range, aoe, mod)
 	elseif mod == "max" then
 		if aoe == false then
 			if dist < range then
-				if getTalent(7, 1) then
+				if br.getTalent(7, 1) then
 					return np
 				else
 					for i = 1, #diseases do
@@ -572,7 +573,7 @@ function getDisease(range, aoe, mod)
 			end
 		elseif aoe == true then
 			if distAoE < range then
-				if getTalent(7, 1) then
+				if br.getTalent(7, 1) then
 					return npAoE
 				else
 					for i = 1, #diseasesAoE do
@@ -589,47 +590,47 @@ function getDisease(range, aoe, mod)
 	end
 end
 -- TODO: update BL list
-function getLustID()	
-	for k, v in pairs(br.lists.spells.Shared.Shared.buffs["bloodLust"]) do
-		if UnitBuffID("player", v) then return v end
-	end 
-	return 0 
+function br.getLustID()
+	for _, v in pairs(br.lists.spells.Shared.Shared.buffs["bloodLust"]) do
+		if br.UnitBuffID("player", v) then return v end
+	end
+	return 0
 end
-function hasBloodLust()
-	if UnitBuffID("player", 90355) or -- Ancient Hysteria
-		UnitBuffID("player", 2825) or -- Bloodlust
-		UnitBuffID("player", 146555) or -- Drums of Rage
-		UnitBuffID("player", 32182) or -- Heroism
-		UnitBuffID("player", 90355) or -- Netherwinds
-		UnitBuffID("player", 80353) or -- Timewarp
-		UnitBuffID("player", 230935) or -- Drums of the Mountain
-		UnitBuffID("player", 256740) or -- Drums of the Maelstrom
-		UnitBuffID("player", 264667) -- Primal Rage
+function br.hasBloodLust()
+	if br.UnitBuffID("player", 90355) or -- Ancient Hysteria
+		br.UnitBuffID("player", 2825) or -- Bloodlust
+		br.UnitBuffID("player", 146555) or -- Drums of Rage
+		br.UnitBuffID("player", 32182) or -- Heroism
+		br.UnitBuffID("player", 90355) or -- Netherwinds
+		br.UnitBuffID("player", 80353) or -- Timewarp
+		br.UnitBuffID("player", 230935) or -- Drums of the Mountain
+		br.UnitBuffID("player", 256740) or -- Drums of the Maelstrom
+		br.UnitBuffID("player", 264667) -- Primal Rage
 	then
 		return true
 	else
 		return false
 	end
 end
-function hasBloodLustRemain()
-	if UnitBuffID("player", 90355) then
-		return getBuffRemain("player", 90355)
-	elseif UnitBuffID("player", 2825) then
-		return getBuffRemain("player", 2825)
-	elseif UnitBuffID("player", 146555) then
-		return getBuffRemain("player", 146555)
-	elseif UnitBuffID("player", 32182) then
-		return getBuffRemain("player", 32182)
-	elseif UnitBuffID("player", 90355) then
-		return getBuffRemain("player", 90355)
-	elseif UnitBuffID("player", 80353) then
-		return getBuffRemain("player", 80353)
+function br.hasBloodLustRemain()
+	if br.UnitBuffID("player", 90355) then
+		return br.getBuffRemain("player", 90355)
+	elseif br.UnitBuffID("player", 2825) then
+		return br.getBuffRemain("player", 2825)
+	elseif br.UnitBuffID("player", 146555) then
+		return br.getBuffRemain("player", 146555)
+	elseif br.UnitBuffID("player", 32182) then
+		return br.getBuffRemain("player", 32182)
+	elseif br.UnitBuffID("player", 90355) then
+		return br.getBuffRemain("player", 90355)
+	elseif br.UnitBuffID("player", 80353) then
+		return br.getBuffRemain("player", 80353)
 	else
 		return 0
 	end
 end
 --- if isBuffed()
-function isBuffed(UnitID, SpellID, TimeLeft, Filter)
+function br.isBuffed(UnitID, SpellID, TimeLeft, Filter)
 	if not TimeLeft then
 		TimeLeft = 0
 	end
@@ -637,17 +638,17 @@ function isBuffed(UnitID, SpellID, TimeLeft, Filter)
 		SpellID = {SpellID}
 	end
 	for i = 1, #SpellID do
-		local spell, rank = GetSpellInfo(SpellID[i])
+		local spell, rank = _G.GetSpellInfo(SpellID[i])
 		if spell then
-			local buff = select(6, UnitBuff(UnitID, spell, rank, Filter))
-			if buff and (buff == 0 or buff - GetTime() > TimeLeft) then
+			local buff = select(6, br._G.UnitBuff(UnitID, spell, rank, Filter))
+			if buff and (buff == 0 or buff - _G.GetTime() > TimeLeft) then
 				return true
 			end
 		end
 	end
 end
 -- if isDeBuffed("target",{123,456,789},2,"player") then
-function isDeBuffed(UnitID, DebuffID, TimeLeft, Filter)
+function br.isDeBuffed(UnitID, DebuffID, TimeLeft, Filter)
 	if not TimeLeft then
 		TimeLeft = 0
 	end
@@ -655,10 +656,10 @@ function isDeBuffed(UnitID, DebuffID, TimeLeft, Filter)
 		DebuffID = {DebuffID}
 	end
 	for i = 1, #DebuffID do
-		local spell, rank = GetSpellInfo(DebuffID[i])
+		local spell, rank = _G.GetSpellInfo(DebuffID[i])
 		if spell then
-			local debuff = select(6, UnitDebuff(UnitID, spell, rank, Filter))
-			if debuff and (debuff == 0 or debuff - GetTime() > TimeLeft) then
+			local debuff = select(6, br._G.UnitDebuff(UnitID, spell, rank, Filter))
+			if debuff and (debuff == 0 or debuff - _G.GetTime() > TimeLeft) then
 				return true
 			end
 		end

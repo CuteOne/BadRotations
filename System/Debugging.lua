@@ -1,3 +1,4 @@
+local addonName, br = ...
 -- Provides functions to help debugging and profiling
 
 br.debug.cpu = {}
@@ -30,7 +31,7 @@ function br.debug.cpu:updateDebug(startTime, table)
             averageTime = 0
         }
     end
-    if isChecked("Debug Timers") then
+    if br.isChecked("Debug Timers") then
 		br.debug.cpu[table].totalIterations = br.debug.cpu[table].totalIterations + 1
 		br.debug.cpu[table].currentTime = endTime - startTime
 		br.debug.cpu[table].elapsedTime = br.debug.cpu[table].elapsedTime + br.debug.cpu[table].currentTime

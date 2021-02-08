@@ -1,3 +1,4 @@
+local addonName, br = ...
 br.ui.window.help = {}
 function br.ui:createHelpWindow()
     br.ui.window.help   = br.ui:createWindow("help",500,500,"Information",nil,true)

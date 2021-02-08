@@ -159,11 +159,11 @@ local function runRotation()
                 -- Start Attack
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 --Arcane Explosion
-                if spell.known.arcaneExplosion() and cast.able.arcaneExplosion() then
-                    if cast.arcaneExplosion("player","aoe",1,10) then ui.debug("Casting Arcane Explosion") return true end
+                if spell.known.arcaneExplosion() and cast.able.arcaneExplosion() and br.getDistance("target") < 8 then
+                    if cast.arcaneExplosion() then ui.debug("Casting Arcane Explosion") return true end
                 end
                 --Fire Blast
                 if spell.known.fireBlast() and cast.able.fireBlast() and unit.distance(units.dyn40) then

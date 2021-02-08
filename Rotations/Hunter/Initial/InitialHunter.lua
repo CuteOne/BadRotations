@@ -196,7 +196,7 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             -- Start Attack
             if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                StartAttack(units.dyn40)
+                br._G.StartAttack(units.dyn40)
             end
         end
     end
@@ -282,7 +282,7 @@ local function runRotation()
                 ------------              
                 -- Start Attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                    StartAttack(units.dyn40)
+                    br._G.StartAttack(units.dyn40)
                 end
                 -- Trinket - Non-Specific
                 if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40  then

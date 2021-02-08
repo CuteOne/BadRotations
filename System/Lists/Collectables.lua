@@ -1,3 +1,4 @@
+local addonName, br = ...
 if br.lists == nil then br.lists = {} end
 br.lists.visions = {
     341337, -- black

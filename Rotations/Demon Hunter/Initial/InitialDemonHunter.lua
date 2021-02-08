@@ -116,7 +116,7 @@ actionList.PreCombat = function()
             -- Start Attack
             -- actions=auto_attack
             if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+                br._G.StartAttack(units.dyn5)
             end
         end
     end
@@ -178,7 +178,7 @@ local function runRotation()
                 -- Start Attack
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 -- Trinkets
                 for i = 13, 14 do
@@ -186,7 +186,7 @@ local function runRotation()
                     local iValue = i - 12
                     if (opValue == iValue or opValue == 3) and use.able.slot(i) then
                         -- use_items,if=buff.metamorphosis.up
-                        if use.able.slot(i) and unit.isBoss("target") then
+                        if use.able.slot(i) and unit.br.isBoss("target") then
                             use.slot(i)
                             ui.debug("Using Trinket in Slot "..i)
                             return

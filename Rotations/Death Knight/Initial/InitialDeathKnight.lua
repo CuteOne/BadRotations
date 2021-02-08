@@ -1,4 +1,4 @@
-local br = _G["br"]
+local addonName, br = ...
 local rotationName = "Initial"
 
 ---------------
@@ -153,7 +153,7 @@ actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() then
         if unit.valid("target") then
             -- Death Grip
-            if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.isDummy("target")
+            if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.br.isDummy("target")
                 and unit.distance("target") > 8 and unit.distance("target") < 30
             then
                 if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
@@ -161,7 +161,7 @@ actionList.PreCombat = function()
             -- Start Attack
             -- actions=auto_attack
             if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+                br._G.StartAttack(units.dyn5)
             end
         end
     end
@@ -226,10 +226,10 @@ local function runRotation()
                 -- Start Attack
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 -- Death Grip
-                if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.isDummy("target")
+                if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.br.isDummy("target")
                     and unit.distance("target") > 8 and unit.distance("target") < 30
                 then
                     if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
@@ -239,7 +239,7 @@ local function runRotation()
                     local opValue = ui.value("Trinkets")
                     local iValue = i - 12
                     if (opValue == iValue or opValue == 3) and use.able.slot(i) then
-                        if use.able.slot(i) and unit.isBoss("target") then
+                        if use.able.slot(i) and unit.br.isBoss("target") then
                             use.slot(i)
                             ui.debug("Using Trinket in Slot "..i)
                             return

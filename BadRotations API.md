@@ -7,17 +7,17 @@
 ### The Functions.
 **Old standar UnitBuff**
 ***
-`UnitBuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Buff found on target
-`UnitDebuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Debuff found on target
+`br.UnitBuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Buff found on target
+`br.UnitDebuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Debuff found on target
 **CAN - Booleans**
 ***
 `canAttack(Unit1,Unit2) - Bool` Returns true if Unit1 can attack Unit2
-`canDispel(Unit,spellID) - Bool` Retruns true if the Unit have a valid Dispel
+`br.canDispel(Unit,spellID) - Bool` Retruns true if the Unit have a valid Dispel
 `canHeal(Unit) - Bool` Returns true if we can heal that Unit
 `canInterrupt(spellID,percentint) - Bool` Returns true if we can Interrupt that target
 `canPrepare() - Bool` Returns true if ready to buff(ooc)
-`canRun() - Bool` Returns true if we can Run profile(incombat)
-`canUseItem(itemID) - Bool` Returns true if the item can be used
+`br.canRun() - Bool` Returns true if we can Run profile(incombat)
+`br.canUseItem(itemID) - Bool` Returns true if the item can be used
 **CAST - Function Methods**
 ***
 `castGround(Unit,SpellID,maxDistance)` Used to cast Spells on ground. Returns true if everything passes.
@@ -27,28 +27,28 @@
 **GET - Mixed**
 ***
 `getAllies(Target,Radius) - Table` Returns a table of the allies found within Radius of the target
-`getBuffRemain(Unit,BuffID) - Num` Returns how long remain on this Unit buff.
-`getBuffStacks(Unit,BuffID) - Num` Returns number of stacks of this Units buff.
-`getCombatTime() - Num` Returns time since combat started.
+`br.getBuffRemain(Unit,BuffID) - Num` Returns how long remain on this Unit buff.
+`br.getBuffStacks(Unit,BuffID) - Num` Returns number of stacks of this Units buff.
+`br.getCombatTime() - Num` Returns time since combat started.
 `getCreatureType(Unit) - Bool` Returns true if Unit is not a pet battle or a totem.
 `getCombo() - Num` Returns combo points on current target.
-`getDebuffRemain(Unit,DebuffID) - Num` Returns how long remain on this Units Debuff.
-`getDebuffStacks(Unit,DebuffID)  - Num` Returns number of stacks of this Units Debuff.
-`getDistance(Unit1,Unit2) - Num` Returns distance to target in yards.
-`getEnemies(Target,Radius) - Table` Returns a table of the Enemies found within Radius of the target
-`getFacing(Unit1,Unit2)	- Bool` Returns true if Unit1 is facing Unit2
+`br.getDebuffRemain(Unit,DebuffID) - Num` Returns how long remain on this Units Debuff.
+`br.getDebuffStacks(Unit,DebuffID)  - Num` Returns number of stacks of this Units Debuff.
+`br.getDistance(Unit1,Unit2) - Num` Returns distance to target in yards.
+`br.getEnemies(Target,Radius) - Table` Returns a table of the Enemies found within Radius of the target
+`br.getFacing(Unit1,Unit2)	- Bool` Returns true if Unit1 is facing Unit2
 `getFallTime() - Num` Returns the time the character has been falling.
 `getGround(Unit) - Bool` Returns true if ground is found under the target
-`getHP(Unit) - Num` Returns Unit HP %
-`getLineOfSight(Unit1,Unit2) - Bool` Returns true if the Unit1 can see Unit2
+`br.getHP(Unit) - Num` Returns Unit HP %
+`br.getLineOfSight(Unit1,Unit2) - Bool` Returns true if the Unit1 can see Unit2
 `getLowAllies(Value) - Num` Returns number of units under Value HP in br.friend
 `getMana(Unit) - Num` Returns Unit Mana %
 `getNumEnemies(Target,Radius) - Num` Returns number of Enemies found within Radius of the target
 `getPetLineOfSight(Unit) - Bool` Returns true if our pet is in sight of target
-`getPower(Unit) - Num` Returns Unit Power %
-`getRegen(Unit) - Num` Returns power regen rate of Unit
+`br.getPower(Unit) - Num` Returns Unit Power %
+`br.getRegen(Unit) - Num` Returns power regen rate of Unit
 `round2(num, idp) - Num` Used to round numbers
-`getSpellCD(SpellID) - Num` Returns how long remain until the CD is ready
+`br.getSpellCD(SpellID) - Num` Returns how long remain until the CD is ready
 `getTimeToDie(unit) - Num` Returns approximative Time To Die for Unit
 `getTimeToMax(Unit) - Num` Returns how long it will take until our ressources are maxed
 `getTotemDistance(Unit1) - Num` Returns distance from totem to target
@@ -58,18 +58,18 @@
 `hasGlyph(glyphid)` Returns true if we have this Glyph
 **IS - Booleans**
 ***
-`isAlive(Unit) - Bool` Returns true if Unit is alive
-`isBoss() - Bool` Returns true if a boss is found in boss 1-2-3-4-5
+`br.isAlive(Unit) - Bool` Returns true if Unit is alive
+`br.isBoss() - Bool` Returns true if a boss is found in boss 1-2-3-4-5
 `isBuffed(UnitID,SpellID,TimeLeft) - Bool` Rturns true if Unit have at least Timeleft remaining on SpellId Buff
 `isCasting(SpellID,Unit) - Bool` Returns true if Unit is casting given spell
-`isCastingSpell(spellID) - Bool` returns true if WE are casting spellid
-`isDummy(Unit) - Bool` Returns true if Unit is a dummy
+`br.isCastingSpell(spellID) - Bool` returns true if WE are casting spellid
+`br.isDummy(Unit) - Bool` Returns true if Unit is a dummy
 `isEnnemy(Unit) - Bool` Returns true if we can attack the Unit
 `isGarrMCd(Unit) - Bool` Returns true if Unit if affected by Garrosh MC
 `isInCombat(Unit) - Bool` Returns true if Unit is in combat
 `isInMelee(Unit) - Bool` Returns true if we are withing 4 yard of the Unit
 `isInPvP() - Bool` Returns true if we are in PvP
-`isKnown(spellID) - Bool` Returns true if we know this spell(via spellbook check)
+`br.isKnown(spellID) - Bool` Returns true if we know this spell(via spellbook check)
 `isLooting() - Bool` Returns true if we are currently looting
 `isMoving(Unit) - Num` Returns Unit movement speed
 `IsMovingTime(time) - Bool` Returns true if we have been moving for time seconds
@@ -81,11 +81,11 @@
 `nDbDmg(tar, spellID, player) - Num` Returns tooltip damage
 `pause() - Bool` Returns true if pause is engaged
 `castingUnit() - Bool` Returns true is said unit is casting.
-`useItem(itemID)` Use item via ID
+`br.useItem(itemID)` Use item via ID
 `shouldStopCasting(SpellID) - Bool` Built into casts methods. Prevents spell locking.
 **Config Queries - Mixed**
 ***
-`isChecked(Value) - Bool` Returns true if Value Checkbox is checked in UI
+`br.isChecked(Value) - Bool` Returns true if Value Checkbox is checked in UI
 `isSelected(Value) - Bool` Returns true if Value Checkbox is checked in UI and CD requirements are met.
 `getValue(Value) - Num` Returns drop or box Value from UI
 `CreateNewCheck(value, textString, tip1, state)`

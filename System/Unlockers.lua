@@ -1,149 +1,151 @@
+local addonName, br = ...
+local b = br._G
 function br:loadUnlockerAPI()
     local unlocked = false
     local class = br.class
     -- EWT Unlocker
     if EasyWoWToolbox ~= nil then -- Native Support - API found at https://ewtwow.com/EWT/ewt.lua
         -- Active Player
-        StopFalling = StopFalling
-        FaceDirection = FaceDirection
+        b.StopFalling = StopFalling
+        b.FaceDirection = FaceDirection
         -- Object
-        ObjectTypes = ObjectTypes
-        ObjectPointer = ObjectPointer
-        ObjectExists = ObjectExists
-        ObjectIsVisible = ObjectIsVisible
-        ObjectPosition = ObjectPosition
-        ObjectFacing = ObjectFacing
-        ObjectName = ObjectName
-        ObjectID = ObjectID
-        ObjectIsUnit = ObjectIsUnit
-        GetDistanceBetweenPositions = GetDistanceBetweenPositions
-        GetDistanceBetweenObjects = GetDistanceBetweenObjects
-        GetPositionBetweenObjects = GetPositionBetweenObjects
-        GetPositionFromPosition = GetPositionFromPosition
-        ObjectIsFacing = ObjectIsFacing
-        ObjectInteract = ObjectInteract
+        b.ObjectTypes = ObjectTypes
+        b.ObjectPointer = ObjectPointer
+        b.ObjectExists = ObjectExists
+        b.ObjectIsVisible = ObjectIsVisible
+        b.br._G.ObjectPosition = br._G.ObjectPosition
+        b.ObjectFacing = ObjectFacing
+        b.ObjectName = ObjectName
+        b.br._G.ObjectID = br._G.ObjectID
+        b.ObjectIsUnit = ObjectIsUnit
+        b.GetDistanceBetweenPositions = GetDistanceBetweenPositions
+        b.GetDistanceBetweenObjects = GetDistanceBetweenObjects
+        b.GetPositionBetweenObjects = GetPositionBetweenObjects
+        b.GetPositionFromPosition = GetPositionFromPosition
+        b.ObjectIsFacing = ObjectIsFacing
+        b.ObjectInteract = ObjectInteract
         -- Object Manager
-        GetObjectCountBR = GetObjectCount
-        GetObjectWithIndex = GetObjectWithIndex
-        GetObjectWithGUID = GetObjectWithGUID
-        GetNpcCount = GetObjectCount
-        GetPlayerCount = GetObjectCount
-        GetNpcWithIndex = GetObjectWithIndex
-        GetPlayerWithIndex = GetObjectWithIndex
+        b.GetObjectCount = GetObjectCount
+        b.GetObjectWithIndex = GetObjectWithIndex
+        b.GetObjectWithGUID = GetObjectWithGUID
+        b.GetNpcCount = GetObjectCount
+        b.GetPlayerCount = GetObjectCount
+        b.GetNpcWithIndex = GetObjectWithIndex
+        b.GetPlayerWithIndex = GetObjectWithIndex
         -- Unit
-        UnitBoundingRadius = UnitBoundingRadius
-        UnitCombatReach = UnitCombatReach
-        UnitTarget = UnitTarget
-        UnitCastID = UnitCastID
+        b.UnitBoundingRadius = UnitBoundingRadius
+        b.UnitCombatReach = br._G.UnitCombatReach
+        b.UnitTarget = UnitTarget
+        b.UnitCastID = UnitCastID
         -- World
-        TraceLine = TraceLine
-        GetCameraPosition = GetCameraPosition
-        CancelPendingSpell = CancelPendingSpell
-        ClickPosition = ClickPosition
-        IsAoEPending = IsAoEPending
-        GetTargetingSpell = GetTargetingSpell
-        WorldToScreen = WorldToScreen
-        ScreenToWorld = ScreenToWorld
-        GetMousePosition = GetMousePosition
+        b.TraceLine = TraceLine
+        b.GetCameraPosition = GetCameraPosition
+        b.CancelPendingSpell = CancelPendingSpell
+        b.ClickPosition = ClickPosition
+        b.IsAoEPending = IsAoEPending
+        b.GetTargetingSpell = GetTargetingSpell
+        b.WorldToScreen = WorldToScreen
+        b.ScreenToWorld = ScreenToWorld
+        b.GetMousePosition = GetMousePosition
         -- Hacks
-        IsHackEnabled = IsHackEnabled
-        SetHackEnabled = SetHackEnabled
+        b.IsHackEnabled = IsHackEnabled
+        b.SetHackEnabled = SetHackEnabled
         -- Files
-        GetDirectoryFiles = GetDirectoryFiles
-        ReadFile = ReadFile
-        WriteFile = WriteFile
-        CreateDirectory = CreateDirectory
-        DirectoryExists = DirectoryExists
-        GetWoWDirectory = GetWoWDirectory
+        b.GetDirectoryFiles = GetDirectoryFiles
+        b.ReadFile = ReadFile
+        b.WriteFile = WriteFile
+        b.CreateDirectory = CreateDirectory
+        b.DirectoryExists = DirectoryExists
+        b.GetWoWDirectory = GetWoWDirectory
         -- Callbacks
-        AddEventCallback = AddEventCallback
+        b.AddEventCallback = AddEventCallback
         -- Misc
-        SendHTTPRequest = SendHTTPRequest
-        GetKeyState = GetKeyState
+        b.SendHTTPRequest = SendHTTPRequest
+        b.GetKeyState = GetKeyState
         -- Drawing
-        GetWoWWindow = GetWoWWindow
-        Draw2DLine = Draw2DLine
-        Draw2DText = Draw2DText
-        WorldToScreenRaw = WorldToScreenRaw
+        b.GetWoWWindow = GetWoWWindow
+        b.Draw2DLine = Draw2DLine
+        b.Draw2DText = Draw2DText
+        b.WorldToScreenRaw = WorldToScreenRaw
         unlocked = true
     end
     -- Minibot
     if wmbapi ~= nil then
         -- Active Player
-        StopFalling = wmbapi.StopFalling
-        FaceDirection = function(a) if wmbapi.GetObject(a) then wmbapi.FaceDirection(GetAnglesBetweenObjects(a,"player"),true) else wmbapi.FaceDirection(a,true) end end
+        b.StopFalling = wmbapi.StopFalling
+        b.FaceDirection = function(a) if wmbapi.GetObject(a) then wmbapi.FaceDirection(GetAnglesBetweenObjects(a,"player"),true) else wmbapi.FaceDirection(a,true) end end
         -- Object
-        ObjectTypeFlags = wmbapi.ObjectTypeFlags
-        ObjectPointer = function(obj) 
-            if UnitIsVisible(obj) then
+        b.ObjectTypeFlags = wmbapi.ObjectTypeFlags
+        b.ObjectPointer = function(obj) 
+            if b.UnitIsVisible(obj) then
                 return wmbapi.GetObject(obj)
             else
                 return ""
             end
         end
-        ObjectExists = wmbapi.ObjectExists
-        ObjectIsVisible = UnitIsVisible
-        ObjectPosition = function(obj) 
-            local x,y,z = wmbapi.ObjectPosition(obj) 
+        b.ObjectExists = wmbapi.ObjectExists
+        b.ObjectIsVisible = b.UnitIsVisible
+        b.br._G.ObjectPosition = function(obj) 
+            local x,y,z = wmbapi.br._G.ObjectPosition(obj) 
             if x then
                 return x,y,z
             else
                 return 0,0,0
             end
         end
-        ObjectFacing = function(obj) 
-            if UnitIsVisible(obj) then
+        b.ObjectFacing = function(obj) 
+            if b.UnitIsVisible(obj) then
                 return wmbapi.ObjectFacing(obj)
             else
                 return 0
             end
         end
-        ObjectName = function(obj) 
-            if UnitIsVisible(obj) then
-                return UnitName(obj)
+        b.ObjectName = function(obj) 
+            if b.UnitIsVisible(obj) then
+                return b.UnitName(obj)
             else
                 return ""
             end
         end
-        ObjectID = function(obj) 
-            if UnitIsVisible(obj) then
+        b.br._G.ObjectID = function(obj) 
+            if b.UnitIsVisible(obj) then
                 return wmbapi.ObjectId(obj)
             else
                 return 0
             end
         end
-        ObjectDescriptor = function(obj,offset,type) return UnitIsVisible(obj) and wmbapi.ObjectDescriptor(obj,offset,type) end
-        ObjectIsUnit = function(obj) return UnitIsVisible(obj) and wmbapi.ObjectIsType(obj,wmbapi.GetObjectTypeFlagsTable().Unit) end
-        GetDistanceBetweenPositions = function(...) return (... and wmbapi.GetDistanceBetweenPositions(...)) or 0 end
-        GetDistanceBetweenObjects = function(obj1,obj2) 
-            if UnitIsVisible(obj1) and UnitIsVisible(obj2) then
+        b.ObjectDescriptor = function(obj,offset,type) return b.UnitIsVisible(obj) and wmbapi.ObjectDescriptor(obj,offset,type) end
+        b.ObjectIsUnit = function(obj) return b.UnitIsVisible(obj) and wmbapi.ObjectIsType(obj,wmbapi.GetObjectTypeFlagsTable().Unit) end
+        b.GetDistanceBetweenPositions = function(...) return (... and wmbapi.GetDistanceBetweenPositions(...)) or 0 end
+        b.GetDistanceBetweenObjects = function(obj1,obj2) 
+            if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
                 return wmbapi.GetDistanceBetweenObjects(obj1,obj2)
             else
                 return 0
             end
         end
-        GetPositionBetweenObjects = function(obj1,obj2,dist) 
-            if UnitIsVisible(obj1) and UnitIsVisible(obj2) then
+        b.GetPositionBetweenObjects = function(obj1,obj2,dist) 
+            if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
                 return wmbapi.GetPositionBetweenObjects(obj1,obj2,dist)
             else
                 return 0,0,0
             end
         end
-        GetPositionFromPosition = function(...) return (... and wmbapi.GetPositionFromPosition(...)) or 0,0,0 end
-        ObjectIsFacing = function(obj1,obj2,toler) 
-            if UnitIsVisible(obj1) and UnitIsVisible(obj2) then
+        b.GetPositionFromPosition = function(...) return (... and wmbapi.GetPositionFromPosition(...)) or 0,0,0 end
+        b.ObjectIsFacing = function(obj1,obj2,toler) 
+            if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
                 return (toler and wmbapi.ObjectIsFacing(obj1,obj2,toler)) or (not toler and wmbapi.ObjectIsFacing(obj1,obj2))
             end
         end
-        ObjectInteract = InteractUnit
+        b.ObjectInteract = b.InteractUnit
         -- Object Manager
-        GetObjectCountBR = wmbapi.GetObjectCount
-        GetNpcCount = wmbapi.GetNpcCount
-        GetPlayerCount = wmbapi.GetPlayerCount
-        GetObjectWithIndex = wmbapi.GetObjectWithIndex
-        GetNpcWithIndex = wmbapi.GetNpcWithIndex
-        GetPlayerWithIndex = wmbapi.GetPlayerWithIndex
-        GetObjectWithGUID = function(GUID)
+        b.GetObjectCount = wmbapi.GetObjectCount
+        b.GetNpcCount = wmbapi.GetNpcCount
+        b.GetPlayerCount = wmbapi.GetPlayerCount
+        b.GetObjectWithIndex = wmbapi.GetObjectWithIndex
+        b.GetNpcWithIndex = wmbapi.GetNpcWithIndex
+        b.GetPlayerWithIndex = wmbapi.GetPlayerWithIndex
+        b.GetObjectWithGUID = function(GUID)
             if GUID and #GUID > 1 then
                 return wmbapi.GetObjectWithGUID(GUID)
             else
@@ -151,77 +153,77 @@ function br:loadUnlockerAPI()
             end
         end
         -- Unit
-        UnitBoundingRadius = function(obj) 
-            if UnitIsVisible(obj) then
+        b.UnitBoundingRadius = function(obj) 
+            if b.UnitIsVisible(obj) then
                 return wmbapi.UnitBoundingRadius(obj)
             else
                 return 0
             end
         end
-        UnitCombatReach = function(obj) 
-            if UnitIsVisible(obj) then
-                return wmbapi.UnitCombatReach(obj)
+        b.UnitCombatReach = function(obj) 
+            if b.UnitIsVisible(obj) then
+                return wmbapi.br._G.UnitCombatReach(obj)
             else
                 return 0
             end
         end
-        UnitTarget = function(obj) 
-            if UnitIsVisible(obj) then
-                return wmbapi.UnitTarget(obj)
+        br._G.UnitTarget = function(obj) 
+            if b.UnitIsVisible(obj) then
+                return wmbapi.br._G.UnitTarget(obj)
             else
                 return ""
             end
         end
-        UnitCastID = function(obj)
-            if UnitIsVisible(obj) then
+        b.UnitCastID = function(obj)
+            if b.UnitIsVisible(obj) then
                 local spellId,target = wmbapi.UnitCasting(obj)
                 return spellId or 0,spellId or 0,target or "",target or ""
             else
                 return 0,0,"",""
             end
         end
-        UnitCreator = function(obj) 
-            if UnitIsVisible(obj) then
-                return wmbapi.UnitCreator(obj)
+        b.UnitCreator = function(obj) 
+            if b.UnitIsVisible(obj) then
+                return wmbapi.br._G.UnitCreator(obj)
             else
                 return ""
             end
         end
         -- World
-        TraceLine = wmbapi.TraceLine
-        GetCameraPosition = wmbapi.GetCameraPosition
-        CancelPendingSpell = wmbapi.CancelPendingSpell
-        ClickPosition = wmbapi.ClickPosition
-        IsAoEPending = wmbapi.IsAoEPending
-        GetTargetingSpell = wmbapi.IsAoEPending
-        WorldToScreen = function(...) 
+        b.TraceLine = wmbapi.TraceLine
+        b.GetCameraPosition = wmbapi.GetCameraPosition
+        b.CancelPendingSpell = wmbapi.CancelPendingSpell
+        b.ClickPosition = wmbapi.ClickPosition
+        b.IsAoEPending = wmbapi.IsAoEPending
+        b.GetTargetingSpell = wmbapi.IsAoEPending
+        b.WorldToScreen = function(...) 
             local scale, x, y = UIParent:GetEffectiveScale(), select(2,wmbapi.WorldToScreen(...))
             local sx = GetScreenWidth() * scale
             local sy = GetScreenHeight() * scale
             return x * sx, y * sy
         end
-        ScreenToWorld = function(X, Y) 
+        b.ScreenToWorld = function(X, Y) 
             local scale = UIParent:GetEffectiveScale()
             local sx = GetScreenWidth() * scale
             local sy = GetScreenHeight() * scale
             return wmbapi.ScreenToWorld(X / sx, Y / sy)
         end
-        GetMousePosition = function()
+        b.GetMousePosition = function()
             local cur_x, cur_y = GetCursorPosition()
             return cur_x, cur_y
         end
         -- Hacks
-        IsHackEnabled = function() return end
-        SetHackEnabled = function() return true end
+        b.IsHackEnabled = function() return end
+        b.SetHackEnabled = function() return true end
         -- Files
-        GetDirectoryFiles = wmbapi.GetDirectoryFiles
-        ReadFile = wmbapi.ReadFile
-        WriteFile = wmbapi.WriteFile
-        CreateDirectory = wmbapi.CreateDirectory
-        GetWoWDirectory = wmbapi.GetWoWDirectory
-        DirectoryExists = wmbapi.DirectoryExists
+        b.GetDirectoryFiles = wmbapi.GetDirectoryFiles
+        b.ReadFile = wmbapi.ReadFile
+        b.WriteFile = wmbapi.WriteFile
+        b.CreateDirectory = wmbapi.CreateDirectory
+        b.GetWoWDirectory = wmbapi.GetWoWDirectory
+        b.DirectoryExists = wmbapi.DirectoryExists
         -- Callbacks
-        AddEventCallback = function(Event, Callback)
+        b.AddEventCallback = function(Event, Callback)
             if not BRFrames then
                 BRFrames = CreateFrame("Frame")
                 BRFrames:SetScript("OnEvent",BRFrames_OnEvent)
@@ -232,19 +234,19 @@ function br:loadUnlockerAPI()
             end
         end
         -- Misc
-        SendHTTPRequest = wmbapi.SendHttpRequest
-        GetKeyState = wmbapi.GetKeyState
+        b.SendHTTPRequest = wmbapi.SendHttpRequest
+        b.GetKeyState = wmbapi.GetKeyState
         Offsets = {            
             ["cggameobjectdata__flags"]="CGGameObjectData__Flags",
             ["cgobjectdata__dynamicflags"]="CGObjectData__DynamicFlags"
         }
-        GetOffset = function(offset)
+        b.GetOffset = function(offset)
             return wmbapi.GetObjectDescriptorsTable()[Offsets[string.lower(offset)]]
         end
         -- Drawing
-        GetWoWWindow = GetPhysicalScreenSize
-        Draw2DLine = LibDraw.Draw2DLine
-        Draw2DText = function(textX, textY, text)
+        b.GetWoWWindow = GetPhysicalScreenSize
+        b.Draw2DLine = LibDraw.Draw2DLine
+        b.Draw2DText = function(textX, textY, text)
             local F = tremove(LibDraw.fontstrings) or LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
             F:SetFontObject("GameFontNormal")
             F:SetText(text)
@@ -261,7 +263,7 @@ function br:loadUnlockerAPI()
             F:Show()
             tinsert(LibDraw.fontstrings_used, F) 
         end
-        WorldToScreenRaw = function(...)
+        b.WorldToScreenRaw = function(...)
             local x, y = select(2,wmbapi.WorldToScreen(...))
             return x, 1-y
         end
@@ -290,10 +292,10 @@ function br:loadUnlockerAPI()
         -- ObjectPointer = function() return "" end
         -- ObjectExists = UnitExists
         -- ObjectIsVisible = UnitIsVisible
-        -- ObjectPosition = function() return 0,0,0 end
+        -- br._G.ObjectPosition = function() return 0,0,0 end
         -- ObjectFacing = function() return 0,0 end
         -- ObjectName = function() return "" end
-        -- ObjectID = function() return 0 end
+        -- br._G.ObjectID = function() return 0 end
         -- ObjectIsUnit = UnitIsUnit
         -- GetDistanceBetweenPositions = function() return 999 end
         -- GetDistanceBetweenObjects = function() return 999 end
@@ -307,8 +309,8 @@ function br:loadUnlockerAPI()
         -- GetObjectWithGUID = function() return "target" end
         -- -- Unit
         -- UnitBoundingRadius = function() return 0 end
-        -- UnitCombatReach = function() return 0 end
-        -- UnitTarget = function() return "target" end
+        -- br._G.UnitCombatReach = function() return 0 end
+        -- br._G.UnitTarget = function() return "target" end
         -- UnitCastID = function() return 0 end
         -- -- World
         -- TraceLine = function() return 0,0,0 end
@@ -380,7 +382,7 @@ function br:checkBrOutOfDate()
                 brcleanLoc = gsub(tostring(brlocVersion),"%p","")
                 if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
                     local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
-                    if isChecked("Overlay Messages") then
+                    if br.isChecked("Overlay Messages") then
                         RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
                     else
                         Print(msg)

@@ -1,3 +1,4 @@
+local addonName, br = ...
 br.lastCast = {}
 br.lastCast.tracker = {}
 br.lastCast.castTime = {}

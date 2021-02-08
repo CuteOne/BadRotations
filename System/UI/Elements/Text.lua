@@ -1,6 +1,6 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalTools = LibStub("DiesalTools-1.0")
-
+local addonName, br = ...
 function br.ui:createText(parent, text, isCheckbox)
     if isCheckbox == nil then isCheckbox = false end
     -------------------------------

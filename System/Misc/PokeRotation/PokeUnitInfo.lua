@@ -4,8 +4,8 @@ if IsSwapping == nil then IsSwapping = GetTime() end
 function PetSwapper()
   -- Pet swap table --
   if not inBattle
-    and isChecked("Swap in Health")
-    and isChecked("Pet Leveling") then
+    and br.isChecked("Swap in Health")
+    and br.isChecked("Pet Leveling") then
     local priorityValue = getValue("Leveling Priority");
     local swapTable = { }
     local ringnersTable = { }
@@ -58,7 +58,7 @@ function PetSwapper()
 
     -- Other pets check health
     for i = 1, 3 do
-      if not ( i == 1 and isChecked("Pet Leveling") ) then
+      if not ( i == 1 and br.isChecked("Pet Leveling") ) then
         if ( JournalHealth(i) <= getValue("Swap in Health") or PetLevel(i) ~= 25 )then
 
 
@@ -105,7 +105,7 @@ function getPets(Radius)
     local Guid = IGetObjectListEntry(i);
     ISetAsUnitID(Guid,"thisUnit");
     if (tonumber(string.sub(tostring(Guid), 5,5)) == 3 and UnitCreatureType("thisUnit") == "Wild Pet") then
-      if getDistance("player","thisUnit") <= Radius then
+      if br.getDistance("player","thisUnit") <= Radius then
         tinsert(petsTable,Guid);
       end
     end

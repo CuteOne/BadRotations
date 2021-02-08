@@ -1,5 +1,6 @@
+local addonName, br = ...
 function br:AcceptQueues()
-	if getOptionCheck("Accept Queues") then
+	if br.getOptionCheck("Accept Queues") then
 		-- Accept Queues
 		if randomReady == nil then
 			randomReady = math.random(8,15)
@@ -83,7 +84,7 @@ end)
 GameTooltip:HookScript("OnTooltipSetUnit", function(self)
 	if C_PetBattles.IsInBattle() then return end
 	local unit = select(2, self:GetUnit())
-	if isChecked("Unit ID In Tooltip") and unit then
+	if br.isChecked("Unit ID In Tooltip") and unit then
 		local guid = UnitGUID(unit) or ""
 		local id   = tonumber(guid:match("-(%d+)-%x+$"), 10)
 		local type = guid:match("%a+")

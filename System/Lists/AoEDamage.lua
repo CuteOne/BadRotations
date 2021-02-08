@@ -1,5 +1,5 @@
 
-_br = br
+local addonName, br = ...
 if br.lists == nil then
     br.lists = {}
 end

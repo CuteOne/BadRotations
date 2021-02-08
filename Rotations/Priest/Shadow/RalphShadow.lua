@@ -224,7 +224,7 @@ local function CwC()
         if cd.shadowWordDeath.ready() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and getHP(thisUnit) and ttd(thisUnit) < 7 then
+                if not talent.deathAndMadness and br.getHP(thisUnit) < 20 or talent.deathAndMadness and br.getHP(thisUnit) and ttd(thisUnit) < 7 then
                     if not noDotCheck(thisUnit) then
                         if cast.shadowWordDeath(thisUnit) then ui.debug("Casting SW:D on low enemies [CwC]") return end
                     end
@@ -325,7 +325,7 @@ local function snmEnabled()
 end
 
 function noDotCheck(unit)
-    if GetObjectID(unit) == 171557 or UnitIsCharmed(unit) then
+    if br.GetObjectID(unit) == 171557 or UnitIsCharmed(unit) then
         return true
     else
         return false
@@ -345,15 +345,15 @@ actionList.Extra = function()
     -- PowerWord: Fort
     if ui.checked("Power Word: Fortitude") then
         for i = 1, #br.friend do
-            if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+            if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                 if cast.powerWordFortitude() then return end
             end
         end
     end
     -- Dummy Test
     if ui.checked("DPS Testing") then
-        if GetObjectExists("target") then
-            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and isDummy() then
+        if br.GetObjectExists("target") then
+            if br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -366,19 +366,19 @@ end -- End Action List - Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     -- Fade
-    if isChecked("Fade") then
+    if br.isChecked("Fade") then
         if not solo and UnitThreatSituation("player") ~= nil and UnitThreatSituation("player") > 1 then
             if cast.fade("player") then ui.debug("Defensive - Casting fade") return end
         end
     end
     -- Healthstone
-    if ui.checked("Healthstone") and php <= ui.value("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(171267)) then
-        if canUseItem(5512) then
-            useItem(5512)
-        elseif canUseItem(healPot) then
-            useItem(healPot)
-        elseif hasItem(171267) and canUseItem(171267) then
-            useItem(171267)
+    if ui.checked("Healthstone") and php <= ui.value("Healthstone") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(171267)) then
+        if br.canUseItem(5512) then
+            br.useItem(5512)
+        elseif br.canUseItem(healPot) then
+            br.useItem(healPot)
+        elseif br.hasItem(171267) and br.canUseItem(171267) then
+            br.useItem(171267)
         end
     end
 
@@ -387,10 +387,10 @@ actionList.Defensive = function()
         if cast.dispersion() then ui.debug("Casting dispersion [Defensive]") return end
     end
     -- Dispel Magic
-    if isChecked("Dispel Magic") then
+    if br.isChecked("Dispel Magic") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if canDispel(enemies.yards40[i],spell.dispelMagic) then
+            if br.canDispel(enemies.yards40[i],spell.dispelMagic) then
                 if cast.dispelMagic() then br.addonDebug("Casting Dispel Magic") return end
             end
         end
@@ -475,7 +475,7 @@ actionList.Cooldown = function()
             end
         end
     -- Pot is good
-        if isChecked("Auto use Pots") then
+        if br.isChecked("Auto use Pots") then
             if getValue("Auto use Pots") == 1
                 or getValue("Auto use Pots") == 2 and inInstance
                 or getValue("Auto use Pots") == 3 and inRaid
@@ -486,8 +486,8 @@ actionList.Cooldown = function()
 
             if pot_use then
                 if buff.voidForm.exists() then
-                    if canUseItem(171349) then
-                        if useItem(171349) then ui.debug("Pot is good [Cooldown]") return end
+                    if br.canUseItem(171349) then
+                        if br.useItem(171349) then ui.debug("Pot is good [Cooldown]") return end
                     end
                 end
             end
@@ -497,61 +497,61 @@ actionList.Cooldown = function()
         -- # Use on CD ASAP to get DoT ticking and expire to line up better with Voidform
         -- actions.trinkets=use_item,name=empyreal_ordnance(180117),if=cooldown.void_eruption.remains<=12|cooldown.void_eruption.remains>27
             if trinket13 == 180117 or trinket14 == 180117 then
-                if canUseItem(180117) and (cd.voidEruption.remain() <= 14 or cd.voidEruption.remain() > 27) then
-                    useItem(180117)
+                if br.canUseItem(180117) and (cd.voidEruption.remain() <= 14 or cd.voidEruption.remain() > 27) then
+                    br.useItem(180117)
                 end
             end
         -- # Sync IQD with Voidform
         -- actions.trinkets+=/use_item,name=inscrutable_quantum_device(179350),if=cooldown.void_eruption.remains>10
             if trinket13 == 179350 or trinket14 == 179350 then
-                if canUseItem(179350) and cd.voidEruption.remain() > 10 then
-                    useItem(179350)
+                if br.canUseItem(179350) and cd.voidEruption.remain() > 10 then
+                    br.useItem(179350)
                 end
             end
         -- # Sync Sheet Music with Voidform
         -- actions.trinkets+=/use_item,name=macabre_sheet_music(184024),if=cooldown.void_eruption.remains>10
             if trinket13 == 184024 or trinket14 == 184024 then
-                if canUseItem(184024) and cd.voidEruption.remain() > 10 then
-                    useItem(184024)
+                if br.canUseItem(184024) and cd.voidEruption.remain() > 10 then
+                    br.useItem(184024)
                 end
             end
         -- # Sync Ruby with Power Infusion usage, make sure to snipe the lowest HP target
         -- actions.trinkets+=/use_item,name=soulletting_ruby(178809),if=buff.power_infusion.up|!priest.self_power_infusion,target_if=min:target.health.pct
             -- if trinket13 ==  or trinket14 ==  then
-            --     if canUseItem() and (buff.powerInfusion.exists()  then
-            --         useItem()
+            --     if br.canUseItem() and (buff.powerInfusion.exists()  then
+            --         br.useItem()
             --     end
             -- end
         -- # Use Badge inside of VF for the first use or on CD after the first use. Short circuit if void eruption cooldown is 10s or more away.
         -- actions.trinkets+=/use_item,name=sinful_gladiators_badge_of_ferocity,if=cooldown.void_eruption.remains>=10
             if trinket13 == 175921 or trinket14 == 175921 then
-                if canUseItem(175921) and cd.voidEruption.remain() >= 10 then
-                    useItem(175921)
+                if br.canUseItem(175921) and cd.voidEruption.remain() >= 10 then
+                    br.useItem(175921)
                 end
             end
         -- # Use list of on-use damage trinkets only if Hungering Void Debuff is active, or you are not talented into it.
         -- actions.trinkets+=/call_action_list,name=dmg_trinkets,if=(!talent.hungering_void.enabled|debuff.hungering_void.up)&(buff.voidform.up|cooldown.void_eruption.remains>10)
         -- darkmoon_deck__putrescence(173069), sunblood_amethyst(178826), glyph_of_assimilation(184021), dreadfire_vessel(184030)
             if trinket13 == 173069 or trinket13 == 178826 or trinket13 ==  184021 or trinket13 == 184030 then
-                if canUseItem(13) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(13)
+                if br.canUseItem(13) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(13)
                 end
             end
             if trinket14 == 173069 or trinket14 == 178826 or trinket14 ==  184021 or trinket14 == 184030 then
-                if canUseItem(14) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(14)
+                if br.canUseItem(14) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(14)
                 end
             end
         -- # Default fallback for usable items: Use on cooldown in order by trinket slot.
         -- actions.trinkets+=/use_items,if=buff.voidform.up|buff.power_infusion.up|cooldown.void_eruption.remains>10
             if trinket13 ~= 180117 and trinket13 ~= 179350 and trinket13 ~= 184024 and trinket13 == 178809 and trinket13 ~= 175921 and trinket13 ~= 173069 and trinket13 ~= 178826 and trinket13 ~= 184021 and trinket13 ~= 184030 then
-                if canUseItem(13) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(13)
+                if br.canUseItem(13) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(13)
                 end
             end
             if trinket14 ~= 180117 and trinket14 ~= 179350 and trinket14 ~= 184024 and trinket14 == 178809 and trinket14 ~= 175921 and trinket14 ~= 173069 and trinket14 ~= 178826 and trinket14 ~= 184021 and trinket14 ~= 184030 then
-                if canUseItem(14) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(14)
+                if br.canUseItem(14) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(14)
                 end
             end
         end
@@ -589,11 +589,11 @@ actionList.Main = function()
     if buff.boonOfTheAscended.exists() then
         -- actions.boon=ascended_blast,if=spell_targets.mind_sear<=3
         if #searEnemies <= 3 then
-            if createCastFunction("target",nil,1,nil,325283) then ui.debug("Casting Ascended Blast [Main]") return end
+            if br.createCastFunction("target",nil,1,nil,325283) then ui.debug("Casting Ascended Blast [Main]") return end
         end
         -- actions.boon+=/ascended_nova,if=spell_targets.ascended_nova>1&spell_targets.mind_sear>1+talent.searing_nightmare.enabled
         if #novaEnemies > 1 and #searEnemies > 1 + snmEnabled() then
-            if createCastFunction("target",nil,1,nil,325020) then ui.debug("Casting Ascended Nova [Main]") return end
+            if br.createCastFunction("target",nil,1,nil,325020) then ui.debug("Casting Ascended Nova [Main]") return end
         end
     end
 
@@ -618,7 +618,7 @@ actionList.Main = function()
     if cd.shadowWordDeath.ready() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
+            if not talent.deathAndMadness and br.getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
                 if not noDotCheck(thisUnit) then
                     if cast.shadowWordDeath(thisUnit) then ui.debug("SW:D on low enemies [Main]") return end
                 end
@@ -705,7 +705,7 @@ actionList.Main = function()
     end
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if not talent.deathAndMadness and getHP(thisUnit) < 20 and #searEnemies < 4 or talent.deathAndMadness and ttd(thisUnit) < 7 then
+        if not talent.deathAndMadness and br.getHP(thisUnit) < 20 and #searEnemies < 4 or talent.deathAndMadness and ttd(thisUnit) < 7 then
             if not noDotCheck(thisUnit) then
                 if cast.shadowWordDeath(thisUnit) then ui.debug("Casting SW:D on low enemies [Main]") return end
             end
@@ -821,7 +821,7 @@ actionList.Main = function()
     if moving and cd.shadowWordDeath.ready() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
+            if not talent.deathAndMadness and br.getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
                 if not noDotCheck(thisUnit) then
                     if cast.shadowWordDeath(thisUnit) then ui.debug("Casting SW:D on low enemies [Main]") return end
                 end
@@ -879,17 +879,17 @@ local function runRotation()
     solo                                            = #br.friend < 2
     spell                                           = br.player.spell
     talent                                          = br.player.talent
-    thp                                             = getHP("target")
+    thp                                             = br.getHP("target")
     unit                                            = br.player.unit
     units                                           = br.player.units
     ui                                              = br.player.ui
     use                                             = br.player.use
     voidform                                        = buff.voidForm.exists()
     -- General Locals   
-    hastar                                          = GetObjectExists("target")
+    hastar                                          = br.GetObjectExists("target")
     healPot                                         = getHealthPot()
     profileStop                                     = profileStop or false
-    ttd                                             = getTTD
+    ttd                                             = br.getTTD
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
@@ -907,7 +907,7 @@ local function runRotation()
     dotsUp                                          = debuff.shadowWordPain.exists() and debuff.vampiricTouch.exists()
     mfTicks                                         = br.mfTicks
     msTicks                                         = br.msTicks
-    novaEnemies                                     = getEnemies('player', 8, true)
+    novaEnemies                                     = br.getEnemies('player', 8, true)
     --actions+=/variable,name=pool_for_cds,op=set,value=cooldown.void_eruption.up&(!raid_event.adds.up|raid_event.adds.duration<=10
     --|raid_event.adds.remains>=10+5*(talent.hungering_void.enabled|covenant.kyrian))&((raid_event.adds.in>20|spell_targets.void_eruption>=5)
     --|talent.hungering_void.enabled|covenant.kyrian)
@@ -918,8 +918,8 @@ local function runRotation()
     --actions+=/variable,name=searing_nightmare_cutoff,op=set,value=spell_targets.mind_sear>2+buff.voidform.up
     snmCutoff                                       = #searEnemies > 2 + buff.voidForm.count()
     SWPmaxTargets                                   = ui.value("SWP Max Targets")
-    trinket13 = GetInventoryItemID("player", 13)
-    trinket14 = GetInventoryItemID("player", 14)
+    trinket13 = _G.GetInventoryItemID("player", 13)
+    trinket14 = _G.GetInventoryItemID("player", 14)
     VTmaxTargets                                    = ui.value("VT Max Targets")
 
     --Tank move check for aoe
@@ -967,7 +967,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if inCombat and isValidUnit("target") then
+        if inCombat and br.isValidUnit("target") then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------

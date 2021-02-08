@@ -144,7 +144,7 @@ function usePotion(skipSurvivability)
 	if classType == "agilityClass" then
 		if playerCanUseItem(agilityPotion) then
 			if playerHasBuff(agilityPotionBuff) == false then
-				useItem(agilityPotion)
+				br.useItem(agilityPotion)
 				return true
 			end
 		end
@@ -152,7 +152,7 @@ function usePotion(skipSurvivability)
 	elseif classType == "intellectClass" then
 		if playerCanUseItem(intellectPotion) then
 			if playerHasBuff(intellectPotionBuff) == false then
-				useItem(intellectPotion)
+				br.useItem(intellectPotion)
 				return true
 			end
 		end
@@ -160,7 +160,7 @@ function usePotion(skipSurvivability)
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
 		if playerCanUseItem(strengthPotion) then
 			if playerHasBuff(strengthPotionBuff) == false then
-				useItem(strengthPotion)
+				br.useItem(strengthPotion)
 				return true
 			end
 		end
@@ -168,7 +168,7 @@ function usePotion(skipSurvivability)
 	elseif classType == "staminaClass" and skipSurvivability == false then
 		if playerCanUseItem(armorPotion) then
 			if playerHasBuff(armorPotionBuff) == false then
-				useItem(armorPotion)
+				br.useItem(armorPotion)
 				return true
 			end
 		end
@@ -184,7 +184,7 @@ function useFlask(skipSurvivability)
 	if classType == "agilityClass" then
 		if playerCanUseItem(agilityFlask) then
 			if playerHasBuff(agilityFlaskBuff) == false then
-				useItem(agilityFlask)
+				br.useItem(agilityFlask)
 				return true
 			end
 		end
@@ -192,7 +192,7 @@ function useFlask(skipSurvivability)
 	elseif classType == "intellectClass" then
 		if playerCanUseItem(intellectFlask) then
 			if playerHasBuff(intellectFlaskBuff) == false then
-				useItem(intellectFlask)
+				br.useItem(intellectFlask)
 				return true
 			end
 		end
@@ -200,7 +200,7 @@ function useFlask(skipSurvivability)
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
 		if playerCanUseItem(strengthFlask) then
 			if playerHasBuff(strengthFlaskBuff) == false then
-				useItem(strengthFlask)
+				br.useItem(strengthFlask)
 				return true
 			end
 		end
@@ -208,7 +208,7 @@ function useFlask(skipSurvivability)
 	elseif classType == "staminaClass" and skipSurvivability == false then
 		if playerCanUseItem(staminaFlask) then
 			if playerHasBuff(staminaFlaskBuff) == false then
-				useItem(staminaFlask)
+				br.useItem(staminaFlask)
 				return true
 			end
 		end
@@ -224,7 +224,7 @@ function useFood(skipSurvivability)
 	if classType == "agilityClass" then
 		if playerCanUseItem(agilityFood) then
 			if playerHasBuff(agilityFoodBuff) == false then
-				useItem(agilityFood)
+				br.useItem(agilityFood)
 				return true
 			end
 		end
@@ -232,7 +232,7 @@ function useFood(skipSurvivability)
 	elseif classType == "intellectClass" then
 		if playerCanUseItem(intellectFood) then
 			if playerHasBuff(intellectFoodBuff) == false then
-				useItem(intellectFood)
+				br.useItem(intellectFood)
 				return true
 			end
 		end
@@ -240,7 +240,7 @@ function useFood(skipSurvivability)
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
 		if playerCanUseItem(strengthFood) then
 			if playerHasBuff(strengthFoodBuff) == false then
-				useItem(strengthFood)
+				br.useItem(strengthFood)
 				return true
 			end
 		end
@@ -248,7 +248,7 @@ function useFood(skipSurvivability)
 	elseif classType == "staminaClass" and skipSurvivability == false then
 		if playerCanUseItem(staminaFood) then
 			if playerHasBuff(staminaFoodBuff) == false then
-				useItem(staminaFood)
+				br.useItem(staminaFood)
 				return true
 			end
 		end

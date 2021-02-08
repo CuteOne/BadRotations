@@ -1,10 +1,10 @@
+local addonName, br = ...
 ----------------------------------------------------------------------------------------------------
 -- Variables
 ----------------------------------------------------------------------------------------------------
 local cdnUrl = "https://cdn.badrotations.org/"
 local apiUrl = "https://www.badrotations.org/"
 
-local br = _G["br"]
 br.updater = {}
 
 local addonPath
@@ -16,7 +16,7 @@ local isInitialized = false
 -- Utilities
 ----------------------------------------------------------------------------------------------------
 local function IsSettingChecked()
-   return isChecked("Auto Check for Updates")
+   return br.isChecked("Auto Check for Updates")
 end
 
 local function Print(msg)
@@ -30,7 +30,7 @@ local function PrintError(msg)
 end
 
 local function RaidWarning(message)
-   if isChecked("Overlay Messages") then
+   if br.isChecked("Overlay Messages") then
       RaidNotice_AddMessage(RaidWarningFrame, message, {r = 1, g = 0.3, b = 0.1})
    end
 end
@@ -81,13 +81,14 @@ local function CheckForUpdatesAsync(OnComplete)
       SendRequestAsync(url, function(json)
          local aheadBy = json:match('"AheadBy":(.-),')
          if aheadBy == "0" then
-            if not isInitialized then
-               Print("Up to date. Version "..purple..currentCommit:sub(1, 7))
-            end
-            if type(OnComplete) == "function" then
-               OnComplete(json)
-            end
             return
+            -- if not isInitialized then
+            --    Print("Up to date. Version "..purple..currentCommit:sub(1, 7))
+            -- end
+            -- if type(OnComplete) == "function" then
+            --    OnComplete(json)
+            -- end
+            -- return
          end
                
          local commitSection = json:match('"Commits":%[(.-)%]')

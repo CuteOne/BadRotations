@@ -12,7 +12,7 @@ function PokeAbilities()
           inBattleTimer = GetTime()
         end
       elseif inBattleTimer ~= 0 then
-        ChatOverlay("\124cFF9999FFBattle Ended "..GetBattleTime().." Min. "..select(2,GetBattleTime()).." Secs.")
+        br.ChatOverlay("\124cFF9999FFBattle Ended "..GetBattleTime().." Min. "..select(2,GetBattleTime()).." Secs.")
         inBattleTimer = 0
       end
       -- Out of Battle timer
@@ -85,10 +85,10 @@ function PokeAbilities()
       if inBattle
         and C_PetBattles.GetBreedQuality(2, nmePetSlot) >= getValue("Pet Capture")
         and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,nmePetSlot)) < getValue("Number of Pets")
-        and isChecked("Pet Capture") then
+        and br.isChecked("Pet Capture") then
         if nmePets[nmePetSlot].health <= 35
           and C_PetBattles.IsTrapAvailable() then
-          ChatOverlay("\124cFFFFFFFFTrapping pet")
+          br.ChatOverlay("\124cFFFFFFFFTrapping pet")
           C_PetBattles.UseTrap()
         elseif nmePets[nmePetSlot].health <= 65 then
           if Stun ~= nil then Stun() end
@@ -258,11 +258,11 @@ function PokeAbilities()
     -- Switch Pet
     function Switch()
       -- Suicide
-      if not (isChecked("Pet Leveling") and myPetSlot == 1) then AbilityCast(SuicideList); end
+      if not (br.isChecked("Pet Leveling") and myPetSlot == 1) then AbilityCast(SuicideList); end
       -- Make sure we are not rooted.
       if canSwapOut or myPets[myPetSlot].health == 0 then
         if myPetSlot == 1 and myPets[1].health <= br.data.settings[br.selectedSpec].toggles["Box Swap Out Health"] and br.data.settings[br.selectedSpec].toggles["Check Swap in Health"] == 1
-          or isChecked("Pet Leveling") and myPetSlot == 1 then
+          or br.isChecked("Pet Leveling") and myPetSlot == 1 then
           if myPets[1].health <= br.data.settings[br.selectedSpec].toggles["Box Swap Out Health"] or nmePets[nmePetSlot].health < 100 then
             if GetPetStrenght(2) >= GetPetStrenght(3)
               and myPets[2].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"] then
@@ -274,7 +274,7 @@ function PokeAbilities()
         elseif myPetSlot == 2 and myPets[2].health < br.data.settings[br.selectedSpec].toggles["Box Swap Out Health"] then
           if GetPetStrenght(1) > GetPetStrenght(3)
             and myPets[1].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"]
-            and not ( isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
+            and not ( br.isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
             C_PetBattles.ChangePet(1);
           elseif myPets[3].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"] or myPets[2].health == 0 then
             C_PetBattles.ChangePet(3);
@@ -282,7 +282,7 @@ function PokeAbilities()
         elseif myPetSlot == 3 and myPets[3].health < br.data.settings[br.selectedSpec].toggles["Box Swap Out Health"] then
           if GetPetStrenght(1) > GetPetStrenght(2)
             and myPets[1].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"]
-            and not ( isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
+            and not ( br.isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
             C_PetBattles.ChangePet(1);
           elseif myPets[3].health == 0 and myPets[2].health > 0 or myPets[2].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"] then
             C_PetBattles.ChangePet(2);

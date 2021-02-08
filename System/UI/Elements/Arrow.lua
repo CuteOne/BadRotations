@@ -1,5 +1,5 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
-
+local addonName, br = ...
 -- Right Arrow
 function br.ui:createRightArrow(window)
     local rArr = DiesalGUI:Create('Button')

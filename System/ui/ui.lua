@@ -1,5 +1,5 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
-
+local addonName, br = ...
 -- Global setup
 br.ui = {}
 br.spacing = 15

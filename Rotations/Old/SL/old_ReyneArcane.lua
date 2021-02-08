@@ -78,7 +78,7 @@ local function runRotation()
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
-        local combatTime                                    = getCombatTime()
+        local combatTime                                    = br.getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
@@ -121,7 +121,7 @@ local function runRotation()
 local function actionList_main()
 
     -- Mirror image when Arcane Power is not active, on CD
-    if not buff.arcanePower.exists() and useCDs() and isChecked("Mirror Image") then
+    if not buff.arcanePower.exists() and useCDs() and br.isChecked("Mirror Image") then
         if cast.mirrorImage() then return end
     end
 
@@ -131,12 +131,12 @@ local function actionList_main()
     end
 
     -- Cast Rune of power just before Arcane Power, or if you are at 2 charges.
-    if cast.able.runeOfPower() and isChecked("Rune of Power") and (cd.arcanePower.remain() < getCastTime(spell.runeOfPower) and arcaneCharges == 4) or (charges.runeOfPower.count() == 2 and cd.arcanePower.remain() > 12) then
+    if cast.able.runeOfPower() and br.isChecked("Rune of Power") and (cd.arcanePower.remain() < getCastTime(spell.runeOfPower) and arcaneCharges == 4) or (charges.runeOfPower.count() == 2 and cd.arcanePower.remain() > 12) then
         if cast.runeOfPower() then return end
     end
 
     -- Use Arcane Power at 4 Arcane Charges
-    if cast.able.arcanePower() and isChecked("Arcane Power") and arcaneCharges == 4 then
+    if cast.able.arcanePower() and br.isChecked("Arcane Power") and arcaneCharges == 4 then
         if cast.arcanePower() then return end
     end
 
@@ -161,7 +161,7 @@ local function actionList_main()
     end    
 
     -- Use Charged Up when you can get 3 charges from it
-    if cast.able.chargedUp() and isChecked("Charged Up") and arcaneCharges <= 1 then
+    if cast.able.chargedUp() and br.isChecked("Charged Up") and arcaneCharges <= 1 then
         if cast.chargedUp() then return end
     end
 
@@ -191,7 +191,7 @@ local function actionList_main()
     end
 
     -- Use PoM near end of Arcane Power or Rune of Power
-    if cast.able.presenceOfMind() and useCDs() and isChecked("Presence of Mind") and (buff.arcanePower.exists() and buff.arcanePower.remain() < getCastTime(spell.arcaneBlast) * 2) or (buff.runeOfPower.exists() and buff.runeOfPower.remain() < getCastTime(spell.arcaneBlast) * 2) then
+    if cast.able.presenceOfMind() and useCDs() and br.isChecked("Presence of Mind") and (buff.arcanePower.exists() and buff.arcanePower.remain() < getCastTime(spell.arcaneBlast) * 2) or (buff.runeOfPower.exists() and buff.runeOfPower.remain() < getCastTime(spell.arcaneBlast) * 2) then
         if cast.presenceOfMind() then return end
     end
 
@@ -257,7 +257,7 @@ end
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            if not inCombat and br.GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
 
             end -- End Out of Combat Rotation
 -----------------------------

@@ -178,7 +178,7 @@ local function isBlacklistedTrinket(slot)
         bottledFlayedWingToxin = 178742
     }
     for _,v in pairs(trinketBlacklist) do
-        if v == GetInventoryItemID(units.player, slot) then return true end
+        if v == _G.GetInventoryItemID(units.player, slot) then return true end
     end
     return false
 end
@@ -206,7 +206,7 @@ local function ccMobFinder(id, minHP, spellID)
                 end
             end
             if spellID ~= nil then
-                if getDebuffDuration(v,spellID,units.player) > 0 then
+                if br.getDebuffDuration(v,spellID,units.player) > 0 then
                     foundMatch = foundMatch + 1
                 end
             end
@@ -257,30 +257,30 @@ function getItemCooldownExists(itemId)
 end
 
 local inventory = {
-    ammo                            = GetInventoryItemID(units.player, 0),
-    head                            = GetInventoryItemID(units.player, 1),
-    neck                            = GetInventoryItemID(units.player, 2),
-    shoulder                        = GetInventoryItemID(units.player, 3),
-    shirt                           = GetInventoryItemID(units.player, 4),
-    chest                           = GetInventoryItemID(units.player, 5),
-    waist                           = GetInventoryItemID(units.player, 6),
-    legs                            = GetInventoryItemID(units.player, 7),
-    feet                            = GetInventoryItemID(units.player, 8),
-    wrist                           = GetInventoryItemID(units.player, 9),
-    hands                           = GetInventoryItemID(units.player, 10),
-    finger1                         = GetInventoryItemID(units.player, 11),
-    finger2                         = GetInventoryItemID(units.player, 12),
-    trinket1                        = GetInventoryItemID(units.player, 13),
-    trinket2                        = GetInventoryItemID(units.player, 14),
-    back                            = GetInventoryItemID(units.player, 15),
-    mainHand                        = GetInventoryItemID(units.player, 16),
-    offHand                         = GetInventoryItemID(units.player, 17),
-    ranged                          = GetInventoryItemID(units.player, 18),
-    tabard                          = GetInventoryItemID(units.player, 19),
-    firstBag                        = GetInventoryItemID(units.player, 20),
-    secondBag                       = GetInventoryItemID(units.player, 21),
-    thirdBag                        = GetInventoryItemID(units.player, 22),
-    fourthBag                       = GetInventoryItemID(units.player, 23),
+    ammo                            = _G.GetInventoryItemID(units.player, 0),
+    head                            = _G.GetInventoryItemID(units.player, 1),
+    neck                            = _G.GetInventoryItemID(units.player, 2),
+    shoulder                        = _G.GetInventoryItemID(units.player, 3),
+    shirt                           = _G.GetInventoryItemID(units.player, 4),
+    chest                           = _G.GetInventoryItemID(units.player, 5),
+    waist                           = _G.GetInventoryItemID(units.player, 6),
+    legs                            = _G.GetInventoryItemID(units.player, 7),
+    feet                            = _G.GetInventoryItemID(units.player, 8),
+    wrist                           = _G.GetInventoryItemID(units.player, 9),
+    hands                           = _G.GetInventoryItemID(units.player, 10),
+    finger1                         = _G.GetInventoryItemID(units.player, 11),
+    finger2                         = _G.GetInventoryItemID(units.player, 12),
+    trinket1                        = _G.GetInventoryItemID(units.player, 13),
+    trinket2                        = _G.GetInventoryItemID(units.player, 14),
+    back                            = _G.GetInventoryItemID(units.player, 15),
+    mainHand                        = _G.GetInventoryItemID(units.player, 16),
+    offHand                         = _G.GetInventoryItemID(units.player, 17),
+    ranged                          = _G.GetInventoryItemID(units.player, 18),
+    tabard                          = _G.GetInventoryItemID(units.player, 19),
+    firstBag                        = _G.GetInventoryItemID(units.player, 20),
+    secondBag                       = _G.GetInventoryItemID(units.player, 21),
+    thirdBag                        = _G.GetInventoryItemID(units.player, 22),
+    fourthBag                       = _G.GetInventoryItemID(units.player, 23),
 }
 --------------------
 --- Action Lists ---
@@ -341,7 +341,7 @@ actionList.aa = function()
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2))
-            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
+            or (unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) -- do all this shit only in raid @ boss
             and not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1)
@@ -351,13 +351,13 @@ actionList.aa = function()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2)))
             or unit.ttd(units.target) < cd.trueshot.remain())
         then
-            if canUseItem(inventory.trinket1) and not isBlacklistedTrinket(13) then return useItem(inventory.trinket1) end
+            if br.canUseItem(inventory.trinket1) and not isBlacklistedTrinket(13) then return br.useItem(inventory.trinket1) end
         end
 
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1))
-            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
+            or (unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) -- do all this shit only in raid @ boss
             and not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2)
@@ -367,7 +367,7 @@ actionList.aa = function()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1)))
             or unit.ttd(units.target) < cd.trueshot.remain())
         then
-            if canUseItem(inventory.trinket2) and not isBlacklistedTrinket(14) then return useItem(inventory.trinket2) end
+            if br.canUseItem(inventory.trinket2) and not isBlacklistedTrinket(14) then return br.useItem(inventory.trinket2) end
         end
     end
 end
@@ -396,7 +396,7 @@ actionList.cds = function()
         end
     end
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    if cPotion.value and use.able.potionOfSpectralAgility() and unit.instance(instanceTypes.raid) and unit.isBoss(units.target) then
+    if cPotion.value and use.able.potionOfSpectralAgility() and unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) then
         if buff.trueshot.exists() and (buff.bloodLust.exists() or buff.trueshot.exists or (unit.ttd(units.units.dyn40) < 25)) then
            return use.potionOfSpectralAgility()
         end
@@ -428,7 +428,7 @@ actionList.st = function()
     if (dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
-        or (unit.isBoss(units.target) or unit.ttd(units.target) < 15))
+        or (unit.br.isBoss(units.target) or unit.ttd(units.target) < 15))
     then
         return cast.doubleTap()
     end
@@ -547,7 +547,7 @@ actionList.aoe = function()
     if (dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
-        or (unit.isBoss(units.target) and unit.ttd(units.target) < 10))
+        or (unit.br.isBoss(units.target) and unit.ttd(units.target) < 10))
     then
         return cast.doubleTap()
     end
@@ -663,7 +663,7 @@ actionList.extra = function()
     end
     -- Hunter's Mark
     if cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
-        if dHuntersMark == 1 or (dHuntersMark == 2 and unit.isBoss(units.target)) then
+        if dHuntersMark == 1 or (dHuntersMark == 2 and unit.br.isBoss(units.target)) then
             return cast.huntersMark()
         end
     end
@@ -674,7 +674,7 @@ actionList.extra = function()
     --Dummy Test
     if cDummy.value then
         if unit.exists(units.target) then
-            if getCombatTime() >= (tonumber(sDummy.value)*60) and unit.isDummy() then
+            if br.getCombatTime() >= (tonumber(sDummy.value)*60) and unit.br.isDummy() then
                 StopAttack()
                 ClearTarget()
                 PetStopAttack()
@@ -708,14 +708,14 @@ end -- End Action List - Extras
 -- Action List - CCs
 actionList.CCs = function()
     if ui.mode.cC == 1 then
-        if getCurrentZoneId() == maps.instanceIDs.CastleNathria then
+        if br.getCurrentZoneId() == maps.instanceIDs.CastleNathria then
             if cHuntsman.value then
                 if not isFreezingTrapActive() then
                     return cast.freezingTrap(ccMobFinder(171557),castLocations.groundCC)
                 end
             end
         end
-        if getCurrentZoneId() == maps.instanceIDs.Plaguefall then
+        if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
             if cGlobgrog.value then
                 if not isFreezingTrapActive() then
                     return cast.freezingTrap(ccMobFinder(171887),castLocations.groundCC)
@@ -730,24 +730,24 @@ actionList.CCs = function()
                 return cast.bindingShot(ccMobFinder(163892,25),castLocations.groundCC)
             end
         end
-        if getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
+        if br.getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
             if cMistcaller.value then
                 if not isFreezingTrapActive() then
                     return cast.freezingTrap(ccMobFinder(165251),castLocations.groundCC)
                 end
             end
         end
-        if getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
+        if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
             if cBlightbone.value then
                 return cast.bindingShot(ccMobFinder(164702),castLocations.groundCC)
             end
         end
-        if getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
+        if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
             if cRefuse.value then
                 return cast.bindingShot(ccMobFinder(163089),castLocations.groundCC)
             end
         end
-        if getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
+        if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
             if cGorgon.value then
                 return cast.bindingShot(ccMobFinder(164563,_,326450),castLocations.groundCC)
             end
@@ -805,7 +805,7 @@ actionList.kick = function()
 
 	for _,v in pairs(br.player.spell.interrupts) do
 		if canCast(v)then
-			if getOptionCheck("Interrupt with " .. GetSpellInfo(v)) then
+			if br.getOptionCheck("Interrupt with " .. GetSpellInfo(v)) then
 				br.player.interrupts.currentSpell = v
 				break
 			else
@@ -820,7 +820,7 @@ actionList.kick = function()
         if cInterruptAll.value then
             if castingUnit(theUnit) and canInterrupt(theUnit, interruptAt) then
                 if castingUnit(units.player) then RunMacroText("/stopcasting") end
-                local castSuccess = createCastFunction(theUnit, _, _, _, br.player.interrupts.currentSpell)
+                local castSuccess = br.createCastFunction(theUnit, _, _, _, br.player.interrupts.currentSpell)
                 if castSuccess then
                     lastUnit = theUnit
                     return true
@@ -828,7 +828,7 @@ actionList.kick = function()
             end
         end
         for id, active in pairs(br.player.interrupts.activeList) do
-            if active and isCastingSpell(id, theUnit) and canInterrupt(theUnit) then
+            if active and br.isCastingSpell(id, theUnit) and canInterrupt(theUnit) then
                 br.player.interrupts.currentUnit = theUnit
                 br.player.interrupts.unitSpell = id
             end
@@ -836,11 +836,11 @@ actionList.kick = function()
     end
 
 	if isInCombat(units.player) and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
-		if isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
-			if (getTimeToLastInterrupt() >= 1 and GetObjectID(lastUnit) == GetObjectID(br.player.interrupts.currentUnit)) or
-		      (getTimeToLastInterrupt() < 1 and GetObjectID(lastUnit) ~= GetObjectID(br.player.interrupts.currentUnit)) then
+		if br.isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
+			if (getTimeToLastInterrupt() >= 1 and br.GetObjectID(lastUnit) == br.GetObjectID(br.player.interrupts.currentUnit)) or
+		      (getTimeToLastInterrupt() < 1 and br.GetObjectID(lastUnit) ~= br.GetObjectID(br.player.interrupts.currentUnit)) then
                 if castingUnit(units.player) then RunMacroText("/stopcasting") end
-				if createCastFunction(br.player.interrupts.currentUnit, _, _, _, br.player.interrupts.currentSpell) then
+				if br.createCastFunction(br.player.interrupts.currentUnit, _, _, _, br.player.interrupts.currentSpell) then
 					br.addonDebug("Casting ", tostring(GetSpellInfo(br.player.interrupts.currentSpell)))
 					lastUnit = br.player.interrupts.currentUnit
 				end
