@@ -333,9 +333,9 @@ actionList.Defensive = function()
             if cast.touchOfKarma() then ui.debug("Casting Touch of Karma [Defensive]") return true end
         end
         -- Vivify
-        if ui.checked("Vivify") and cast.able.vivify() then
+        if ui.checked("Vivify") and cast.able.vivify() and not unit.moving() then
             local thisUnit = (unit.friend("target") and not unit.deadOrGhost("target")) and "target" or "player"
-            if unit.hp(thisUnit) <= ui.value("Vivify") then
+            if unit.hp(thisUnit) <= ui.value("Vivify") or (not unit.inCombat() and unit.hp(thisUnit) < 90) then
                 if cast.vivify(thisUnit) then ui.debug("Casting Vivify on "..unit.name(thisUnit)) return true end
             end
         end
@@ -420,7 +420,7 @@ actionList.CdSef = function()
             if cast.stormEarthAndFire() then ui.debug("Casting Storm, Earth, and Fire") var.fixateTarget = "player" return true end
         end
         -- storm_earth_and_fire,if=covenant.kyrian&(buff.weapons_of_order.up|(fight_remains<cooldown.weapons_of_order.remains|cooldown.weapons_of_order.remains>cooldown.storm_earth_and_fire.full_recharge_time)&cooldown.fists_of_fury.remains<=9&chi>=2&cooldown.whirling_dragon_punch.remains<=12)
-        if covenant.kyrian.active and (buff.weaponsOfOrder.exists() or (unit.ttdGroup(5) < cd.weaponsOfOrder.remain() or cd.weaponsOfOrder.remain() > charges.stormEarthAndFire.timeTillFull()) and cd.fistsOfFury.remain() <= 9 and chi >= 2 and cd.whirlingDragonPunch.remains() <= 12) then
+        if covenant.kyrian.active and (buff.weaponsOfOrderWW.exists() or (unit.ttdGroup(5) < cd.weaponsOfOrder.remain() or cd.weaponsOfOrder.remain() > charges.stormEarthAndFire.timeTillFull()) and cd.fistsOfFury.remain() <= 9 and chi >= 2 and cd.whirlingDragonPunch.remains() <= 12) then
             if cast.stormEarthAndFire() then ui.debug("Casting Storm, Earth, and Fire [Kyrian]") var.fixateTarget = "player" return true end
         end
     end
@@ -602,20 +602,21 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=active_enemies>=2&buff.weapons_of_order_ww.remains<1
-    if cast.able.fistsOfFury() and buff.weaponsOfOrderWW.remains() < 1 then-- and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then
+    if cast.able.fistsOfFury() and buff.weaponsOfOrderWWChi.remains() < 1 then-- and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then
         if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [Weapons of Order - Low WW Buff]") return true end
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch,if=active_enemies>=2
     if cast.able.whirlingDragonPunch() and cd.risingSunKick.exists() and cd.fistsOfFury.exists()
-        and ui.useAOE(8,ui.value("Whirling Dragon Punch Min Units")) and not unit.moving() and not unit.isExplosive("target")
+        and ui.useAOE(8,2) and not unit.moving() and not unit.isExplosive("target")
+        and var.fofCastRemain - GetTime() <= 0
     then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [Weapons of Order - AOE]") return true end
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&active_enemies>=3&buff.weapons_of_order_ww.up
     if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
-        and ui.useAOE(8,3) and buff.weaponsOfOrderWW.exists() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
+        and ui.useAOE(8,3) and buff.weaponsOfOrderWWChi.exists() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - WW Buff]") return true end
     end
@@ -626,7 +627,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch() and cd.risingSunKick.exists() and cd.fistsOfFury.exists() then
+    if cast.able.whirlingDragonPunch() and cd.risingSunKick.exists() and cd.fistsOfFury.exists() and var.fofCastRemain - GetTime() <= 0 then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [Weapons of Order]") return true end
     end
     -- Fists of Fury
@@ -643,7 +644,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Fist of the White Tiger
     -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi<3
-    if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chi < 3 then
+    if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chi < 3 and var.fofCastRemain - GetTime() <= 0 then
         if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [Weapons of Order]") return true end
     end
     -- Expel Harm
@@ -668,7 +669,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=chi>=3|buff.weapons_of_order_ww.up
-    if cast.able.blackoutKick(var.lowestMark) and (chi >= 3 or buff.weaponsOfOrderWW.exists()) and not wasLastCombo(spell.blackoutKick) then
+    if cast.able.blackoutKick(var.lowestMark) and (chi >= 3 or buff.weaponsOfOrderWWChi.exists()) and not wasLastCombo(spell.blackoutKick) then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Weapons of Order - WW Buff]") return true end
     end
     -- Flying Serpent Kick
@@ -717,7 +718,7 @@ actionList.Serenity = function()
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&buff.weapons_of_order_ww.up&cooldown.rising_sun_kick.remains>2
-    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and buff.weaponsOfOrderWW.exists() and cd.risingSunKick.remain() > 2 then
+    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and buff.weaponsOfOrderWWChi.exists() and cd.risingSunKick.remain() > 2 then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Serenity Weapons of Order]") return true end
     end
     -- Fists of Fury
@@ -1149,7 +1150,7 @@ local function runRotation()
     then
         if cast.stormEarthAndFireFixate("target") then var.fixateTarget = "target" ui.debug("Casting SEF [Fixate]") return true end
     end
-    
+
     -- Crackling Jade Lightning - Cancel
     if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
         if cast.cancel.cracklingJadeLightning() then ui.debug("Canceling Crackling Jade Lightning [Within "..ui.value("Cancel CJL Range").."yrds]") return true end
@@ -1158,13 +1159,21 @@ local function runRotation()
     -- Flying Serpent Kick - Cancel
     if ui.mode.fsk == 1 and cast.able.flyingSerpentKickEnd() and var.castFSK
         and select(3,GetSpellInfo(spell.flyingSerpentKick)) == 463281
+        and unit.inCombat()
     then
         if cast.flyingSerpentKickEnd() then ui.debug("Casting Flying Serpent Kick [End]") return true end
     end
-    
+
     -- Rushing Jade Wind - Cancel
     if not unit.inCombat() and buff.rushingJadeWind.exists() then
         if buff.rushingJadeWind.cancel() then ui.debug("Canceled Rushing Jade Wind") return true end
+    end
+
+    -- Fists of Fury Cancel - WoO SEF
+    if var.fofCastRemain == nil then var.fofCastRemain = GetTime() end
+    if buff.weaponsOfOrderWW.exists() and buff.stormEarthAndFire.exists() and cast.current.fistsOfFury() then
+        var.fofCastRemain = GetTime() + cast.timeRemain() + unit.gcd("true")
+        if cast.cancel.fistsOfFury() then ui.debug("|cffFF0000Canceling Fists of Fury") return true end
     end
 
     ---------------------
@@ -1237,7 +1246,7 @@ local function runRotation()
             end
             -- Call Action List - Weapons of Order
             -- call_action_list,name=weapons_of_order,if=buff.weapons_of_order.up
-            if buff.weaponsOfOrder.exists() then
+            if buff.weaponsOfOrderWW.exists() then
                 if actionList.WeaponsOfTheOrder() then return true end
             end
             -- Opener
@@ -1245,44 +1254,54 @@ local function runRotation()
             if var.combatTime() < 4 and chi < 5 and not pet.xuenTheWhiteTiger.active() then
                 if actionList.Opener() then return true end
             end
-            -- Fist of the White Tiger
-            -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=3&(energy.time_to_max<1|energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5|cooldown.weapons_of_order.remains<2)
-            if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chiMax - chi >= 3 and (energyTTM() < 1 or (energyTTM() < 4 and cd.fistsOfFury.remain() < 1.5) or cd.weaponsOfOrder.remains() < 2) then
-                if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [High Energy]") return true end
-            end
-            -- Expel Harm
-            -- expel_harm,if=chi.max-chi>=1&(energy.time_to_max<1|cooldown.serenity.remains<2|energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5|cooldown.weapons_of_order.remains<2)
-            if cast.able.expelHarm() and chiMax - chi >= 1 and (energyTTM() < 1 or cd.serenity.remain() < 2 or (energyTTM() < 2 and cd.fistsOfFury.remain() < 1.5) or cd.weaponsOfOrder.remains() < 2) then
-                if cast.expelHarm() then ui.debug("Casting Expel Harm [High Energy]") return true end
-            end
-            -- Tiger Palm
-            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.max-chi>=2&(energy.time_to_max<1|cooldown.serenity.remains<2|energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5|cooldown.weapons_of_order.remains<2)
-            if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2 
-                and (energyTTM() < 1 or cd.serenity.remain() < 2 or (energyTTM() < 4 and cd.fistsOfFury.remain() < 1.5) or cd.weaponsOfOrder.remains() < 2)
-                and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
-            then
-                if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Max Energy / Pre-Serenity]") return true end
-            end
-            -- Call Action List - CdSef
-            -- call_action_list,name=cd_sef,if=!talent.serenity
-            if not talent.serenity then
-                if actionList.CdSef() then return true end
-            end
-            -- Call Action List - CdSerenity
-            -- call_action_list,name=cd_serenity,if=talent.serenity
-            if talent.serenity then
-                if actionList.CdSerenity() then return true end
-            end
-            -- Call Action List - Single Target
-            -- call_action_list,name=st,if=active_enemies<3
-            if ui.useST(8,3) then
-                if actionList.SingleTarget() then return true end
-            end
-            -- Call Action List - AoE
-            -- call_action_list,name=aoe,if=active_enemies>=3
-            if ui.useAOE(8,3) then
-                if actionList.AoE() then return true end
-            end
+            --else
+                -- Fist of the White Tiger
+                -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=3&(energy.time_to_max<1|energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5|cooldown.weapons_of_order.remains<2)
+                if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chiMax - chi >= 3 and (energyTTM() < 1 or (energyTTM() < 4 and cd.fistsOfFury.remain() < 1.5) or cd.weaponsOfOrder.remains() < 2) then
+                    if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [High Energy]") return true end
+                end
+                -- Expel Harm
+                -- expel_harm,if=chi.max-chi>=1&(energy.time_to_max<1|cooldown.serenity.remains<2|energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5|cooldown.weapons_of_order.remains<2)
+                if cast.able.expelHarm() and chiMax - chi >= 1 and (energyTTM() < 1 or cd.serenity.remain() < 2 or (energyTTM() < 2 and cd.fistsOfFury.remain() < 1.5) or cd.weaponsOfOrder.remains() < 2) then
+                    if cast.expelHarm() then ui.debug("Casting Expel Harm [High Energy]") return true end
+                end
+                -- Tiger Palm
+                -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&chi.max-chi>=2&(energy.time_to_max<1|cooldown.serenity.remains<2|energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5|cooldown.weapons_of_order.remains<2)
+                if cast.able.tigerPalm(var.lowestMark) and not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2 
+                    and (energyTTM() < 1 or cd.serenity.remain() < 2 or (energyTTM() < 4 and cd.fistsOfFury.remain() < 1.5) or cd.weaponsOfOrder.remains() < 2)
+                    and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
+                then
+                    if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [Max Energy / Pre-Serenity]") return true end
+                end
+                -- Call Action List - CdSef
+                -- call_action_list,name=cd_sef,if=!talent.serenity
+                if not talent.serenity then
+                    if actionList.CdSef() then return true end
+                end
+                -- Call Action List - CdSerenity
+                -- call_action_list,name=cd_serenity,if=talent.serenity
+                if talent.serenity then
+                    if actionList.CdSerenity() then return true end
+                end
+                -- Call Action List - Single Target
+                -- call_action_list,name=st,if=active_enemies<3
+                if ui.useST(8,3) then
+                    if actionList.SingleTarget() then return true end
+                end
+                -- Call Action List - AoE
+                -- call_action_list,name=aoe,if=active_enemies>=3
+                if ui.useAOE(8,3) then
+                    if actionList.AoE() then return true end
+                end
+                -- Blackout Kick - Stall Prevention
+                if cast.able.blackoutKick(var.lowestMark) and cast.timeSinceLast.blackoutKick() > unit.gcd("true") and not wasLastCombo(spell.blackoutKick) then
+                    if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [|cffFF0000Stall Prevention|r]") return true end
+                end
+                -- Tiger Palm - Stall Prevention
+                if cast.able.tigerPalm(var.lowestMark) and cast.timeSinceLast.tigerPalm() > unit.gcd("true") and not wasLastCombo(spell.tigerPalm) then
+                    if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [|cffFF0000Stall Prevention|r]") return true end
+                end
+            --end
             -- Debugging
 	        br.debug.cpu:updateDebug(startTimeInC,"rotation.profile.unit.inCombat()")
         end -- End Combat Check

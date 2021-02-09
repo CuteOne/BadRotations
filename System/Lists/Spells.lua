@@ -466,7 +466,7 @@ br.lists.spells = {
                 metamorphosis               = 162264,
                 momentum                    = 208628,
                 prepared                    = 203650,
-                unboundChaos                = 234059,
+                unboundChaos                = 347462,
             },
             conduits                        = {
                 serratedGlaive              = 339230,
@@ -2076,6 +2076,7 @@ br.lists.spells = {
                 transcendence               = 101643,
                 weaponsOfOrder              = 328908, --310454,
                 weaponsOfOrderWW            = 310454, --311054,
+                weaponsOfOrderWWChi         = 311054,
             },
             conduits                        = {
                 calculatedStrikes           = 336526,                    
