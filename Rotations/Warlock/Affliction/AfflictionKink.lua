@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.0.3"
+local VerNum  = "2.0.4"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffFFBB00"
 local colorGreen = "|cff4DDB1D"
@@ -2075,7 +2075,7 @@ apl.AoE = function()
     -- DarkGlarePrep | Venthyr ---------.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions.aoe+=/call_action_list,name=darkglare_prep,if=covenant.venthyr&(cooldown.impending_catastrophe.ready|dot.impending_catastrophe_dot.ticking)&cooldown.summon_darkglare.remains<2&(dot.phantom_singularity.remains>2|!talent.phantom_singularity.enabled)
-    if covenant.venthyr.active 
+    if useCDs() and covenant.venthyr.active 
     and (cd.impendingCatastrophe.remains() <= gcdMax or debuff.impendingCatastrophe.exists("target")) 
     and cd.summonDarkglare.remains() < 2
     and (debuff.phantomSingularity.remains("target") > 2 or not talent.phantomSginualrity) 
@@ -2086,7 +2086,7 @@ apl.AoE = function()
     -- DarkGlarePrep | Night Fae -------.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/call_action_list,name=darkglare_prep,if=active_enemies>2&(covenant.necrolord|covenant.kyrian|covenant.none)&(dot.phantom_singularity.ticking|!talent.phantom_singularity.enabled)
-    if #enemies.yards10t > 2 
+    if useCDs() and #enemies.yards10t > 2 
     and (covenant.necrolord.active or covenant.kyrian.active or covenant.none.active) 
     and (debuff.phantomSingularity.exists("target") or not talent.phantomSingularity)
     then 
@@ -2096,7 +2096,7 @@ apl.AoE = function()
     -- DarkGlarePrep | Covenant --------.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/call_action_list,name=darkglare_prep,if=active_enemies>2&covenant.night_fae&(cooldown.soul_rot.ready|dot.soul_rot.ticking)&(dot.phantom_singularity.ticking|!talent.phantom_singularity.enabled)
-    if #enemies.yards10t > 2 
+    if useCDs() and #enemies.yards10t > 2 
     and (covenant.nightFae.active and cd.soulRot.remains() <= gcdMax or debuff.soulRot.exists("target"))
     and (debuff.phantomSingularity.exists("target") or not talent.phantomSingularity) 
     then 
