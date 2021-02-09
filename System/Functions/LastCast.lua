@@ -1,11 +1,11 @@
-local _, br = ...
+local addonName, br = ...
 br.lastCast = {}
 br.lastCast.tracker = {}
 br.lastCast.castTime = {}
 local tracker = br.lastCast.tracker
 local castTime = br.lastCast.castTime
 local waitForSuccess
-local lastCastFrame = _G.CreateFrame("Frame")
+local lastCastFrame = CreateFrame("Frame")
 
 local ignoreList = {
     [2139] = "Counterspell",
@@ -14,21 +14,21 @@ local ignoreList = {
 }
 
 local function addSpell(spellID)
-    for _, v in pairs(br.player.spell.abilities) do
+    for k, v in pairs(br.player.spell.abilities) do
         if v == spellID then
-            _G.tinsert(tracker, 1, spellID)
+            tinsert(tracker, 1, spellID)
             if #tracker == 10 then
                 tracker[10] = nil
             end
-            _G.lastCast = spellID -- legacy support for some rotations reading this in locals
+            lastCast = spellID -- legacy support for some rotations reading this in locals
         end
     end
 end
 
 local function addCastTime(spellID)
-    for _, v in pairs(br.player.spell.abilities) do
+    for k, v in pairs(br.player.spell.abilities) do
         if v == spellID then
-            castTime[v] = _G.GetTime()
+            castTime[v] = GetTime()
         end
     end
 end
@@ -50,9 +50,9 @@ local function eventTracker(self, event, ...)
             end
         elseif event == "UNIT_SPELLCAST_STOP" then
             if waitForSuccess == spellID then
-                _G.tremove(tracker,1)
+                tremove(tracker,1)
                 waitForSuccess = nil
-                _G.lastCast = tracker[1]
+                lastCast = tracker[1]
             end
         end
     end

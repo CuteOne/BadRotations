@@ -1,56 +1,57 @@
-local _, br = ...
+local addonName, br = ...
 local runeTable = {}
-function br.getChi(Unit)
-	return br._G.UnitPower(Unit, 12)
+function getChi(Unit)
+	return UnitPower(Unit, 12)
 end
-function br.getChiMax(Unit)
-	return br._G.UnitPowerMax(Unit, 12)
+function getChiMax(Unit)
+	return UnitPowerMax(Unit, 12)
 end
 -- if getCombo() >= 1 then
-function br.getCombo()
-	return br._G.UnitPower("player", 4) --GetComboPoints("player") - Legion Change
+function getCombo()
+	return UnitPower("player", 4) --GetComboPoints("player") - Legion Change
 end
-function br.getEmber(Unit)
-	return br._G.UnitPower(Unit, 14)
+function getEmber(Unit)
+	return UnitPower(Unit, 14)
 end
-function br.getEmberMax(Unit)
-	return br._G.UnitPowerMax(Unit, 14)
+function getEmberMax(Unit)
+	return UnitPowerMax(Unit, 14)
 end
 -- if getMana("target") <= 15 then
-function br.getMana(Unit)
-	return 100 * br._G.UnitPower(Unit, 0) / br._G.UnitPowerMax(Unit, 0)
+function getMana(Unit)
+	return 100 * UnitPower(Unit, 0) / UnitPowerMax(Unit, 0)
 end
 -- if br.getPower("target") <= 15 then
 function br.getPower(Unit, index)
-	local value
-	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitPower("player")) == 4 then
+	local value = value
+	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
 		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
-			value = br._G.UnitPower(Unit, index) * 1.2
+			value = UnitPower(Unit, index) * 1.2
 		else
-			value = br._G.UnitPower(Unit, index)
+			value = UnitPower(Unit, index)
 		end
 	else
-		value = br._G.UnitPower(Unit, index) -- 100 * br._G.UnitPower(Unit) / br._G.UnitPowerMax(Unit)
+		value = UnitPower(Unit, index) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	end
-	return br._G.UnitPower(Unit, index)
+	return UnitPower(Unit, index)
 end
 function br.getPowerMax(Unit, index)
-	local value
-	if select(3, br._G.UnitPower("player")) == 11 or select(3, br._G.UnitPower("player")) == 4 then
+	local value = value
+	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
 		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
-			value = br._G.UnitPowerMax(Unit, index) * 1.2
+			value = UnitPowerMax(Unit, index) * 1.2
 		else
-			value = br._G.UnitPowerMax(Unit, index)
+			value = UnitPowerMax(Unit, index)
 		end
 	else
-		value = br._G.UnitPowerMax(Unit, index) -- 100 * br._G.UnitPower(Unit) / br._G.UnitPowerMax(Unit)
+		value = UnitPowerMax(Unit, index) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	end
-	return br._G.UnitPowerMax(Unit, index)
+	return UnitPowerMax(Unit, index)
 end
-function br.getPowerAlt(Unit)
-	local class = select(2, br._G.UnitPower(Unit))
-	local spec = _G.GetSpecialization()
-	local power = br._G.UnitPower
+function getPowerAlt(Unit)
+	local value = value
+	local class = select(2, UnitClass(Unit))
+	local spec = GetSpecialization()
+	local power = UnitPower
 	if (class == "DRUID" and spec == 2) or class == "ROGUE" then
 		return power(Unit, 4)
 	end
@@ -63,26 +64,22 @@ function br.getPowerAlt(Unit)
 	return 0
 end
 -- Rune Tracking Table
-function br.getRuneInfo()
+function getRuneInfo()
 	local bCount = 0
 	local uCount = 0
 	local fCount = 0
 	local dCount = 0
-	local dCooldown
-	local bCooldown
-	local uCooldown
-	local fCooldown
 	local bPercent = 0
 	local uPercent = 0
 	local fPercent = 0
 	local dPercent = 0
-	_G.table.wipe(runeTable)
+	table.wipe(runeTable)
 	for i = 1, 6 do
-		local CDstart = select(1, _G.GetRuneCooldown(i))
-		local CDduration = select(2, _G.GetRuneCooldown(i))
-		local CDready = select(3, _G.GetRuneCooldown(i))
-		local CDrune = CDduration - (_G.GetTime() - CDstart)
-		local CDpercent
+		local CDstart = select(1, GetRuneCooldown(i))
+		local CDduration = select(2, GetRuneCooldown(i))
+		local CDready = select(3, GetRuneCooldown(i))
+		local CDrune = CDduration - (GetTime() - CDstart)
+		local CDpercent = CDpercent
 		local runePercent = 0
 		local runeCount = 0
 		local runeCooldown = 0
@@ -100,25 +97,25 @@ function br.getRuneInfo()
 			runeCount = 1
 			runeCooldown = 0
 		end
-		if _G.GetRuneType(i) == 4 then
+		if GetRuneType(i) == 4 then
 			dPercent = runePercent
 			dCount = runeCount
 			dCooldown = runeCooldown
 			runeTable[#runeTable + 1] = {Type = "death", Index = i, Count = dCount, Percent = dPercent, Cooldown = dCooldown}
 		end
-		if _G.GetRuneType(i) == 1 then
+		if GetRuneType(i) == 1 then
 			bPercent = runePercent
 			bCount = runeCount
 			bCooldown = runeCooldown
 			runeTable[#runeTable + 1] = {Type = "blood", Index = i, Count = bCount, Percent = bPercent, Cooldown = bCooldown}
 		end
-		if _G.GetRuneType(i) == 2 then
+		if GetRuneType(i) == 2 then
 			uPercent = runePercent
 			uCount = runeCount
 			uCooldown = runeCooldown
 			runeTable[#runeTable + 1] = {Type = "unholy", Index = i, Count = uCount, Percent = uPercent, Cooldown = uCooldown}
 		end
-		if _G.GetRuneType(i) == 3 then
+		if GetRuneType(i) == 3 then
 			fPercent = runePercent
 			fCount = runeCount
 			fCooldown = runeCooldown
@@ -128,8 +125,8 @@ function br.getRuneInfo()
 	return runeTable
 end
 -- Get Count of Specific Rune Time
-function br.getRuneCount(Type)
-	Type = string.lower(Type)
+function getRuneCount(Type)
+	local Type = string.lower(Type)
 	local runeCount = 0
 	for i = 1, 6 do
 		if runeTable[i].Type == Type then
@@ -139,7 +136,7 @@ function br.getRuneCount(Type)
 	return runeCount
 end
 -- Get Colldown Percent Remaining of Specific Runes
-function br.getRunePercent(Type)
+function getRunePercent(Type)
 	Type = string.lower(Type)
 	local runePercent = 0
 	local runeCooldown = 0
@@ -149,68 +146,68 @@ function br.getRunePercent(Type)
 			runeCooldown = runeTable[i].Cooldown
 		end
 	end
-	if br.getRuneCount(Type) == 2 then
+	if getRuneCount(Type) == 2 then
 		return 2
-	elseif br.getRuneCount(Type) == 1 then
+	elseif getRuneCount(Type) == 1 then
 		return runePercent + 1
 	else
 		return runePercent
 	end
 end
-function br.runeCDPercent(runeIndex)
-	if _G.GetRuneCount(runeIndex) == 0 then
-		return (_G.GetTime() - select(1, _G.GetRuneCooldown(runeIndex))) / select(2, _G.GetRuneCooldown(runeIndex))
+function runeCDPercent(runeIndex)
+	if GetRuneCount(runeIndex) == 0 then
+		return (GetTime() - select(1, GetRuneCooldown(runeIndex))) / select(2, GetRuneCooldown(runeIndex))
 	else
 		return 0
 	end
 end
-function br.runeRecharge(runeIndex)
-	if not select(3, _G.GetRuneCooldown(runeIndex)) then
-		return select(2, _G.GetRuneCooldown(runeIndex)) - (_G.GetTime() - select(1, _G.GetRuneCooldown(runeIndex)))
+function runeRecharge(runeIndex)
+	if not select(3, GetRuneCooldown(runeIndex)) then
+		return select(2, GetRuneCooldown(runeIndex)) - (GetTime() - select(1, GetRuneCooldown(runeIndex)))
 	else
 		return 0
 	end
 end
-function br.runeTimeTill(runeIndex)
+function runeTimeTill(runeIndex)
 	local runeCDs = {}
 	local runeCount = 0
 	local timeTill = 0
 	for i = 1, 6 do
-		runeCount = runeCount + _G.GetRuneCount(i)
+		runeCount = runeCount + GetRuneCount(i)
 		if runeCDs[runeIndex] == nil then
-			runeCDs[i] = br.runeRecharge(i)
+			runeCDs[i] = runeRecharge(i)
 		end
 	end
 	if runeCount < runeIndex then
-		for _, v in pairs(runeCDs) do
+		for k, v in pairs(runeCDs) do
 			timeTill = timeTill + v
 		end
 	end
 	return timeTill
 end
 -- if getTimeToMax("player") < 3 then
-function br.getTimeToMax(Unit,Limit)
+function getTimeToMax(Unit,Limit)
 	local timeTill = 999
-	local max = Limit or br._G.UnitPowerMax(Unit)
-	local curr = br._G.UnitPower(Unit)
+	local max = Limit or UnitPowerMax(Unit)
+	local curr = UnitPower(Unit)
 	local curr2 = curr
-	local _, regen = br._G.GetPowerRegen(Unit)
-	if select(3, br._G.UnitPower("player")) == 11 and _G.GetSpecialization() == 2 and br.isKnown(114107) then
-		curr2 = curr + 4 * br.getCombo()
+	local _, regen = GetPowerRegen(Unit)
+	if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 and br.isKnown(114107) then
+		curr2 = curr + 4 * getCombo()
 	end
 	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
 	return timeTill
 end
 -- /dump getCastRegen(185358)
-function br.getCastRegen(spellId)
-	local regenRate = br._G.GetPowerRegen("player")
+function getCastRegen(spellId)
+	local regenRate = GetPowerRegen("player")
 	local power = 0
 
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
-	local castTime = br.getCastTime(spellId) or 0
+	local castTime = getCastTime(spellId) or 0
 	local gcd = br.getSpellCD(61304)
 	if gcd == 0 then
-		gcd = _G.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100))
+		gcd = max(1, 1.5 / (1 + UnitSpellHaste("player") / 100))
 	end
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds
@@ -219,10 +216,10 @@ function br.getCastRegen(spellId)
 end
 -- if br.getRegen("player") > 15 then
 function br.getRegen(Unit)
-	return select(2, br._G.GetPowerRegen(Unit))
+	return select(2, GetPowerRegen(Unit))
 end
-function br.getSpellCost(spell)
-	local t = _G.GetSpellPowerCost(_G.GetSpellInfo(spell))
+function getSpellCost(spell)
+	local t = GetSpellPowerCost(GetSpellInfo(spell))
 	if not t then
 		return 0
 	elseif not t[1] then 
@@ -238,14 +235,14 @@ function br.getSpellCost(spell)
 	end
 end
 
-function br.hasResources(spell, offset)
-	local cost, _, costtype = br.getSpellCost(spell)
+function hasResources(spell, offset)
+	local cost, _, costtype = getSpellCost(spell)
 	offset = offset or 0
 	if not cost then
 		return false
 	elseif cost == 0 then
 		return true
-	elseif br._G.UnitPower("player", costtype) > cost + offset then
+	elseif UnitPower("player", costtype) > cost + offset then
 		return true
 	end
 end
