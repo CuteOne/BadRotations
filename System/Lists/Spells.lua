@@ -1533,7 +1533,9 @@ br.lists.spells = {
                 displacement                = 212801,
                 erosion                     = 205039,
                 evocation                   = 12051,
-              --  fireblast                   = 519836,
+
+              --  fireblast                 = 519836,
+
                 greaterInvisibility         = 110959,
                 markOfAluneth               = 224968,
                 netherTempest               = 114923,
@@ -1572,7 +1574,9 @@ br.lists.spells = {
               arcaneCharge                  = 36032,
               arcaneFamiliar                = 210126,
               arcanePower                   = 12042,
-              -- arcaneCharge                  = 36032,
+
+              -- arcaneCharge               = 36032,
+
               evocation                     = 12051,
               expandedPotential             = 327495,
               arcaneMissles                 = 79683,
@@ -1638,7 +1642,7 @@ br.lists.spells = {
                 flamestrike                 = 2120,
                 livingBomb                  = 44457,
                 meteor                      = 153561,
-                phoenixFlames              = 257541,
+                phoenixFlames               = 257541,
                 pyroblast                   = 11366,
                 scorch                      = 2948,
             },
@@ -1768,6 +1772,12 @@ br.lists.spells = {
                 splittingIce                = 56377,
                 thermalVoid                 = 155149,
             },
+            runeforges                      = {
+                expandedPotential           = 327489,
+                freezingWinds               = 327364,
+                glacialFragments            = 327492,
+
+            }
         },
         -- All
         Shared = {
@@ -1812,8 +1822,19 @@ br.lists.spells = {
                 runeOfPower                 = 116014,
             },
             conduits                        = {
-
+                siphonedMalice              = 337087,
             },
+            covenants                       = {
+                deathborne                  = 324220,
+                mirrorsOfTorment            = 314793,
+                radiantSpark                = 307443,
+                shiftingPower               = 314791,
+            },
+            debuffs                         = {
+                frostNova                   = 122,
+                mirrorsOfTorment            = 314793,
+
+             },
             covenants                       = {
                 deathborne                  = 324220,
                 mirrorsOfTorment            = 314793,
@@ -3410,6 +3431,11 @@ br.lists.spells = {
                 wrathOfConsumption          = 199646,
                 inevitableDemise            = 273525,
             },
+            conduits                        = {
+                corruptingLeer              = 339455,
+                everfrost                   = 337988,
+                unleashedFrenzy             = 338492,
+            },
             debuffs                         = {
                 agony                       = 980,
                 corruption                  = 146739,
@@ -3419,7 +3445,8 @@ br.lists.spells = {
                 siphonLife                  = 63106,
                 shadowEmbrace               = 32390,
                 unstableAffliction          = 316099,
-                unstableAffliction2         = 233496,
+                unstableAffliction          = 316099,
+                unstableAffliction2         = 342938,
                 unstableAffliction3         = 233497,
                 unstableAffliction4         = 233498,
                 unstableAffliction5         = 233499,
@@ -3459,7 +3486,7 @@ br.lists.spells = {
         -- Demonology
         [266] = {
             abilities                       = {
-		axeToss                     = 89766,
+		            axeToss                     = 89766,
                 bilescourgeBombers          = 267211,
                 callDreadstalkers           = 104316,
                 commandDemon                = 119898,
@@ -3680,6 +3707,8 @@ br.lists.spells = {
                 unendingBreath              = 5697,
                 unendingResolve             = 104773,
                 unstableaffliction          = 316099,
+                unstableAffliction2         = 342938,
+
 
             },
             artifacts                       = {
@@ -3708,7 +3737,8 @@ br.lists.spells = {
                 soulRot                     = 325640,
             },
             debuffs                         = {
-		decimatingBolt              = 325289,
+
+    		        decimatingBolt              = 325289,
                 impendingCatastrophe        = 321792,
                 scouringTithe               = 312321,
                 soulRot                     = 325640,

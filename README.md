@@ -169,7 +169,9 @@ CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 author |   support   | patch | status |   raidable?
 :----- | :---------: | :---: | -----: | :-----------:
-Kink   |  Full       | 9.0   |   100% | :white_check_mark:
+Kink   |  Full       | 9.0.1 |  99% |  :white_check_mark:
+Reyne  |  Inactive   | 8.0   |  100% |  :interrobang:
+
 
 - Fire
 
