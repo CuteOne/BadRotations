@@ -77,11 +77,11 @@ br.api.power = function(power,v)
     end
     -- br.player.power.spell.ttm() -- Returns the time in seconds until the specified power is maxed
     power.ttm = function(amount)
-        if amount == nil then amount = 6 end
         if isDKRunes then
+            if amount == nil then amount = 6 end
             return runeTimeTill(amount)
         else
-            return getTimeToMax("player")
+            return getTimeToMax("player",amount)
         end
     end
 end

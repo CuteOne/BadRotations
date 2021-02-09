@@ -216,6 +216,9 @@ local methods = {
 	end,
 	['SetText'] = function(self,text)
 		self.text:SetText(text)
+		for i=1, #self.children do
+			if self.children[i].settings.value==text then self.value = self.children[i].settings.key end
+		end
 	end,
 	['SetFocus'] = function(self)
 		DiesalGUI:SetFocus(self)

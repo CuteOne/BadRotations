@@ -48,4 +48,11 @@ br.lists.los = {
 	[152671] = true, -- Wekemara
 	[157602] = true, -- Drest'agath - Ny'alotha
 	[158343] = true, -- Organ of Corruption - Ny'alotha
+	[166608] = true, -- Mueh'zala - De Other Side
+    [166618] = true, -- Other Side Adds
+    [169769] = true, -- Other Side Adds
+    [171665] = true, -- Other Side Adds
+    [168326] = true, -- Other Side Adds
+	[164407] = true, -- Sludgefist - Castle Nathria
+	[165759] = true, -- Kaelthas
 }

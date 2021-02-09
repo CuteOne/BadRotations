@@ -7,7 +7,8 @@ function br.ui:createDebugWindow()
     	if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
 			br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation LogCheck"] = false
 		end
-    	if rotationLog ~= nil then rotationLog:SetChecked(false) end
+        if rotationLog ~= nil then rotationLog:SetChecked(false) end
+        if br.data.settings[br.selectedSpec].debug == nil then br.data.settings[br.selectedSpec].debug = {} end
         br.data.settings[br.selectedSpec].debug["active"] = false
         br.ui.window.debug.parent:Hide()
     end)

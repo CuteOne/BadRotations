@@ -1,4 +1,7 @@
-local rotationName = "PrettyBoy"
+﻿local rotationName = "Feng"
+local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
+local StunSpellList="332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
+local HoJPrioList = "164702|164362|170488|165905|165251|165556"
 ---------------
 --- Toggles ---
 ---------------
@@ -32,10 +35,28 @@ local function createToggles()
 	CreateButton("Interrupt",4,0)
 	-- Boss Encounter Case
 	BossCaseModes = {
-	[1] = { mode = "On", value = 1 , overlay = "BossCase Enabled", tip = "Boss Encounter Case Enabled.", highlight = 1, icon = br.player.spell.shieldOfTheRighteous },
-	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.shieldOfTheRighteous }
+	[1] = { mode = "On", value = 1 , overlay = "BossCase Enabled", tip = "Boss Encounter Case Enabled.", highlight = 1, icon = br.player.spell.blessingOfFreedom },
+	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.blessingOfFreedom }
 	};
-	CreateButton("BossCase",5,0)
+	CreateButton("BossCase",0,1)
+	-- Holy Power logic
+	HolyPowerlogicModes = {
+	[1] = { mode = "Attack", value = 1 , overlay = "Attack logic Enabled", tip = "Holy Power logic (Attack)", highlight = 1, icon = br.player.spell.shieldOfTheRighteous },
+	[2] = { mode = "Defense", value = 2 , overlay = "Defense logic Enabled", tip = "Holy Power logic (Defense)", highlight = 1, icon = br.player.spell.wordOfGlory }
+	};
+	CreateButton("HolyPowerlogic",1,1)
+	-- Auto cancel
+	AutocancelModes = {
+	[1] = { mode = "On", value = 1 , overlay = "Auto cancel Enabled", tip = "Auto cancel BoP and DS\n(Only In Instance and Raid)", highlight = 1, icon = br.player.spell.blessingOfProtection },
+	[2] = { mode = "Off", value = 2 , overlay = "Auto cancel Disabled", tip = "Auto cancel BoP and DS Disabled", highlight = 0, icon = br.player.spell.blessingOfProtection }
+	};
+	CreateButton("Autocancel",2,1)
+	-- Blessed Hammer
+	BlessedHammerModes = {
+	[1] = { mode = "On", value = 1 , overlay = "Blessed Hammer Enabled", tip = "Use Blessed Hammer to get Holy Power when you are free\nEnabled", highlight = 1, icon = br.player.spell.blessedHammer },
+	[2] = { mode = "Off", value = 2 , overlay = "Blessed Hammer Disabled", tip = "Use Blessed Hammer to get Holy Power when you are free\nDisabled", highlight = 0, icon = br.player.spell.blessedHammer }
+	};
+	CreateButton("BlessedHammer",3,1)
 end
 ---------------
 --- OPTIONS ---
@@ -48,14 +69,17 @@ local function createOptions()
 		--- GENERAL OPTIONS ---
 		-----------------------
 		section = br.ui:createSection(br.ui.window.profile,  "General")
-		-- APL
-		br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFFeng","|cffFFFFFFSim"}, 1, "|cffFFFFFFSet APL Mode to use.")
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
-		-- Auto cancel Blessing of Protection
-		br.ui:createCheckbox(section, "Auto cancel BoP")
+		-- Automatic Aura replacement
+		br.ui:createCheckbox(section, "Automatic Aura replacement")
 		-- Taunt
 		br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
+		-- Lay On Hands
+		br.ui:createSpinner(section, "OOC FoL", 50, 0, 100, 1, "", "|cffFFFFFFout of combat Flash of Light.")
+		br.ui:createDropdownWithout(section, "OOC FoL Target", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFFFFFFPlayer and Target"}, 3, "|ccfFFFFFFTarget to Cast On")
+		-- infinite Divine Steed
+		br.ui:createDropdown(section, "infinite Divine Steed key", br.dropOptions.Toggle, 6)
 		br.ui:checkSectionState(section)
 		------------------------
 		--- COOLDOWN OPTIONS ---
@@ -64,27 +88,28 @@ local function createOptions()
 		-- Racial
 		br.ui:createCheckbox(section,"Racial")
 		-- Trinkets
-		br.ui:createSpinner(section, "Trinkets 1",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createDropdown(section,"Use Trinkets 1", {"|cffFFFFFFHealth","|cffFFFF00Cooldowns","|cff00FF00Everything"}, 1, "","|cffFFFFFFWhen to use trinkets.")
 		br.ui:createDropdownWithout(section,"Trinkets 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
-		br.ui:createSpinner(section, "Trinkets 2",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createSpinnerWithout(section, "Trinkets 1",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createDropdown(section,"Use Trinkets 2", {"|cffFFFFFFHealth","|cffFFFF00Cooldowns","|cff00FF00Everything"}, 1, "","|cffFFFFFFWhen to use trinkets.")
 		br.ui:createDropdownWithout(section,"Trinkets 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createSpinnerWithout(section, "Trinkets 2",  70,  0,  100,  5,  "Health Percentage to use at")
 		-- Seraphim
 		br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
 		-- Avenging Wrath
 		br.ui:createSpinner(section, "Avenging Wrath",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
-		-- Bastion of Light
-		br.ui:createCheckbox(section,"Bastion of Light")
+		-- Holy Avenger
+		br.ui:createSpinner(section, "Holy Avenger",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
+		br.ui:createCheckbox(section, "Holy Avenger with Wings")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
-		-- Healthstone
-		br.ui:createSpinner(section, "Pot/Stoned",  30,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
-		-- Gift of The Naaru
-		if br.player.race == "Draenei" then
-			br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
-		end
+		-- Basic Healing Module
+		br.player.module.BasicHealing(section)
+		-- Phial of Serenity
+		br.ui:createSpinner (section, "PoS removes Necrotic", 20, 0, 50, 1, "","|cffFFFFFFNecrotic stacks Phial of Serenity to use at")
 		if br.player.race == "BloodElf" then
 			br.ui:createSpinner (section, "Arcane Torrent Dispel", 1, 0, 20, 1, "","|cffFFFFFFMinimum Torrent Targets")
 		end
@@ -102,12 +127,15 @@ local function createOptions()
 		br.ui:createSpinner(section, "Guardian of Ancient Kings",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
 		-- Hammer of Justice
 		br.ui:createSpinner(section, "Hammer of Justice - HP",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
-		-- Light of the Protector
-		br.ui:createSpinner(section, "Light of the Protector",  70,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+		-- Word of Glory
+		br.ui:createSpinner(section, "Word of Glory",  50,  0,  100,  5,  "|cffFFBB00Word of Glory to use at.")
+		-- Free Word of Glory
+		br.ui:createSpinnerWithout(section, "Free Word of Glory",  65,  0,  100,  5,  "|cffFFBB00Word of Glory to use at.")
 		-- Hand of the Protector - on others
-		br.ui:createSpinner(section, "Hand of the Protector - Party",  40,  0,  100,  5,  "|cffFFBB00Teammate Health Percentage to use at.")
+		br.ui:createSpinner(section, "Word of Glory - Party",  40,  0,  100,  5,  "|cffFFBB00Teammate Word of Glory to use at.")
+		br.ui:createDropdownWithout(section, "WoG - Party Target", {"|cffFFFFFFOther tanks", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 4, "|cffFFFFFFTarget for Word of Glory")
 		-- Lay On Hands
-		br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "","Health Percentage to use at")
+		br.ui:createSpinner(section, "Lay On Hands", 15, 0, 100, 5, "","Health Percentage to use at")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
 		-- Blessing of Protection
 		br.ui:createSpinner(section, "Blessing of Protection", 30, 0, 100, 5, "","Health Percentage to use at")
@@ -115,19 +143,17 @@ local function createOptions()
 		-- Blessing Of Sacrifice
 		br.ui:createSpinner(section, "Blessing Of Sacrifice", 40, 0, 100, 5, "","Health Percentage to use at")
 		br.ui:createDropdownWithout(section, "Blessing Of Sacrifice Target", {"|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 6, "|cffFFFFFFTarget for Blessing Of Sacrifice")
-		-- Shield of the Righteous
-		br.ui:createSpinner(section, "Shield of the Righteous - HP", 60, 0 , 100, 5, "|cffFFBB00Health Percentage to use at")
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
 		-- Unstable Temporal Time Shifter
-		br.ui:createDropdown(section, "Unstable Temporal Time Shifter", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
+		br.ui:createDropdown(section, "Engineering Revive", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to use on")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Interrupts")
 		-- Blinding Light
-		br.ui:createCheckbox(section, "Blinding Light - INT")
+		br.ui:createSpinner(section,  "Blinding Light - INT",  2,  1,  5,  1,  "|cffFFBB00Units to use Blinding Light.")
 		-- Hammer of Justice
 		br.ui:createCheckbox(section, "Hammer of Justice - INT")
 		-- Rebuke
@@ -135,12 +161,14 @@ local function createOptions()
 		-- Avenger's Shield
 		br.ui:createCheckbox(section, "Avenger's Shield - INT")
 		-- Interrupt Percentage
-		br.ui:createSpinner(section,  "Interrupt At",  40,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+		br.ui:createSpinnerWithout(section, "Interrupt At",  60,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
 		br.ui:checkSectionState(section)
 		------------------------
 		--- ROTATION OPTIONS ---
 		------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Rotation Options")
+		-- Divine Toll
+		br.ui:createSpinner(section, "Divine Toll",  3,  1,  5,  1,  "|cffFFBB00Units to use Divine Toll.")
 		-- Avenger's Shield
 		br.ui:createCheckbox(section,"Avenger's Shield")
 		-- Consecration
@@ -153,23 +181,16 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Judgment")
 		-- Shield of the Righteous
 		br.ui:createCheckbox(section,"Shield of the Righteous")
+		-- Hammer of Wrath
+		br.ui:createCheckbox(section,"Hammer of Wrath")
 		br.ui:checkSectionState(section)
 		----------------------
-		--- TOGGLE OPTIONS ---
+		-------- LISTS -------
 		----------------------
-		section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-		-- Single/Multi Toggle
-		br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  6)
-		--Cooldown Key Toggle
-		br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  6)
-		--Defensive Key Toggle
-		br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-		-- Interrupts Key Toggle
-		br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-		-- Consecration Key Toggle
-		br.ui:createDropdown(section, "Consecration Mode", br.dropOptions.Toggle,  6)
-		-- Pause Toggle
-		br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+		section = br.ui:createSection(br.ui.window.profile,  "Lists")
+		br.ui:createScrollingEditBoxWithout(section,"Stuns Black Units", StunsBlackList, "List of units to blacklist when Hammer of Justice", 240, 50)
+		br.ui:createScrollingEditBoxWithout(section,"Stun Spells", StunSpellList, "List of spells to stun with auto stun function", 240, 50)
+		br.ui:createScrollingEditBoxWithout(section,"HoJ Prio Units", HoJPrioList, "List of units to prioritize for Hammer of Justice", 240, 50)
 		br.ui:checkSectionState(section)
 	end
 	optionTable = {{
@@ -183,820 +204,764 @@ end
 ----------------
 local function runRotation()
 	-- if br.timer:useTimer("debugProtection", math.random(0.1,0.2)) then
-		--Print("Running: "..rotationName)
-		---------------
-		--- Toggles ---
-		---------------
-		UpdateToggle("Rotation",0.25)
-		UpdateToggle("Cooldown",0.25)
-		UpdateToggle("Defensive",0.25)
-		UpdateToggle("Interrupt",0.25)
-		UpdateToggle("BossCase",0.25)
-		br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
-		--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
+	--Print("Running: "..rotationName)
+	--------------
+	--- Locals ---
+	--------------
+	local holyPower     = br.player.power.holyPower.amount()
+	local holyPowerMax  = br.player.power.holyPower.max()
+	local artifact      = br.player.artifact
+	local buff          = br.player.buff
+	local cast          = br.player.cast
+	local cd            = br.player.cd
+	local charges       = br.player.charges
+	local combatTime    = getCombatTime()
+	local debuff        = br.player.debuff
+	local enemies       = br.player.enemies
+	local gcd           = br.player.gcd
+	local gcdMax        = br.player.gcdMax
+	local hastar        = GetObjectExists("target")
+	local healPot       = getHealthPot()
+	local inCombat      = br.player.inCombat
+	local level         = br.player.level
+	local inInstance    = br.player.instance=="party"
+	local inRaid        = br.player.instance=="raid"
+	local lowest        = br.friend[1]
+	local mode          = br.player.ui.mode
+	local php           = br.player.health
+	local race          = br.player.race
+	local racial        = br.player.getRacial()
+	local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
+	local solo          = GetNumGroupMembers() == 0
+	local spell         = br.player.spell
+	local talent        = br.player.talent
+	local ttd           = getTTD("target")
+	local units         = br.player.units
+	local level         = br.player.level
+	local module        = br.player.module
+	local use           = br.player.use
+	local SotR          = true
+	local BoF           = true
+	local RInterrupts   = true
 
-		--------------
-		--- Locals ---
-		--------------
-		local artifact      = br.player.artifact
-		local buff          = br.player.buff
-		local cast          = br.player.cast
-		local cd            = br.player.cd
-		local charges       = br.player.charges
-		local combatTime    = getCombatTime()
-		local debuff        = br.player.debuff
-		local enemies       = br.player.enemies
-		local gcd           = br.player.gcd
-		local hastar        = GetObjectExists("target")
-		local healPot       = getHealthPot()
-		local inCombat      = br.player.inCombat
-		local level         = br.player.level
-		local inInstance    = br.player.instance=="party"
-		local inRaid        = br.player.instance=="raid"
-		local lowest        = br.friend[1]
-		local mode          = br.player.mode
-		local php           = br.player.health
-		local race          = br.player.race
-		local racial        = br.player.getRacial()
-		local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
-		local solo          = GetNumGroupMembers() == 0
-		local spell         = br.player.spell
-		local talent        = br.player.talent
-		local ttd           = getTTD("target")
-		local units         = br.player.units
+	units.get(5)
+	units.get(10)
+	units.get(30)
+	enemies.get(5)
+	enemies.get(8)
+	enemies.get(10)
+	enemies.get(30)
 
-		units.get(5)
-		units.get(10)
-		units.get(30)
-		enemies.get(5)
-		enemies.get(8)
-		enemies.get(10)
-		enemies.get(30)
-
-		if profileStop == nil then profileStop = false end
-		if consecrationCastTime == nil then consecrationCastTime = 0 end
-		if consecrationRemain == nil then consecrationRemain = 0 end
-		if cast.last.consecration() then consecrationCastTime = GetTime() + 12 end
-		if consecrationCastTime > GetTime() then consecrationRemain = consecrationCastTime - GetTime() else consecrationCastTime = 0; consecrationRemain = 0 end
-		local lowestUnit
-		lowestUnit = "player"
-		for i = 1, #br.friend do
-			local thisUnit = br.friend[i].unit
+	if profileStop == nil then profileStop = false end
+	if consecrationRemain == nil then consecrationRemain = 0 end
+	if cast.last.consecration() then consecrationRemain = 11.5 end
+	if consecrationRemain > 0 and br.timer:useTimer("Consecration Delay",0.5) then
+		consecrationRemain = consecrationRemain - 0.5
+	end
+	local lowestUnit = "player"
+	for i = 1, #br.friend do
+		local thisUnit = br.friend[i].unit
+		if UnitInRange(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) and getLineOfSight("player",thisUnit) then
 			local thisHP = getHP(thisUnit)
 			local lowestHP = getHP(lowestUnit)
 			if thisHP < lowestHP then
 				lowestUnit = thisUnit
 			end
 		end
-		local StunsBlackList={
-			-- Atal'Dazar
-			[87318] = "Dazar'ai Colossus",
-			[122984] = "Dazar'ai Colossus",
-			[128455] = "T'lonja",
-			[129553] = "Dinomancer Kish'o",
-			[129552] = "Monzumi",
-			-- Freehold
-			[129602] = "Irontide Enforcer",
-			[130400] = "Irontide Crusher",
-			-- King's Rest
-			[133935] = "Animated Guardian",
-			[134174] = "Shadow-Borne Witch Doctor",
-			[134158] = "Shadow-Borne Champion",
-			[137474] = "King Timalji",
-			[137478] = "Queen Wasi",
-			[137486] = "Queen Patlaa",
-			[137487] = "Skeletal Hunting Raptor",
-			[134251] = "Seneschal M'bara",
-			[134331] = "King Rahu'ai",
-			[137484] = "King A'akul",
-			[134739] = "Purification Construct",
-			[137969] = "Interment Construct",
-			[135231] = "Spectral Brute",
-			[138489] = "Shadow of Zul",
-			-- Shrine of the Storm
-			[134144] = "Living Current",
-			[136214] = "Windspeaker Heldis",
-			[134150] = "Runecarver Sorn",
-			[136249] = "Guardian Elemental",
-			[134417] = "Deepsea Ritualist",
-			[136353] = "Colossal Tentacle",
-			[136295] = "Sunken Denizen",
-			[136297] = "Forgotten Denizen",
-			-- Siege of Boralus
-			[129369] = "Irontide Raider",
-			[129373] = "Dockhound Packmaster",
-			[128969] = "Ashvane Commander",
-			[138255] = "Ashvane Spotter",
-			[138465] = "Ashvane Cannoneer",
-			[135245] = "Bilge Rat Demolisher",
-			-- Temple of Sethraliss
-			[134991] = "Sandfury Stonefist",
-			[139422] = "Scaled Krolusk Tamer",
-			[136076] = "Agitated Nimbus",
-			[134691] = "Static-charged Dervish",
-			[139110] = "Spark Channeler",
-			[136250] = "Hoodoo Hexer",
-			[139946] = "Heart Guardian",
-			-- MOTHERLODE!!
-			[130485] = "Mechanized Peacekeeper",
-			[136139] = "Mechanized Peacekeeper",
-			[136643] = "Azerite Extractor",
-			[134012] = "Taskmaster Askari",
-			[133430] = "Venture Co. Mastermind",
-			[133463] = "Venture Co. War Machine",
-			[133436] = "Venture Co. Skyscorcher",
-			[133482] = "Crawler Mine",
-			-- Underrot
-			[131436] = "Chosen Blood Matron",
-			[133912] = "Bloodsworn Defiler",
-			[138281] = "Faceless Corruptor",
-			-- Tol Dagor
-			[130025] = "Irontide Thug",
-			-- Waycrest Manor
-			[131677] = "Heartsbane Runeweaver",
-			[135329] = "Matron Bryndle",
-			[131812] = "Heartsbane Soulcharmer",
-			[131670] = "Heartsbane Vinetwister",
-			[135365] = "Matron Alma",
-        }
-		local HOJ_unitList={
-			[131009] = "Spirit of Gold",
-			[134388] = "A Knot of Snakes",
-			[129758] = "Irontide Grenadier",
-        }
-		-- Auto cancel Blessing of Protection
-		if isChecked("Auto cancel BoP") then
-			if buff.blessingOfProtection.exists() then
-				if cast.handOfReckoning("target") then return end
-			end
-			if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
-				RunMacroText("/cancelAura Blessing of Protection")
+	end
+	local noStunsUnits = {}
+	for i in string.gmatch(getOptionValue("Stuns Black Units"), "%d+") do
+		noStunsUnits[tonumber(i)] = true
+	end
+	local StunSpellsList = {}
+	for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
+		StunSpellsList[tonumber(i)] = true
+	end
+	local HoJList = {}
+	for i in string.gmatch(getOptionValue("HoJ Prio Units"), "%d+") do
+		HoJList[tonumber(i)] = true
+	end
+
+	-- infinite Divine Steed
+	if isChecked("infinite Divine Steed key") and (SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
+		if getBuffRemain("player", 254474) <= 0.5 and not UnitAffectingCombat("player") then
+			if cast.divineSteed() then return true end
+			RemoveTalent(22433)
+			RemoveTalent(22433)
+			RemoveTalent(22434)
+			RemoveTalent(22434)
+			RemoveTalent(22435)
+			RemoveTalent(22435)
+			LearnTalent(22434)
+		elseif not talent.unbreakableSpirit and not talent.cavalier and not talent.blessingOfSpellwarding then
+			LearnTalent(22434)
+		end
+	end
+	if isChecked("Automatic Aura replacement") and not castingUnit() then
+		if not inInstance and not inRaid then
+			if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
+				if CastSpellByName(GetSpellInfo(465)) then return true end
+			elseif not buff.crusaderAura.exists() and IsMounted() then
+				if CastSpellByName(GetSpellInfo(32223)) then return true end
 			end
 		end
-		-- Arcane Torrent
-        if isChecked("Arcane Torrent Dispel") and race == "BloodElf" then
-            local torrentUnit = 0
-            for i=1, #enemies.yards8 do
-                local thisUnit = enemies.yards8[i]
-                if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
-                    torrentUnit = torrentUnit + 1
-                    if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
-                        if castSpell("player",racial,false,false,false) then return true end
-                        break
-                    end
-                end
-            end
-        end
-		if br.player.mode.BossCase == 1 then
-			bossHelper()
+		if (inInstance or inRaid) and not buff.devotionAura.exists() then
+			if CastSpellByName(GetSpellInfo(465)) then return true end
 		end
-		--------------------
-		--- Action Lists ---
-		--------------------
-		-- Action List - Extras
-		local function actionList_Extras()
-			-- Blessing of Freedom
-			if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
-				if cast.blessingOfFreedom("player") then return end
+	end
+	--------------------
+	--- Action Lists ---
+	--------------------
+	-- Action List - Extras
+	local function actionList_Extras()
+		-- Taunt
+		if isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) and GetObjectID(thisUnit) ~= 174773 then
+					if cast.handOfReckoning(thisUnit) then return true end
+				end
 			end
-			-- Taunt
-			if isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
-				for i = 1, #enemies.yards30 do
-					local thisUnit = enemies.yards30[i]
-					if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-						if cast.handOfReckoning(thisUnit) then return end
+		end
+		-- Auto cancel BoP and DS
+		if mode.autocancel == 1 then
+			if inInstance or inRaid then
+				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
+					if cast.handOfReckoning("target") then return true end
+				end
+				if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+					CancelUnitBuffID("player", spell.blessingOfProtection)
+				end
+				if not talent.finalStand and GetObjectID("boss1") ~= 162060 and GetObjectID("boss1") ~= 164261 then
+					if buff.divineShield.exists() and cast.able.handOfReckoning() then
+						if cast.handOfReckoning("target") then return true end
+					end
+					if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or getDebuffRemain("player",209858) ~= 0) then
+						CancelUnitBuffID("player", spell.divineShield)
 					end
 				end
 			end
-		end -- End Action List - Extras
-		local function BossEncounterCase()
-			local hammerOfJusticeCase = nil
-			local blessingOfFreedomCase = nil
-			local blessingOfProtectionCase = nil
-			local cleanseToxinsCase = nil
-			local cleanseToxinsCase2 = nil
-			for i = 1, #br.friend do
-				if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit,272407) == 0 and getDistance(br.friend[i].unit) <= 10 then
-					hammerOfJusticeCase = br.friend[i].unit
+		end
+		-- Flash of Light
+		if isChecked("OOC FoL") and cast.able.flashOfLight() and not inCombat and not isMoving("player") then
+				-- Player
+			if getOptionValue("OOC FoL Target") == 1 then
+				if php <= getValue("OOC FoL") then
+					if cast.flashOfLight("player") then return true end
 				end
-				if getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
-					blessingOfFreedomCase = br.friend[i].unit
+				-- Target
+			elseif getOptionValue("OOC FoL Target") == 2 then
+				if getHP("target") <= getValue("OOC FoL") and UnitIsPlayer("target") and GetUnitIsFriend("target","player") then
+					if cast.flashOfLight("target") then return true end
 				end
-				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,258875) ~= 0 then
-					blessingOfProtectionCase = br.friend[i].unit
-				end
-				if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 or getDebuffRemain(br.friend[i].unit,278961) ~= 0 then
-					cleanseToxinsCase = br.friend[i].unit
-				end
-				if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,7) < 2 then
-					cleanseToxinsCase2 = br.friend[i].unit
+				-- Player and Target
+			elseif getOptionValue("OOC FoL Target") == 3 then
+				if php <= getValue("OOC FoL") then
+					if cast.flashOfLight("player") then return true end
+				elseif getHP("target") <= getValue("OOC FoL") and UnitIsPlayer("target") and GetUnitIsFriend("target","player")then
+					if cast.flashOfLight("target") then return true end
 				end
 			end
-			-- Avoid indigestion
-			if UnitCastingInfo("target") == GetSpellInfo(260793) then
-				if not buff.divineSteed.exists() then
-					if CastSpellByName(GetSpellInfo(190784),"player") then return end
-				end
+		end
+	end -- End Action List - Extras
+	-- Action List - Defensives
+	local function actionList_Defensive()
+		if useDefensive() then
+			module.BasicHealing()
+			if isChecked("PoS removes Necrotic") and inInstance and getDebuffStacks("player", 209858) >= getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
+				if use.phialOfSerenity() then return true end
 			end
-			-- Flash of Light
-			if GetObjectID("target") == 133392 and inCombat then
-				if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
-					if CastSpellByName(GetSpellInfo(19750),"target") then return end
-				end
-			end
-			if getDebuffRemain("target",260741) ~= 0 then
-				if CastSpellByName(GetSpellInfo(19750),"target") then return end
-			end
-			-- Hammer of Justice
-			if cast.able.hammerOfJustice() then
-				local HOJ_list={
-				274400,274383,257756,276292,268273,256897,272542,272888,269266,258317,258864,259711,258917,264038,253239,269931,270084,270482,270506,270507,267433,
-				267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,277567,265540,
-				}
-				for i = 1, #enemies.yards10 do
-					local thisUnit = enemies.yards10[i]
-					local distance = getDistance(thisUnit)
-					for k,v in pairs(HOJ_list) do
-						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) == 0 and distance <= 10 then
-							if cast.hammerOfJustice(thisUnit) then return end
+			-- Arcane Torrent
+			if isChecked("Arcane Torrent Dispel") and race == "BloodElf" then
+				local torrentUnit = 0
+				for i=1, #enemies.yards8 do
+					local thisUnit = enemies.yards8[i]
+					if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+						torrentUnit = torrentUnit + 1
+						if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
+							if castSpell("player",racial,false,false,false) then return true end
+							break
 						end
 					end
 				end
-				if hammerOfJusticeCase ~= nil then
-					if cast.hammerOfJustice(hammerOfJusticeCase) then return end
+			end
+			-- Lay On Hands
+			if isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat and not buff.ardentDefender.exists() then
+				-- Player
+				if getOptionValue("Lay on Hands Target") == 1 then
+					if php <= getValue("Lay On Hands") and not debuff.forbearance.exists("player") then
+						if cast.layOnHands("player") then return true end
+					end
+					-- Target
+				elseif getOptionValue("Lay on Hands Target") == 2 then
+					if getHP("target") <= getValue("Lay On Hands") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and GetUnitIsFriend("target","player") then
+						if cast.layOnHands("target") then return true end
+					end
+					-- Mouseover
+				elseif getOptionValue("Lay on Hands Target") == 3 then
+					if getHP("mouseover") <= getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and GetUnitIsFriend("mouseover","player") then
+						if cast.layOnHands("mouseover") then return true end
+					end
+				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
+					-- Tank
+					if getOptionValue("Lay on Hands Target") == 4 then
+						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+							if cast.layOnHands(lowestUnit) then return true end
+						end
+						-- Healer
+					elseif getOptionValue("Lay on Hands Target") == 5 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+							if cast.layOnHands(lowestUnit) then return true end
+						end
+						-- Healer/Tank
+					elseif getOptionValue("Lay on Hands Target") == 6 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+							if cast.layOnHands(lowestUnit) then return true end
+						end
+						-- Healer/Damager
+					elseif getOptionValue("Lay on Hands Target") == 7 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+							if cast.layOnHands(lowestUnit) then return true end
+						end
+						-- Any
+					elseif  getOptionValue("Lay on Hands Target") == 8 then
+						if cast.layOnHands(lowestUnit) then return true end
+					end
 				end
 			end
-			-- Blessing of Freedom
-			if cast.able.blessingOfFreedom() then
-				if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 or getDebuffRemain("player",257478) ~= 0 then
-					if cast.blessingOfFreedom("player") then return end
+			-- Divine Shield
+			if isChecked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() and not buff.guardianOfAncientKings.exists() and not debuff.forbearance.exists() then
+				if php <= getOptionValue("Divine Shield") and inCombat then
+					if cast.divineShield() then return true end
 				end
-				if blessingOfFreedomCase ~= nil then
-					if cast.blessingOfFreedom(blessingOfFreedomCase) then return end
+			end
+			-- Word of Glory
+			if php <= getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
+				SotR = false
+				if cast.wordOfGlory("player") then return true end
+			end
+			if holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists() then
+				if isChecked("Word of Glory") and php <= getOptionValue("Word of Glory") then
+					SotR = false
+					if cast.wordOfGlory("player") then return true end
+				end
+				if isChecked("Word of Glory - Party") then
+					if getHP(lowestUnit) <= getOptionValue("Word of Glory - Party") and not GetUnitIsUnit(lowestUnit,"player") then
+						if getOptionValue("WoG - Party Target") == 1 then
+							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+								SotR = false
+								if cast.wordOfGlory(lowestUnit) then return true end
+							end
+						elseif getOptionValue("WoG - Party Target") == 2 then
+							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+								SotR = false
+								if cast.wordOfGlory(lowestUnit) then return true end
+							end
+						elseif getOptionValue("WoG - Party Target") == 3 then
+							if UnitGroupRolesAssigned(lowestUnit) == "TANK" or UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+								SotR = false
+								if cast.wordOfGlory(lowestUnit) then return true end
+							end
+						elseif getOptionValue("WoG - Party Target") == 4 then
+							SotR = false
+							if cast.wordOfGlory(lowestUnit) then return true end
+						end
+					end
+				end
+				if (buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcdMax) or (buff.shiningLight.exists() and buff.shiningLight.remain() < gcdMax) or (buff.royalDecree.exists() and buff.royalDecree.remain() < gcdMax) then
+					SotR = false
+					if cast.wordOfGlory(lowestUnit) then return true end
 				end
 			end
 			-- Blessing of Protection
-			if blessingOfProtectionCase ~= nil and not talent.blessingOfSpellwarding and cast.able.blessingOfProtection() then
-				if cast.blessingOfProtection(blessingOfProtectionCase) then return end
+			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss("boss1") then
+				-- Player
+				if getOptionValue("Blessing of Protection Target") == 1 then
+					if php <= getValue("Blessing of Protection") and not debuff.forbearance.exists("player") then
+						if cast.blessingOfProtection("player") then return true end
+					end
+					-- Target
+				elseif getOptionValue("Blessing of Protection Target") == 2 then
+					if getHP("target") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and GetUnitIsFriend("target","player") then
+						if cast.blessingOfProtection("target") then return true end
+					end
+					-- Mouseover
+				elseif getOptionValue("Blessing of Protection Target") == 3 then
+					if getHP("mouseover") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and GetUnitIsFriend("mouseover","player") then
+						if cast.blessingOfProtection("mouseover") then return true end
+					end
+				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
+					-- Tank
+					if getOptionValue("Blessing of Protection Target") == 4 then
+						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+							if cast.blessingOfProtection(lowestUnit) then return true end
+						end
+						-- Healer
+					elseif getOptionValue("Blessing of Protection Target") == 5 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+							if cast.blessingOfProtection(lowestUnit) then return true end
+						end
+						-- Healer/Tank
+					elseif getOptionValue("Blessing of Protection Target") == 6 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+							if cast.blessingOfProtection(lowestUnit) then return true end
+						end
+						-- Healer/Damager
+					elseif getOptionValue("Blessing of Protection Target") == 7 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+							if cast.blessingOfProtection(lowestUnit) then return true end
+						end
+						-- Any
+					elseif  getOptionValue("Blessing of Protection Target") == 8 then
+						if cast.blessingOfProtection(lowestUnit) then return true end
+					end
+				end
+			end
+			-- Blessing Of Sacrifice
+			if isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
+				-- Target
+				if getOptionValue("Blessing Of Sacrifice Target") == 1 then
+					if getHP("target") <= getValue("Blessing Of Sacrifice") and UnitIsPlayer("target") and GetUnitIsFriend("target","player") then
+						if cast.blessingOfSacrifice("target") then return true end
+					end
+					-- Mouseover
+				elseif getOptionValue("Blessing Of Sacrifice Target") == 2 then
+					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") and UnitIsPlayer("mouseover") and GetUnitIsFriend("mouseover","player") then
+						if cast.blessingOfSacrifice("mouseover") then return true end
+					end
+				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and not cast.last.blessingOfProtection() then
+					-- Tank
+					if getOptionValue("Blessing Of Sacrifice Target") == 3 then
+						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+							if cast.blessingOfSacrifice(lowestUnit) then return true end
+						end
+						-- Healer
+					elseif getOptionValue("Blessing Of Sacrifice Target") == 4 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+							if cast.blessingOfSacrifice(lowestUnit) then return true end
+						end
+						-- Healer/Tank
+					elseif getOptionValue("Blessing Of Sacrifice Target") == 5 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+							if cast.blessingOfSacrifice(lowestUnit) then return true end
+						end
+						-- Healer/Damager
+					elseif getOptionValue("Blessing Of Sacrifice Target") == 6 then
+						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+							if cast.blessingOfSacrifice(lowestUnit) then return true end
+						end
+						-- Any
+					elseif  getOptionValue("Blessing Of Sacrifice Target") == 7 then
+						if cast.blessingOfSacrifice(lowestUnit) then return true end
+					end
+				end
 			end
 			-- Cleanse Toxins
-			if cast.able.cleanseToxins() then
-				if cleanseToxinsCase ~= nil then
-					if cast.cleanseToxins(cleanseToxinsCase) then return end
-				end
-				if cleanseToxinsCase2 ~= nil then
-					if cast.cleanseToxins(cleanseToxinsCase2) then return end
+			if isChecked("Clease Toxin") and cast.able.cleanseToxins() and (GetObjectID("boss1") ~= 164267 or buff.divineShield.exists() or buff.blessingOfSpellwarding.exists()) then
+				if getOptionValue("Clease Toxin")==1 then
+					if canDispel("player",spell.cleanseToxins) then
+						if cast.cleanseToxins("player") then return true end
+					end
+				elseif getOptionValue("Clease Toxin")==2 then
+					if canDispel("target",spell.cleanseToxins) then
+						if cast.cleanseToxins("target") then return true end
+					end
+				elseif getOptionValue("Clease Toxin")==3 then
+					if canDispel("player",spell.cleanseToxins) then
+						if cast.cleanseToxins("player") then return true end
+					elseif canDispel("target",spell.cleanseToxins) then
+						if cast.cleanseToxins("target") then return true end
+					end
+				elseif getOptionValue("Clease Toxin")==4 then
+					if canDispel("mouseover",spell.cleanseToxins) then
+						if cast.cleanseToxins("mouseover") then return true end
+					end
+				elseif getOptionValue("Clease Toxin")==5 then
+					for i = 1, #br.friend do
+						if canDispel(br.friend[i].unit,spell.cleanseToxins) then
+							if cast.cleanseToxins(br.friend[i].unit) then return true end
+						end
+					end
 				end
 			end
-			-- Shield of the Righteous
-			local Debuff={
-			--debuff_id
-			{255434},
-			{265881},
-			{264556},
-			{270487},
-			{274358},
-			{270447},
-			}
-			for i=1 , #Debuff do
-				local debuff_id = Debuff[i]
-				if getDebuffRemain("player",debuff_id) > 1 and not buff.shieldOfTheRighteous.exists() then
-					if cast.shieldOfTheRighteous() then return end
+			-- Blinding Light
+			if isChecked("Blinding Light - HP") and cast.able.blindingLight() and talent.blindingLight and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
+				if cast.blindingLight() then return true end
+			end
+			if isChecked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
+				if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
+					if cast.guardianOfAncientKings() then return true end
 				end
 			end
-			local Casting={
-			--spell_id	, spell_name
-			{267899, 'Hindering Cleave'}, -- Shrine of the Storm
-			{272457, 'Shockwave'}, -- Underrot
-			{260508, 'Crush'}, -- Waycrest Manor
-			{249919, 'Skewer'}, -- Atal'Dazar
-			{265910, 'Tail Thrash'}, -- King's Rest
-			{268586, 'Blade Combo'}, -- King's Rest
-			{262277, 'Terrible Thrash'}, -- Fetid Devourer
-			{265248, 'Shatter'}, -- Zek'voz
-			{273316, 'Bloody Cleave'}, -- Zul, Reborn
-			{273282, 'Essence Shear'}, -- Mythrax the Unraveler
-			}
-			for i=1 , #Casting do
-				local spell_id = Casting[i][1]
-				local spell_name = Casting[i][2]
-				if UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists() then
-					if cast.shieldOfTheRighteous() then Print("damage reduction in advance..."..spell_name) return end
+			-- Ardent Defender
+			if isChecked("Ardent Defender") and cast.able.ardentDefender() then
+				if (php <= getOptionValue("Ardent Defender") or php <= 10) and inCombat and not buff.guardianOfAncientKings.exists() and not buff.divineShield.exists() then
+					if cast.ardentDefender() then return true end
+				end
+			end
+			-- Gift of the Naaru
+			if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
+				if castSpell("player",racial,false,false,false) then return true end
+			end
+			-- Hammer of Justice
+			if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
+				for i = 1, #enemies.yards10 do
+					local thisUnit = enemies.yards10[i]
+					if not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
+						if cast.hammerOfJustice(thisUnit) then return true end
+					end
+				end
+			end
+			-- Redemption
+			if isChecked("Redemption") and not inCombat then
+				if getOptionValue("Redemption")==1 and not isMoving("player") and resable and not castingUnit() then
+					if cast.redemption("target","dead") then return true end
+				end
+				if getOptionValue("Redemption")==2 and not isMoving("player") and resable and not castingUnit() then
+					if cast.redemption("mouseover","dead") then return true end
+				end
+			end
+			-- Blessing of Freedom
+			if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
+				if cast.blessingOfFreedom("player") then return true end
+			end
+			-- Flash of Light
+			if isChecked("Flash of Light") then
+				if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
+					if cast.flashOfLight("player") then return true end
+				end
+			end
+			-- Engineering Revive
+			if isChecked("Engineering Revive") and canUseItem(184308) and not isMoving("player") and inCombat then
+				if getOptionValue("Engineering Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+					UseItemByName(184308,"target")
+				elseif getOptionValue("Engineering Revive") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+					UseItemByName(184308,"mouseover")
+				elseif getOptionValue("Engineering Revive") == 3 then
+					for i =1, #br.friend do
+						if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+							UseItemByName(184308,br.friend[i].unit)
+						end
+					end
 				end
 			end
 		end
-		-- Action List - Defensives
-		local function actionList_Defensive()
-			if useDefensive() then
-				-- Pot/Stoned
-				if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-					and inCombat and (hasHealthPot() or hasItem(5512))then
-					if canUseItem(5512) then
-						useItem(5512)
-					elseif canUseItem(healPot) then
-						useItem(healPot)
+	end -- End Action List - Defensive
+	local function BossEncounterCase()
+		if (GetObjectID("target") == 165759 or GetObjectID("target") == 171577 or GetObjectID("target") == 173112) and inCombat then
+			if getHP("target") < 100 and (holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
+				SotR = false
+				if cast.wordOfGlory("target") then return true end
+			end
+		end
+		-- Atal'ai Devoted logic
+		if select(8, GetInstanceInfo()) == 2291 then
+			for i = 1, #enemies.yards10 do
+			local thisUnit = enemies.yards10[i]
+				if UnitCastingInfo(thisUnit) == GetSpellInfo(332329) and getCastTimeRemain(thisUnit) ~=0 and getCastTimeRemain(thisUnit) < 2 and getBuffRemain(thisUnit,343503) == 0 then
+					if cast.able.hammerOfJustice() then
+						if cast.hammerOfJustice(thisUnit) then return true end
 					end
-				end
-				-- Divine Shield
-				if isChecked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() then
-					if php <= getOptionValue("Divine Shield") and inCombat then
-						if cast.divineShield() then return end
-					end
-				end
-				-- Gift of the Naaru
-				if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
-					if castSpell("player",racial,false,false,false) then return end
-				end
-				-- Light of the Protector
-				if isChecked("Light of the Protector") and cast.able.lightOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and not talent.handOfTheProtector then
-					if cast.lightOfTheProtector() then return end
-				elseif isChecked("Light of the Protector") and cast.able.handOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and talent.handOfTheProtector then
-					if cast.handOfTheProtector("player") then return end
-				end
-				-- Hand of the Protector - Others
-				if isChecked("Hand of the Protector - Party") and cast.able.handOfTheProtector() and talent.handOfTheProtector then
-					if lowest.hp <= getOptionValue("Hand of the Protector - Party") then
-						if cast.handOfTheProtector(lowest.unit) then return end
-					end
-				end
-				-- Lay On Hands
-				if isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat then
-					-- Player
-					if getOptionValue("Lay on Hands Target") == 1 then
-						if php <= getValue("Lay On Hands") then
-							if cast.layOnHands("player") then return true end
-						end
-						-- Target
-					elseif getOptionValue("Lay on Hands Target") == 2 then
-						if getHP("target") <= getValue("Lay On Hands") then
-							if cast.layOnHands("target") then return true end
-						end
-						-- Mouseover
-					elseif getOptionValue("Lay on Hands Target") == 3 then
-						if getHP("mouseover") <= getValue("Lay On Hands") then
-							if cast.layOnHands("mouseover") then return true end
-						end
-					elseif getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
-						-- Tank
-						if getOptionValue("Lay on Hands Target") == 4 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.layOnHands(lowestUnit) then return true end
-							end
-							-- Healer
-						elseif getOptionValue("Lay on Hands Target") == 5 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
-								if cast.layOnHands(lowestUnit) then return true end
-							end
-							-- Healer/Tank
-						elseif getOptionValue("Lay on Hands Target") == 6 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.layOnHands(lowestUnit) then return true end
-							end
-							-- Healer/Damager
-						elseif getOptionValue("Lay on Hands Target") == 7 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-								if cast.layOnHands(lowestUnit) then return true end
-							end
-							-- Any
-						elseif  getOptionValue("Lay on Hands Target") == 8 then
-							if cast.layOnHands(lowestUnit) then return true end
-						end
-					end
-				end
-				-- Blessing of Protection
-				if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss("boss1") then
-					-- Player
-					if getOptionValue("Blessing of Protection Target") == 1 then
-						if php <= getValue("Blessing of Protection") then
-							if cast.blessingOfProtection("player") then return true end
-						end
-						-- Target
-					elseif getOptionValue("Blessing of Protection Target") == 2 then
-						if getHP("target") <= getValue("Blessing of Protection") then
-							if cast.blessingOfProtection("target") then return true end
-						end
-						-- Mouseover
-					elseif getOptionValue("Blessing of Protection Target") == 3 then
-						if getHP("mouseover") <= getValue("Blessing of Protection") then
-							if cast.blessingOfProtection("mouseover") then return true end
-						end
-					elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and UnitInRange(lowestUnit) then
-						-- Tank
-						if getOptionValue("Blessing of Protection Target") == 4 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.blessingOfProtection(lowestUnit) then return true end
-							end
-							-- Healer
-						elseif getOptionValue("Blessing of Protection Target") == 5 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
-								if cast.blessingOfProtection(lowestUnit) then return true end
-							end
-							-- Healer/Tank
-						elseif getOptionValue("Blessing of Protection Target") == 6 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.blessingOfProtection(lowestUnit) then return true end
-							end
-							-- Healer/Damager
-						elseif getOptionValue("Blessing of Protection Target") == 7 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-								if cast.blessingOfProtection(lowestUnit) then return true end
-							end
-							-- Any
-						elseif  getOptionValue("Blessing of Protection Target") == 8 then
-							if cast.blessingOfProtection(lowestUnit) then return true end
-						end
-					end
-				end
-				-- Blessing Of Sacrifice
-				if isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
-					-- Target
-					if getOptionValue("Blessing Of Sacrifice Target") == 1 then
-						if getHP("target") <= getValue("Blessing Of Sacrifice") then
-							if cast.blessingOfSacrifice("target") then return true end
-						end
-						-- Mouseover
-					elseif getOptionValue("Blessing Of Sacrifice Target") == 2 then
-						if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
-							if cast.blessingOfSacrifice("mouseover") then return true end
-						end
-					elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
-						-- Tank
-						if getOptionValue("Blessing Of Sacrifice Target") == 3 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.blessingOfSacrifice(lowestUnit) then return true end
-							end
-							-- Healer
-						elseif getOptionValue("Blessing Of Sacrifice Target") == 4 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
-								if cast.blessingOfSacrifice(lowestUnit) then return true end
-							end
-							-- Healer/Tank
-						elseif getOptionValue("Blessing Of Sacrifice Target") == 5 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.blessingOfSacrifice(lowestUnit) then return true end
-							end
-							-- Healer/Damager
-						elseif getOptionValue("Blessing Of Sacrifice Target") == 6 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-								if cast.blessingOfSacrifice(lowestUnit) then return true end
-							end
-							-- Any
-						elseif  getOptionValue("Blessing Of Sacrifice Target") == 7 then
-							if cast.blessingOfSacrifice(lowestUnit) then return true end
-						end
-					end
-				end
-				-- Cleanse Toxins
-				if isChecked("Clease Toxin") and cast.able.cleanseToxins() then
-					if getOptionValue("Clease Toxin")==1 then
-						if canDispel("player",spell.cleanseToxins) and getDebuffRemain("player",261440) == 0 then
-							if cast.cleanseToxins("player") then return end
-						end
-					elseif getOptionValue("Clease Toxin")==2 then
-							if canDispel("target",spell.cleanseToxins) then
-								if cast.cleanseToxins("target") then return end
-							end
-					elseif getOptionValue("Clease Toxin")==3 then
-							if (canDispel("player",spell.cleanseToxins) or canDispel("target",spell.cleanseToxins)) and getDebuffRemain("player",261440) == 0 then
-								if cast.cleanseToxins("target") then return end
-							end
-					elseif getOptionValue("Clease Toxin")==4 then
-						if canDispel("mouseover",spell.cleanseToxins) then
-							if cast.cleanseToxins("mouseover") then return end
-						end
-					elseif getOptionValue("Clease Toxin")==5 then
-						for i = 1, #br.friend do
-							if canDispel(br.friend[i].unit,spell.cleanseToxins) and getDebuffRemain(br.friend[i].unit,261440) == 0 then
-								if cast.cleanseToxins(br.friend[i].unit) then return end
-							end
-						end
-					end
-				end
-				-- Blinding Light
-				if isChecked("Blinding Light - HP") and talent.blindingLight and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
-					if cast.blindingLight() then return end
-				end
-				-- Shield of the Righteous
-				if isChecked("Shield of the Righteous - HP") and cast.able.shieldOfTheRighteous() then
-					if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists() then
-						if cast.shieldOfTheRighteous() then return end
-					end
-				end
-				-- Guardian of Ancient Kings
-				if isChecked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
-					if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
-						if cast.guardianOfAncientKings() then return end
-					end
-				end
-				-- Ardent Defender
-				if isChecked("Ardent Defender") and cast.able.ardentDefender() then
-					if (php <= getOptionValue("Ardent Defender") or php <= 10) and inCombat and not buff.guardianOfAncientKings.exists() then
-						if cast.ardentDefender() then return end
-					end
-				end
-				-- Gift of the Naaru
-				if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
-					if castSpell("player",racial,false,false,false) then return end
-				end
-				-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
-					for i = 1, #enemies.yards10 do
-						local thisUnit = enemies.yards10[i]
-						if isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
-							if cast.hammerOfJustice(thisUnit) then return end
-						end
-					end
-				end
-				-- Flash of Light
-				if isChecked("Flash of Light") then
-					if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
-						if cast.flashOfLight() then return end
-					end
-				end
-				-- Redemption
-				if isChecked("Redemption") and not inCombat then
-					if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
-						if cast.redemption("target","dead") then return end
-					end
-					if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
-						if cast.redemption("mouseover","dead") then return end
-					end
-				end
-				-- Unstable Temporal Time Shifter
-				if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not isMoving("player") and inCombat then
-					if getOptionValue("Unstable Temporal Time Shifter") == 1
-						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
-						UseItemByName(158379,"target")
-					end
-					if getOptionValue("Unstable Temporal Time Shifter") == 2
-						and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
-						UseItemByName(158379,"mouseover")
-					end
-					if getOptionValue("Unstable Temporal Time Shifter") == 3 then
-						for i =1, #br.friend do
-							if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
-								UseItemByName(158379,br.friend[i].unit)
-							end
-						end
+					if cast.able.blindingLight() and talent.blindingLight then
+						if cast.blindingLight() then return true end
 					end
 				end
 			end
-		end -- End Action List - Defensive
-		-- Action List - Cooldowns
-		local function actionList_Cooldowns()
-			if useCDs() or burst then
-				-- Trinkets
-				if isChecked("Trinkets 1") and canUseItem(13) then
-					if getOptionValue("Trinkets 1 Mode") == 1 then
-						if php <= getOptionValue("Trinkets 1") then
-							useItem(13)
-							return true
-						end
-					elseif getOptionValue("Trinkets 1 Mode") == 2 then
-						if useItemGround("target",13,40,0,nil) then return true end
+		end
+		-- Wicked Gash or Dark Stride
+		if cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
+			for i = 1, #br.friend do
+				if getDebuffStacks(br.friend[i].unit,331415) > 1 or getDebuffStacks(br.friend[i].unit,324154) > 1 then
+					if cast.blessingOfProtection(br.friend[i].unit) then return true end
+				end
+			end
+		end
+		-- Dark Exile
+		if UnitCastingInfo("boss1") == GetSpellInfo(321894) and cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
+			if cast.blessingOfProtection("boss1target") then return true end
+		end
+		-- Infectious Rain
+		if UnitChannelInfo("boss1") ~= GetSpellInfo(331399) and getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
+			if cast.cleanseToxins("player") then return true end
+		end
+		-- Will to
+		if race == "Human" and getSpellCD(59752) == 0 then
+			local STUN_Debuff = {321893,331847,319611,331818}
+			for k,v in pairs(STUN_Debuff) do
+				if getDebuffRemain("player",v) ~= 0 then
+					if CastSpellByName(GetSpellInfo(59752)) then return true end
+				end
+			end
+		end
+		-- Gloom Squall
+		if getBuffRemain("player",324089) ~= 0 then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if (GetObjectID(thisUnit) == 162099 or GetObjectID(thisUnit) == 162133) and (UnitCastingInfo(thisUnit) == GetSpellInfo(322903) or UnitCastingInfo(thisUnit) == GetSpellInfo(324103)) then
+					RunMacroText("/click ExtraActionButton1")
+				end
+			end
+		end
+		-- Hammer of Justice
+		if cast.able.hammerOfJustice() then
+			for i = 1, #enemies.yards10 do
+				local thisUnit = enemies.yards10[i]
+				if HoJList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit,343503) == 0 then
+					if cast.hammerOfJustice(thisUnit) then return true end
+				end
+				-- Opportunity Strikes
+				if UnitChannelInfo(thisUnit) == GetSpellInfo(333540) then
+					if cast.hammerOfJustice(thisUnit) then return true end
+				end
+			end
+		end
+		-- Divine Toll
+		if (GetObjectID("boss1") == 165946 or GetObjectID("boss1") == 164185 or GetObjectID("boss1") == 167406) and cast.able.divineToll() then
+			for i = 1, #enemies.yards30 do
+			local thisUnit = enemies.yards30[i]
+				if GetObjectID(thisUnit) == 166524 or GetObjectID(thisUnit) == 164363 or GetObjectID(thisUnit) == 167999 then
+					if cast.divineToll(thisUnit) then return true end
+				end
+			end
+		end
+		-- Blessing of Freedom
+		if cast.able.blessingOfFreedom() then
+			if UnitCastingInfo("boss1") == GetSpellInfo(320788) or UnitCastingInfo("boss1") == GetSpellInfo(324608) or UnitCastingInfo("boss1") == GetSpellInfo(319941) then
+				BoF = false
+				if cast.blessingOfFreedom("boss1target") then return true end
+			end
+			-- Oppressive Banner
+			if (UnitCastingInfo("boss1") == GetSpellInfo(317231) or UnitCastingInfo("boss1") == GetSpellInfo(320729)) and getDebuffRemain("player",331606) ~= 0 then
+				if cast.blessingOfFreedom("player") then return true end
+			end
+			-- Debuff
+			local BoFDebuff = {330810,326827,324608,292942,329326,295929,292910,329905}
+			for k,v in pairs(BoFDebuff) do
+				if getDebuffRemain("player",v) ~= 0 then
+					if cast.blessingOfFreedom("player") then return true end
+				end
+			end
+			-- Wretched Phlegm
+			if select(8, GetInstanceInfo()) == 2289 then
+				for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+					if UnitCastingInfo(thisUnit) == GetSpellInfo(334926) then
+						if cast.blessingOfFreedom("player") then return true end
 					end
 				end
-				if isChecked("Trinkets 2") and canUseItem(14) then
-					if getOptionValue("Trinkets 2 Mode") == 1 then
-						if php <= getOptionValue("Trinkets 2") then
-							useItem(14)
-							return true
-						end
-					elseif getOptionValue("Trinkets 2 Mode") == 2 then
-						if useItemGround("target",14,40,0,nil) then return true end
+			end
+			-- Rooted in Anima
+			if GetObjectID("boss1") == 165521 then
+				for i = 1, #br.friend do
+					if getDebuffRemain(br.friend[i].unit,341746) ~= 0 then
+						if cast.blessingOfFreedom(br.friend[i].unit) then return true end
 					end
 				end
-				-- Racials
-				if isChecked("Racial") then
-					if race == "Orc" or race == "Troll" and getSpellCD(racial) == 0 then
-						if castSpell("player",racial,false,false,false) then return end
+			end
+		end
+	end
+	-- Action List - Cooldowns
+	local function actionList_Cooldowns()
+		-- Trinkets
+		if isChecked("Use Trinkets 1") and canUseItem(13) then
+			if getOptionValue("Trinkets 1 Mode") == 1 then
+				if (php <= getOptionValue("Trinkets 1") and getOptionValue("Use Trinkets 1") == 1) or (getOptionValue("Use Trinkets 1") == 2 and useCDs()) or getOptionValue("Use Trinkets 1") == 3 then
+					useItem(13)
+					return true
+				end
+			elseif getOptionValue("Trinkets 1 Mode") == 2 then
+				if (php <= getOptionValue("Trinkets 1") and getOptionValue("Use Trinkets 1") == 1) or (getOptionValue("Use Trinkets 1") == 2 and useCDs()) or getOptionValue("Use Trinkets 1") == 3 then
+					if useItemGround("target",13,40,0,nil) then return true end
+				end
+			end
+		end
+		if isChecked("Use Trinkets 2") and canUseItem(14) then
+			if getOptionValue("Trinkets 2 Mode") == 1 then
+				if (php <= getOptionValue("Trinkets 2") and getOptionValue("Use Trinkets 2") == 1) or (getOptionValue("Use Trinkets 2") == 2 and useCDs()) or getOptionValue("Use Trinkets 2") == 3 then
+					useItem(14)
+					return true
+				end
+			elseif getOptionValue("Trinkets 2 Mode") == 2 then
+				if (php <= getOptionValue("Trinkets 2") and getOptionValue("Use Trinkets 2") == 1) or (getOptionValue("Use Trinkets 2") == 2 and useCDs()) or getOptionValue("Use Trinkets 2") == 3 then
+					if useItemGround("target",14,40,0,nil) then return true end
+				end
+			end
+		end
+		if useCDs() or burst then
+			-- Racials
+			if isChecked("Racial") then
+				if race == "Orc" or race == "Troll" and getSpellCD(racial) == 0 then
+					if castSpell("player",racial,false,false,false) then return true end
+				end
+			end
+			if GetUnitExists(units.dyn5) then
+				-- Seraphim
+				if isChecked("Seraphim") and talent.seraphim and holyPower > 2 and getOptionValue("Seraphim") <= ttd then
+					SotR = false
+					if cast.seraphim() then return true end
+				end
+				-- Avenging Wrath
+				if isChecked("Avenging Wrath") and cast.able.avengingWrath() and getOptionValue("Avenging Wrath") <= ttd and not buff.avengingWrath.exists() then
+					if cast.avengingWrath() then return true end
+				end
+				-- Holy Avenger
+				if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and
+					((not isChecked("Holy Avenger with Wings") and getOptionValue("Holy Avenger") <= ttd ) or (isChecked("Holy Avenger with Wings") and getSpellCD(31884) == 0))then
+					if cast.holyAvenger() then return true end
+				end
+			end
+		end -- End Cooldown Usage Check
+	end -- End Action List - Cooldowns
+	-- Action List - Interrupts
+	local function actionList_Interrupts()
+		if useInterrupts() then
+			if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
+				for i = 1, #enemies.yards30 do
+					local thisUnit = enemies.yards30[i]
+					if (select(8,UnitCastingInfo(thisUnit)) == false or select(7,UnitChannelInfo(thisUnit)) == false) and getFacing("player",thisUnit) then
+						RInterrupts = false
+						if cast.avengersShield(thisUnit) then return true end
 					end
 				end
-				if GetUnitExists(units.dyn5) then
-					-- Seraphim
-					if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
-						if cast.seraphim() then return end
+			end
+			local BL_Unit = 0
+			for i = 1, #enemies.yards10 do
+				local thisUnit = enemies.yards10[i]
+				local distance = getDistance(thisUnit)
+				-- Stun Spells
+				local interruptID
+				if UnitCastingInfo(thisUnit) then
+					interruptID = select(9,UnitCastingInfo(thisUnit))
+				elseif UnitChannelInfo(thisUnit) then
+					interruptID = select(8,UnitChannelInfo(thisUnit))
+				end
+				if interruptID ~=nil and StunSpellsList[interruptID] and getBuffRemain(thisUnit,343503) == 0 then
+					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
+						if cast.hammerOfJustice(thisUnit) then return true end
 					end
-					-- Avenging Wrath
-					if isChecked("Avenging Wrath") and cast.able.avengingWrath() and (not talent.seraphim or buff.seraphim.remain() > 15) and (getOptionValue("Avenging Wrath") <= ttd ) then
-						if cast.avengingWrath() then return end
-					end
-					-- Bastion of Light
-					if isChecked("Bastion of Light") and cast.able.bastionOfLight() and talent.bastionOfLight and (charges.shieldOfTheRighteous.frac() < 0.2) and (not talent.seraphim or buff.seraphim.exists()) then
-						if cast.bastionOfLight() then return end
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
+						if cast.blindingLight() then return true end
 					end
 				end
-			end -- End Cooldown Usage Check
-		end -- End Action List - Cooldowns
-		-- Action List - Interrupts
-		local function actionList_Interrupts()
-			if useInterrupts() then
-				if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
-					for i = 1, #enemies.yards30 do
-						local thisUnit = enemies.yards30[i]
-						if canInterrupt(thisUnit,100) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
-							if getFacing("player",thisUnit) then
-								if CastSpellByName(GetSpellInfo(31935),thisUnit) then return end
-								InterruptTime = GetTime()
+				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+					-- Blinding Light
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and getBuffRemain(thisUnit,343503) == 0 then
+						if not isBoss(thisUnit) and noStunsUnits[GetObjectID(thisUnit)] == nil then
+							BL_Unit = BL_Unit + 1
+							if BL_Unit >= getOptionValue("Blinding Light - INT") then
+								RInterrupts = false
+								if cast.blindingLight() then return true end
 							end
 						end
 					end
-				end
-				for i = 1, #enemies.yards10 do
-					local thisUnit = enemies.yards10[i]
-					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
-					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
-						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
-							if cast.hammerOfJustice(thisUnit) then return end
-							InterruptTime = GetTime()
+					-- Hammer of Justice
+					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
+						if not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and getBuffRemain(thisUnit,343503) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
+							RInterrupts = false
+							if cast.hammerOfJustice(thisUnit) then return true end
 						end
-						-- Rebuke
-						if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and (not InterruptTime or GetTime() - InterruptTime > 0.5) then
-							if cast.rebuke(thisUnit) then return end
-						end
-						-- Blinding Light
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
-							if cast.blindingLight() then return end
-						end
+					end
+					-- Rebuke
+					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and getFacing("player",thisUnit) and RInterrupts == true then
+						if cast.rebuke(thisUnit) then return true end
 					end
 				end
 			end
-		end -- End Action List - Interrupts
-		-- Action List - PreCombat
-		local function actionList_PreCombat()
-			-- PreCombat abilities listed here
-		end -- End Action List - PreCombat
-		-- Action List - Opener
-		local function actionList_Opener()
-			if isValidUnit("target") and getFacing("player","target") then
-				if isChecked("Judgment") and getDistance("target") <= 30 then
-					if cast.judgment("target") then return end
-				end
-				-- Start Attack
-				if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
-					StartAttack()
+		end
+	end -- End Action List - Interrupts
+	-- Action List - Opener
+	local function actionList_Opener()
+		-- Blessed Hammer
+		if mode.blessedHammer == 1 and not inCombat then
+			if cast.able.blessedHammer() and talent.blessedHammer and charges.blessedHammer.frac() == 3 and holyPower < 5 then
+				if cast.blessedHammer() then return true end
+			end
+		end
+		if isValidUnit("target") and getFacing("player","target") then
+			if isChecked("Judgment") and getDistance("target") <= 30 and not inCombat and cast.able.judgment() then
+				if cast.judgment("target") then return true end
+			end
+			-- Start Attack
+			if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
+				StartAttack()
+			end
+		end
+	end -- End Action List - Opener
+	---------------------
+	--- Begin Profile ---
+	---------------------
+	--Profile Stop | Pause
+	if not inCombat and not hastar and profileStop == true then
+		profileStop = false
+	elseif (inCombat and profileStop == true) or IsFlying() or pause() or mode.rotation == 4 then
+		return true
+	else
+		if actionList_Extras() then return end
+		if actionList_Defensive() then return end
+		if mode.bossCase == 1 then
+			if BossEncounterCase() then return end
+		end
+		if actionList_Opener() then return end
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false and BoF == true and not castingUnit() then
+			if actionList_Interrupts() then return end
+			if actionList_Cooldowns() then return end
+			----------------------------------
+			--- In Combat - Begin Rotation ---
+			----------------------------------
+			-- Shield of the Righteous
+			if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
+				and (mode.holyPowerlogic == 1 and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2))
+				or (mode.holyPowerlogic == 2 and holyPower == 5 and (getSpellCD(275779) <= gcdMax or getSpellCD(31935) <= gcdMax or (talent.blessedHammer and getSpellCD(204019) <= gcdMax) or (not talent.blessedHammer and getSpellCD(53595) <= gcdMax) or ((getHP(units.dyn30) <= 20 or buff.avengingWrath.exists()) and getSpellCD(24275) <= gcdMax))) then
+				if cast.shieldOfTheRighteous(units.dyn5) then return true end
+			end
+			local mob30 = GetUnitExists(units.dyn30) and getFacing("player",units.dyn30)
+			-- Avenger's Shield
+			if isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 and mob30 then
+				if cast.avengersShield(units.dyn30) then return true end
+			end
+			-- Divine Toll
+			if isChecked("Divine Toll") and cast.able.divineToll() and GetObjectID("boss1") ~= 165946 and GetObjectID("boss1") ~= 164185 then
+				if (#enemies.yards10 >= getValue("Divine Toll") or (isBoss(units.dyn30) and GetObjectID("boss1") ~= 167406) or (isBoss(units.dyn30) and GetObjectID("boss1") == 167406 and getHP("boss1") <= 70)) then
+					if cast.divineToll(units.dyn30) then return true end
 				end
 			end
-		end -- End Action List - Opener
-		---------------------
-		--- Begin Profile ---
-		---------------------
-		--Profile Stop | Pause
-		if not inCombat and not hastar and profileStop == true then
-			profileStop = false
-		elseif (inCombat and profileStop == true) or IsFlying() or pause() or mode.rotation == 4 then
-			return true
-		else
-			-----------------------
-			--- Extras Rotation ---
-			-----------------------
-			if actionList_Extras() then return end
-			---------------------------
-			--- Boss Encounter Case ---
-			---------------------------
-			if br.player.mode.BossCase == 1 then
-				if BossEncounterCase() then return end
+			-- Consecration
+			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and not buff.consecration.exists() then
+				if cast.consecration() then return true end
 			end
-			--------------------------
-			--- Defensive Rotation ---
-			--------------------------
-			if actionList_Defensive() then return end
-			------------------------------
-			--- Out of Combat Rotation ---
-			------------------------------
-			if actionList_PreCombat() then return end
-			----------------------------
-			--- Out of Combat Opener ---
-			----------------------------
-			if actionList_Opener() then return end
-			--------------------------
-			--- In Combat Rotation ---
-			--------------------------
-			if inCombat and not (IsMounted() or buff.divineSteed.exists()) and profileStop==false then
-				------------------------------
-				--- In Combat - Interrupts ---
-				------------------------------
-				if actionList_Interrupts() then return end
-				-----------------------------
-				--- In Combat - Cooldowns ---
-				-----------------------------
-				if actionList_Cooldowns() then return end
-				----------------------------------
-				--- In Combat - Begin Rotation ---
-				----------------------------------
-				--------------------------------
-				----- In Combat - Feng APL -----
-				--------------------------------
-				if getOptionValue("APL Mode") == 1 then
-					-- Shield of the Righteous
-					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and GetUnitExists(units.dyn5) and (not sotrTime or GetTime() - sotrTime > 0.5 ) then
-						if (not talent.seraphim and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())
-						or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) then
-							if CastSpellByName(GetSpellInfo(53600)) then return end
-							sotrTime = GetTime()
-						end
-					end
-					if GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
-						-- Judgment
-						if isChecked("Judgment") and cast.able.judgment() then
-							if cast.judgment(units.dyn30) then return end
-						end
-						-- Avenger's Shield
-						if isChecked("Avenger's Shield") and cast.able.avengersShield() then
-							if CastSpellByName(GetSpellInfo(31935),units.dyn30) then return end
-						end
-					end
-					-- Consecration
-					if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and not buff.consecration.exists() then
-						if cast.consecration() then return end
-					end
-					-- Blessed Hammer
-					if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 1 then
-						if cast.blessedHammer() then return end
-					end
-					-- Hammer of the Righteous
-					if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and GetUnitExists(units.dyn5) then
-						if cast.hammerOfTheRighteous(units.dyn5) then return end
-					end
-				end
-				--------------------------------
-				--- In Combat - SimCraft APL ---
-				--------------------------------
-				if getOptionValue("APL Mode") == 2 then
-					if isChecked("Shield of the Righteous") and GetUnitExists(units.dyn5) and getFacing("player",units.dyn5) then
-						--actions+=/shield_of_the_righteous,if=(buff.avengers_valor.up&cooldown.shield_of_the_righteous.charges_fractional>=2.5)&(cooldown.seraphim.remains>gcd|!talent.seraphim.enabled)
-						if cast.able.shieldOfTheRighteous() and ((buff.avengersValor.exists() and charges.shieldOfTheRighteous.frac()>=2.5) and (cd.seraphim.remain()>gcd or not talent.seraphim)) then
-							if cast.shieldOfTheRighteous() then return end
-						end
-						--actions+=/shield_of_the_righteous,if=(cooldown.shield_of_the_righteous.charges_fractional=3&cooldown.avenger_shield.remains>(2*gcd))
-						if cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac()==3 and cd.avengersShield.remain()>(2*gcd))) then
-							if cast.shieldOfTheRighteous() then return end
-						end
-						--actions+=/shield_of_the_righteous,if=(buff.avenging_wrath.up&!talent.seraphim.enabled)|buff.seraphim.up&buff.avengers_valor.up
-						if cast.able.shieldOfTheRighteous() and ((buff.avengingWrath.exists() and not talent.seraphim) or buff.seraphim.exists() and buff.avengersValor.exists()) then
-							if cast.shieldOfTheRighteous() then return end
-						end
-						--actions+=/shield_of_the_righteous,if=(buff.avenging_wrath.up&buff.avenging_wrath.remains<4&!talent.seraphim.enabled)|(buff.seraphim.remains<4&buff.seraphim.up)
-						if cast.able.shieldOfTheRighteous() and ((buff.avengingWrath.exists() and buff.avengingWrath.remain()<4 and not talent.seraphim) or (buff.seraphim.remain()<4 and buff.seraphim.exists())) then
-							if cast.shieldOfTheRighteous() then return end
-						end
-					end
-					--actions+=/use_items,if=buff.seraphim.up|!talent.seraphim.enabled
-					--TODO: parsing use_items
-					--actions+=/lights_judgment,if=buff.seraphim.up&buff.seraphim.remains<3
-					if isChecked("Racial") and cast.able.racial() and buff.seraphim.exists() and buff.seraphim.remain()<3 and race == "LightforgedDraenei" then
-						if cast.racial() then return end
-					end
-					if GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
-						--actions+=/avengers_shield,if=((cooldown.shield_of_the_righteous.charges_fractional>2.5&!buff.avengers_valor.up)|active_enemies>=2)&cooldown_react
-						if isChecked("Avenger's Shield") and cast.able.avengersShield() and (((charges.shieldOfTheRighteous.frac()>2.5 and not buff.avengersValor.exists()) or #enemies.yards8>=2) and cd.avengersShield.remain() == 0) then
-							if cast.avengersShield() then return end
-						end
-						--actions+=/judgment,if=(cooldown.judgment.remains<gcd&cooldown.judgment.charges_fractional>1&cooldown_react)|!talent.crusaders_judgment.enabled
-						if isChecked("Judgment") and cast.able.judgment() and ((cd.judgment.remain()<gcd and charges.judgment.frac()>1 and cd.judgment.remain() == 0) or not talent.crusadersJudgment) then
-							if cast.judgment() then return end
-						end
-						--actions+=/avengers_shield,,if=cooldown_react
-						if isChecked("Avenger's Shield") and cast.able.avengersShield() and cd.avengersShield.remain() == 0 then
-							if cast.avengersShield() then return end
-						end
-					end
-					if isChecked("Consecration") and #enemies.yards8>=1 then
-					--actions+=/consecration,if=(cooldown.judgment.remains<=gcd&!talent.crusaders_judgment.enabled)|cooldown.avenger_shield.remains<=gcd&consecration.remains<gcd
-						if cast.able.consecration() and ((cd.judgment.remain()<=gcd and not talent.crusadersJudgment) or cd.avengersShield.remain()<=gcd and consecrationRemain<gcd) then
-							if cast.consecration() then return end
-						end
-					--actions+=/consecration,if=!talent.crusaders_judgment.enabled&consecration.remains<(cooldown.judgment.remains+cooldown.avengers_shield.remains)&consecration.remains<3*gcd
-						if cast.able.consecration() and (not talent.crusadersJudgment and consecrationRemain<(cd.judgment.remain()+cd.avengersShield.remain()) and consecrationRemain<3*gcd) then
-							if cast.consecration() then return end
-						end
-					end
-					--actions+=/judgment,if=cooldown_react|!talent.crusaders_judgment.enabled
-					if isChecked("Judgment") and cast.able.judgment() and (cd.judgment.remain() == 0 or not talent.crusadersJudgment) and GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
-						if cast.judgment() then return end
-					end
-					--actions+=/lights_judgment,if=!talent.seraphim.enabled|buff.seraphim.up
-					if isChecked("Racial") and cast.able.racial() and (not talent.seraphim or buff.seraphim.exists()) and race == "LightforgedDraenei" then
-						if cast.racial() then return end
-					end
-					if #enemies.yards5 >= 1 and getFacing("player",units.dyn5) then
-						--actions+=/blessed_hammer
-						if isChecked("Blessed Hammer") and cast.able.blessedHammer() then
-							if cast.blessedHammer() then return end
-						end
-						--actions+=/hammer_of_the_righteous
-						if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() then
-							if cast.hammerOfTheRighteous() then return end
-						end
-					end
-				end
-			end -- End In Combat
-		end -- End Profile
+			-- Judgment
+			if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) and mob30 then
+				if cast.judgment(units.dyn30) then return true end
+			end
+			-- Hammer of Wrath
+			if isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()) or getBuffRemain("player", 345693) ~= 0) and mob30 then
+				if cast.hammerOfWrath(units.dyn30) then return true end
+			end
+			-- Avenger's Shield
+			if isChecked("Avenger's Shield") and cast.able.avengersShield() and mob30 then
+				if cast.avengersShield(units.dyn30) then return true end
+			end
+			-- Crusader Strike
+			if cast.able.crusaderStrike() and level < 14 and getFacing("player",units.dyn5) and GetUnitExists(units.dyn5) then
+				if cast.crusaderStrike(units.dyn5) then return true end
+			end
+			-- Blessed Hammer
+			if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and (#enemies.yards5 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
+				if cast.blessedHammer() then return true end
+			end
+			-- Hammer of the Righteous
+			if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and GetUnitExists(units.dyn5) then
+				if cast.hammerOfTheRighteous(units.dyn5) then return true end
+			end
+			-- Consecration
+			if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and consecrationRemain < 5 then
+				if cast.consecration() then return true end
+			end
+		end -- End In Combat
+	end -- End Profile
 	-- end -- Timer
 end -- runRotation
-local id = 0 --66
+local id = 66
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
 name = rotationName,

@@ -53,7 +53,7 @@ br.api.buffs = function(buff,v)
     -- br.player.buff.spell.stack()
     buff.stack = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
-        if sourceUnit == nil then sourceUnit = 'player' end 
+        if sourceUnit == nil then sourceUnit = 'player' end
         return getBuffStacks(thisUnit,v,sourceUnit)
     end
 end

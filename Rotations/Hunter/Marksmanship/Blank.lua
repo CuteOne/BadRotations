@@ -121,7 +121,7 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.mode
+        local mode                                          = br.player.ui.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
@@ -163,7 +163,7 @@ local function runRotation()
         end -- Pause
     end -- End Timer
 end -- End runRotation 
-local id = 254 --Change to the spec id profile is for.
+local id = 0 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

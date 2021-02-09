@@ -199,6 +199,7 @@ local methods = {
 			self.bar:Show()
 			self.bar:SetWidth(width)
 		end
+		self.value = settings.number
 	end,
 	['SetTextColor'] = function(self,color,alpha)
 		alpha = alpha or 1

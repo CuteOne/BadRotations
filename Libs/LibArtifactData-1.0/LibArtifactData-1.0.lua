@@ -22,7 +22,6 @@ local BANK_CONTAINER           = _G.BANK_CONTAINER
 local INVSLOT_MAINHAND         = _G.INVSLOT_MAINHAND
 local LE_ITEM_CLASS_ARMOR      = _G.LE_ITEM_CLASS_ARMOR
 local LE_ITEM_CLASS_WEAPON     = _G.LE_ITEM_CLASS_WEAPON
-local LE_ITEM_QUALITY_ARTIFACT = _G.LE_ITEM_QUALITY_ARTIFACT
 local NUM_BAG_SLOTS            = _G.NUM_BAG_SLOTS
 local NUM_BANKBAGSLOTS         = _G.NUM_BANKBAGSLOTS
 
@@ -49,6 +48,7 @@ local HasArtifactEquipped                 = _G.HasArtifactEquipped
 local IsArtifactDisabled                  = aUI.IsArtifactDisabled
 local IsAtForge                           = aUI.IsAtForge
 local IsViewedArtifactEquipped            = aUI.IsViewedArtifactEquipped
+local ItemQuality                         = _G.Enum.ItemQuality
 local SocketContainerItem                 = _G.SocketContainerItem
 local SocketInventoryItem                 = _G.SocketInventoryItem
 
@@ -298,7 +298,7 @@ end
 local function ScanContainer(container, numObtained)
 	for slot = 1, GetContainerNumSlots(container) do
 		local _, _, _, quality, _, _, _, _, _, itemID = GetContainerItemInfo(container, slot)
-		if quality == LE_ITEM_QUALITY_ARTIFACT then
+		if quality == ItemQuality.Artifact then
 			local classID = select(12, GetItemInfo(itemID))
 			if classID == LE_ITEM_CLASS_WEAPON or classID == LE_ITEM_CLASS_ARMOR then
 				Debug("ARTIFACT_FOUND", "in", container, slot)

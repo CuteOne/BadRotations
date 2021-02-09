@@ -79,16 +79,14 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "VT Max Targets", 4, 1, 10, 1, "Limit that VT will be cast on.")
 
         br.ui:createSpinnerWithout(section, "Dot HP Limit", 5, 1, 200, 10, "Limit  HP to stop Dotting. x10K,*Currently being tested, not in use*")
-
-        br.ui:createCheckbox(section, "Dark Void")
-        br.ui:createCheckbox(section, "Use lucid dreams", "Ensure Essence Toggle is ON to use")
-        br.ui:createCheckbox(section, "Use Laser Beam", "Ensure Essence Toggle is ON to use")
+        br.ui:createSpinnerWithout(section, "Mind Sear Units", 8, 1, 20, 1, "Units to hard swap to mind sear")
         br.ui:createCheckbox(section, "Moving SW:P")
         br.ui:createSpinnerWithout(section, "Laser Units", 3, 1, 50, 1)
         br.ui:createSpinnerWithout(section, "Lucid - void stacks", 20, 1, 40, 1)
         br.ui:createSpinnerWithout(section, "Lucid - insanity", 55, 1, 100, 5)
         br.ui:createDropdownWithout(section, "Guardian Of Azeroth", {"Always", "CDs", "Never"}, 1, "Ensure Essence Toggle is ON to use")
         br.ui:createSpinnerWithout(section, "Shadowfiend stacks", 10, 1, 40, 1)
+        br.ui:createCheckbox(section, "SHW: Death Snipe")
         --br.ui:createDropdownWithout(section, "Debug Key", rotationKeys, 1, "Useful only for mr panglo")
 
         br.ui:checkSectionState(section)
@@ -139,9 +137,9 @@ local function runRotation()
     UpdateToggle("Cooldown", 0.25)
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
-    br.player.mode.void = br.data.settings[br.selectedSpec].toggles["Void"]
-    br.player.mode.essence = br.data.settings[br.selectedSpec].toggles["Essence"]
-    br.player.mode.dotcleave = br.data.settings[br.selectedSpec].toggles["DotCleave"]
+    br.player.ui.mode.void = br.data.settings[br.selectedSpec].toggles["Void"]
+    br.player.ui.mode.essence = br.data.settings[br.selectedSpec].toggles["Essence"]
+    br.player.ui.mode.dotcleave = br.data.settings[br.selectedSpec].toggles["DotCleave"]
 
     local addsExist = false
     local addsIn = 999
@@ -168,7 +166,7 @@ local function runRotation()
     local inRaid = br.player.instance == "raid"
     local level = br.player.level
     local lowestHP = br.friend[1].unit
-    local mode = br.player.mode
+    local mode = br.player.ui.mode
     local moveIn = 999
     local moving = isMoving("player")
     local perk = br.player.perk
@@ -194,6 +192,18 @@ local function runRotation()
     local lowestPain = debuff.shadowWordPain.lowest(40, "remain") or units.dyn40
     local dotsUP = debuff.vampiricTouch.exists("target") and debuff.shadowWordPain.exists("target")
 
+    local function spellQueueReady()
+        --Check if we can queue cast
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[5] then
+            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < -.3 then
+                return false
+            end
+        end
+        return true
+    end
+
+
     local buffedSear = isCastingSpell(spell.mindSear) and buff.harvestedThoughts.exists()
 
     if leftCombat == nil then
@@ -203,8 +213,8 @@ local function runRotation()
         profileStop = false
     end
 
-    if vampUnit ~= nil and (vampTime + 1.6) < GetTime() then
-        vampUnit = nil
+    if lastVTTarget ~= nil and (lastVTTime+0.8) < GetTime() then
+        lastVTTarget = nil
     end
 
     local wtfKey = false
@@ -213,11 +223,6 @@ local function runRotation()
         if wtfKey == nil then
             wtfKey = false
         end
-    end
-
-    --wipe timers table
-    if timersTable then
-        wipe(timersTable)
     end
 
     units.get(5)
@@ -233,6 +238,10 @@ local function runRotation()
     enemies.get(8, "target")
     enemies.get(10, "target")
     enemies.get(40)
+
+    --[[ if timersTable then
+        wipe(timersTable)
+    end ]]
 
     if isChecked("Enemy Target Lock") and inCombat and UnitIsFriend("target", "player") then
         TargetLastEnemy()
@@ -280,39 +289,42 @@ local function runRotation()
                 end
             end
         end
-
-        if mode.essence == 1 and inCombat and not br.player.mode.cooldown ~= 3 and voidForm and isChecked("Use lucid dreams") and ((power <= getOptionValue("Lucid - insanity")) and (buff.voidForm.stack() >= getOptionValue("Lucid - void stacks"))) then
-            if cast.memoryOfLucidDreams("player") then
-                return
-            end
-        end
-
-        if mode.essence == 1 and inCombat and not br.player.mode.cooldown ~= 3 and not voidForm and isChecked("Use Laser Beam") and (getEnemiesInRect(5, 30) >= getOptionValue("Laser Units") or useCDs()) then
-            if cast.focusedAzeriteBeam("player") then
-                return
-            end
-        end
-
-        if mode.essence == 1 and dotsUP and (getOptionValue("Guardian Of Azeroth") == 1 or (getOptionValue("Guardian Of Azeroth") == 2 and useCDs())) then
-            if cast.guardianOfAzeroth() then
-                return
-            end
-        end
     end -- end Extra
 
     local function actionlist_Void()
-        if cast.voidBolt() then
+        if cast.voidBolt(units.dyn40) then
             return
         end
 
-        if buff.harvestedThoughts.exists() and (cd.voidBolt.remain() > (gcd * 0.2)) and traits.searingDialogue.rank >= 1 and mode.dotcleave == 1 then
-            if cast.mindSear("best", false, 1, 10) then
-                return
+        --devouring_plague,target_if=(refreshable|insanity>75)&(!talent.searing_nightmare.enabled|(talent.searing_nightmare.enabled&!variable.searing_nightmare_cutoff))
+        if power > 75 then
+            if cast.devouringPlague(units.dyn40) then
+                return 
             end
         end
 
-        if useCDs() and ttd("target") > 25 and buff.voidForm.stack() >= getOptionValue("Shadowfiend stacks") then
-            if cast.shadowfiend() then
+        if buff.unfurlingDarkness.exists() and select(2,GetSpellCooldown(61304)) ~= 1 then
+            for i = 1, #enemies.yards40 do
+                local thisUnit
+                if mode.rotation == 1 and debuff.vampiricTouch.exists("target") then
+                    thisUnit = enemies.yards40[i]
+                elseif mode.rotation == 2 or not debuff.vampiricTouch.exists("target") then
+                    thisUnit = "target"
+                end
+                if (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
+                    if cast.vampiricTouch(thisUnit) then
+                        lastVTTarget = UnitGUID(thisUnit)
+                        lastVTTime = GetTime()
+                        return
+                    end
+                end
+            end
+        end
+
+
+
+        if useCDs() and ttd("target") > 25 then
+            if cast.shadowfiend("target") then
                 return
             end
         end
@@ -350,22 +362,24 @@ local function runRotation()
                 elseif mode.rotation == 2 or not debuff.vampiricTouch.exists("target") then
                     thisUnit = "target"
                 end
-                if UnitGUID(thisUnit) ~= vampUnit and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
+                if select(2,GetSpellCooldown(61304)) ~= 1 and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
                     if cast.vampiricTouch(thisUnit) then
-                        vampUnit = UnitGUID(thisUnit)
-                        vampTime = GetTime()
+                        lastVTTarget = UnitGUID(thisUnit)
+                        lastVTTime = GetTime()
                         return
                     end
                 end
             end
         end
 
-        if not (cast.current.mindFlay() or cast.current.mindSear()) and not (cast.last.shadowWordVoid() or cast.last.mindBlast()) then
-            if talent.shadowWordVoid then
-                if cast.shadowWordVoid() then
-                    return
-                end
-            elseif cast.mindBlast() then
+        if dotsUP and #enemies.yards10t >= getOptionValue("Mind Sear Units") and not cast.current.mindSear() and mode.dotcleave == 1 then
+            if cast.mindSear("best", false, 1, 10) then
+                return
+            end
+        end
+
+        if not (cast.current.mindFlay() or cast.current.mindSear()) or buff.darkThoughts.exists() then
+            if cast.mindBlast("target") then
                 return
             end
         end
@@ -384,16 +398,23 @@ local function runRotation()
     end
 
     local function actionlist_Single()
-        -- print(vampUnit)
-        if power > 60 and mode.void == 1 and getDistance("player", "target") <= 40 then
+        -- print(lastVTTarget)
+        if isChecked("SHW: Death Snipe") then
+            if ttd("target") <= 5 then
+                if cast.shadowWordDeath("target") then
+                    return 
+                end
+            end
+        end
+        if mode.void == 1 and getDistance("player", "target") <= 40 and not voidForm then
             if cast.voidEruption("target") then
                 return
             end
         end
 
-        if not voidForm and power < 30 and ttd("target") > 10 then
-            if cast.darkAscension() then
-                return
+        if power >= 60 then
+            if cast.devouringPlague("target") then
+                return 
             end
         end
 
@@ -403,16 +424,10 @@ local function runRotation()
             end
         end
 
-        if UnitGUID("target") ~= vampUnit and (not debuff.vampiricTouch.exists("target") or debuff.vampiricTouch.remain("target") < 6.3 or (talent.misery and debuff.shadowWordPain.remain("target") < 4.8)) and ttd("target") > 6 then
+        if select(2,GetSpellCooldown(61304)) ~= 1 and (not debuff.vampiricTouch.exists("target") or debuff.vampiricTouch.remain("target") < 6.3 or (talent.misery and debuff.shadowWordPain.remain("target") < 4.8)) and ttd("target") > 6 then
             if cast.vampiricTouch("target") then
-                vampUnit = UnitGUID("target")
-                vampTime = GetTime()
-                return
-            end
-        end
-
-        if talent.darkVoid and isChecked("Dark Void") then
-            if cast.darkVoid() then
+                lastVTTarget = UnitGUID("target")
+                lastVTTime = GetTime()
                 return
             end
         end
@@ -446,43 +461,67 @@ local function runRotation()
             end
         end
     end
-
+    local function CwC()
+        if voidForm and cast.able.voidBolt() and inCombat then
+            if cast.voidBolt() then
+                return
+            end
+        end
+        if select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) then
+            if power > 35 then
+                if cast.searingNightmare() then
+                    return
+                end
+            end
+        end
+        if (select(1,UnitChannelInfo("player")) == GetSpellInfo(15407)) or (select(1,UnitChannelInfo("player")) == GetSpellInfo(48045)) then
+            if buff.darkThoughts.exists() then
+                if cast.mindBlast() then
+                    return 
+                end
+            end
+        end
+    end
     local function actionlist_Multi()
-        -- print(vampUnit)
-        if power > 60 and mode.void == 1 and getDistance("player", units.dyn40) <= 40 then
-            if cast.voidEruption(units.dyn40) then
+        -- print(lastVTTarget)
+        if isChecked("SHW: Death Snipe") then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if ttd(thisUnit) <= 5 then
+                    if cast.shadowWordDeath(thisUnit) then
+                        return 
+                    end
+                end
+            end
+        end
+        if mode.void == 1 and getDistance("player", "target") <= 40 and not voidForm then
+            if cast.voidEruption("target") then
                 return
             end
         end
 
-        if power < 30 and ttd("target") > 10 then
-            if cast.darkAscension("player") then
-                return
-            end
-        end
-
-        if buff.harvestedThoughts.exists() and traits.searingDialogue.rank >= 1 and not cast.current.mindSear() and mode.dotcleave == 1 then
-            if cast.mindSear("best", false, 1, 10) then
-                return
-            end
-        end
-
-        if talent.darkVoid and isChecked("Dark Void") then
-            if cast.darkVoid("best", false, 1, 8) then
-                return
-            end
-        end
-
-        if (dotsUP and #enemies.yards10t >= 8) and not cast.current.mindSear() and mode.dotcleave == 1 then
-            if cast.mindSear("best", false, 1, 10) then
-                return
+        if buff.unfurlingDarkness.exists() and select(2,GetSpellCooldown(61304)) ~= 1 then
+            for i = 1, #enemies.yards40 do
+                local thisUnit
+                if mode.rotation == 1 and debuff.vampiricTouch.exists("target") then
+                    thisUnit = enemies.yards40[i]
+                elseif mode.rotation == 2 or not debuff.vampiricTouch.exists("target") then
+                    thisUnit = "target"
+                end
+                if (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
+                    if cast.vampiricTouch(thisUnit) then
+                        lastVTTarget = UnitGUID(thisUnit)
+                        lastVTTime = GetTime()
+                        return
+                    end
+                end
             end
         end
 
         if debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") or not debuff.shadowWordPain.exists("target") then
             for i = 1, #enemies.yards40 do
                 local thisUnit
-                if mode.rotation == 1 and debuff.shadowWordPain.exists("target") then
+                if mode.rotation == 1 and debuff.shadowWordPain.exists("target") and not talent.searingNightmare then
                     thisUnit = enemies.yards40[i]
                 elseif mode.rotation == 2 or not debuff.shadowWordPain.exists("target") then
                     thisUnit = "target"
@@ -503,13 +542,28 @@ local function runRotation()
                 elseif mode.rotation == 2 or not debuff.vampiricTouch.exists("target") then
                     thisUnit = "target"
                 end
-                if UnitGUID(thisUnit) ~= vampUnit and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
+                if select(2,GetSpellCooldown(61304)) ~= 1 and (not debuff.vampiricTouch.exists(thisUnit) or debuff.vampiricTouch.remain(thisUnit) < 6.3 or (talent.misery and debuff.shadowWordPain.remain(thisUnit) < 4.8)) and ttd(thisUnit) > 6 then
                     if cast.vampiricTouch(thisUnit) then
-                        vampUnit = UnitGUID(thisUnit)
-                        vampTime = GetTime()
+                        lastVTTarget = UnitGUID(thisUnit)
+                        lastVTTime = GetTime()
                         return
                     end
                 end
+            end
+        end
+
+        for i= 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if power >= 65 and ttd(thisUnit) >=6 and not talent.searingNightmare then
+                if cast.devouringPlague(thisUnit) then
+                    return 
+                end
+            end
+        end
+
+        if dotsUP and #enemies.yards10t >= getOptionValue("Mind Sear Units") and not cast.current.mindSear() and mode.dotcleave == 1 then
+            if cast.mindSear("best", false, 1, 10) then
+                return
             end
         end
 
@@ -520,7 +574,7 @@ local function runRotation()
             end
         end
 
-        if dotsUP and not cast.current.mindSear() and #enemies.yards10t >= 6 and mode.dotcleave == 1 then
+        if dotsUP and not cast.current.mindSear() and #enemies.yards10t >= 2 and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
@@ -611,35 +665,8 @@ local function runRotation()
     if isCastingSpell(295258) then
         return true
     end
-
-    --[[     if (debugReset ~= nil and ((GetTime() - debugReset) > 5)) or not wtfKey then
-        debugVariable = false
-    end
-
-    local swpTar = debuff.shadowWordPain.exists("target")
-    local vtTar = debuff.vampiricTouch.exists("target")
-    local swpDyn = debuff.shadowWordPain.exists(thisUnit)
-    local vtDyn = debuff.vampiricTouch.exists(thisUnit) ]]
-    --[[ if wtfKey and debugVariable == false then
-        Print("debuff.vampiricTouch.count() is " .. debuff.vampiricTouch.count())
-        Print("debuff.shadowWordPain.count() is " .. debuff.shadowWordPain.count())
-        Print("does Shadow Word Pain Exist on Target " .. tostring(swpTar))
-        Print("does Vamp Touch Exist on Target " .. tostring(vtTar))
-        Print("does Shadow Word Pain Exist on dynamic " .. tostring(swpDyn))
-        Print("does Vamp Touch Exist on dyanmic " .. tostring(vtDyn))
-        Print(UnitGUID(thisUnit) .. " is the dynamic GUID")
-        if hastar then
-            Print(UnitGUID("target") .. " is the targets GUID")
-            Print("Distance to target is " .. getDistance("player", "target"))
-        end
-        if vampUnit ~= nil then
-            Print("Current Vamp Target is " .. vampUnit)
-        end
-
-        debugVariable = true
-        debugReset = GetTime()
-    end ]]
-    if (pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 3) and not cast.current.mindFlay() and not (cast.current.mindSear and not traits.searingDialogue.active) then
+    if CwC() then return end
+    if (pause() and not (cast.current.mindFlay() or cast.current.mindSear())) or select(2,GetSpellCooldown(61304)) == 1 then
         return true
     else
         -- combat check
@@ -657,26 +684,26 @@ local function runRotation()
                 return
             end
         end
-        if inCombat and profileStop == false and not mode.rotation ~= 3 and not (IsMounted() or IsFlying()) and getDistance("player", units.dyn40) < 40 then
+        if inCombat and profileStop == false and not mode.rotation ~= 3 and not (IsMounted() or IsFlying()) and getDistance("player", units.dyn40) < 40 and spellQueueReady() then
             if moving then
                 if actionlist_Moving() then
-                    return
+                    return true
                 end
             end
             if not moving then
                 if voidForm then
                     if actionlist_Void() then
-                        return
+                        return true
                     end
                 else
-                    if #enemies.yards40 == 1 or br.player.mode.rotation == 2 then
+                    if #enemies.yards40 == 1 or br.player.ui.mode.rotation == 2 then
                         if actionlist_Single() then
-                            return
+                            return true
                         end
                     else
                         if #enemies.yards40 > 1 then
                             if actionlist_Multi() then
-                                return
+                                return true
                             end
                         end
                     end

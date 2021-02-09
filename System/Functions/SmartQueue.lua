@@ -18,6 +18,7 @@ local function checkKeys(self, key)
 		pressedKey = pressedKey .. key
 		local spell = br.player.spell.bindings[pressedKey]
 		if spell ~= nil then
+			if GetSpecializationInfo(GetSpecialization()) == 258 and spell == 2061 then spell = 186263 end
 			local cd = getSpellCD(spell)
 			if GetSpellInfo(GetSpellInfo(spell)) and cd <= getOptionValue("Smart Queue") and isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false or UnitCastingInfo("player")) then
 				br.queueSpell = spell
@@ -43,6 +44,16 @@ local function GetKeyBindings()
 			name = "CLICK BT4Button" .. slot .. ":LeftButton"
 			if GetBindingKey(name) ~= nil then
 				return name
+			end
+		end
+		if Dominos then
+			for i = 1, 60 do
+				if _G["DominosActionButton" .. i] and _G["DominosActionButton" .. i]["action"] == slot then
+					name = "CLICK DominosActionButton" .. i .. ":LeftButton"
+					if GetBindingKey(name) ~= nil then
+						return name
+					end
+				end
 			end
 		end
 		local bonusBar = GetBonusBarOffset()

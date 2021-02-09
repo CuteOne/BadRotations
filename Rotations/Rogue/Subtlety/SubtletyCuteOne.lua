@@ -183,11 +183,11 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
+        br.player.ui.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
         UpdateToggle("PickPocket",0.25)
-        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["PickPocket"]
+        br.player.ui.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["PickPocket"]
         UpdateToggle("ShadowDance",0.25)
-        br.player.mode.shadowDance = br.data.settings[br.selectedSpec].toggles["ShadowDance"]
+        br.player.ui.mode.shadowDance = br.data.settings[br.selectedSpec].toggles["ShadowDance"]
 
 --------------
 --- Locals ---
@@ -206,8 +206,8 @@ local function runRotation()
         local hastar                                                    = GetObjectExists("target")
         local healPot                                                   = getHealthPot()
         local inCombat                                                  = br.player.inCombat
-        local mode                                                      = br.player.mode
-        local multidot                                                  = (br.player.mode.cleave == 1 or br.player.mode.rotation ~= 3)
+        local mode                                                      = br.player.ui.mode
+        local multidot                                                  = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation ~= 3)
         local php                                                       = br.player.health
         local power, powerDeficit, powerRegen                           = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
         local race                                                      = br.player.race

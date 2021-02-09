@@ -804,7 +804,7 @@ end
 
 
 function DiesalStyle:StyleShadow(object,frame,style)
-  object.shadow = object.shadow or CreateFrame("Frame",nil,frame)
+  object.shadow = object.shadow or CreateFrame("Frame",nil,frame,BackdropTemplateMixin and "BackdropTemplate") --CreateFrame("Frame",nil,frame) 
   object.shadow:Show()
   if not object.shadow.style or style.clear then object.shadow.style = {} end
   local shadowStyle = object.shadow.style

@@ -22,6 +22,7 @@ br.lists.items = {
     -- Death Knight: Shared
     coldHeart                       = 151796,
     -- Demonhunter: Shared
+    felCrystalFragments             = 129210,
     inquisitorsMenacingEye          = 129192,
     soulOfTheSlayer                 = 151639,
     -- Druid: Shared
@@ -31,6 +32,8 @@ br.lists.items = {
     fandralsSeedPouch               = 122304,
     luffaWrappings                  = 137056,
     theWildshapersClutch            = 137094,
+	-- Mage: Shares
+	manaGem                         = 36799,
     -- Monk: Shared
     drinkingHornCover               = 137097,
     hiddenMastersForbiddenTouch     = 137057,
@@ -57,11 +60,15 @@ br.lists.items = {
     oraliusWhisperingCrystal        = 118922,
     repurposedFelFocuser            = 147707,
     -- Greater Flasks
+    greaterFlaskOfEndlessFathoms    = 168652,
     greaterFlaskOfTheCurrents       = 168651,
     greaterFlaskOfTheUndertow       = 168654,
-    greaterFlaskOfEndlessFathoms    = 168652,
+    greaterFlaskOfTheVastHorizon    = 168653,
+    -- Healing Items
+    phialOfSerenity                  = 177278,
     -- Healthstones
     healthstone                     = 5512,
+    legionHealthstone               = 129196,
     -- Heirlooms
     eternalAmuletOfTheRedeemed      = 122663,
     eternalEmberfuryTalisman        = 122667,
@@ -71,6 +78,7 @@ br.lists.items = {
     eternalWovenIvyNecklace         = 122666,
     heirloomNeck                    = getHeirloomNeck(),
     manariTrainingAmulet            = 153130,
+    touchOfTheVoid                  = 128318,
     -- Potions
     battlePotionOfAgility           = 163223,
     battlePotionOfIntellect         = 163222,
@@ -100,6 +108,7 @@ br.lists.items = {
     azsharasFontOfPower             = 169314,
     bygoneBeeAlmanac                = 163936,
     convergenceOfFates              = 140806,
+    darkmoonDeckPutrescence         = 173069,
     deceiversGrandDesign            = 147007,
     draughtOfSouls                  = 140808,
     dribblingInkpod                 = 169319,
@@ -109,8 +118,10 @@ br.lists.items = {
     grongsPrimalRage                = 165574,
     hornOfValor                     = 133642,
     jesHowler                       = 159627,
+    lustrousGoldenPlumage           = 159617,
     pocketSizedComputationDevice    = 167555,
     rampingAmplitudeGigavoltEngine  = 165580,
+    remoteGuidanceDevice            = 169769,
     rotcrustedVoodooDoll            = 159624,
     shiverVenomRelic                = 168905,
     specterOfBetrayal               = 151190,
@@ -121,8 +132,24 @@ br.lists.items = {
     vigorTrinket                    = 165572,
     visionOfDemise                  = 169307,
     hummingBlackDragonscale         = 174044,
+
     --weapons that are clickable
     neuralSynapseEnhancer           = 168973,
     -- Legendary 8.3 cloak
     shroudOfResolve                 = 169223,
+    ----------- SL items below -----------
+    --Trinkets
+    inscrutableQuantumDevice        = 179350,
+    bottledFlayedWingToxin          = 178742,
+    dreadfireVessel                 = 184030,
+    --Consumables
+    potionOfSpectralAgility         = 171270,
+    shadowCoreOil                   = 171285,
+    spectralFlaskOfPower            = 171276,
+    -- Music of Bastion
+    ascendedFlute                   = 180064,
+    benevolentGong                  = 179977,
+    heavenlyDrum                    = 180062,
+    kyrianBell                      = 179982,
+    unearthlyChime                  = 180063,
 }

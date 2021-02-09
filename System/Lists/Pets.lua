@@ -4,8 +4,12 @@ br.lists.pets = {
     activePet                   = activePet,
     -- Death Knight
     apocalypseGhoul             = 111101,
+    armyOfTheDead               = 24207,
     gargoyle                    = 27829,
+    ghoul                       = 26125,
     risenSkulker                = 99541,
+    -- Monk
+    xuenTheWhiteTiger           = 63508,
     -- Warlock
     darkglare                   = 103673,
     demonicTyrant               = 135002,
@@ -13,10 +17,10 @@ br.lists.pets = {
     dreadstlaker                = 98035,
     felguard                    = 17252,
     felhunter                   = 417,
-    imp                         = 416,
+    imp                         = 58959,
     infernal                    = 89,
     succubus                    = 1863,
-    voidwalker                  = 1860,
+    voidwalker                  = 58960,
     wildImp                     = 55659,
     wrathguard                  = 58965,
     -- Essence Pet

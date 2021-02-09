@@ -133,25 +133,19 @@ function UnitIsTappedByPlayer(mob)
 		return false
 	end
 end
-function getSpellUnit(spellCast,aoe)
-	local spellName,_,_,_,_,maxRange = GetSpellInfo(spellCast)
-	local spellType = getSpellType(spellName)
-	local thisUnit
-	if maxRange == nil or maxRange == 0 then maxRange = 5 end
+function getSpellUnit(spellCast,aoe,minRange,maxRange,spellType)
+	local spellName = GetSpellInfo(spellCast)
 	if aoe == nil then aoe = false end
+	local hasRange = SpellHasRange(spellName) and true or false
 	local facing = not aoe
-	local unit = dynamicTarget(maxRange,facing)
-    if spellType == "Helpful" then
-        thisUnit = "player"
-    elseif spellType == "Harmful" or spellType == "Both" then
-        thisUnit = unit
-    elseif spellType == "Unknown" and getDistance(unit) < maxRange then
-        if castSpell(unit,spellCast,false,false,false,false,false,false,false,true) then
-            thisUnit = unit
-        elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
-            thisUnit = "player"
-        end
-    end
+	local unit = dynamicTarget(maxRange,facing) or (not hasRange and "player")
+	if not unit then return "None" end
+	local distance = getDistance(unit)
+	local thisUnit = "None"
+	if (distance >= minRange and distance < maxRange) then
+		if spellType == "Helpful" then return "player" end
+		if hasRange then return unit else return "player" end
+	end
     return thisUnit
 end
 -- if getCreatureType(Unit) == true then
@@ -228,8 +222,10 @@ function getHP(Unit)
 		else
 			if not UnitIsDeadOrGhost(Unit) and GetUnitIsVisible(Unit) then
 				for i = 1,#br.friend do
-					if br.friend[i].guidsh == string.sub(UnitGUID(Unit),-5) then
-						return br.friend[i].hp
+					if br.friend[i] then
+						if br.friend[i].guidsh == string.sub(UnitGUID(Unit),-5) then
+							return br.friend[i].hp
+						end
 					end
 				end
 				if getOptionCheck("Incoming Heals") == true and UnitGetIncomingHeals(Unit,"player") ~= nil then
@@ -285,6 +281,10 @@ function getUnitID(Unit)
 	end
 	return 0
 end
+function isAberration(Unit)
+	if Unit == nil then Unit = "target" end
+	return UnitCreatureType(Unit) == "Aberration"
+end
 -- if isAlive([Unit]) == true then
 function isAlive(Unit)
 	local Unit = Unit or "player"
@@ -322,9 +322,10 @@ function isBoss(unit)
 		local healthMax = UnitHealthMax(unit)
 		local pHealthMax = UnitHealthMax("player")
 		local instance = select(2,IsInInstance())
-		return isInstanceBoss(unit) or isDummy(unit) or (not UnitIsTrivial(unit) and instance ~= "party"
-			and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
-				or (class == "elite" and healthMax > 4 * pHealthMax and instance ~= "raid")	or UnitLevel(unit) < 0))
+		return isInstanceBoss(unit) or isDummy(unit)
+			or (not isChecked("Boss Detection Only In Instance") and not UnitIsTrivial(unit) and instance ~= "party"
+				and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
+					or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or UnitLevel(unit) < 0))
 	end
 	return false
 end
@@ -334,29 +335,33 @@ function isCritter(Unit) -- From LibBabble
 	local types = {
 		"Critter",
 		"Kleintier",
-		"Bestiole",
-		"동물",
 		"Alma",
-		"Bicho",
+		"Bestiole",	
 		"Animale",
+		"Bicho",
 		"Существо",
+		"동물",
 		"小动物",
-		"小動物",
-		"Wild Pet",
-		"Ungezähmtes Tier",
-		"Mascotte sauvage",
-		"야생 애완동물",
-		"Mascota salvaje",
-		"Mascóta Salvaje",
-		"Mascote Selvagem",
-		"Creatura Selvaggia",
-		"野生宠物",
-		"野生寵物",
+		"小動物"
 	}
-	for i = 1, #types do
-		if unitType == types[i] then return true end
-	end
-	return false
+	return types[unitType] ~= nil
+end
+function isDemon(Unit)
+	if Unit == nil then Unit = "target" end
+	local unitType = UnitCreatureType(Unit)
+	local types = {
+		"Demon",
+		"Dämon",
+		"Demonio",
+		"Démon",
+		"Demone",
+		"Demônio",
+		"Демон",
+		"악마",
+		"恶魔",
+		"惡魔"
+	}
+	return types[unitType] ~= nil
 end
 function isExplosive(Unit)
 	return GetObjectID(Unit) == 120651
@@ -376,10 +381,37 @@ function isUndead(Unit)
 		"亡灵",
 		"不死族",
 	}
-	for i = 1, #types do
-		if unitType == types[i] then return true end
-	end
-	return false
+	return types[unitType] ~= nil
+end
+function isBeast(Unit)
+	if Unit == nil then Unit = "target" end
+	local unitType = UnitCreatureType(Unit)
+	local types = {
+		"Beast",
+		"Wildtier",
+		"Bestia",
+		"Bête",
+		"Fera",
+		"Животное",
+		"야수",
+		"野兽",
+		"野獸"
+	}
+	return types[unitType] ~= nil
+end
+function isHumanoid(Unit)
+	if Unit == nil then Unit = "target" end
+	local unitType = UnitCreatureType(Unit)
+	local types = {
+		"Humanoid",
+		"Humanoide",
+		"Humanoïde",
+		"Umanoide",
+		"Гуманоид",
+		"인간형",
+		"人型生物",
+	}
+	return types[unitType] ~= nil
 end
 -- Dummy Check
 function isDummy(Unit)
@@ -408,7 +440,7 @@ function isTankInRange()
 		for i = 1, #br.friend do
 			local friend = br.friend[i]
 			if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 40 then
-				return true
+				return true,friend.unit
 			end
 		end
 	end

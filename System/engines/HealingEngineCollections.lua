@@ -113,6 +113,8 @@ novaEngineTables.DispelID = {
 	[310224] = {stacks = 10}, --https://www.wowhead.com/spell=307421/annihilation
 	-- Maut
 	[314993] = {stacks = 0, range = 10}, --https://www.wowhead.com/spell=314992/drain-essence
+	-- Nalthor the Rimebinder (Necrotic Wake)
+	[320788] = {stacks = 0, range = 18}, --https://www.wowhead.com/spell=320788/frozen-binds
 
 
 
@@ -200,6 +202,8 @@ novaEngineTables.BadDebuffList= {
 	[297586] = "Suffering", -- Queen's Court
 	-- Ny'alotha
    -- [316065] = "Corrupted Existence", -- Ra-den
+   -- Castle Nathria
+    [329298] = "Hungering Miasma", --Hungering Destroyer
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {

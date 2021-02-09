@@ -5,85 +5,86 @@ cCharacter = {}
 function cCharacter:new(class)
 	local self = {}
 	self.augmentRune    = {         -- Contains the different buff IDs for Augment Runes
-			Agility   					= 270058,
-			Strength  					= 270058,
-			Intellect 					= 270058,
-			Legion	  					= 224001,
+			Agility   		= 270058,
+			Strength  		= 270058,
+			Intellect 		= 270058,
+			Legion	  		= 224001,
 	}
-	self.artifact       = {} 	-- Artifact Perk IDs
-	self.buff           = {}        -- Buffs
-	self.debuff         = {}        -- Debuffs on target
-	self.class          = select(2, UnitClass("player")) -- Class
-	self.cd             = {}        -- Cooldowns
-	self.charges        = {}        -- Number of charges
-	self.currentPet     = "None" 	-- Current Pet
-	self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
-	self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
-	self.enemies  	    = {}        -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
-	self.essence 				= {} 				-- Azerite Essence
-	self.equiped 	    	= {} 	-- Item Equips
-	self.gcd            = 1.5       -- Global Cooldown
-	self.gcdMax 	    	= 1.5 	-- GLobal Max Cooldown
-	self.glyph          = {}        -- Glyphs
-	self.faction  	    = select(1,UnitFactionGroup("player")) -- Faction non-localised name
+	self.artifact       	= {} 									-- Artifact Perk IDs
+	self.buff           	= {}        							-- Buffs API
+	self.debuff         	= {}        							-- Debuffs API
+	self.class          	= select(2, UnitClass("player")) 		-- Class
+	self.cd             	= {}        							-- Cooldowns
+	self.charges        	= {}        							-- Number of charges
+	self.currentPet     	= "None" 								-- Current Pet
+	self.dynLastUpdate  	= 0         							-- Timer variable to reduce Dynamic Target updating
+	self.dynTargetTimer 	= 0.5       							-- Timer to reduce Dynamic Target updating (1/X = calls per second)
+	self.enemies  	    	= {}        							-- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
+	self.essence 			= {} 									-- Azerite Essence
+	self.equiped 	    	= {} 									-- Item Equips
+	self.gcd            	= 1.5       							-- Global Cooldown
+	self.gcdMax 	    	= 1.5 									-- GLobal Max Cooldown
+	self.glyph          	= {}        							-- Glyphs
+	self.faction  	    	= select(1,UnitFactionGroup("player")) 	-- Faction non-localised name
 	self.flask 	    		= {}
-	self.flask.wod 	    = {
+	self.flask.wod 	    	= {
 		-- Agility
-		agilityLow 					= 152638, 	 -- flask-of-the-currents
-		agilityBig 					= 152638, 	 -- flask-of-the-currents
+		agilityLow 			= 152638, 	 							-- flask-of-the-currents
+		agilityBig 			= 152638, 	 							-- flask-of-the-currents
 		-- Intellect
-		intellectLow 	      = 152639,        -- flask-of-endless-fathoms
-		intellectBig 	      = 152639,        -- flask-of-endless-fathoms
+		intellectLow 	    = 152639,        						-- flask-of-endless-fathoms
+		intellectBig 	    = 152639,        						-- flask-of-endless-fathoms
 		-- Stamina
-		staminaLow 					= 152640,        -- flask-of-the-vast-horizon
-		staminaBig					= 152640,        -- flask-of-the-vast-horizon
+		staminaLow 			= 152640,        						-- flask-of-the-vast-horizon
+		staminaBig			= 152640,        						-- flask-of-the-vast-horizon
 		-- Strength
-		strengthLow 	      = 152641,        -- flask-of-the-undertow
-		strengthBig         = 152641,        -- flask-of-the-undertow
+		strengthLow 	    = 152641,        						-- flask-of-the-undertow
+		strengthBig         = 152641,        						-- flask-of-the-undertow
 	}
 	self.flask.wod.buff = {
 		-- Agility
-		agilityLow 					= 251836,
-		agilityBig 					= 251836,
+		agilityLow 			= 251836,
+		agilityBig 			= 251836,
 		-- Intellect
 		intellectLow       	= 251837,
-		intellectBig     		= 251837,
+		intellectBig     	= 251837,
 		-- Stamina
-		staminaLow 					= 251838,
-		staminaBig 					= 251838,
+		staminaLow 			= 251838,
+		staminaBig 			= 251838,
 		-- Strength
 		strengthLow       	= 251839,
-		strengthBig 	      = 251839,
+		strengthBig 	    = 251839,
 	}
-    --self.functions 	    = {} 	-- Functions
-	self.health         = 100       -- Health Points in %
-	self.ignoreCombat   = false     -- Ignores combat status if set to true
-	self.inCombat       = false     -- if is in combat
-	self.instance 	    = select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
-	self.level	    		= 0 	-- Player Level
-	self.mode           = {}        -- Toggles
-	self.moving         = false        -- Moving event
-	self.opener 				= {} 	-- Opener flag tracking, reduce global vars
-	self.pandemic 			= {}  -- Tracking Base Duration per Unit/Debuff
-	self.perk 	    		= {}	-- Perk Table
-	self.petId 	    		= 0 	-- Current Pet Id
-	self.pet 	    			= {} 	-- Pet Information Table
-	self.pet.list 	    = {}
-	self.potion 	    	= {}	-- Potion Table
-	self.primaryStat    = nil       -- Contains the primary Stat: Strength, Agility or Intellect
-	self.profile        = "None"    -- Spec
-	self.queue 	    		= {} 	-- Table for Queued Spells
-	self.race     	    = select(2,UnitRace("player"))  -- Race as non-localised name (undead = Scourge) !
-	self.racial   	    = getRacial()     -- Contains racial spell id
-	self.recharge       = {}        -- Time for current recharge (for spells with charges)
-	self.rechargeFull   = {}
-	self.selectedRotation = 1       -- Default: First avaiable rotation
-	self.rotation       = {} 	-- List of Rotations
-	self.spell	    		= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
-	self.talent         = {}        -- Talents
-	self.timeToMax	    = 0		-- Time To Max Power
-	self.traits         = {}	-- Azerite Traits
-	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
+    self.functions 	    	= {} 							-- Custom Profile Functions
+	self.health         	= 100       					-- Health Points in %
+	self.ignoreCombat   	= false     					-- Ignores combat status if set to true
+	self.inCombat       	= false     					-- if is in combat
+	self.instance 	    	= select(2,IsInInstance()) 		-- Get type of group we are in (none, party, instance, raid, etc)
+	self.level	    		= 0 							-- Player Level
+	self.moving         	= false        					-- Moving event
+	self.opener 			= {} 							-- Opener flag tracking, reduce global vars
+	self.pandemic 			= {}  							-- Tracking Base Duration per Unit/Debuff
+	self.perk 	    		= {}							-- Perk Table
+	self.petId 	    		= 0 							-- Current Pet Id
+	self.pet 	    		= {} 							-- Pet Information Table
+	self.pet.list 	    	= {}							-- Table of Pets
+	self.potion 	    	= {}							-- Potion Table
+	self.primaryStat    	= nil       					-- Contains the primary Stat: Strength, Agility or Intellect
+	self.profile        	= "None"    					-- Profile Name
+	self.queue 	    		= {} 							-- Table for Queued Spells
+	self.race     	    	= select(2,UnitRace("player"))  -- Race as non-localised name (undead = Scourge) !
+	self.racial   	    	= 0     						-- Contains racial spell id
+	-- self.recharge       	= {}        					-- Time for current recharge (for spells with charges)
+	-- self.rechargeFull   	= {}							
+	self.selectedRotation 	= 1       						-- Default: First avaiable rotation
+	self.rotation       	= {} 							-- List of Rotations
+	self.spell	    		= {}        					-- Spells all classes may have (e.g. Racials, Mass Ressurection)
+	self.talent         	= {}        					-- Talents
+	self.timeToMax	    	= 0								-- Time To Max Power
+	self.traits         	= {}							-- Azerite Traits
+	self.units          	= {}        					-- Dynamic Units (used for dynamic targeting, if false then target)
+	self.ui 				= {}							-- UI API
+	self.variables 			= {} 							-- Custom Profile Variables
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -94,7 +95,7 @@ function cCharacter:new(class)
 		-- Get Character Info
 		self.getCharacterInfo()
 		-- Get Consumables
-		if bagsUpdated then
+		if br.bagsUpdated then
 			self.potion.action 		= {}
 			self.potion.agility		= {}	-- Agility Potions
 			self.potion.armor 		= {}	-- Armor Potions
@@ -114,10 +115,10 @@ function cCharacter:new(class)
 			self.flask.stamina		= {}
 			self.flask.strength   = {}
 			self.getConsumables()		-- Find All The Tasty Things!
-			bagsUpdated = false
+			br.bagsUpdated = false
 		end
 		-- Get selected rotation
-    self.getRotation()
+		self.getRotation()
 		-- Get toggle modes
 		self.getToggleModes()
 		-- Combat state update
@@ -126,9 +127,8 @@ function cCharacter:new(class)
 		if canRun() ~= true then
 			return false
 		end
-		if isChecked("Debug Timers") then
-			br.debug.cpu.rotation.baseUpdate = debugprofilestop()-startTime or 0
-		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"rotation.baseUpdate")
 	end
 
 -- Update Character Stats
@@ -150,8 +150,6 @@ function cCharacter:new(class)
 
 -- Updates things Out of Combat like Talents, Gear, etc.
 	function self.baseUpdateOOC()
-		-- Update Artifact data
-		if self.artifact.rank == nil then updateArtifact() end
 		-- Updates special Equip like set bonuses
 		self.baseGetEquip()
 		if getOptionCheck("Queue Casting") and #self.queue ~= 0 then
@@ -165,10 +163,10 @@ function cCharacter:new(class)
     -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
 
-		self.mode.rotation  = br.data.settings[br.selectedSpec].toggles["Rotation"]
-		self.mode.cooldown 	= br.data.settings[br.selectedSpec].toggles["Cooldown"]
-		self.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
-		self.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
+		self.ui.mode.rotation  = br.data.settings[br.selectedSpec].toggles["Rotation"]
+		self.ui.mode.cooldown 	= br.data.settings[br.selectedSpec].toggles["Cooldown"]
+		self.ui.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
+		self.ui.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
 	end
 
 -- Returns the Global Cooldown time
@@ -185,9 +183,10 @@ function cCharacter:new(class)
 
 	function self.tankAggro()
 		if self.instance=="raid" or self.instance=="party" then
-			if getTanksTable() ~= nil then
-				for i = 1, #getTanksTable() do
-					if UnitAffectingCombat(getTanksTable()[i].unit) and getTanksTable()[i].distance < 40 then
+			local tanksTable = getTanksTable()
+			if tanksTable ~= nil then
+				for i = 1, #tanksTable do
+					if UnitAffectingCombat(tanksTable[i].unit) and tanksTable[i].distance < 40 then
 						return true
 					end
 				end
@@ -209,11 +208,11 @@ function cCharacter:new(class)
 
 -- Rotation selection update
     function self.getRotation()
-        self.selectedRotation = br.selectedProfile
-
+		self.selectedRotation = br.selectedProfile
+		
         if br.rotationChanged then
             self.createOptions()
-            self.createToggles()
+			self.createToggles()
             br.ui.window.profile.parent:Show()
         end
     end
@@ -228,20 +227,24 @@ function cCharacter:new(class)
 			self.rotation.run()
         else
 			return
-        end
-		if isChecked("Debug Timers") then
-	        br.debug.cpu.rotation.currentTime = debugprofilestop()-startTime
-			br.debug.cpu.rotation.totalIterations = br.debug.cpu.rotation.totalIterations + 1
-			br.debug.cpu.rotation.elapsedTime = br.debug.cpu.rotation.elapsedTime + debugprofilestop()-startTime
-			br.debug.cpu.rotation.averageTime = br.debug.cpu.rotation.elapsedTime / br.debug.cpu.rotation.totalIterations
-			if not self.inCombat then
-				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeOoC then br.debug.cpu.rotation.maxTimeOoC = br.debug.cpu.rotation.currentTime end
-				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeOoC then br.debug.cpu.rotation.minTimeOoC = br.debug.cpu.rotation.currentTime end
-			else
-				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeInC then br.debug.cpu.rotation.maxTimeInC = br.debug.cpu.rotation.currentTime end
-				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeInC then br.debug.cpu.rotation.minTimeInC = br.debug.cpu.rotation.currentTime end
-			end
 		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime,"rotation")
+		-- if isChecked("Debug Timers") then
+		-- 	-- br.debug.cpu.rotation = {
+		-- 	-- 	maxTimeOoC = 0,
+		-- 	-- 	minTimeOoC = 999,
+		-- 	-- 	maxTimeInC = 0,
+		-- 	-- 	minTimeInC = 999,
+		-- 	-- }
+		-- 	if not self.inCombat then
+		-- 		if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeOoC then br.debug.cpu.rotation.maxTimeOoC = br.debug.cpu.rotation.currentTime end
+		-- 		if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeOoC then br.debug.cpu.rotation.minTimeOoC = br.debug.cpu.rotation.currentTime end
+		-- 	else
+		-- 		if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeInC then br.debug.cpu.rotation.maxTimeInC = br.debug.cpu.rotation.currentTime end
+		-- 		if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeInC then br.debug.cpu.rotation.minTimeInC = br.debug.cpu.rotation.currentTime end
+		-- 	end
+		-- end
     end
 
 -- Updates special Equipslots
@@ -272,9 +275,9 @@ function cCharacter:new(class)
         end
 	end
 
--- Sets the racial
+	-- Sets the racial
 	 function self.getRacial()
-		return getRacial()
+		return br.getRacial()
 	 end
 
     -- Casts the racial
@@ -299,8 +302,8 @@ function cCharacter:new(class)
         -- Base Wrap
         local section_base = br.ui:createSection(br.ui.window.profile, "Base Options")
         br.ui:createCheckbox(section_base, "Cast Debug", "Shows information about how the bot is casting.")
-        br.ui:createCheckbox(section_base, "Ignore Combat")
-        br.ui:createCheckbox(section_base, "Mute Queue")
+        br.ui:createCheckbox(section_base, "Ignore Combat", "Checking this will make BR think it is always in combat")
+		br.ui:createCheckbox(section_base, "Mute Queue", "Mute messages from Smart Queue and Queue Casting")
         br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
         br.ui:checkSectionState(section_base)
     end

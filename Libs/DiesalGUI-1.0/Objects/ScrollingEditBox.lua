@@ -142,6 +142,7 @@ local methods = {
 	end,
 	['SetText'] = function(self,txt)
 		self.settings.text = txt
+		self.value = txt
 		self.editBox:SetText(txt or '')
 	end,
 }

@@ -10,7 +10,7 @@ function SellGreys()
 			local item = GetContainerItemLink(bag, slot)
 			if item then
 				-- Is it grey quality item?
-				if string.find(item, qualityColors.grey) ~= nil then
+				if string.find(item, br.qualityColors.grey) ~= nil then
 					greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
 					if greyPrice > 0 then
 						PickupContainerItem(bag, slot)
@@ -37,7 +37,7 @@ function DumpGreys(Num)
 			local item = GetContainerItemLink(bag, slot)
 			if item then
 				-- Is it grey quality item?
-				if string.find(item, qualityColors.grey) ~= nil then
+				if string.find(item, br.qualityColors.grey) ~= nil then
 					greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
 					if greyPrice > 0 then
 						tinsert(greyTable, {Bag = bag, Slot = slot, Price = greyPrice, Item = item})

@@ -82,6 +82,16 @@ function cl:common(...)
     br.read.enrageReader(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     br.guid = UnitGUID("player")
+    -- Unit Dies - Remove from enemy tracking
+    if param == "UNIT_DIED" and br.unlocked then
+        -- Print("Unit Died Updating Tables")
+        -- local unit = GetObjectWithGUID(destination)
+        br.om:Update()
+        -- if br.enemy ~= nil and br.enemy[unit] ~= nil then br.enemy[unit] = nil end
+        -- if br.damaged ~= nil and br.damaged[unit] ~= nil then br.damaged[unit] = nil end
+        -- if br.units ~= nil and br.units[unit] ~= nil then br.units[unit] = nil end
+        --if br.unitSetup ~= nil and br.unitSetup.cache ~= nil and br.unitSetup.cache[unit] ~= nil then br.unitSetup.cache[unit] = nil end
+    end
     --[[Combat Validation]]
     if br.player ~= nil then
         local inInstance, instanceType = IsInInstance()
@@ -103,7 +113,7 @@ function cl:common(...)
         end
     end
     --In flight
-    if source == br.guid and param == "SPELL_CAST_SUCCESS" and br.unlocked then --EasyWoWToolbox ~= nil then
+    if source == br.guid and param == "SPELL_CAST_SUCCESS" and br.unlocked and destination ~= nil then --EasyWoWToolbox ~= nil then
         br.InFlight.Add(spell, destination)
     end
     -- br.tracker.handleEvent(...)
@@ -187,12 +197,12 @@ function cl:common(...)
                     else
                         queueDest = destination
                     end
-                    if #br.player.queue == 0 and notOnCD then
+                    if br.player ~= nil and #br.player.queue == 0 and notOnCD then
                         tinsert(br.player.queue, {id = spell, name = spellName, target = queueDest})
                         if not isChecked("Mute Queue") then
                             Print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
                         end
-                    elseif #br.player.queue ~= 0 then
+                    elseif br.player ~= nil and #br.player.queue ~= 0 then
                         for i = 1, #br.player.queue do
                             if spell == br.player.queue[i].id then
                                 tremove(br.player.queue,i)
@@ -358,7 +368,7 @@ function cl:common(...)
                 -- Blizz CastSpellByName bug bypass
                 if GetSpellInfo(spell) == GetSpellInfo(botSpell) and spell ~= botSpell then
                     -- Print("Spell Error Bypass: Correct ID = "..botSpell..", Incorrect ID = "..spell..", on "..botUnit)
-                    castID = true
+                    br.castID = true
                 end
             end
             -- set destination
@@ -415,6 +425,16 @@ function cl:common(...)
             if spell == 282107 then
                 pakuWrath = false
             end
+        end
+    end
+    if param == "SPELL_AURA_APPLIED" then
+        if spell == 323402 then
+            br.shadeUp = true
+        end
+    end
+    if param == "SPELL_AURA_REMOVED" then
+        if spell == 323402 then
+            br.shadeUp = false
         end
     end
 end
@@ -535,7 +555,7 @@ function cl:Hunter(...)
         end
     end
     --[[ Dead Pet Reset ]]
-    if UnitHealth("pet") > 0 then deadPet = false end
+    if UnitHealth("pet") > 0 then br.deadPet = false end
 end
 function cl:Mage(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
@@ -581,53 +601,38 @@ function cl:Mage(...)
 end
 function cl:Monk(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    -- Cast Fail Types
-    local failType = {
-        ["ABSORB"] = true,
-        ["BLOCK"] = true,
-        ["DEFLECT"] = true,
-        ["DODGE"] = true,
-        ["EVADE"] = true,
-        ["IMMUNE"] = true,
-        ["MISS"] = true,
-        ["PARRY"] = true,
-        ["REFLECT"] = true,
-        ["RESIST"] = true
-    }
-    local castTime = select(4, GetSpellInfo(spell))
-    if castTime == nil then castTime = 0 end
-    if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
-    if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
+    -- if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
     if br.player ~= nil and GetSpecialization() == 3 and br.player.spell.fistsOfFury ~= nil then
+        local myspell = br.player.spell
+        local var 	= br.player.variables
         local comboSpells = {
-            [br.player.spell.blackoutKick]              = true,
-            [br.player.spell.chiBurst]                  = true,
-            [br.player.spell.chiWave]                   = true,
-            [br.player.spell.cracklingJadeLightning]    = true,
-            [br.player.spell.fistsOfFury]               = true,
-            [br.player.spell.fistOfTheWhiteTiger]       = true,
-            [br.player.spell.flyingSerpentKick]         = true,
-            [br.player.spell.risingSunKick]             = true,
-            [br.player.spell.rushingJadeWind]           = true,
-            [br.player.spell.spinningCraneKick]         = true,
-            [br.player.spell.tigerPalm]                 = true,
-            [br.player.spell.touchOfDeath]              = true,
-            [br.player.spell.whirlingDragonPunch]       = true,
+            [myspell.blackoutKick]              = true,
+            [myspell.chiBurst]                  = true,
+            [myspell.chiWave]                   = true,
+            [myspell.cracklingJadeLightning]    = true,
+            [myspell.expelHarm]                 = true,
+            [myspell.fistsOfFury]               = true,
+            [myspell.fistOfTheWhiteTiger]       = true,
+            [myspell.flyingSerpentKick]         = true,
+            [myspell.risingSunKick]             = true,
+            [myspell.rushingJadeWind]           = true,
+            [myspell.spinningCraneKick]         = true,
+            [myspell.tigerPalm]                 = true,
+            [myspell.touchOfDeath]              = true,
+            [myspell.whirlingDragonPunch]       = true,
+            [myspell.faelineStomp]              = true,
         }
+        if var.lastCombo == nil or not UnitAffectingCombat("player") then var.lastCombo = 6603 end
         if sourceName ~= nil then
             if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
-            -- Last Combo
-                if param == "SPELL_CAST_SUCCESS" and comboSpells[spell] and spell ~= lastCombo then
-                    prevCombo = lastCombo
-                    lastCombo = spell
-                    -- Print(GetSpellInfo(lastCombo).." Success! - Prev Last Combo was: "..GetSpellInfo(prevCombo))
-                end
-                if comboSpells[spell] and (castTime == 0 or (castTime > 0 and getCastTimeRemain("player") < castTime)) and not (getSpellCD(spell) > br.player.gcdMax)
-                    and (param == "SPELL_CAST_FAILED" or (param == "SPELL_MISSED" and failType[spellType]))
-                then
-                    -- Print(GetSpellInfo(lastCombo).." "..spellType.."! - Setting Last Combo to: "..GetSpellInfo(prevCombo))
-                    lastCombo = prevCombo
-                    prevCombo = 6603
+                -- Last Combo
+                if param == "SPELL_CAST_SUCCESS" then
+                    -- Print("Last Successful Spell was "..GetSpellInfo(spell).." with ID: "..spell)
+                    if comboSpells[spell] and spell ~= var.lastCombo then
+                        -- prevCombo = lastCombo
+                        var.lastCombo = spell
+                        -- Print(GetSpellInfo(var.lastCombo).." Success! ")--- Prev Last Combo was: "..GetSpellInfo(prevCombo))
+                    end
                 end
             end
         end
@@ -635,10 +640,69 @@ function cl:Monk(...)
 end
 function cl:Priest(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    if GetSpecialization() == 3 then
+        -- Periodic Damage Events
+        if param == "SPELL_PERIODIC_DAMAGE" then
+            if br.mfTicks == nil then br.mfTicks = 0 end
+            -- Mindflay Ticks
+            if source == br.guid and spellName == GetSpellInfo(15407) then br.mfTicks = br.mfTicks + 1 br.addonDebug("Mindflay + 1 tick" .. "Total Ticks: " .. br.mfTicks) end
+        end
+        -- Corruption was removed.
+        if param == "SPELL_AURA_REMOVED" then
+            if source == br.guid then
+                -- Mindflay
+                if spellName == GetSpellInfo(15407) then br.mfTicks = 0 br.maxmfTicks = 6 br.addonDebug("Mindflay ticks reset") end
+            end
+        end
+
+        -- Periodic Damage Events
+        if param == "SPELL_DAMAGE" then
+            if br.msTicks == nil then br.msTicks = 0 end
+            -- Mind Sear Ticks
+            if source == br.guid and spellName == GetSpellInfo(48045) and destination == UnitGUID('target') then br.msTicks = br.msTicks + 1 br.addonDebug("Mind Sear + 1 tick" .. "Total Ticks: " .. br.msTicks) end
+        end
+        -- Corruption was removed.
+        if param == "SPELL_AURA_REMOVED" then
+            if source == br.guid then
+                -- Mindflay
+                if spellName == GetSpellInfo(48045) then br.msTicks = 0 br.maxmsTicks = 6 br.addonDebug("Mind Sear ticks reset") end
+            end
+        end
+    end
+
     -- last VT
-    if param == "SPELL_CAST_SUCCESS" and spell == 34914 then
+    if lastVTTime == nil then
+        lastVTTime = -999999999
+    end
+    if param == "SPELL_CAST_START" and spell == 34914 then
         lastVTTarget = destination
         lastVTTime = GetTime()
+    end
+    if param == "SPELL_CAST_FAILED" then
+        if spellType == "Interrupted" then
+            --print("You moved")
+            lastVTTarget = nil
+            lastVTTime = 0
+        end
+    end
+    if not discHealCount then
+        discHealCount = 0
+    end
+    if sourceName == UnitName("player") then
+        if br.unlocked then
+            local thisUnit = GetObjectWithGUID(destination)
+            if thisUnit~=nil and param == "SPELL_CAST_SUCCESS" and (UnitIsFriend(thisUnit,"player") or UnitIsUnit(thisUnit,"player")) then
+                --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
+                Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
+                Print("Adding 1 to heal counter") ]]
+                discHealCount = discHealCount + 1
+            elseif thisUnit ~= nil and param == "SPELL_CAST_SUCCESS" and not UnitIsFriend(thisUnit, "player") then
+                --[[ Print("Friend Check: ".. tostring(UnitIsFriend(thisUnit,"player")))
+                Print("player Check: ".. tostring(UnitIsUnit(thisUnit,"player")))
+                Print("Resetting Heal Count") ]]
+                discHealCount = 0
+            end
+        end
     end
 end
 function cl:Paladin(...)
@@ -761,22 +825,81 @@ function cl:Shaman(...) -- 7
     if param == "UNIT_DESTROYED" and activeTotem == destination then
         activeTotem = nil
     end
+    -------------
+    --[[ Lightning Bolt ]]
+    if br.player ~= nil and GetSpecialization() == 2 then
+        if sourceName ~= nil then
+            if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+                -- Chain Lightning / Lightning Bolt 
+                if lightningStarted == nil then lightningStarted = false end
+                if param == "SPELL_CAST_START" then
+                    if (spell == br.player.spell.lightningBolt or spell == br.player.spell.chainLightning) and br.player.variables.fillLightning then
+                        lightningStarted= true
+                    end
+                end
+                if param == "SPELL_CAST_SUCCESS" then
+                    if (spell == br.player.spell.lightningBolt or spell == br.player.spell.chainLightning) and br.player.variables.fillLightning and lightningStarted then
+                        br.player.variables.fillLightning = false
+                        lightningStarted = false
+                    end
+                end
+            end
+        end
+    end
 end
 function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     if GetSpecialization() == 1 then
-        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
-            -- Line CD
-            if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-            if spell == 980 or spell == 172 or spell == 63106 then
-                br.lastCast.line_cd[spell] = GetTime()
-            end
+        if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
+            -- Drain Soul counter
+            if UnitChannelInfo("player") == GetSpellInfo(198590) then br.dsTicks = 1 end
+	    end
+
+        -- We stopped a channel, reset counters.
+        if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_STOP" then br.dsTicks = 1 end
+        
+        -- CLear dot table after each death/individual combat scenarios. 
+        if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then  end
+
+        if param == "UNIT_DIED" then     end--if]] #kinkydots > 0 then for i=1,#kinkydots do if kinkydots[i].guid == destGUID then tremove(kinkydots, i) return true --]]end end end 
+
+        -- Corruption was refreshed. 
+        if param == "SPELL_AURA_REFRESH" then
+        -- Drain Soul
+		if source == br.guid and spellName == GetSpellInfo(198590) then br.dsTicks = 1 br.maxdsTicks = 5 end
+    end
+
+    -- Successfull Spell Casts
+	if param == "SPELL_CAST_SUCCESS" then
+		if source == br.guid then
+			
+		end
+	end
+
+    -- Periodic Damage Events
+    if param == "SPELL_PERIODIC_DAMAGE" then
+        if br.dsTicks == nil then br.dsTicks = 0 end
+        -- Drain Soul Ticks
+        if source == br.guid and spellName == GetSpellInfo(198590) then br.dsTicks = br.dsTicks + 1 br.addonDebug("Drain Soul + 1 tick" .. "Total Ticks: " .. br.dsTicks) end
+    end
+    -- Corruption was removed.
+	if param == "SPELL_AURA_REMOVED" then
+        if source == br.guid then
+            -- Drain Soul
+			if spellName == GetSpellInfo(198590) then br.dsTicks = 1 br.maxdsTicks = 5 br.addonDebug("Drain Soul ticks reset") end
         end
     end
+
+    -- Corruption was applied. 
+    if param == "SPELL_AURA_APPLIED" then
+        if source == br.guid then
+        end
+    end
+end
     if GetSpecialization() == 2 then
         -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then
         --     -- Hand of Guldan
-        --     if spell == 105174 then
+        --     if  == 105174 then
         --         if not br.lastCast.hog then br.lastCast.hog = {} end
         --         if br.lastCast then
         --             tinsert(br.lastCast.hog, 1, GetTime())
@@ -787,11 +910,11 @@ function cl:Warlock(...) -- 9
         --     end
         --     -- Line CD
         --     if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-        --     br.lastCast.line_cd[spell] = GetTime()
+        --     br.lastCast.line_cd[] = GetTime()
         -- end
         -- -- Demonology Manager
         -- -- Imps are summoned
-        -- if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
+        -- if param == "SPELL_SUMMON" and source == br.guid and ( == 104317 or  == 279910) then
         --     print("Imp SUMMON")
         -- end
         -- -- Other Demons are summoned
@@ -837,6 +960,11 @@ function cl:Warrior(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
     ----------------------------------
     --[[ Bleed Recorder (Warrior) --]]
+    if destName == UnitName("player") then
+        reflectPlayer = true
+    elseif br.timer:useTimer("reflect reset", 0.8) then
+        reflectPlayer = false
+    end
     if GetSpecialization("player") == 1 then
         -- snapshot on spellcast
         if source == br.guid and param == "SPELL_CAST_SUCCESS" then

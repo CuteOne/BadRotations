@@ -1,9 +1,8 @@
-## Interface: 80300
+## Interface: 90002
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.33.1
-## SavedVariablesPerCharacter: brdata, brprofile
+## Version: 1.33.8
 
 BadRotations.lua
 bindings.xml
@@ -54,6 +53,7 @@ System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
+#System\Lists\Range.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
 
@@ -95,10 +95,12 @@ System\Engines\HealingEngineFunctions.lua
 #System\Engines\InterruptsFrame.lua -- Unused
 System\Engines\Interrupts.lua 
 System\Engines\ttdTable.lua
+System\Engines\QuestTracker.lua
 System\Engines\Tracker.lua
 
 ## BadRotations UI
 
+System\UI\SettingsManagement.lua
 System\UI\ChatOverlay.lua
 System\UI\MinimapButton.lua
 System\UI\UI.lua
@@ -122,14 +124,22 @@ System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
 
 ## API
+
 System\API\Buff.lua
+System\API\Cast.lua
+System\API\CD.lua
+System\API\Conduit.lua
+System\API\Covenant.lua
 System\API\Debuff.lua
 System\API\Essence.lua
 System\API\Item.lua
+System\API\Module.lua
 System\API\Pet.lua
 System\API\Power.lua
+System\API\Runeforge.lua
 System\API\Spell.lua
 System\API\UI.lua
+System\API\Unit.lua
 
 ## Loader
 
@@ -157,3 +167,6 @@ System\Misc\ProfessionHelper\ProfessionHelper.lua
 System\Misc\Zu\BossManager.lua
 System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
 System\Misc\Zu\MawOfSouls\Helya.lua
+
+## Updater --------------------------------------------
+System\Updater.lua

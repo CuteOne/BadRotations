@@ -13,7 +13,7 @@ function TogglesFrame()
 	buttonSize = br.data.settings["buttonSize"]
 	buttonWidth = br.data.settings["buttonSize"]
 	buttonHeight = br.data.settings["buttonSize"]
-	mainButton = CreateFrame("Button","MyButtonBR",UIParent,"SecureHandlerClickTemplate")
+	if not mainButton then mainButton = CreateFrame("Button","MyButtonBR",UIParent,"SecureHandlerClickTemplate") end
 	mainButton:SetWidth(buttonWidth)
 	mainButton:SetHeight(buttonHeight)
 	mainButton:RegisterForClicks("AnyUp")
@@ -35,7 +35,7 @@ function TogglesFrame()
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving)
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing)
 -- Set Main Button
-	if br.data.settings[br.selectedSpec].toggles['Power'] == 1 then
+	if br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil and br.data.settings[br.selectedSpec].toggles['Power'] == 1 then
 		mainButton:SetNormalTexture(backIconOn)
 	else
 		mainButton:SetNormalTexture(backIconOff)
@@ -118,15 +118,17 @@ function TogglesFrame()
 	mainText:SetTextHeight(br.data.settings["buttonSize"]/3)
 	mainText:SetPoint("CENTER",3,-(br.data.settings["buttonSize"]/8))
 	mainText:SetTextColor(.90,.90,.90,1)
-	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
-	if br.data.settings[br.selectedSpec].toggles['Power'] == 0 then
-		br.data.settings[br.selectedSpec].toggles['Power'] = 0
-		mainText:SetText("Off")
-		mainButtonFrame.texture:SetTexture(genericIconOff)
-	else
-		br.data.settings[br.selectedSpec].toggles['Power'] = 1
-		mainText:SetText("On")
-		mainButtonFrame.texture:SetTexture(genericIconOn)
+	if br.data.settings[br.selectedSpec] ~= nil then
+		if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
+		if br.data.settings[br.selectedSpec].toggles['Power'] == 0 then
+			br.data.settings[br.selectedSpec].toggles['Power'] = 0
+			mainText:SetText("Off")
+			mainButtonFrame.texture:SetTexture(genericIconOff)
+		else
+			br.data.settings[br.selectedSpec].toggles['Power'] = 1
+			mainText:SetText("On")
+			mainButtonFrame.texture:SetTexture(genericIconOn)
+		end
 	end
 	buttonsTable = { }
 end

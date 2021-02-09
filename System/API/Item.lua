@@ -4,9 +4,20 @@ br.api.items = function(item,k,v,subtable)
     if item[k] == nil then item[k] = {} end
     if subtable == "cd" then
         local cd = item
-        cd[k].remain = function(slotID)
-            if slotID == nil then slotID = v end
-            return GetItemCooldown(slotID)
+        cd[k].exists = function(itemID)
+            if itemID == nil then itemID = v end
+            return GetItemCooldown(itemID) > 0
+        end
+        cd[k].remain = function(itemID)
+            if itemID == nil then itemID = v end
+            if GetItemCooldown(itemID) ~= 0 then
+                return (GetItemCooldown(itemID) + select(2, GetItemCooldown(itemID)) - GetTime())
+            end
+            return 0
+        end
+        cd[k].duration = function(itemID)
+            if itemID == nil then itemID = v end
+            return GetSpellBaseCooldown(select(2,GetItemSpell(itemID))) / 1000
         end
     end
     if subtable == "charges" then
@@ -37,6 +48,13 @@ br.api.items = function(item,k,v,subtable)
             local checkSpell = GetItemInfo(gemID) 
             return socketSpell == checkSpell
         end
+        if equiped.type == nil then
+            equiped.type = function(itemType)
+                local IsEquippedItemType = _G["IsEquippedItemType"]
+                if itemType == nil then return false end
+                return IsEquippedItemType(itemType)
+            end
+        end
     end 
     if subtable == "has" then 
         local has = item
@@ -44,15 +62,22 @@ br.api.items = function(item,k,v,subtable)
         has[k] = function()
             return hasItem(v)
         end
+        if has.item == nil then
+            has.item = function(itemID)
+                if itemID == nil then return end
+                return hasItem(itemID)
+            end
+        end
     end
     if subtable == "use" then 
         local use = item
         -- br.player.use.item()
-        use[k] = function(slotID)
+        use[k] = function(slotID,thisUnit)
+            if thisUnit == nil then thisUnit = "target" end
             if slotID == nil then
-                if canUseItem(v) then return useItem(v) else return end
+                if canUseItem(v) then return useItem(v,thisUnit) else return end
             else
-                if canUseItem(slotID) then return useItem(slotID) else return end
+                if canUseItem(slotID) then return useItem(slotID,thisUnit) else return end
             end
         end
         if use.able == nil then use.able = {} end
@@ -60,13 +85,35 @@ br.api.items = function(item,k,v,subtable)
         use.able[k] = function(slotID)
             if slotID == nil then return canUseItem(v) else return canUseItem(slotID) end
         end
+        if use.able.item == nil then
+            use.able.item = function(itemID)
+                if itemID == nil then return false end
+                return canUseItem(itemID)
+            end
+        end
         -- br.player.use.able.slot()
-        use.able.slot = function(slotID)
-            return canUseItem(slotID)
+        if use.able.slot == nil then
+            use.able.slot = function(slotID)
+                return canUseItem(slotID)
+            end
+        end
+        if use.item == nil then
+            use.item = function(itemID,thisUnit)
+                if itemID == nil then return false end
+                if thisUnit == nil then thisUnit = "target" end
+                if canUseItem(itemID) then
+                    return useItem(itemID,thisUnit)
+                else
+                    return
+                end
+            end
         end
         -- br.player.use.slot()
-        use.slot = function(slotID)
-            if canUseItem(slotID) then return useItem(slotID) else return end
+        if use.slot == nil then 
+            use.slot = function(slotID,thisUnit)
+                if thisUnit == nil then thisUnit = "target" end
+                if canUseItem(slotID) then return useItem(slotID,thisUnit) else return end
+            end
         end
     end
 end

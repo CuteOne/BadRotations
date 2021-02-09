@@ -61,10 +61,10 @@ function UnitDebuffID(unit, spellID, filter)
 	local exactSearch = filter ~= nil and strfind(strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitDebuff(unit, i)
+			local buffName, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitDebuff(unit, i, "player")
 			if buffName == nil then	return nil end
 			if buffSpellID == spellID then
-				return UnitDebuff(unit, i)
+				return UnitDebuff(unit, i, "player")
 			end
 		end
 	else
@@ -154,17 +154,11 @@ function canDispel(Unit, spellID)
 		if spellID == 213644 then typesList = {"Poison", "Disease"}	end
 	end
 	if ClassNum == 3 then --Hunter
-		if spellID == 264265 then typesList = {"Magic", ""}	end --spiritShock
-		if spellID == 264028 then typesList = {"Magic", ""}	end --chiJiTranq
-		if spellID == 264266 then typesList = {"Magic", ""}	end --naturesGrace
-		if spellID == 264264 then typesList = {"Magic", ""}	end --netherShock
-		if spellID == 264263 then typesList = {"Magic", ""}	end --sonicBlast
-		if spellID == 254262 then typesList = {"Magic", ""}	end --soothingWater
-		if spellID == 254056 then typesList = {"Magic", ""}	end --sporeCloud
+		if spellID == 19801 then typesList = {"Magic", ""}	end --tranq shot
 	end
 	if ClassNum == 4 then --Rogue
-		-- Cloak of Shadows
-		if spellID == 31224 then typesList = {"Poison", "Curse", "Disease", "Magic"} end
+		if spellID == 31224 then typesList = {"Poison", "Curse", "Disease", "Magic"} end -- Cloak of Shadows
+		if spellID == 5938 then	typesList = {""} end --shiv
 	end
 	if ClassNum == 5 then --Priest
 		-- Purify
@@ -238,7 +232,7 @@ function canDispel(Unit, spellID)
 	end
 	local ValidDebuffType = false
 	local i = 1
-	if UnitInPhase(Unit) then
+	if not UnitPhaseReason(Unit) then
 		if GetUnitIsFriend("player", Unit) then
 			while UnitDebuff(Unit, i) do
 				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = UnitDebuff(Unit, i)
@@ -398,16 +392,16 @@ function getDebuffRemainCount(spellID, remain)
 	end
 	return tonumber(counter)
 end
-function getDebuffMinMax(spell, range, debuffType, returnType)
+function getDebuffMinMax(spell, range, debuffType, returnType, source)
 	local thisMin = 99
 	local thisMax = 0
 	local lowestUnit = "target"
 	local maxUnit = "target"
 	for k, v in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
-		local distance = getDistance(thisUnit)
+		local distance = getDistance(thisUnit,source)
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if getFacing("player",thisUnit) and distance < range and thisDebuff >= 0 
+		if getFacing("player",thisUnit) and distance < range and thisDebuff >= 0
 			and ((returnType == "min" and thisDebuff < thisMin) or (returnType == "max" and thisDebuff > thisMax))
 		then
 			if returnType == "min" then
@@ -426,6 +420,22 @@ function getDebuffMinMax(spell, range, debuffType, returnType)
 	if returnType == "max" then
 		return maxUnit
 	end
+end
+function getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
+	local thisMin = 99
+	local lowestUnit = "target"
+	for k, v in pairs(br.enemy) do
+		local thisUnit = br.enemy[k].unit
+		local distance = getDistance(thisUnit,"pet")
+		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
+		if getFacing("player",thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
+			if returnType == "min" or returnType == nil then
+				lowestUnit = thisUnit
+				thisMin = thisDebuff
+			end
+		end
+	end
+	return lowestUnit
 end
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit, BuffID, Source)
@@ -466,8 +476,8 @@ function getBuffStacks(Unit, BuffID, Source)
 end
 function getBuffCount(spellID)
 	local counter = 0
-	for k, v in pairs(br.friend) do
-		local thisUnit = br.friend[k].unit
+	for i= 1, #br.friend do
+		local thisUnit = br.friend[i].unit
 		-- check if unit is valid
 		if GetObjectExists(thisUnit) then
 			-- increase counter for each occurences

@@ -13,7 +13,7 @@ local function getSnapshotValue(dot)
         local TigersFury        = 1.15
         local RakeMultiplier    = 1
         -- Bloodtalons
-        if self.buff.bloodtalons.exists() then multiplier = multiplier*Bloodtalons end
+        if self.buff.bloodtalons.exists() and dot == self.spell.debuffs.rip then multiplier = multiplier*Bloodtalons end
         -- Savage Roar
         -- if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
         -- Tigers Fury
@@ -27,9 +27,9 @@ local function getSnapshotValue(dot)
         end
         -- rake
         if dot == self.spell.debuffs.rake then
-            -- Incarnation/Prowl
-            if self.buff.incarnationKingOfTheJungle.exists() or self.buff.prowl.exists() then
-                RakeMultiplier = 2
+            -- Incarnation/Prowl/Sudden Ambush
+            if self.buff.berserk.exists() or self.buff.incarnationKingOfTheJungle.exists() or self.buff.prowl.exists() or self.buff.shadowmeld.exists() or self.buff.suddenAmbush.exists() then
+                RakeMultiplier = 1.6
             end
             -- return rake
             return multiplier*RakeMultiplier
@@ -103,10 +103,29 @@ br.api.debuffs = function(debuff,k,v)
     debuff.remainCount = function(remain)
         return tonumber(getDebuffRemainCount(v,remain))
     end
-    debuff.lowest = function(range,debuffType)
+    debuff.refreshCount = function()
+        local counter = 0
+        for l, w in pairs(br.enemy) do
+            local thisUnit = br.enemy[l].unit
+            -- check if unit is valid
+            if GetObjectExists(thisUnit) then
+                -- increase counter for each occurences
+                if not debuff.refresh(thisUnit,"player") then
+                    counter = counter + 1
+                end
+            end
+        end
+        return tonumber(counter)
+    end
+    debuff.lowest = function(range,debuffType,source)
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
-        return getDebuffMinMax(k, range, debuffType, "min")
+        return getDebuffMinMax(k, range, debuffType, "min", source)
+    end
+    debuff.lowestPet = function(range,debuffType)
+        if range == nil then range = 8 end
+        if debuffType == nil then debuffType = "remain" end
+        return getDebuffMinMaxButForPetsThisTime(k, range, debuffType, "min")
     end
     debuff.max = function(range,debuffType)
         if range == nil then range = 40 end

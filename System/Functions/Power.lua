@@ -23,8 +23,8 @@ end
 function getPower(Unit, index)
 	local value = value
 	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
-		if UnitBuffID("player", 106951) or UnitBuffID("player", 102543) then
-			value = UnitPower(Unit, index) * 2
+		if --[[UnitBuffID("player", 106951) or]] UnitBuffID("player", 102543) then
+			value = UnitPower(Unit, index) * 1.2
 		else
 			value = UnitPower(Unit, index)
 		end
@@ -36,8 +36,8 @@ end
 function getPowerMax(Unit, index)
 	local value = value
 	if select(3, UnitClass("player")) == 11 or select(3, UnitClass("player")) == 4 then
-		if UnitBuffID("player", 106951) or UnitBuffID("player", 102543) then
-			value = UnitPowerMax(Unit, index) * 2
+		if --[[UnitBuffID("player", 106951) or]] UnitBuffID("player", 102543) then
+			value = UnitPowerMax(Unit, index) * 1.2
 		else
 			value = UnitPowerMax(Unit, index)
 		end
@@ -185,15 +185,17 @@ function runeTimeTill(runeIndex)
 	return timeTill
 end
 -- if getTimeToMax("player") < 3 then
-function getTimeToMax(Unit)
-	local max = UnitPowerMax(Unit)
+function getTimeToMax(Unit,Limit)
+	local timeTill = 999
+	local max = Limit or UnitPowerMax(Unit)
 	local curr = UnitPower(Unit)
 	local curr2 = curr
 	local _, regen = GetPowerRegen(Unit)
 	if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 and isKnown(114107) then
 		curr2 = curr + 4 * getCombo()
 	end
-	return (max - curr2) * (1.0 / regen)
+	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
+	return timeTill
 end
 -- /dump getCastRegen(185358)
 function getCastRegen(spellId)
