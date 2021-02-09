@@ -1,8 +1,8 @@
-local addonName, br = ...
+local _, br = ...
 -- getLatency()
-function getLatency()
+function br.getLatency()
 	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
-	local lag = select(4, GetNetStats()) / 1000
+	local lag = select(4, _G.GetNetStats()) / 1000
 	if lag < .05 then
 		lag = .05
 	elseif lag > .4 then
@@ -12,24 +12,24 @@ function getLatency()
 end
 
 --Calculate Agility
-function getAgility()
-	local AgiBase, AgiStat, AgiPos, AgiNeg = UnitStat("player", 2)
+function br.getAgility()
+	local AgiBase, AgiStat, AgiPos, AgiNeg = br._G.UnitStat("player", 2)
 	local Agi = AgiBase + AgiPos + AgiNeg
 	return Agi
 end
 
-function getFallDistance()
+function br.getFallDistance()
 	local zDist
 	local _, _, position = br.GetObjectPosition("player")
 
-	if zCoord == nil then
-		zCoord = position
+	if br.zCoord == nil then
+		br.zCoord = position
 	end
-	if not IsFalling() or IsFlying() then
-		zCoord = position
+	if not _G.IsFalling() or _G.IsFlying() then
+		br.zCoord = position
 	end
-	if position - zCoord < 0 then
-		zDist = math.sqrt(((position - zCoord) ^ 2))
+	if position - br.zCoord < 0 then
+		zDist = math.sqrt(((position - br.zCoord) ^ 2))
 	else
 		zDist = 0
 	end
@@ -37,29 +37,29 @@ function getFallDistance()
 	return zDist
 end
 --if getFallTime() > 2 then
-function getFallTime()
-	if fallStarted == nil then
-		fallStarted = 0
+function br.getFallTime()
+	if br.fallStarted == nil then
+		br.fallStarted = 0
 	end
-	if fallTime == nil then
-		fallTime = 0
+	if br.fallTime == nil then
+		br.fallTime = 0
 	end
-	if IsFalling() and getFallDistance() < 0 then
-		if fallStarted == 0 then
-			fallStarted = GetTime()
+	if _G.IsFalling() and br.getFallDistance() < 0 then
+		if br.fallStarted == 0 then
+			br.fallStarted = _G.GetTime()
 		end
-		if fallStarted ~= 0 then
-			fallTime = (math.floor((GetTime() - fallStarted) * 1000) / 1000)
+		if br.fallStarted ~= 0 then
+			br.fallTime = (math.floor((_G.GetTime() - br.fallStarted) * 1000) / 1000)
 		end
 	end
-	if not IsFalling() then
-		fallStarted = 0
-		fallTime = 0
+	if not _G.IsFalling() then
+		br.fallStarted = 0
+		br.fallTime = 0
 	end
-	return fallTime
+	return br.fallTime
 end
 -- if br.getLineOfSight("target"[,"target"]) then
-math.doLinesIntersect = function(a, b, c, d)
+_G.math.doLinesIntersect = function(a, b, c, d)
 	-- parameter conversion
 	local L1 = {X1 = a.x, Y1 = a.y, X2 = b.x, Y2 = b.y}
 	local L2 = {X1 = c.x, Y1 = c.y, X2 = d.x, Y2 = d.y}
@@ -95,7 +95,7 @@ math.doLinesIntersect = function(a, b, c, d)
 	return false
 end
 
-function carapaceMath(Unit1, Unit2)
+function br.carapaceMath(Unit1, Unit2)
 	if Unit2 == nil then
 		Unit2 = Unit1
 		if Unit2 == "player" then
@@ -113,18 +113,18 @@ function carapaceMath(Unit1, Unit2)
 		if tX ~= nil then
 			LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
 		end ]]
-		tentCache = {}
-		for i = 1, GetObjectCountBR() do
-			local object = GetObjectWithIndex(i)
+		local tentCache = {}
+		for i = 1, br._G.GetObjectCount() do
+			local object = br._G.GetObjectWithIndex(i)
 			local objectid = br._G.ObjectID(object)
 			if objectid == 157485 then
 				tentExists = true
-				tentFacing = GetObjectFacing(object)
-				tentX, tentY, tentZ = br.GetObjectPosition(object)
+				local tentFacing = br.GetObjectFacing(object)
+				local tentX, tentY, tentZ = br.GetObjectPosition(object)
 				table.insert(
 					tentCache,
 					{
-						["tentFacing"] = GetObjectFacing(object),
+						["tentFacing"] = br.GetObjectFacing(object),
 						["tentX"] = select(1, br.GetObjectPosition(object)),
 						["tentY"] = select(2, br.GetObjectPosition(object)),
 						["tentZ"] = select(3, br.GetObjectPosition(object)),
@@ -132,40 +132,40 @@ function carapaceMath(Unit1, Unit2)
 						["tentY2"] = tentY + (80 * math.sin(tentFacing))
 					}
 				)
+				local tentfinal = {}
+				if tentX ~= nil then
+					for j = 1, #tentCache do
+						if tentCache[j]["tentX"] ~= nil then
+							local a = {x = tentCache[j]["tentX"], y = tentCache[j]["tentY"]}
+							local b = {x = tentCache[j]["tentX2"], y = tentCache[j]["tentY2"]}
+							local c = {x = tX, y = tY}
+							local d = {x = pX, y = pY}
+							if tX ~= nil then
+								if _G.math.doLinesIntersect(a, b, c, d) then
+									--[[ LibDraw.SetColor(255,0,0)
+									LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
+									]] tentCheck =
+										false
+									table.insert(tentfinal, tentCheck)
+								--[[ else
+									LibDraw.SetColor(0,255,0)
+									LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
+								]]
+								end
+							end
+						end
+					end
+					if tentfinal[1] == nil or tentfinal == nil then
+						return true
+					else
+						return false
+					end
+				else
+					return true
+				end
 			end
 		end
 
-		tentfinal = {}
-		if tentX ~= nil then
-			for i = 1, #tentCache do
-				if tentCache[i]["tentX"] ~= nil then
-					local a = {x = tentCache[i]["tentX"], y = tentCache[i]["tentY"]}
-					local b = {x = tentCache[i]["tentX2"], y = tentCache[i]["tentY2"]}
-					local c = {x = tX, y = tY}
-					local d = {x = pX, y = pY}
-					if tX ~= nil then
-						if math.doLinesIntersect(a, b, c, d) then
-							--[[ LibDraw.SetColor(255,0,0)
-							LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
-							]] tentCheck =
-								false
-							table.insert(tentfinal, tentCheck)
-						--[[ else 
-							LibDraw.SetColor(0,255,0)
-							LibDraw.Line(tentCache[i]["tentX"],tentCache[i]["tentY"],tentCache[i]["tentZ"],tentCache[i]["tentX2"],tentCache[i]["tentY2"],tentCache[i]["tentZ"])
-						]]
-						end
-					end
-				end
-			end
-			if tentfinal[1] == nil or tentfinal == nil then
-				return true
-			else
-				return false
-			end
-		else
-			return true
-		end
 	end
 end
 
@@ -210,7 +210,7 @@ function br.getLineOfSight(Unit1, Unit2)
 				end
 			elseif br.player and br.player.eID and br.player.eID == 2337 then
 				--Print("Past Cara Check")
-				if carapaceMath(Unit1, Unit2) == true then
+				if br.carapaceMath(Unit1, Unit2) == true then
 					--Print("Cara True")
 					return true
 				else
@@ -230,21 +230,21 @@ function br.getLineOfSight(Unit1, Unit2)
 	end
 end
 -- if getGround("target"[,"target"]) then
-function getGround(Unit)
+function br.getGround(Unit)
 	if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) then
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit)
-		if TraceLine(X1, Y1, Z1, X1, Y1, Z1 - 2, 0x10) == nil and TraceLine(X1, Y1, Z1, X1, Y1, Z1 - 2, 0x100) == nil then
+		if br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - 2, 0x10) == nil and br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - 2, 0x100) == nil then
 			return false
 		else
 			return true
 		end
 	end
 end
-function getGroundDistance(Unit)
+function br.getGroundDistance(Unit)
 	if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) then
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit)
 		for i = 1, 100 do
-			if TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x10) ~= nil or TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x100) ~= nil then
+			if br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x10) ~= nil or br._G.TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x100) ~= nil then
 				return i / 10
 			end
 		end
@@ -253,11 +253,11 @@ function getGroundDistance(Unit)
 	end
 end
 -- if getPetLineOfSight("target"[,"target"]) then
-function getPetLineOfSight(Unit)
+function br.getPetLineOfSight(Unit)
 	if br.GetObjectExists(Unit) and br.GetUnitIsVisible("pet") and br.GetUnitIsVisible(Unit) then
 		local X1, Y1, Z1 = br.GetObjectPosition("pet")
 		local X2, Y2, Z2 = br.GetObjectPosition(Unit)
-		if TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil then
+		if br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil then
 			return true
 		else
 			return false
@@ -268,26 +268,26 @@ function getPetLineOfSight(Unit)
 end
 
 --- Round
-function round2(num, idp)
-	mult = 10 ^ (idp or 0)
+function br.round2(num, idp)
+	local mult = 10 ^ (idp or 0)
 	return math.floor(num * mult + 0.5) / mult
 end
 -- if getTalent(8) == true then
-function getTalent(Row, Column, specGroup)
+function br.getTalent(Row, Column, specGroup)
 	if specGroup == nil then
-		specGroup = GetActiveSpecGroup()
+		specGroup = _G.GetActiveSpecGroup()
 	end
-	local _, _, _, selected = GetTalentInfo(Row, Column, specGroup)
+	local _, _, _, selected = _G.GetTalentInfo(Row, Column, specGroup)
 	return selected or false
 end
 
 -- if hasEmptySlots() then
-function hasEmptySlots()
+function br.hasEmptySlots()
 	local openSlots = 0
 	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = GetContainerNumSlots(i)
+		local numBagSlots = _G.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
-			openSlots = openSlots + select(1, GetContainerNumFreeSlots(i))
+			openSlots = openSlots + select(1, _G.GetContainerNumFreeSlots(i))
 		end
 	end
 	if openSlots > 0 then
@@ -297,9 +297,9 @@ function hasEmptySlots()
 	end
 end
 -- if hasGlyph(1234) == true then
-function hasGlyph(glyphid)
+function br.hasGlyph(glyphid)
 	for i = 1, 6 do
-		if select(4, GetGlyphSocketInfo(i)) == glyphid or select(6, GetGlyphSocketInfo(i)) == glyphid then
+		if select(4, _G.GetGlyphSocketInfo(i)) == glyphid or select(6, _G.GetGlyphSocketInfo(i)) == glyphid then
 			return true
 		end
 	end
@@ -309,7 +309,7 @@ end
 -- UnitGUID("target"):sub(-15,-10)
 
 --if isGarrMCd() then
-function isGarrMCd(Unit)
+function br.isGarrMCd(Unit)
 	if Unit == nil then
 		Unit = "target"
 	end
@@ -320,60 +320,60 @@ function isGarrMCd(Unit)
 	end
 end
 -- if isInCombat("target") then
-function isInCombat(Unit)
-	if UnitAffectingCombat(Unit) or br.isChecked("Ignore Combat") then
+function br.isInCombat(Unit)
+	if br._G.UnitAffectingCombat(Unit) or br.isChecked("Ignore Combat") then
 		return true
 	else
 		return false
 	end
 end
-function isInArdenweald()
-	local tContains = tContains
-	local mapID = C_Map.GetBestMapForUnit("player")
+function br.isInArdenweald()
+	local tContains = _G.tContains
+	local mapID = _G.C_Map.GetBestMapForUnit("player")
 	return tContains(br.lists.maps.Ardenweald, mapID)
 end
-function isInBastion()
-	local tContains = tContains
-	local mapID = C_Map.GetBestMapForUnit("player")
+function br.isInBastion()
+	local tContains = _G.tContains
+	local mapID = _G.C_Map.GetBestMapForUnit("player")
 	return tContains(br.lists.maps.Bastion, mapID)
 end
-function isInMaldraxxus()
-	local tContains = tContains
-	local mapID = C_Map.GetBestMapForUnit("player")
+function br.isInMaldraxxus()
+	local tContains = _G.tContains
+	local mapID = _G.C_Map.GetBestMapForUnit("player")
 	return tContains(br.lists.maps.Maldraxxus, mapID)
 end
-function isInRevendreth()
-	local tContains = tContains
-	local mapID = C_Map.GetBestMapForUnit("player")
+function br.isInRevendreth()
+	local tContains = _G.tContains
+	local mapID = _G.C_Map.GetBestMapForUnit("player")
 	return tContains(br.lists.maps.Revendreth, mapID)
 end
-function isInTheMaw()
-	local tContains = tContains
-	local mapID = C_Map.GetBestMapForUnit("player")
+function br.isInTheMaw()
+	local tContains = _G.tContains
+	local mapID = _G.C_Map.GetBestMapForUnit("player")
 	return tContains(br.lists.maps.TheMaw, mapID)
 end
 -- if isInDraenor() then
-function isInDraenor()
-	local tContains = tContains
-	local currentMapID = C_Map.GetBestMapForUnit("player")
+function br.isInDraenor()
+	local tContains = _G.tContains
+	local currentMapID = _G.C_Map.GetBestMapForUnit("player")
 	local draenorMapIDs = br.lists.maps.Draenor
 	return tContains(draenorMapIDs, currentMapID)
 end
-function isInLegion()
-	local tContains = tContains
-	local currentMapID = C_Map.GetBestMapForUnit("player")
+function br.isInLegion()
+	local tContains = _G.tContains
+	local currentMapID = _G.C_Map.GetBestMapForUnit("player")
 	local legionMapIDs = br.lists.maps.Legion
 	return tContains(legionMapIDs, currentMapID)
 end
-function isInProvingGround()
-	local currentMapID = C_Map.GetBestMapForUnit("player")
+function br.isInProvingGround()
+	local currentMapID = _G.C_Map.GetBestMapForUnit("player")
 	return currentMapID == 480
 end
 
 -- if IsInPvP() then
-function isInPvP()
-	local inpvp = GetPVPTimer()
-	if (inpvp ~= 301000 and inpvp ~= -1) or (UnitIsPVP("player") and UnitIsPVP("target")) then
+function br.isInPvP()
+	local inpvp = _G.GetPVPTimer()
+	if (inpvp ~= 301000 and inpvp ~= -1) or (br._G.UnitIsPVP("player") and br._G.UnitIsPVP("target")) then
 		return true
 	else
 		return false
@@ -382,13 +382,13 @@ end
 
 --if isLongTimeCCed("target") then
 -- CCs with >=20 seconds
-function isLongTimeCCed(Unit)
+function br.isLongTimeCCed(Unit)
 	if Unit == nil then
 		return false
 	end
 	local longTimeCC = br.lists.longCC
 	for i = 1, 40 do
-		local debuffSpellID = select(10, UnitDebuff(Unit, i))
+		local debuffSpellID = select(10, br._G.UnitDebuff(Unit, i))
 		if debuffSpellID == nil then
 			return false
 		end
@@ -399,97 +399,97 @@ function isLongTimeCCed(Unit)
 	return false
 end
 -- if isLooting() then
-function isLooting()
-	return GetNumLootItems() > 0
+function br.isLooting()
+	return _G.GetNumLootItems() > 0
 end
 -- if not isMoving("target") then
-function isMoving(Unit)
+function br.isMoving(Unit)
 	if Unit == nil then
 		return false
 	end
-	return GetUnitSpeed(Unit) > 0
+	return br._G.br._G.GetUnitSpeed(Unit) > 0
 end
 -- if IsMovingTime(5) then
-function IsMovingTime(time)
+function br.IsMovingTime(time)
 	if time == nil then
 		time = 1
 	end
-	if GetUnitSpeed("player") > 0 then
-		if IsRunning == nil then
-			IsRunning = GetTime()
-			IsStanding = nil
+	if br._G.br._G.GetUnitSpeed("player") > 0 then
+		if br.IsRunning == nil then
+			br.IsRunning = _G.GetTime()
+			br.IsStanding = nil
 		end
-		if GetTime() - IsRunning > time then
+		if _G.GetTime() - br.IsRunning > time then
 			return true
 		end
 	else
-		if IsStanding == nil then
-			IsStanding = GetTime()
-			IsRunning = nil
+		if br.IsStanding == nil then
+			br.IsStanding = _G.GetTime()
+			br.IsRunning = nil
 		end
-		if GetTime() - IsStanding > time then
+		if _G.GetTime() - br.IsStanding > time then
 			return false
 		end
 	end
 end
-function isPlayer(Unit)
+function br.isPlayer(Unit)
 	if br.GetUnitExists(Unit) ~= true then
 		return false
 	end
-	if UnitIsPlayer(Unit) == true then
+	if br._G.UnitIsPlayer(Unit) == true then
 		return true
-	elseif UnitIsPlayer(Unit) ~= true then
+	elseif br._G.UnitIsPlayer(Unit) ~= true then
 		local playerNPC = {
 			[72218] = "Oto the Protector",
 			[72219] = "Ki the Asssassin",
 			[72220] = "Sooli the Survivalist",
 			[72221] = "Kavan the Arcanist"
 		}
-		if playerNPC[tonumber(string.match(UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
+		if playerNPC[tonumber(string.match(br._G.UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
 			return true
 		end
 	else
 		return false
 	end
 end
-function getStandingTime()
-	return DontMoveStartTime and GetTime() - DontMoveStartTime or nil
+function br.getStandingTime()
+	return br.DontMoveStartTime and _G.GetTime() - br.DontMoveStartTime or nil
 end
 --
-function isStanding(Seconds)
-	return IsFalling() == false and DontMoveStartTime and getStandingTime() >= Seconds or false
+function br.isStanding(Seconds)
+	return _G.IsFalling() == false and br.DontMoveStartTime and br.getStandingTime() >= Seconds or false
 end
--- if IsStandingTime(5) then
-function IsStandingTime(time, unit)
+-- if br.IsStandingTime(5) then
+function br.IsStandingTime(time, unit)
 	if time == nil then
 		time = 1
 	end
 	if unit == nil then
 		unit = "player"
 	end
-	if not IsFalling() and GetUnitSpeed(unit) == 0 then
-		if IsStanding == nil then
-			IsStanding = GetTime()
-			IsRunning = nil
+	if not _G.IsFalling() and br._G.GetUnitSpeed(unit) == 0 then
+		if br.IsStanding == nil then
+			br.IsStanding = _G.GetTime()
+			br.IsRunning = nil
 		end
-		if GetTime() - IsStanding > time then
+		if _G.GetTime() - br.IsStanding > time then
 			return true
 		end
 	else
-		if IsRunning == nil then
-			IsRunning = GetTime()
-			IsStanding = nil
+		if br.IsRunning == nil then
+			br.IsRunning = _G.GetTime()
+			br.IsStanding = nil
 		end
-		if GetTime() - IsRunning > time then
+		if _G.GetTime() - br.IsRunning > time then
 			return false
 		end
 	end
 end
 
--- if isValidTarget("target") then
-function isValidTarget(Unit)
-	if UnitIsEnemy("player", Unit) or br.isDummy(Unit) then
-		if br.GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) then
+-- if br.isValidTarget("target") then
+function br.isValidTarget(Unit)
+	if br._G.UnitIsEnemy("player", Unit) or br.isDummy(Unit) then
+		if br.GetUnitExists(Unit) and not br.GetUnitIsDeadOrGhost(Unit) then
 			return true
 		else
 			return false
@@ -528,14 +528,14 @@ function br.enemyListCheck(Unit)
 	if targetBuff ~= playerBuff then
 		return false
 	end
-	local phaseReason = UnitPhaseReason(Unit)
+	local phaseReason = br._G.UnitPhaseReason(Unit)
 	local distance = br.getDistance(Unit, "player")
-	local mcCheck = (br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or not br.GetUnitIsFriend(Unit, "player")
+	local mcCheck = (br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or not br.GetUnitIsFriend(Unit, "player")
 	local inPhase = not phaseReason or phaseReason == 2 or phaseReason == 3
-	if br.UnitDebuffID("player", 320102) and UnitIsPlayer(Unit) then
+	if br.UnitDebuffID("player", 320102) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
-	return br.GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and inPhase and UnitCanAttack("player", Unit) and br._G.UnitHealth(Unit) > 0 and distance < 50 and not br.isCritter(Unit) and
+	return br.GetObjectExists(Unit) and not br.GetUnitIsDeadOrGhost(Unit) and inPhase and br._G.UnitCanAttack("player", Unit) and br._G.UnitHealth(Unit) > 0 and distance < 50 and not br.isCritter(Unit) and
 		mcCheck and
 		not br.GetUnitIsUnit(Unit, "pet") and
 		br._G.UnitCreator(Unit) ~= br._G.ObjectPointer("player") and
@@ -545,45 +545,45 @@ function br.enemyListCheck(Unit)
 end
 
 function br.isValidUnit(Unit)
-	local inInstance = IsInInstance()
+	local inInstance = _G.IsInInstance()
 	local hostileOnly = br.isChecked("Hostiles Only")
 	local playerTarget = br.GetUnitIsUnit(Unit, "target")
 	local reaction = br.GetUnitReaction(Unit, "player") or 10
 	local targeting = br.isTargeting(Unit)
 	local dummy = br.isDummy(Unit)
-	local burnUnit = br.getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
-	local isCC = br.getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
+	local burnUnit = br.getOptionCheck("Forced Burn") and br.isBurnTarget(Unit) > 0
+	local isCC = br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(Unit) or false
 	local mcCheck =
-		(br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not br.GetUnitIsFriend(Unit, "player")
-	if playerTarget and br.UnitDebuffID("player", 320102) and UnitIsPlayer(Unit) then
+		(br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit)))) or not br.GetUnitIsFriend(Unit, "player")
+	if playerTarget and br.UnitDebuffID("player", 320102) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
 	if playerTarget and br.units[br._G.UnitTarget("player")] == nil and not br.enemyListCheck("target") then
 		return false
 	end
 	if
-		not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit) and mcCheck and not isCC and
+		not br.pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit) and mcCheck and not isCC and
 			(dummy or burnUnit or
-				(not UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit) and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
+				(not br._G.UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit) and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	 then
-		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or isInProvingGround() or br.hasThreat(Unit)
+		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or br.isInProvingGround() or br.hasThreat(Unit)
 	end
 	return false
 end
 
-function SpecificToggle(toggle)
-	if customToggle then
+function br.SpecificToggle(toggle)
+	if br.customToggle then
 		return false
 	elseif br.getOptionValue(toggle) == 1 then
-		return IsLeftControlKeyDown()
+		return _G.IsLeftControlKeyDown()
 	elseif br.getOptionValue(toggle) == 2 then
-		return IsLeftShiftKeyDown()
+		return _G.IsLeftShiftKeyDown()
 	elseif br.getOptionValue(toggle) == 3 then
-		return IsRightControlKeyDown()
+		return _G.IsRightControlKeyDown()
 	elseif br.getOptionValue(toggle) == 4 then
-		return IsRightShiftKeyDown()
+		return _G.IsRightShiftKeyDown()
 	elseif br.getOptionValue(toggle) == 5 then
-		return IsRightAltKeyDown()
+		return _G.IsRightAltKeyDown()
 	elseif br.getOptionValue(toggle) == 6 then
 		return false
 	elseif br.getOptionValue(toggle) == 7 then
@@ -595,40 +595,41 @@ function SpecificToggle(toggle)
 	end
 end
 
-function UpdateToggle(toggle, delay)
+function br.UpdateToggle(toggle, delay)
 	--if toggle == nil then toggle = "toggle" end
-	if customToggle then
-		toggle = toggleKey
+	if br.customToggle then
+		toggle = br.toggleKey
 	end
 	if _G[toggle .. "Timer"] == nil then
 		_G[toggle .. "Timer"] = 0
 	end
-	if (SpecificToggle(toggle .. " Mode") or customToggle) and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle .. "Timer"] > delay then
-		_G[toggle .. "Timer"] = GetTime()
-		UpdateButton(tostring(toggle))
+	if (br.SpecificToggle(toggle .. " Mode") or br.customToggle) and not _G.GetCurrentKeyBoardFocus() and _G.GetTime() - _G[toggle .. "Timer"] > delay then
+		_G[toggle .. "Timer"] = _G.GetTime()
+		br.UpdateButton(tostring(toggle))
 	end
 end
-function BurstToggle(toggle, delay)
-	if burstKey == nil then
-		burstKey = false
+function br.BurstToggle(toggle, delay)
+	if br.burstKey == nil then
+		br.burstKey = false
 	end
 	if _G[toggle .. "Timer"] == nil then
 		_G[toggle .. "Timer"] = 0
 	end
-	if burst and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle .. "Timer"] > delay then
-		if not burstKey then
-			_G[toggle .. "Timer"] = GetTime()
-			burstKey = true
+	if br.burst and not _G.GetCurrentKeyBoardFocus() and _G.GetTime() - _G[toggle .. "Timer"] > delay then
+		if not br.burstKey then
+			_G[toggle .. "Timer"] = _G.GetTime()
+			br.burstKey = true
 		else
-			_G[toggle .. "Timer"] = GetTime()
-			burstKey = false
+			_G[toggle .. "Timer"] = _G.GetTime()
+			br.burstKey = false
 		end
 	end
 end
 -- if pause() then
 -- set skipCastingCheck to true, to not check if player is casting
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
-function pause(skipCastingCheck)
+function br.pause(skipCastingCheck)
+	local pausekey
 	local food = {257427, 225737, 274914, 192001, 167152, 314646, 308433}
 	local eating = false
 	for i = 1, #food do
@@ -641,54 +642,54 @@ function pause(skipCastingCheck)
 	-- if button == "RightButton" then
 	-- 	Print("Right Clicked")
 	-- end
-	if disableControl == true then
+	if br.disableControl == true then
 		return true
 	end
-	if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
-		pausekey = IsLeftAltKeyDown()
+	if br.SpecificToggle("Pause Mode") == nil or br.getValue("Pause Mode") == 6 then
+		pausekey = _G.IsLeftAltKeyDown()
 	else
-		pausekey = SpecificToggle("Pause Mode")
+		pausekey = br.SpecificToggle("Pause Mode")
 	end
 	-- Focused Azerite Beam / Cyclotronic Blast / Azshara's Font of Power
 	if not skipCastingCheck then
 		local lastCast = br.lastCast.tracker[1]
-		if br.pauseCast - GetTime() <= 0 then
-			local hasted = (1 - UnitSpellHaste("player") / 100)
+		if br.pauseCast - _G.GetTime() <= 0 then
+			local hasted = (1 - br._G.UnitSpellHaste("player") / 100)
 			-- Focused Azerite Beam
 			if lastCast == 295258 and br.getSpellCD(295258) == 0 then
-				br.pauseCast = GetTime() + getCastTime(295258) + (getCastTime(295261) * hasted)
+				br.pauseCast = _G.GetTime() + br.getCastTime(295258) + (br.getCastTime(295261) * hasted)
 			end
 			-- Cyclotronic Blast
-			if lastCast == 293491 and GetItemCooldown(167555) == 0 then
-				br.pauseCast = GetTime() + getCastTime(293491) + (2.5 * hasted) + br.getGlobalCD(true)
+			if lastCast == 293491 and _G.GetItemCooldown(167555) == 0 then
+				br.pauseCast = _G.GetTime() + br.getCastTime(293491) + (2.5 * hasted) + br.getGlobalCD(true)
 			end
 			-- Azshara's Font of Power - Latent Arcana
-			if lastCast == 296962 and GetItemCooldown(169314) == 0 then
-				br.pauseCast = GetTIme() + getCastTime(296962) + (2.5 * hasted)
+			if lastCast == 296962 and _G.GetItemCooldown(169314) == 0 then
+				br.pauseCast = _G.GetTime() + br.getCastTime(296962) + (2.5 * hasted)
 			end
 		end
-		if GetTime() < br.pauseCast then
+		if _G.GetTime() < br.pauseCast then
 			return true
-		elseif GetTime() >= br.pauseCast then
-			br.pauseCast = GetTime()
+		elseif _G.GetTime() >= br.pauseCast then
+			br.pauseCast = _G.GetTime()
 		end
 	end
 	-- DPS Testing
 	if br.isChecked("DPS Testing") then
-		if br.GetObjectExists("target") and isInCombat("player") then
+		if br.GetObjectExists("target") and br.isInCombat("player") then
 			if br.getCombatTime() >= (tonumber(br.getOptionValue("DPS Testing")) * 60) and br.isDummy() then
-				StopAttack()
-				ClearTarget()
-				Print(tonumber(br.getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
-				profileStop = true
+				br._G.StopAttack()
+				br._G.ClearTarget()
+				br._G.print(tonumber(br.getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+				br.profileStop = true
 			else
-				profileStop = false
+				br.profileStop = false
 			end
-		elseif not isInCombat("player") and profileStop == true then
+		elseif not br.isInCombat("player") and br.profileStop == true then
 			if br.GetObjectExists("target") then
-				StopAttack()
-				ClearTarget()
-				profileStop = false
+				br._G.StopAttack()
+				br._G.ClearTarget()
+				br.profileStop = false
 			end
 		end
 	end
@@ -699,24 +700,24 @@ function pause(skipCastingCheck)
 	end
 	-- Pause Hold/Auto
 	if
-		(pausekey and GetCurrentKeyBoardFocus() == nil and br.isChecked("Pause Mode")) or profileStop or
-			(((IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and not br.isChecked("Bypass Vehicle Check")) and
+		(pausekey and _G.GetCurrentKeyBoardFocus() == nil and br.isChecked("Pause Mode")) or br.profileStop or
+			(((_G.IsMounted() or _G.IsFlying() or br._G.UnitOnTaxi("player") or br._G.UnitInVehicle("player")) and not br.isChecked("Bypass Vehicle Check")) and
 				not (br.UnitBuffID("player", 190784) or br.UnitBuffID("player", 164222) or br.UnitBuffID("player", 165803) or br.UnitBuffID("player", 157059))) or
-			SpellIsTargeting() or
-			(UnitCastingInfo("player") and not skipCastingCheck) or
-			(UnitChannelInfo("player") and not skipCastingCheck) or
-			UnitIsDeadOrGhost("player") or
+			_G.SpellIsTargeting() or
+			(br._G.UnitCastingInfo("player") and not skipCastingCheck) or
+			(br._G.UnitChannelInfo("player") and not skipCastingCheck) or
+			br.GetUnitIsDeadOrGhost("player") or
 			eating or
 			br.UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
 			br.UnitBuffID("player", 114018)
 	 then
-		if (UnitCastingInfo("player") and not skipCastingCheck) then
-			local _, _, _, _, endTime = UnitCastingInfo("player")
-			local finish = endTime / 1000 - GetTime()
+		if (br._G.UnitCastingInfo("player") and not skipCastingCheck) then
+			local _, _, _, _, endTime = br._G.UnitCastingInfo("player")
+			local finish = endTime / 1000 - _G.GetTime()
 			if finish > 0.1 then
 				return true
 			end
-		elseif (UnitChannelInfo("player") and not skipCastingCheck) then
+		elseif (br._G.UnitChannelInfo("player") and not skipCastingCheck) then
 			return true
 		else
 			br.ChatOverlay("Profile Paused")
@@ -727,7 +728,7 @@ function pause(skipCastingCheck)
 	end
 end
 -- feed a var
-function toggleTrueNil(var)
+function br.toggleTrueNil(var)
 	if _G[var] ~= true then
 		_G[var] = true
 	else
@@ -735,8 +736,8 @@ function toggleTrueNil(var)
 	end
 end
 
-function spellDebug(Message)
-	if imDebugging == true and br.getOptionCheck("Debugging Mode") then
+function br.spellDebug(Message)
+	if br.imDebugging == true and br.getOptionCheck("Debugging Mode") then
 		br.ChatOverlay(Message)
 	end
 end
@@ -758,11 +759,11 @@ function br.isChecked(Value)
 	return false
 end
 -- if isSelected("Stormlash Totem") then
-function isSelected(Value)
+function br.isSelected(Value)
 	if
 		br.data.settings ~= nil and
 			(br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 or
-				(br.isChecked(Value) and (getValue(Value) == 3 or (getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
+				(br.isChecked(Value) and (br.getValue(Value) == 3 or (br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
 	 then
 		return true
 	end
@@ -784,7 +785,7 @@ end
 -- 		return 0
 -- 	end
 -- end
-function getValue(Value)
+function br.getValue(Value)
 	if br.data ~= nil and br.data.settings ~= nil then
 		local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
 		if selectedProfile ~= nil then
@@ -807,9 +808,9 @@ function br.getOptionCheck(Value)
 	return br.isChecked(Value)
 end
 function br.getOptionValue(Value)
-	return getValue(Value)
+	return br.getValue(Value)
 end
-function getOptionText(Value)
+function br.getOptionText(Value)
 	if br.data ~= nil and br.data.settings ~= nil then
 		local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
 		if selectedProfile ~= nil then
@@ -825,7 +826,7 @@ function getOptionText(Value)
 	return ""
 end
 
-function convertName(name)
+function br.convertName(name)
 	local function titleCase(first, rest)
 		return first:upper() .. rest:lower()
 	end
@@ -841,82 +842,34 @@ function convertName(name)
 	return "None"
 end
 
-function bossHPLimit(unit, hp)
+function br.bossHPLimit(unit, hp)
 	-- Boss Active/Health Max
-	local bossHPMax = bossHPMax or 0
-	local inBossFight = inBossFight or false
+	local bossHPMax = 0
+	local inBossFight = false
 	local enemyList = br.getEnemies("player", 40)
 	for i = 1, #enemyList do
 		local thisUnit = enemyList[i]
 		if br.isBoss(thisUnit) then
-			bossHPMax = UnitHealthMax(thisUnit)
+			bossHPMax = br._G.UnitHealthMax(thisUnit)
 			inBossFight = true
 			break
 		end
 	end
-	return (not inBossFight or (inBossFight and UnitHealthMax(unit) > bossHPMax * (hp / 100)))
+	return (not inBossFight or (inBossFight and br._G.UnitHealthMax(unit) > bossHPMax * (hp / 100)))
 end
 
-function talentAnywhere()
-	local removeTalent = RemoveTalent
-	local learnTalent = LearnTalent
-	-- Load Talent UI if not opened before
-	if not IsAddOnLoaded("Blizzard_TalentUI") and not UnitAffectingCombat("player") then
-		LoadAddOn("Blizzard_TalentUI")
-	end
-
-	local function talentSelection(row)
-		selectedTalent = nil
-		for column = 1, 3 do
-			if
-				IsMouseButtonDown(1) and newTalent == nil and MouseIsOver(_G["PlayerTalentFrameTalentsTalentRow" .. row .. "Talent" .. column]) and
-					not select(4, GetTalentInfoByID(GetTalentInfo(row, column, 1), 1))
-			 then
-				selectedTalent = nil
-				newTalent = select(1, GetTalentInfo(row, column, 1))
-				newTalentRow = row
-			end
-			if newTalentRow ~= nil then
-				if select(4, GetTalentInfoByID(GetTalentInfo(newTalentRow, column, 1), 1)) then
-					selectedTalent = select(1, GetTalentInfo(newTalentRow, column, 1))
-				end
-			end
-		end
-		return selectedTalent, newTalent -- selectedNew
-	end
-
-	if PlayerTalentFrame and PlayerTalentFrame:IsVisible() and not IsResting() then
-		for row = 1, 7 do
-			selectedTalent, newTalent, selectedNew = talentSelection(row)
-		end
-		--br.ChatOverlay(tostring(selectedTalent).." | "..tostring(newTalent).." | "..tostring(selectedNew))
-		if newTalent ~= nil then
-			if selectedTalent ~= nil and selectedTalent ~= newTalent and not selectedNew and br.timer:useTimer("RemoveTalent", 0.1) then
-				removeTalent(selectedTalent)
-			end
-			if selectedTalent == nil and selectedTalent ~= newTalent and not selectedNew then
-				learnTalent(newTalent)
-				selectedNew = true
-			end
-			if selectedTalent == newTalent then
-				selectedNew = false
-				newTalent = nil
-			end
-		end
-	end
-end
-function getEssenceRank(essenceName)
-	if GetSpellInfo(essenceName) == nil then
+function br.getEssenceRank(essenceName)
+	if _G.GetSpellInfo(essenceName) == nil then
 		return 0
 	end
 	local essenceRank = 0
-	local essenceTable = C_AzeriteEssence.GetMilestones()
-	local icon = select(3, GetSpellInfo(essenceName))
+	local essenceTable = _G.C_AzeriteEssence.GetMilestones()
+	local icon = select(3, _G.GetSpellInfo(essenceName))
 	for i = 1, #essenceTable do
 		local milestone = essenceTable[i]
 		if milestone.slot ~= nil and milestone.unlocked == true then
-			local eRank = C_AzeriteEssence.GetEssenceInfo(C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).rank
-			local eIcon = C_AzeriteEssence.GetEssenceInfo(C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).icon
+			local eRank = _G.C_AzeriteEssence.GetEssenceInfo(_G.C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).rank
+			local eIcon = _G.C_AzeriteEssence.GetEssenceInfo(_G.C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).icon
 			if icon == eIcon then
 				essenceRank = eRank
 			end
@@ -930,11 +883,11 @@ function br.addonDebug(msg, system)
 		return
 	end
 	if br.isChecked("Addon Debug Messages") then
-		if system == true and (getValue("Addon Debug Messages") == 1 or getValue("Addon Debug Messages") == 3) then
+		if system == true and (br.getValue("Addon Debug Messages") == 1 or br.getValue("Addon Debug Messages") == 3) then
 			if br.timer:useTimer("System Delay", 0.1) then
 				print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
 			end
-		elseif system ~= true and (getValue("Addon Debug Messages") == 2 or getValue("Addon Debug Messages") == 3) then
+		elseif system ~= true and (br.getValue("Addon Debug Messages") == 2 or br.getValue("Addon Debug Messages") == 3) then
 			if br.timer:useTimer("Profile Delay", 0.1) then
 				print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
 			end
@@ -962,7 +915,7 @@ function br.sanguineCheck(unit)
 	if br.sanguine then
 		local x, y, z = br._G.ObjectPosition(unit)
 		for _, v in pairs(br.sanguine) do
-			if sqrt(((x - v.posX) ^ 2) + ((y - v.posY) ^ 2) + ((z - v.posZ) ^ 2)) < 5 then
+			if _G.sqrt(((x - v.posX) ^ 2) + ((y - v.posY) ^ 2) + ((z - v.posZ) ^ 2)) < 5 then
 				return true
 			end
 		end
@@ -970,7 +923,7 @@ function br.sanguineCheck(unit)
 	return false
 end
 
-function isTableEmpty(table)
+function br.isTableEmpty(table)
 	if table == nil then return true end
 	local retval = true
 	if next(table) ~= nil then
