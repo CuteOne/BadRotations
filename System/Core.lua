@@ -98,7 +98,7 @@ function BadRotationsUpdate(self)
 				return false
 			elseif br.timer:useTimer("playerUpdate", br:getUpdateRate()) then
 				-- Set Fall Distance
-				br.fallDist = getFallDistance() or 0
+				br.fallDist = br.getFallDistance() or 0
 				-- Quaking helper
 				if br.getOptionCheck("Quaking Helper") then
 					if (UnitChannelInfo("player") or UnitCastingInfo("player")) and br.getDebuffRemain("player", 240448) < 0.5 and br.getDebuffRemain("player", 240448) > 0 then

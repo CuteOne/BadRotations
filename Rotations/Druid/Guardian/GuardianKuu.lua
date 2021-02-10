@@ -353,7 +353,7 @@ local function runRotation()
     local debuff = br.player.debuff
     local energy, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.regen(), br.player.power.energy.deficit()
     local enemies = br.player.enemies
-    local falling, swimming, flying, moving = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
+    local falling, swimming, flying, moving = br.getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
     local flaskBuff = br.getBuffRemain("player", br.player.flask.wod.buff.agilityBig)
     local gcd = br.player.gcdMax
     local hasMouse = br.GetObjectExists("mouseover")

@@ -216,7 +216,7 @@ if not br.metaTable2 then
 					o.enemyListCheck = br.enemyListCheck(o.unit)
 					o.enemyRefresh = GetTime()
 					if o.enemyListCheck == true then
-						o.range = br.getDistanceCalc(o.unit)
+						o.range = getDistanceCalc(o.unit)
 						if br.units[o.unit] == nil then
 							o:AddUnit(br.units)
 						end
@@ -235,8 +235,8 @@ if not br.metaTable2 then
 			end
 			-- Is valid unit - only check if enemyList checks out
 			if o.enemyListCheck == true then
-				o.br.isValidUnit = br.isValidUnit(o.unit)
-				if o.br.isValidUnit == true then
+				o.isValidUnit = br.isValidUnit(o.unit)
+				if o.isValidUnit == true then
 					o.debuffs = o:UpdateDebuffs(o.debuffs,o.unit)
 					-- o.range = getDistanceCalc(o.unit)
 					if br.enemy[o.unit] == nil then

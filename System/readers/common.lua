@@ -100,7 +100,7 @@ function br.read.commonReaders()
 	local function EnteringCombat(self, event, ...)
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
-			AgiSnap = getAgility()
+			AgiSnap = br.getAgility()
 
 			if br.data.settings ~= nil then
 				br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
