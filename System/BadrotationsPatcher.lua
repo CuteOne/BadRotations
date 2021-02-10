@@ -410,6 +410,10 @@ local function BrUnlock()
 	function b.GetObjectWithGUID(n)
 		return n
 	end
+	b.GetMousePosition = function()
+		local cur_x, cur_y = br._G.GetCursorPosition()
+		return cur_x, cur_y
+	end
 	b.ObjectIsVisible = lb.ObjectExists
 	b.ObjectExists = lb.ObjectExists
 	-- br.GetUnitIsVisible = lb.ObjectExists
