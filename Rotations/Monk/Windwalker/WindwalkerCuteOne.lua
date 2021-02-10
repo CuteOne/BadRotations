@@ -412,7 +412,7 @@ actionList.CdSef = function()
         if cast.bonedustBrew() then ui.debug("Casting Bonedust Brew [CD SEF]") return true end
     end
     -- Storm, Earth, and Fire
-    if cast.able.stormEarthAndFire() and ui.alwaysCdNever("Storm, Earth, and Fire") then
+    if cast.able.stormEarthAndFire() and ui.alwaysCdNever("Storm, Earth, and Fire") and not buff.stormEarthAndFire.exists() then
         -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|fight_remains<20|(raid_event.adds.remains>15|!covenant.kyrian&((raid_event.adds.in>cooldown.storm_earth_and_fire.full_recharge_time|!raid_event.adds.exists)&(cooldown.invoke_xuen_the_white_tiger.remains>cooldown.storm_earth_and_fire.full_recharge_time|variable.hold_xuen))&cooldown.fists_of_fury.remains<=9&chi>=2&cooldown.whirling_dragon_punch.remains<=12)
         if charges.stormEarthAndFire.count() == 2 or (ui.useCDs() and unit.ttdGroup() < 20) or (ui.useAOE(8,2) or not covenant.kyrian.active
             and ((cd.invokeXuenTheWhiteTiger.remains() > charges.stormEarthAndFire.timeTillFull() or var.holdXuen)) and cd.fistsOfFury.remain() <= 9 and chi >= 2 and cd.whirlingDragonPunch.remains() <= 12)
@@ -602,7 +602,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=active_enemies>=2&buff.weapons_of_order_ww.remains<1
-    if cast.able.fistsOfFury() and var.rskChiWoORemain < 1 and #enemies.yards8 >= 2 then-- and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then
+    if cast.able.fistsOfFury() and var.rskChiWoORemain < 1 and (#enemies.yards8 >= 2 or cd.whirlingDragonPunch.remain() <= unit.gcd("true")) then-- and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then
         if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [Weapons of Order - Low Chi Buff]") return true end
     end
     -- Whirling Dragon Punch
@@ -971,8 +971,10 @@ actionList.AoE = function()
     end
     -- Blackout kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&(buff.bok_proc.up|talent.hit_combo&prev_gcd.1.tiger_palm&chi=2&cooldown.fists_of_fury.remains<3|chi.max-chi<=1&prev_gcd.1.spinning_crane_kick&energy.time_to_max<3)
-    if cast.able.blackoutKick(var.lowestMark) and (not wasLastCombo(spell.blackoutKick) and (buff.blackoutKick.exists() or talent.hitCombo
-        and cast.last.tigerPalm(1) and (chi == 2 or (chi == 3 and unit.level() < 17)) and cd.fistsOfFury.remain() < 3 or chiMax - chi <= 1 and wasLastCombo(spell.spinningCraneKick) and energyTTM() < 3))
+    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick)
+        and (buff.blackoutKick.exists()
+            or (talent.hitCombo and cast.last.tigerPalm(1) and (chi == 2 or (chi == 3 and unit.level() < 17)) and cd.fistsOfFury.remain() < 3)
+            or (chiMax - chi <= 1 and wasLastCombo(spell.spinningCraneKick) and energyTTM() < 3))
         and cast.timeSinceLast.blackoutKick() > unit.gcd("true")
     then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [AOE]") return true end
@@ -1302,13 +1304,21 @@ local function runRotation()
                 if ui.useAOE(8,3) then
                     if actionList.AoE() then return true end
                 end
-                -- Blackout Kick - Stall Prevention
-                if cast.able.blackoutKick(var.lowestMark) and cast.timeSinceLast.blackoutKick() > unit.gcd("true") and not wasLastCombo(spell.blackoutKick) then
-                    if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [|cffFF0000Stall Prevention|r]") return true end
-                end
-                -- Tiger Palm - Stall Prevention
-                if cast.able.tigerPalm(var.lowestMark) and cast.timeSinceLast.tigerPalm() > unit.gcd("true") and not wasLastCombo(spell.tigerPalm) then
-                    if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [|cffFF0000Stall Prevention|r]") return true end
+                if cd.risingSunKick.remain() > unit.gcd("true") then
+                    -- Spinning Crane Kick - Stall Prevention
+                    if cast.able.spinningCraneKick() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true") and not wasLastCombo(spell.spinningCraneKick) and ui.useAOE(8,3) then
+                        if cast.spinningCraneKick(nil,"aoe") then ui.debug("Casting Spinning Crane Kick [|cffFF0000Stall Prevention|r]") return true end
+                    end
+                    -- Blackout Kick - Stall Prevention
+                    if cast.able.blackoutKick(var.lowestMark) and cast.timeSinceLast.blackoutKick() > unit.gcd("true") and not wasLastCombo(spell.blackoutKick)
+                        and (not ui.useAOE(8,3) or not cast.safe.spinningCraneKick(nil,"aoe"))
+                    then
+                        if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [|cffFF0000Stall Prevention|r]") return true end
+                    end
+                    -- Tiger Palm - Stall Prevention
+                    if cast.able.tigerPalm(var.lowestMark) and cast.timeSinceLast.tigerPalm() > unit.gcd("true") and not wasLastCombo(spell.tigerPalm) then
+                        if cast.tigerPalm(var.lowestMark) then ui.debug("Casting Tiger Palm [|cffFF0000Stall Prevention|r]") return true end
+                    end
                 end
             --end
             -- Debugging
