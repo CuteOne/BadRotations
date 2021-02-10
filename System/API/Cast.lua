@@ -153,7 +153,7 @@ br.api.cast = function(self,spell,id)
     ]]
     if cast.last == nil then cast.last = {} end
     cast.last[spell] = function(index)
-        local tracker = br.lastCast.tracker
+        local tracker = br.lastCastTable.tracker
         index = index or 1
         return tracker[index] and tracker[index] == id
     end
@@ -161,8 +161,8 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.last.time.spell() - Returns the GetTime() value the last cast of this spell occured.
     if cast.last.time == nil then cast.last.time = {} end
     cast.last.time[spell] = function()
-        if br.lastCast.castTime[id] == nil then br.lastCast.castTime[id] = _G.GetTime() end
-        return br.lastCast.castTime[id]
+        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = _G.GetTime() end
+        return br.lastCastTable.castTime[id]
     end
 
     -- br.player.cast.noControl.spell() - Returns true if the spell can free you of a "no control" effect.
@@ -264,7 +264,7 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.timeSinceLast.spell() - Returns the time since the last cast of this spell occured.
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
     cast.timeSinceLast[spell] = function()
-        if br.lastCast.castTime[id] == nil then br.lastCast.castTime[id] = _G.GetTime() end
-        return _G.GetTime() - br.lastCast.castTime[id]
+        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = _G.GetTime() end
+        return _G.GetTime() - br.lastCastTable.castTime[id]
     end
 end

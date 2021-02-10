@@ -357,7 +357,7 @@ local function runRotation()
     local flaskBuff = br.getBuffRemain("player", br.player.flask.wod.buff.agilityBig)
     local gcd = br.player.gcdMax
     local hasMouse = br.GetObjectExists("mouseover")
-    local healPot = getHealthPot()
+    local healPot = br.getHealthPot()
     local inCombat = br.player.inCombat
     local essence = br.player.essence
     local inInstance = br.player.instance == "party"
@@ -674,7 +674,7 @@ local function runRotation()
 
     local function actionList_Defensive()
         if useDefensive() then
-            if ui.checked("Healthstone/Potion") and php <= ui.value("Healthstone/Potion") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+            if ui.checked("Healthstone/Potion") and php <= ui.value("Healthstone/Potion") and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
                 if br.canUseItem(5512) then
                     br.useItem(5512)
                 elseif br.canUseItem(healPot) then

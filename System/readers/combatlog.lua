@@ -901,17 +901,17 @@ end
         -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then
         --     -- Hand of Guldan
         --     if  == 105174 then
-        --         if not br.lastCast.hog then br.lastCast.hog = {} end
+        --         if not br.lastCastTable.hog then br.lastCastTable.hog = {} end
         --         if br.lastCast then
-        --             tinsert(br.lastCast.hog, 1, GetTime())
-        --             if #br.lastCast.hog == 5 then
-        --                 br.lastCast.hog[5] = nil
+        --             tinsert(br.lastCastTable.hog, 1, GetTime())
+        --             if #br.lastCastTable.hog == 5 then
+        --                 br.lastCastTable.hog[5] = nil
         --             end
         --         end
         --     end
         --     -- Line CD
-        --     if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-        --     br.lastCast.line_cd[] = GetTime()
+        --     if not br.lastCastTable.line_cd then br.lastCastTable.line_cd = {} end
+        --     br.lastCastTable.line_cd[] = GetTime()
         -- end
         -- -- Demonology Manager
         -- -- Imps are summoned

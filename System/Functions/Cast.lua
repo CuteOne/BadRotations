@@ -614,7 +614,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 	-- Queen's Court - BfA
 	local function queensCourtCastCheck(spellID)
 		local queensCourtEncounter = br.UnitDebuffID("player",304409) -- EJ_GetEncounterInfo(2311)
-		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCast.tracker[1] ~= spellID)
+		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCastTable.tracker[1] ~= spellID)
 	end
 	-- Base Spell Availablility Check
 	if (baseSpellID == spellID or overrideSpellID == spellID) and _G.IsUsableSpell(spellID) and not select(2,_G.IsUsableSpell(spellID)) -- Usability Checks

@@ -222,11 +222,11 @@ local function checkForUpdates()
 end
 
 function getTimeToLastInterrupt()
-	if not isTableEmpty(br.lastCast.tracker) then
-		for _, v in ipairs(br.lastCast.tracker) do
+	if not isTableEmpty(br.lastCastTable.tracker) then
+		for _, v in ipairs(br.lastCastTable.tracker) do
 			for _,value in pairs(br.player.spell.interrupts) do
 				if tonumber(value) == tonumber(v) then
-					return GetTime() - br.lastCast.castTime[v]
+					return GetTime() - br.lastCastTable.castTime[v]
 				end
 			end
 		end

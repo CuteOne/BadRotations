@@ -1,8 +1,8 @@
-local addonName, br = ...
+local _, br = ...
 -- getLatency()
-function getLatency()
+function br.getLatency()
 	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
-	local lag = select(4, GetNetStats()) / 1000
+	local lag = select(4, br._G.GetNetStats()) / 1000
 	if lag < .05 then
 		lag = .05
 	elseif lag > .4 then
@@ -12,20 +12,21 @@ function getLatency()
 end
 
 --Calculate Agility
-function getAgility()
-	local AgiBase, AgiStat, AgiPos, AgiNeg = UnitStat("player", 2)
+function br.getAgility()
+	local AgiBase, AgiStat, AgiPos, AgiNeg = br._G.UnitStat("player", 2)
 	local Agi = AgiBase + AgiPos + AgiNeg
 	return Agi
 end
 
-function getFallDistance()
+function br.getFallDistance()
 	local zDist
+	local zCoord = nil
 	local _, _, position = br.GetObjectPosition("player")
 
 	if zCoord == nil then
 		zCoord = position
 	end
-	if not IsFalling() or IsFlying() then
+	if not br._G.IsFalling() or br._G.IsFlying() then
 		zCoord = position
 	end
 	if position - zCoord < 0 then
@@ -37,35 +38,35 @@ function getFallDistance()
 	return zDist
 end
 --if getFallTime() > 2 then
-function getFallTime()
-	if fallStarted == nil then
-		fallStarted = 0
+function br.getFallTime()
+	if br.fallStarted == nil then
+		br.fallStarted = 0
 	end
-	if fallTime == nil then
-		fallTime = 0
+	if br.fallTime == nil then
+		br.fallTime = 0
 	end
-	if IsFalling() and getFallDistance() < 0 then
-		if fallStarted == 0 then
-			fallStarted = GetTime()
+	if br._G.IsFalling() and br.getFallDistance() < 0 then
+		if br.fallStarted == 0 then
+			br.fallStarted = br._G.GetTime()
 		end
-		if fallStarted ~= 0 then
-			fallTime = (math.floor((GetTime() - fallStarted) * 1000) / 1000)
+		if br.fallStarted ~= 0 then
+			br.fallTime = (math.floor((br._G.GetTime() - br.fallStarted) * 1000) / 1000)
 		end
 	end
-	if not IsFalling() then
-		fallStarted = 0
-		fallTime = 0
+	if not br._G.IsFalling() then
+		br.fallStarted = 0
+		br.fallTime = 0
 	end
-	return fallTime
+	return br.fallTime
 end
 -- if br.getLineOfSight("target"[,"target"]) then
-math.doLinesIntersect = function(a, b, c, d)
+br.doLinesIntersect = function(a, b, c, d)
 	-- parameter conversion
 	local L1 = {X1 = a.x, Y1 = a.y, X2 = b.x, Y2 = b.y}
 	local L2 = {X1 = c.x, Y1 = c.y, X2 = d.x, Y2 = d.y}
 
 	-- Denominator for ua and ub are the same, so store this calculation
-	local d = (L2.Y2 - L2.Y1) * (L1.X2 - L1.X1) - (L2.X2 - L2.X1) * (L1.Y2 - L1.Y1)
+	d = (L2.Y2 - L2.Y1) * (L1.X2 - L1.X1) - (L2.X2 - L2.X1) * (L1.Y2 - L1.Y1)
 
 	-- Make sure there is not a division by zero - this also indicates that the lines are parallel.
 	-- If n_a and n_b were both equal to zero the lines would be on top of each
@@ -95,7 +96,7 @@ math.doLinesIntersect = function(a, b, c, d)
 	return false
 end
 
-function carapaceMath(Unit1, Unit2)
+function br.carapaceMath(Unit1, Unit2)
 	if Unit2 == nil then
 		Unit2 = Unit1
 		if Unit2 == "player" then
@@ -113,18 +114,18 @@ function carapaceMath(Unit1, Unit2)
 		if tX ~= nil then
 			LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
 		end ]]
-		tentCache = {}
-		for i = 1, GetObjectCountBR() do
-			local object = GetObjectWithIndex(i)
+		br.tentCache = {}
+		for i = 1, br._G.GetObjectCount() do
+			local object = br._G.GetObjectWithIndex(i)
 			local objectid = br._G.ObjectID(object)
 			if objectid == 157485 then
 				tentExists = true
-				tentFacing = GetObjectFacing(object)
-				tentX, tentY, tentZ = br.GetObjectPosition(object)
+				local tentFacing = br.GetObjectFacing(object)
+				local tentX, tentY, tentZ = br.GetObjectPosition(object)
 				table.insert(
-					tentCache,
+					br.tentCache,
 					{
-						["tentFacing"] = GetObjectFacing(object),
+						["tentFacing"] = tentFacing,
 						["tentX"] = select(1, br.GetObjectPosition(object)),
 						["tentY"] = select(2, br.GetObjectPosition(object)),
 						["tentZ"] = select(3, br.GetObjectPosition(object)),
@@ -651,7 +652,7 @@ function pause(skipCastingCheck)
 	end
 	-- Focused Azerite Beam / Cyclotronic Blast / Azshara's Font of Power
 	if not skipCastingCheck then
-		local lastCast = br.lastCast.tracker[1]
+		local lastCast = br.lastCastTable.tracker[1]
 		if br.pauseCast - GetTime() <= 0 then
 			local hasted = (1 - UnitSpellHaste("player") / 100)
 			-- Focused Azerite Beam

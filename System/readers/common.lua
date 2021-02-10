@@ -137,7 +137,7 @@ function br.read.commonReaders()
 			Rake_sDamage = {}
 			Thrash_sDamage = {}
 			petAttacking = false
-			br.lastCast.line_cd = {}
+			br.lastCastTable.line_cd = {}
 			wipe(br.read.debuffTracker)
 		end
 	end

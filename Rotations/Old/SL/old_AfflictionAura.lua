@@ -969,9 +969,9 @@ local function runRotation()
     -- @return false if spell was cast within the given period
     --Credits Raven
     local function Line_cd (spellid, seconds)
-        if br.lastCast.line_cd then
-            if br.lastCast.line_cd[spellid] then
-                if br.lastCast.line_cd[spellid] + seconds >= GetTime() then
+        if br.lastCastTable.line_cd then
+            if br.lastCastTable.line_cd[spellid] then
+                if br.lastCastTable.line_cd[spellid] + seconds >= GetTime() then
                     return false
                 end
             end

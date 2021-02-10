@@ -1,7 +1,7 @@
-local addonName, br = ...
+local _, br = ...
 -- item charges
-function itemCharges(itemID)
-	local charges = GetItemCount(itemID, false, true)
+function br.itemCharges(itemID)
+	local charges = br._G.GetItemCount(itemID, false, true)
 	if charges == nil then
 		return 0
 	end
@@ -13,28 +13,28 @@ function br.canUseItem(itemID)
 		return false
 	end
 	if itemID <= 19 then
-		local slotItemID = _G.GetInventoryItemID("player", itemID)
-		if GetItemSpell(slotItemID) ~= nil then
-			if GetItemCooldown(slotItemID) == 0 and IsUsableItem(slotItemID) then
+		local slotItemID = br._G.GetInventoryItemID("player", itemID)
+		if br._G.GetItemSpell(slotItemID) ~= nil then
+			if br._G.GetItemCooldown(slotItemID) == 0 and br._G.IsUsableItem(slotItemID) then
 				return true
 			end
 		end
-	elseif (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID)) and
-		((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and br.hasItem(itemID)))
-	then 
-		if itemID > 19 and GetItemCooldown(itemID) == 0 and (IsUsableItem(itemID) or IsUsableSpell(select(2,GetItemSpell(itemID)))) then
+	elseif (br._G.GetItemCount(itemID, false, false) > 0 or br._G.PlayerHasToy(itemID)) and
+		((br._G.IsEquippableItem(itemID) and br._G.IsEquippedItem(itemID)) or (not br._G.IsEquippableItem(itemID) and br.hasItem(itemID)))
+	then
+		if itemID > 19 and br._G.GetItemCooldown(itemID) == 0 and (br._G.IsUsableItem(itemID) or br._G.IsUsableSpell(select(2,br._G.GetItemSpell(itemID)))) then
 			return true
 			end
 		end
 	return false
 end
 -- if canTrinket(13) then
-function canTrinket(trinketSlot)
+function br.canTrinket(trinketSlot)
 	if trinketSlot == 13 or trinketSlot == 14 then
-		if trinketSlot == 13 and select(3,GetInventoryItemCooldown("player",13)) == 1 and GetInventoryItemCooldown("player", 13) <= br.player.gcdMax then
+		if trinketSlot == 13 and select(3,br._G.GetInventoryItemCooldown("player",13)) == 1 and br._G.GetInventoryItemCooldown("player", 13) <= br.player.gcdMax then
 			return true
 		end
-		if trinketSlot == 14 and select(3,GetInventoryItemCooldown("player",14)) == 1 and GetInventoryItemCooldown("player", 14) <= br.player.gcdMax then
+		if trinketSlot == 14 and select(3,br._G.GetInventoryItemCooldown("player",14)) == 1 and br._G.GetInventoryItemCooldown("player", 14) <= br.player.gcdMax then
 			return true
 		end
 	else
@@ -43,15 +43,15 @@ function canTrinket(trinketSlot)
 end
 -- if br.hasItem(1234) == true then
 function br.hasItem(itemID)
-	if PlayerHasToy(itemID) then
+	if br._G.PlayerHasToy(itemID) then
 		return true
 	end
 	local itemFound = false
 	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = GetContainerNumSlots(i)
+		local numBagSlots = br._G.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
 			for x = 1, numBagSlots do --Let's look at each bag slot
-				local bagItemID = GetContainerItemID(i, x)
+				local bagItemID = br._G.GetContainerItemID(i, x)
 				if tostring(bagItemID) == tostring(itemID) then
 					itemFound = true
 				end
@@ -64,30 +64,30 @@ end
 function br.useItem(itemID,thisUnit)
 	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID <= 19 then
-		if GetItemSpell(_G.GetInventoryItemID("player", itemID)) ~= nil then
-			local slotItemID = _G.GetInventoryItemID("player", itemID)
-			if GetItemCooldown(slotItemID) == 0 then
-				if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
+		if br._G.GetItemSpell(br._G.GetInventoryItemID("player", itemID)) ~= nil then
+			local slotItemID = br._G.GetInventoryItemID("player", itemID)
+			if br._G.GetItemCooldown(slotItemID) == 0 then
+				if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 					-- RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
-					br._G.UseItemByName(select(1,GetItemInfo(slotItemID)),thisUnit);
-					br.itemSpamDelay = GetTime() + 1
+					br._G.UseItemByName(select(1,br._G.GetItemInfo(slotItemID)),thisUnit);
+					br.itemSpamDelay = br._G.GetTime() + 1
 					return true
 				end
 			end
 		end
-	elseif itemID > 19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
-		if GetItemCooldown(itemID) == 0 then
-			if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
+	elseif itemID > 19 and (br._G.GetItemCount(itemID) > 0 or br._G.PlayerHasToy(itemID)) then
+		if br._G.GetItemCooldown(itemID) == 0 then
+			if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 				-- RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
-				UseItemByName(select(1,GetItemInfo(itemID)),thisUnit);
-				br.itemSpamDelay = GetTime() + 1
+				br._G.UseItemByName(select(1,br._G.GetItemInfo(itemID)),thisUnit);
+				br.itemSpamDelay = br._G.GetTime() + 1
 				return true
 			end
 		end
 	end
 	return false
 end
-function useItemGround(Unit, itemID, maxDistance, minDistance, radius)
+function br.useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	if radius == nil then
 		radius = maxDistance
 	end
@@ -101,13 +101,13 @@ function useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 		br.useItem(itemID)
 		local X, Y, Z = br.GetObjectPosition(Unit)
 		--local distanceToGround = getGroundDistance(Unit) or 0
-		ClickPosition(X, Y, Z) --distanceToGround
+		br._G.ClickPosition(X, Y, Z) --distanceToGround
 		return true
 	end
 	return false
 end
-function hasHealthPot()
-	local locale = GetLocale()
+function br.hasHealthPot()
+	local locale = br._G.GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
 		if br.hasItem(169451) then
 			return true
@@ -123,8 +123,8 @@ function hasHealthPot()
 		return true
 	end
 end
-function getHealthPot()
-	local locale = GetLocale()
+function br.getHealthPot()
+	local locale = br._G.GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
 		if br.hasItem(171267) then
 			return 171267
@@ -148,15 +148,15 @@ function getHealthPot()
 	end
 end
 -- if TierScan("T17")>=2 then
-function TierScan(thisTier)
+function br.TierScan(thisTier)
 	local equippedItems = 0
-	local myClass = select(2, UnitClass("player"))
+	local myClass = select(2, br._G.UnitClass("player"))
 	thisTier = string.upper(thisTier)
 	local sets = br.lists.tier
 	local tierList = sets[thisTier][myClass]
 	if #tierList > 0 then
 		for i = 1, #tierList do
-			if IsEquippedItem(tierList[i]) then
+			if br._G.IsEquippedItem(tierList[i]) then
 				equippedItems = equippedItems + 1
 			end
 		end
@@ -164,17 +164,17 @@ function TierScan(thisTier)
 	return equippedItems
 end
 
-function hasEquiped(ItemID, Slot)
-	if PlayerHasToy(ItemID) then
+function br.hasEquiped(ItemID, Slot)
+	if br._G.PlayerHasToy(ItemID) then
 		return true
 	end
 	--Scan Armor Slots to see if specified item was equiped
 	local foundItem = false
 	for i = 1, 19 do
 		-- if there is an item in that slot
-		if _G.GetInventoryItemID("player", i) ~= nil then
+		if br._G.GetInventoryItemID("player", i) ~= nil then
 			-- check if it matches
-			if _G.GetInventoryItemID("player", i) == ItemID then
+			if br._G.GetInventoryItemID("player", i) == ItemID then
 				if i == Slot or Slot == nil then
 					foundItem = true
 					break

@@ -198,7 +198,7 @@ local function runRotation ()
 		local inCombat											= UnitAffectingCombat("player")
 		local inInstance										= br.player.instance=="party"
 		local inRaid											= br.player.instance=="raid"
-        local lastCast                                          = br.lastCast.tracker
+        local lastCast                                          = br.lastCastTable.tracker
         local level												= br.player.level
         local mode												= br.player.ui.mode
 		local moving                                            = isMoving("player") ~= false or br.player.moving
@@ -264,9 +264,9 @@ local function runRotation ()
         --- line_cd can be used to force a length of time, in seconds, to pass after executing an action before it can be executed again. In the example below, the second line can execute even while the first line is being delayed because of line_cd.
 		-- @return false if spell was cast within the given period
 		local function Line_cd (spellid, seconds)
-			if br.lastCast.line_cd then
-				if br.lastCast.line_cd[spellid] then
-					if br.lastCast.line_cd[spellid] + seconds >= GetTime() then
+			if br.lastCastTable.line_cd then
+				if br.lastCastTable.line_cd[spellid] then
+					if br.lastCastTable.line_cd[spellid] + seconds >= GetTime() then
 						return false
 					end
 				end

@@ -487,8 +487,8 @@ local function runRotation()
     end
 
     --Clear last cast table ooc to avoid strange casts
-    if #br.lastCast.tracker > 0 then
-        wipe(br.lastCast.tracker)
+    if #br.lastCastTable.tracker > 0 then
+        wipe(br.lastCastTable.tracker)
     end
 
     local astral_max = 0

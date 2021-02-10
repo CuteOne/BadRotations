@@ -697,35 +697,35 @@ local function runRotation()
                 -- Hand of Guldan
                 if spell == 105174 then
                     ImpsIncoming = ImpsIncoming + ImpsCasting
-                    if not br.lastCast.hog then br.lastCast.hog = {} end
+                    if not br.lastCastTable.hog then br.lastCastTable.hog = {} end
                     -- if br.lastCast then
-                    --     tinsert(br.lastCast.hog, 1, GetTime())
-                    --     if #br.lastCast.hog == 5 then
-                    --         br.lastCast.hog[5] = nil
+                    --     tinsert(br.lastCastTable.hog, 1, GetTime())
+                    --     if #br.lastCastTable.hog == 5 then
+                    --         br.lastCastTable.hog[5] = nil
                     --     end
                     -- end
-                    if br.lastCast.hog then
+                    if br.lastCastTable.hog then
                         if ImpsCasting == 1 then
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.2*spell_haste)
                         elseif ImpsCasting == 2 then
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.6*spell_haste)
                         elseif ImpsCasting == 3 then
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
-                            tinsert(br.lastCast.hog, 1, GetTime()+2.0*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.6*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+2.0*spell_haste)
                         end
                     end
                 end
                 -- Line CD
-                if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-                br.lastCast.line_cd[spell] = GetTime()
+                if not br.lastCastTable.line_cd then br.lastCastTable.line_cd = {} end
+                br.lastCastTable.line_cd[spell] = GetTime()
             end
 
             -- DEMON MANAGER
             -- Imps are summoned
             if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
-                if br.lastCast.hog[1] then tremove(br.lastCast.hog, #br.lastCast.hog) end
+                if br.lastCastTable.hog[1] then tremove(br.lastCastTable.hog, #br.lastCastTable.hog) end
                 local tyrantExtra = TyrantActive and TyrantDuration - (GetTime() - TyrantStart) or 0
                 ImpEnergy[destination] = {ImpMaxCasts, GetTime() + ImpMaxTime + tyrantExtra - 0.1}
                 C_Timer.After(ImpMaxTime + tyrantExtra, function()
@@ -882,9 +882,9 @@ local function runRotation()
     --end
 
     -- clean up imps incoming hog table
-    -- for i=1, #br.lastCast.hog do
-    --     if br.lastCast.hog[i] < GetTime() then
-    --         br.lastCast.hog[i] = nil
+    -- for i=1, #br.lastCastTable.hog do
+    --     if br.lastCastTable.hog[i] < GetTime() then
+    --         br.lastCastTable.hog[i] = nil
     --     end
     -- end
     
@@ -894,10 +894,10 @@ local function runRotation()
 
     local function Imps_spawned_during (seconds)
         local imps = 0
-        if br.lastCast.hog then
-            for i=1, #br.lastCast.hog do
-                if GetTime() + seconds >= br.lastCast.hog[i] then
-                --if br.lastCast.hog[i] <= GetTime() + seconds then
+        if br.lastCastTable.hog then
+            for i=1, #br.lastCastTable.hog do
+                if GetTime() + seconds >= br.lastCastTable.hog[i] then
+                --if br.lastCastTable.hog[i] <= GetTime() + seconds then
                     imps = imps + 1
                 end
             end
@@ -907,13 +907,13 @@ local function runRotation()
     end
 
     local function time_to_imps ()
-        return br.lastCast.hog[1] or 999
+        return br.lastCastTable.hog[1] or 999
     end
 
     local function Line_cd (spellid, seconds)
-        if br.lastCast.line_cd then
-            if br.lastCast.line_cd[spellid] then
-                if br.lastCast.line_cd[spellid] + seconds >= GetTime() then
+        if br.lastCastTable.line_cd then
+            if br.lastCastTable.line_cd[spellid] then
+                if br.lastCastTable.line_cd[spellid] + seconds >= GetTime() then
                     return false
                 end
             end

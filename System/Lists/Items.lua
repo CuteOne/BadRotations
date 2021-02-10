@@ -1,4 +1,4 @@
-local addonName, br = ...
+local _, br = ...
 if br.lists == nil then br.lists = {} end
 function getHeirloomNeck()
     local necks = {
@@ -11,7 +11,7 @@ function getHeirloomNeck()
         manariTrainingAmulet        = 153130,
     }
     for _,v in pairs(necks) do
-        if hasEquiped(v,2) then return v end
+        if br.hasEquiped(v,2) then return v end
     end
     return 0
 end

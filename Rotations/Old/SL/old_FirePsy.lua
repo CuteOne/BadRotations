@@ -208,8 +208,8 @@ local function runRotation()
         end
 
         --Clear last cast table ooc to avoid strange casts
-        if not inCombat and #br.lastCast.tracker > 0 then
-            wipe(br.lastCast.tracker)
+        if not inCombat and #br.lastCastTable.tracker > 0 then
+            wipe(br.lastCastTable.tracker)
         end
 
         local dispelDelay = 1.5
@@ -253,7 +253,7 @@ local function runRotation()
 
         local fbTracker = 0
         for i = 1, 3 do
-            local cast = br.lastCast.tracker[i]
+            local cast = br.lastCastTable.tracker[i]
             if cast == 108853 then
                 fbTracker = fbTracker + 1
             end

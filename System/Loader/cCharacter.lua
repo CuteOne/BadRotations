@@ -259,7 +259,7 @@ function cCharacter:new(class)
 				if self.equiped["t" .. i] == nil then
 					self.equiped["t" .. i] = 0
 				end
-				self.equiped["t" .. i] = TierScan("T" .. i) or 0
+				self.equiped["t" .. i] = br.TierScan("T" .. i) or 0
 			end
 			-- Checks class trinket
 			local classTrinket = {
