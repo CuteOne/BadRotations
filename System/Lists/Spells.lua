@@ -2072,10 +2072,10 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                combatMeditation            = 328908,
                 theEmperorsCapacitor        = 235054,
                 transcendence               = 101643,
-                weaponsOfOrder              = 328908, --310454,
-                weaponsOfOrderWW            = 310454, --311054,
+                weaponsOfOrderWW            = 310454,
                 weaponsOfOrderWWChi         = 311054,
             },
             conduits                        = {

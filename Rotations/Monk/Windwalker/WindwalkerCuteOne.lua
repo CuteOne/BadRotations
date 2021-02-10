@@ -602,8 +602,8 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=active_enemies>=2&buff.weapons_of_order_ww.remains<1
-    if cast.able.fistsOfFury() and buff.weaponsOfOrderWWChi.remains() < 1 then-- and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then
-        if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [Weapons of Order - Low WW Buff]") return true end
+    if cast.able.fistsOfFury() and var.rskChiWoORemain < 1 and #enemies.yards8 >= 2 then-- and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then
+        if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [Weapons of Order - Low Chi Buff]") return true end
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch,if=active_enemies>=2
@@ -616,9 +616,9 @@ actionList.WeaponsOfTheOrder = function()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&active_enemies>=3&buff.weapons_of_order_ww.up
     if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
-        and ui.useAOE(8,3) and buff.weaponsOfOrderWWChi.exists() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
+        and ui.useAOE(8,3) and var.rskChiWoORemain > 0 and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
-        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - WW Buff]") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - Chi Buff]") return true end
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&active_enemies<=2
@@ -669,8 +669,8 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=chi>=3|buff.weapons_of_order_ww.up
-    if cast.able.blackoutKick(var.lowestMark) and (chi >= 3 or buff.weaponsOfOrderWWChi.exists()) and not wasLastCombo(spell.blackoutKick) then
-        if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Weapons of Order - WW Buff]") return true end
+    if cast.able.blackoutKick(var.lowestMark) and (chi >= 3 or var.rskChiWoORemain > 0) and not wasLastCombo(spell.blackoutKick) then
+        if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Weapons of Order - Chi Buff]") return true end
     end
     -- Flying Serpent Kick
     -- flying_serpent_kick,interrupt=1
@@ -718,7 +718,7 @@ actionList.Serenity = function()
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&buff.weapons_of_order_ww.up&cooldown.rising_sun_kick.remains>2
-    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and buff.weaponsOfOrderWWChi.exists() and cd.risingSunKick.remain() > 2 then
+    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and var.rskChiWoORemain > 0 and cd.risingSunKick.remain() > 2 then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Serenity Weapons of Order]") return true end
     end
     -- Fists of Fury
@@ -1172,10 +1172,17 @@ local function runRotation()
     -- Fists of Fury Cancel - WoO SEF
     if var.fofCastRemain == nil then var.fofCastRemain = GetTime() end
     if buff.weaponsOfOrderWW.exists() and buff.stormEarthAndFire.exists() and cast.current.fistsOfFury()
-        and ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0))
+        --and ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0))
     then
         var.fofCastRemain = GetTime() + cast.timeRemain() + unit.gcd("true")
         if cast.cancel.fistsOfFury() then ui.debug("|cffFF0000Canceling Fists of Fury") return true end
+    end
+
+    -- Rising Sun Kick - WoO Chi Reduction Buff Remaining
+    if var.rskChiWoORemain == null then var.rskChiWoORemain = 0 var.rskChiWoOExpires = GetTime() end
+    var.rskChiWoORemain = var.rskChiWoOExpires - GetTime() <= 0 and 0 or var.rskChiWoOExpires - GetTime()
+    if buff.weaponsOfOrderWW.exists() and cast.last.risingSunKick() and var.rskChiWoORemain == 0 then
+        var.rskChiWoOExpires = GetTime() + 5
     end
 
     ---------------------
