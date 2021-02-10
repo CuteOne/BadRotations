@@ -1,4 +1,4 @@
-local addonName, br = ...
+local _, br = ...
 local b = br._G
 local CurrentTable,OldTable
 local function copyTable(datatable)
@@ -249,9 +249,10 @@ local UnlockList = {
 	"StartAttack", "MainMenuBar.ClearAllPoints", "UIParent.SetAttribute","MainMenuBar.SetPoint"
 }
 local function BrUnlock()
+	local lb = _G.__LB__
 	print("huy")
-	for i,val in ipairs(TagHandlerList) do
-		for k,rot in ipairs(UnlockList) do
+	for _,val in ipairs(TagHandlerList) do
+		for _,rot in ipairs(UnlockList) do
 			if val == rot then
 				print(rot)
 			end
@@ -270,7 +271,7 @@ local function BrUnlock()
 		lbUnlock(method)
 	end
 
-	b.ObjectPointer = br._G.UnitGUID
+	b.ObjectPointer = function(...) return lb.ObjectPointer(...) end
 	b.ObjectPosition = function (...) return lb.ObjectPosition(...) end
 	b.ObjectGUID = br._G.UnitGUID
 	b.ObjectIsUnit = function(...) local ObjType = lb.ObjectType(...); return ObjType == 5 or ObjType == 6 or ObjType == 7 end
@@ -284,8 +285,8 @@ local function BrUnlock()
 	b.IsQuestObject = function(obj)
 		return false, false
 	end
-	b.UnitCastingInfo = lb.UnitCastingInfo
-	b.UnitChannelInfo = lb.UnitChannelInfo
+	b.UnitCastingInfo = function(...) return lb.UnitTagHandler(_G.UnitCastingInfo, ...) end
+	b.UnitChannelInfo = function(...) return lb.UnitTagHandler(_G.UnitChannelInfo, ...) end
 	b.UnitCastID = function(...)
 		local CastSpellID, CastTargetGUID, timeLeft, NotInterruptible = lb.UnitCastingInfo(...)
 		local ChannelSpellID, ChannelTargetGUID, timeLeft, NotInterruptible = lb.UnitChannelInfo(...)
@@ -329,32 +330,32 @@ local function BrUnlock()
 	end
 
 	b.GetPositionBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2, DistanceFromPosition1)
-		local AngleXY, AngleXYZ = GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
-		return GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
+		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
+		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
 
 	b.GetPositionBetweenObjects = function(unit1,unit2,DistanceFromPosition1)
 		local X1,Y1,Z1 = br._G.ObjectPosition(unit1)
 
 		local X2,Y2,Z2 = br._G.ObjectPosition(unit2)
-		local AngleXY, AngleXYZ = GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
-		return GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
+		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
+		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
 	b.ObjectFacing = lb.ObjectFacing
 	b.FaceDirection = function(arg)
 		if type(arg) == "number" then
 			lb.SetPlayerAngles (arg)
 		else
-			arg = GetAnglesBetweenObjects("player",arg)
+			arg = b.GetAnglesBetweenObjects("player",arg)
 			lb.SetPlayerAngles (arg)
 		end
 	end
 	function b.ObjectFacingObject(obj1,obj2, degrees)
 		local Facing = lb.ObjectFacing(obj1)
-		local AngleToUnit = GetAnglesBetweenObjects(obj1,obj2)
+		local AngleToUnit = b.GetAnglesBetweenObjects(obj1,obj2)
 		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
 		local ShortestAngle = AngleDifference < math.pi and AngleDifference or math.pi * 2 - AngleDifference
-		degrees = degrees and rad(degrees)/2 or math.pi/2
+		degrees = degrees and br._G.rad(degrees)/2 or math.pi/2
 		return ShortestAngle < degrees
 	end
 	-- br.getFacing = ObjectFacingObject
@@ -417,11 +418,11 @@ local function BrUnlock()
 	b.UnitBoundingRadius = lb.UnitBoundingRadius
 	br.unlocked = true
 end
-local f = CreateFrame("Frame", "BrUnlock")
+local f = _G.CreateFrame("Frame", "BrUnlock")
 f:SetScript(
 	"OnUpdate",
 	function()
-		if not br.unlocked and lb then
+		if not br.unlocked and _G.lb then
 			-- print("123")
 			BrUnlock()
 		end

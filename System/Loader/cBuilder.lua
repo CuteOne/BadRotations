@@ -457,7 +457,7 @@ function br.loader:new(spec,specName)
             if facing then insertTable = insertTable.."f" end-- Ex: enemies.yards8tncf (returns all units the target is facing in 8yrds)
             -- Add to table
             if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else wipe(self.enemies[insertTable]) end
-            if #enemyTable > 0 then insertTableIntoTable(self.enemies[insertTable],enemyTable) end
+            if #enemyTable > 0 then br.insertTableIntoTable(self.enemies[insertTable],enemyTable) end
             return enemyTable  -- Backwards compatability for old way
         end
 
@@ -699,7 +699,7 @@ function br.loader:new(spec,specName)
         --
         -- -- Only add profile pages if they are found
         -- if profileTable then
-            insertTableIntoTable(optionTable, self.rotation.options())
+            br.insertTableIntoTable(optionTable, self.rotation.options())
         -- end
 
         -- Create pages dropdown

@@ -86,7 +86,7 @@ br.api.debuffs = function(debuff,k,v)
     debuff.pandemic = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if thisUnit == 'target' then thisUnit = br._G.GetObjectWithGUID(br._G.UnitGUID("target")) end
+        if thisUnit == 'target' then thisUnit = br._G.UnitGUID("target") end
         local pandemic = debuff.duration(thisUnit,sourceUnit)
         if br.player.pandemic[thisUnit] ~= nil and br.player.pandemic[thisUnit][k] ~= nil then
             pandemic = br.player.pandemic[thisUnit][k]

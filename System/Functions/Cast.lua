@@ -625,7 +625,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
 			if ((br.isChecked("Display Failcasts") and not debugOnly) or br.isChecked("Cast Debug")) and debug ~= "debug" then
-				if debugReason == "No Unit" then 
+				if debugReason == "No Unit" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there was not unit found in "..maxRange.."yrds.")
 				elseif debugReason == "Below Min Units" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..thisCount.." enemies in "..maxRange.."yrds, but "..minUnits.." are needed to cast.")

@@ -275,7 +275,7 @@ function cCharacter:new(class)
 				warlock = 124522, -- Fragment of the Dark Star
 				warrior = 124523 -- Worldbreaker's Resolve
 			}
-			self.equiped.t18_classTrinket = isTrinketEquipped(classTrinket[string.lower(self.class)])
+			self.equiped.t18_classTrinket = br.isTrinketEquipped(classTrinket[string.lower(self.class)])
 
 			br.equipHasChanged = false
 		end

@@ -218,9 +218,9 @@ function BadRotationsUpdate(self)
 					br.DBM:getBars()
 				elseif IsAddOnLoaded("BigWigs") then
 					if not br.DBM.BigWigs then
-						BWInit()
+						br.BWInit()
 					else
-						BWCheck()
+						br.BWCheck()
 					end
 				end
 				-- Accept dungeon queues
