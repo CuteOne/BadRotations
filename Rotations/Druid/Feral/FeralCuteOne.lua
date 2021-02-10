@@ -665,14 +665,24 @@ actionList.Defensive = function()
                 if ui.value("Regrowth - InC") == 1 or not talent.bloodtalons then
                     -- Lowest Party/Raid or Player
                     if (thisHP <= ui.value("Regrowth") and unit.level() >= 49) or (unit.level() < 49 and thisHP <= ui.value("Regrowth") / 2) then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC Instant] on "..unit.name(thisUnit)) return true end
+                        if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
+                            unit.cancelForm()
+                            ui.debug("Cancel Form [Regrowth - OoC Break]")
+                        elseif unit.form() == 0 then
+                            if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC Instant] on "..unit.name(thisUnit)) return true end
+                        end
                     end
                 end
                 -- Hold Predatory Swiftness for Bloodtalons unless Health is Below Half of Threshold or Predatory Swiftness is about to Expire.
                 if ui.value("Regrowth - InC") == 2 and talent.bloodtalons then
                     -- Lowest Party/Raid or Player
                     if (thisHP <= ui.value("Regrowth") / 2) or buff.predatorySwiftness.remain() < unit.gcd(true) * 2 then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC BT Hold] on "..unit.name(thisUnit)) return true end
+                        if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
+                            unit.cancelForm()
+                            ui.debug("Cancel Form [Regrowth - OoC Break]")
+                        elseif unit.form() == 0 then
+                            if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC BT Hold] on "..unit.name(thisUnit)) return true end
+                        end
                     end
                 end
             end
