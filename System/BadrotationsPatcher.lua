@@ -350,7 +350,7 @@ local function BrUnlock()
 			lb.SetPlayerAngles (arg)
 		end
 	end
-	function b.ObjectFacingObject(obj1,obj2, degrees)
+	function b.ObjectIsFacing(obj1,obj2, degrees)
 		local Facing = lb.ObjectFacing(obj1)
 		local AngleToUnit = b.GetAnglesBetweenObjects(obj1,obj2)
 		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing

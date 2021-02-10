@@ -404,11 +404,11 @@ function isLooting()
 	return GetNumLootItems() > 0
 end
 -- if not isMoving("target") then
-function isMoving(Unit)
+function br.isMoving(Unit)
 	if Unit == nil then
 		return false
 	end
-	return GetUnitSpeed(Unit) > 0
+	return br._G.GetUnitSpeed(Unit) > 0
 end
 -- if IsMovingTime(5) then
 function IsMovingTime(time)

@@ -366,7 +366,7 @@ local function runRotation()
     local lossPercent = br.getHPLossPercent("player", 5)
     local lowest = br.friend[1]
     local mode = br.player.ui.mode
-    local moving = isMoving("player")
+    local moving = br.isMoving("player")
     local swimming = IsSwimming()
     local php = br.player.health
     local playerMouse = UnitIsPlayer("mouseover")
@@ -502,7 +502,7 @@ local function runRotation()
                 end
             end
         end
-        if ui.checked("Revive") and not inCombat and not isMoving("player") and br.timer:useTimer("Resurrect", 4) then
+        if ui.checked("Revive") and not inCombat and not br.isMoving("player") and br.timer:useTimer("Resurrect", 4) then
             if ui.value("Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
                 if cast.revive("target", "dead") then
                     br.addonDebug("Casting Revive")

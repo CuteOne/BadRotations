@@ -1,4 +1,4 @@
-local addonName, br = ...
+local _, br = ...
 local sqrt, abs, atan, deg, tan = math.sqrt, math.abs, math.atan, math.deg, math.tan
 local testSpell = {
     ["WARRIOR"] = 6552,
@@ -29,25 +29,25 @@ function br.getDistance(Unit1,Unit2,option)
         -- local thisUnit = Unit1 == "player" and br.units[br._G.ObjectPointer(Unit2)] or br.units[br._G.ObjectPointer(Unit1)]
         -- if thisUnit ~= nil then return thisUnit.range end
     end
-    return getDistanceCalc(Unit1,Unit2,option)
+    return br.getDistanceCalc(Unit1,Unit2,option)
 end
-function getDistanceCalc(Unit1,Unit2,option)
+function br.getDistanceCalc(Unit1,Unit2,option)
     local currentDist = 100
     local meleeSpell = nil
-    local playerClass = select(2,UnitClass("player"))
+    local playerClass = select(2,br._G.UnitClass("player"))
     if testSpell[playerClass] ~= nil then
         meleeSpell = testSpell[playerClass]
     elseif playerClass == "DRUID" and br.UnitBuffID("player",768) then
         meleeSpell = testSpell["DRUIDC"]
     elseif playerClass == "DRUID" and br.UnitBuffID("player",5487) then
         meleeSpell = testSpell["DRUIDB"]
-    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
+    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 255 then
         meleeSpell = testSpell["SHUNTER"]
-    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 263 then
+    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 263 then
         meleeSpell = testSpell["SHAMAN"]
-    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
+    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 577 then
         meleeSpell = testSpell["DHH"]
-    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 581 then
+    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 581 then
         meleeSpell = testSpell["DHV"]
     end
     -- If Unit2 is nil we compare player to Unit1
@@ -103,11 +103,11 @@ function getDistanceCalc(Unit1,Unit2,option)
         local PlayerCombatReach = br._G.UnitCombatReach(Unit1) or 0
         local MeleeCombatReachConstant = 7/3
         local IfSourceAndTargetAreRunning = 0
-        if isMoving(Unit1) and isMoving(Unit2) then IfSourceAndTargetAreRunning = 8/3 end
+        if br.isMoving(Unit1) and br.isMoving(Unit2) then IfSourceAndTargetAreRunning = 8/3 end
         -- Rogue Melee Range Increase Mod
-        if br.player ~= nil then            
+        if br.player ~= nil then
             if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil then
-                if br.player.talent.acrobaticStrikes and option ~= "noMod" and IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then
+                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.IsSpellInRange(select(1,br._G.GetSpellInfo(meleeSpell)),Unit2) == 1 then
                     rangeMod = 3
                 end
             end
@@ -116,13 +116,13 @@ function getDistanceCalc(Unit1,Unit2,option)
         local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
         local dist3 = dist + 0.05 * ((8 - dist) / 0.15) + 1
         local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
-        local meleeRange = max(6, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
+        local meleeRange = _G.max(6, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
         if option == "dist" then return dist end
         if option == "dist2" then return dist2 end
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
         if option == "meleeRange" then return meleeRange end
-        if GetSpecializationInfo(GetSpecialization()) == 255 then
+        if br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 255 then
             if dist > meleeRange then
                 currentDist = dist
             else
@@ -144,17 +144,17 @@ function getDistanceCalc(Unit1,Unit2,option)
             currentDist = currentDist - (currentDist * 0.05)
         end
         if meleeSpell ~= nil then
-            if IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then
+            if br._G.IsSpellInRange(select(1,br._G.GetSpellInfo(meleeSpell)),Unit2) == 1 then
                 currentDist = 0
             end
         end
     end
     return currentDist
 end
-function isInRange(spellID,unit)
-	return LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)
+function br.isInRange(spellID,unit)
+	return _G.LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)
 end
-function getDistanceToObject(Unit1,X2,Y2,Z2)
+function br.getDistanceToObject(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then
 		Unit1 = "player"
 	end
@@ -165,22 +165,14 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 		return 100
 	end
 end
-function inRange(spellID,unit)
-	local SpellRange = LibStub("SpellRange-1.0")
-	local inRange = SpellRange.IsSpellInRange(spellID,unit)
-	if inRange == 1 then
-		return true
-	else
-		return false
-	end
-end
-function getFacingDistance()
+
+function br.getFacingDistance()
     if br.GetUnitIsVisible("player") and br.GetUnitIsVisible("target") then
         --local targetDistance = getRealDistance("target")
         local targetDistance = br.getDistance("target")
         local Y1,X1,Z1 = br.GetObjectPosition("player");
         local Y2,X2,Z2 = br.GetObjectPosition("target");
-        local angle1 = GetObjectFacing("player")
+        local angle1 = br.GetObjectFacing("player")
         local angle2
         local deltaY = Y2 - Y1
         local deltaX = X2 - X1
@@ -190,8 +182,8 @@ function getFacingDistance()
         elseif deltaX <0 then
             angle2 = deg(atan(deltaY/deltaX)+(math.pi/2))
         end
-        local Dist = round2(math.tan(abs(angle2 - angle1)*math.pi/180)*targetDistance*10000)/10000
-        if ObjectIsFacing("player","target") then
+        local Dist = br.round2(math.tan(abs(angle2 - angle1)*math.pi/180)*targetDistance*10000)/10000
+        if br._G.ObjectIsFacing("player","target") then
             return Dist
         else
             return -(abs(Dist))
@@ -201,7 +193,7 @@ function getFacingDistance()
     end
 end
 -- /dump getTotemDistance("target")
-function getTotemDistance(Unit1)
+function br.getTotemDistance(Unit1)
   if Unit1 == nil then
     Unit1 = "player"
   end
@@ -209,9 +201,9 @@ function getTotemDistance(Unit1)
   if br.GetUnitIsVisible(Unit1) then
     -- local objectCount = GetObjectCountBR() or 0
     local X2, Y2, Z2
-    for i = 1,GetObjectCountBR() do
-      if br.GetUnitIsUnit(br._G.UnitCreator(GetObjectWithIndex(i)), "Player") and (UnitName(GetObjectWithIndex(i)) == "Searing Totem" or UnitName(GetObjectWithIndex(i)) == "Magma Totem") then
-        X2,Y2,Z2 = br.GetObjectPosition(GetObjectIndex(i))
+    for i = 1,br._G.GetObjectCount() do
+      if br.GetUnitIsUnit(br._G.UnitCreator(br._G.GetObjectWithIndex(i)), "Player") and (br._G.UnitName(br._G.GetObjectWithIndex(i)) == "Searing Totem" or br._G.UnitName(br._G.GetObjectWithIndex(i)) == "Magma Totem") then
+        X2,Y2,Z2 = br.GetObjectPosition(br._G.GetObjectWithIndex(i))
       end
     end
     local X1,Y1,Z1 = br.GetObjectPosition(Unit1)
@@ -223,7 +215,7 @@ function getTotemDistance(Unit1)
   end
 end
 -- if isInMelee() then
-function isInMelee(Unit)
+function br.isInMelee(Unit)
   if Unit == nil then
     Unit = "target"
   end
@@ -234,19 +226,19 @@ function isInMelee(Unit)
   end
 end
 
-function isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
+function br.isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
     if not br.isChecked("Safe Damage Check") then return true end
     local enemiesValid, enemiesAll
-    local maxRange = select(6,GetSpellInfo(spellID))
+    local maxRange = select(6,br._G.GetSpellInfo(spellID))
     if effectRng == nil then effectRng = 5 end
     if maxRange == nil or maxRange == 0 then maxRange = tonumber(effectRng) effectRng = 8 else maxRange = tonumber(maxRange) end
     if minUnits == nil then minUnits = 1 end
     if aoeType == "rect" then
-        enemiesValid    = getEnemiesInRect(effectRng,maxRange,false)
-        enemiesAll      = getEnemiesInRect(effectRng,maxRange,false,true)
+        enemiesValid    = br.getEnemiesInRect(effectRng,maxRange,false)
+        enemiesAll      = br.getEnemiesInRect(effectRng,maxRange,false,true)
     elseif aoeType == "cone" then
-        enemiesValid    = getEnemiesInCone(effectRng,maxRange,false)
-        enemiesAll      = getEnemiesInCone(effectRng,maxRange,false,true)
+        enemiesValid    = br.getEnemiesInCone(effectRng,maxRange,false)
+        enemiesAll      = br.getEnemiesInCone(effectRng,maxRange,false,true)
     else
         enemiesValid    = #br.getEnemies(Unit,effectRng)
         enemiesAll      = #br.getEnemies(Unit,effectRng,true)
@@ -254,18 +246,18 @@ function isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
     return enemiesValid >= minUnits and enemiesValid >= enemiesAll
 end
 
-function inRange(spellID,unit)
-    local spellName = GetSpellInfo(spellID)
+function br.inRange(spellID,unit)
+    local spellName = br._G.GetSpellInfo(spellID)
     if unit == nil then unit = "target" end
-    local inRange = IsSpellInRange(spellName,unit)
+    local inRange = br._G.IsSpellInRange(spellName,unit)
     if inRange ~= nil then
-        return IsSpellInRange(spellName,unit) == 1
+        return br._G.IsSpellInRange(spellName,unit) == 1
     else
         return false
     end
 end
 
-function getBaseDistance(unit1, unit2)
+function br.getBaseDistance(unit1, unit2)
     if unit2 == nil then
         unit2 = "player"
     end
