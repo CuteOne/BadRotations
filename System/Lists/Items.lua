@@ -1,6 +1,6 @@
 local _, br = ...
 if br.lists == nil then br.lists = {} end
-function getHeirloomNeck()
+function br.getHeirloomNeck()
     local necks = {
         eternalAmuletOfTheRedeemed  = 122663,
         eternalEmberfuryTalisman    = 122667,
@@ -77,7 +77,7 @@ br.lists.items = {
     eternalTalismanOfEvasion        = 122662,
     eternalWillOfTheMartyr          = 122668,
     eternalWovenIvyNecklace         = 122666,
-    heirloomNeck                    = getHeirloomNeck(),
+    heirloomNeck                    = br.getHeirloomNeck(),
     manariTrainingAmulet            = 153130,
     touchOfTheVoid                  = 128318,
     -- Potions

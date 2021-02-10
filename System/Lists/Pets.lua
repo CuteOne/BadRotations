@@ -1,8 +1,8 @@
-local addonName, br = ...
+local _, br = ...
 if br.lists == nil then br.lists = {} end
 br.lists.pets = {
     -- Active Pet
-    activePet                   = activePet,
+    activePet                   = br.activePet,
     -- Death Knight
     apocalypseGhoul             = 111101,
     armyOfTheDead               = 24207,

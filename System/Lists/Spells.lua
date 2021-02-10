@@ -1,7 +1,7 @@
-local addonName, br = ...
+local _, br = ...
 local function flipRace()
-    local race = select(2,UnitRace("player"))
-    local class = select(3,UnitClass("player"))
+    local race = select(2,br._G.UnitRace("player"))
+    local class = select(3,br._G.UnitClass("player"))
     if br.UnitBuffID("player",193863) then
         if race == "Orc" then
             return "Dwarf"
@@ -108,7 +108,7 @@ end
 function br.getRacial(thisRace)
     local forTheAlliance = br.UnitBuffID("player",193863) or false
     local forTheHorde = br.UnitBuffID("player", 193864) or false
-    local race = select(2,UnitRace("player"))
+    local race = select(2,br._G.UnitRace("player"))
     if forTheAlliance or forTheHorde then
         race = flipRace()
     end
@@ -117,13 +117,13 @@ function br.getRacial(thisRace)
     local OrcRacial
 
     if race == "BloodElf" or race == thisRace then
-        BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
+        BloodElfRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))
     end
     if race == "Draenei" or race == thisRace then
-        DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
+        DraeneiRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(28880)))
     end
     if race == "Orc" or race == thisRace then
-        OrcRacial = select(7, GetSpellInfo(GetSpellInfo(33702)))
+        OrcRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(33702)))
     end
     local racialSpells = {
         -- Alliance
@@ -688,9 +688,6 @@ br.lists.spells = {
                 starlord                    = 279709,
                 livelySpirit                = 279279,
                 arcanicPulsar               = 287790,
-                kindredEmpowerment          = 327022,
-                onethsClearVision           = 338661,
-                ravenousFrenzy              = 323546,
                 primordialArcanicPulsar     = 338668,
                 balanceOfAllThings          = 339942,
                 balanceOfAllThingsNature    = 339943, -- Nature Buff
@@ -2058,7 +2055,7 @@ br.lists.spells = {
                 weaponsOfOrderWW            = 310454, --311054,
             },
             conduits                        = {
-                calculatedStrikes           = 336526,                    
+                calculatedStrikes           = 336526
             },
             covenants                       = {
                 bonedustBrew                = 325216,
@@ -2637,7 +2634,6 @@ br.lists.spells = {
                 psychicScream               = 8122,
                 resurrection                = 2006,
                 shadowWordDeath             = 32379,
-                shadowWordPain              = 589,
                 shackleUndead               = 9484,
                 shadowWordPain              = 589,
                 smite                       = 585,
@@ -2919,7 +2915,6 @@ br.lists.spells = {
                 theDreadlordsDeceit         = 228224,
                 theRotten                   = 341134,
                 deathlyShadows              = 341202,
-                perforatedVeins             = 341572,
                 masterAssassin              = 256735,
                 coldBlood                   = 213981,
                 perforatedVeins             = 341572,
@@ -3354,7 +3349,7 @@ br.lists.spells = {
                 echoesOfGreatSundering      = 336215,
                 skybreakersFieryDemise      = 336734,
                 spiritwalkersTidalTotem     = 335891,
-                deeptremorStone             = 336739, 
+                deeptremorStone             = 336739,
                 windspeakersLavaResurgence  = 336063
             },
             talents                         = {

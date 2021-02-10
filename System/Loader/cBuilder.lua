@@ -522,7 +522,7 @@ function br.loader:new(spec,specName)
 
             br.api.items(self.use,k,v,"use")
 
-            getHeirloomNeck()
+            br.getHeirloomNeck()
         end
 
         -- Cycle through Abilities List
