@@ -13,10 +13,10 @@ function br:loadUnlockerAPI()
         b.ObjectPointer = ObjectPointer
         b.ObjectExists = ObjectExists
         b.ObjectIsVisible = ObjectIsVisible
-        b.br._G.ObjectPosition = br._G.ObjectPosition
+        b.ObjectPosition = ObjectPosition
         b.ObjectFacing = ObjectFacing
         b.ObjectName = ObjectName
-        b.br._G.ObjectID = br._G.ObjectID
+        b.ObjectID = ObjectID
         b.ObjectIsUnit = ObjectIsUnit
         b.GetDistanceBetweenPositions = GetDistanceBetweenPositions
         b.GetDistanceBetweenObjects = GetDistanceBetweenObjects
@@ -34,7 +34,7 @@ function br:loadUnlockerAPI()
         b.GetPlayerWithIndex = GetObjectWithIndex
         -- Unit
         b.UnitBoundingRadius = UnitBoundingRadius
-        b.UnitCombatReach = br._G.UnitCombatReach
+        b.UnitCombatReach = UnitCombatReach
         b.UnitTarget = UnitTarget
         b.UnitCastID = UnitCastID
         -- World
@@ -85,8 +85,8 @@ function br:loadUnlockerAPI()
         end
         b.ObjectExists = wmbapi.ObjectExists
         b.ObjectIsVisible = b.UnitIsVisible
-        b.br._G.ObjectPosition = function(obj) 
-            local x,y,z = wmbapi.br._G.ObjectPosition(obj) 
+        b.ObjectPosition = function(obj) 
+            local x,y,z = wmbapi.ObjectPosition(obj) 
             if x then
                 return x,y,z
             else
@@ -107,7 +107,7 @@ function br:loadUnlockerAPI()
                 return ""
             end
         end
-        b.br._G.ObjectID = function(obj) 
+        b.ObjectID = function(obj) 
             if b.UnitIsVisible(obj) then
                 return wmbapi.ObjectId(obj)
             else
@@ -162,14 +162,14 @@ function br:loadUnlockerAPI()
         end
         b.UnitCombatReach = function(obj) 
             if b.UnitIsVisible(obj) then
-                return wmbapi.br._G.UnitCombatReach(obj)
+                return wmbapi.UnitCombatReach(obj)
             else
                 return 0
             end
         end
-        br._G.UnitTarget = function(obj) 
+        b.UnitTarget = function(obj) 
             if b.UnitIsVisible(obj) then
-                return wmbapi.br._G.UnitTarget(obj)
+                return wmbapi.UnitTarget(obj)
             else
                 return ""
             end
@@ -184,7 +184,7 @@ function br:loadUnlockerAPI()
         end
         b.UnitCreator = function(obj) 
             if b.UnitIsVisible(obj) then
-                return wmbapi.br._G.UnitCreator(obj)
+                return wmbapi.UnitCreator(obj)
             else
                 return ""
             end
@@ -368,7 +368,7 @@ function br:checkBrOutOfDate()
             Method = 'GET'
             }
             if not brlocVersionRequest then
-                brlocVersionRequest = SendHTTPRequest(info)
+                brlocVersionRequest = b.SendHTTPRequest(info)
             else
                 brlocVersionStatus, brlocVersionResponce = wmbapi.ReceiveHttpResponse(brlocVersionRequest)
                 if brlocVersionResponce then
