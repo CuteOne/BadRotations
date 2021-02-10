@@ -345,7 +345,7 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
         -- Death Grip
                         if br.isChecked("Death Grip - Int") and br.getDistance(thisUnit) > 8 then
                             if cast.deathGrip(thisUnit) then return end
@@ -479,7 +479,7 @@ local function runRotation()
                     if br.isChecked("Lucid Dreams") and runes <= br.getOptionValue("Lucid Dreams") then
                         if cast.memoryOfLucidDreams("player") then return end
                     end
-                    if br.getOptionValue("Use Concentrated Flame") ~= 1 and br.getOptionValue("Use Concentrated Flame") ~= 4 and php <= getValue("Concentrated Flame Heal") then
+                    if br.getOptionValue("Use Concentrated Flame") ~= 1 and br.getOptionValue("Use Concentrated Flame") ~= 4 and php <= br.getValue("Concentrated Flame Heal") then
                         if cast.concentratedFlame("player") then
                             return
                         end
@@ -510,7 +510,7 @@ local function runRotation()
                     if runeTimeTill(3) <= gcd and talent.ossuary and buff.boneShield.stack() <= 6 then
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
-                    if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php >= getValue("Concentrated Flame Heal")) then
+                    if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php >= br.getValue("Concentrated Flame Heal")) then
                         if cast.concentratedFlame("target") then
                             return
                         end

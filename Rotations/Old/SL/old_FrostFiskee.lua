@@ -405,7 +405,7 @@ local function runRotation()
 
     local dispelDelay = 1.5
     if br.isChecked("Dispel delay") then
-        dispelDelay = getValue("Dispel delay")
+        dispelDelay = br.getValue("Dispel delay")
     end
 
     if profileStop == nil or not inCombat then
@@ -884,7 +884,7 @@ local function runRotation()
             if not br.isChecked("Do Not Cancel Cast") or not playerCasting then
                 for i = 1, #enemyTable40 do
                     local thisUnit = enemyTable40[i].unit
-                    if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.counterspell(thisUnit) then
                             return
                         end
@@ -936,7 +936,7 @@ local function runRotation()
         or charges.concentratedFlame.timeTillFull() < gcd) and not buff.runeOfPower.exists("player") then
             if cast.concentratedFlame("target") then return true end
         end
-        if br.isChecked("Concentrated Flame HP") and cast.able.concentratedFlame() and cd.concentratedFlame.remain() <= gcd and php <= getValue("Concentrated Flame HP") then
+        if br.isChecked("Concentrated Flame HP") and cast.able.concentratedFlame() and cd.concentratedFlame.remain() <= gcd and php <= br.getValue("Concentrated Flame HP") then
             if cast.concentratedFlame("player") then return true end
         end
         -- actions.essences+=/the_unbound_force,if=buff.reckless_force.up

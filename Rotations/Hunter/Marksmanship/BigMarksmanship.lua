@@ -818,7 +818,7 @@ actionList.kick = function()
     for i=1, #units.enemies.yards40f do
         local theUnit = units.enemies.yards40f[i]
         if cInterruptAll.value then
-            if castingUnit(theUnit) and canInterrupt(theUnit, interruptAt) then
+            if castingUnit(theUnit) and br.canInterrupt(theUnit, interruptAt) then
                 if castingUnit(units.player) then RunMacroText("/stopcasting") end
                 local castSuccess = br.createCastFunction(theUnit, _, _, _, br.player.interrupts.currentSpell)
                 if castSuccess then
@@ -828,7 +828,7 @@ actionList.kick = function()
             end
         end
         for id, active in pairs(br.player.interrupts.activeList) do
-            if active and br.isCastingSpell(id, theUnit) and canInterrupt(theUnit) then
+            if active and br.isCastingSpell(id, theUnit) and br.canInterrupt(theUnit) then
                 br.player.interrupts.currentUnit = theUnit
                 br.player.interrupts.unitSpell = id
             end
@@ -836,7 +836,7 @@ actionList.kick = function()
     end
 
 	if isInCombat(units.player) and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
-		if br.isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
+		if br.isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and br.canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
 			if (getTimeToLastInterrupt() >= 1 and br.GetObjectID(lastUnit) == br.GetObjectID(br.player.interrupts.currentUnit)) or
 		      (getTimeToLastInterrupt() < 1 and br.GetObjectID(lastUnit) ~= br.GetObjectID(br.player.interrupts.currentUnit)) then
                 if castingUnit(units.player) then RunMacroText("/stopcasting") end

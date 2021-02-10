@@ -199,7 +199,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i=1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 -- Hammer of Justice
                 if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(thisUnit) then
                     if cast.hammerOfJustice(thisUnit) then ui.debug("Casting Hammer of Justice [Interrupt]") return true end

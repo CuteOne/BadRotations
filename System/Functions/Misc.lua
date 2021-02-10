@@ -645,7 +645,7 @@ function pause(skipCastingCheck)
 	if disableControl == true then
 		return true
 	end
-	if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
+	if SpecificToggle("Pause Mode") == nil or br.getValue("Pause Mode") == 6 then
 		pausekey = IsLeftAltKeyDown()
 	else
 		pausekey = SpecificToggle("Pause Mode")
@@ -763,14 +763,14 @@ function isSelected(Value)
 	if
 		br.data.settings ~= nil and
 			(br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 or
-				(br.isChecked(Value) and (getValue(Value) == 3 or (getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
+				(br.isChecked(Value) and (br.getValue(Value) == 3 or (br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
 	 then
 		return true
 	end
 	return false
 end
--- if getValue("player") <= getValue("Eternal Flame") then
--- function getValue(Value)
+-- if br.getValue("player") <= br.getValue("Eternal Flame") then
+-- function br.getValue(Value)
 -- 	if br.data~=nil then
 -- 		if br.data.settings[br.selectedSpec][br.selectedProfile]~=nil then
 -- 	        if br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Status"] ~= nil then
@@ -785,7 +785,7 @@ end
 -- 		return 0
 -- 	end
 -- end
-function getValue(Value)
+function br.getValue(Value)
 	if br.data ~= nil and br.data.settings ~= nil then
 		local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
 		if selectedProfile ~= nil then
@@ -808,7 +808,7 @@ function br.getOptionCheck(Value)
 	return br.isChecked(Value)
 end
 function br.getOptionValue(Value)
-	return getValue(Value)
+	return br.getValue(Value)
 end
 function getOptionText(Value)
 	if br.data ~= nil and br.data.settings ~= nil then
@@ -931,11 +931,11 @@ function br.addonDebug(msg, system)
 		return
 	end
 	if br.isChecked("Addon Debug Messages") then
-		if system == true and (getValue("Addon Debug Messages") == 1 or getValue("Addon Debug Messages") == 3) then
+		if system == true and (br.getValue("Addon Debug Messages") == 1 or br.getValue("Addon Debug Messages") == 3) then
 			if br.timer:useTimer("System Delay", 0.1) then
 				print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
 			end
-		elseif system ~= true and (getValue("Addon Debug Messages") == 2 or getValue("Addon Debug Messages") == 3) then
+		elseif system ~= true and (br.getValue("Addon Debug Messages") == 2 or br.getValue("Addon Debug Messages") == 3) then
 			if br.timer:useTimer("Profile Delay", 0.1) then
 				print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
 			end

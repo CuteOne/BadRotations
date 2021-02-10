@@ -643,7 +643,7 @@ local function runRotation()
         if useInterrupts() then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     -- Silence
                     if br.isChecked("Silence") then
                         if cast.silence(thisUnit) then

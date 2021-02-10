@@ -304,7 +304,7 @@ local function runRotation()
                 for i=1, #enemies.yards20 do
                     thisUnit = enemies.yards20[i]
                     distance = br.getDistance(thisUnit)
-                    if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     -- Pummel
                         if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
                             if cast.pummel(thisUnit) then return end

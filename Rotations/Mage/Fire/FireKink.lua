@@ -342,7 +342,7 @@ local function runRotation()
 
         local dispelDelay = 1.5
         if br.isChecked("Dispel delay") then
-            dispelDelay = getValue("Dispel delay")
+            dispelDelay = br.getValue("Dispel delay")
         end
 
          --Spell steal
@@ -496,7 +496,7 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
         -- Counterspell
                         if br.isChecked("Counterspell") then
                             if cast.counterspell(thisUnit) then return end
@@ -583,7 +583,7 @@ local function runRotation()
                 end
                 if br.isChecked("Pre-Pull") then
                     -- Flask / Crystal
-                    if ((pullTimer <= getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not br.canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and br.canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
+                    if ((pullTimer <= br.getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not br.canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and br.canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
                         if br.getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and br.canUseItem(item.greaterFlaskOfEndlessFathoms) then
                             if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Greater Flask of Endless Fathoms") return end
                         elseif br.getOptionValue("Elixir") == 2 and inRaid and not buff.flaskOfEndlessFathoms.exists() and br.canUseItem(item.flaskOfEndlessFathoms) then
@@ -1102,7 +1102,7 @@ local function runRotation()
         ------------------------------
         -- RUNE OF POWER -------------
         ------------------------------
-                if  (useCDs() or (#enemies.yards8t >= getValue("RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") then
+                if  (useCDs() or (#enemies.yards8t >= br.getValue("RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") then
                     if talent.firestarter then
                         if (cd.combustion.remains() <= gcd and br.getHP("target") < 90) or (charges.runeOfPower.count() == 2 and (cd.combustion.remains() > 20 or br.getHP("target") >= 90)) then
                             if cast.runeOfPower() then br.addonDebug("Casting Rune of Power")

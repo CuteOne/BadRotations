@@ -376,7 +376,7 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
         -- Wind Shear
                         -- wind_shear
                         if br.isChecked("Wind Shear") then
@@ -553,7 +553,7 @@ local function runRotation()
         end
         local function actionList_Core()
             if buff.hailstorm.stack() <= 4 then 
-                if flameShockCount < getValue("Maximum FlameShock Targets") then
+                if flameShockCount < br.getValue("Maximum FlameShock Targets") then
                     if debuff.flameShock.remain("target") < 5.4 then
                         if cast.flameShock("target") then return true end
                     end

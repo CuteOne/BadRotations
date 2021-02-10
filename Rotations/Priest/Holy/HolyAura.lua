@@ -430,7 +430,7 @@ local function runRotation()
 			-- Renew on tank
 			if br.isChecked("Renew on Tanks")  then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					if br.friend[i].hp <= br.getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 					end
 				end
@@ -438,33 +438,33 @@ local function runRotation()
 			-- Renew
 			if br.isChecked("Renew") and renewCount < br.getOptionValue("Renew Limit") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
+					if br.friend[i].hp <= br.getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
 						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 					end
 				end
 			end
 			-- Heal
 			if br.isChecked("Heal") then
-				if lowest.hp <= getValue("Heal") and not moving then
+				if lowest.hp <= br.getValue("Heal") and not moving then
 					if cast.heal(lowest.unit) then br.addonDebug("Casting Heal") return end
 				end
 			end
 			-- Flash Heal
 			if br.isChecked("Flash Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
-				if lowest.hp <= getValue("Flash Heal") then
+				if lowest.hp <= br.getValue("Flash Heal") then
 					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal") return end
 				end
 			end
 			-- Flash Heal Surge of Light
 			if br.isChecked("Flash Heal Surge of Light") and talent.surgeOfLight and buff.surgeOfLight.exists() then
-				if lowest.hp <= getValue("Flash Heal Surge of Light") then
+				if lowest.hp <= br.getValue("Flash Heal Surge of Light") then
 					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal (Surge of Light)") return end
 				end
 			end
 			-- Renew While Moving
 			if br.isChecked("Renew while moving") and moving  then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
+					if br.friend[i].hp <= br.getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
 						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 					end
 				end
@@ -496,12 +496,12 @@ local function runRotation()
 				    end
 				--Fade
 				if br.isChecked("Fade") then
-					if php <= getValue("Fade") then
+					if php <= br.getValue("Fade") then
 						if cast.fade() then br.addonDebug("Casting Fade") return end
 					end
 				end
 				-- Mana Potion Channeled
-				if br.isChecked("Mana Potion Channeled") and mana <= getValue("Mana Potion Channeled")then
+				if br.isChecked("Mana Potion Channeled") and mana <= br.getValue("Mana Potion Channeled")then
 					if br.hasItem(152561) then
 						br.useItem(152561)
 						br.addonDebug("Using Mana Potion")
@@ -525,19 +525,19 @@ local function runRotation()
 				end
 				--Salvation
 				if br.isChecked("Holy Word: Salvation") and not moving then
-					if getLowAllies(getValue("Holy Word: Salvation")) >= getValue("Holy Word: Salvation Targets") or burst == true then
+					if getLowAllies(br.getValue("Holy Word: Salvation")) >= br.getValue("Holy Word: Salvation Targets") or burst == true then
 						if cast.holyWordSalvation() then br.addonDebug("Casting Holy Word: Salvation") return end
 					end
 				end
 				-- Divine Hymn
 				if br.isChecked("Divine Hymn") and not moving then
-					if getLowAllies(getValue("Divine Hymn")) >= getValue("Divine Hymn Targets") or burst == true then
+					if getLowAllies(br.getValue("Divine Hymn")) >= br.getValue("Divine Hymn Targets") or burst == true then
 						if cast.divineHymn() then br.addonDebug("Casting Divine Hymn") return end
 					end
 				end
 				-- Apotheosis
 				if br.isChecked("Apotheosis") then
-					if getLowAllies(getValue("Apotheosis")) >= getValue("Apotheosis Targets") or burst == true then
+					if getLowAllies(br.getValue("Apotheosis")) >= br.getValue("Apotheosis Targets") or burst == true then
 						if cast.apotheosis() then br.addonDebug("Casting Apothesis") return end
 					end
 				end	
@@ -546,13 +546,13 @@ local function runRotation()
 					if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
 				end
 				-- Trinkets
-				if br.isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
+				if br.isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < br.getValue("Revitalizing Voodoo Totem") then
 					if GetItemCooldown(158320) <= gcdMax then
 						UseItemByName(158320, lowest.unit)
 						br.addonDebug("Using Revitalizing Voodoo Totem")
 					end
 				end
-				if br.isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
+				if br.isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < br.getValue("Inoculating Extract") then
 					if GetItemCooldown(160649) <= gcdMax then
 						UseItemByName(160649, lowest.unit)
 						br.addonDebug("Using Inoculating Extract")
@@ -603,13 +603,13 @@ local function runRotation()
 				end
 				if br.isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) then
 					if br.getOptionValue("Trinket 1 Mode") == 1 then
-						if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+						if getLowAllies(br.getValue("Trinket 1")) >= br.getValue("Min Trinket 1 Targets") or burst == true then
 							br.useItem(13)
 							br.addonDebug("Using Trinket 1")
 							return true
 						end
 						elseif br.getOptionValue("Trinket 1 Mode") == 2 then
-							if (lowest.hp <= getValue("Trinket 1") or burst == true) and lowest.hp ~= 250 then
+							if (lowest.hp <= br.getValue("Trinket 1") or burst == true) and lowest.hp ~= 250 then
 							UseItemByName(_G.GetInventoryItemID("player", 13), lowest.unit)
 							br.addonDebug("Using Trinket 1 (Target)")
 							return true
@@ -628,11 +628,11 @@ local function runRotation()
 								else
 									local meleeHurt = {}
 									for j = 1, #meleeFriends do
-									if meleeFriends[j].hp < getValue("Trinket 1") then
+									if meleeFriends[j].hp < br.getValue("Trinket 1") then
 										tinsert(meleeHurt, meleeFriends[j])
 									end
 									end
-									if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
+									if #meleeHurt >= br.getValue("Min Trinket 1 Targets") or burst == true then
 									loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
 									end
 								end
@@ -652,13 +652,13 @@ local function runRotation()
 				end
 				if br.isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) then
 					if br.getOptionValue("Trinket 2 Mode") == 1 then
-						if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+						if getLowAllies(br.getValue("Trinket 2")) >= br.getValue("Min Trinket 2 Targets") or burst == true then
 							br.useItem(14)
 							br.addonDebug("Using Trinket 2")
 							return true
 						end
 						elseif br.getOptionValue("Trinket 2 Mode") == 2 then
-							if (lowest.hp <= getValue("Trinket 2") or burst == true) and lowest.hp ~= 250 then
+							if (lowest.hp <= br.getValue("Trinket 2") or burst == true) and lowest.hp ~= 250 then
 							UseItemByName(_G.GetInventoryItemID("player", 14), lowest.unit)
 							br.addonDebug("Using Trinket 2 (Target)")
 							return true
@@ -677,11 +677,11 @@ local function runRotation()
 								else
 									local meleeHurt = {}
 									for j = 1, #meleeFriends do
-									if meleeFriends[j].hp < getValue("Trinket 2") then
+									if meleeFriends[j].hp < br.getValue("Trinket 2") then
 										tinsert(meleeHurt, meleeFriends[j])
 									end
 									end
-									if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
+									if #meleeHurt >= br.getValue("Min Trinket 2 Targets") or burst == true then
 									loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
 									end
 								end
@@ -716,7 +716,7 @@ local function runRotation()
 					end
 				end
 				-- Racial: Blood Elf Arcane Torrent
-				if br.isChecked("Arcane Torrent") and inCombat and (br.player.race == "BloodElf") and mana <= getValue("Arcane Torrent Mana") then
+				if br.isChecked("Arcane Torrent") and inCombat and (br.player.race == "BloodElf") and mana <= br.getValue("Arcane Torrent Mana") then
 					if castSpell("player",racial,false,false,false) then br.addonDebug("Casting Racial") return end
 				end
 			end -- End useCooldowns check
@@ -747,7 +747,7 @@ local function runRotation()
 			-- Guardian Spirit
 			if br.isChecked("Guardian Spirit") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Guardian Spirit") then
+					if br.friend[i].hp <= br.getValue("Guardian Spirit") then
 						if br.friend[i].role == "TANK" or not br.isChecked("Guardian Spirit Tank Only") then
 							if cast.guardianSpirit(br.friend[i].unit) then br.addonDebug("Casting Guardian Spirit") return end
 						end
@@ -760,13 +760,13 @@ local function runRotation()
 			end
 			-- Holy Word: Serenity
 			if br.isChecked("Holy Word: Serenity") then
-				if lowest.hp <= getValue("Holy Word: Serenity") then
+				if lowest.hp <= br.getValue("Holy Word: Serenity") then
 					if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity") return end
 				end
 			end
 			-- Binding Heal On Me
-			if br.isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and br.getDebuffRemain("player",240447) == 0 and not moving then
-				if lowest.hp <= getValue("Binding Heal On Me") then
+			if br.isChecked("Binding Heal On Me") and talent.bindingHeal and php <= br.getValue("Binding Heal On Me") and br.getDebuffRemain("player",240447) == 0 and not moving then
+				if lowest.hp <= br.getValue("Binding Heal On Me") then
 					if cast.bindingHeal(lowest.unit) then
 						SpellStopTargeting()
 						br.addonDebug("Casting Binding Heal")
@@ -775,21 +775,21 @@ local function runRotation()
 				end
 			end
 			-- Flash Heal On Me
-			if br.isChecked("Flash Heal On Me") and inCombat and not moving and php <= getValue("Flash Heal On Me") then
+			if br.isChecked("Flash Heal On Me") and inCombat and not moving and php <= br.getValue("Flash Heal On Me") then
 				if cast.flashHeal("player") then br.addonDebug("Casting Flash Heal") return end
 			end
 			--Apotheosis Mode
 			if br.isChecked("Apotheosis Mode") and br.getBuffRemain("player",200183) > 0 then
 				for i = 1, #br.friend do
-					if (br.isChecked("Tank Ignore") and br.isChecked("Apotheosis Binding Heal") and br.friend[i].hp >= getValue("Tank Ignore") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") or (not br.isChecked("Tank Ignore") and br.isChecked("Apotheosis Binding Heal"))) and not moving then
-						if br.friend[i].hp <= getValue("Apotheosis Binding Heal") and GetSpellCooldown(2050) > getValue("Serenity and Sanctify CD") and GetSpellCooldown(34861) > getValue("Serenity and Sanctify CD") then
+					if (br.isChecked("Tank Ignore") and br.isChecked("Apotheosis Binding Heal") and br.friend[i].hp >= br.getValue("Tank Ignore") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") or (not br.isChecked("Tank Ignore") and br.isChecked("Apotheosis Binding Heal"))) and not moving then
+						if br.friend[i].hp <= br.getValue("Apotheosis Binding Heal") and GetSpellCooldown(2050) > br.getValue("Serenity and Sanctify CD") and GetSpellCooldown(34861) > br.getValue("Serenity and Sanctify CD") then
 							if cast.bindingHeal(br.friend[i].unit) then br.addonDebug("Casting Binding Heal") return end
 						end
 					end
-					if br.isChecked("Apotheosis Flash Heal") and br.friend[i].hp <= getValue("Apotheosis Flash Heal") and GetSpellCooldown(2050) > getValue("Apotheosis Serenity CD") and not moving then
+					if br.isChecked("Apotheosis Flash Heal") and br.friend[i].hp <= br.getValue("Apotheosis Flash Heal") and GetSpellCooldown(2050) > br.getValue("Apotheosis Serenity CD") and not moving then
 						if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal") return end
 					end
-					if br.isChecked("Apotheosis Prayer of Healing") and getLowAllies(getValue("Apotheosis Prayer of Healing")) >= getValue("Apotheosis PoH Targets") and GetSpellCooldown(34861) > getValue("Apotheosis Sanctify CD") and not moving then
+					if br.isChecked("Apotheosis Prayer of Healing") and getLowAllies(br.getValue("Apotheosis Prayer of Healing")) >= br.getValue("Apotheosis PoH Targets") and GetSpellCooldown(34861) > br.getValue("Apotheosis Sanctify CD") and not moving then
 						if cast.prayerOfHealing(lowest.unit) then br.addonDebug("Casting Prayer of Healing") return end
 					end
 				end
@@ -798,10 +798,10 @@ local function runRotation()
 			if br.isChecked("Flash Heal Emergency") and br.getDebuffRemain("player",240447) == 0 and not moving then
 				for i = 1, #br.friend do
 					if br.isChecked("Tanks Only") then
-						if br.friend[i].hp <= getValue("Flash Heal Emergency") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if br.friend[i].hp <= br.getValue("Flash Heal Emergency") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 							if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal") return end
 						end
-					elseif br.friend[i].hp <= getValue("Flash Heal Emergency") then
+					elseif br.friend[i].hp <= br.getValue("Flash Heal Emergency") then
 						if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal") return end
 					end
 				end
@@ -811,7 +811,7 @@ local function runRotation()
 			--Guardian Spirit
 			if br.isChecked("Guardian Spirit") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Guardian Spirit") then
+					if br.friend[i].hp <= br.getValue("Guardian Spirit") then
 						if br.friend[i].role == "TANK" or not br.isChecked("Guardian Spirit Tank Only") then
 							if cast.guardianSpirit(br.friend[i].unit) then br.addonDebug("Casting Guardian Spirit") return end
 						end
@@ -820,7 +820,7 @@ local function runRotation()
 			end
 			-- Prayer of Healing
 			if getLowAllies(br.getOptionValue("Prayer of Healing")) >= 4 then
-				if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),4,5,false,true) then br.addonDebug("Casting Prayer of Healing") return end
+				if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,br.getValue("Prayer of Healing"),4,5,false,true) then br.addonDebug("Casting Prayer of Healing") return end
 			end
 			-- Holy Word Serenity
 			if lowest.hp <= br.getOptionValue("Holy Word: Serenity") then
@@ -856,7 +856,7 @@ local function runRotation()
 		function actionList_AOEHealing()
 			-- Holy Word: Serenity
 			if br.isChecked("Holy Word: Serenity") then
-				if lowest.hp <= getValue("Holy Word: Serenity") then
+				if lowest.hp <= br.getValue("Holy Word: Serenity") then
 					if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity") return end
 				end
 			end
@@ -864,18 +864,18 @@ local function runRotation()
 			local sanctifyCandidates = {}
 			--if not br.isChecked("Use Old HW Sanctify") then
 				for i=1, #friends.yards40 do
-					if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
+					if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < br.getValue("Holy Word: Sanctify") then
 						tinsert(sanctifyCandidates,friends.yards40[i])
 					end
 				end
 			-- Holy Word: Sanctify
-				if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
+				if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= br.getValue("Holy Word: Sanctify Targets") then
 					local loc
 					-- get the best ground location to heal most or all of them
 					if #sanctifyCandidates < 12 then
-						loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),6,10)
+						loc = getBestGroundCircleLocation(sanctifyCandidates,br.getValue("Holy Word: Sanctify Targets"),6,10)
 					else
-						if castWiseAoEHeal(br.friend,spell.holyWordSanctify,10,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then br.addonDebug("Casting Holy Word: Sanctify") return end
+						if castWiseAoEHeal(br.friend,spell.holyWordSanctify,10,br.getValue("Holy Word: Sanctify"),br.getValue("Holy Word: Sanctify Targets"),6,false,false) then br.addonDebug("Casting Holy Word: Sanctify") return end
 					end
 					if loc ~= nil then
 						if castGroundAtLocation(loc, spell.holyWordSanctify) then br.addonDebug("Casting Holy Word: Sanctify") return end
@@ -886,7 +886,7 @@ local function runRotation()
 			-- Prayer of Mending
 			if br.isChecked("Prayer of Mending") and br.getDebuffRemain("player",240447) == 0 and not moving  then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Prayer of Mending") and not buff.prayerOfMending.exists(br.friend[i].unit) then
+					if br.friend[i].hp <= br.getValue("Prayer of Mending") and not buff.prayerOfMending.exists(br.friend[i].unit) then
 						if cast.prayerOfMending(br.friend[i].unit) then br.addonDebug("Casting Prayer of Mending") return end
 					end
 				end
@@ -894,7 +894,7 @@ local function runRotation()
 			-- Renew on tank
 			if br.isChecked("Renew on Tanks") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					if br.friend[i].hp <= br.getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 					end
 				end
@@ -907,19 +907,19 @@ local function runRotation()
 			end
 			-- Circle of Healing
 			if br.isChecked("Circle of Healing") and talent.circleOfHealing and not moving then
-				if getLowAllies(getValue("Circle of Healing")) >= getValue("Circle of Healing Targets") then
+				if getLowAllies(br.getValue("Circle of Healing")) >= br.getValue("Circle of Healing Targets") then
 					if cast.circleOfHealing() then br.addonDebug("Casting Circle Of Healing") return end
 				end
 			end	
 			--Halo
 			if br.isChecked("Halo") and talent.halo and not moving then
-				if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
+				if getLowAllies(br.getValue("Halo")) >= br.getValue("Halo Targets") then
 					if cast.halo() then br.addonDebug("Casting Halo") return end
 				end
 			end			
 			-- Prayer of Healing
 			if br.isChecked("Prayer of Healing") and br.getDebuffRemain("player",240447) == 0 and not moving then
-				if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then br.addonDebug("Casting Prayer of Healing") return end
+				if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,br.getValue("Prayer of Healing"),br.getValue("Prayer of Healing Targets"),5,false,true) then br.addonDebug("Casting Prayer of Healing") return end
 			end
 			-- Divine Star
 			if br.isChecked("Divine Star") and talent.divineStar and not moving then
@@ -931,7 +931,7 @@ local function runRotation()
 			local bindingHealCandidates = {}
 			if br.isChecked("Binding Heal Multi") then
 				for i=1, #friends.yards40 do
-					if friends.yards40[i].hp < getValue("Binding Heal") then
+					if friends.yards40[i].hp < br.getValue("Binding Heal") then
 						tinsert(bindingHealCandidates,friends.yards40[i])
 					end
 				end
@@ -941,18 +941,18 @@ local function runRotation()
 				if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
 					for i=1, #tanks do
 						thisTank = tanks[i]
-						if thisTank.hp <= getValue("Binding Heal") and not br.GetUnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not br.isChecked("Binding Heal Player HP"))and br.getDistance(thisTank.unit) <= 40 then
+						if thisTank.hp <= br.getValue("Binding Heal") and not br.GetUnitIsUnit(thisTank.unit,"player") and (php <= br.getValue("Binding Heal Player HP") or not br.isChecked("Binding Heal Player HP"))and br.getDistance(thisTank.unit) <= 40 then
 							if cast.bindingHeal(thisTank.unit, "aoe") then br.addonDebug("Casting Binding Heal") return end
 						end
 					end
-					if lowest.hp <= getValue("Binding Heal") and not br.GetUnitIsUnit(lowest.unit,"player") and (php <= getValue("Binding Heal Player HP") or not br.isChecked("Binding Heal Player HP")) then
+					if lowest.hp <= br.getValue("Binding Heal") and not br.GetUnitIsUnit(lowest.unit,"player") and (php <= br.getValue("Binding Heal Player HP") or not br.isChecked("Binding Heal Player HP")) then
 						if cast.bindingHeal(lowest.unit, "aoe") then br.addonDebug("Casting Binding Heal") return end
 					end
 				end
 			end
 			-- Binding Heal Single
-			if br.isChecked("Binding Heal") and not br.isChecked("Binding Heal Multi") and talent.bindingHeal and (php <= getValue("Binding Heal Player HP") or not br.isChecked("Binding Heal Player HP")) and br.getDebuffRemain("player",240447) == 0 and not moving then
-				if lowest.hp <= getValue("Binding Heal") then
+			if br.isChecked("Binding Heal") and not br.isChecked("Binding Heal Multi") and talent.bindingHeal and (php <= br.getValue("Binding Heal Player HP") or not br.isChecked("Binding Heal Player HP")) and br.getDebuffRemain("player",240447) == 0 and not moving then
+				if lowest.hp <= br.getValue("Binding Heal") then
 					if cast.bindingHeal(lowest.unit) then
 						SpellStopTargeting()
 						br.addonDebug("Casting Binding Heal")
@@ -963,10 +963,10 @@ local function runRotation()
 			-- Renew
 			if br.isChecked("Renew") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) and not br.isChecked("Renew Limit") then
+					if br.friend[i].hp <= br.getValue("Renew") and not buff.renew.exists(br.friend[i].unit) and not br.isChecked("Renew Limit") then
 						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 					end
-					if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) and br.isChecked("Renew Limit") and renewCount < getValue("Renew Limit") then
+					if br.friend[i].hp <= br.getValue("Renew") and not buff.renew.exists(br.friend[i].unit) and br.isChecked("Renew Limit") and renewCount < br.getValue("Renew Limit") then
 						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 					end
 				end
@@ -977,7 +977,7 @@ local function runRotation()
 			-- Guardian Spirit
 			if br.isChecked("Guardian Spirit") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Guardian Spirit") then
+					if br.friend[i].hp <= br.getValue("Guardian Spirit") then
 						if br.friend[i].role == "TANK" or not br.isChecked("Guardian Spirit Tank Only") then
 							if cast.guardianSpirit(br.friend[i].unit) then br.addonDebug("Casting Guardian Spirit") return end
 						end
@@ -987,36 +987,36 @@ local function runRotation()
 			-- Leap of Faith
 			if br.isChecked("Leap of Faith") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Leap of Faith") and not br.GetUnitIsUnit(br.friend[i].unit,"player") and br.friend[i].role ~= "TANK" then
+					if br.friend[i].hp <= br.getValue("Leap of Faith") and not br.GetUnitIsUnit(br.friend[i].unit,"player") and br.friend[i].role ~= "TANK" then
 						if cast.leapOfFaith(br.friend[i].unit) then br.addonDebug("Casting Leap of Faith") return end
 					end
 				end
 			end
 			-- Concentrated Flame
 			if br.isChecked("Concentrated Flame") and essence.concentratedFlame.active and br.getSpellCD(295373) <= gcdMax then
-				if lowest.hp <= getValue("Concentrated Flame") then
+				if lowest.hp <= br.getValue("Concentrated Flame") then
 					if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
 				end
 			end
 			-- Refreshment
-            if br.isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcdMax and br.UnitBuffID("player",296138) and select(16,br.UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= getValue("Flash Heal") then
+            if br.isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcdMax and br.UnitBuffID("player",296138) and select(16,br.UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= br.getValue("Flash Heal") then
                 if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
             end
 			-- Flash Heal
 			if br.isChecked("Flash Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
-				if lowest.hp <= getValue("Flash Heal") then
+				if lowest.hp <= br.getValue("Flash Heal") then
 					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal") return end
 				end
 			end
 			-- Flash Heal Surge of Light
 			if br.isChecked("Flash Heal Surge of Light") and talent.surgeOfLight and buff.surgeOfLight.remain() > 1.5 then
-				if lowest.hp <= getValue("Flash Heal Surge of Light") then
+				if lowest.hp <= br.getValue("Flash Heal Surge of Light") then
 					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal (Surge of Light)") return end
 				end
 			end
 			-- Heal
 			if br.isChecked("Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
-				if lowest.hp <= getValue("Heal") then
+				if lowest.hp <= br.getValue("Heal") then
 					if cast.heal(lowest.unit) then br.addonDebug("Casting Heal") return end
 				end
 			end
@@ -1032,11 +1032,11 @@ local function runRotation()
 			-- Renew While Moving
 			if br.isChecked("Renew while moving") and moving then
 				for i = 1, #br.friend do
-					if  br.isChecked("Renew Limit") and renewCount < getValue("Renew Limit") then
-						if br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
+					if  br.isChecked("Renew Limit") and renewCount < br.getValue("Renew Limit") then
+						if br.friend[i].hp <= br.getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
 							if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 						end
-					elseif br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
+					elseif br.friend[i].hp <= br.getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
 						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
 					end
 				end

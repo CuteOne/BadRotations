@@ -1,13 +1,11 @@
-local addonName, br = ...
+local _, br = ...
 function br:AcceptQueues()
 	if br.getOptionCheck("Accept Queues") then
 		-- Accept Queues
-		if randomReady == nil then
-			randomReady = math.random(8,15)
-		end
+		br.randomReady = math.random(8,15)
 		-- add some randomness
-		if readyToAccept and readyToAccept <= GetTime() - 5 then
-			AcceptProposal(); readyToAccept = nil; randomReady = nil
+		if br.readyToAccept and br.readyToAccept <= br._G.GetTime() - 5 then
+			br._G.AcceptProposal(); br.readyToAccept = nil; br.randomReady = nil
 		end
 	end
 end

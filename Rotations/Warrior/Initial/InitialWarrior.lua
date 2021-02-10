@@ -188,7 +188,7 @@ local function runRotation()
                     if cast.slam() then ui.debug("Casting Slam") return true end
                 end
                 --Pummel Interrupt
-                if canInterrupt() then
+                if br.canInterrupt() then
                     if spell.known.pummel() and cast.able.pummel() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         if cast.pummel() then ui.debug("Casting Pummel") return true end
                     end

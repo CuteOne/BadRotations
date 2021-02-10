@@ -622,7 +622,7 @@ local function runRotation()
             if br.isChecked("Counter Shot") then
                 for i=1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                         if cast.counterShot(thisUnit) then return end
                     end
                 end

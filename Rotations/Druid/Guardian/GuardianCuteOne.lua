@@ -434,7 +434,7 @@ local function runRotation()
                 if br.isChecked("Skull Bash") then
                     for i=1, #enemies.yards13 do
                         thisUnit = enemies.yards13[i]
-                        if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
+                        if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                             if cast.skullBash(thisUnit) then return end
                         end
                     end
@@ -443,7 +443,7 @@ local function runRotation()
                 if br.isChecked("Mighty Bash") then
                     for i=1, #enemies.yards5 do
                         thisUnit = enemies.yards5[i]
-                        if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
+                        if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                             if cast.mightyBash(thisUnit) then return end
                         end
                     end
@@ -452,7 +452,7 @@ local function runRotation()
                 if br.isChecked("Incapacitating Roar") then
                     for i=1, #enemies.yards10 do
                         thisUnit = enemies.yards10[i]
-                        if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
+                        if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                             if cast.incapacitatingRoar("player") then return end
                         end
                     end

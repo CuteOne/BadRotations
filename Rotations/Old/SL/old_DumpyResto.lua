@@ -234,7 +234,7 @@ local function runRotation()
 --------------------
 
         if br.isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
-          if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then
+          if getLowAllies(br.getValue("Healing Tide Totem")) >= br.getValue("Healing Tide Totem Targets") then
             if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") HTTimer = GetTime() return end
           end
         end
@@ -276,7 +276,7 @@ local function runRotation()
 
               if br.isChecked("OOC Healing") and br.isChecked("Riptide") and not IsMounted() and not IsFlying() then
                 for i = 1, #br.friend do
-                  if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
+                  if lowest.hp <= br.getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
                     if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
                   end
                 end
@@ -330,20 +330,20 @@ local function runRotation()
 
 
               if br.isChecked("OOC Healing") and br.isChecked("Healing Wave") and not isMoving("player") and not br.isChecked("HW Buff") then
-                if lowest.hp <= getValue("Healing Wave") then
+                if lowest.hp <= br.getValue("Healing Wave") then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end
                 end
               end
 
               if br.isChecked("OOC Healing") and br.isChecked("Healing Wave") and not isMoving("player") and br.isChecked("HW Buff") then
-                if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
+                if lowest.hp <= br.getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= br.getValue("Healing Wave") and buff.undulation.exists() then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave with buff") return end
                 end
               end
 
 
               if br.isChecked("OOC Healing") and br.isChecked("Healing Surge") and not isMoving("player") then
-                if lowest.hp <= getValue("Healing Surge") then
+                if lowest.hp <= br.getValue("Healing Surge") then
                   if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end
                 end
               end
@@ -351,7 +351,7 @@ local function runRotation()
 
 
               if br.isChecked("OOC Healing") and br.isChecked("Chain Heal") and not isMoving("player") then
-                if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
+                if chainHealUnits(spell.chainHeal,15,br.getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
               end
 
 
@@ -380,11 +380,11 @@ local function runRotation()
                                   if br.isChecked("Healing Rain") then
                                       -- CastGroundHeal(spell.healingRain, meleeFriends)
                                       -- return
-                                      if #meleeFriends >= getValue("Healing Rain Targets") then
+                                      if #meleeFriends >= br.getValue("Healing Rain Targets") then
                                           if #meleeFriends < 12 then
-                                              loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                                              loc = getBestGroundCircleLocation(meleeFriends,br.getValue("Healing Rain Targets"),6,10)
                                           else
-                                              if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
+                                              if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,br.getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
                                           end
                                       end
                                   end
@@ -394,7 +394,7 @@ local function runRotation()
                               end
                           end
                       else
-                          if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain (Wise AoE)") return end
+                          if castWiseAoEHeal(br.friend,spell.healingRain,10,br.getValue("Healing Rain"),br.getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain (Wise AoE)") return end
                       end
                   end
               end
@@ -415,7 +415,7 @@ local function runRotation()
 
               if br.isChecked("Riptide") and not IsMounted() and not IsFlying() then
                 for i = 1, #br.friend do
-                  if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
+                  if lowest.hp <= br.getValue("Riptide") and buff.riptide.remain(lowest.unit) < 2.1 then
                     if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
                   end
                 end
@@ -469,20 +469,20 @@ local function runRotation()
 
 
               if br.isChecked("Healing Wave") and not isMoving("player") and not br.isChecked("HW Buff") then
-                if lowest.hp <= getValue("Healing Wave") then
+                if lowest.hp <= br.getValue("Healing Wave") then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end
                 end
               end
 
               if br.isChecked("Healing Wave") and not isMoving("player") and br.isChecked("HW Buff") then
-                if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
+                if lowest.hp <= br.getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= br.getValue("Healing Wave") and buff.undulation.exists() then
                   if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave with buff") return end
                 end
               end
 
 
               if br.isChecked("Healing Surge") and not isMoving("player") then
-                if lowest.hp <= getValue("Healing Surge") then
+                if lowest.hp <= br.getValue("Healing Surge") then
                   if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end
                 end
               end
@@ -490,7 +490,7 @@ local function runRotation()
 
 
               if br.isChecked("Chain Heal") and not isMoving("player") then
-                if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
+                if chainHealUnits(spell.chainHeal,15,br.getValue("Chain Heal"),2) then br.addonDebug("Casting Chain Heal") return true end
               end
 
 
@@ -519,25 +519,25 @@ local function runRotation()
                                   if br.isChecked("Healing Rain") then
                                       -- CastGroundHeal(spell.healingRain, meleeFriends)
                                       -- return
-                                      if #meleeFriends >= getValue("Healing Rain Targets") then
+                                      if #meleeFriends >= br.getValue("Healing Rain Targets") then
                                           if #meleeFriends < 12 then
-                                              loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                                              loc = getBestGroundCircleLocation(meleeFriends,br.getValue("Healing Rain Targets"),6,10)
                                           else
-                                              if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
+                                              if castWiseAoEHeal(meleeFriends,spell.healingRain,10,100,br.getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
                                           end
                                       end
                                   else
                                       local meleeHurt = {}
                                       for j=1, #meleeFriends do
-                                          if meleeFriends[j].hp < getValue("Healing Rain") then
+                                          if meleeFriends[j].hp < br.getValue("Healing Rain") then
                                               tinsert(meleeHurt,meleeFriends[j])
                                           end
                                       end
-                                      if #meleeHurt >= getValue("Healing Rain Targets") then
+                                      if #meleeHurt >= br.getValue("Healing Rain Targets") then
                                           if #meleeHurt < 12 then
-                                              loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                              loc = getBestGroundCircleLocation(meleeHurt,br.getValue("Healing Rain Targets"),6,10)
                                           else
-                                              if castWiseAoEHeal(meleeHurt,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
+                                              if castWiseAoEHeal(meleeHurt,spell.healingRain,10,br.getValue("Healing Rain"),br.getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain") return end
                                           end
                                       end
                                   end
@@ -547,7 +547,7 @@ local function runRotation()
                               end
                           end
                       else
-                          if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain (Wise AoE)") return end
+                          if castWiseAoEHeal(br.friend,spell.healingRain,10,br.getValue("Healing Rain"),br.getValue("Healing Rain Targets"),6,true, true) then br.addonDebug("Casting Healing Rain (Wise AoE)") return end
                       end
                   end
               end

@@ -455,7 +455,7 @@ local function runRotation()
          if br.isChecked("Silence") then
              for i=1, #enemies.yards30 do
                  thisUnit = enemies.yards30[i]
-                 if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                 if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                      if cast.silence(thisUnit) then return end
                  end
              end
@@ -464,7 +464,7 @@ local function runRotation()
          if talent.psychicHorror and br.isChecked("Psychic Horror") and (cd.silence.exists() or not br.isChecked("Silence")) then
              for i=1, #enemies.yards30 do
                  thisUnit = enemies.yards30[i]
-                 if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                 if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                      if cast.psychicHorror(thisUnit) then return end --Print("pH on any") return end
                  end
              end
@@ -473,7 +473,7 @@ local function runRotation()
          if br.isChecked("Psychic Scream") then
              for i=1, #enemies.yards8 do
                  thisUnit = enemies.yards8[i]
-                 if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                 if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                      if cast.psychicScream("player") then return end
                  end
              end
@@ -482,7 +482,7 @@ local function runRotation()
          if talent.mindBomb and br.isChecked("Mind Bomb") then
              for i=1, #enemies.yards30 do
                  thisUnit = enemies.yards30[i]
-                 if canInterrupt(thisUnit,99) then
+                 if br.canInterrupt(thisUnit,99) then
                     if cast.mindBomb(thisUnit) then return end
                 end
             end

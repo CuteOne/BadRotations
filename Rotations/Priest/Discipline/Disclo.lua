@@ -303,7 +303,7 @@ local function runRotation()
         if useInterrupts() then
             for i = 1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
-                if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     if br.isChecked("Shining Force - Int") and br.getDistance(thisUnit) < 40 then
                         if cast.shiningForce() then
                             return
@@ -364,7 +364,7 @@ local function runRotation()
             -- Pain Suppression
             if br.isChecked("Pain Suppression Tank") and inCombat then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Pain Suppression Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if br.friend[i].hp <= br.getValue("Pain Suppression Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                         if cast.painSuppression(br.friend[i].unit) then
                             return
                         end
@@ -373,7 +373,7 @@ local function runRotation()
             end
             if br.isChecked("Pain Suppression Party") and inCombat then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Pain Suppression Tank") then
+                    if br.friend[i].hp <= br.getValue("Pain Suppression Tank") then
                         if cast.painSuppression(br.friend[i].unit) then
                             return
                         end
@@ -386,21 +386,21 @@ local function runRotation()
                 end
             end
             for i = 1, #br.friend do
-                if br.isChecked("Revitalizing Voodoo Totem - Tank") and hasEquiped(158320) and br.friend[i].hp <= getValue("Revitalizing Voodoo Totem - Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                if br.isChecked("Revitalizing Voodoo Totem - Tank") and hasEquiped(158320) and br.friend[i].hp <= br.getValue("Revitalizing Voodoo Totem - Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                     if GetItemCooldown(158320) <= gcdMax then
                         UseItemByName(158320, lowest.unit)
                         br.addonDebug("Using Revitalizing Voodoo Totem")
                     end
                 end
             end
-            if br.isChecked("Revitalizing Voodoo Totem - Party") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem - Party") or getValue("Revitalizing Voodoo Totem - Party") == 100 then
+            if br.isChecked("Revitalizing Voodoo Totem - Party") and hasEquiped(158320) and lowest.hp < br.getValue("Revitalizing Voodoo Totem - Party") or br.getValue("Revitalizing Voodoo Totem - Party") == 100 then
                 if GetItemCooldown(158320) <= gcdMax then
                     UseItemByName(158320, lowest.unit)
                     br.addonDebug("Using Revitalizing Voodoo Totem")
                 end
             end
             if br.isChecked("Rapture") then
-                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
+                if getLowAllies(br.getValue("Rapture")) >= br.getValue("Rapture Targets") then
                     if cast.rapture() then
                         return
                     end
@@ -516,14 +516,14 @@ local function runRotation()
         if buff.rapture.exists("player") then
             if br.isChecked("Obey Atonement Limits During Rapture") then
                 for i = 1, #br.friend do
-                    if atonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                    if atonementCount < br.getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                         if br.getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then
                                 return true
                             end
                         end
                     end
-                    if atonementCount >= getValue("Max Atonements") then
+                    if atonementCount >= br.getValue("Max Atonements") then
                         if cast.powerWordShield(lowest.unit) then
                             return true
                         end
@@ -547,8 +547,8 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Evangelism") and talent.evangelism and (atonementCount >= getValue("Atonement for Evangelism") or (not inRaid and atonementCount >= 3)) and not buff.rapture.exists("player") then
-            if getLowAllies(getValue("Evangelism")) >= getValue("Evangelism Targets") then
+        if br.isChecked("Evangelism") and talent.evangelism and (atonementCount >= br.getValue("Atonement for Evangelism") or (not inRaid and atonementCount >= 3)) and not buff.rapture.exists("player") then
+            if getLowAllies(br.getValue("Evangelism")) >= br.getValue("Evangelism Targets") then
                 if cast.evangelism() then
                     return true
                 end
@@ -557,9 +557,9 @@ local function runRotation()
 
         if br.isChecked("Power Word: Radiance") and atoneCount() >= 2 and not cast.last.powerWordRadiance() and mode.burst ~= 2 then
             if charges.powerWordRadiance.count() >= 1 then
-                if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
+                if getLowAllies(br.getValue("Power Word: Radiance")) >= br.getValue("PWR Targets") then
                     for i = 1, #br.friend do
-                        if not buff.atonement.exists(br.friend[i].unit) and br.friend[i].hp <= getValue("Power Word: Radiance") and not isMoving("player") then
+                        if not buff.atonement.exists(br.friend[i].unit) and br.friend[i].hp <= br.getValue("Power Word: Radiance") and not isMoving("player") then
                             if cast.powerWordRadiance(br.friend[i].unit) then
                                 return true
                             end
@@ -570,7 +570,7 @@ local function runRotation()
         end
 
         if br.isChecked("Shadow Covenant") and talent.shadowCovenant then
-            if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") then
+            if getLowAllies(br.getValue("Shadow Covenant")) >= br.getValue("Shadow Covenant Targets") then
                 if cast.shadowCovenant(lowest.unit) then
                     return true
                 end
@@ -585,7 +585,7 @@ local function runRotation()
 
         if br.isChecked("Shadow Mend") and not isMoving("player") then
             for i = 1, #br.friend do
-                if (br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or 
+                if (br.friend[i].hp <= br.getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or 
                 (br.isChecked("Heal OoC") and not inCombat and lowest.hp <= br.getOptionValue("Heal OoC")) then
                     if cast.shadowMend(br.friend[i].unit) then
                         return true
@@ -595,7 +595,7 @@ local function runRotation()
         end
 
         for i = 1, #tanks do
-            if (tanks[i].hp <= br.getOptionValue("Tank Atonement HP") or getValue("Tank Atonement HP") == 100) and not buff.atonement.exists(tanks[i].unit) and not debuff.weakenedSoul.exists(tanks[i].unit) then
+            if (tanks[i].hp <= br.getOptionValue("Tank Atonement HP") or br.getValue("Tank Atonement HP") == 100) and not buff.atonement.exists(tanks[i].unit) and not debuff.weakenedSoul.exists(tanks[i].unit) then
                 if cast.powerWordShield(tanks[i].unit) then
                     return true
                 end
@@ -655,7 +655,7 @@ local function runRotation()
             if talent.purgeTheWicked then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if ptwTargets() < getValue("SW:P/PtW Targets")  then
+                    if ptwTargets() < br.getValue("SW:P/PtW Targets")  then
                         if not debuff.purgeTheWicked.exists("target") and ttd("target") > 6 then
                             if cast.purgeTheWicked("target") then
                                 return 
@@ -671,7 +671,7 @@ local function runRotation()
             if not talent.purgeTheWicked and cd.penance.remains() > gcd then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if ptwTargets() < getValue("SW:P/PtW Targets") then
+                    if ptwTargets() < br.getValue("SW:P/PtW Targets") then
                         if not debuff.shadowWordPain.exists("target") and ttd("target") > 6 then
                             if cast.shadowWordPain("target") then
                                 return 
@@ -687,7 +687,7 @@ local function runRotation()
         end
 
         -- Mindbender
-        if br.isChecked("Mindbender") and mana <= getValue("Mindbender") and atonementCount >= 3 and talent.mindbender then
+        if br.isChecked("Mindbender") and mana <= br.getValue("Mindbender") and atonementCount >= 3 and talent.mindbender then
             if schismBuff ~= nil then
                 if cast.mindbender(schismBuff) then
                     return

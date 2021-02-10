@@ -266,7 +266,7 @@ actionList.Interrupts = function()
     if useInterrupts() and (pet.active.id == 417 or pet.active.id == 78158) then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if canInterrupt(thisUnit,option.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit,option.value("Interrupt At")) then
                 if pet.active.id == 417 then
                     if cast.spellLock(thisUnit) then return true end
                 elseif pet.active.id == 78158 then

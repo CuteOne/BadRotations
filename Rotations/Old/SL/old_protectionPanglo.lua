@@ -659,25 +659,25 @@ local function runRotation()
 				-- Player
 				if br.getOptionValue("Lay on Hands Target") == 1 then
 					-- Target
-					if php <= getValue("Lay On Hands") then
+					if php <= br.getValue("Lay On Hands") then
 						if cast.layOnHands("player") then
 							return true
 						end
 					end
 				elseif br.getOptionValue("Lay on Hands Target") == 2 then
 					-- Mouseover
-					if br.getHP("target") <= getValue("Lay On Hands") then
+					if br.getHP("target") <= br.getValue("Lay On Hands") then
 						if cast.layOnHands("target") then
 							return true
 						end
 					end
 				elseif br.getOptionValue("Lay on Hands Target") == 3 then
-					if br.getHP("mouseover") <= getValue("Lay On Hands") then
+					if br.getHP("mouseover") <= br.getValue("Lay On Hands") then
 						if cast.layOnHands("mouseover") then
 							return true
 						end
 					end
-				elseif br.getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) and br.getDebuffRemain(lowestUnit, 267037) == 0 then
+				elseif br.getHP(lowestUnit) <= br.getValue("Lay On Hands") and UnitInRange(lowestUnit) and br.getDebuffRemain(lowestUnit, 267037) == 0 then
 					-- Tank
 					if br.getOptionValue("Lay on Hands Target") == 4 then
 						-- Healer
@@ -719,25 +719,25 @@ local function runRotation()
 				-- Player
 				if br.getOptionValue("Blessing of Protection Target") == 1 then
 					-- Target
-					if php <= getValue("Blessing of Protection") then
+					if php <= br.getValue("Blessing of Protection") then
 						if cast.blessingOfProtection("player") then
 							return true
 						end
 					end
 				elseif br.getOptionValue("Blessing of Protection Target") == 2 then
 					-- Mouseover
-					if br.getHP("target") <= getValue("Blessing of Protection") then
+					if br.getHP("target") <= br.getValue("Blessing of Protection") then
 						if cast.blessingOfProtection("target") then
 							return true
 						end
 					end
 				elseif br.getOptionValue("Blessing of Protection Target") == 3 then
-					if br.getHP("mouseover") <= getValue("Blessing of Protection") then
+					if br.getHP("mouseover") <= br.getValue("Blessing of Protection") then
 						if cast.blessingOfProtection("mouseover") then
 							return true
 						end
 					end
-				elseif br.getHP(lowestUnit) <= getValue("Blessing of Protection") and UnitInRange(lowestUnit) then
+				elseif br.getHP(lowestUnit) <= br.getValue("Blessing of Protection") and UnitInRange(lowestUnit) then
 					-- Tank
 					if br.getOptionValue("Blessing of Protection Target") == 4 then
 						-- Healer
@@ -779,18 +779,18 @@ local function runRotation()
 				-- Target
 				if br.getOptionValue("Blessing Of Sacrifice Target") == 1 then
 					-- Mouseover
-					if br.getHP("target") <= getValue("Blessing Of Sacrifice") then
+					if br.getHP("target") <= br.getValue("Blessing Of Sacrifice") then
 						if cast.blessingOfSacrifice("target") then
 							return true
 						end
 					end
 				elseif br.getOptionValue("Blessing Of Sacrifice Target") == 2 then
-					if br.getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
+					if br.getHP("mouseover") <= br.getValue("Blessing Of Sacrifice") then
 						if cast.blessingOfSacrifice("mouseover") then
 							return true
 						end
 					end
-				elseif br.getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not br.GetUnitIsUnit(lowestUnit, "player") and UnitInRange(lowestUnit) and br.getDebuffRemain(lowestUnit, 267037) == 0 then
+				elseif br.getHP(lowestUnit) <= br.getValue("Blessing Of Sacrifice") and not br.GetUnitIsUnit(lowestUnit, "player") and UnitInRange(lowestUnit) and br.getDebuffRemain(lowestUnit, 267037) == 0 then
 					-- Tank
 					if br.getOptionValue("Blessing Of Sacrifice Target") == 3 then
 						-- Healer
@@ -828,7 +828,7 @@ local function runRotation()
 				end
 			end
 			-- Concentrated Heal
-			if br.getOptionValue("Use Concentrated Flame") ~= 1 and br.getOptionValue("Use Concentrated Flame") ~= 4 and php <= getValue("Concentrated Flame Heal") then
+			if br.getOptionValue("Use Concentrated Flame") ~= 1 and br.getOptionValue("Use Concentrated Flame") ~= 4 and php <= br.getValue("Concentrated Flame Heal") then
 				if cast.concentratedFlame("player") then
 					return
 				end
@@ -1032,7 +1032,7 @@ local function runRotation()
 				if br.isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 					for i = 1, #enemies.yards30 do
 						local thisUnit = enemies.yards30[i]
-						if canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
+						if br.canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 							if cast.avengersShield(thisUnit) then
 								return
 							end
@@ -1043,7 +1043,7 @@ local function runRotation()
 			elseif br.isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 				for i = 1, #enemies.yards30f do
 					local thisUnit = enemies.yards30f[i]
-					if canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
+					if br.canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 						if cast.avengersShield(thisUnit) then
 							return
 						end
@@ -1054,7 +1054,7 @@ local function runRotation()
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
 				local distance = br.getDistance(thisUnit)
-				if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+				if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 					-- Hammer of Justice
 					if br.isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not br.isBoss(thisUnit) and br.getBuffRemain(thisUnit, 226510) == 0 and StunsBlackList[br.GetObjectID(thisUnit)] == nil then
 						if cast.hammerOfJustice(thisUnit) then

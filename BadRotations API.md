@@ -14,7 +14,7 @@
 `canAttack(Unit1,Unit2) - Bool` Returns true if Unit1 can attack Unit2
 `br.canDispel(Unit,spellID) - Bool` Retruns true if the Unit have a valid Dispel
 `canHeal(Unit) - Bool` Returns true if we can heal that Unit
-`canInterrupt(spellID,percentint) - Bool` Returns true if we can Interrupt that target
+`br.canInterrupt(spellID,percentint) - Bool` Returns true if we can Interrupt that target
 `canPrepare() - Bool` Returns true if ready to buff(ooc)
 `br.canRun() - Bool` Returns true if we can Run profile(incombat)
 `br.canUseItem(itemID) - Bool` Returns true if the item can be used
@@ -87,7 +87,7 @@
 ***
 `br.isChecked(Value) - Bool` Returns true if Value Checkbox is checked in UI
 `isSelected(Value) - Bool` Returns true if Value Checkbox is checked in UI and CD requirements are met.
-`getValue(Value) - Num` Returns drop or box Value from UI
+`br.getValue(Value) - Num` Returns drop or box Value from UI
 `CreateNewCheck(value, textString, tip1, state)`
 - Used to create checkboxes in UI
 1. value must always be thisConfig - Do not change

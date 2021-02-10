@@ -555,7 +555,7 @@ local function runRotation()
                 end
             end
 
-            if br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+            if br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= br.getValue("Concentrated Flame Heal") then
                 if cast.concentratedFlame("player") then
                     return
                 end
@@ -605,7 +605,7 @@ local function runRotation()
             if br.isChecked("Skull Bash") then
                 for i = 1, #enemies.yards13 do
                     thisUnit = enemies.yards13[i]
-                    if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.skullBash(thisUnit) then
                             return
                         end
@@ -615,7 +615,7 @@ local function runRotation()
             if br.isChecked("Mighty Bash") then
                 for i = 1, #enemies.yards5 do
                     thisUnit = enemies.yards5[i]
-                    if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.mightyBash(thisUnit) then
                             return
                         end
@@ -625,7 +625,7 @@ local function runRotation()
             if br.isChecked("Incapacitating Roar") and cd.skullBash.exists() then
                 for i = 1, #enemies.yards10 do
                     thisUnit = enemies.yards10[i]
-                    if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.incapacitatingRoar("player") then
                             return
                         end
@@ -708,7 +708,7 @@ local function runRotation()
             end
         end
 
-        if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+        if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > br.getValue("Concentrated Flame Heal")) then
             if cast.concentratedFlame("target") then
                 return
             end

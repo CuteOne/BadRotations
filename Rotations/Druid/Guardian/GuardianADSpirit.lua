@@ -699,7 +699,7 @@ local function runRotation()
                 end
             end
             -- CF
-            if inCombat and br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+            if inCombat and br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= br.getValue("Concentrated Flame Heal") then
                 if cast.concentratedFlame("player") then
                     return
                 end
@@ -808,7 +808,7 @@ local function runRotation()
             if br.isChecked("Skull Bash") then
                 for i = 1, #enemies.yards13 do
                     thisUnit = enemies.yards13[i]
-                    if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.skullBash(thisUnit) then
                             return
                         end
@@ -819,7 +819,7 @@ local function runRotation()
             if br.isChecked("Mighty Bash") then
                 for i = 1, #enemies.yards5 do
                     thisUnit = enemies.yards5[i]
-                    if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.mightyBash(thisUnit) then
                             return
                         end
@@ -830,7 +830,7 @@ local function runRotation()
             if br.isChecked("Incapacitating Roar") and cd.skullBash.exists() then
                 for i = 1, #enemies.yards10 do
                     thisUnit = enemies.yards10[i]
-                    if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.incapacitatingRoar("player") then
                             return
                         end
@@ -971,10 +971,10 @@ local function runRotation()
                 -- Corruption stuff
                 -- 1 = snare  2 = eye  3 = thing 4 = reverything = 5 = never   -- snare = 315176
                     if br.player.equiped.shroudOfResolve and not debuff.massEntanglement.exists(object) and br.canUseItem(br.player.items.shroudOfResolve) and br.timer:useTimer("Cloak Delay", 2)then
-                        if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                                or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
-                                or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") and not debuff.massEntanglement.exists(object)
-                                or getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks"))
+                        if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                                or br.getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= br.getValue("Eye Stacks")
+                                or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") and not debuff.massEntanglement.exists(object)
+                                or br.getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") and debuff.eyeOfCorruption.stack("player") >= br.getValue("Eye Stacks"))
                         then
                             if br.player.use.shroudOfResolve() then
                                 br.addonDebug("Using shroudOfResolve")
@@ -1070,7 +1070,7 @@ local function runRotation()
             end
         end
         -- CF
-        if inCombat and br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+        if inCombat and br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > br.getValue("Concentrated Flame Heal")) then
             if cast.concentratedFlame("target") then
                 return
             end

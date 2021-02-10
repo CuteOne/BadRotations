@@ -388,7 +388,7 @@ local function actionList_Defensive()
                 if cast.vivify() then return end
             end
     --Expel Harm
-            if br.isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(322101) >= br.getOptionValue("Expel Harm Orbs") then
+            if br.isChecked("Expel Harm") and php <= br.getValue("Expel Harm") and inCombat and GetSpellCount(322101) >= br.getOptionValue("Expel Harm Orbs") then
                 if cast.expelHarm() then return end
             end
     -- Pot/Stoned
@@ -402,7 +402,7 @@ local function actionList_Defensive()
                 end
             end
     -- Dampen Harm
-            if br.isChecked("Dampen Harm") and php <= getValue("Dampen Harm") and inCombat then
+            if br.isChecked("Dampen Harm") and php <= br.getValue("Dampen Harm") and inCombat then
                 if cast.dampenHarm() then return end
             end
     -- Detox
@@ -420,15 +420,15 @@ local function actionList_Defensive()
                 end
             end
     -- Healing Elixir
-            if br.isChecked("Healing Elixir") and php <= getValue("Healing Elixir") and charges.healingElixir.count() > 1 then
+            if br.isChecked("Healing Elixir") and php <= br.getValue("Healing Elixir") and charges.healingElixir.count() > 1 then
                 if cast.healingElixir() then return end
             end
     -- Fortifying Brew
-            if br.isChecked("Fortifying Brew") and php <= getValue("Fortifying Brew") and inCombat then
+            if br.isChecked("Fortifying Brew") and php <= br.getValue("Fortifying Brew") and inCombat then
                 if cast.fortifyingBrew() then return end
             end
 
-            if br.isChecked("Celestial Brew") and php <= getValue("Celestial Brew") and inCombat and buff.purifiedChi.stack() >= getValue("Celestial Purify Stacks") then
+            if br.isChecked("Celestial Brew") and php <= br.getValue("Celestial Brew") and inCombat and buff.purifiedChi.stack() >= br.getValue("Celestial Purify Stacks") then
                 if cast.celestialBrew() then return end
             end
         end
@@ -473,7 +473,7 @@ local function actionList_Defensive()
             for i=1, #enemies.yards20 do
                 thisUnit = enemies.yards20[i]
                 distance = br.getDistance(thisUnit)
-                if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
+                if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     if distance <= 5 then
     -- Spear Hand Strike
                         if br.isChecked("Spear Hand Strike") then
@@ -583,7 +583,7 @@ local function actionList_Multi()
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
             if cast.chiWave(units.dyn5) then return end
         end
-        if power > 55 and (charges.purifyingBrew.frac() >= getValue("Spinning Crane Cutoff")) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and (not talent.eyeOfTheTiger or buff.eyeOfTheTiger.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
+        if power > 55 and (charges.purifyingBrew.frac() >= br.getValue("Spinning Crane Cutoff")) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and (not talent.eyeOfTheTiger or buff.eyeOfTheTiger.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
             if cast.spinningCraneKick("player") then
                 return
             end
@@ -649,7 +649,7 @@ local function actionList_Brews()
     --Black Ox Brew
         if br.isChecked("Black Ox Brew") and talent.blackoxBrew then
             if (charges.purifyingBrew.frac() < 0.7) or
-                (charges.purifyingBrew.count() == 0 and (staggerPct >= getValue("Stagger dmg % to purify"))) then
+                (charges.purifyingBrew.count() == 0 and (staggerPct >= br.getValue("Stagger dmg % to purify"))) then
                 if cast.blackoxBrew("player") then return end
             end
         end
@@ -661,7 +661,7 @@ local function actionList_Brews()
         end
     -- Percentage Purify
         if br.isChecked("Stagger dmg % to purify") then
-            if (staggerPct >= getValue("Stagger dmg % to purify") and charges.purifyingBrew.frac() > 0.5) then
+            if (staggerPct >= br.getValue("Stagger dmg % to purify") and charges.purifyingBrew.frac() > 0.5) then
                 if cast.purifyingBrew("player") then return end
             end
         end
@@ -670,7 +670,7 @@ local function actionList_Brews()
             if charges.purifyingBrew.frac() == charges.purifyingBrew.max() and inCombat then
                 if debuff.heavyStagger.exists("player") then
                     if cast.purifyingBrew("player") then return end
-                elseif staggerPct > (getValue("Stagger dmg % to purify")/2) then
+                elseif staggerPct > (br.getValue("Stagger dmg % to purify")/2) then
                     if cast.purifyingBrew("player") then return end 
                 elseif buff.purifiedChi.remains("player") <= 3 and charges.purifyingBrew.frac() > 1.8 then
                     if cast.purifyingBrew("player") then return end 

@@ -586,7 +586,7 @@ local function runRotation()
         if useInterrupts() then
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     -- Wind Shear
                     if br.isChecked("Wind Shear") then
                         if cast.windShear(thisUnit) then
@@ -619,7 +619,7 @@ local function runRotation()
     local function actionList_AoE()
         --Storm Keeper
         --actions.aoe=stormkeeper,if=talent.stormkeeper.enabled
-        if not isMoving("player") and talent.stormKeeper and #enemies.yards10t >= getValue("SK Targets") and mode.stormKeeper == 1 and holdBreak then
+        if not isMoving("player") and talent.stormKeeper and #enemies.yards10t >= br.getValue("SK Targets") and mode.stormKeeper == 1 and holdBreak then
             if cast.stormKeeper() then
                 br.addonDebug("Casting Stormkeeper")
                 return true
@@ -627,7 +627,7 @@ local function runRotation()
         end
         -- Flame Shock
         --actions.aoe+=/flame_shock,if=spell_targets.chain_lightning<4,target_if=refreshable
-        if flameShockCount < getValue("Maximum FlameShock Targets") then
+        if flameShockCount < br.getValue("Maximum FlameShock Targets") then
             if not talent.stormElemental or not stormEle or (#enemies.yards40 == 3 and buff.windGust.stack() < 14) then
                 if debuff.flameShock.remain("target") < 5.4 then
                     if cast.flameShock("target") then
@@ -660,7 +660,7 @@ local function runRotation()
         end
         -- Liquid Magma Totem
         --actions.aoe+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled
-        if talent.liquidMagmaTotem and useCDs() and #enemies.yards8t >= getValue("LMT Targets") and holdBreak then
+        if talent.liquidMagmaTotem and useCDs() and #enemies.yards8t >= br.getValue("LMT Targets") and holdBreak then
             local cc = false
             if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
@@ -681,7 +681,7 @@ local function runRotation()
         -- Earthquake
         --actions.aoe+=/earthquake
         if
-            #enemies.yards8t >= getValue("Earthquake Targets") and
+            #enemies.yards8t >= br.getValue("Earthquake Targets") and
                 (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >= br.getOptionValue("Earth Shock Maelstrom Dump") or buff.masterOfTheElements.exists() or
                     #enemies.yards10t > 3) and
                 holdBreak
@@ -731,7 +731,7 @@ local function runRotation()
         end
         -- Lava Burst (Instant)
         --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
-        if cd.lavaBurst.remain() <= gcd and buff.lavaSurge.exists() and #enemies.yards10t <= getValue("Maximum LB Targets") and (not talent.stormElemental or not stormEle) then
+        if cd.lavaBurst.remain() <= gcd and buff.lavaSurge.exists() and #enemies.yards10t <= br.getValue("Maximum LB Targets") and (not talent.stormElemental or not stormEle) then
             if debuff.flameShock.exists("target") then
                 if UnitCastingInfo("player") then
                     SpellStopCasting()
@@ -771,7 +771,7 @@ local function runRotation()
         end
         -- Elemental Blast
         --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
-        if not isMoving("player") and talent.elementalBlast and #enemies.yards10t <= getValue("Maximum EB Targets") and (not talent.stormElemental or not stormEle) and holdBreak then
+        if not isMoving("player") and talent.elementalBlast and #enemies.yards10t <= br.getValue("Maximum EB Targets") and (not talent.stormElemental or not stormEle) and holdBreak then
             if cast.elementalBlast() then
                 br.addonDebug("Casting Elemental Blast")
                 return true
@@ -779,7 +779,7 @@ local function runRotation()
         end
         -- Lava Beam
         --actions.aoe+=/lava_beam,if=talent.ascendance.enabled
-        if not isMoving("player") and buff.ascendance.exists() and #enemies.yards10t >= getValue("Lava Beam Targets") and holdBreak then
+        if not isMoving("player") and buff.ascendance.exists() and #enemies.yards10t >= br.getValue("Lava Beam Targets") and holdBreak then
             local cc = false
             if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards10t do
@@ -920,7 +920,7 @@ local function runRotation()
         end
         -- Liquid Magma Totem
         --actions.single_target+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-        if useCDs() and #enemies.yards8t >= getValue("LMT Targets") and talent.liquidMagmaTotem and holdBreak then
+        if useCDs() and #enemies.yards8t >= br.getValue("LMT Targets") and talent.liquidMagmaTotem and holdBreak then
             local cc = false
             if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
@@ -982,7 +982,7 @@ local function runRotation()
         --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
         --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
         if
-            #enemies.yards8t >= getValue("Earthquake Targets") and
+            #enemies.yards8t >= br.getValue("Earthquake Targets") and
                 (not talent.surgeOfPower or (not debuff.flameShock.exists() or debuff.flameShock.remain() < 5.4) or
                     (talent.stormElemental and stormEle and
                         (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= br.getOptionValue("Earth Shock Maelstrom Dump")))) and
@@ -1320,7 +1320,7 @@ local function runRotation()
             end
         end
         -- Earthquake
-        if #enemies.yards8t >= getValue("Earthquake Targets") and holdBreak then
+        if #enemies.yards8t >= br.getValue("Earthquake Targets") and holdBreak then
             if mode.earthShock == 1 then
                 local cc = false
                 if br.getOptionCheck("Don't break CCs") then
@@ -1353,7 +1353,7 @@ local function runRotation()
             end
         end
         -- Liquid Magma Totem
-        if useCDs() and #enemies.yards8t >= getValue("LMT Targets") and holdBreak then
+        if useCDs() and #enemies.yards8t >= br.getValue("LMT Targets") and holdBreak then
             local cc = false
             if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
@@ -1372,7 +1372,7 @@ local function runRotation()
             end
         end
         -- Stormkeeper
-        if useCDs() and (#enemies.yards8t >= getValue("SK Targets") or #enemies.yards8t == 0) and talent.stormKeeper and mode.stormKeeper == 1 and holdBreak then
+        if useCDs() and (#enemies.yards8t >= br.getValue("SK Targets") or #enemies.yards8t == 0) and talent.stormKeeper and mode.stormKeeper == 1 and holdBreak then
             if cast.stormKeeper() then
                 br.addonDebug("Casting Stormkeeper")
                 return true
@@ -1386,7 +1386,7 @@ local function runRotation()
             end
         end
         -- Lava Beam (3+ Targets)
-        if #enemies.yards10t >= getValue("Lava Beam Targets") and buff.ascendance.exists() and holdBreak then
+        if #enemies.yards10t >= br.getValue("Lava Beam Targets") and buff.ascendance.exists() and holdBreak then
             local cc = false
             if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards10t do
@@ -1508,7 +1508,7 @@ local function runRotation()
                     local thisUnit = pet[k].id or 0
                     if fireEle then
                         --print("Fire Elemental Detected")
-                        if #enemies.yards8t >= getValue("Meteor Targets") then
+                        if #enemies.yards8t >= br.getValue("Meteor Targets") then
                             --if cast.meteor("pettarget") then end
                             br._G.CastSpellByName(GetSpellInfo(spell.meteor))
                         --br.addonDebug("Casting Meteor (Pet)")

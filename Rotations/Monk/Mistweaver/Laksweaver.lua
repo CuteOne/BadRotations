@@ -274,7 +274,7 @@ local function runRotation()
     --functions
     local function renewingMistFunc()
         --tanks first
-        if getValue("Renewing Mist") == 0 then
+        if br.getValue("Renewing Mist") == 0 then
             if #tanks > 0 then
                 for i = 1, #tanks do
                     if not buff.renewingMist.exists(tanks[i].unit) and UnitInRange(tanks[i].unit) then
@@ -318,7 +318,7 @@ local function runRotation()
     local function risingSunKickFunc()
         if cast.able.risingSunKick() and br.isChecked("Rising Sun Kick") then
             if #enemy_count_facing_5 > 0 then
-                if (talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")
+                if (talent.risingMist and hotcountFunc() >= br.getValue("Fistweave Hots")
                         or focustea == "kick" and buff.thunderFocusTea.exists()
                         or buff.wayOfTheCrane.exists()
                         or #br.friend == 1) then
@@ -330,7 +330,7 @@ local function runRotation()
                 end
             end
         end
-        if not cast.able.risingSunKick() and br.getHP(br.friend[1]) > getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
+        if not cast.able.risingSunKick() and br.getHP(br.friend[1]) > br.getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
             if cast.able.blackoutKick() and not buff.thunderFocusTea.exists()
                     and (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
                 if cast.blackoutKick(units.dyn5) then
@@ -364,11 +364,11 @@ local function runRotation()
                     or br.getOptionValue("Thunder Focus Mode") == 3) then
                 focustea = "AOEHeal"
             end
-            if br.getOptionValue("Thunder Focus Mode") == 1 and mana <= getValue("Thunder Focus Tea") or br.getOptionValue("Thunder Focus Mode") == 4 and cast.able.vivify() then
+            if br.getOptionValue("Thunder Focus Mode") == 1 and mana <= br.getValue("Thunder Focus Tea") or br.getOptionValue("Thunder Focus Mode") == 4 and cast.able.vivify() then
                 focustea = "manaEffiency"
             end
             if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and
-                    (hotcountFunc() >= getValue("Fistweave Hots")
+                    (hotcountFunc() >= br.getValue("Fistweave Hots")
                             and ((br.getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist)
                             or br.getOptionValue("Thunder Focus Mode") == 5))
                     or #br.friend == 1 then
@@ -377,9 +377,9 @@ local function runRotation()
         end
 
         if focustea ~= nil and not buff.thunderFocusTea.exists() and cast.able.thunderFocusTea() then
-            if (focustea == "singleHeal" and cast.able.envelopingMist() and br.getHP(healUnit) <= getValue("Enveloping Mist"))
-                    or (focustea == "AOEHeal" and cast.able.renewingMist() and br.getHP(br.friend[1]) <= getValue("Renewing Mist"))
-                    or (focustea == "manaEffiency" and cast.able.vivify() and br.getHP(br.friend[1]) < getValue("Vivify"))
+            if (focustea == "singleHeal" and cast.able.envelopingMist() and br.getHP(healUnit) <= br.getValue("Enveloping Mist"))
+                    or (focustea == "AOEHeal" and cast.able.renewingMist() and br.getHP(br.friend[1]) <= br.getValue("Renewing Mist"))
+                    or (focustea == "manaEffiency" and cast.able.vivify() and br.getHP(br.friend[1]) < br.getValue("Vivify"))
                     or (focustea == "kick" and cast.able.risingSunKick() and #enemy_count_facing_5 > 0)
             then
                 if cast.thunderFocusTea() then
@@ -460,7 +460,7 @@ local function runRotation()
         -- Tiger's Lust
         --[[ 1 = any, 2 = self, 3 == CD]]
         if br.player.talent.tigersLust and br.player.cast.able.tigersLust() and br.isChecked("Tiger's Lust") then
-            if getValue("Tiger's Lust") == 1 then
+            if br.getValue("Tiger's Lust") == 1 then
                 for i = 1, #br.friend do
                     thisUnit = br.friend[i].unit
                     if hasNoControl(spell.tigersLust, thisUnit) then
@@ -470,13 +470,13 @@ local function runRotation()
 
                     end
                 end
-            elseif getValue("Tiger's Lust") == 2 then
+            elseif br.getValue("Tiger's Lust") == 2 then
                 if hasNoControl(spell.tigersLust, "player") then
                     if br.player.cast.tigersLust("Player") then
                         return true
                     end
                 end
-            elseif getValue("Tiger's Lust") == 3 and GetUnitSpeed("player") > 1 then
+            elseif br.getValue("Tiger's Lust") == 3 and GetUnitSpeed("player") > 1 then
                 if br.player.cast.tigersLust("Player") then
                     return true
                 end
@@ -691,7 +691,7 @@ local function runRotation()
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) and not isMoving("player") then
             if #tanks > 0 then
                 for i = 1, #tanks do
-                    if br.getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) and cast.able.envelopingMist(tanks[i].unit) then
+                    if br.getHP(tanks[i].unit) <= br.getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) and cast.able.envelopingMist(tanks[i].unit) then
                         if br.getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(tanks[i].unit, "exact") then
                             if cast.soothingMist(tanks[i].unit) then
                                 br.addonDebug("[EM-PRE]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE - TANK")
@@ -717,7 +717,7 @@ local function runRotation()
 
         --  Print(br.getHP(healUnit))
         -- Vivify
-        if not isMoving("player") and (br.getHP(healUnit) <= getValue("Vivify") or specialHeal) then
+        if not isMoving("player") and (br.getHP(healUnit) <= br.getValue("Vivify") or specialHeal) then
             if talent.lifecycle and br.isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not br.isChecked("Enforce Lifecycles buff") then
                 if br.getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
                     --  if br.isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit, "EXACT") then
@@ -831,11 +831,11 @@ local function runRotation()
 
             -- critical
 
-            if burst == false and getValue("Critical HP") ~= 0 then
+            if burst == false and br.getValue("Critical HP") ~= 0 then
                 local crit_health_base = 100
                 local crit_health_current = 0
                 for i = 1, #br.friend do
-                    if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical HP") then
+                    if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= br.getValue("Critical HP") then
                         crit_count = crit_count + 1
                         if br.friend[i].hp < crit_health_base then
                             crit_health_base = br.friend[i].hp
@@ -872,7 +872,7 @@ local function runRotation()
             --[[
                         --always kick with rising  -- fist weaving
                         if talent.risingMist then
-                            if lowest.hp > getValue("Critical HP") then
+                            if lowest.hp > br.getValue("Critical HP") then
                                 if (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
                                     if cast.blackoutKick(units.dyn5) then
                                         return true
@@ -896,7 +896,7 @@ local function runRotation()
                 end
                 if br.isChecked("Grievous Wounds") and (br.getDebuffStacks(healUnit, 240559) > 3 or BleedStack == 99) or not br.isChecked("Grievous Wounds") then
                     --override cause people leave settings on in non griev weeks
-                    if (br.getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
+                    if (br.getHP(healUnit) <= br.getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
                         if cast.lifeCocoon(healUnit) then
                             br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why .. " HP: " .. tostring(br.getHP(healUnit)))
                             --  Print("Bleedstack: " .. tostring(BleedStack))
@@ -928,7 +928,7 @@ local function runRotation()
                 end
             end
 
-            if not isMoving("player") and cast.able.envelopingMist() and br.getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
+            if not isMoving("player") and cast.able.envelopingMist() and br.getHP(healUnit) <= br.getValue("Enveloping Mist") or specialHeal then
                 if talent.lifecycle and br.isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not br.isChecked("Enforce Lifecycles buff") then
                     if br.getOptionValue("EM Casts") == 1 and not buff.soothingMist.exists(healUnit, "exact") then
                         -- if br.isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
@@ -961,7 +961,7 @@ local function runRotation()
                             detoxCounter = detoxCounter + 1
                         end
                     end
-                    if detoxCounter >= getValue("Use Revival as detox") then
+                    if detoxCounter >= br.getValue("Use Revival as detox") then
 
 
                         why = "MASS DISPEL"
@@ -971,7 +971,7 @@ local function runRotation()
                         end
                     end
                 end
-                if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") or burst then
+                if getLowAllies(br.getValue("Revival")) >= br.getValue("Revival Targets") or burst then
                     if cast.revival() then
                         br.addonDebug(tostring(burst) .. "[Revival]:" .. UnitName(healUnit) .. " / " .. why)
                         return
@@ -998,7 +998,7 @@ local function runRotation()
 
 
             --vivify if hotcount >= 5
-            if br.isChecked("Vivify") and cast.able.vivify() and br.getHP(healUnit) < getValue("Vivify Spam Health") and buff.renewingMist.exists(healUnit) or specialHeal then
+            if br.isChecked("Vivify") and cast.able.vivify() and br.getHP(healUnit) < br.getValue("Vivify Spam Health") and buff.renewingMist.exists(healUnit) or specialHeal then
                 RM_counter = 0
                 -- local SM_counter = 0
                 for i = 1, #br.friend do
@@ -1011,7 +1011,7 @@ local function runRotation()
                     end
                 ]]
                 end
-                if RM_counter >= getValue("Vivify Spam") then
+                if RM_counter >= br.getValue("Vivify Spam") then
                     -- do we have a soothing mist rolling
                     if br.getOptionValue("Vivify Casts") == 1 and not buff.soothingMist.exists("player", "exact") then
                         --  if br.isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists("player", "EXACT") then
@@ -1033,8 +1033,8 @@ local function runRotation()
 
             --Essence Font
             if br.isChecked("Essence Font") then
-                if talent.upwelling and br.timer:useTimer("EssenceFont Seconds", getValue("Essence Font delay(Upwelling)")) or not talent.upwelling then
-                    if getLowAllies(getValue("Essence Font")) >= getValue("Essence Font targets") or burst then
+                if talent.upwelling and br.timer:useTimer("EssenceFont Seconds", br.getValue("Essence Font delay(Upwelling)")) or not talent.upwelling then
+                    if getLowAllies(br.getValue("Essence Font")) >= br.getValue("Essence Font targets") or burst then
                         if cast.essenceFont() then
                             br.addonDebug(tostring(burst) .. "[E-Font]:" .. UnitName(healUnit) .. " / " .. why)
                             return true
@@ -1045,9 +1045,9 @@ local function runRotation()
 
             --Surging Mist
             if br.isChecked("Surging Mist") then
-                if br.getHP(healUnit) <= getValue("Surging Mist") or specialHeal then
+                if br.getHP(healUnit) <= br.getValue("Surging Mist") or specialHeal then
                     if cast.surgingMist(healUnit) then
-                        br.addonDebug(tostring(burst) .. "[SurgMist]:" .. UnitName(healUnit) .. " / " .. why .. math.floor(tostring(br.getHP(healUnit))) .. "/ " .. getValue("Surging Mist"))
+                        br.addonDebug(tostring(burst) .. "[SurgMist]:" .. UnitName(healUnit) .. " / " .. why .. math.floor(tostring(br.getHP(healUnit))) .. "/ " .. br.getValue("Surging Mist"))
                         return true
                     end
                 end
@@ -1059,7 +1059,7 @@ local function runRotation()
 
 
             if br.isChecked("Soothing Mist") and not isMoving("player") then
-                if br.getHP(healUnit) <= getValue("Soothing Mist") or specialHeal then
+                if br.getHP(healUnit) <= br.getValue("Soothing Mist") or specialHeal then
                     if br.getBuffRemain(healUnit, spell.soothingMist, "EXACT") == 0 then
                         --  and not buff.soothingMist.exists(healUnit, "exact") then
                         if cast.soothingMist(healUnit) then
@@ -1100,9 +1100,9 @@ local function runRotation()
         -- Corruption stuff
         -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
         if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+            if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                    or br.getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= br.getValue("Eye Stacks")
+                    or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                 if br.player.use.shroudOfResolve() then
                     br.addonDebug("Using shroudOfResolve")
                 end
@@ -1123,7 +1123,7 @@ local function runRotation()
 
         --Chi Ji
         if talent.invokeChiJiTheRedCrane and br.isChecked("Chi Ji") then
-            if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") or burst == true then
+            if getLowAllies(br.getValue("Chi Ji")) >= br.getValue("Chi Ji Targets") or burst == true then
                 if cast.invokeChiJi() then
                     br.addonDebug(tostring(burst) .. "[ChiJi]")
                     return true
@@ -1136,11 +1136,11 @@ local function runRotation()
             if #refreshJadeFriends > 0 then
                 for i = 1, #refreshJadeFriends do
                     jadeUnits = refreshJadeFriends[i].unit
-                    if br.getHP(jadeUnits) < getValue("Refreshing Jade Wind") then
+                    if br.getHP(jadeUnits) < br.getValue("Refreshing Jade Wind") then
                         jadeUnitsCount = jadeUnitsCount + 1
-                        if jadeUnitsCount >= getValue("RJW Targets") or burst then
+                        if jadeUnitsCount >= br.getValue("RJW Targets") or burst then
                             if cast.refreshingJadeWind() then
-                                br.addonDebug("[RefJade] - [" .. tostring(jadeUnitsCount) .. "/" .. tostring(getValue("RJW Targets")) .. "]")
+                                br.addonDebug("[RefJade] - [" .. tostring(jadeUnitsCount) .. "/" .. tostring(br.getValue("RJW Targets")) .. "]")
                                 jadeUnitsCount = 0
                                 return true
                             end
@@ -1154,13 +1154,13 @@ local function runRotation()
         -- Trinkets
         if br.isChecked("Trinket 1") and br.canUseItem(13) then
             if br.getOptionValue("Trinket 1 Mode") == 1 then
-                if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+                if getLowAllies(br.getValue("Trinket 1")) >= br.getValue("Min Trinket 1 Targets") then
                     br.useItem(13)
                     return true
                 end
             elseif br.getOptionValue("Trinket 1 Mode") == 2 then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Trinket 1") then
+                    if br.friend[i].hp <= br.getValue("Trinket 1") then
                         UseItemByName(select(1, _G.GetInventoryItemID("player", 13)), br.friend[i].unit)
                         return true
                     end
@@ -1179,11 +1179,11 @@ local function runRotation()
                         else
                             local meleeHurt = {}
                             for j = 1, #meleeFriends do
-                                if meleeFriends[j].hp < getValue("Trinket 1") then
+                                if meleeFriends[j].hp < br.getValue("Trinket 1") then
                                     tinsert(meleeHurt, meleeFriends[j])
                                 end
                             end
-                            if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
+                            if #meleeHurt >= br.getValue("Min Trinket 1 Targets") or burst == true then
                                 loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                             end
                         end
@@ -1204,13 +1204,13 @@ local function runRotation()
         end
         if br.isChecked("Trinket 2") and br.canUseItem(14) then
             if br.getOptionValue("Trinket 2 Mode") == 1 then
-                if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+                if getLowAllies(br.getValue("Trinket 2")) >= br.getValue("Min Trinket 2 Targets") then
                     br.useItem(14)
                     return true
                 end
             elseif br.getOptionValue("Trinket 2 Mode") == 2 then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Trinket 2") then
+                    if br.friend[i].hp <= br.getValue("Trinket 2") then
                         UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), br.friend[i].unit)
                         return true
                     end
@@ -1229,11 +1229,11 @@ local function runRotation()
                         else
                             local meleeHurt = {}
                             for j = 1, #meleeFriends do
-                                if meleeFriends[j].hp < getValue("Trinket 2") then
+                                if meleeFriends[j].hp < br.getValue("Trinket 2") then
                                     tinsert(meleeHurt, meleeFriends[j])
                                 end
                             end
-                            if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
+                            if #meleeHurt >= br.getValue("Min Trinket 2 Targets") or burst == true then
                                 loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                             end
                         end
@@ -1279,7 +1279,7 @@ local function runRotation()
 
 
         -- Mana Potion
-        if br.isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
+        if br.isChecked("Mana Potion") and mana <= br.getValue("Mana Potion") then
             if br.hasItem(152495) and br.canUseItem(152495) then
                 br.useItem(152495)
                 if br.hasItem(127835) and br.canUseItem(127835) then
@@ -1295,7 +1295,7 @@ local function runRotation()
         end
 
         -- essences/        --Essence Support
-        if br.isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
+        if br.isChecked("ConcentratedFlame - Heal") and lowest.hp <= br.getValue("ConcentratedFlame - Heal") then
             if cast.concentratedFlame(lowest.unit) then
                 return true
             end
@@ -1330,7 +1330,7 @@ local function runRotation()
         end
         --lucid dreams
         if br.isChecked("Memory of Lucid Dreams") and br.getSpellCD(298357) <= gcd
-                and mana <= getValue("Memory of Lucid Dreams") then
+                and mana <= br.getValue("Memory of Lucid Dreams") then
             if cast.memoryOfLucidDreams() then
                 return
             end
@@ -1348,8 +1348,8 @@ local function runRotation()
         if br.isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
-                    local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Seed of Eonar"), #br.friend)
-                    if #lowHealthCandidates >= getValue("Seed of Eonar Targets") and not moving or burst == true then
+                    local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, br.getValue("Seed of Eonar"), #br.friend)
+                    if #lowHealthCandidates >= br.getValue("Seed of Eonar Targets") and not moving or burst == true then
                         if cast.lifeBindersInvocation() then
                             return true
                         end
@@ -1360,7 +1360,7 @@ local function runRotation()
 
         --Mana Tea
         if br.isChecked("Mana Tea") and talent.manaTea and not buff.wayOfTheCrane.exists() then
-            if (mana <= getValue("Mana Tea") or getValue("Mana Tea") == 0) then
+            if (mana <= br.getValue("Mana Tea") or br.getValue("Mana Tea") == 0) then
                 if cast.manaTea("player") then
                     return
                 end
@@ -1392,7 +1392,7 @@ local function runRotation()
         if useDefensive() then
 
 
-            if br.isChecked("Healing Elixir /Dampen Harm / Diffuse Magic") and php <= getValue("Healing Elixir /Dampen Harm / Diffuse Magic") then
+            if br.isChecked("Healing Elixir /Dampen Harm / Diffuse Magic") and php <= br.getValue("Healing Elixir /Dampen Harm / Diffuse Magic") then
                 --Healing Elixir
                 if talent.healingElixir then
                     if cast.healingElixir("player") then
@@ -1411,7 +1411,7 @@ local function runRotation()
             end
 
             --Fortifying Brew
-            if br.isChecked("Fortifying Brew") and php <= getValue("Fortifying Brew") and cd.fortifyingBrew.remain() == 0 then
+            if br.isChecked("Fortifying Brew") and php <= br.getValue("Fortifying Brew") and cd.fortifyingBrew.remain() == 0 then
                 if cast.fortifyingBrew() then
                     return
                 end
@@ -1459,7 +1459,7 @@ local function runRotation()
 
             if useInterrupts() then
                 distance = br.getDistance(thisUnit)
-                if canInterrupt(thisUnit, br.getOptionValue("InterruptAt")) then
+                if br.canInterrupt(thisUnit, br.getOptionValue("InterruptAt")) then
 
                     -- Leg Sweep
                     if br.isChecked("Leg Sweep") and not br.isCastingSpell(spell.essenceFont) then
@@ -1587,12 +1587,12 @@ local function runRotation()
             end
 
             -- dps key
-            if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (buff.wayOfTheCrane.exists() and #enemies.yards8 > 0 and br.getHP(healUnit) >= getValue("Critical HP")) then
+            if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (buff.wayOfTheCrane.exists() and #enemies.yards8 > 0 and br.getHP(healUnit) >= br.getValue("Critical HP")) then
                 if dps() then
                     return true
                 end
             end
-            if (lowest.hp > getValue("Critical HP") or lowest.unit == "player") then
+            if (lowest.hp > br.getValue("Critical HP") or lowest.unit == "player") then
                 if Defensive() then
                     return true
                 end

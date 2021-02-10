@@ -312,7 +312,7 @@ local function runRotation()
             end
         end
 
-        if br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 1 or (br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 3 and php > getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l")) then
+        if br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 1 or (br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") == 3 and php > br.getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l")) then
             if cast.concentratedFlame("target") then
                 return
             end
@@ -375,7 +375,7 @@ local function runRotation()
                     end
                 end
             end
-            if br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") ~= 1 and php <= getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l") then
+            if br.getOptionValue(red .. "U" .. orange .. "s" .. yellow .. "e" .. green .. " C" .. blue .. "o" .. indigo .. "n" .. violet .. "c" .. red .. "e" .. orange .. "n" .. yellow .. "t" .. green .. "r" .. blue .. "a" .. indigo .. "t" .. violet .. "e" .. red .. "d" .. orange .. " F" .. yellow .. "l" .. green .. "a" .. blue .. "m" .. indigo .. "e") ~= 1 and php <= br.getValue(orange .. "C" .. yellow .. "o" .. green .. "n" .. blue .. "c" .. indigo .. "e" .. violet .. "n" .. red .. "t" .. orange .. "r" .. yellow .. "a" .. green .. "t" .. blue .. "e" .. indigo .. "d" .. violet .. " F" .. red .. "l" .. orange .. "a" .. yellow .. "m" .. green .. "e" .. blue .. " H" .. indigo .. "e" .. violet .. "a" .. red .. "l") then
                 if cast.concentratedFlame("player") then
                     return
                 end
@@ -398,7 +398,7 @@ local function runRotation()
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
                 -- Disrupt
-                if canInterrupt(thisUnit, br.getOptionValue(green .. "I" .. blue .. "n" .. indigo .. "t" .. violet .. "e" .. red .. "r" .. orange .. "r" .. yellow .. "u" .. green .. "p" .. blue .. "t" .. indigo .. " A" .. violet .. "t")) and (sigilDelay == nil or GetTime() - sigilDelay > 2) then
+                if br.canInterrupt(thisUnit, br.getOptionValue(green .. "I" .. blue .. "n" .. indigo .. "t" .. violet .. "e" .. red .. "r" .. orange .. "r" .. yellow .. "u" .. green .. "p" .. blue .. "t" .. indigo .. " A" .. violet .. "t")) and (sigilDelay == nil or GetTime() - sigilDelay > 2) then
                     if br.isChecked(red .. "D" .. orange .. "i" .. yellow .. "s" .. green .. "r" .. blue .. "u" .. indigo .. "p" .. violet .. "t") and br.getDistance(thisUnit) < 20 and br.getFacing("player", thisUnit) and cd.disrupt.remain() <= gcd then
                         -- Sigil of Silence
                         if cast.disrupt(thisUnit) then

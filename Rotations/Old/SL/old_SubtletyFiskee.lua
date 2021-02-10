@@ -487,7 +487,7 @@ local function runRotation()
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
                 local distance = br.getDistance(thisUnit)
-                if canInterrupt(thisUnit,br.getOptionValue("Interrupt %")) then
+                if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt %")) then
                     if br.isChecked("Kick") and distance < 5 then
                         if cast.kick(thisUnit) then return end
                     end

@@ -385,7 +385,7 @@ local function runRotation()
             if useInterrupts() and not stealth then
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
             -- Kick
                         -- kick
                         if br.isChecked("Kick") and cast.able.kick() then

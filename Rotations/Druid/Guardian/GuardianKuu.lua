@@ -593,7 +593,7 @@ local function runRotation()
         if ui.checked("OOC Wild Growth") and not moving then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
-                    local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, ui.value("OOC Wild Growth"), #br.friend)
+                    local lowHealthCandidates = br.getUnitsToHealAround(br.friend[i].unit, 30, ui.value("OOC Wild Growth"), #br.friend)
                     if (#lowHealthCandidates >= ui.value("Friendly Targets")) and not moving then
                         if cast.wildGrowth(br.friend[i].unit) then
                             return true
@@ -980,7 +980,7 @@ local function runRotation()
             if ui.checked("Skull Bash") and not cd.skullBash.exists() then
                 for i = 1, #enemies.yards13 do
                     thisUnit = enemies.yards13[i]
-                    if canInterrupt(thisUnit, ui.value("Interrupt At")) and br.timer:useTimer("Interrupt", 0.5) then
+                    if br.canInterrupt(thisUnit, ui.value("Interrupt At")) and br.timer:useTimer("Interrupt", 0.5) then
                         if cast.skullBash(thisUnit) then
                             return
                         end
@@ -990,7 +990,7 @@ local function runRotation()
             if ui.checked("Mighty Bash") and talent.mightyBash and (cd.skullBash.exists() or level < 70) then
                 for i = 1, #enemies.yards5 do
                     thisUnit = enemies.yards5[i]
-                    if canInterrupt(thisUnit, ui.value("Interrupt At")) and br.timer:useTimer("Interrupt", 0.5) then
+                    if br.canInterrupt(thisUnit, ui.value("Interrupt At")) and br.timer:useTimer("Interrupt", 0.5) then
                         if cast.mightyBash(thisUnit) then
                             return
                         end
@@ -1000,7 +1000,7 @@ local function runRotation()
             if ui.checked("Incapacitating Roar") and (cd.skullBash.exists() or level < 70) then
                 for i = 1, #enemies.yards10 do
                     thisUnit = enemies.yards10[i]
-                    if canInterrupt(thisUnit, ui.value("Interrupt At")) and br.timer:useTimer("Interrupt", 0.5) then
+                    if br.canInterrupt(thisUnit, ui.value("Interrupt At")) and br.timer:useTimer("Interrupt", 0.5) then
                         if cast.incapacitatingRoar("player") then
                             return
                         end

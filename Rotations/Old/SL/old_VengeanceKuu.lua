@@ -515,7 +515,7 @@ local function runRotation()
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
                 -- Disrupt
-                if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) and (sigilDelay == nil or GetTime() - sigilDelay > 2) then
+                if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) and (sigilDelay == nil or GetTime() - sigilDelay > 2) then
                     if br.isChecked("Disrupt") and br.getDistance(thisUnit) < 20 and br.getFacing("player", thisUnit) and cd.disrupt.remain() <= gcd then
                         -- Sigil of Silence
                         if cast.disrupt(thisUnit) then

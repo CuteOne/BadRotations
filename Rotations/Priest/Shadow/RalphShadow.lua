@@ -476,10 +476,10 @@ actionList.Cooldown = function()
         end
     -- Pot is good
         if br.isChecked("Auto use Pots") then
-            if getValue("Auto use Pots") == 1
-                or getValue("Auto use Pots") == 2 and inInstance
-                or getValue("Auto use Pots") == 3 and inRaid
-                or getValue("Auto use Pots") == 4 and solo
+            if br.getValue("Auto use Pots") == 1
+                or br.getValue("Auto use Pots") == 2 and inInstance
+                or br.getValue("Auto use Pots") == 3 and inRaid
+                or br.getValue("Auto use Pots") == 4 and solo
             then
                 pot_use = true
             end

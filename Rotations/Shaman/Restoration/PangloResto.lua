@@ -222,10 +222,10 @@ local function runRotation()
     local bestUnit
     for i = 1, #br.friend do
         local thisUnit = br.friend[i].unit
-        local thisGroup = #getUnitsToHealAround(thisUnit, 8, getValue("Healing Rain"), getValue("Healing Rain Targets"))
+        local thisGroup = #getUnitsToHealAround(thisUnit, 8, br.getValue("Healing Rain"), br.getValue("Healing Rain Targets"))
         local tankGroup = 0
         if #tanks > 0 then
-            tankGroup = #getUnitsToHealAround(tanks[1].unit, 8, getValue("Healing Rain"), getValue("Healing Rain Targets"))
+            tankGroup = #getUnitsToHealAround(tanks[1].unit, 8, br.getValue("Healing Rain"), br.getValue("Healing Rain Targets"))
         end
 
         if thisGroup > biggestGroup then
@@ -250,13 +250,13 @@ local function runRotation()
 
     local function cooldownTime()
         if useCDs() then
-            if br.isChecked("Ascendance") and getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") and not tideTotemExists() then
+            if br.isChecked("Ascendance") and getLowAllies(br.getValue("Ascendance")) >= br.getValue("Ascendance Targets") and not tideTotemExists() then
                 if cast.ascendance("player") then
                     return 
                 end
             end
             if br.isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
-                if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then
+                if getLowAllies(br.getValue("Healing Tide Totem")) >= br.getValue("Healing Tide Totem Targets") then
                     if cast.healingTideTotem("player") then
                         return 
                     end
@@ -266,7 +266,7 @@ local function runRotation()
     end
 
     local function dontDie()
-        if br.isChecked("Astral Shift") and php <= getValue("Astral Shift") then
+        if br.isChecked("Astral Shift") and php <= br.getValue("Astral Shift") then
             if cast.astralShift("player") then
                 return 
             end
@@ -276,7 +276,7 @@ local function runRotation()
     local function healingTime()
         if br.isChecked("Riptide") then
             for i = 1, #br.friend do
-                if br.friend[i].hp <= getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) < 2.1 then
+                if br.friend[i].hp <= br.getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) < 2.1 then
                     if cast.riptide(br.friend[i].unit) then
                         return 
                     end
@@ -335,7 +335,7 @@ local function runRotation()
         end -- end of ES upkeep
 
         if br.isChecked("Unleash Life") then
-            if lowest.hp <= getValue("Unleash Life") then
+            if lowest.hp <= br.getValue("Unleash Life") then
                 if cast.unleashLife(lowest.unit) then
                     return 
                 end
@@ -344,7 +344,7 @@ local function runRotation()
 
         if br.isChecked("Healing Surge") and notmoving then
             for i = 1, #tanks do
-                if tanks[i].hp <= getValue("Healing Surge")/2 then
+                if tanks[i].hp <= br.getValue("Healing Surge")/2 then
                     if cast.healingSurge(tanks[i].unit) then
                         return 
                     end
@@ -353,7 +353,7 @@ local function runRotation()
         end
 
         if br.isChecked("Healing Surge") and notmoving then
-            if lowest.hp <= getValue("Healing Surge") then
+            if lowest.hp <= br.getValue("Healing Surge") then
                 if cast.healingSurge(lowest.unit) then
                     return true
                 end
@@ -361,7 +361,7 @@ local function runRotation()
         end
 
         if br.isChecked("Healing Rain") and inCombat and not buff.healingRain.exists("player") and notmoving then
-            if biggestGroup >= getValue("Healing Rain Targets") then
+            if biggestGroup >= br.getValue("Healing Rain Targets") then
                 if cast.healingRain(bestUnit) then
                     SpellStopTargeting()
                     return 
@@ -370,13 +370,13 @@ local function runRotation()
         end
 
         if br.isChecked("Chain Heal") and notmoving then
-            if chainHealUnits(spell.chainHeal, 15, getValue("Chain Heal"), getValue("Chain Heal Targets")) then
+            if chainHealUnits(spell.chainHeal, 15, br.getValue("Chain Heal"), br.getValue("Chain Heal Targets")) then
                 return 
             end
         end
 
         if br.isChecked("Healing Wave") and notmoving and not br.isChecked("HW Buff") then
-            if lowest.hp <= getValue("Healing Wave") then
+            if lowest.hp <= br.getValue("Healing Wave") then
                 if cast.healingWave(lowest.unit) then
                     return 
                 end
@@ -384,7 +384,7 @@ local function runRotation()
         end
 
         if br.isChecked("Healing Wave") and notmoving and br.isChecked("HW Buff") then
-            if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
+            if lowest.hp <= br.getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= br.getValue("Healing Wave") and buff.undulation.exists() then
                 if cast.healingWave(lowest.unit) then
                     return 
                 end
@@ -493,7 +493,7 @@ local function runRotation()
         if useInterrupts() then
             for i=1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                     if br.isChecked("Wind Shear") then
                         if cast.windShear(thisUnit) then 
                             return  

@@ -38,7 +38,7 @@ function PokeEngine()
           for i = 1, GetObjectCountBR() do
             local thisPet = GetObjectIndex(i)
             if br.GetObjectExists(thisPet) and br.GetUnitIsVisible(thisPet) and
-              br.getDistance("player",thisPet) < getValue("Auto Clicker Range") then
+              br.getDistance("player",thisPet) < br.getValue("Auto Clicker Range") then
 
               for j = 1, #MopList do
                 if UnitName(thisPet) == MopList[j] then

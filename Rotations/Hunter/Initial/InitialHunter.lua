@@ -175,7 +175,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 -- Freezing Trap
                 if ui.hecked("Freezing Trap") and cast.able.freezingTrap() then
                     for i = 1, #enemies.yards40 do

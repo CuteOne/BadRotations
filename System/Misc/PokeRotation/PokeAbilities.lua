@@ -83,8 +83,8 @@ function PokeAbilities()
     -- CapturePet() - Test for targets to trap.
     function CapturePet()
       if inBattle
-        and C_PetBattles.GetBreedQuality(2, nmePetSlot) >= getValue("Pet Capture")
-        and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,nmePetSlot)) < getValue("Number of Pets")
+        and C_PetBattles.GetBreedQuality(2, nmePetSlot) >= br.getValue("Pet Capture")
+        and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,nmePetSlot)) < br.getValue("Number of Pets")
         and br.isChecked("Pet Capture") then
         if nmePets[nmePetSlot].health <= 35
           and C_PetBattles.IsTrapAvailable() then
@@ -274,7 +274,7 @@ function PokeAbilities()
         elseif myPetSlot == 2 and myPets[2].health < br.data.settings[br.selectedSpec].toggles["Box Swap Out Health"] then
           if GetPetStrenght(1) > GetPetStrenght(3)
             and myPets[1].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"]
-            and not ( br.isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
+            and not ( br.isChecked("Pet Leveling") and br.getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
             C_PetBattles.ChangePet(1);
           elseif myPets[3].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"] or myPets[2].health == 0 then
             C_PetBattles.ChangePet(3);
@@ -282,7 +282,7 @@ function PokeAbilities()
         elseif myPetSlot == 3 and myPets[3].health < br.data.settings[br.selectedSpec].toggles["Box Swap Out Health"] then
           if GetPetStrenght(1) > GetPetStrenght(2)
             and myPets[1].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"]
-            and not ( br.isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
+            and not ( br.isChecked("Pet Leveling") and br.getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
             C_PetBattles.ChangePet(1);
           elseif myPets[3].health == 0 and myPets[2].health > 0 or myPets[2].health >= br.data.settings[br.selectedSpec].toggles["Box Swap in Health"] then
             C_PetBattles.ChangePet(2);

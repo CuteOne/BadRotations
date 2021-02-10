@@ -294,7 +294,7 @@ actionList.PetManagement = function()
     if ui.checked("Gnaw") and cast.able.gnaw() and not buff.huddle.exists("pet") then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 if cast.gnaw(thisUnit) then ui.debug("Casting Gnaw [Pet]") return true end
             end
         end
@@ -395,7 +395,7 @@ actionList.Interrupts = function()
         if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
             for i=1, #enemies.yards15 do
                 local thisUnit = enemies.yards15[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                     if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze") return true end
                 end
             end
@@ -404,7 +404,7 @@ actionList.Interrupts = function()
         if ui.checked("Asphyxiate") and cast.able.asphyxiate() and cd.mindFreeze.remain() > unit.gcd(true) then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                     if cast.asphyxiate(thisUnit) then ui.debug("Casting Asphyxiate") return true end
                 end
             end
@@ -414,7 +414,7 @@ actionList.Interrupts = function()
             local theseEnemies = talent.deathsReach and enemies.yards40 or enemies.yards30
             for i = 1,  #theseEnemies do
                 local thisUnit = theseEnemies[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 10 then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 10 then
                     if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Int]") return true end
                 end
             end

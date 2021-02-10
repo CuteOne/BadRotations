@@ -413,7 +413,7 @@ local function runRotation()
     end
 
     if inCombat and br.isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue() and br.getSpellCD(200025) == 0 and not IsMounted() then
-        if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
+        if getLowAllies(br.getValue("Beacon of Virtue")) >= br.getValue("BoV Targets") then
             if cast.beaconOfVirtue(lowest.unit) then
                 return true
             end
@@ -446,14 +446,14 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2) then
+        if br.isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= br.getValue("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2) then
             if cast.consecration() then
                 cX, cY, cZ = br.GetObjectPosition("player")
                 return
             end
         end
 
-        if br.isChecked("Divine Toll during DPS Key") and #enemies.yards30 >= getValue("Divine Toll during DPS Key") and not br.GetUnitIsFriend("target", "player") then
+        if br.isChecked("Divine Toll during DPS Key") and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") and not br.GetUnitIsFriend("target", "player") then
             if cast.divineToll("target") then
                 return
             end
@@ -514,12 +514,12 @@ local function runRotation()
     local function spendies()
         if br.isChecked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
             --Critical first
-            if php <= getValue("Critical HP") then
+            if php <= br.getValue("Critical HP") then
                 if cast.wordOfGlory("player") then
                     return true
                 end
             end
-            if (lowest.hp <= getValue("Word of Glory") or (holyPower == holyPowerMax and getLowAllies(99) < 2)) then
+            if (lowest.hp <= br.getValue("Word of Glory") or (holyPower == holyPowerMax and getLowAllies(99) < 2)) then
                 if cast.wordOfGlory(lowest.unit) then
                     return true
                 end
@@ -527,8 +527,8 @@ local function runRotation()
         end
 
         if br.isChecked("Light of Dawn") and cast.able.lightOfDawn() and (holyPower >= 3 or buff.divinePurpose.exists()) then
-            local LoDHealth = getValue("Light of Dawn")
-            local LoDUnits = getValue("LoD Targets")
+            local LoDHealth = br.getValue("Light of Dawn")
+            local LoDUnits = br.getValue("LoD Targets")
             if holyPower == holyPowerMax then
                 LoDHealth = 100
                 LoDUnits = 1
@@ -597,7 +597,7 @@ local function runRotation()
             for i = 1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
                 local distance = br.getDistance(thisUnit)
-                if canInterrupt(thisUnit, br.getOptionValue("InterruptAt")) and distance <= 10 then
+                if br.canInterrupt(thisUnit, br.getOptionValue("InterruptAt")) and distance <= 10 then
                     -- Blinding Light
                     if br.isChecked("Blinding Light") and cast.able.blindingLight() then
                         if cast.blindingLight() then
@@ -719,22 +719,22 @@ local function runRotation()
         -- check for bop target / BoS target
         for i = 1, #br.friend do
             if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not br.UnitDebuffID(br.friend[i].unit, 25771) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-                if br.friend[i].hp <= getValue("Blessing of Protection") then
+                if br.friend[i].hp <= br.getValue("Blessing of Protection") then
                     blessingOfProtectionall = br.friend[i].unit
                 end
-                if br.friend[i].hp <= getValue("Blessing of Protection") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                if br.friend[i].hp <= br.getValue("Blessing of Protection") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                     blessingOfProtectionTANK = br.friend[i].unit
                 end
-                if br.friend[i].hp <= getValue("Blessing of Protection") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER") then
+                if br.friend[i].hp <= br.getValue("Blessing of Protection") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER") then
                     blessingOfProtectionHD = br.friend[i].unit
                 end
-                if br.friend[i].hp <= getValue("Blessing of Sacrifice") and not br.GetUnitIsUnit(br.friend[i].unit, "player") then
+                if br.friend[i].hp <= br.getValue("Blessing of Sacrifice") and not br.GetUnitIsUnit(br.friend[i].unit, "player") then
                     blessingOfSacrificeall = br.friend[i].unit
                 end
-                if br.friend[i].hp <= getValue("Blessing of Sacrifice") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                if br.friend[i].hp <= br.getValue("Blessing of Sacrifice") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                     blessingOfSacrificeTANK = br.friend[i].unit
                 end
-                if br.friend[i].hp <= getValue("Blessing of Sacrifice") and UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER" then
+                if br.friend[i].hp <= br.getValue("Blessing of Sacrifice") and UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER" then
                     blessingOfSacrificeDAMAGER = br.friend[i].unit
                 end
             end
@@ -760,7 +760,7 @@ local function runRotation()
                     end
                 end
             elseif br.getOptionValue("BoP Target") == 4 then
-                if php <= getValue("Blessing of Protection") then
+                if php <= br.getValue("Blessing of Protection") then
                     if cast.blessingOfProtection("player") then
                         return true
                     end
@@ -773,18 +773,18 @@ local function runRotation()
             for i = 1, #br.friend do
                 if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not br.UnitDebuffID(br.friend[i].unit, 25771) and not UnitIsDeadOrGhost(br.friend[i].unit) then
                     if br.getOptionValue("Lay on Hands Target") == 1 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance)) then
+                        if br.friend[i].hp <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance)) then
                             layOnHandsTarget = br.friend[i].unit
                         end
                     elseif br.getOptionValue("Lay on Hands Target") == 2 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance)) then
+                        if br.friend[i].hp <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance)) then
                             layOnHandsTarget = br.friend[i].unit
                         end
-                    elseif br.getOptionValue("Lay on Hands Target") == 3 and br.getDebuffRemain("player", 267037) == 0 and php <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) then
+                    elseif br.getOptionValue("Lay on Hands Target") == 3 and br.getDebuffRemain("player", 267037) == 0 and php <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) then
                         layOnHandsTarget = "player"
                     elseif br.getOptionValue("Lay on Hands Target") == 4 then
                         if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-                            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance)) then
+                            if br.friend[i].hp <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) and (not inInstance or (inInstance)) then
                                 layOnHandsTarget = br.friend[i].unit
                             end
                         end
@@ -823,7 +823,7 @@ local function runRotation()
 
         -- Holy Avenger
         if br.isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger then
-            if getLowAllies(getValue "Holy Avenger") >= getValue("Holy Avenger Targets") then
+            if getLowAllies(br.getValue "Holy Avenger") >= br.getValue("Holy Avenger Targets") then
                 if cast.holyAvenger() then
                     return true
                 end
@@ -831,7 +831,7 @@ local function runRotation()
         end
         -- Avenging Wrath
         if br.isChecked("Avenging Wrath") and cast.able.avengingWrath() and not talent.avengingCrusader then
-            if getLowAllies(getValue "Avenging Wrath") >= getValue("Avenging Wrath Targets") then
+            if getLowAllies(br.getValue "Avenging Wrath") >= br.getValue("Avenging Wrath Targets") then
                 if cast.avengingWrath() then
                     return true
                 end
@@ -839,7 +839,7 @@ local function runRotation()
         end
         -- Avenging Crusader
         if br.isChecked("Avenging Crusader") and cast.able.avengingCrusader() and talent.avengingCrusader and br.getDistance("target") <= 5 then
-            if getLowAllies(getValue "Avenging Crusader") >= getValue("Avenging Crusader Targets") then
+            if getLowAllies(br.getValue "Avenging Crusader") >= br.getValue("Avenging Crusader Targets") then
                 if cast.avengingCrusader() then
                     return true
                 end
@@ -847,14 +847,14 @@ local function runRotation()
         end
         -- Aura Mastery
         if br.isChecked("Aura Mastery") and cast.able.auraMastery() then
-            if getLowAllies(getValue "Aura Mastery") >= getValue("Aura Mastery Targets") then
+            if getLowAllies(br.getValue "Aura Mastery") >= br.getValue("Aura Mastery Targets") then
                 if cast.auraMastery() then
                     return true
                 end
             end
         end
         if br.isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
-            if getLowAllies(getValue("Rule of Law")) >= getValue("RoL Targets") then
+            if getLowAllies(br.getValue("Rule of Law")) >= br.getValue("RoL Targets") then
                 if cast.ruleOfLaw() then
                     return
                 end
@@ -865,7 +865,7 @@ local function runRotation()
 
     local function damageTime()
         if mode.damage == 1 then
-            if br.isChecked("Shield of the Righteous") and lowest.hp >= getValue("Word of Glory") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= getValue("Shield of the Righteous") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+            if br.isChecked("Shield of the Righteous") and lowest.hp >= br.getValue("Word of Glory") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= br.getValue("Shield of the Righteous") and (holyPower >= 3 or buff.divinePurpose.exists()) then
                 if cast.shieldOfTheRighteous(units.dyn5) then
                     return true
                 end
@@ -889,7 +889,7 @@ local function runRotation()
             end
 
             --Consecration
-            if br.isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2) then
+            if br.isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= br.getValue("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ) > 7) or GetTotemTimeLeft(1) < 2) then
                 if cast.consecration() then
                     cX, cY, cZ = br.GetObjectPosition("player")
                     return
@@ -951,14 +951,14 @@ local function runRotation()
 
     local function healingTime()
         --Divine Toll Implementation
-        if br.isChecked("Divine Toll") and cast.able.divineToll() and holyPower <= getValue("Max Holy Power") and inCombat then
+        if br.isChecked("Divine Toll") and cast.able.divineToll() and holyPower <= br.getValue("Max Holy Power") and inCombat then
             if br.getOptionValue("Divine Toll") == 1 and holyPower == 0 then
                 --Print("trying to cast")
                 br._G.CastSpellByName(GetSpellInfo(spell.divineToll), lowest.unit)
                 return true
             end
             if br.getOptionValue("Divine Toll") == 2 then
-                if getLowAllies(getValue("Divine Toll Health")) >= getValue("Divine Toll Units") then
+                if getLowAllies(br.getValue("Divine Toll Health")) >= br.getValue("Divine Toll Units") then
                     --Print("trying to cast")
                     br._G.CastSpellByName(GetSpellInfo(spell.divineToll), lowest.unit)
                     return true
@@ -977,7 +977,7 @@ local function runRotation()
                     end
                 end
             end
-            if talent.crusadersMight and lowest.hp > getValue("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
+            if talent.crusadersMight and lowest.hp > br.getValue("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
                 if cast.crusaderStrike(units.dyn5) then
                     return true
                 end
@@ -991,20 +991,20 @@ local function runRotation()
                 for i = 1, #tanks do
                     local thisUnit = tanks[i].unit
                     local thisHP = tanks[i].hp
-                    if thisHP <= getValue("Critical HP") and br.getLineOfSight(tanks[i].unit, "player") then
+                    if thisHP <= br.getValue("Critical HP") and br.getLineOfSight(tanks[i].unit, "player") then
                         if cast.holyShock(thisUnit) then
                             --Print("Holy Shock 1")
                             return true
                         end
                     end
                 end
-                if br.isChecked("Self Shock") and php <= getValue("Self Shock") and not br.UnitBuffID("player", 287280, "PLAYER") then
+                if br.isChecked("Self Shock") and php <= br.getValue("Self Shock") and not br.UnitBuffID("player", 287280, "PLAYER") then
                     if cast.holyShock("player") then
                         --Print("Holy Shock 2")
                         return true
                     end
                 end
-                if lowest.hp <= getValue("Critical HP") then
+                if lowest.hp <= br.getValue("Critical HP") then
                     if cast.holyShock(lowest.unit) then
                         --Print("Holy Shock 3")
                         return true
@@ -1050,14 +1050,14 @@ local function runRotation()
                         return true
                     end
                 end
-                if glimmerTable ~= nil and #glimmerTable == 0 and (not br.isChecked("Holy Shock Damage") or (br.isChecked("Holy Shock Damage") and lowest.hp <= getValue("Holy Shock"))) then
+                if glimmerTable ~= nil and #glimmerTable == 0 and (not br.isChecked("Holy Shock Damage") or (br.isChecked("Holy Shock Damage") and lowest.hp <= br.getValue("Holy Shock"))) then
                     if cast.holyShock(lowest.unit) then
                         --Print("Holy Shock 7")
                         return true
                     end
                 end
             end
-            if talent.crusadersMight and lowest.hp > getValue("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
+            if talent.crusadersMight and lowest.hp > br.getValue("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
                 if cast.crusaderStrike(units.dyn5) then
                     return true
                 end
@@ -1067,20 +1067,20 @@ local function runRotation()
         if br.isChecked("Holy Shock") and br.getSpellCD(20473) < gcd and mode.glimmer ~= 1 then
             --critical first
             if #tanks > 0 then
-                if tanks[1].hp <= getValue("Critical HP") and not UnitIsDeadOrGhost(tanks[1].unit) then
+                if tanks[1].hp <= br.getValue("Critical HP") and not UnitIsDeadOrGhost(tanks[1].unit) then
                     if cast.holyShock(tanks[1].unit) then
                         --Print("Holy Shock 8")
                         return true
                     end
                 end
             end
-            if php <= getValue("Critical HP") or br.getBuffRemain("player", 265773) ~= 0 then
+            if php <= br.getValue("Critical HP") or br.getBuffRemain("player", 265773) ~= 0 then
                 if cast.holyShock("player") then
                     --Print("Holy Shock 9")
                     return true
                 end
             end
-            if lowest.hp <= getValue("Holy Shock") then
+            if lowest.hp <= br.getValue("Holy Shock") then
                 if cast.holyShock(lowest.unit) then
                     --("Holy Shock 10")
                     return true
@@ -1100,22 +1100,22 @@ local function runRotation()
             end
         end
 
-        if php >= getValue("LotM player HP limit") then
+        if php >= br.getValue("LotM player HP limit") then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
                 local thisHP = br.friend[i].hp
                 if not br.GetUnitIsUnit(thisUnit, "player") and not UnitIsDeadOrGhost(thisUnit) then
-                    if br.isChecked("Moving LotM") and thisHP <= getValue("Moving LotM") and moving then
+                    if br.isChecked("Moving LotM") and thisHP <= br.getValue("Moving LotM") and moving then
                         if cast.lightOfTheMartyr(thisUnit) then
                             return true
                         end
                     end
-                    if br.isChecked("LoM after FoL") and thisHP <= getValue("LoM after FoL") and cast.last.flashOfLight() then
+                    if br.isChecked("LoM after FoL") and thisHP <= br.getValue("LoM after FoL") and cast.last.flashOfLight() then
                         if cast.lightOfTheMartyr(thisUnit) then
                             return true
                         end
                     end
-                    if br.isChecked("Light of the Martyr") and thisHP <= getValue("Light of the Martyr") then
+                    if br.isChecked("Light of the Martyr") and thisHP <= br.getValue("Light of the Martyr") then
                         if cast.lightOfTheMartyr(thisUnit) then
                             return true
                         end
@@ -1126,38 +1126,38 @@ local function runRotation()
 
         if br.isChecked("Flash of Light") and not moving and select(2, GetSpellCooldown(61304)) == 0 then
             --Critical first
-            if php <= getValue("Critical HP") then
+            if php <= br.getValue("Critical HP") then
                 if cast.flashOfLight("player") then
                     return true
                 end
             end
             if #tanks > 0 then
-                if tanks[1].hp <= getValue("Critical HP") and not UnitIsDeadOrGhost(tanks[1].unit) then
+                if tanks[1].hp <= br.getValue("Critical HP") and not UnitIsDeadOrGhost(tanks[1].unit) then
                     if cast.flashOfLight(tanks[1].unit) then
                         return true
                     end
                 end
             end
-            if lowest.hp <= getValue("Critical HP") then
+            if lowest.hp <= br.getValue("Critical HP") then
                 if cast.flashOfLight(lowest.unit) then
                     return true
                 end
             end
 
-            if lowestBeacon.unit ~= nil and br.isChecked("FoL Beacon") and lowestBeacon.hp <= getValue("FoL Beacon") then
+            if lowestBeacon.unit ~= nil and br.isChecked("FoL Beacon") and lowestBeacon.hp <= br.getValue("FoL Beacon") then
                 if cast.flashOfLight(lowestBeacon.unit) then
                     return true
                 end
             end
 
-            if lowest.hp <= getValue("Flash of Light") or (lowest.hp <= getValue("FoL Infuse") and buff.infusionOfLight.exists() and not cast.last.flashOfLight()) then
+            if lowest.hp <= br.getValue("Flash of Light") or (lowest.hp <= br.getValue("FoL Infuse") and buff.infusionOfLight.exists() and not cast.last.flashOfLight()) then
                 if cast.flashOfLight(lowest.unit) then
                     return true
                 end
             end
 
             if #tanks > 0 then
-                if tanks[1].hp <= getValue("FoL Tanks") and not UnitIsDeadOrGhost(tanks[1].unit) then
+                if tanks[1].hp <= br.getValue("FoL Tanks") and not UnitIsDeadOrGhost(tanks[1].unit) then
                     if cast.flashOfLight(tanks[1].unit) then
                         return true
                     end
@@ -1168,8 +1168,8 @@ local function runRotation()
         if br.isChecked("Holy Prism") and talent.holyPrism and cast.able.holyPrism() and inCombat then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                local lowHealthCandidates = getUnitsToHealAround(thisUnit, 15, getValue("Holy Prism"), #br.friend)
-                if #lowHealthCandidates >= getValue("Holy Prism Targets") then
+                local lowHealthCandidates = getUnitsToHealAround(thisUnit, 15, br.getValue("Holy Prism"), #br.friend)
+                if #lowHealthCandidates >= br.getValue("Holy Prism Targets") then
                     if cast.holyPrism(thisUnit) then
                         return true
                     end
@@ -1178,7 +1178,7 @@ local function runRotation()
         end
 
         if br.isChecked("Holy Light") and not moving and br.getSpellCD(20473) > gcd and (br.getOptionValue("Holy Light Infuse") == 1 or (br.getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > getCastTime(spell.holyLight))) then
-            if lowest.hp <= getValue("Holy Light") then
+            if lowest.hp <= br.getValue("Holy Light") then
                 if cast.holyLight(lowest.unit) then
                     return true
                 end
@@ -1356,7 +1356,7 @@ local function runRotation()
                         end
                         for i = 1, #enemies.yards30 do
                             local thisUnit = enemies.yards30[i]
-                            if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player", thisUnit)) and holyPower <= 5 and lowest.hp >= getValue("Critical HP") then
+                            if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player", thisUnit)) and holyPower <= 5 and lowest.hp >= br.getValue("Critical HP") then
                                 if br.getHP(thisUnit) <= 20 or IsSpellOverlayed(24275) then
                                     if cast.hammerOfWrath(thisUnit) then
                                         return
@@ -1378,7 +1378,7 @@ local function runRotation()
                         end
                         for i = 1, #enemies.yards30 do
                             local thisUnit = enemies.yards30[i]
-                            if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player", thisUnit)) and holyPower <= 5 and lowest.hp >= getValue("Critical HP") then
+                            if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player", thisUnit)) and holyPower <= 5 and lowest.hp >= br.getValue("Critical HP") then
                                 if br.getHP(thisUnit) <= 20 or IsSpellOverlayed(24275) then
                                     if cast.hammerOfWrath(thisUnit) then
                                         return
@@ -1412,7 +1412,7 @@ local function runRotation()
                         return
                     end
 
-                    if not br.isChecked("Hard Lock Crit Heal") or lowest.hp > getValue("Critical HP") then
+                    if not br.isChecked("Hard Lock Crit Heal") or lowest.hp > br.getValue("Critical HP") then
                         if damageTime() then
                             return
                         end

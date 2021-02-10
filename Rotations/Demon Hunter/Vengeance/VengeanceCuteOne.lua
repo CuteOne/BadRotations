@@ -166,7 +166,7 @@ var.getTime         = _G["GetTime"]
 var.stopAttack      = _G["StopAttack"]
 var.tonumber        = _G["tonumber"]
 -- BR Globals to Variables
-var.canInterrupt    = _G["canInterrupt"]
+var.br.canInterrupt    = _G["br.canInterrupt"]
 var.br.getCombatTime   = _G["br.getCombatTime"]
 var.br.hasThreat       = _G["br.hasThreat"]
 var.isTanking       = _G["isTanking"]
@@ -268,7 +268,7 @@ actionList.Interrupts = function()
     if ui.useInterrupt() then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if var.canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if var.br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 -- Disrupt
                 if ui.checked("Disrupt") and cast.able.disrupt(thisUnit) and unit.distance(thisUnit) < 20 then
                     if cast.disrupt(thisUnit) then ui.debug("Casting Disrupt") return true end

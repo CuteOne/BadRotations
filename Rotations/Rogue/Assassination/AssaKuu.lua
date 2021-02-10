@@ -716,21 +716,21 @@ local function runRotation()
             -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
             if php <= br.getOptionValue("Corruption Immunity") and not IsMounted() then
                 if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) and br.isChecked("Use Cloak") then
-                    if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                        or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
-                        or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                    if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                        or br.getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                        or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                         if br.player.use.shroudOfResolve() then end
                     end
                 end
-                if br.isChecked("Cloak of Shadows Corruption") and not br.canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 then
-                    if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
-                        or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
-                        or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
+                if br.isChecked("Cloak of Shadows Corruption") and not br.canUseItem(br.player.items.shroudOfResolve) or br.getValue("Use Cloak") == 4 then
+                    if br.getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
+                        or br.getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
+                        or br.getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
                         if cast.cloakOfShadows() then return true end
                     end
                 end
-                if debuff.grandDelusions.exists("player") and (not br.canUseItem(br.player.items.shroudOfResolve) or not br.isChecked("Use Cloak") or not getValue("Use Cloak") == 3) and 
-                (cd.cloakOfShadows.exists() or not br.isChecked("Cloak of Shadows Corruption") or getValue("Cloak of Shadows Corruption") == 3) then
+                if debuff.grandDelusions.exists("player") and (not br.canUseItem(br.player.items.shroudOfResolve) or not br.isChecked("Use Cloak") or not br.getValue("Use Cloak") == 3) and 
+                (cd.cloakOfShadows.exists() or not br.isChecked("Cloak of Shadows Corruption") or br.getValue("Cloak of Shadows Corruption") == 3) then
                     if br.isChecked("Vanish THING") and #br.friend > 1 then
                         if cast.vanish("player") then return true end
                     elseif br.isChecked("Shadowmeld THING") then
@@ -763,7 +763,7 @@ local function runRotation()
             for i=1, #enemies.yards15 do
                 local thisUnit = enemies.yards15[i]
                 local distance = br.getDistance(thisUnit)
-                if useInterrupts() and canInterrupt(thisUnit,br.getOptionValue("Interrupt %")) and (interruptDelay == nil or GetTime() - interruptDelay >= 0.25) then
+                if useInterrupts() and br.canInterrupt(thisUnit,br.getOptionValue("Interrupt %")) and (interruptDelay == nil or GetTime() - interruptDelay >= 0.25) then
                     if distance < 7 then
                         if br.isChecked("Kick") and cd.kick.remain() == 0 then
                             if cast.kick(thisUnit) then br.rogueTables.someone_casting = false interruptDelay = GetTime() return end
@@ -1017,7 +1017,7 @@ local function runRotation()
         end
         -- Essence: Reaping Flames
         if cast.able.reapingFlames() and br.isChecked("Essences") and not stealthedRogue and not IsMounted() and inCombat then
-            local reapingDamage = buff.reapingFlames.exists("player") and getValue("Reaping DMG") * 5000 * 2 or getValue("Reaping DMG") * 5000
+            local reapingDamage = buff.reapingFlames.exists("player") and br.getValue("Reaping DMG") * 5000 * 2 or br.getValue("Reaping DMG") * 5000
             local reapingPercentage = 0
             local thisHP = 0
             local thisABSHP = 0
@@ -1362,7 +1362,7 @@ local function runRotation()
         end
     end
     
-    if stealthedRogue and (debuff.garrote.count() >= #enemies.yards5 or debuff.garrote.count() >= getValue("Multidot Limit")) and not stealth then
+    if stealthedRogue and (debuff.garrote.count() >= #enemies.yards5 or debuff.garrote.count() >= br.getValue("Multidot Limit")) and not stealth then
         stealthedRogue = false
     end
 

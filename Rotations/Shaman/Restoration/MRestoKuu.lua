@@ -395,7 +395,7 @@ local function runRotation()
         local dpsSpells = {spell.lightningBolt, spell.chainLightning, spell.lavaBurst, spell.flameShock}
         local function castingDPSSpells()
             for i = 1, #dpsSpells do
-                if br.isCastingSpell(dpsSpells[i]) and br.isChecked("Critical HP") and lowest.hp <= getValue("Critical HP") then
+                if br.isCastingSpell(dpsSpells[i]) and br.isChecked("Critical HP") and lowest.hp <= br.getValue("Critical HP") then
                     return true
                 end
             end
@@ -589,7 +589,7 @@ local function runRotation()
             if useInterrupts() and inCombat and not buff.ghostWolf.exists() then
                 for i = 1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit, ui.value("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
                         -- Wind Shear
                         if ui.checked("Wind Shear") and br.getFacing("player", thisUnit) then
                             if cast.windShear(thisUnit) then
@@ -806,11 +806,11 @@ local function runRotation()
                                 local loc = nil
                                 if br.isChecked("Healing Rain on CD") then
                                     -- return
-                                    if #meleeFriends >= getValue("Healing Rain Targets") then
+                                    if #meleeFriends >= br.getValue("Healing Rain Targets") then
                                         if #meleeFriends < 12 then
-                                            loc = getBestGroundCircleLocation(meleeFriends, getValue("Healing Rain Targets"), 6, 10)
+                                            loc = getBestGroundCircleLocation(meleeFriends, br.getValue("Healing Rain Targets"), 6, 10)
                                         else
-                                            if castWiseAoEHeal(meleeFriends, spell.healingRain, 10, 100, getValue("Healing Rain Targets"), 6, true, true) then
+                                            if castWiseAoEHeal(meleeFriends, spell.healingRain, 10, 100, br.getValue("Healing Rain Targets"), 6, true, true) then
                                                 br.addonDebug("Casting Healing Rain")
                                                 if SpellIsTargeting() then
                                                     br.shaman.resto["Healing Rain"] = GetTime()
@@ -824,15 +824,15 @@ local function runRotation()
                                 else
                                     local meleeHurt = {}
                                     for j = 1, #meleeFriends do
-                                        if meleeFriends[j].hp < getValue("Healing Rain") then
+                                        if meleeFriends[j].hp < br.getValue("Healing Rain") then
                                             tinsert(meleeHurt, meleeFriends[j])
                                         end
                                     end
-                                    if #meleeHurt >= getValue("Healing Rain Targets") then
+                                    if #meleeHurt >= br.getValue("Healing Rain Targets") then
                                         if #meleeHurt < 12 then
-                                            loc = getBestGroundCircleLocation(meleeHurt, getValue("Healing Rain Targets"), 6, 10)
+                                            loc = getBestGroundCircleLocation(meleeHurt, br.getValue("Healing Rain Targets"), 6, 10)
                                         else
-                                            if castWiseAoEHeal(meleeHurt, spell.healingRain, 10, getValue("Healing Rain"), getValue("Healing Rain Targets"), 6, true, true) then
+                                            if castWiseAoEHeal(meleeHurt, spell.healingRain, 10, br.getValue("Healing Rain"), br.getValue("Healing Rain Targets"), 6, true, true) then
                                                 br.addonDebug("Casting Healing Rain")
                                                 if SpellIsTargeting() then
                                                     br.shaman.resto["Healing Rain"] = GetTime()
@@ -867,7 +867,7 @@ local function runRotation()
                             end
                         end
                     else
-                        if castWiseAoEHeal(br.friend, spell.healingRain, 10, getValue("Healing Rain"), getValue("Healing Rain Targets"), 6, true, true) then
+                        if castWiseAoEHeal(br.friend, spell.healingRain, 10, br.getValue("Healing Rain"), br.getValue("Healing Rain Targets"), 6, true, true) then
                             br.addonDebug("Casting Healing Rain (Wise AoE)")
                             if SpellIsTargeting() then
                                 br.shaman.resto["Healing Rain"] = GetTime()

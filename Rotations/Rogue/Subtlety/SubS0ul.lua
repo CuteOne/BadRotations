@@ -491,7 +491,7 @@ local function runRotation()
         if br.isChecked("Auto Soothe") and cast.able.shiv() then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if br.canDispel(thisUnit, spell.shiv) and ttd(thisUnit) > getValue("Auto Soothe") then
+                if br.canDispel(thisUnit, spell.shiv) and ttd(thisUnit) > br.getValue("Auto Soothe") then
                     if cast.shiv(thisUnit) then
                         return true
                     end
@@ -591,7 +591,7 @@ local function runRotation()
                     interrupt_target = enemies.yards20[i]
                 end
                 distance = br.getDistance(interrupt_target)
-                if canInterrupt(interrupt_target,br.getOptionValue("Interrupt %")) and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then
+                if br.canInterrupt(interrupt_target,br.getOptionValue("Interrupt %")) and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then
                     if br.isChecked("Kick") and distance < 5 and cast.able.kick() then
                         if cast.kick(interrupt_target) then end
                     end

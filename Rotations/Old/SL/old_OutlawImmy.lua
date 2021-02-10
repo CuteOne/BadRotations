@@ -656,21 +656,21 @@ local function runRotation()
         -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
         if php <= br.getOptionValue("Corruption Immunity") then
             if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) and br.isChecked("Use Cloak") then
-                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                    or br.getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                    or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then end
                 end
             end
-            if br.isChecked("Cloak of Shadows Corruption") and not br.canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 then
-                if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
-                    or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
-                    or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
+            if br.isChecked("Cloak of Shadows Corruption") and not br.canUseItem(br.player.items.shroudOfResolve) or br.getValue("Use Cloak") == 4 then
+                if br.getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
+                    or br.getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
+                    or br.getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
                     if cast.cloakOfShadows() then return true end
                 end
             end
-            if debuff.grandDelusions.exists("player") and (not br.canUseItem(br.player.items.shroudOfResolve) or not br.isChecked("Use Cloak") or not getValue("Use Cloak") == 3) and 
-             (cd.cloakOfShadows.exists() or not br.isChecked("Cloak of Shadows Corruption") or getValue("Cloak of Shadows Corruption") == 3) then
+            if debuff.grandDelusions.exists("player") and (not br.canUseItem(br.player.items.shroudOfResolve) or not br.isChecked("Use Cloak") or not br.getValue("Use Cloak") == 3) and 
+             (cd.cloakOfShadows.exists() or not br.isChecked("Cloak of Shadows Corruption") or br.getValue("Cloak of Shadows Corruption") == 3) then
                 if br.isChecked("Vanish THING") then
                     if cast.vanish("player") then return true end
                 elseif br.isChecked("Shadowmeld THING") then
@@ -847,7 +847,7 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemyTable5 do
                     local thisUnit = enemyTable5[i].unit
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) and br.hasThreat(thisUnit) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) and br.hasThreat(thisUnit) then
                         -- kick
                         if br.isChecked("Kick") then
                             if cast.kick(thisUnit) then end
@@ -916,12 +916,12 @@ local function runRotation()
                 end
                 -- Crucible of flame
                 if cast.able.concentratedFlame() then 
-                    if br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+                    if br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= br.getValue("Concentrated Flame Heal") then
                         if cast.concentratedFlame("player") then
                             return
                         end
                     end
-                    if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+                    if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > br.getValue("Concentrated Flame Heal")) then
                         if cast.concentratedFlame("target") then
                             return
                         end
@@ -1130,7 +1130,7 @@ local function runRotation()
             if drawing then
                 LibDraw.clearCanvas()
             end
-            function canInterruptshit(unit, hardinterrupt, forpro, gouge)
+            function br.canInterruptshit(unit, hardinterrupt, forpro, gouge)
 
                 local hardinterrupt = hardinterrupt or false
                 local timeforcc = (hardinterrupt and 2) or 0.4
@@ -1201,20 +1201,20 @@ local function runRotation()
                 local distance = enemyTable20[i].distance
                 if br.isBoss(thisUnit) then return end
                 if br.isChecked("AutoKick") and distance <= 5 and not cd.kick.exists()  then
-                    if canInterruptshit(thisUnit, nil, forpro) then
+                    if br.canInterruptshit(thisUnit, nil, forpro) then
                         if cast.kick(thisUnit) then end
                     end
                 end
                 if br.isChecked("AutoGouge") and not cd.gouge.exists() and br.getFacing(thisUnit, "player") then
-                    if canInterruptshit(thisUnit, true , forpro, true) then
+                    if br.canInterruptshit(thisUnit, true , forpro, true) then
                         if cast.gouge(thisUnit) then return true end
                     end
                 elseif br.isChecked("AutoBtE") and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and not spread then
-                    if canInterruptshit(thisUnit, true , true) then
+                    if br.canInterruptshit(thisUnit, true , true) then
                         if cast.betweenTheEyes(thisUnit) then return true end
                     end
                 elseif br.isChecked("AutoBlind") and distance <= 15 and not cd.blind.exists() then
-                    if canInterruptshit(thisUnit, true , true) then
+                    if br.canInterruptshit(thisUnit, true , true) then
                         if cast.blind(thisUnit) then return true end
                     end
                 end
@@ -1222,7 +1222,7 @@ local function runRotation()
             -- if br.isChecked("AutoKick") and not cd.kick.exists() then
             --     for i = 1, #enemyTable5 do
             --         local thisUnit = enemyTable5[i].unit
-            --         if canInterruptshit(thisUnit, nil , true) then
+            --         if br.canInterruptshit(thisUnit, nil , true) then
             --             if cast.kick(thisUnit) then end
             --         end
             --     end
@@ -1230,7 +1230,7 @@ local function runRotation()
             -- if br.isChecked("AutoBtE") and combo > 4 and not cd.betweenTheEyes.exists() then
             --     for i = 1, #enemyTable20 do
             --         local thisUnit = enemyTable20[i].unit
-            --         if canInterruptshit(thisUnit, true , true) then
+            --         if br.canInterruptshit(thisUnit, true , true) then
             --             if cast.betweenTheEyes(thisUnit) then return true end
             --         end
             --     end
@@ -1238,7 +1238,7 @@ local function runRotation()
             -- if br.isChecked("AutoGouge") and not cd.gouge.exists() then
             --     for i = 1, #enemyTable5 do
             --         local thisUnit = enemyTable5[i].unit
-            --         if canInterruptshit(thisUnit, true , true) and thisUnit.facing then
+            --         if br.canInterruptshit(thisUnit, true , true) and thisUnit.facing then
             --             if cast.gouge(thisUnit) then return true end
             --         end
             --     end
@@ -1246,7 +1246,7 @@ local function runRotation()
             -- if br.isChecked("AutoBtE") and combo > 0 and not cd.betweenTheEyes.exists() then
             --     for i = 1, #enemyTable20 do
             --         local thisUnit = enemyTable20[i].unit
-            --         if canInterruptshit(thisUnit, true , true) then
+            --         if br.canInterruptshit(thisUnit, true , true) then
             --             if cast.betweenTheEyes(thisUnit) then return true end
             --         end
             --     end
@@ -1254,7 +1254,7 @@ local function runRotation()
             -- if br.isChecked("AutoBlind") and not cd.blind.exists() then
             --     for i = 1, #enemyTable15 do
             --         local thisUnit = enemyTable15[i].unit
-            --         if canInterruptshit(thisUnit, true , true) then
+            --         if br.canInterruptshit(thisUnit, true , true) then
             --             if cast.blind(thisUnit) then return true end
             --         end
             --     end

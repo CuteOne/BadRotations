@@ -387,7 +387,7 @@ local function runRotation()
                 end
             end
 
-            if br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+            if br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= br.getValue("Concentrated Flame Heal") then
                 if cast.concentratedFlame("player") then
                     return
                 end
@@ -408,7 +408,7 @@ local function runRotation()
             end
 
             -- Rallying Cry
-            if br.isChecked("Rallying Cry Units") and cast.able.rallyingCry() and getLowAllies(getValue("Rallying Cry HP")) >= getValue("Rallying Cry Units") then
+            if br.isChecked("Rallying Cry Units") and cast.able.rallyingCry() and getLowAllies(br.getValue("Rallying Cry HP")) >= br.getValue("Rallying Cry Units") then
                 if cast.rallyingCry() then
                     return
                 end
@@ -508,7 +508,7 @@ local function runRotation()
             for i = 1, #enemies.yards20 do
                 thisUnit = enemies.yards20[i]
                 distance = br.getDistance(thisUnit)
-                if canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     -- Pummel
                     if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
                         if cast.pummel(thisUnit) then
@@ -654,7 +654,7 @@ local function runRotation()
             end
         end
 
-        if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+        if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > br.getValue("Concentrated Flame Heal")) then
             if cast.concentratedFlame("target") then
                 return
             end
@@ -831,7 +831,7 @@ local function runRotation()
             end
         end
 
-        if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+        if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > br.getValue("Concentrated Flame Heal")) then
             if cast.concentratedFlame("target") then
                 return
             end

@@ -746,7 +746,7 @@ end
         end
         local dispelDelay = 1.5
         if br.isChecked("Dispel delay") then
-            dispelDelay = getValue("Dispel delay")
+            dispelDelay = br.getValue("Dispel delay")
         end
         if validDispel and (dispelDuration - remain) > (dispelDelay - 0.3 + math.random() * 0.6) then
             return true
@@ -1139,7 +1139,7 @@ end
         if useInterrupts() and (pet.active.id() == 417) then
             for i=1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                     if pet.active.id() == 417 then
                         if br._G.CastSpellByName(GetSpellInfo(119910),thisUnit) then return true end
                     end

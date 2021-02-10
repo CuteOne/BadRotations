@@ -282,7 +282,7 @@ actionList.Interrupts = function()
         if ui.checked("Counter Shot") then
             for i=1, #enemies.yards40f do
             thisUnit = enemies.yards40f[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                     if cast.counterShot(thisUnit) then ui.debug("Casting Counter Shot") return true end
                 end
             end
@@ -300,7 +300,7 @@ actionList.Interrupts = function()
         if ui.checked("Intimidation") and not unit.deadOrGhost("pet") and unit.exists("pet") then
             for i=1, #enemies.yards40f do
                 thisUnit = enemies.yards40f[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                     if cast.intimidation(thisUnit) then ui.debug("Casting Intimidation") return true end
                 end
             end

@@ -455,7 +455,7 @@ local function runRotation()
                 for i=1, #enemies.yards20 do
                     thisUnit = enemies.yards20[i]
                     distance = br.getDistance(thisUnit)
-                    if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     -- Pummel
                         if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
                             if cast.pummel(thisUnit) then debug("Casting Pummel") return end
@@ -527,10 +527,10 @@ local function runRotation()
                     -- Corruption stuff
              -- 1 = snare  2 = eye  3 = thing 4 = Everything 5 = never  -- snare = 315176
              if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) then
-                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                        or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
-                        or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
-                        or getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") or debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks") or debuff.grandDelusions.exists("player")) then
+                if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                        or br.getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= br.getValue("Eye Stacks")
+                        or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
+                        or br.getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") or debuff.eyeOfCorruption.stack("player") >= br.getValue("Eye Stacks") or debuff.grandDelusions.exists("player")) then
                     if br.player.use.shroudOfResolve() then br.addonDebug("Using Cloak")
                     end
                 end

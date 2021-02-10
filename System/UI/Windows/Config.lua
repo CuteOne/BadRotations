@@ -167,17 +167,17 @@ function br.ui:createConfigWindow()
             br.ui:createDropdownWithout(section, "Select Settings", profileSettings, 2, "Select profile to use, then click load")
             br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
             local saveProfile = function()
-                br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
+                br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
             end
             local loadProfile = function()
                 br.data.loadedSettings = false
                 local loadDir =
-                    br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
+                    br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
                 if br:findFileInFolder("savedSettings.lua", loadDir) then
-                    br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
+                    br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
                     br.rotationChanged = true
                 else
-                    Print("You don't have saved setting for :" .. profileSettings[getValue("Select Settings")])
+                    Print("You don't have saved setting for :" .. profileSettings[br.getValue("Select Settings")])
                 end
             end
             local y = -5

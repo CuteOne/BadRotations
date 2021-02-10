@@ -417,7 +417,7 @@ local function runRotation()
             end
           end
           local dispelDelay = 1.5
-          if br.isChecked("Dispel delay") then dispelDelay = getValue("Dispel delay") end
+          if br.isChecked("Dispel delay") then dispelDelay = br.getValue("Dispel delay") end
           if validDispel and (dispelDuration - remain) > (dispelDelay-0.3 + math.random() * 0.6) then
             return true
           end
@@ -704,14 +704,14 @@ local function runRotation()
         if talent.grimoireOfSacrifice then
           for i = 1, #enemyTable40 do
             local thisUnit = enemyTable40[i].unit
-            if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+            if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
               if cast.spellLockgrimoire(thisUnit) then return end
             end
         end
         elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
           for i = 1, #enemyTable40 do
             local thisUnit = enemyTable40[i].unit
-            if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+            if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
               if activePetId == 417 then
                 if cast.spellLock(thisUnit) then return end
               end

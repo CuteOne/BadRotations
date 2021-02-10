@@ -174,7 +174,7 @@ local function runRotation()
                     if cast.frostBolt() then ui.debug("Casting Frost Bolt") return true end
                 end
                 --Counterspell Interrupt
-                if canInterrupt() then
+                if br.canInterrupt() then
                     if spell.known.counterspell() and cast.able.counterspell() and unit.distance(units.dyn40) then
                         if cast.counterspell() then ui.debug("Casting Counterspell") return true end
                     end

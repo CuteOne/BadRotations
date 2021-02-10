@@ -293,7 +293,7 @@ actionList.Interrupts = function()
         if ui.checked("Fel Eruption") and talent.felEruption then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
                     if cast.felEruption(thisUnit) then ui.debug("Casting Fel Eruption") return true end
                 end
             end 
@@ -302,7 +302,7 @@ actionList.Interrupts = function()
         if ui.checked("Disrupt") then
             for i=1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
                     if cast.disrupt(thisUnit) then ui.debug("Disrupt") return true end
                 end
             end
@@ -311,7 +311,7 @@ actionList.Interrupts = function()
         if ui.checked("Chaos Nova") then
             for i=1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if canInterrupt(thisUnit,ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
+                if br.canInterrupt(thisUnit,ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
                     if cast.chaosNova(thisUnit) then ui.debug("Chaos Nova [Int]") return true end
                 end
             end

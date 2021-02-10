@@ -211,7 +211,7 @@ local function runRotation()
                     if cast.sinisterStrike() then ui.debug("Casting Sinister Strike") return true end
                 end
                 --Kick Interrupt
-                if canInterrupt() then
+                if br.canInterrupt() then
                     if spell.known.kick() and cast.able.kick() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         if cast.kick() then ui.debug("Casting Kick") return true end
                     end

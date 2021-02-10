@@ -287,12 +287,12 @@ actionList.Defensive = function()
         end
         -- Chaos Nova
         if br.isChecked("Chaos Nova - HP") and not buff.metamorphosis.exists()
-            and php <= getValue("Chaos Nova - HP") and inCombat and #enemies.yards5 > 0
+            and php <= br.getValue("Chaos Nova - HP") and inCombat and #enemies.yards5 > 0
         then
             if cast.chaosNova() then return end
         end
         if br.isChecked("Chaos Nova - AoE") and not buff.metamorphosis.exists()
-            and #enemies.yards5 >= getValue("Chaos Nova - AoE")
+            and #enemies.yards5 >= br.getValue("Chaos Nova - AoE")
         then
             if cast.chaosNova() then return end
         end
@@ -319,7 +319,7 @@ actionList.Interrupts = function()
         if br.isChecked("Fel Eruption") and talent.felEruption then 
             for i=1, #enemies.yards20 do
                 thisUnit = enemies.yards20[i]
-                if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                     if cast.felEruption(thisUnit) then return end
                 end
             end 
@@ -328,7 +328,7 @@ actionList.Interrupts = function()
         if br.isChecked("Disrupt") then
             for i=1, #enemies.yards10 do
                 thisUnit = enemies.yards10[i]
-                if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                     if cast.disrupt(thisUnit) then return end
                 end
             end
@@ -337,7 +337,7 @@ actionList.Interrupts = function()
         if br.isChecked("Chaos Nova") then
             for i=1, #enemies.yards5 do
                 thisUnit = enemies.yards5[i]
-                if canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
+                if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     if cast.chaosNova(thisUnit) then return end
                 end
             end

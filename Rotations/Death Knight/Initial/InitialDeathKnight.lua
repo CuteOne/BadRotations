@@ -131,7 +131,7 @@ actionList.Interrupts = function()
         if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
             for i=1, #enemies.yards15 do
                 local thisUnit = enemies.yards15[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                     if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze") return true end
                 end
             end
@@ -140,7 +140,7 @@ actionList.Interrupts = function()
         if ui.checked("Death Grip (Interrupt)") and cast.able.deathGrip() then
             for i = 1,  #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
                     if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Int]") return true end
                 end
             end

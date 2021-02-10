@@ -95,29 +95,29 @@ function br.lootManager:getLoot(lootUnit)
 		if br.getDistance(lootUnit) < 7 then
 			if not looting then
 				looting = true
-				lM:debug("Looting " .. UnitName(lootUnit))
-				InteractUnit(lootUnit)
+				lM:debug("Looting " .. br._G.UnitName(lootUnit))
+				br._G.InteractUnit(lootUnit)
 				-- Manually loot if Auto Loot Interface Option not set
-				if GetCVar("AutoLootDefault") == "0" then
-					if LootFrame:IsShown() then
-						for l = 1, GetNumLootItems() do
-							if LootSlotHasItem(l) then
-								LootSlot(l)
+				if br._G.GetCVar("AutoLootDefault") == "0" then
+					if br._G.LootFrame:IsShown() then
+						for l = 1, br._G.GetNumLootItems() do
+							if br._G.LootSlotHasItem(l) then
+								br._G.LootSlot(l)
 							end
 						end
-						CloseLoot()
+						br._G.CloseLoot()
 					end
 				end
 			end
-		elseif br.isChecked("Fetch") and (not isInCombat("player") or br.player.enemies.get(40)[1] == nil) and UnitExists("pet") and not deadPet and br.getDistance(lootUnit) > 7 and br.getDistance(lootUnit) < 40 then
+		elseif br.isChecked("Fetch") and (not isInCombat("player") or br.player.enemies.get(40)[1] == nil) and br._G.UnitExists("pet") and not deadPet and br.getDistance(lootUnit) > 7 and br.getDistance(lootUnit) < 40 then
 			if not fetching then
 				fetching = true
-				lM:debug("Looting " .. UnitName(lootUnit))
-				br._G.CastSpellByName(GetSpellInfo(125050))
+				lM:debug("Looting " .. br._G.UnitName(lootUnit))
+				br._G.CastSpellByName(br._G.GetSpellInfo(125050))
 			end
 		end
 		if not isInCombat("player") and looting then
-			ClearTarget()
+			br._G.ClearTarget()
 		end
 		looting = false
 		fetching = false

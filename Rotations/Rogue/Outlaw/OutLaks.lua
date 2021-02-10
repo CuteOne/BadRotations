@@ -1274,7 +1274,7 @@ actionList.Extra = function()
     if br.isChecked("Auto Soothe") and cast.able.shiv() and buff.numbingPoison.exists() then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.canDispel(thisUnit, spell.shiv) and ttd(thisUnit) > getValue("Auto Soothe") then
+            if br.canDispel(thisUnit, spell.shiv) and ttd(thisUnit) > br.getValue("Auto Soothe") then
                 if cast.shiv(thisUnit) then
                     br.player.ui.debug("Soothing " .. UnitName(thisUnit))
                     return true
@@ -1390,7 +1390,7 @@ actionList.Defensive = function()
         end
 
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
-        if br.isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(156634) or br.hasItem(177278)) then
+        if br.isChecked("Pot/Stoned") and php <= br.getValue("Pot/Stoned") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(156634) or br.hasItem(177278)) then
             if br.canUseItem(177278) then
                 br.useItem(177278)
             elseif br.canUseItem(5512) then
@@ -1615,7 +1615,7 @@ actionList.Interrupt = function()
             -- Print("Target: " .. UnitName(interrupt_target))
 
 
-            if canInterrupt(interrupt_target, br.getOptionValue("Interrupt %")) then
+            if br.canInterrupt(interrupt_target, br.getOptionValue("Interrupt %")) then
                 distance = br.getDistance(interrupt_target)
                 if not (inInstance and #tanks > 0 and select(3, UnitClass(tanks[1].unit)) == 1 and hasBuff(23920, tanks[1].unit) and UnitIsUnit(select(3, UnitCastID(interrupt_target)), tanks[1].unit)) then
                     if StunsBlackList[br.GetObjectID(interrupt_target)] == nil and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then

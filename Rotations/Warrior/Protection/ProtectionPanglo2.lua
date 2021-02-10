@@ -375,7 +375,7 @@ local function runRotation()
         end
 
         local function rageCap()
-            if not isExplosive("target") and cast.able.revenge() and rage >= getValue("High Rage Dump") and (not ipCapCheck() or not mainTank()) then
+            if not isExplosive("target") and cast.able.revenge() and rage >= br.getValue("High Rage Dump") and (not ipCapCheck() or not mainTank()) then
                 --print("dumping R")
                 if cast.revenge() then
                     return
@@ -421,7 +421,7 @@ local function runRotation()
 
         local function offGCD()
             if inCombat then 
-                if cast.able.ignorePain() and rage >= getValue("High Rage Dump") and mainTank() and ipCapCheck() then
+                if cast.able.ignorePain() and rage >= br.getValue("High Rage Dump") and mainTank() and ipCapCheck() then
                     --print("dumping IP")
                     br._G.CastSpellByName(GetSpellInfo(190456))
                 end
@@ -477,7 +477,7 @@ local function runRotation()
                 for i = 1, #enemies.yards20 do
                     local thisUnit = enemies.yards20[i]
                     local unitDist = br.getDistance(thisUnit)
-                    if not isExplosive(thisUnit) and canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if not isExplosive(thisUnit) and br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if br.isChecked("Pummel") and unitDist < 6 then
                             if cast.pummel(thisUnit) then
                                 return
@@ -568,7 +568,7 @@ local function runRotation()
                     local thisUnit = enemies.yards20[i]
                     local unitDist = br.getDistance(thisUnit)
                     local targetMe = UnitIsUnit("player", thisUnit) or false
-                    if not isExplosive(thisUnit) and canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
+                    if not isExplosive(thisUnit) and br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if br.isChecked("Intimidating Shout - Int") and unitDist <= 8 then
                             if cast.intimidatingShout() then
                                 return
@@ -726,7 +726,7 @@ local function runRotation()
             end
 
             --High Priority Thunder Clap
-            if not isExplosive("target") and #enemies.yards8 >= getValue("Aoe Priority") or debuff.demoralizingShout.exists(units.dyn8) then
+            if not isExplosive("target") and #enemies.yards8 >= br.getValue("Aoe Priority") or debuff.demoralizingShout.exists(units.dyn8) then
                 if cast.thunderClap() then
                     return
                 end
@@ -738,7 +738,7 @@ local function runRotation()
             end
 
             -- High Prio Revenge
-            if not isExplosive("target") and #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+            if not isExplosive("target") and #enemies.yards8 >= br.getValue("Aoe Priority") and (buff.revenge.exists() or rage >= br.getValue("High Rage Dump")) then
                 if cast.revenge() then
                     return
                 end
@@ -783,7 +783,7 @@ local function runRotation()
 
         local function corruptionstuff()
             if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) then
-                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or getValue("Use Cloak") == 2 and br.getDebuffStacks("player", 315161) >= br.getOptionValue("Eye Of Corruption Stacks - Cloak") or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player") or br.getValue("Use Cloak") == 2 and br.getDebuffStacks("player", 315161) >= br.getOptionValue("Eye Of Corruption Stacks - Cloak") or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then
                         return
                     end
@@ -833,7 +833,7 @@ local function runRotation()
                 end
             end
             -- High Prio revenge
-            if not isExplosive("target") and #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+            if not isExplosive("target") and #enemies.yards8 >= br.getValue("Aoe Priority") and (buff.revenge.exists() or rage >= br.getValue("High Rage Dump")) then
                 if cast.revenge() then
                     return
                 end
@@ -845,7 +845,7 @@ local function runRotation()
                 end
             end
             -- Recover
-            if not isExplosive("target") and not (cast.able.thunderClap()) and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+            if not isExplosive("target") and not (cast.able.thunderClap()) and (buff.revenge.exists() or rage >= br.getValue("High Rage Dump")) then
                 if cast.revenge() then
                     return
                 end

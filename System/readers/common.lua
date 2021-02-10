@@ -28,7 +28,7 @@ function br.read.commonReaders()
 	local function MerchantShow(self, event, ...)
 		if br.getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
-				readyToAccept = GetTime()
+				br.readyToAccept = _G.GetTime()
 			end
 		end
 	end

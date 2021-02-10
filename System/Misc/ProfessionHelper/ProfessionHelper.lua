@@ -2,7 +2,7 @@ local addonName, br = ...
 function ProfessionHelper()
 	if br.isChecked("Profession Helper") then
 		if not isInCombat("player") and not (IsMounted() or IsFlying()) then
-			local lootDelay = getValue("Profession Helper")
+			local lootDelay = br.getValue("Profession Helper")
 			local function processThatTable(thisTable, spell)
 				for i = 1, #thisTable do
 					local thisItem = thisTable[i]
@@ -37,7 +37,7 @@ function ProfessionHelper()
 			-- Milling -------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
 			if br.isChecked("Mill Herbs") and IsSpellKnown(51005) then
-				local millMode = getValue("Mill Herbs")
+				local millMode = br.getValue("Mill Herbs")
 				if millMode == 7 or millMode == 1 then
 					local tableMillSL = {
 					168586, -- Rising Glory
@@ -108,7 +108,7 @@ function ProfessionHelper()
 			-- Prospecting ---------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
 			if br.isChecked("Prospect Ores") and IsSpellKnown(31252) then
-				local prospectMode = getValue("Prospect Ores")
+				local prospectMode = br.getValue("Prospect Ores")
 				if prospectMode == 7 or prospectMode == 1 then
 					local tableProspectSL = {
 					171828, -- Laestrite Ore
@@ -276,7 +276,7 @@ function br.fishing()
 	-- Bait ----------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 	if br.isChecked("Bait") then
-		local bait = getValue("Bait")
+		local bait = br.getValue("Bait")
 		if bait == 1 then -- Lost Sole Bait
 			if br.hasItem(173038) and br.getBuffRemain("player",331688) == 0 then
 				if br.canUseItem(173038) then

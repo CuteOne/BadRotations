@@ -846,7 +846,7 @@ local function runRotation()
 		if useInterrupts() then
 			for i = 1, #enemies.yards15 do
 				local thisUnit = enemies.yards15[i]
-				if canInterrupt(thisUnit, br.getOptionValue("InterruptAt")) then
+				if br.canInterrupt(thisUnit, br.getOptionValue("InterruptAt")) then
 					-- Typhoon
 					if br.isChecked("Typhoon") and talent.typhoon and br.getFacing("player", thisUnit) then
 						if cast.typhoon() then
@@ -878,13 +878,13 @@ local function runRotation()
 			-- Trinkets
 			if br.isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569, 13) and not hasEquiped(160649, 13) and not hasEquiped(158320, 13) then
 				if br.getOptionValue("Trinket 1 Mode") == 1 then
-					if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+					if getLowAllies(br.getValue("Trinket 1")) >= br.getValue("Min Trinket 1 Targets") or burst == true then
 						br.useItem(13)
 						br.addonDebug("Using Trinket 1")
 						return true
 					end
 				elseif br.getOptionValue("Trinket 1 Mode") == 2 then
-					if (lowest.hp <= getValue("Trinket 1") or burst == true) and lowest.hp ~= 250 then
+					if (lowest.hp <= br.getValue("Trinket 1") or burst == true) and lowest.hp ~= 250 then
 						UseItemByName(_G.GetInventoryItemID("player", 13), lowest.unit)
 						br.addonDebug("Using Trinket 1 (Target)")
 						return true
@@ -903,11 +903,11 @@ local function runRotation()
 							else
 								local meleeHurt = {}
 								for j = 1, #meleeFriends do
-									if meleeFriends[j].hp < getValue("Trinket 1") then
+									if meleeFriends[j].hp < br.getValue("Trinket 1") then
 										tinsert(meleeHurt, meleeFriends[j])
 									end
 								end
-								if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
+								if #meleeHurt >= br.getValue("Min Trinket 1 Targets") or burst == true then
 									loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
 								end
 							end
@@ -927,13 +927,13 @@ local function runRotation()
 			end
 			if br.isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569, 14) and not hasEquiped(160649, 14) and not hasEquiped(158320, 14) then
 				if br.getOptionValue("Trinket 2 Mode") == 1 then
-					if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+					if getLowAllies(br.getValue("Trinket 2")) >= br.getValue("Min Trinket 2 Targets") or burst == true then
 						br.useItem(14)
 						br.addonDebug("Using Trinket 2")
 						return true
 					end
 				elseif br.getOptionValue("Trinket 2 Mode") == 2 then
-					if (lowest.hp <= getValue("Trinket 2") or burst == true) and lowest.hp ~= 250 then
+					if (lowest.hp <= br.getValue("Trinket 2") or burst == true) and lowest.hp ~= 250 then
 						UseItemByName(_G.GetInventoryItemID("player", 14), lowest.unit)
 						br.addonDebug("Using Trinket 2 (Target)")
 						return true
@@ -952,11 +952,11 @@ local function runRotation()
 							else
 								local meleeHurt = {}
 								for j = 1, #meleeFriends do
-									if meleeFriends[j].hp < getValue("Trinket 2") then
+									if meleeFriends[j].hp < br.getValue("Trinket 2") then
 										tinsert(meleeHurt, meleeFriends[j])
 									end
 								end
-								if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
+								if #meleeHurt >= br.getValue("Min Trinket 2 Targets") or burst == true then
 									loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
 								end
 							end
@@ -971,7 +971,7 @@ local function runRotation()
 				end
 			end
 			-- Mana Potion
-			if br.isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
+			if br.isChecked("Mana Potion") and mana <= br.getValue("Mana Potion") then
 				if br.hasItem(127835) then
 					br.useItem(127835)
 					br.addonDebug("Using Mana Potion")
@@ -979,7 +979,7 @@ local function runRotation()
 			end
 			-- Innervate
 			if br.isChecked("Innervate") and mana ~= nil then
-				if (getLowAllies(getValue("Innervate")) >= getValue("Innervate Targets") and mana < 80) or burst == true then
+				if (getLowAllies(br.getValue("Innervate")) >= br.getValue("Innervate Targets") and mana < 80) or burst == true then
 					if cast.innervate("player") then
 						br.addonDebug("Casting Innervate")
 						return true
@@ -988,7 +988,7 @@ local function runRotation()
 			end
 			-- Incarnation: Tree of Life
 			if br.isChecked("Incarnation") and talent.incarnationTreeOfLife and not buff.incarnationTreeOfLife.exists() then
-				if getLowAllies(getValue("Incarnation")) >= getValue("Incarnation Targets") or burst == true then
+				if getLowAllies(br.getValue("Incarnation")) >= br.getValue("Incarnation Targets") or burst == true then
 					if cast.incarnationTreeOfLife() then
 						br.addonDebug("Casting Incarnation")
 						return true
@@ -997,7 +997,7 @@ local function runRotation()
 			end
 			-- Tranquility
 			if br.isChecked("Tranquility") and not moving and not buff.incarnationTreeOfLife.exists() then
-				if getLowAllies(getValue("Tranquility")) >= getValue("Tranquility Targets") or burst == true then
+				if getLowAllies(br.getValue("Tranquility")) >= br.getValue("Tranquility Targets") or burst == true then
 					if cast.tranquility() then
 						br.addonDebug("Casting Tranquility")
 						return true
@@ -1079,10 +1079,10 @@ local function runRotation()
 		if br.isChecked("Wild Growth") then
 			for i = 1, #br.friend do
 				if UnitInRange(br.friend[i].unit) then
-					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
-					local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
+					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, br.getValue("Wild Growth"), #br.friend)
+					local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, br.getValue("Soul of the Forest + Wild Growth"), #br.friend)
 					if
-						#lowHealthCandidates >= getValue("Soul of the Forest + Wild Growth Targets") and talent.soulOfTheForest and not buff.soulOfTheForest.exists() and br.getSpellCD(48438) < gcdMax and
+						#lowHealthCandidates >= br.getValue("Soul of the Forest + Wild Growth Targets") and talent.soulOfTheForest and not buff.soulOfTheForest.exists() and br.getSpellCD(48438) < gcdMax and
 							count_hots(lowest.unit) > 0
 					 then
 						clearform()
@@ -1090,13 +1090,13 @@ local function runRotation()
 							br.addonDebug("Casting Swiftmend (SotF)")
 							return true
 						end
-					elseif #lowHealthCandidates2 >= getValue("Soul of the Forest + Wild Growth Targets") and buff.soulOfTheForest.exists() and not moving then
+					elseif #lowHealthCandidates2 >= br.getValue("Soul of the Forest + Wild Growth Targets") and buff.soulOfTheForest.exists() and not moving then
 						clearform()
 						if cast.wildGrowth(br.friend[i].unit) then
 							br.addonDebug("Casting Wild Growth (Soul of the Forest)")
 							return true
 						end
-					elseif #lowHealthCandidates >= getValue("Wild Growth Targets") and not moving then
+					elseif #lowHealthCandidates >= br.getValue("Wild Growth Targets") and not moving then
 						clearform()
 						if cast.wildGrowth(br.friend[i].unit) then
 							br.addonDebug("Casting Wild Growth")
@@ -1128,12 +1128,12 @@ local function runRotation()
 							-- get the best ground circle to encompass the most of them
 							local loc = nil
 							if br.isChecked("Efflorescence on CD") then
-								if #meleeFriends >= getValue("Efflorescence Targets") then
+								if #meleeFriends >= br.getValue("Efflorescence Targets") then
 									if #meleeFriends < 12 then
-										loc = getBestGroundCircleLocation(meleeFriends, getValue("Efflorescence Targets"), 6, 10)
+										loc = getBestGroundCircleLocation(meleeFriends, br.getValue("Efflorescence Targets"), 6, 10)
 									else
 										clearform()
-										if castWiseAoEHeal(meleeFriends, spell.efflorescence, 10, 100, getValue("Efflorescence Targets"), 6, true, true) then
+										if castWiseAoEHeal(meleeFriends, spell.efflorescence, 10, 100, br.getValue("Efflorescence Targets"), 6, true, true) then
 											br.addonDebug("Casting Efflorescence")
 											LastEfflorescenceTime = GetTime()
 											return true
@@ -1143,16 +1143,16 @@ local function runRotation()
 							else
 								local meleeHurt = {}
 								for j = 1, #meleeFriends do
-									if meleeFriends[j].hp < getValue("Efflorescence") then
+									if meleeFriends[j].hp < br.getValue("Efflorescence") then
 										tinsert(meleeHurt, meleeFriends[j])
 									end
 								end
-								if #meleeHurt >= getValue("Efflorescence Targets") then
+								if #meleeHurt >= br.getValue("Efflorescence Targets") then
 									if #meleeHurt < 12 then
-										loc = getBestGroundCircleLocation(meleeHurt, getValue("Efflorescence Targets"), 6, 10)
+										loc = getBestGroundCircleLocation(meleeHurt, br.getValue("Efflorescence Targets"), 6, 10)
 									else
 										clearform()
-										if castWiseAoEHeal(meleeHurt, spell.efflorescence, 10, getValue("Efflorescence"), getValue("Efflorescence Targets"), 6, true, true) then
+										if castWiseAoEHeal(meleeHurt, spell.efflorescence, 10, br.getValue("Efflorescence"), br.getValue("Efflorescence Targets"), 6, true, true) then
 											br.addonDebug("Casting Efflorescence")
 											LastEfflorescenceTime = GetTime()
 											return true
@@ -1171,7 +1171,7 @@ local function runRotation()
 					end
 				else
 					clearform()
-					if castWiseAoEHeal(br.friend, spell.efflorescence, 10, getValue("Efflorescence"), getValue("Efflorescence Targets"), 6, false, false) then
+					if castWiseAoEHeal(br.friend, spell.efflorescence, 10, br.getValue("Efflorescence"), br.getValue("Efflorescence Targets"), 6, false, false) then
 						br.addonDebug("Casting Efflorescence")
 						LastEfflorescenceTime = GetTime()
 						return true
@@ -1181,9 +1181,9 @@ local function runRotation()
 		end
 		-- Flourish
 		if br.isChecked("Flourish") and inCombat and talent.flourish and wildGrowthExist() then
-			if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then
-				local c = getAllHotCnt(getValue("HOT Time count"))
-				if c >= getValue("Flourish HOT Targets") or buff.tranquility.exists() then
+			if getLowAllies(br.getValue("Flourish")) >= br.getValue("Flourish Targets") then
+				local c = getAllHotCnt(br.getValue("HOT Time count"))
+				if c >= br.getValue("Flourish HOT Targets") or buff.tranquility.exists() then
 					clearform()
 					if cast.flourish() then
 						br.addonDebug("Casting Flourish")
@@ -1195,7 +1195,7 @@ local function runRotation()
 		--Convoke the Spirits
 		if
 			inCombat and br.isChecked("Convoke Spirits") and covenant.nightFae.active and noform and (br.getOptionValue("Convoke Spirits") == 2 or br.getOptionValue("Convoke Spirits") == 3) and
-				(getLowAllies(getValue("Convoke Heal")) >= getValue("Convoke Heal Targets") or burst == true)
+				(getLowAllies(br.getValue("Convoke Heal")) >= br.getValue("Convoke Heal Targets") or burst == true)
 		 then
 			if cast.convokeTheSpirits() then
 				br.addonDebug("Casting Convoke the Spirits (Heal)")
@@ -1209,7 +1209,7 @@ local function runRotation()
 		-- Ironbark
 		if br.isChecked("Ironbark") and inCombat then
 			if br.getOptionValue("Ironbark Target") == 1 then
-				if php <= getValue("Ironbark") then
+				if php <= br.getValue("Ironbark") then
 					clearform()
 					if cast.ironbark("player") then
 						br.addonDebug("Casting Ironbark")
@@ -1217,7 +1217,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Ironbark Target") == 2 then
-				if br.getHP("target") <= getValue("Ironbark") then
+				if br.getHP("target") <= br.getValue("Ironbark") then
 					clearform()
 					if cast.ironbark("target") then
 						br.addonDebug("Casting Ironbark")
@@ -1225,7 +1225,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Ironbark Target") == 3 then
-				if br.getHP("mouseover") <= getValue("Ironbark") then
+				if br.getHP("mouseover") <= br.getValue("Ironbark") then
 					clearform()
 					if cast.ironbark("mouseover") then
 						br.addonDebug("Casting Ironbark")
@@ -1234,7 +1234,7 @@ local function runRotation()
 				end
 			elseif br.getOptionValue("Ironbark Target") == 4 then
 				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Ironbark") and br.getDistance(tanks[i].unit) <= 40 then
+					if tanks[i].hp <= br.getValue("Ironbark") and br.getDistance(tanks[i].unit) <= 40 then
 						clearform()
 						if cast.ironbark(tanks[i].unit) then
 							br.addonDebug("Casting Ironbark")
@@ -1244,7 +1244,7 @@ local function runRotation()
 				end
 			elseif br.getOptionValue("Ironbark Target") == 5 then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Ironbark") and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+					if br.friend[i].hp <= br.getValue("Ironbark") and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
 						clearform()
 						if cast.ironbark(br.friend[i].unit) then
 							br.addonDebug("Casting Ironbark")
@@ -1255,7 +1255,7 @@ local function runRotation()
 			elseif br.getOptionValue("Ironbark Target") == 6 then
 				for i = 1, #br.friend do
 					if
-						br.friend[i].hp <= getValue("Ironbark") and
+						br.friend[i].hp <= br.getValue("Ironbark") and
 							(UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
 					 then
 						clearform()
@@ -1266,7 +1266,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Ironbark Target") == 7 then
-				if lowest.hp <= getValue("Ironbark") then
+				if lowest.hp <= br.getValue("Ironbark") then
 					clearform()
 					if cast.ironbark(lowest.unit) then
 						br.addonDebug("Casting Ironbark")
@@ -1278,7 +1278,7 @@ local function runRotation()
 		-- Swiftmend
 		if br.isChecked("Swiftmend") and inCombat and not buff.soulOfTheForest.exists() then
 			if br.getOptionValue("Swiftmend Target") == 1 then
-				if php <= getValue("Swiftmend") and count_hots("player") > 0 then
+				if php <= br.getValue("Swiftmend") and count_hots("player") > 0 then
 					clearform()
 					if cast.swiftmend("player") then
 						br.addonDebug("Casting Swiftmend (Player)")
@@ -1286,7 +1286,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Swiftmend Target") == 2 then
-				if br.getHP("target") <= getValue("Swiftmend") and br.getDebuffStacks("target", 209858) < getValue("Necrotic Rot") and count_hots("target") > 0 then
+				if br.getHP("target") <= br.getValue("Swiftmend") and br.getDebuffStacks("target", 209858) < br.getValue("Necrotic Rot") and count_hots("target") > 0 then
 					clearform()
 					if cast.swiftmend("target") then
 						br.addonDebug("Casting Swiftmend (Target")
@@ -1294,7 +1294,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Swiftmend Target") == 3 then
-				if br.getHP("mouseover") <= getValue("Swiftmend") and br.getDebuffStacks("mouseover", 209858) < getValue("Necrotic Rot") and count_hots("mouseover") > 0 then
+				if br.getHP("mouseover") <= br.getValue("Swiftmend") and br.getDebuffStacks("mouseover", 209858) < br.getValue("Necrotic Rot") and count_hots("mouseover") > 0 then
 					clearform()
 					if cast.swiftmend("mouseover") then
 						br.addonDebug("Casting Swiftmend (Mouseover)")
@@ -1304,7 +1304,7 @@ local function runRotation()
 			elseif br.getOptionValue("Swiftmend Target") == 4 then
 				for i = 1, #tanks do
 					if
-						tanks[i].hp <= getValue("Swiftmend") and (not inInstance or (inInstance and br.getDebuffStacks(tanks[i].unit, 209858) < getValue("Necrotic Rot"))) and
+						tanks[i].hp <= br.getValue("Swiftmend") and (not inInstance or (inInstance and br.getDebuffStacks(tanks[i].unit, 209858) < br.getValue("Necrotic Rot"))) and
 							count_hots(tanks[i].unit) > 0 and
 							br.getDistance(tanks[i].unit) <= 40
 					 then
@@ -1318,8 +1318,8 @@ local function runRotation()
 			elseif br.getOptionValue("Swiftmend Target") == 5 then
 				for i = 1, #br.friend do
 					if
-						br.friend[i].hp <= getValue("Swiftmend") and (br.friend[i].role == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") and
-							(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) and
+						br.friend[i].hp <= br.getValue("Swiftmend") and (br.friend[i].role == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") and
+							(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot"))) and
 							count_hots(br.friend[i].unit) > 0
 					 then
 						clearform()
@@ -1332,9 +1332,9 @@ local function runRotation()
 			elseif br.getOptionValue("Swiftmend Target") == 6 then
 				for i = 1, #br.friend do
 					if
-						br.friend[i].hp <= getValue("Swiftmend") and
+						br.friend[i].hp <= br.getValue("Swiftmend") and
 							(br.friend[i].role == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
-							(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) and
+							(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot"))) and
 							count_hots(br.friend[i].unit) > 0
 					 then
 						clearform()
@@ -1345,7 +1345,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Swiftmend Target") == 7 then
-				if lowest.hp <= getValue("Swiftmend") and (not inInstance or (inInstance and br.getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) and count_hots(lowest.unit) > 0 then
+				if lowest.hp <= br.getValue("Swiftmend") and (not inInstance or (inInstance and br.getDebuffStacks(lowest.unit, 209858) < br.getValue("Necrotic Rot"))) and count_hots(lowest.unit) > 0 then
 					clearform()
 					if cast.swiftmend(lowest.unit) then
 						br.addonDebug("Casting Swiftmend (Any)")
@@ -1359,13 +1359,13 @@ local function runRotation()
 			for i = 1, #br.friend do
 				if
 					br.isChecked("Regrowth Tank") and br.friend[i].hp <= 50 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
-						(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+						(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot")))
 				 then
 					if cast.regrowth(br.friend[i].unit) then
 						br.addonDebug("Casting Regrowth")
 						return true
 					end
-				elseif br.isChecked("Regrowth") and br.friend[i].hp <= 30 and (not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+				elseif br.isChecked("Regrowth") and br.friend[i].hp <= 30 and (not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot"))) then
 					if cast.regrowth(br.friend[i].unit) then
 						br.addonDebug("Casting Regrowth")
 						return true
@@ -1524,7 +1524,7 @@ local function runRotation()
 		if br.isChecked("Cenarion Ward") and (mode.prehot == 1 or mode.prehot == 2 or inCombat) and talent.cenarionWard then
 			if br.getOptionValue("Cenarion Ward Target") == 1 then
 				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Cenarion Ward") and br.getDistance(tanks[i].unit) <= 40 then
+					if tanks[i].hp <= br.getValue("Cenarion Ward") and br.getDistance(tanks[i].unit) <= 40 then
 						clearform()
 						if cast.cenarionWard(tanks[i].unit) then
 							br.addonDebug("Casting Cenarion Ward")
@@ -1534,7 +1534,7 @@ local function runRotation()
 				end
 			elseif br.getOptionValue("Cenarion Ward Target") == 2 then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Cenarion Ward") and br.GetUnitIsUnit(br.friend[i].unit, "boss1target") then
+					if br.friend[i].hp <= br.getValue("Cenarion Ward") and br.GetUnitIsUnit(br.friend[i].unit, "boss1target") then
 						clearform()
 						if cast.cenarionWard(br.friend[i].unit) then
 							br.addonDebug("Casting Cenarion Ward")
@@ -1543,7 +1543,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Cenarion Ward Target") == 3 then
-				if php <= getValue("Cenarion Ward") then
+				if php <= br.getValue("Cenarion Ward") then
 					clearform()
 					if cast.cenarionWard("player") then
 						br.addonDebug("Casting Cenarion Ward")
@@ -1551,7 +1551,7 @@ local function runRotation()
 					end
 				end
 			elseif br.getOptionValue("Cenarion Ward Target") == 4 then
-				if lowest.hp <= getValue("Cenarion Ward") then
+				if lowest.hp <= br.getValue("Cenarion Ward") then
 					clearform()
 					if cast.cenarionWard(lowest.unit) then
 						br.addonDebug("Casting Cenarion Ward")
@@ -1562,7 +1562,7 @@ local function runRotation()
 		end
 		-- Hot Regrowth
 		if not moving or buff.incarnationTreeOfLife.exists() then
-			if br.isChecked("Regrowth Clearcasting") and lowest.hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > gcdMax then
+			if br.isChecked("Regrowth Clearcasting") and lowest.hp <= br.getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > gcdMax then
 				if cast.regrowth(lowest.unit) then
 					br.addonDebug("Casting Regrowth")
 					regrowthTime = GetTime()
@@ -1570,7 +1570,7 @@ local function runRotation()
 				end
 			elseif br.isChecked("Hot Regrowth Tank") then
 				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Hot Regrowth Tank") and buff.regrowth.remain(tanks[i].unit) < gcdMax and br.getDistance(tanks[i].unit) <= 40 then
+					if tanks[i].hp <= br.getValue("Hot Regrowth Tank") and buff.regrowth.remain(tanks[i].unit) < gcdMax and br.getDistance(tanks[i].unit) <= 40 then
 						if cast.regrowth(tanks[i].unit) then
 							br.addonDebug("Casting Regrowth")
 							return true
@@ -1579,7 +1579,7 @@ local function runRotation()
 				end
 			elseif br.isChecked("Hot Regrowth") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Hot Regrowth") and buff.regrowth.remain(br.friend[i].unit) < gcdMax then
+					if br.friend[i].hp <= br.getValue("Hot Regrowth") and buff.regrowth.remain(br.friend[i].unit) < gcdMax then
 						if not moonkin then
 						clearform()
 						end
@@ -1632,13 +1632,13 @@ local function runRotation()
 		-- Rejuvenation
 		if br.isChecked("Rejuvenation") and (mode.prehot == 1 or mode.prehot == 2 or inCombat) then
 			for i = 1, #tanks do
-				if talent.germination and tanks[i].hp <= getValue("Germination Tank") and not buff.rejuvenationGermination.exists(tanks[i].unit) and br.getDistance(tanks[i].unit) <= 40 then
+				if talent.germination and tanks[i].hp <= br.getValue("Germination Tank") and not buff.rejuvenationGermination.exists(tanks[i].unit) and br.getDistance(tanks[i].unit) <= 40 then
 					clearform()
 					if cast.rejuvenation(tanks[i].unit) then
 						br.addonDebug("Casting Rejuvenation (Germinate Tank)")
 						return true
 					end
-				elseif not talent.germination and tanks[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(tanks[i].unit) and br.getDistance(tanks[i].unit) <= 40 then
+				elseif not talent.germination and tanks[i].hp <= br.getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(tanks[i].unit) and br.getDistance(tanks[i].unit) <= 40 then
 					clearform()
 					if cast.rejuvenation(tanks[i].unit) then
 						br.addonDebug("Casting Rejuvenation (Tank Rejuv)")
@@ -1648,7 +1648,7 @@ local function runRotation()
 			end
 			for i = 1, #br.friend do
 				if
-					talent.germination and br.friend[i].hp <= getValue("Germination") and (rejuvCount < getValue("Max Rejuvenation Targets")) and
+					talent.germination and br.friend[i].hp <= br.getValue("Germination") and (rejuvCount < br.getValue("Max Rejuvenation Targets")) and
 						not buff.rejuvenationGermination.exists(br.friend[i].unit)
 				 then
 					clearform()
@@ -1656,7 +1656,7 @@ local function runRotation()
 						br.addonDebug("Casting Rejuvenation (Germinate Party)")
 						return true
 					end
-				elseif br.friend[i].hp <= getValue("Rejuvenation") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) then
+				elseif br.friend[i].hp <= br.getValue("Rejuvenation") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < br.getValue("Max Rejuvenation Targets")) then
 					clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
 						br.addonDebug("Casting Rejuvenation (Rejuv Party)")
@@ -1669,16 +1669,16 @@ local function runRotation()
 		if not moving or buff.incarnationTreeOfLife.exists() then
 			for i = 1, #br.friend do
 				if
-					br.isChecked("Regrowth Tank") and br.friend[i].hp <= getValue("Regrowth Tank") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
-						(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+					br.isChecked("Regrowth Tank") and br.friend[i].hp <= br.getValue("Regrowth Tank") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
+						(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot")))
 				 then
 					if cast.regrowth(br.friend[i].unit) then
 						br.addonDebug("Casting Regrowth")
 						return true
 					end
 				elseif
-					br.isChecked("Regrowth") and br.friend[i].hp <= getValue("Regrowth") and
-						(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")))
+					br.isChecked("Regrowth") and br.friend[i].hp <= br.getValue("Regrowth") and
+						(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot")))
 				 then
 					if cast.regrowth(br.friend[i].unit) then
 						br.addonDebug("Casting Regrowth")

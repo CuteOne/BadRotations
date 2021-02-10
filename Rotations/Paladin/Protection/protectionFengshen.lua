@@ -346,19 +346,19 @@ local function runRotation()
 		if br.isChecked("OOC FoL") and cast.able.flashOfLight() and not inCombat and not isMoving("player") then
 				-- Player
 			if br.getOptionValue("OOC FoL Target") == 1 then
-				if php <= getValue("OOC FoL") then
+				if php <= br.getValue("OOC FoL") then
 					if cast.flashOfLight("player") then return true end
 				end
 				-- Target
 			elseif br.getOptionValue("OOC FoL Target") == 2 then
-				if br.getHP("target") <= getValue("OOC FoL") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+				if br.getHP("target") <= br.getValue("OOC FoL") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 					if cast.flashOfLight("target") then return true end
 				end
 				-- Player and Target
 			elseif br.getOptionValue("OOC FoL Target") == 3 then
-				if php <= getValue("OOC FoL") then
+				if php <= br.getValue("OOC FoL") then
 					if cast.flashOfLight("player") then return true end
-				elseif br.getHP("target") <= getValue("OOC FoL") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player")then
+				elseif br.getHP("target") <= br.getValue("OOC FoL") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player")then
 					if cast.flashOfLight("target") then return true end
 				end
 			end
@@ -368,7 +368,7 @@ local function runRotation()
 	local function actionList_Defensive()
 		if useDefensive() then
 			module.BasicHealing()
-			if br.isChecked("PoS removes Necrotic") and inInstance and br.getDebuffStacks("player", 209858) >= getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
+			if br.isChecked("PoS removes Necrotic") and inInstance and br.getDebuffStacks("player", 209858) >= br.getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
 				if use.phialOfSerenity() then return true end
 			end
 			-- Arcane Torrent
@@ -389,20 +389,20 @@ local function runRotation()
 			if br.isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat and not buff.ardentDefender.exists() then
 				-- Player
 				if br.getOptionValue("Lay on Hands Target") == 1 then
-					if php <= getValue("Lay On Hands") and not debuff.forbearance.exists("player") then
+					if php <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("player") then
 						if cast.layOnHands("player") then return true end
 					end
 					-- Target
 				elseif br.getOptionValue("Lay on Hands Target") == 2 then
-					if br.getHP("target") <= getValue("Lay On Hands") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+					if br.getHP("target") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.layOnHands("target") then return true end
 					end
 					-- Mouseover
 				elseif br.getOptionValue("Lay on Hands Target") == 3 then
-					if br.getHP("mouseover") <= getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+					if br.getHP("mouseover") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.layOnHands("mouseover") then return true end
 					end
-				elseif br.getHP(lowestUnit) <= getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
+				elseif br.getHP(lowestUnit) <= br.getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if br.getOptionValue("Lay on Hands Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -477,20 +477,20 @@ local function runRotation()
 			if br.isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not br.isBoss("boss1") then
 				-- Player
 				if br.getOptionValue("Blessing of Protection Target") == 1 then
-					if php <= getValue("Blessing of Protection") and not debuff.forbearance.exists("player") then
+					if php <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("player") then
 						if cast.blessingOfProtection("player") then return true end
 					end
 					-- Target
 				elseif br.getOptionValue("Blessing of Protection Target") == 2 then
-					if br.getHP("target") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+					if br.getHP("target") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.blessingOfProtection("target") then return true end
 					end
 					-- Mouseover
 				elseif br.getOptionValue("Blessing of Protection Target") == 3 then
-					if br.getHP("mouseover") <= getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+					if br.getHP("mouseover") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfProtection("mouseover") then return true end
 					end
-				elseif br.getHP(lowestUnit) <= getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
+				elseif br.getHP(lowestUnit) <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if br.getOptionValue("Blessing of Protection Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -521,15 +521,15 @@ local function runRotation()
 			if br.isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
 				-- Target
 				if br.getOptionValue("Blessing Of Sacrifice Target") == 1 then
-					if br.getHP("target") <= getValue("Blessing Of Sacrifice") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+					if br.getHP("target") <= br.getValue("Blessing Of Sacrifice") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.blessingOfSacrifice("target") then return true end
 					end
 					-- Mouseover
 				elseif br.getOptionValue("Blessing Of Sacrifice Target") == 2 then
-					if br.getHP("mouseover") <= getValue("Blessing Of Sacrifice") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+					if br.getHP("mouseover") <= br.getValue("Blessing Of Sacrifice") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfSacrifice("mouseover") then return true end
 					end
-				elseif br.getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not br.GetUnitIsUnit(lowestUnit,"player") and not cast.last.blessingOfProtection() then
+				elseif br.getHP(lowestUnit) <= br.getValue("Blessing Of Sacrifice") and not br.GetUnitIsUnit(lowestUnit,"player") and not cast.last.blessingOfProtection() then
 					-- Tank
 					if br.getOptionValue("Blessing Of Sacrifice Target") == 3 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -838,7 +838,7 @@ local function runRotation()
 						if cast.blindingLight() then return true end
 					end
 				end
-				if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+				if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
 					-- Blinding Light
 					if br.isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and br.getBuffRemain(thisUnit,343503) == 0 then
 						if not br.isBoss(thisUnit) and noStunsUnits[br.GetObjectID(thisUnit)] == nil then
@@ -915,7 +915,7 @@ local function runRotation()
 			end
 			-- Divine Toll
 			if br.isChecked("Divine Toll") and cast.able.divineToll() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 then
-				if (#enemies.yards10 >= getValue("Divine Toll") or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") ~= 167406) or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") == 167406 and br.getHP("boss1") <= 70)) then
+				if (#enemies.yards10 >= br.getValue("Divine Toll") or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") ~= 167406) or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") == 167406 and br.getHP("boss1") <= 70)) then
 					if cast.divineToll(units.dyn30) then return true end
 				end
 			end

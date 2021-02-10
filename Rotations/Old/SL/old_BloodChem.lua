@@ -408,7 +408,7 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
         -- Death Grip
                         if br.isChecked("Death Grip - Int") and br.getDistance(thisUnit) > 8 then
                             if cast.deathGrip(thisUnit) then return end

@@ -592,7 +592,7 @@ local function runRotation()
         if useInterrupts() then
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit, ui.value("Interrupt At")) then
+                if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
                     -- Wind Shear
                     if ui.checked("Wind Shear") then
                         if cast.windShear(thisUnit) then

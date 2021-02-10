@@ -641,8 +641,8 @@ local function runRotation()
             if br.isChecked("Auto use Pots") then
                 local pot_use
                 if
-                    getValue("Auto use Pots") == 1 or getValue("Auto use Pots") == 2 and inInstance or getValue("Auto use Pots") == 3 and inRaid or
-                        getValue("Auto use Pots") == 4 and solo
+                    br.getValue("Auto use Pots") == 1 or br.getValue("Auto use Pots") == 2 and inInstance or br.getValue("Auto use Pots") == 3 and inRaid or
+                        br.getValue("Auto use Pots") == 4 and solo
                  then
                     pot_use = true
                 end
@@ -795,7 +795,7 @@ local function runRotation()
 
                 --	fury_of_elune
                 if
-                    talent.furyOfElune and br.isChecked("Fury Of Elune") and (furyUnits >= getValue("Fury of Elune Targets") or br.isBoss("target")) and astral_def > 8 and
+                    talent.furyOfElune and br.isChecked("Fury Of Elune") and (furyUnits >= br.getValue("Fury of Elune Targets") or br.isBoss("target")) and astral_def > 8 and
                         (br.isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
                             not br.isChecked("Group Fury with CD"))
                  then
@@ -820,7 +820,7 @@ local function runRotation()
                         end
                     end
 
-                    if br.isChecked("Starfall While moving") and talent.stellarDrift and not buff.starfall.exists() and getValue("Starfall") ~= 3 then
+                    if br.isChecked("Starfall While moving") and talent.stellarDrift and not buff.starfall.exists() and br.getValue("Starfall") ~= 3 then
                         if power < 50 then
                             return true
                         end
@@ -899,7 +899,7 @@ local function runRotation()
                     end
 
                     -- if  (buff.starfall.refreshable&(spell_targets.starfall<3|!runeforge.timeworn_dreambinder.equipped)|talent.soul_of_the_forest.enabled&buff.eclipse_solar.remains<3&eclipse.in_solar&buff.starfall.remains<7&spell_targets.starfall>=4)&(!runeforge.lycaras_fleeting_glimpse.equipped|time%%45>buff.starfall.remains+2)&target.time_to_die>5" );
-                    if cast.able.starfall() and (getValue("Starfall") == 1 or getValue("Starfall") == 2)
+                    if cast.able.starfall() and (br.getValue("Starfall") == 1 or br.getValue("Starfall") == 2)
 
                             and (buff.starfall.refresh() and (#enemies.yards45 < 3 or not runeforge.timewornDreambinder.equiped)
                             or talent.soulOfTheForest and buff.eclipse_solar.remains() < 3 and eclipse_in == "solar" and buff.starfall.remains() < 7
@@ -989,7 +989,7 @@ local function runRotation()
                             br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
                                 (br.isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
                                     not br.isChecked("Group treants with CD")) and
-                                (#enemies.yards12t >= getValue("Treant Targets") or br.isBoss())
+                                (#enemies.yards12t >= br.getValue("Treant Targets") or br.isBoss())
                          then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
@@ -1013,7 +1013,7 @@ local function runRotation()
                     end
 
                     -- celestialAlignment
-                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > getValue("Incarnation/Celestial Alignment") then
+                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if
                             (buff.starfall.exists() or power > 50) and not eclipse_in and not pewbuff and
                                 (not covenant.nightFae.active or convoke_desync or cd.convokeTheSpirits.ready() or getOutLaksTTDMAX() < 20)
@@ -1071,7 +1071,7 @@ local function runRotation()
                     end
 
                     --new starfall here
-                    if cast.able.starfall() and (getValue("Starfall") == 1 or getValue("Starfall") == 2) then
+                    if cast.able.starfall() and (br.getValue("Starfall") == 1 or br.getValue("Starfall") == 2) then
                         if
                             covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff) and cd.convokeTheSpirits.remains() < gcd * math.ceil(power / 50) and
                                 buff.starfall.remains() < 4
@@ -1203,7 +1203,7 @@ local function runRotation()
                             br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
                                 (br.isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
                                     not br.isChecked("Group treants with CD")) and
-                                (#enemies.yards12t >= getValue("Treant Targets") or br.isBoss())
+                                (#enemies.yards12t >= br.getValue("Treant Targets") or br.isBoss())
                          then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
@@ -1237,7 +1237,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > getValue("Incarnation/Celestial Alignment") then
+                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if not talent.incarnationChoseOfElune then
                             if
                                 (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or is_aoe or
@@ -1276,7 +1276,7 @@ local function runRotation()
                         end
                     end
 
-                    if getValue("Starfall") == 1 then
+                    if br.getValue("Starfall") == 1 then
                         -- starfall - single target, with legendary
                         if buff.onethsPerception.exists() and not buff.starfall.exists() then
                             if cast.starfall() then
@@ -1303,7 +1303,7 @@ local function runRotation()
 
                     --Starfall - ST
                     if
-                        getValue("Starfall") == 1 and talent.stellarDrift and not talent.starlord and buff.starfall.remains() < 2 and
+                        br.getValue("Starfall") == 1 and talent.stellarDrift and not talent.starlord and buff.starfall.remains() < 2 and
                             (buff.eclipse_lunar.remains() > 6 and current_eclipse == "lunar" or
                                 --          and buff.primordialArcanicPulsar.value() < 250 or buff.primordialArcanicPulsar.value() >= 250 and power > 90
                                 debuff.adaptiveSwarm.remains("target") > 8) and
@@ -1482,7 +1482,7 @@ local function runRotation()
                             br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
                                 (br.isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
                                     not br.isChecked("Group treants with CD")) and
-                                (#enemies.yards12t >= getValue("Treant Targets") or br.isBoss())
+                                (#enemies.yards12t >= br.getValue("Treant Targets") or br.isBoss())
                          then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
@@ -1512,7 +1512,7 @@ local function runRotation()
                     end
 
                     --pewbuff
-                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > getValue("Incarnation/Celestial Alignment") then
+                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                             if
                                 (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or
@@ -1589,7 +1589,7 @@ local function runRotation()
 
     local function defensive()
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
-        if br.isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(156634) or br.hasItem(177278)) then
+        if br.isChecked("Pot/Stoned") and php <= br.getValue("Pot/Stoned") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(156634) or br.hasItem(177278)) then
             if br.canUseItem(177278) then
                 br.useItem(177278)
             elseif br.canUseItem(5512) then
@@ -1614,32 +1614,32 @@ local function runRotation()
         end
 
         -- Renewal
-        if br.isChecked("Renewal") and talent.renewal and php <= getValue("Renewal") then
+        if br.isChecked("Renewal") and talent.renewal and php <= br.getValue("Renewal") then
             if cast.renewal("player") then
                 return
             end
         end
         -- Barkskin
-        if br.isChecked("Barkskin") and inCombat and php <= getValue("Barkskin") then
+        if br.isChecked("Barkskin") and inCombat and php <= br.getValue("Barkskin") then
             if cast.barkskin() then
                 return
             end
         end
         -- Swiftmend
-        if talent.restorationAffinity and br.isChecked("Swiftmend") and cast.able.swiftmend() and php <= getValue("Swiftmend") and charges.swiftmend.count() >= 1 and hasHot("player") then
+        if talent.restorationAffinity and br.isChecked("Swiftmend") and cast.able.swiftmend() and php <= br.getValue("Swiftmend") and charges.swiftmend.count() >= 1 and hasHot("player") then
             if cast.swiftmend("player") then
                 return true
             end
         end
         -- Regrowth
-        if br.isChecked("Regrowth") and not moving and php <= getValue("Regrowth") then
+        if br.isChecked("Regrowth") and not moving and php <= br.getValue("Regrowth") then
             if cast.regrowth("player") then
                 return true
             end
         end
 
         --rejuvenation
-        if br.isChecked("Rejuvenation") and php <= getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
+        if br.isChecked("Rejuvenation") and php <= br.getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
             if cast.rejuvenation("player") then
                 return true
             end
@@ -1752,7 +1752,7 @@ local function runRotation()
         if useInterrupts() then
             for i = 1, #enemies.yards45 do
                 thisUnit = enemies.yards45[i]
-                if canInterrupt(thisUnit, getValue("InterruptAt")) then
+                if br.canInterrupt(thisUnit, br.getValue("InterruptAt")) then
                     -- Solar Beam
                     if br.isChecked("Solar Beam") then
                         if cast.solarBeam(thisUnit) then
@@ -1871,7 +1871,7 @@ local function runRotation()
                     return true
                 end
             end
-            if br.isChecked("Bear Frenzies Regen HP") and talent.guardianAffinity and cast.able.frenziedRegeneration() and php <= getValue("Bear Frenzies Regen HP") then
+            if br.isChecked("Bear Frenzies Regen HP") and talent.guardianAffinity and cast.able.frenziedRegeneration() and php <= br.getValue("Bear Frenzies Regen HP") then
                 if cast.frenziedRegeneration() then
                     br.addonDebug("[BEAR]Regen")
                     return true
@@ -1981,13 +1981,13 @@ local function runRotation()
                 end
             end
             -- Wild Growth
-            if br.isChecked("OOC Wild Growth") and not isMoving("player") and php <= getValue("OOC Wild Growth") then
+            if br.isChecked("OOC Wild Growth") and not isMoving("player") and php <= br.getValue("OOC Wild Growth") then
                 if cast.wildGrowth() then
                     return true
                 end
             end
             -- Regrowth
-            if br.isChecked("OOC Regrowth") and not isMoving("player") and php <= getValue("OOC Regrowth") then
+            if br.isChecked("OOC Regrowth") and not isMoving("player") and php <= br.getValue("OOC Regrowth") then
                 if cast.regrowth("player") then
                     return true
                 end
@@ -2000,7 +2000,7 @@ local function runRotation()
 
             if mode.forms == 1 then
                 if br.isChecked("Standing Time") then
-                    if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > getValue("Standing Time") then
+                    if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > br.getValue("Standing Time") then
                         if cast.moonkinForm("player") then
                             return true
                         end

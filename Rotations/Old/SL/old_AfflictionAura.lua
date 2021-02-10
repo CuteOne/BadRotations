@@ -427,7 +427,7 @@ actionList.Interrupts = function()
     if useInterrupts() and (pet.active.id() == 417 or pet.active.id() == 78158) then
         for i=1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if canInterrupt(thisUnit,option.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit,option.value("Interrupt At")) then
                 if pet.active.id() == 417 then
                     if cast.spellLock(thisUnit) then end
                 elseif pet.active.id() == 78158 then
@@ -551,7 +551,7 @@ actionList.PreCombat = function()
         end
         if option.checked("Pre-Pull Timer") then
             -- Flask / Crystal
-            if ((pullTimer <= getValue("Pre-Pull Timer") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not br.canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and br.canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
+            if ((pullTimer <= br.getValue("Pre-Pull Timer") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not br.canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and br.canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
                 --actions.precombat=flask
                 if br.getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and br.canUseItem(item.greaterFlaskOfEndlessFathoms) then
                     if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Greater Flask of Endless Fathoms [Pre-Pull]") return end

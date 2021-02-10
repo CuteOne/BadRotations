@@ -337,7 +337,7 @@ local function runRotation()
 
         local dispelDelay = 1.5
         if br.isChecked("Dispel delay") then
-            dispelDelay = getValue("Dispel delay")
+            dispelDelay = br.getValue("Dispel delay")
         end
 
         local doNotSteal = {
@@ -560,7 +560,7 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
         -- Counterspell
                         if br.isChecked("Counterspell") then
                             if cast.counterspell(thisUnit) then return end

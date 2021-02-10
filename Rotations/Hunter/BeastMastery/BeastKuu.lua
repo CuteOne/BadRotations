@@ -433,7 +433,7 @@ actionList.Interrupts = function()
         -- Counter Shot
         for i=1, #enemies.yards40f do
             thisUnit = enemies.yards40f[i]
-            if canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+            if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                 if br.isChecked("Counter Shot") and cd.counterShot.remains() <= gcdMax and br.timer:useTimer("Interrupts", 0.5) then
                     if cast.counterShot(thisUnit) then return end
                 elseif br.isChecked("Freezing Trap") and not pause() and (cd.counterShot.remains() > gcdMax or not br.isChecked("Counter Shot")) and cd.freezingTrap.remains() <= gcdMax 
