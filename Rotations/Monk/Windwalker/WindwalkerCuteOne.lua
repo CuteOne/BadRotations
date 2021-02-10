@@ -1171,7 +1171,9 @@ local function runRotation()
 
     -- Fists of Fury Cancel - WoO SEF
     if var.fofCastRemain == nil then var.fofCastRemain = GetTime() end
-    if buff.weaponsOfOrderWW.exists() and buff.stormEarthAndFire.exists() and cast.current.fistsOfFury() then
+    if buff.weaponsOfOrderWW.exists() and buff.stormEarthAndFire.exists() and cast.current.fistsOfFury()
+        and ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0))
+    then
         var.fofCastRemain = GetTime() + cast.timeRemain() + unit.gcd("true")
         if cast.cancel.fistsOfFury() then ui.debug("|cffFF0000Canceling Fists of Fury") return true end
     end
