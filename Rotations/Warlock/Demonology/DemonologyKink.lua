@@ -984,6 +984,13 @@ local function runRotation()
                     end
                 end
             end
+
+                    -- actions.implosion+=/summon_demonic_tyrant
+            if not moving then
+                if cast.summonDemonicTyrant("target") then ui.debug("[Action:Implosion] Summon Demonic Tyrant")
+                    return true
+                end
+            end
         end -- End useCDs check
     end -- End Action List - Cooldowns
 
