@@ -28,6 +28,18 @@ br.api.buffs = function(buff,v)
         if sourceUnit == nil then sourceUnit = 'player' end
         return UnitBuffID(thisUnit,v,sourceUnit) ~= nil
     end
+    -- br.player.buff.spell.react()
+    buff.react = function(thisUnit,sourceUnit)
+        if thisUnit == nil then thisUnit = 'player' end
+        if sourceUnit == nil then sourceUnit = 'player' end
+        return UnitBuffID(thisUnit,v,sourceUnit) ~= nil
+    end
+    -- br.player.buff.spell.down()
+    buff.down = function(thisUnit,sourceUnit)
+        if thisUnit == nil then thisUnit = 'player' end
+        if sourceUnit == nil then sourceUnit = 'player' end
+        return UnitBuffID(thisUnit,v,sourceUnit) == nil
+    end
     -- br.player.buff.spell.react(), buff detection with small reaction delay
     buff.react = function(thisUnit, sourceUnit)
         thisUnit = thisUnit or "player"
