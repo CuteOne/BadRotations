@@ -22,6 +22,12 @@ br.api.buffs = function(buff,v)
         if sourceUnit == nil then sourceUnit = 'player' end
         return getBuffDuration(thisUnit,v,sourceUnit)
     end
+    -- br.player.buff.spell.down()
+    buff.down = function(thisUnit,sourceUnit)
+        if thisUnit == nil then thisUnit = 'player' end
+        if sourceUnit == nil then sourceUnit = 'player' end
+        return UnitBuffID(thisUnit,v,sourceUnit) == nil
+    end
     -- br.player.buff.spell.exists()
     buff.exists = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
