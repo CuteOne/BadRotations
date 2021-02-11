@@ -303,7 +303,7 @@ actionList.Interrupts = function()
             for i=1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
                 if canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
-                    if cast.disrupt(thisUnit) then ui.debug("Disrupt") return true end
+                    if cast.disrupt(thisUnit) then ui.debug("Casting Disrupt") return true end
                 end
             end
         end
@@ -312,7 +312,7 @@ actionList.Interrupts = function()
             for i=1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if canInterrupt(thisUnit,ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
-                    if cast.chaosNova(thisUnit) then ui.debug("Chaos Nova [Int]") return true end
+                    if cast.chaosNova(thisUnit) then ui.debug("Casting Chaos Nova [Int]") return true end
                 end
             end
         end
@@ -351,7 +351,7 @@ actionList.Cooldowns = function()
             end
             -- The Hunt
             -- the_hunt,if=!talent.demonic.enabled&!variable.waiting_for_momentum|buff.furious_gaze.up
-            if cast.able.theHunt() and not talent.demonic and (not var.waitingForMomentum or buff.furiousGaze.exists()) then
+            if cast.able.theHunt() and ((not talent.demonic and not var.waitingForMomentum) or buff.furiousGaze.exists()) then
                 if cast.theHunt() then ui.debug("Casting The Hunt") return true end
             end
             -- Fodder to the Flame
@@ -361,8 +361,8 @@ actionList.Cooldowns = function()
             end
             -- Elysian Decree
             -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
-            if cast.able.elysianDecree() and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2) then
-                if cast.elysianDecree() then ui.debug("Casting Elysian Decree") return true end
+            if cast.able.elysianDecree() and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs()) then
+                if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
             end
         end
         -- Potion
@@ -419,23 +419,23 @@ actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=(talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)        
-        and talent.unboundChaos and buff.innerDemon.exists()
+        and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation()
         elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
-            if cast.felRush() then ui.debug("Casting Fel Rusg [Unbound Chaos]") return true end
+            if cast.felRush() then ui.debug("Casting Fel Rush [Unbound Chaos]") return true end
         end
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
+    if cast.able.deathSweep("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
         if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep") return true end
     end
     -- Glaive Tempest
     -- glaive_tempest,if=active_enemies>desired_targets|raid_event.adds.in>10
-    if cast.able.glaiveTempest() and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
+    if cast.able.glaiveTempest("player","aoe",1,8) and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
     -- Throw Glaive
@@ -447,7 +447,7 @@ actionList.Demonic = function()
     end
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam() and not unit.moving() and enemies.yards20r > 0
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and not unit.moving() and enemies.yards20r > 0
         and ((ui.value("Eye Beam Usage") == 1 and ui.mode.rotation == 1)
             or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Units To AoE"))
             or ui.mode.rotation == 2) and (eyebeamTTD() or unit.isDummy(units.dyn8))
@@ -456,15 +456,15 @@ actionList.Demonic = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>5|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-    if cast.able.bladeDance() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
+    if cast.able.bladeDance("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
         and (cd.metamorphosis.remain() > unit.gcd(true) or not ui.useCDs() or not ui.checked("Metamorphosis"))
-        and (cd.eyeBeam.remain() > 5 or ui.mode.eyeBeam == 2)
+        and (cd.eyeBeam.remain() > 5 or not eyebeamTTD() or not cast.safe.eyeBeam("player","rect",1,20) or ui.mode.eyeBeam == 2)
     then
         if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance") return true end
     end
     -- Immolation Aura
     -- immolation_aura
-    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 then
+    if cast.able.immolationAura("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 then
         if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
     end
     -- Annihilation
@@ -496,7 +496,7 @@ actionList.Demonic = function()
     end
     -- Demon's Bite
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
-    if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWound.remain(units.dyn5) < 4 then
+    if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWound.remain(var.lowestBurningWound) < 4 then
         if cast.demonsBite(var.lowestBurningWound) then ui.debug("Casting Demon's Bite [Burning Wound]") return true end
     end
     -- demons_bite
@@ -539,7 +539,7 @@ actionList.Normal = function()
     -- Fel Rush
     -- fel_rush,if=(variable.waiting_for_momentum|talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
-        and (var.waitingForMomentum or (talent.unboundChaos and buff.innerDemon.exists()))
+        and (var.waitingForMomentum or (talent.unboundChaos and buff.unboundChaos.exists()))
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
@@ -550,24 +550,24 @@ actionList.Normal = function()
     end
     -- Fel Barrage
     -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
-    if ui.mode.felBarrage == 1 and not unit.isExplosive("target") and cast.able.felBarrage()
+    if ui.mode.felBarrage == 1 and not unit.isExplosive("target") and cast.able.felBarrage("player","aoe",1,8)
         and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)) 
     then
         if cast.felBarrage("player","aoe",1,8) then ui.debug("Casting Fel Barrage") return true end
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
+    if cast.able.deathSweep("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
         if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep") return true end
     end
     -- Immolation Aura
     -- immolation_aura
-    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 then
+    if cast.able.immolationAura("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 then
         if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
     end
     -- Glaive Tempest
     -- glaive_tempest,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>10)
-    if cast.able.glaiveTempest() and not var.waitingForMomentum
+    if cast.able.glaiveTempest("player","aoe",1,8) and not var.waitingForMomentum
         and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
     then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
@@ -579,14 +579,14 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15)
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam() and enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
         and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
-    if cast.able.bladeDance() and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
+    if cast.able.bladeDance("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance then
         if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance") return true end
     end
     -- Felblade
@@ -610,7 +610,7 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam()
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
         and enemies.yards20r > 0 and not unit.moving() and talent.blindFury
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
@@ -782,8 +782,10 @@ local function runRotation()
     var.meta = buff.metamorphosis.exists() and 1 or 0
 
     -- Blade Dance Variable
-    -- variable,name=blade_dance,value=talent.first_blood.enabled|spell_targets.blade_dance1>=(3-(talent.trail_of_ruin.enabled+buff.metamorphosis.up))|runeforge.chaos_theory&buff.chaos_theory.down
-    var.bladeDance = (talent.cycleOfHatred or talent.firstBlood or #enemies.yards8 >= (3 - (var.ruinedTrail + var.meta)) or (runeforge.chaosTheory and not buff.chaosTheory.exists())) and #enemies.yards8 > 0 and not unit.isExplosive("target") -- (ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2)
+    -- variable,name=blade_dance,if=!runeforge.chaos_theory,value=talent.first_blood.enabled|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
+    -- variable,name=blade_dance,if=runeforge.chaos_theory,value=buff.chaos_theory.down|talent.first_blood.enabled&spell_targets.blade_dance1>=(2-talent.trail_of_ruin.enabled)|!talent.cycle_of_hatred.enabled&spell_targets.blade_dance1>=(4-talent.trail_of_ruin.enabled)
+    var.bladeDance = (not runeforge.chaosTheory.equiped and (talent.firstBlood or #enemies.yards8 >= (3 - var.ruinedTrail) and not unit.isExplosive("target")))
+        or (runeforge.chaosTheory.equiped and (not buff.chaosTheory.exists() or (talent.firstBlood and #enemies.yards8 >= (2 - var.ruinedTrail)) or not (talent.cycleOfHatred and #enemies.yards8 >= (4 - var.ruinedTrail))))
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
     var.poolForMeta = ui.checked("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
