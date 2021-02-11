@@ -595,7 +595,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&buff.dance_of_chiji.up
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
         and buff.danceOfChiJi.exists() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - Chi-Ji]") return true end
@@ -607,7 +607,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch,if=active_enemies>=2
-    if cast.able.whirlingDragonPunch() and cd.risingSunKick.exists() and cd.fistsOfFury.exists()
+    if cast.able.whirlingDragonPunch("player","aoe",1,8) and cd.risingSunKick.exists() and cd.fistsOfFury.exists()
         and ui.useAOE(8,2) and not unit.moving() and not unit.isExplosive("target")
         and var.fofCastRemain - GetTime() <= 0
     then
@@ -615,7 +615,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&active_enemies>=3&buff.weapons_of_order_ww.up
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
         and ui.useAOE(8,3) and var.rskChiWoORemain > 0 and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - Chi Buff]") return true end
@@ -627,7 +627,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch() and cd.risingSunKick.exists() and cd.fistsOfFury.exists() and var.fofCastRemain - GetTime() <= 0 then
+    if cast.able.whirlingDragonPunch("player","aoe",1,8) and cd.risingSunKick.exists() and cd.fistsOfFury.exists() and var.fofCastRemain - GetTime() <= 0 then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [Weapons of Order]") return true end
     end
     -- Fists of Fury
@@ -637,7 +637,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=buff.chi_energy.stack>30-5*active_enemies
-    if cast.able.spinningCraneKick() and buff.chiEnergy.stack() > 30 - 5 * #enemies.yards8
+    if cast.able.spinningCraneKick("player","aoe") and buff.chiEnergy.stack() > 30 - 5 * #enemies.yards8
         and not wasLastCombo(spell.spinningCraneKick) and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - Chi Energy]") return true end
@@ -654,7 +654,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Chi Burst
     -- chi_burst,if=chi.max-chi>=(1+active_enemies>1)
-    if cast.able.chiBurst() and chiMax - chi >= 1 + var.chiBurstMoreThan1 then
+    if cast.able.chiBurst(nil,"rect",1,12) and chiMax - chi >= 1 + var.chiBurstMoreThan1 then
         if cast.chiBurst(nil,"rect",1,12) then ui.debug("Casting Chi Burst [Weapons of Order]") return true end
     end
     -- Tiger Palm
@@ -664,7 +664,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Chi Wave
     -- chi_wave
-    if cast.able.chiWave() then
+    if cast.able.chiWave(nil,"aoe") then
         if cast.chiWave(nil,"aoe") then ui.debug("Casting Chi Wave [Weapons of Order]") return true end
     end
     -- Blackout Kick
@@ -693,7 +693,7 @@ actionList.Serenity = function()
     br.player.module.BasicTrinkets()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&(active_enemies>=3|active_enemies>1&!cooldown.rising_sun_kick.up)
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) 
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) 
         and ((ui.mode.rotation == 1 and (#enemies.yards8 >= 3 or (#enemies.yards8 > 1 and cd.risingSunKick.exists()))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
@@ -711,7 +711,7 @@ actionList.Serenity = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&buff.dance_of_chiji.up
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and buff.danceOfChiJi.exists()
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) and buff.danceOfChiJi.exists()
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity Dance of Chi-Ji") return true end
@@ -728,7 +728,7 @@ actionList.Serenity = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&debuff.bonedust_brew.up
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
         and debuff.bonedustBrew.exists(units.dyn8) and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity Bonedust Brew]") return true end
@@ -747,7 +747,7 @@ actionList.Serenity = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity]") return true end
@@ -761,7 +761,7 @@ actionList.SingleTarget = function()
     local startTime = debugprofilestop()
     -- Whirling Dragon Punch
     -- whirling_dragon_punch,if=raid_event.adds.in>cooldown.whirling_dragon_punch.duration*0.8|raid_event.adds.up
-    if ui.checked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch()
+    if ui.checked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch("player","aoe",1,8)
         and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
         and ui.useAOE(8,ui.value("Whirling Dragon Punch Min Units")) and buff.whirlingDragonPunch.exists()
     then
@@ -774,7 +774,7 @@ actionList.SingleTarget = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&buff.dance_of_chiji.up&(raid_event.adds.in>buff.dance_of_chiji.remains-2|raid_event.adds.up)
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and buff.danceOfChiJi.exists()
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) and buff.danceOfChiJi.exists()
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [ST Dance of Chi-Ji]") return true end
@@ -817,14 +817,14 @@ actionList.SingleTarget = function()
     end
     -- Chi Burst
     -- chi_burst,if=chi.max-chi>=1&active_enemies=1&raid_event.adds.in>20|chi.max-chi>=2&active_enemies>=2
-    if cast.able.chiBurst() and (chiMax - chi >= 1 and ((ui.mode.rotation == 1 and enemies.yards40r == 1) or (ui.mode.rotation == 3 and enemies.yards40r > 0)))
+    if cast.able.chiBurst(nil,"rect",1,12) and (chiMax - chi >= 1 and ((ui.mode.rotation == 1 and enemies.yards40r == 1) or (ui.mode.rotation == 3 and enemies.yards40r > 0)))
         or (chiMax - chi >= 2 and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 3 and enemies.yards40r > 1)))
     then
         if cast.chiBurst("player","rect",1,12) then ui.debug("Casting Chi Burst [ST]") return true end
     end
     -- Chi Wave
     -- chi_wave
-    if cast.able.chiWave() then
+    if cast.able.chiWave(nil,"aoe") then
         if cast.chiWave("player","aoe") then ui.debug("Casting Chi Wave [ST]") return true end
     end
     -- Tiger Palm
@@ -836,7 +836,7 @@ actionList.SingleTarget = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=buff.chi_energy.stack>30-5*active_enemies&buff.storm_earth_and_fire.down&(cooldown.rising_sun_kick.remains>2&cooldown.fists_of_fury.remains>2|cooldown.rising_sun_kick.remains<3&cooldown.fists_of_fury.remains>3&chi>3|cooldown.rising_sun_kick.remains>3&cooldown.fists_of_fury.remains<3&chi>4|chi.max-chi<=1&energy.time_to_max<2)|buff.chi_energy.stack>10&fight_remains<7
-    if cast.able.spinningCraneKick() and (buff.chiEnergy.stack() > 30 - 5 * #enemies.yards5 --and not wasLastCombo(spell.spinningCraneKick)
+    if cast.able.spinningCraneKick("player","aoe") and (buff.chiEnergy.stack() > 30 - 5 * #enemies.yards5 --and not wasLastCombo(spell.spinningCraneKick)
         and not buff.stormEarthAndFire.exists() and (((cd.risingSunKick.remain() > 2 and cd.fistsOfFury.remain() > 2) or (cd.risingSunKick.remain() < 3
         and cd.fistsOfFury.remain() > 3 and chi > 3) or (cd.risingSunKick.remain() > 3 and cd.fistsOfFury.remain() < 3 and chi > 4) or (chiMax - chi <= 1
         and energyTTM() < 2)) or buff.chiEnergy.stack() > 10) and (unit.isBoss(units.dyn5) and unit.ttd(units.dyn5) < 7))
@@ -887,7 +887,7 @@ actionList.AoE = function()
     local startTime = debugprofilestop()
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch() and ui.checked("Whirling Dragon Punch") 
+    if cast.able.whirlingDragonPunch("player","aoe",1,8) and ui.checked("Whirling Dragon Punch") 
         and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
         and ui.useAOE(8,ui.value("Whirling Dragon Punch Min Units")) and buff.whirlingDragonPunch.exists()
     then
@@ -900,10 +900,10 @@ actionList.AoE = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&(buff.dance_of_chiji.up|debuff.bonedust_brew.up)
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and (buff.danceOfChiJi.exists() or debuff.bonedustBrew.exists(units.dyn8))
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) and (buff.danceOfChiJi.exists() or debuff.bonedustBrew.exists(units.dyn8))
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
-        if cast.spinningCraneKick(nil,"aoe") then ui.debug("Casting Spinning Crane Kick [AOE Dance of Chi-Ji / Bonedust Brew]") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [AOE Dance of Chi-Ji / Bonedust Brew]") return true end
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>execute_time|chi.max-chi<=1
@@ -924,11 +924,11 @@ actionList.AoE = function()
     end
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&((cooldown.bonedust_brew.remains>2&(chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2))|energy.time_to_max<=3)
-    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
-        and ((cd.bonedustBrew.remains() > 2 and (chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or energyTTM() <= 3)
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
+        and ((cd.bonedustBrew.remains() > 2 and (chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or energyTTM() <= 5)
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
-        if cast.spinningCraneKick(nil,"aoe") then ui.debug("Casting Spinning Crane Kick [AOE High Chi | High Energy | FoF Soon]") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [AOE High Chi | High Energy | FoF Soon]") return true end
     end
     -- Expel Harm
     -- expel_harm,if=chi.max-chi>=1
@@ -942,7 +942,7 @@ actionList.AoE = function()
     end
     -- Chi Burst
     -- chi_burst,if=chi.max-chi>=2
-    if cast.able.chiBurst() and chiMax - chi >= 2
+    if cast.able.chiBurst("player","rect",1,12) and chiMax - chi >= 2
         and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and enemies.yards40r > 0))
     then
         if cast.chiBurst("player","rect",1,12) then ui.debug("Casting Chi Burst [AOE]") return true end
@@ -961,7 +961,7 @@ actionList.AoE = function()
     end
     -- Chi Wave
     -- chi_wave,if=combo_strike
-    if cast.able.chiWave() and not wasLastCombo(spell.chiWave) then
+    if cast.able.chiWave("player","aoe") and not wasLastCombo(spell.chiWave) then
         if cast.chiWave("player","aoe") then ui.debug("Casting Chi Wave [AOE]") return true end
     end
     -- Flying Serpent Kick
@@ -1005,7 +1005,7 @@ actionList.Opener = function()
     end
     -- Chi Wave
     -- chi_wave,if=chi.max-chi=2
-    if cast.able.chiWave() and chiMax - chi == 2 then
+    if cast.able.chiWave(nil,"aoe") and chiMax - chi == 2 then
         if cast.chiWave() then ui.debug("Casting Chi Wave [Opener]") return true end
     end
     -- Expel Harm
@@ -1040,14 +1040,14 @@ actionList.PreCombat = function()
             if unit.exists("target") and unit.distance("target") < 5 then
                 -- -- Chi Burst
                 -- -- chi_burst,if=(!talent.serenity.enabled|!talent.fist_of_the_white_tiger.enabled)
-                -- if cast.able.chiBurst() and (not talent.serenity or not talent.fistOfTheWhiteTiger)
+                -- if cast.able.chiBurst(nil,"rect",1,12) and (not talent.serenity or not talent.fistOfTheWhiteTiger)
                 --     and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and enemies.yards40r > 0))
                 -- then
                 --     if cast.chiBurst(nil,"rect",1,12) then ui.debug("") return true end
                 -- end
                 -- -- Chi Wave
                 -- -- chi_wave,if=!talent.energizing_elixer.enabled
-                -- if cast.able.chiWave() and not talent.energizingElixir then
+                -- if cast.able.chiWave(nil,"aoe") and not talent.energizingElixir then
                 --     if cast.chiWave(nil,"aoe") then ui.debug("") return true end
                 -- end
                 -- Start Attack
@@ -1306,7 +1306,7 @@ local function runRotation()
                 end
                 if cd.risingSunKick.remain() > unit.gcd("true") then
                     -- Spinning Crane Kick - Stall Prevention
-                    if cast.able.spinningCraneKick() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true") and not wasLastCombo(spell.spinningCraneKick) and ui.useAOE(8,3) then
+                    if cast.able.spinningCraneKick("player","aoe") and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true") and not wasLastCombo(spell.spinningCraneKick) and ui.useAOE(8,3) then
                         if cast.spinningCraneKick(nil,"aoe") then ui.debug("Casting Spinning Crane Kick [|cffFF0000Stall Prevention|r]") return true end
                     end
                     -- Blackout Kick - Stall Prevention
