@@ -615,11 +615,13 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		local queensCourtEncounter = UnitDebuffID("player",304409) -- EJ_GetEncounterInfo(2311)
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCast.tracker[1] ~= spellID)
 	end
+	local aoeCast = (debug == "ground" or debug == "aoe" or debug == "cone" or debug == "rect")
 	-- Base Spell Availablility Check
 	if (baseSpellID == spellID or overrideSpellID == spellID) and IsUsableSpell(spellID) and not select(2,IsUsableSpell(spellID)) -- Usability Checks
 		and getSpellCD(spellID) == 0 and (getSpellCD(61304) == 0 or select(2,GetSpellBaseCooldown(spellID)) == 0) -- Cooldown Checks
 		and (isKnown(spellID) or debug == "known") and not IsCurrentSpell(spellID) and not isCastingSpell(spellID,"player") -- Known/Current Checks
 		and hasTalent(spellID) and hasEssence() and not isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
+		and (not aoeCast or (aoeCast and (isDummy() or isSafeToAoE(spellID,thisUnit,effectRng,minUnits)))) -- Safe to AoE Check
 	then
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
@@ -727,7 +729,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 				-- AOE/ST Casts
 				-- Cast Ground/Cone/Rectangle/Player AOE
 				if (debug == "ground" or debug == "aoe" or debug == "cone" or debug == "rect") then
-					if isDummy() or isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
+					--if isDummy() or isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
 						if (debug == "ground" or debug == "aoe") then
 							local enemyCount = #getEnemies("player",maxRange) or 0
 							if enemyCount >= minUnits then
@@ -758,10 +760,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 								printReport(false,"Below Min Units",enemyRectCount)
 							end
 						end
-					else
-						printReport(false,"Not Safe")
-						return false
-					end
+					-- else
+					-- 	printReport(false,"Not Safe")
+					-- 	return false
+					-- end
 				end
 				-- Cast Non-AOE
 				if (debug == "norm" or debug == "pet") then
