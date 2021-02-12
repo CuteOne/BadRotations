@@ -230,7 +230,7 @@ function BadRotationsUpdate(self)
 				-- Fishing
 				br.fishing()
 				-- Profession Helper
-				ProfessionHelper()
+				br.ProfessionHelper()
 				-- Rotation Log
 				br.ui:toggleDebugWindow()
 				-- Settings Garbage Collection
