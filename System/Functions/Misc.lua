@@ -187,7 +187,9 @@ function br.getLineOfSight(Unit1, Unit2)
 	 then
 		return true
 	end
-	if br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) and br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2) then
+	if
+		br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) and br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2)
+	 then
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = br.GetObjectPosition(Unit2)
 		local pX, pY, pZ = br.GetObjectPosition("player")
@@ -245,7 +247,9 @@ function getGroundDistance(Unit)
 	if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) then
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit)
 		for i = 1, 100 do
-			if TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x10) ~= nil or TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x100) ~= nil then
+			if
+				TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x10) ~= nil or TraceLine(X1, Y1, Z1, X1, Y1, Z1 - i / 10, 0x100) ~= nil
+			 then
 				return i / 10
 			end
 		end
@@ -314,7 +318,11 @@ function isGarrMCd(Unit)
 	if Unit == nil then
 		Unit = "target"
 	end
-	if br.GetUnitExists(Unit) and (br.UnitDebuffID(Unit, 145832) or br.UnitDebuffID(Unit, 145171) or br.UnitDebuffID(Unit, 145065) or br.UnitDebuffID(Unit, 145071)) then
+	if
+		br.GetUnitExists(Unit) and
+			(br.UnitDebuffID(Unit, 145832) or br.UnitDebuffID(Unit, 145171) or br.UnitDebuffID(Unit, 145065) or
+				br.UnitDebuffID(Unit, 145071))
+	 then
 		return true
 	else
 		return false
@@ -531,18 +539,25 @@ function br.enemyListCheck(Unit)
 	end
 	local phaseReason = UnitPhaseReason(Unit)
 	local distance = br.getDistance(Unit, "player")
-	local mcCheck = (br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or not br.GetUnitIsFriend(Unit, "player")
+	local mcCheck =
+		(br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or UnitIsCharmed(Unit))) or
+		not br.GetUnitIsFriend(Unit, "player")
 	local inPhase = not phaseReason or phaseReason == 2 or phaseReason == 3
 	if br.UnitDebuffID("player", 320102) and UnitIsPlayer(Unit) then
 		return true
 	end
-	return br.GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and inPhase and UnitCanAttack("player", Unit) and br._G.UnitHealth(Unit) > 0 and distance < 50 and not br.isCritter(Unit) and
+	return br.GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and inPhase and UnitCanAttack("player", Unit) and
+		br._G.UnitHealth(Unit) > 0 and
+		distance < 50 and
+		not br.isCritter(Unit) and
 		mcCheck and
 		not br.GetUnitIsUnit(Unit, "pet") and
 		br._G.UnitCreator(Unit) ~= br._G.ObjectPointer("player") and
 		br.GetObjectID(Unit) ~= 11492 and
 		br.getLineOfSight("player", Unit) and
-		((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or ((br.UnitBuffID(Unit, 260805) or br.GetUnitIsUnit(Unit, "target")) and (Unit == 131824 or Unit == 131823 or Unit == 131825)))
+		((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or
+			((br.UnitBuffID(Unit, 260805) or br.GetUnitIsUnit(Unit, "target")) and
+				(Unit == 131824 or Unit == 131823 or Unit == 131825)))
 end
 
 function br.isValidUnit(Unit)
@@ -555,7 +570,9 @@ function br.isValidUnit(Unit)
 	local burnUnit = br.getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
 	local isCC = br.getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck =
-		(br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not br.GetUnitIsFriend(Unit, "player")
+		(br.isChecked("Attack MC Targets") and
+		(not br.GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or
+		not br.GetUnitIsFriend(Unit, "player")
 	if playerTarget and br.UnitDebuffID("player", 320102) and UnitIsPlayer(Unit) then
 		return true
 	end
@@ -565,14 +582,17 @@ function br.isValidUnit(Unit)
 	if
 		not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit) and mcCheck and not isCC and
 			(dummy or burnUnit or
-				(not UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit) and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
+				(not UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit) and
+					((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	 then
-		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or isInProvingGround() or br.hasThreat(Unit)
+		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or
+			br.isInProvingGround() or
+			br.hasThreat(Unit)
 	end
 	return false
 end
 
-function SpecificToggle(toggle)
+function br.SpecificToggle(toggle)
 	if customToggle then
 		return false
 	elseif br.getOptionValue(toggle) == 1 then
@@ -604,7 +624,10 @@ function br.UpdateToggle(toggle, delay)
 	if _G[toggle .. "Timer"] == nil then
 		_G[toggle .. "Timer"] = 0
 	end
-	if (SpecificToggle(toggle .. " Mode") or customToggle) and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle .. "Timer"] > delay then
+	if
+		(br.SpecificToggle(toggle .. " Mode") or customToggle) and not GetCurrentKeyBoardFocus() and
+			GetTime() - _G[toggle .. "Timer"] > delay
+	 then
 		_G[toggle .. "Timer"] = GetTime()
 		UpdateButton(tostring(toggle))
 	end
@@ -645,10 +668,10 @@ function pause(skipCastingCheck)
 	if disableControl == true then
 		return true
 	end
-	if SpecificToggle("Pause Mode") == nil or br.getValue("Pause Mode") == 6 then
+	if br.SpecificToggle("Pause Mode") == nil or br.getValue("Pause Mode") == 6 then
 		pausekey = IsLeftAltKeyDown()
 	else
-		pausekey = SpecificToggle("Pause Mode")
+		pausekey = br.SpecificToggle("Pause Mode")
 	end
 	-- Focused Azerite Beam / Cyclotronic Blast / Azshara's Font of Power
 	if not skipCastingCheck then
@@ -701,8 +724,10 @@ function pause(skipCastingCheck)
 	-- Pause Hold/Auto
 	if
 		(pausekey and GetCurrentKeyBoardFocus() == nil and br.isChecked("Pause Mode")) or profileStop or
-			(((IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and not br.isChecked("Bypass Vehicle Check")) and
-				not (br.UnitBuffID("player", 190784) or br.UnitBuffID("player", 164222) or br.UnitBuffID("player", 165803) or br.UnitBuffID("player", 157059))) or
+			(((IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and
+				not br.isChecked("Bypass Vehicle Check")) and
+				not (br.UnitBuffID("player", 190784) or br.UnitBuffID("player", 164222) or br.UnitBuffID("player", 165803) or
+					br.UnitBuffID("player", 157059))) or
 			SpellIsTargeting() or
 			(UnitCastingInfo("player") and not skipCastingCheck) or
 			(UnitChannelInfo("player") and not skipCastingCheck) or
@@ -751,7 +776,8 @@ function br.isChecked(Value)
 
 		if
 			br.data.settings[br.selectedSpec] and
-				(br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == 1 or br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == true)
+				(br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == 1 or
+					br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == true)
 		 then
 			return true
 		end
@@ -763,7 +789,9 @@ function isSelected(Value)
 	if
 		br.data.settings ~= nil and
 			(br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 or
-				(br.isChecked(Value) and (br.getValue(Value) == 3 or (br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
+				(br.isChecked(Value) and
+					(br.getValue(Value) == 3 or
+						(br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
 	 then
 		return true
 	end
@@ -870,7 +898,8 @@ function talentAnywhere()
 		selectedTalent = nil
 		for column = 1, 3 do
 			if
-				IsMouseButtonDown(1) and newTalent == nil and MouseIsOver(_G["PlayerTalentFrameTalentsTalentRow" .. row .. "Talent" .. column]) and
+				IsMouseButtonDown(1) and newTalent == nil and
+					MouseIsOver(_G["PlayerTalentFrameTalentsTalentRow" .. row .. "Talent" .. column]) and
 					not select(4, GetTalentInfoByID(GetTalentInfo(row, column, 1), 1))
 			 then
 				selectedTalent = nil
@@ -892,7 +921,9 @@ function talentAnywhere()
 		end
 		--br.ChatOverlay(tostring(selectedTalent).." | "..tostring(newTalent).." | "..tostring(selectedNew))
 		if newTalent ~= nil then
-			if selectedTalent ~= nil and selectedTalent ~= newTalent and not selectedNew and br.timer:useTimer("RemoveTalent", 0.1) then
+			if
+				selectedTalent ~= nil and selectedTalent ~= newTalent and not selectedNew and br.timer:useTimer("RemoveTalent", 0.1)
+			 then
 				removeTalent(selectedTalent)
 			end
 			if selectedTalent == nil and selectedTalent ~= newTalent and not selectedNew then
@@ -972,7 +1003,9 @@ function br.sanguineCheck(unit)
 end
 
 function isTableEmpty(table)
-	if table == nil then return true end
+	if table == nil then
+		return true
+	end
 	local retval = true
 	if next(table) ~= nil then
 		retval = false

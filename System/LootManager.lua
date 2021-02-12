@@ -1,28 +1,28 @@
-local addonName, br = ...
+local _, br = ...
 -- Sell Greys Macros
 SLASH_Greys1 = "/grey"
 SLASH_Greys2 = "/greys"
 function SlashCmdList.Greys(msg, editbox)
-	SellGreys()
+	br.SellGreys()
 end
-function SellGreys()
+function br.SellGreys()
 	for bag = 0, 4 do
-		for slot = 1, GetContainerNumSlots(bag) do
-			local item = GetContainerItemLink(bag, slot)
+		for slot = 1, br._G.GetContainerNumSlots(bag) do
+			local item = br._G.GetContainerItemLink(bag, slot)
 			if item then
 				-- Is it grey quality item?
 				if string.find(item, br.qualityColors.grey) ~= nil then
-					greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
+					local greyPrice = select(11, br._G.GetItemInfo(item)) * select(2, br._G.GetContainerItemInfo(bag, slot))
 					if greyPrice > 0 then
-						PickupContainerItem(bag, slot)
-						PickupMerchantItem()
+						br._G.PickupContainerItem(bag, slot)
+						br._G.PickupMerchantItem()
 					end
 				end
 			end
 		end
 	end
-	RepairAllItems(1)
-	RepairAllItems(0)
+	br._G.RepairAllItems(1)
+	br._G.RepairAllItems(0)
 	br.ChatOverlay("Sold Greys.")
 end
 -- Dump Greys Macros
@@ -109,7 +109,13 @@ function br.lootManager:getLoot(lootUnit)
 					end
 				end
 			end
-		elseif br.isChecked("Fetch") and (not isInCombat("player") or br.player.enemies.get(40)[1] == nil) and br._G.UnitExists("pet") and not deadPet and br.getDistance(lootUnit) > 7 and br.getDistance(lootUnit) < 40 then
+		elseif
+			br.isChecked("Fetch") and (not isInCombat("player") or br.player.enemies.get(40)[1] == nil) and
+				br._G.UnitExists("pet") and
+				not deadPet and
+				br.getDistance(lootUnit) > 7 and
+				br.getDistance(lootUnit) < 40
+		 then
 			if not fetching then
 				fetching = true
 				lM:debug("Looting " .. br._G.UnitName(lootUnit))

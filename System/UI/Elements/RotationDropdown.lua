@@ -22,7 +22,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
         br.data.settings[br.selectedSpec][notFoundProfile] = {}
 
         br.data.settings[br.selectedSpec][text.."Drop"] = 1
-        Print("Selected profile not found fallback to profile 1.")
+        br._G.print("Selected profile not found fallback to profile 1.")
     end
 
     -- if br.data.tracker ~= nil and br.data.tracker.lastProfile ~= nil then br.data.settings[br.selectedSpec][text.."Drop"] = br.data.tracker.lastProfile end
@@ -37,9 +37,9 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
         if UnitAffectingCombat("player") then
-            Print("Unable to change profile in combat.  Please try again when combat ends.")
+            br._G.print("Unable to change profile in combat.  Please try again when combat ends.")
         else
-            -- Print("Rotation Changed")
+            -- br._G.print("Rotation Changed")
             br:saveSettings(nil,nil,br.selectedSpec,br.selectedProfileName)
             br:saveLastProfileTracker()
             br.data.settings[br.selectedSpec][text.."Drop"] = key

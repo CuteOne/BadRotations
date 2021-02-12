@@ -1,20 +1,25 @@
 local _, br = ...
 local b = br._G
-local CurrentTable,OldTable
+local CurrentTable, OldTable
 local function copyTable(datatable)
-	local tblRes={}
-	if type(datatable)=="table" then
-		for k,v in pairs(datatable) do
+	local tblRes = {}
+	if type(datatable) == "table" then
+		for k, v in pairs(datatable) do
 			tblRes[copyTable(k)] = copyTable(v)
 		end
 	else
-		tblRes=datatable
+		tblRes = datatable
 	end
 	return tblRes
 end
 
 local TagHandlerList = {
-	"IsSpellInRange","IsItemInRange","UnitInRange","br.isCritter","UnitAura", "UnitAuraSlots",
+	"IsSpellInRange",
+	"IsItemInRange",
+	"UnitInRange",
+	"br.isCritter",
+	"UnitAura",
+	"UnitAuraSlots",
 	"UnitPlayerControlled",
 	"UnitIsVisible",
 	"GetUnitSpeed",
@@ -133,7 +138,7 @@ local TagHandlerList = {
 	"C_NamePlate.SetTargetClampingInsets",
 	"AuraUtil.FindAuraBySpellId",
 	"AuraUtil.FindAuraByName",
-	"AuraUtil.FindAura",
+	"AuraUtil.FindAura"
 }
 local UnlockList = {
 	"ToggleGameMenu",
@@ -246,23 +251,30 @@ local UnlockList = {
 	"AttackTarget",
 	-- "CancelItemTempEnchantment",
 	"CancelLogout",
-	"StartAttack", "MainMenuBar.ClearAllPoints", "UIParent.SetAttribute","MainMenuBar.SetPoint"
+	"StartAttack",
+	"MainMenuBar.ClearAllPoints",
+	"UIParent.SetAttribute",
+	"MainMenuBar.SetPoint"
 }
 local function BrUnlock()
 	local lb = _G.__LB__
 	print("huy")
-	for _,val in ipairs(TagHandlerList) do
-		for _,rot in ipairs(UnlockList) do
+	for _, val in ipairs(TagHandlerList) do
+		for _, rot in ipairs(UnlockList) do
 			if val == rot then
 				print(rot)
 			end
 		end
 	end
 	local function lbUnlock(method)
-		b[method] = function (...) return lb.Unlock(_G[method], ...); end
+		b[method] = function(...)
+			return lb.Unlock(_G[method], ...)
+		end
 	end
 	local function lbUnitTagHandler(method)
-		b[method] = function (...) return lb.UnitTagHandler(lb.Unlock, _G[method], ...); end
+		b[method] = function(...)
+			return lb.UnitTagHandler(lb.Unlock, _G[method], ...)
+		end
 	end
 	for _, method in ipairs(TagHandlerList) do
 		lbUnitTagHandler(method)
@@ -271,13 +283,27 @@ local function BrUnlock()
 		lbUnlock(method)
 	end
 
-	b.ObjectPointer = function(...) return lb.ObjectPointer(...) end
-	b.ObjectPosition = function (...) return lb.ObjectPosition(...) end
+	b.ObjectPointer = function(...)
+		return lb.ObjectPointer(...)
+	end
+	b.ObjectPosition = function(...)
+		return lb.ObjectPosition(...)
+	end
 	b.ObjectGUID = br._G.UnitGUID
-	b.ObjectIsUnit = function(...) local ObjType = lb.ObjectType(...); return ObjType == 5 or ObjType == 6 or ObjType == 7 end
-	b.ObjectIsGameObject = function(...) local ObjType = lb.ObjectType(...); return ObjType == 8 or ObjType == 11 end
-	b.ObjectID = function (...) return lb.ObjectId(...) end
-	b.UnitMovementFlags = function(...) return lb.UnitMovementFlags(...) end
+	b.ObjectIsUnit = function(...)
+		local ObjType = lb.ObjectType(...)
+		return ObjType == 5 or ObjType == 6 or ObjType == 7
+	end
+	b.ObjectIsGameObject = function(...)
+		local ObjType = lb.ObjectType(...)
+		return ObjType == 8 or ObjType == 11
+	end
+	b.ObjectID = function(...)
+		return lb.ObjectId(...)
+	end
+	b.UnitMovementFlags = function(...)
+		return lb.UnitMovementFlags(...)
+	end
 	b.TraceLine = function(...)
 		lb.Raycast(...)
 	end
@@ -285,18 +311,22 @@ local function BrUnlock()
 	b.IsQuestObject = function(obj)
 		return false, false
 	end
-	b.UnitCastingInfo = function(...) return lb.UnitTagHandler(_G.UnitCastingInfo, ...) end
-	b.UnitChannelInfo = function(...) return lb.UnitTagHandler(_G.UnitChannelInfo, ...) end
+	b.UnitCastingInfo = function(...)
+		return lb.UnitTagHandler(_G.UnitCastingInfo, ...)
+	end
+	b.UnitChannelInfo = function(...)
+		return lb.UnitTagHandler(_G.UnitChannelInfo, ...)
+	end
 	b.UnitCastID = function(...)
 		local CastSpellID, CastTargetGUID, timeLeft, NotInterruptible = lb.UnitCastingInfo(...)
 		local ChannelSpellID, ChannelTargetGUID, timeLeft, NotInterruptible = lb.UnitChannelInfo(...)
-		return CastSpellID,ChannelSpellID,CastTargetGUID,ChannelTargetGUID
+		return CastSpellID, ChannelSpellID, CastTargetGUID, ChannelTargetGUID
 	end
 	b.GetWoWDirectory = lb.GetGameDirectory
 	b.CreateDirectory = lb.CreateDirectory
 	b.GetDirectoryFiles = lb.GetFiles
 	b.GetKeyState = lb.GetKeyState
-	b.WorldToScreen = function (wX, wY, wZ)
+	b.WorldToScreen = function(wX, wY, wZ)
 		local ResolutionCoef = _G.WorldFrame:GetWidth() / lb.GetWindowSize()
 		local sX, sY = lb.WorldToScreen(wX, wY, wZ)
 		if sX and sY then
@@ -306,23 +336,25 @@ local function BrUnlock()
 		end
 	end
 	b.ScreenToWorld = function()
-		return 0,0
+		return 0, 0
 	end
 	b.GetDistanceBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2)
-		return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) +  math.pow(Z2 - Z1, 2))
+		return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2))
 	end
 
-	b.GetAnglesBetweenObjects = function(Object1,Object2)
-		local X1,Y1,Z1 = br._G.ObjectPosition(Object1)
-		local X2,Y2,Z2 = br._G.ObjectPosition(Object2)
+	b.GetAnglesBetweenObjects = function(Object1, Object2)
+		local X1, Y1, Z1 = br._G.ObjectPosition(Object1)
+		local X2, Y2, Z2 = br._G.ObjectPosition(Object2)
 		-- print(Unit1,X1,Y1,Z1,unit2,X2,Y2,Z2)
-		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2),
-			math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
+		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan(
+			(Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))
+		) % math.pi
 	end
 
 	b.GetAnglesBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2)
-		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2),
-			math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
+		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan(
+			(Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))
+		) % math.pi
 	end
 
 	b.GetPositionFromPosition = function(X, Y, Z, Distance, AngleXY, AngleXYZ)
@@ -334,28 +366,28 @@ local function BrUnlock()
 		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
 
-	b.GetPositionBetweenObjects = function(unit1,unit2,DistanceFromPosition1)
-		local X1,Y1,Z1 = br._G.ObjectPosition(unit1)
+	b.GetPositionBetweenObjects = function(unit1, unit2, DistanceFromPosition1)
+		local X1, Y1, Z1 = br._G.ObjectPosition(unit1)
 
-		local X2,Y2,Z2 = br._G.ObjectPosition(unit2)
+		local X2, Y2, Z2 = br._G.ObjectPosition(unit2)
 		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
 		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
 	b.ObjectFacing = lb.ObjectFacing
 	b.FaceDirection = function(arg)
 		if type(arg) == "number" then
-			lb.SetPlayerAngles (arg)
+			lb.SetPlayerAngles(arg)
 		else
-			arg = b.GetAnglesBetweenObjects("player",arg)
-			lb.SetPlayerAngles (arg)
+			arg = b.GetAnglesBetweenObjects("player", arg)
+			lb.SetPlayerAngles(arg)
 		end
 	end
-	function b.ObjectIsFacing(obj1,obj2, degrees)
+	function b.ObjectIsFacing(obj1, obj2, degrees)
 		local Facing = lb.ObjectFacing(obj1)
-		local AngleToUnit = b.GetAnglesBetweenObjects(obj1,obj2)
+		local AngleToUnit = b.GetAnglesBetweenObjects(obj1, obj2)
 		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
 		local ShortestAngle = AngleDifference < math.pi and AngleDifference or math.pi * 2 - AngleDifference
-		degrees = degrees and br._G.rad(degrees)/2 or math.pi/2
+		degrees = degrees and br._G.rad(degrees) / 2 or math.pi / 2
 		return ShortestAngle < degrees
 	end
 	-- br.getFacing = ObjectFacingObject
@@ -363,24 +395,22 @@ local function BrUnlock()
 	b.ObjectName = lb.ObjectName
 	b.GetDistanceBetweenPositions = lb.GetDistance3D
 	b.GetMapId = lb.GetMapId
-	b.UnitIsMounted = function (...)
-		return lb.UnitHasFlag(...,lb.EUnitFlags.Mount)
+	b.UnitIsMounted = function(...)
+		return lb.UnitHasFlag(..., lb.EUnitFlags.Mount)
 	end
 	b.SendMovementUpdate = lb.UpdatePlayerMovement
 
 	b.ObjectDynamicFlags = lb.ObjectDynamicFlags
 
-	b.IsHackEnabled = function (...)
+	b.IsHackEnabled = function(...)
 		--print(...)
 		return false
-
 	end
 	b.UnitCombatReach = lb.UnitCombatReach
 	b.ReadFile = lb.ReadFile
 	b.DirectoryExists = lb.DirectoryExists
-	b.WriteFile = function(file,string,boolean)
-		-- print(file,string,boolean)
-		lb.WriteFile(file,string,boolean)
+	b.WriteFile = function(...)
+		return lb.WriteFile(...)
 	end
 	-- local addedOM,removedOM = {}, {}
 	function b.GetObjectCount()
