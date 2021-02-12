@@ -1125,7 +1125,7 @@ local function runRotation()
     enemies.get(8,"player",false,true)
     enemies.get(10)
     enemies.get(20)
-    enemies.yards40r = getEnemiesInRect(8,40,true) or 0
+    enemies.yards40r = getEnemiesInRect(8,40,false) or 0
 
     -- Profile Variables
     if var.castFSK              == nil then var.castFSK             = false                 end
