@@ -1,9 +1,9 @@
 local addonName, br = ...
 --- Character Class
 -- All classes inherit from the base class /cCharacter.lua
-cCharacter = {}
+br.cCharacter = {}
 -- Creates new character with given class
-function cCharacter:new(class)
+function br.cCharacter:new(class)
 	local self = {}
 	self.augmentRune = {
 		-- Contains the different buff IDs for Augment Runes

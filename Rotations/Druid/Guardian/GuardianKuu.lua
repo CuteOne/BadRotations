@@ -673,7 +673,7 @@ local function runRotation()
     end
 
     local function actionList_Defensive()
-        if useDefensive() then
+        if br.useDefensive() then
             if ui.checked("Healthstone/Potion") and php <= ui.value("Healthstone/Potion") and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
                 if br.canUseItem(5512) then
                     br.useItem(5512)
@@ -854,7 +854,7 @@ local function runRotation()
     end
     -- Incap Logic
     local function actionList_Interrupts()
-        if useInterrupts() then
+        if br.useInterrupts() then
             if ui.checked("Incapacitating Roar Logic (M+)") then
                 if cast.able.incapacitatingRoar() then
                     local Incap_list = {

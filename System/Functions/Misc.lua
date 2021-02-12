@@ -596,7 +596,7 @@ function SpecificToggle(toggle)
 	end
 end
 
-function UpdateToggle(toggle, delay)
+function br.UpdateToggle(toggle, delay)
 	--if toggle == nil then toggle = "toggle" end
 	if customToggle then
 		toggle = toggleKey
