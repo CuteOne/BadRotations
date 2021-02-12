@@ -366,7 +366,7 @@ function isInLegion()
 	local legionMapIDs = br.lists.maps.Legion
 	return tContains(legionMapIDs, currentMapID)
 end
-function isInProvingGround()
+function br.isInProvingGround()
 	local currentMapID = C_Map.GetBestMapForUnit("player")
 	return currentMapID == 480
 end
