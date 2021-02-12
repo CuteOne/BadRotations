@@ -65,7 +65,7 @@ br.api.cast = function(self,spell,id)
 
     if cast.cancel == nil then cast.cancel = {} end
     cast.cancel[spell] = function()
-        local SpellStopCasting = _G["SpellStopCasting"]
+        local SpellStopCasting = br._G["SpellStopCasting"]
         if self.cast.current[spell]() then
             SpellStopCasting()
             return true
@@ -116,7 +116,7 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.form(formIndex) - Casts the form corresponding to the provided formIndex number
     if cast.form == nil then
         cast.form = function(formIndex)
-            local CastShapeshiftForm = _G["CastShapeshiftForm"]
+            local CastShapeshiftForm = br._G["CastShapeshiftForm"]
             if formIndex == nil then formIndex = 0 end
             return CastShapeshiftForm(formIndex)
         end
@@ -161,14 +161,14 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.last.time.spell() - Returns the GetTime() value the last cast of this spell occured.
     if cast.last.time == nil then cast.last.time = {} end
     cast.last.time[spell] = function()
-        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = _G.GetTime() end
+        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
         return br.lastCastTable.castTime[id]
     end
 
     -- br.player.cast.noControl.spell() - Returns true if the spell can free you of a "no control" effect.
     if cast.noControl == nil then cast.noControl = {} end
     cast.noControl[spell] = function(thisUnit)
-        local hasNoControl = _G["hasNoControl"]
+        local hasNoControl = br["hasNoControl"]
         if thisUnit == nil then thisUnit = "player" end
         return hasNoControl(id,thisUnit)
     end

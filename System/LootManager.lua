@@ -189,7 +189,7 @@ end
 function autoLoot()
 	if br.getOptionCheck("Auto Loot") then
 		--br.player.enemies.get(40)
-		if (not isInCombat("player") or br.player.enemies.get(10)[1] == nil) then
+		if (not br.isInCombat("player") or br.player.enemies.get(10)[1] == nil) then
 			-- start loot manager
 			if lM and lM:lootCount() > 0 then
 				if lM:emptySlots() ~= 0 then
