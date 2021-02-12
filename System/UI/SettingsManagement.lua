@@ -1,4 +1,4 @@
-local addonName, br = ...
+local _, br = ...
 local function getFolderClassName(class)
 	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
 	if formatClass == "Deathknight" then
@@ -28,7 +28,7 @@ function br:checkDirectories(folder, class, spec, profile)
 
 	-- Set the Class Directory
 	if class == nil then
-		class = select(2, UnitClass("player"))
+		class = select(2, br._G.UnitClass("player"))
 	end
 	local classDir = br.settingsDir .. getFolderClassName(class) .. "\\"
 	if not br._G.DirectoryExists(classDir) then
@@ -93,9 +93,9 @@ function br:loadSettings(folder, class, spec, profile)
 		end
 		if fileFound then
 			br.ui:closeWindow("all")
-			br.data = deepcopy(brdata)
+			br.data = br.deepcopy(brdata)
 			if profileFound then
-				br.profile = deepcopy(brprofile)
+				br.profile = br.deepcopy(brprofile)
 			end
 			br._G.print("Loaded Settings for Profile " .. tostring(profile))
 		end
@@ -125,8 +125,8 @@ end
 -- Save Settings
 function br:saveSettings(folder, class, spec, profile, wipe)
 	local saveDir = br:checkDirectories(folder, class, spec, profile)
-	local brdata = wipe and {} or deepcopy(br.data)
-	local brprofile = wipe and {} or deepcopy(br.profile)
+	local brdata = wipe and {} or br.deepcopy(br.data)
+	local brprofile = wipe and {} or br.deepcopy(br.profile)
 	br._G.print("Saving Profiles and Settings to Directory: " .. tostring(saveDir))
 	-- Save Files
 	br.tableSave(brdata, saveDir .. "savedSettings.lua")
@@ -150,7 +150,7 @@ function br:loadLastProfileTracker()
 	local selectedProfile = br.selectedSpec
 	if br:findFileInFolder("lastProfileTracker.lua", loadDir) then
 		local tracker = br.tableLoad(loadDir .. "lastProfileTracker.lua")
-		local specID = GetSpecializationInfo(GetSpecialization())
+		local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
 		if br.data == nil then
 			br.data = {}
 		end
@@ -191,7 +191,7 @@ end
 
 function br:saveLastProfileTracker()
 	local saveDir = br:checkDirectories(nil, nil, nil, "Tracker")
-	local specID = GetSpecializationInfo(GetSpecialization()) or br.selectedSpecID
+	local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization()) or br.selectedSpecID
 	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil then
 		if br.data.tracker ~= nil then
 			if br.data.tracker[br.selectedSpec] == nil then

@@ -35,7 +35,11 @@ function br.ToggleToValue(toggleValue, index)
 	index = tonumber(index)
 	local modesCount = #br[toggleValue .. "Modes"]
 	if index > modesCount then
-		br._G.print("Invalid Toggle Index for |cffFFDD11" .. toggleValue .. ": |cFFFF0000 Index ( |r" .. index .. "|cFFFF0000) exceeds Max ( |r" .. modesCount .. "|cFFFF0000)|r.")
+		br._G.print(
+			"Invalid Toggle Index for |cffFFDD11" ..
+				toggleValue ..
+					": |cFFFF0000 Index ( |r" .. index .. "|cFFFF0000) exceeds Max ( |r" .. modesCount .. "|cFFFF0000)|r."
+		)
 	else
 		br.specialToggleCodes(toggleValue, index)
 		if not br.data.settings[br.selectedSpec].toggles then
@@ -173,6 +177,7 @@ end
 
 -- set to desired button value
 function br.changeButton(toggleValue, newValue)
+	local Icon
 	-- define text
 	br["text" .. toggleValue]:SetText(br[toggleValue .. "Modes"][newValue].mode)
 	-- define icon
@@ -181,12 +186,12 @@ function br.changeButton(toggleValue, newValue)
 	else
 		Icon = br[toggleValue .. "Modes"][newValue].icon
 	end
-	br["button" .. toggleValue]:SetNormalTexture(Icon or emptyIcon)
+	br["button" .. toggleValue]:SetNormalTexture(Icon or br.emptyIcon)
 	-- define highlight
 	if br[toggleValue .. "Modes"][newValue].highlight == 0 then
-		br["frame" .. toggleValue].texture:SetTexture(genericIconOff)
+		br["frame" .. toggleValue].texture:SetTexture(br.genericIconOff)
 	else
-		br["frame" .. toggleValue].texture:SetTexture(genericIconOn)
+		br["frame" .. toggleValue].texture:SetTexture(br.genericIconOn)
 	end
 	-- We tell the user we changed mode
 	br.ChatOverlay("\124cFF3BB0FF" .. br[toggleValue .. "Modes"][newValue].overlay)
@@ -222,7 +227,10 @@ function br.CreateButton(Name, x, y)
 		local Icon
 		-- local Name = string.upper(Name)
 		-- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
-		if br.data.settings[br.selectedSpec].toggles[Name] == nil or br.data.settings[br.selectedSpec].toggles[Name] > #br[Name .. "Modes"] then
+		if
+			br.data.settings[br.selectedSpec].toggles[Name] == nil or
+				br.data.settings[br.selectedSpec].toggles[Name] > #br[Name .. "Modes"]
+		 then
 			br.data.settings[br.selectedSpec].toggles[Name] = 1
 		end
 		if br.buttonsTable then
@@ -231,16 +239,21 @@ function br.CreateButton(Name, x, y)
 		br["button" .. Name] = _G.CreateFrame("Button", "MyButtonBR", br.mainButton, "SecureHandlerClickTemplate")
 		br["button" .. Name]:SetWidth(br.data.settings["buttonSize"])
 		br["button" .. Name]:SetHeight(br.data.settings["buttonSize"])
-		br["button" .. Name]:SetPoint("LEFT", x * (br.data.settings["buttonSize"]) + (x * 2), y * (br.data.settings["buttonSize"]) + (y * 2))
+		br["button" .. Name]:SetPoint(
+			"LEFT",
+			x * (br.data.settings["buttonSize"]) + (x * 2),
+			y * (br.data.settings["buttonSize"]) + (y * 2)
+		)
 		br["button" .. Name]:RegisterForClicks("AnyUp")
 		if
-			br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon ~= nil and type(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number"
+			br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon ~= nil and
+				type(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number"
 		 then
 			Icon = select(3, _G.GetSpellInfo(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
 		else
 			Icon = br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
 		end
-		br["button" .. Name]:SetNormalTexture(Icon or emptyIcon)
+		br["button" .. Name]:SetNormalTexture(Icon or br.emptyIcon)
 		--CreateBorder(br["button"..Name], 8, 0.6, 0.6, 0.6)
 		br["text" .. Name] = br["button" .. Name]:CreateFontString(nil, "OVERLAY")
 		br["text" .. Name]:SetFont(br.data.settings.font, br.data.settings.fontsize, "THICKOUTLINE")
@@ -257,7 +270,7 @@ function br.CreateButton(Name, x, y)
 		br["frame" .. Name].texture:SetWidth(br.data.settings["buttonSize"] * 1.67)
 		br["frame" .. Name].texture:SetHeight(br.data.settings["buttonSize"] * 1.67)
 		br["frame" .. Name].texture:SetAlpha(100)
-		br["frame" .. Name].texture:SetTexture(genericIconOn)
+		br["frame" .. Name].texture:SetTexture(br.genericIconOn)
 		if br[Name .. "Modes"] == nil then
 			br._G.print("No table found for " .. Name)
 			br[Name .. "Modes"] = tostring(Name)
@@ -291,7 +304,8 @@ function br.CreateButton(Name, x, y)
 					Go = true
 				end
 				if Go == true then
-					br.data.settings[br.selectedSpec].toggles[tostring(Name)] = br.data.settings[br.selectedSpec].toggles[tostring(Name)] + delta
+					br.data.settings[br.selectedSpec].toggles[tostring(Name)] =
+						br.data.settings[br.selectedSpec].toggles[tostring(Name)] + delta
 				end
 			end
 		)
@@ -299,7 +313,14 @@ function br.CreateButton(Name, x, y)
 			"OnEnter",
 			function()
 				_G.GameTooltip:SetOwner(br["button" .. Name], _G.UIParent, 0, 0)
-				_G.GameTooltip:SetText(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip, 225 / 255, 225 / 255, 225 / 255, nil, true)
+				_G.GameTooltip:SetText(
+					br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip,
+					225 / 255,
+					225 / 255,
+					225 / 255,
+					nil,
+					true
+				)
 				_G.GameTooltip:Show()
 			end
 		)
@@ -311,9 +332,9 @@ function br.CreateButton(Name, x, y)
 		)
 		br["text" .. Name]:SetText(br[Name .. "Modes"][modeValue].mode)
 		if br[Name .. "Modes"][modeValue].highlight == 0 then
-			br["frame" .. Name].texture:SetTexture(genericIconOff)
+			br["frame" .. Name].texture:SetTexture(br.genericIconOff)
 		else
-			br["frame" .. Name].texture:SetTexture(genericIconOn)
+			br["frame" .. Name].texture:SetTexture(br.genericIconOn)
 		end
 		if br.mainButton ~= nil then
 			if br.data.settings[br.selectedSpec].toggles["Main"] == 1 and not br._G.UnitAffectingCombat("player") then
@@ -324,6 +345,9 @@ function br.CreateButton(Name, x, y)
 				br._G.print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			end
 		end
-		br.SlashCommandHelp("br toggle " .. Name .. " 1-" .. #br[Name .. "Modes"], "Toggles " .. Name .. " Modes, Optional: specify number")
+		br.SlashCommandHelp(
+			"br toggle " .. Name .. " 1-" .. #br[Name .. "Modes"],
+			"Toggles " .. Name .. " Modes, Optional: specify number"
+		)
 	end
 end

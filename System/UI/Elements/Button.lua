@@ -1,6 +1,6 @@
-local DiesalGUI = LibStub("DiesalGUI-1.0")
-local DiesalTools = LibStub("DiesalTools-1.0")
-local addonName, br = ...
+local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
+local DiesalTools = _G.LibStub("DiesalTools-1.0")
+local _, br = ...
 function br.ui:createButton(parent, buttonName, x, y, onClickFunction, alignRight)
     if y == nil then
         y = -5
@@ -80,14 +80,15 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
             profileButton:SetEventListener(
                 "OnClick",
                 function()
-                    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+                    local profiles =
+                        br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
                         for _, p in ipairs(profiles) do
                             if p.key == pkey then
                                 profileButton:SetText("|cffff3300Profile with that name exists!|r")
-                                C_Timer.NewTicker(
+                                br._G.C_Timer.NewTicker(
                                     2,
                                     function()
                                         profileButton:SetText("Create New Profile")
@@ -97,7 +98,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, {key = pkey, text = deepcopy(br.data.settings[br.selectedSpec])})
+                        table.insert(profiles, {key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec])})
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
@@ -110,14 +111,15 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
             profileInput:SetEventListener(
                 "OnEnterPressed",
                 function()
-                    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+                    local profiles =
+                        br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
                         for _, p in ipairs(profiles) do
                             if p.key == pkey then
                                 profileButton:SetText("|cffff3300Profile with that name exists!|r")
-                                C_Timer.NewTicker(
+                                br._G.C_Timer.NewTicker(
                                     2,
                                     function()
                                         profileButton:SetText("Create New Profile")
@@ -127,7 +129,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, {key = pkey, text = deepcopy(br.data.settings[br.selectedSpec])})
+                        table.insert(profiles, {key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec])})
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
@@ -165,7 +167,7 @@ function br.ui:createDeleteButton(parent, buttonName, x, y)
                 for i, p in ipairs(profiles) do
                     if p.key == selectedProfile then
                         profiles[i] = nil
-                        Print("Deleting " .. selectedProfile .. " profile!")
+                        br._G.print("Deleting " .. selectedProfile .. " profile!")
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", "default")
                         parent:Hide()
@@ -174,7 +176,7 @@ function br.ui:createDeleteButton(parent, buttonName, x, y)
                     end
                 end
             else
-                Print("Cannot delete default profile!")
+                br._G.print("Cannot delete default profile!")
             end
         end
     )
@@ -199,16 +201,16 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
         "OnClick",
         function()
             if br.profileDropValue == "default" then
-                Print("Please select a profile other than default!")
+                br._G.print("Please select a profile other than default!")
                 return
             end
             if br.profile ~= nil then
                 if br.profile[br.selectedSpec .. "_" .. "profiles"] ~= nil then
                     local lProfile = br.profile[br.selectedSpec .. "_" .. "profiles"]
-                    for k, v in pairs(lProfile) do
+                    for _, v in pairs(lProfile) do
                         if v.key == br.profileDropValue then
-                            br.data.settings[br.selectedSpec] = deepcopy(v.text)
-                            Print(v.key .. " profile found!")
+                            br.data.settings[br.selectedSpec] = br.deepcopy(v.text)
+                            br._G.print(v.key .. " profile found!")
                             br.rotationChanged = true
                             break
                         end
@@ -274,7 +276,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
         function()
             br.data.loadedSettings = false
             br:loadSettings("Exported Settings", nil, br.selectedSpec, br.selectedProfileName)
-            ReloadUI()
+            br._G.ReloadUI()
             -- -- Load settings file matching profile to br.data
             -- local loadDir = br:checkDirectories("Exported Settings")
             -- local brdata
@@ -415,7 +417,7 @@ br.tableLoad = function(sfile)
     if file == nil or file == "" then
         return
     end
-    local ftables = loadstring(file, sfile)
+    local ftables = br._G.loadstring(file, sfile)
     -- local ftables,err = loadfile( sfile )
     -- if err then return _,err end
     local tables

@@ -419,24 +419,24 @@ function br.isMoving(Unit)
 	return br._G.GetUnitSpeed(Unit) > 0
 end
 -- if IsMovingTime(5) then
-function IsMovingTime(time)
+function br.IsMovingTime(time)
 	if time == nil then
 		time = 1
 	end
-	if GetUnitSpeed("player") > 0 then
-		if IsRunning == nil then
-			IsRunning = GetTime()
-			IsStanding = nil
+	if br._G.GetUnitSpeed("player") > 0 then
+		if br.IsRunning == nil then
+			br.IsRunning = br._G.GetTime()
+			br.IsStanding = nil
 		end
-		if GetTime() - IsRunning > time then
+		if br._G.GetTime() - br.IsRunning > time then
 			return true
 		end
 	else
-		if IsStanding == nil then
-			IsStanding = GetTime()
-			IsRunning = nil
+		if br.IsStanding == nil then
+			br.IsStanding = br._G.GetTime()
+			br.IsRunning = nil
 		end
-		if GetTime() - IsStanding > time then
+		if br._G.GetTime() - br.IsStanding > time then
 			return false
 		end
 	end
@@ -477,19 +477,19 @@ function IsStandingTime(time, unit)
 		unit = "player"
 	end
 	if not IsFalling() and GetUnitSpeed(unit) == 0 then
-		if IsStanding == nil then
-			IsStanding = GetTime()
-			IsRunning = nil
+		if br.IsStanding == nil then
+			br.IsStanding = GetTime()
+			br.IsRunning = nil
 		end
-		if GetTime() - IsStanding > time then
+		if GetTime() - br.IsStanding > time then
 			return true
 		end
 	else
-		if IsRunning == nil then
-			IsRunning = GetTime()
-			IsStanding = nil
+		if br.IsRunning == nil then
+			br.IsRunning = GetTime()
+			br.IsStanding = nil
 		end
-		if GetTime() - IsRunning > time then
+		if GetTime() - br.IsRunning > time then
 			return false
 		end
 	end

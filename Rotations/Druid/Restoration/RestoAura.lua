@@ -849,7 +849,7 @@ local function runRotation()
 			-- Travel Form
 			if
 				not inCombat and not swimming and level >= 58 and not buff.prowl.exists() and not travel and not br._G.IsIndoors() and
-					br.isMovingTime(1) and
+					br.IsMovingTime(1) and
 					br.timer:useTimer("Travel shift", 3)
 			 then
 				br._G.CastSpellByID(783, "player")
@@ -2769,7 +2769,7 @@ local function runRotation()
 					not moving and buff.moonkinForm.exists() and br.getFacing("player", "target") and
 						(buff.eclipse_lunar.exists() or (not eclipse_in and (eclipse_next == "solar" or eclipse_next == "any")))
 				 then
-					if cast.starfire(getBiggestUnitCluster(45, 8)) then
+					if cast.starfire(br.getBiggestUnitCluster(45, 8)) then
 						br.addonDebug("Casting Starfire")
 						return true
 					end
