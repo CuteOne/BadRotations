@@ -474,7 +474,7 @@ function cl:Druid(...)
             if destination ~= nil and destination ~= "" then
                 local thisUnit = thisUnit
                 if br.unlocked then --EWT then
-                    local destination = GetObjectWithGUID(destination)
+                    local destination = br._G.GetObjectWithGUID(destination)
                     if br.GetObjectExists(destination) then
                         thisUnit = destination
                     elseif br.GetObjectExists("target") then

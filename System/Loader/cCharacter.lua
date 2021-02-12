@@ -1,4 +1,4 @@
-local addonName, br = ...
+local _, br = ...
 --- Character Class
 -- All classes inherit from the base class /cCharacter.lua
 br.cCharacter = {}
@@ -15,7 +15,7 @@ function br.cCharacter:new(class)
 	self.artifact = {} -- Artifact Perk IDs
 	self.buff = {} -- Buffs API
 	self.debuff = {} -- Debuffs API
-	self.class = select(2, UnitClass("player")) -- Class
+	self.class = select(2, br._G.UnitClass("player")) -- Class
 	self.cd = {} -- Cooldowns
 	self.charges = {} -- Number of charges
 	self.currentPet = "None" -- Current Pet
@@ -27,7 +27,7 @@ function br.cCharacter:new(class)
 	self.gcd = 1.5 -- Global Cooldown
 	self.gcdMax = 1.5 -- GLobal Max Cooldown
 	self.glyph = {} -- Glyphs
-	self.faction = select(1, UnitFactionGroup("player")) -- Faction non-localised name
+	self.faction = select(1, br._G.UnitFactionGroup("player")) -- Faction non-localised name
 	self.flask = {}
 	self.flask.wod = {
 		-- Agility
@@ -61,7 +61,7 @@ function br.cCharacter:new(class)
 	self.health = 100 -- Health Points in %
 	self.ignoreCombat = false -- Ignores combat status if set to true
 	self.inCombat = false -- if is in combat
-	self.instance = select(2, IsInInstance()) -- Get type of group we are in (none, party, instance, raid, etc)
+	self.instance = select(2, br._G.IsInInstance()) -- Get type of group we are in (none, party, instance, raid, etc)
 	self.level = 0 -- Player Level
 	self.moving = false -- Moving event
 	self.opener = {} -- Opener flag tracking, reduce global vars
@@ -74,7 +74,7 @@ function br.cCharacter:new(class)
 	self.primaryStat = nil -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile = "None" -- Profile Name
 	self.queue = {} -- Table for Queued Spells
-	self.race = select(2, UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
+	self.race = select(2, br._G.UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
 	self.racial = 0 -- Contains racial spell id
 	-- self.recharge       	= {}        					-- Time for current recharge (for spells with charges)
 	-- self.rechargeFull   	= {}
@@ -91,7 +91,7 @@ function br.cCharacter:new(class)
 	-- Things which get updated for every class in combat
 	-- All classes call the baseUpdate()
 	function self.baseUpdate()
-		local startTime = debugprofilestop()
+		local startTime = _G.debugprofilestop()
 		-- Pause
 		-- TODO
 		-- Get Character Info
@@ -138,12 +138,12 @@ function br.cCharacter:new(class)
 		self.gcd = self.getGlobalCooldown()
 		self.gcdMax = self.getGlobalCooldown(true)
 		self.health = br.getHP("player")
-		self.instance = select(2, IsInInstance())
-		self.level = UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
-		self.spec = select(2, GetSpecializationInfo(GetSpecialization())) or "None"
-		self.currentPet = UnitCreatureFamily("pet") or "None"
+		self.instance = select(2, br._G.IsInInstance())
+		self.level = br._G.UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
+		self.spec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization())) or "None"
+		self.currentPet = br._G.UnitCreatureFamily("pet") or "None"
 		if self.currentPet ~= "None" then
-			self.petId = tonumber(UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
+			self.petId = tonumber(br._G.UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
 		else
 			self.petId = 0
 		end
@@ -156,7 +156,7 @@ function br.cCharacter:new(class)
 		self.baseGetEquip()
 		if br.getOptionCheck("Queue Casting") and #self.queue ~= 0 then
 			self.queue = {} -- Reset Queue Casting Table out of combat
-			Print("Out of Combat - Queue List Cleared")
+			br._G.print("Out of Combat - Queue List Cleared")
 		end
 		self.ignoreCombat = br.getOptionCheck("Ignore Combat")
 	end
@@ -177,7 +177,7 @@ function br.cCharacter:new(class)
 
 	-- Starts auto attack when in melee range and facing enemy
 	function self.startMeleeAttack()
-		if self.inCombat and (isInMelee() and br.getFacing("player", "target") == true) then
+		if self.inCombat and (br.isInMelee() and br.getFacing("player", "target") == true) then
 			br._G.StartAttack()
 		end
 	end
@@ -187,7 +187,7 @@ function br.cCharacter:new(class)
 			local tanksTable = br.getTanksTable()
 			if tanksTable ~= nil then
 				for i = 1, #tanksTable do
-					if UnitAffectingCombat(tanksTable[i].unit) and tanksTable[i].distance < 40 then
+					if br._G.UnitAffectingCombat(tanksTable[i].unit) and tanksTable[i].distance < 40 then
 						return true
 					end
 				end
@@ -199,8 +199,8 @@ function br.cCharacter:new(class)
 	-- Returns if in combat
 	function self.getInCombat()
 		if
-			UnitAffectingCombat("player") or self.ignoreCombat or (br.isChecked("Tank Aggro = Player Aggro") and self.tankAggro()) or
-				(GetNumGroupMembers() > 1 and (UnitAffectingCombat("player") or UnitAffectingCombat("target")))
+		br._G.UnitAffectingCombat("player") or self.ignoreCombat or (br.isChecked("Tank Aggro = Player Aggro") and self.tankAggro()) or
+				(br._G.GetNumGroupMembers() > 1 and (br._G.UnitAffectingCombat("player") or br._G.UnitAffectingCombat("target")))
 		 then
 			self.inCombat = true
 		else
@@ -221,7 +221,7 @@ function br.cCharacter:new(class)
 
 	-- Start the rotation or return if pause
 	function self.startRotation()
-		local startTime = debugprofilestop()
+		local startTime = _G.debugprofilestop()
 		-- dont check if player is casting to allow off-cd usage and cast while other spell is casting
 		-- if pause(true) then return end
 
@@ -290,9 +290,9 @@ function br.cCharacter:new(class)
 	function self.castRacial()
 		if br.getSpellCD(self.racial) == 0 and br.getOptionValue("Racial") then
 			if self.race == "Pandaren" or self.race == "Goblin" then
-				return castSpell("target", self.racial, true, false) == true
+				return br.castSpell("target", self.racial, true, false) == true
 			else
-				return castSpell("player", self.racial, true, false) == true
+				return br.castSpell("player", self.racial, true, false) == true
 			end
 		end
 	end
@@ -320,9 +320,9 @@ function br.cCharacter:new(class)
 		-- 1 - Strength, 2 - Agility, 3 - Stamina, 4 - Intellect, 5 - Spirit
 
 		local stat = {
-			Strength = select(2, UnitStat("player", 1)),
-			Agility = select(2, UnitStat("player", 2)),
-			Intellect = select(2, UnitStat("player", 4))
+			Strength = select(2, br._G.UnitStat("player", 1)),
+			Agility = select(2, br._G.UnitStat("player", 2)),
+			Intellect = select(2, br._G.UnitStat("player", 4))
 		}
 		local highestStat = ""
 		local highestStatValue = 0
@@ -340,22 +340,22 @@ function br.cCharacter:new(class)
 
 	function self.getConsumables()
 		for i = 0, 4 do --Let's look at each bag
-			local numBagSlots = GetContainerNumSlots(i)
+			local numBagSlots = br._G.GetContainerNumSlots(i)
 			if numBagSlots > 0 then
 				for x = 1, numBagSlots do --Let's look at each bag slot
-					local itemID = GetContainerItemID(i, x)
+					local itemID = br._G.GetContainerItemID(i, x)
 					if itemID ~= nil then -- Is there and item in the slot?
-						local itemEffect = select(1, GetItemSpell(itemID))
+						local itemEffect = select(1, br._G.GetItemSpell(itemID))
 						if itemEffect ~= nil then --Does the item provide a use effect?
 							local itemInfo = {
 								--Collect Item Data
 								itemID = itemID,
-								itemCD = GetItemCooldown(itemID),
-								itemName = GetItemInfo(itemID),
-								minLevel = select(5, GetItemInfo(itemID)),
-								itemType = select(7, GetItemInfo(itemID)),
+								itemCD = br._G.GetItemCooldown(itemID),
+								itemName = br._G.GetItemInfo(itemID),
+								minLevel = select(5, br._G.GetItemInfo(itemID)),
+								itemType = select(7, br._G.GetItemInfo(itemID)),
 								itemEffect = itemEffect,
-								itemCount = GetItemCount(itemID)
+								itemCount = br._G.GetItemCount(itemID)
 							}
 							if itemInfo.itemType == "Potion" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
 								local potionList = {
@@ -378,8 +378,8 @@ function br.cCharacter:new(class)
 									local potionEffect = potionList[y].effect
 									local potionType = potionList[y].ptype
 									-- if self.potion[potionType] == nil then self.potion[potionType] = {} end
-									if strmatch(itemEffect, potionEffect) ~= nil then
-										tinsert(self.potion[potionType], itemInfo)
+									if _G.strmatch(itemEffect, potionEffect) ~= nil then
+										_G.tinsert(self.potion[potionType], itemInfo)
 										table.sort(
 											self.potion[potionType],
 											function(x, y)
@@ -399,8 +399,8 @@ function br.cCharacter:new(class)
 								for y = 1, #flaskList do
 									local flasktype = flaskList[y].type
 									local flaskID = flaskList[y].id
-									if strmatch(itemInfo.itemID, flaskID) ~= nil then
-										tinsert(self.flask[flasktype], itemInfo)
+									if _G.strmatch(itemInfo.itemID, flaskID) ~= nil then
+										_G.tinsert(self.flask[flasktype], itemInfo)
 										table.sort(
 											self.flask[flasktype],
 											function(x, y)
