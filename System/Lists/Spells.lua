@@ -2020,6 +2020,7 @@ br.lists.spells = {
                 disableRoot                 = 116706,
                 markOfTheCrane              = 228287,
                 risingFist                  = 242259,
+                skyreachExhaustion          = 337341,
             },
             glyphs                          = {
                 glyphOfRisingTigerKick      = 125151,
