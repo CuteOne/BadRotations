@@ -210,7 +210,6 @@ local function runRotation()
 	--------------
 	local holyPower     = br.player.power.holyPower.amount()
 	local holyPowerMax  = br.player.power.holyPower.max()
-	local artifact      = br.player.artifact
 	local buff          = br.player.buff
 	local cast          = br.player.cast
 	local cd            = br.player.cd
@@ -221,7 +220,6 @@ local function runRotation()
 	local gcd           = br.player.gcd
 	local gcdMax        = br.player.gcdMax
 	local hastar        = GetObjectExists("target")
-	local healPot       = getHealthPot()
 	local inCombat      = br.player.inCombat
 	local level         = br.player.level
 	local inInstance    = br.player.instance=="party"
@@ -232,12 +230,10 @@ local function runRotation()
 	local race          = br.player.race
 	local racial        = br.player.getRacial()
 	local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
-	local solo          = GetNumGroupMembers() == 0
 	local spell         = br.player.spell
 	local talent        = br.player.talent
 	local ttd           = getTTD("target")
 	local units         = br.player.units
-	local level         = br.player.level
 	local module        = br.player.module
 	local use           = br.player.use
 	local SotR          = true
@@ -676,10 +672,6 @@ local function runRotation()
 				end
 			end
 		end
-		-- Dark Exile
-		if UnitCastingInfo("boss1") == GetSpellInfo(321894) and cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
-			if cast.blessingOfProtection("boss1target") then return true end
-		end
 		-- Infectious Rain
 		if UnitChannelInfo("boss1") ~= GetSpellInfo(331399) and getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
 			if cast.cleanseToxins("player") then return true end
@@ -716,10 +708,10 @@ local function runRotation()
 			end
 		end
 		-- Divine Toll
-		if (GetObjectID("boss1") == 165946 or GetObjectID("boss1") == 164185 or GetObjectID("boss1") == 167406) and cast.able.divineToll() then
+		if (GetObjectID("boss1") == 165946 or GetObjectID("boss1") == 164185 or GetObjectID("boss1") == 167406 or GetObjectID("boss1") == 163157) and cast.able.divineToll() then
 			for i = 1, #enemies.yards30 do
 			local thisUnit = enemies.yards30[i]
-				if GetObjectID(thisUnit) == 166524 or GetObjectID(thisUnit) == 164363 or GetObjectID(thisUnit) == 167999 then
+				if GetObjectID(thisUnit) == 166524 or GetObjectID(thisUnit) == 164363 or GetObjectID(thisUnit) == 167999 or GetObjectID(thisUnit) == 164414 then
 					if cast.divineToll(thisUnit) then return true end
 				end
 			end
@@ -815,27 +807,24 @@ local function runRotation()
 	-- Action List - Interrupts
 	local function actionList_Interrupts()
 		if useInterrupts() then
-			if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
-				for i = 1, #enemies.yards30 do
-					local thisUnit = enemies.yards30[i]
+			local BL_Unit = 0
+			local interruptID
+			local hoj_unit = nil
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				local distance = getDistance(thisUnit)
+				if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 					if (select(8,UnitCastingInfo(thisUnit)) == false or select(7,UnitChannelInfo(thisUnit)) == false) and getFacing("player",thisUnit) then
-						RInterrupts = false
-						if cast.avengersShield(thisUnit) then return true end
+						if cast.avengersShield(thisUnit) then hoj_unit = thisUnit return true end
 					end
 				end
-			end
-			local BL_Unit = 0
-			for i = 1, #enemies.yards10 do
-				local thisUnit = enemies.yards10[i]
-				local distance = getDistance(thisUnit)
 				-- Stun Spells
-				local interruptID
 				if UnitCastingInfo(thisUnit) then
 					interruptID = select(9,UnitCastingInfo(thisUnit))
 				elseif UnitChannelInfo(thisUnit) then
 					interruptID = select(8,UnitChannelInfo(thisUnit))
 				end
-				if interruptID ~=nil and StunSpellsList[interruptID] and getBuffRemain(thisUnit,343503) == 0 then
+				if interruptID ~=nil and StunSpellsList[interruptID] and getBuffRemain(thisUnit,343503) == 0 and distance <= 10 then
 					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
 						if cast.hammerOfJustice(thisUnit) then return true end
 					end
@@ -845,24 +834,22 @@ local function runRotation()
 				end
 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 					-- Blinding Light
-					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and getBuffRemain(thisUnit,343503) == 0 then
+					if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and getBuffRemain(thisUnit,343503) == 0 then
 						if not isBoss(thisUnit) and noStunsUnits[GetObjectID(thisUnit)] == nil then
 							BL_Unit = BL_Unit + 1
 							if BL_Unit >= getOptionValue("Blinding Light - INT") then
-								RInterrupts = false
 								if cast.blindingLight() then return true end
 							end
 						end
 					end
 					-- Hammer of Justice
-					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
+					if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 then
 						if not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and getBuffRemain(thisUnit,343503) == 0 and noStunsUnits[GetObjectID(thisUnit)] == nil then
-							RInterrupts = false
-							if cast.hammerOfJustice(thisUnit) then return true end
+							if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
 						end
 					end
 					-- Rebuke
-					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and getFacing("player",thisUnit) and RInterrupts == true then
+					if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and getFacing("player",thisUnit) and not GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
 					end
 				end
@@ -920,7 +907,7 @@ local function runRotation()
 				if cast.avengersShield(units.dyn30) then return true end
 			end
 			-- Divine Toll
-			if isChecked("Divine Toll") and cast.able.divineToll() and GetObjectID("boss1") ~= 165946 and GetObjectID("boss1") ~= 164185 then
+			if isChecked("Divine Toll") and cast.able.divineToll() and GetObjectID("boss1") ~= 165946 and GetObjectID("boss1") ~= 164185 and GetObjectID("boss1") ~= 163157 then
 				if (#enemies.yards10 >= getValue("Divine Toll") or (isBoss(units.dyn30) and GetObjectID("boss1") ~= 167406) or (isBoss(units.dyn30) and GetObjectID("boss1") == 167406 and getHP("boss1") <= 70)) then
 					if cast.divineToll(units.dyn30) then return true end
 				end
