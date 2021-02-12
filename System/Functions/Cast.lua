@@ -753,7 +753,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 							end
 						end
 						if debug == "rect" then
-							local enemyRectCount = getEnemiesInRect(effectRng,maxRange)
+							local enemyRectCount = getEnemiesInRect(effectRng,maxRange) or 0
 							if enemyRectCount >= minUnits then
 								return castingSpell(thisUnit,spellID,spellName,icon)
 							else

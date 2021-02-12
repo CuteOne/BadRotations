@@ -227,7 +227,7 @@ end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
 	-- Damaged Validation
-	if br.damaged[ObjectPointer(unit)] ~= nil then --[[Print("[Damage Threat] You attacked "..UnitName(unit).." it now hates you.")]] return true end
+	if br.damaged[ObjectPointer(unit)] ~= nil or (UnitExists(unit) and UnitHealthMax(unit) < UnitHealthMax("player") * 0.01 and getDistance("target") < 8) then --[[Print("[Damage Threat] You attacked "..UnitName(unit).." it now hates you.")]] return true end
 	local unitID = getUnitID(unit)
 	local instance = select(2,IsInInstance())
 	if playerUnit == nil then playerUnit = "player" end
@@ -260,6 +260,7 @@ function hasThreat(unit,playerUnit)
 	-- Print("Unit: "..tostring(UnitName(unit)).." | Player: "..tostring(playerUnit))
 	local playerInCombat = UnitAffectingCombat("player")
 	local unitInCombat = UnitAffectingCombat(unit)
+	local unitObject = ObjectPointer(unit)
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
 		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(GetUnit(unit)).." is targetting "..UnitName(targetUnit)) end
@@ -275,15 +276,10 @@ function hasThreat(unit,playerUnit)
 	-- 		return true
 	end
 	-- Open World Mob Pack Validation
-	if instance == "none" and playerInCombat and unitInCombat then
-		local theseEnemies = getEnemies(unit,8)
-		if #theseEnemies == 1 and GetObjectExists("target") then --[[Print("[Open World Threat] Your Target "..UnitName(unit).." has threat on you.")]] return true end
-		for i = 1, #theseEnemies do
-			local thisUnit = theseEnemies[i]
-			if UnitIsUnit(unit,thisUnit) then return true end
-			-- Print("[Open World Threat] "..UnitName(thisUnit).." is within 8yrds of your target and has threat on you.") return true
-			-- if UnitIsUnit("target",thisUnit) then Print("[Open World Threat] "..UnitName(thisUnit)) return true end
-		end
+	if instance == "none" and playerInCombat and br.enemy[ObjectPointer("target")] ~= nil and br.enemy[objectUnit] == nil and getDistance("target",unitObject) < 8 then
+		-- if isChecked("Cast Debug") then Print("[Open World Threat] "..UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
+		-- Print("[Open World Threat] "..UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.")
+		return true
 	end
 	-- Player Threat Valdation
 	if threatSituation(playerUnit, unit) then
