@@ -273,8 +273,8 @@ function getPetLineOfSight(Unit)
 end
 
 --- Round
-function round2(num, idp)
-	mult = 10 ^ (idp or 0)
+function br.round2(num, idp)
+	local mult = 10 ^ (idp or 0)
 	return math.floor(num * mult + 0.5) / mult
 end
 -- if getTalent(8) == true then

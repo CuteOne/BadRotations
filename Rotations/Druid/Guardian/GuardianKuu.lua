@@ -225,14 +225,28 @@ local function createOptions()
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
-        br.ui:createDropdown(section, "Big Hit Oh Shit!", br.dropOptions.Toggle, 6, "Hold down key to use defensives for large hits")
+        br.ui:createDropdown(
+            section,
+            "Big Hit Oh Shit!",
+            br.dropOptions.Toggle,
+            6,
+            "Hold down key to use defensives for large hits"
+        )
         br.ui:createCheckbox(section, "Auto Engage On Target", "Cast Moonfire on target OOC to engage in combat")
         br.ui:createCheckbox(section, "Auto Stealth in Cat Form", 1)
         br.ui:createCheckbox(section, "Auto Dash in Cat Form", 1)
         -- Wild Charge
         br.ui:createCheckbox(section, "Wild Charge", "Enables/Disables Auto Charge usage.")
         -- Max Moonfire Targets
-        br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 3, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(
+            section,
+            "Max Moonfire Targets",
+            3,
+            1,
+            10,
+            1,
+            "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1"
+        )
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Covenants")
         br.ui:createCheckbox(section, "Use Covenant")
@@ -243,8 +257,20 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial")
         -- Trinkets
-        br.ui:createDropdownWithout(section, "Trinket Type", {"DPS", "Tank"}, 1, "|cffFFFFFFWhat type of trinkets are being used.")
-        br.ui:createDropdownWithout(section, "Trinket Use", {"|cff00FF00Everything", "|cffFFFF00Cooldowns", "|cffFF0000Never,"}, 1, "|cffFFFFFFWhen to use trinkets.")
+        br.ui:createDropdownWithout(
+            section,
+            "Trinket Type",
+            {"DPS", "Tank"},
+            1,
+            "|cffFFFFFFWhat type of trinkets are being used."
+        )
+        br.ui:createDropdownWithout(
+            section,
+            "Trinket Use",
+            {"|cff00FF00Everything", "|cffFFFF00Cooldowns", "|cffFF0000Never,"},
+            1,
+            "|cffFFFFFFWhen to use trinkets."
+        )
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "(Tank Trinkets Only) Health Percent to Cast At")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "(Tank Trinkets Only) Health Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -266,17 +292,49 @@ local function createOptions()
         -- Rage Dump
         br.ui:createSpinnerWithout(section, "Rage Dump Amount", 40, 0, 100, 5, "Rage Deficit to use Ironfur/Maul")
         -- Ironfur Stacks
-        br.ui:createSpinner(section, "Ironfur", 0, 0, 10, 1, "Set max stacks of ironfur before dumping rage into maul instead (0 for no limit)")
+        br.ui:createSpinner(
+            section,
+            "Ironfur",
+            0,
+            0,
+            10,
+            1,
+            "Set max stacks of ironfur before dumping rage into maul instead (0 for no limit)"
+        )
         -- Ironfur
-        br.ui:createSpinner(section, "Ironfur (No Aggro)", 85, 0, 100, 5, "Use Ironfur on Adds/Bosses you can't aggro such as Carapace of N'Zoth if below %hp")
+        br.ui:createSpinner(
+            section,
+            "Ironfur (No Aggro)",
+            85,
+            0,
+            100,
+            5,
+            "Use Ironfur on Adds/Bosses you can't aggro such as Carapace of N'Zoth if below %hp"
+        )
         --Incarnation/Berserk
         br.ui:createSpinner(section, "Incarnation/Berserk", 50, 0, 100, 5, "Use Incarnation/Berserk when below %hp")
         --Barkskin
         br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "Health Percentage to use at.")
         -- Frenzied Regen
         br.ui:createCheckbox(section, "Frenzied Regeneration", "Enable FR")
-        br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "Health Interval to use at with 2 charges.")
-        br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "Health Interval to use at with 1 charge.")
+        br.ui:createSpinnerWithout(
+            section,
+            "FR - HP Interval (2 Charge)",
+            65,
+            0,
+            100,
+            5,
+            "Health Interval to use at with 2 charges."
+        )
+        br.ui:createSpinnerWithout(
+            section,
+            "FR - HP Interval (1 Charge)",
+            40,
+            0,
+            100,
+            5,
+            "Health Interval to use at with 1 charge."
+        )
         -- Swiftmend
         br.ui:createSpinner(section, "OOC Swiftmend", 70, 10, 90, 5, "Will use Swiftmend Out of Combat.")
         -- Rejuvenation
@@ -285,11 +343,25 @@ local function createOptions()
         br.ui:createSpinner(section, "OOC Regrowth", 70, 10, 90, 5, "Minimum HP to cast Out of Combat.")
         -- Wild Growth
         br.ui:createSpinner(section, "OOC Wild Growth", 70, 10, 90, 5, "Mninimum HP to cast Out of Combat.")
-        br.ui:createSpinnerWithout(section, "Friendly Targets", 4, 1, 5, 1, "Number of friendly targets below set HP to cast Wild Growth.")
+        br.ui:createSpinnerWithout(
+            section,
+            "Friendly Targets",
+            4,
+            1,
+            5,
+            1,
+            "Number of friendly targets below set HP to cast Wild Growth."
+        )
         -- Soothe
         br.ui:createCheckbox(section, "Auto Soothe")
         -- Revive
-        br.ui:createDropdown(section, "Revive", {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target", "|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
+        br.ui:createDropdown(
+            section,
+            "Revive",
+            {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target", "|cffFFBB00Auto"},
+            1,
+            "|ccfFFFFFFTarget to Cast On"
+        )
         -- Rebirth
         br.ui:createDropdown(
             section,
@@ -307,7 +379,13 @@ local function createOptions()
         )
         -- Remove Corruption
         br.ui:createCheckbox(section, "Remove Corruption")
-        br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"Player", "Target", "Mouseover"}, 1, "Target to cast on")
+        br.ui:createDropdownWithout(
+            section,
+            "Remove Corruption - Target",
+            {"Player", "Target", "Mouseover"},
+            1,
+            "Target to cast on"
+        )
         br.ui:checkSectionState(section)
         ------------------------
         --- Interrupt Options---
@@ -351,7 +429,10 @@ local function runRotation()
         hastar or br.GetObjectExists("target"),
         UnitIsPlayer("target")
     local debuff = br.player.debuff
-    local energy, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.regen(), br.player.power.energy.deficit()
+    local energy, energyRegen, energyDeficit =
+        br.player.power.energy.amount(),
+        br.player.power.energy.regen(),
+        br.player.power.energy.deficit()
     local enemies = br.player.enemies
     local falling, swimming, flying, moving = br.getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
     local flaskBuff = br.getBuffRemain("player", br.player.flask.wod.buff.agilityBig)
@@ -370,7 +451,11 @@ local function runRotation()
     local swimming = IsSwimming()
     local php = br.player.health
     local playerMouse = UnitIsPlayer("mouseover")
-    local rage, ragemax, ragegen, rageDeficit = br.player.power.rage.amount(), br.player.power.rage.max(), br.player.power.rage.regen(), br.player.power.rage.deficit()
+    local rage, ragemax, ragegen, rageDeficit =
+        br.player.power.rage.amount(),
+        br.player.power.rage.max(),
+        br.player.power.rage.regen(),
+        br.player.power.rage.deficit()
     local pullTimer = br.DBM:getPulltimer()
     local racial = br.player.getRacial()
     local solo = br.player.instance == "none"
@@ -406,7 +491,7 @@ local function runRotation()
     units.get(8)
     units.get(40)
     enemies.get(5)
-    enemies.get(5,"player",false,true)
+    enemies.get(5, "player", false, true)
     enemies.get(8)
     enemies.get(8, "target")
     enemies.get(10)
@@ -434,12 +519,15 @@ local function runRotation()
     local function actionList_Extras()
         -- Bear Form when not in combat and target selected and within 20yrds
         if
-            (mode.forms == 1 or (mode.forms == 2 and not SpecificToggle("Travel Key") and not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus())) and
+            (mode.forms == 1 or
+                (mode.forms == 2 and not SpecificToggle("Travel Key") and not SpecificToggle("Cat Key") and
+                    not GetCurrentKeyBoardFocus())) and
                 br.GetObjectExists("target") and
                 UnitCanAttack("player", "target") and
                 not UnitIsDeadOrGhost("target") and
                 not bear and
-                ((unit.distance("target") < 30 and not unit.swimming()) or (unit.distance("target") < 10 and unit.swimming()))
+                ((unit.distance("target") < 30 and not unit.swimming()) or
+                    (unit.distance("target") < 10 and unit.swimming()))
          then
             unit.cancelForm()
             if cast.bearForm("player") then
@@ -450,12 +538,15 @@ local function runRotation()
         -- Flight Form
         if mode.forms == 1 then
             if
-                not travel and #enemies.yards10 == 0 and not unit.swimming() and unit.level() >= 24 and not buff.prowl.exists() and IsOutdoors() and
-                    not ((unit.distance("target") < 30 and not unit.swimming()) or (unit.distance("target") < 10 and unit.swimming()))
+                not travel and #enemies.yards10 == 0 and not unit.swimming() and unit.level() >= 24 and
+                    not buff.prowl.exists() and
+                    IsOutdoors() and
+                    not ((unit.distance("target") < 30 and not unit.swimming()) or
+                        (unit.distance("target") < 10 and unit.swimming()))
              then
                 if br.timer:useTimer("Travel Delay", 1) then
                     -- if unit.form() ~= 0 and not cast.last.travelForm() then
-                        unit.cancelForm()
+                    unit.cancelForm()
                     --     br.addonDebug("Cancel Form [Flying]")
                     -- elseif unit.form() == 0 then
                     if cast.travelForm("player") then
@@ -480,10 +571,15 @@ local function runRotation()
             -- Cat Form
             if
                 not buff.catForm.exists() and #enemies.yards10 == 0 and not unit.mounted() and not unit.flying() and
-                    not ((unit.distance("target") < 30 and not unit.swimming()) or (unit.distance("target") < 10 and unit.swimming()))
+                    not ((unit.distance("target") < 30 and not unit.swimming()) or
+                        (unit.distance("target") < 10 and unit.swimming()))
              then
                 -- Cat Form when not swimming or flying or stag and not in combat
-                if unit.moving() and not unit.swimming() and not unit.flying() and not IsOutdoors() and not buff.travelForm.exists() and not buff.soulshape.exists() then
+                if
+                    unit.moving() and not unit.swimming() and not unit.flying() and not IsOutdoors() and
+                        not buff.travelForm.exists() and
+                        not buff.soulshape.exists()
+                 then
                     if cast.catForm("player") then
                         br.addonDebug("Casting Cat Form [No Swim / Travel / Combat]")
                         return true
@@ -491,7 +587,7 @@ local function runRotation()
                 end
                 -- Cat Form - Less Fall Damage
                 if
-                    (not canFly() or unit.inCombat() or unit.level() < 24 or not IsOutdoors()) and
+                    (not br.canFly() or unit.inCombat() or unit.level() < 24 or not IsOutdoors()) and
                         (not unit.swimming() or (not unit.moving() and unit.swimming() and #enemies.yards5f > 0)) and
                         br.fallDist > 90
                  then --falling > ui.value("Fall Timer")
@@ -503,13 +599,19 @@ local function runRotation()
             end
         end
         if ui.checked("Revive") and not inCombat and not br.isMoving("player") and br.timer:useTimer("Resurrect", 4) then
-            if ui.value("Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
+            if
+                ui.value("Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and
+                    br.GetUnitIsFriend("target", "player")
+             then
                 if cast.revive("target", "dead") then
                     br.addonDebug("Casting Revive")
                     return true
                 end
             end
-            if ui.value("Revive") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
+            if
+                ui.value("Revive") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and
+                    br.GetUnitIsFriend("mouseover", "player")
+             then
                 if cast.revive("mouseover", "dead") then
                     br.addonDebug("Casting Revive")
                     return true
@@ -578,7 +680,12 @@ local function runRotation()
             end
         end
         -- Rejuvenation
-        if ui.checked("OOC Rejuvenation") and php <= ui.value("OOC Rejuvenation") and not buff.rejuvenation.exists("player") and not inCombat and cast.able.rejuvenation() then
+        if
+            ui.checked("OOC Rejuvenation") and php <= ui.value("OOC Rejuvenation") and
+                not buff.rejuvenation.exists("player") and
+                not inCombat and
+                cast.able.rejuvenation()
+         then
             if cast.rejuvenation("player") then
                 return
             end
@@ -593,7 +700,8 @@ local function runRotation()
         if ui.checked("OOC Wild Growth") and not moving then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
-                    local lowHealthCandidates = br.getUnitsToHealAround(br.friend[i].unit, 30, ui.value("OOC Wild Growth"), #br.friend)
+                    local lowHealthCandidates =
+                        br.getUnitsToHealAround(br.friend[i].unit, 30, ui.value("OOC Wild Growth"), #br.friend)
                     if (#lowHealthCandidates >= ui.value("Friendly Targets")) and not moving then
                         if cast.wildGrowth(br.friend[i].unit) then
                             return true
@@ -603,7 +711,10 @@ local function runRotation()
             end
         end
         if
-            ui.checked("Auto Engage On Target") and debuff.moonfire.count() < ui.value("Max Moonfire Targets") and not debuff.moonfire.exists() and solo and isValidTarget("target") and
+            ui.checked("Auto Engage On Target") and debuff.moonfire.count() < ui.value("Max Moonfire Targets") and
+                not debuff.moonfire.exists() and
+                solo and
+                isValidTarget("target") and
                 (UnitIsEnemy("target", "player"))
          then
             if cast.moonfire() then
@@ -615,9 +726,15 @@ local function runRotation()
     local function actionList_BigHit()
         -- Trinkets
         if (ui.value("Trinket Use") == 1 or (ui.value("Trinket Use") == 2 and useCDs())) then
-            if ui.checked("Trinket 1") and ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1") and use.able.slot(13) then
+            if
+                ui.checked("Trinket 1") and ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1") and
+                    use.able.slot(13)
+             then
                 use.slot(13)
-            elseif ui.checked("Trinket 2") and ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 2") and use.able.slot(14) then
+            elseif
+                ui.checked("Trinket 2") and ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 2") and
+                    use.able.slot(14)
+             then
                 use.slot(14)
             end
         end
@@ -674,7 +791,10 @@ local function runRotation()
 
     local function actionList_Defensive()
         if br.useDefensive() then
-            if ui.checked("Healthstone/Potion") and php <= ui.value("Healthstone/Potion") and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+            if
+                ui.checked("Healthstone/Potion") and php <= ui.value("Healthstone/Potion") and
+                    (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(166799))
+             then
                 if br.canUseItem(5512) then
                     br.useItem(5512)
                 elseif br.canUseItem(healPot) then
@@ -709,7 +829,11 @@ local function runRotation()
                 end
                 if ui.value("Rebirth") == 3 then -- Tank
                     for i = 1, #tanks do
-                        if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 then
+                        if
+                            UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and
+                                br.GetUnitIsFriend(tanks[i].unit, "player") and
+                                br.getDistance(tanks[i].unit) <= 40
+                         then
                             if cast.rebirth(tanks[i].unit, "dead") then
                                 br.addonDebug("Casting Rebirth")
                                 return true
@@ -720,7 +844,8 @@ local function runRotation()
                 if ui.value("Rebirth") == 4 then -- Healer
                     for i = 1, #br.friend do
                         if
-                            UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
+                            UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and
+                                br.GetUnitIsFriend(br.friend[i].unit, "player") and
                                 (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER")
                          then
                             if cast.rebirth(br.friend[i].unit, "dead") then
@@ -733,8 +858,10 @@ local function runRotation()
                 if ui.value("Rebirth") == 5 then -- Tank/Healer
                     for i = 1, #br.friend do
                         if
-                            UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
-                                (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or br.friend[i].role == "TANK" or
+                            UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and
+                                br.GetUnitIsFriend(br.friend[i].unit, "player") and
+                                (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or
+                                    br.friend[i].role == "TANK" or
                                     UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
                          then
                             if cast.rebirth(br.friend[i].unit, "dead") then
@@ -746,7 +873,10 @@ local function runRotation()
                 end
                 if ui.value("Rebirth") == 6 then -- Any
                     for i = 1, #br.friend do
-                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
+                        if
+                            UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and
+                                br.GetUnitIsFriend(br.friend[i].unit, "player")
+                         then
                             if cast.rebirth(br.friend[i].unit, "dead") then
                                 br.addonDebug("Casting Rebirth")
                                 return true
@@ -791,7 +921,9 @@ local function runRotation()
                 if (buff.ironfur.stack() < ui.value("Ironfur") or ui.value("Ironfur") == 0) then
                     if
                         (rageDeficit <= ui.value("Rage Dump Amount") or buff.ironfur.remain() < 2) and
-                            (hasAggro >= 2 or (ui.checked("Ironfur (No Aggro)") and not (hasAggro >= 1) and php <= ui.value("Ironfur (No Aggro)")))
+                            (hasAggro >= 2 or
+                                (ui.checked("Ironfur (No Aggro)") and not (hasAggro >= 1) and
+                                    php <= ui.value("Ironfur (No Aggro)")))
                      then
                         if cast.ironfur() then
                             return
@@ -833,7 +965,11 @@ local function runRotation()
                 end
             end
             -- Remove Corruption
-            if ui.checked("Remove Corruption") and ((mode.forms == 1 and ((mode.travel == 2 and travel) or (mode.travel == 1 and not travel))) or mode.forms ~= 1) then
+            if
+                ui.checked("Remove Corruption") and
+                    ((mode.forms == 1 and ((mode.travel == 2 and travel) or (mode.travel == 1 and not travel))) or
+                        mode.forms ~= 1)
+             then
                 if ui.value("Remove Corruption - Target") == 1 and br.canDispel("player", spell.removeCorruption) then
                     if cast.removeCorruption("player") then
                         return
@@ -900,7 +1036,9 @@ local function runRotation()
                         local distance = br.getDistance(thisUnit)
                         for k, v in pairs(Incap_list) do
                             if
-                                (Incap_unitList[br.GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and
+                                (Incap_unitList[br.GetObjectID(thisUnit)] ~= nil or
+                                    UnitCastingInfo(thisUnit) == GetSpellInfo(v) or
+                                    UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and
                                     br.getBuffRemain(thisUnit, 226510) == 0 and
                                     distance <= 20
                              then
@@ -959,7 +1097,8 @@ local function runRotation()
                     local object = GetObjectWithIndex(i)
                     local ID = br._G.ObjectID(object)
                     if
-                        root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not isLongTimeCCed(object) and
+                        root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and
+                            not isLongTimeCCed(object) and
                             (br.getBuffRemain(object, 102359) < 2 or br.getBuffRemain(object, 339) < 2)
                      then
                         local x1, y1, z1 = br._G.ObjectPosition("player")
@@ -1082,7 +1221,10 @@ local function runRotation()
             if mode.taunt == 1 and inInstance and combatTime > 5 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+                    if
+                        UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and
+                            UnitAffectingCombat(thisUnit)
+                     then
                         if cast.growl(thisUnit) then
                             return
                         end
@@ -1091,7 +1233,10 @@ local function runRotation()
             elseif mode.taunt == 2 and combatTime > 5 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+                    if
+                        UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and
+                            UnitAffectingCombat(thisUnit)
+                     then
                         if cast.growl(thisUnit) then
                             return
                         end
@@ -1115,14 +1260,28 @@ local function runRotation()
             end
             -- Trinkets
             if (ui.value("Trinket Use") == 1 or (ui.value("Trinket Use") == 2 and useCDs())) then
-                if ui.checked("Trinket 1") and (ui.value("Trinket Type") == 1 or (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and use.able.slot(13) then
+                if
+                    ui.checked("Trinket 1") and
+                        (ui.value("Trinket Type") == 1 or
+                            (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and
+                        use.able.slot(13)
+                 then
                     use.slot(13)
-                elseif ui.checked("Trinket 1") and (ui.value("Trinket Type") == 1 or (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and use.able.slot(14) then
+                elseif
+                    ui.checked("Trinket 1") and
+                        (ui.value("Trinket Type") == 1 or
+                            (ui.value("Trinket Type") == 2 and php <= ui.value("Trinket 1"))) and
+                        use.able.slot(14)
+                 then
                     use.slot(14)
                 end
             end
             -- Racial
-            if ui.checked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and ui.useCDs() then
+            if
+                ui.checked("Racial") and
+                    (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and
+                    ui.useCDs()
+             then
                 if castSpell("player", racial, false, false, false) then
                     return
                 end
@@ -1156,7 +1315,10 @@ local function runRotation()
                         return
                     end
                 end
-                if talent.toothAndClaw and buff.toothAndClaw.exists() and not debuff.toothAndClaw.exists("target") and rage > 60 then
+                if
+                    talent.toothAndClaw and buff.toothAndClaw.exists() and not debuff.toothAndClaw.exists("target") and
+                        rage > 60
+                 then
                     if cast.maul() then
                         br.addonDebug("Casting Maul (Tooth and Claw)")
                         return
@@ -1170,7 +1332,10 @@ local function runRotation()
                 end
             end
             -- Mangle
-            if debuff.thrashBear.stack("target") == 3 and not debuff.thrashBear.refresh("target") and #enemies.yards8 < 5 then
+            if
+                debuff.thrashBear.stack("target") == 3 and not debuff.thrashBear.refresh("target") and
+                    #enemies.yards8 < 5
+             then
                 if cast.mangle() then
                     br.addonDebug("Casting Mangle (Thrash Bleed)")
                     return
@@ -1202,7 +1367,8 @@ local function runRotation()
             end
             -- Convoke the Spirits
             if
-                ui.checked("Use Covenant") and #enemies.yards8 > 0 and ui.useCDs() and covenant.nightFae.active and not buff.berserk.exists() and
+                ui.checked("Use Covenant") and #enemies.yards8 > 0 and ui.useCDs() and covenant.nightFae.active and
+                    not buff.berserk.exists() and
                     not buff.incarnationGuardianOfUrsoc.exists()
              then
                 if cast.convokeTheSpirits() then
@@ -1214,7 +1380,10 @@ local function runRotation()
             if debuff.moonfire.count() < ui.value("Max Moonfire Targets") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.moonfire.exists(thisUnit) or (debuff.moonfire.remain(thisUnit) <= debuff.moonfire.duration(thisUnit)*0.3) then
+                    if
+                        not debuff.moonfire.exists(thisUnit) or
+                            (debuff.moonfire.remain(thisUnit) <= debuff.moonfire.duration(thisUnit) * 0.3)
+                     then
                         if cast.moonfire(thisUnit) then
                             br.addonDebug("Casting Moonfire (Refresh)")
                             return
@@ -1273,7 +1442,10 @@ local function runRotation()
             end
             actionList_Interrupts()
             actionList_Defensive()
-            if ui.checked("Big Hit Oh Shit!") and SpecificToggle("Big Hit Oh Shit!") and not GetCurrentKeyBoardFocus() and bear then
+            if
+                ui.checked("Big Hit Oh Shit!") and SpecificToggle("Big Hit Oh Shit!") and not GetCurrentKeyBoardFocus() and
+                    bear
+             then
                 if br.timer:useTimer("Big Hit Delay", 2) then
                     actionList_BigHit()
                 end
