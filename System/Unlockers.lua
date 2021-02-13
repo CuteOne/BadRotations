@@ -155,8 +155,7 @@ function br:loadUnlockerAPI()
         end
         b.ObjectIsFacing = function(obj1, obj2, toler)
             if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
-                return (toler and wmbapi.ObjectIsFacing(obj1, obj2, toler)) or
-                    (not toler and wmbapi.ObjectIsFacing(obj1, obj2))
+                return (toler and wmbapi.ObjectIsFacing(obj1, obj2, toler)) or (not toler and wmbapi.ObjectIsFacing(obj1, obj2))
             end
         end
         b.ObjectInteract = b.InteractUnit
@@ -272,43 +271,7 @@ function br:loadUnlockerAPI()
         -- Drawing
         b.GetWoWWindow = b.GetPhysicalScreenSize
         b.Draw2DLine = _G.LibDraw.Draw2DLine
-        b.Draw2DText = function(textX, textY, text)
-            local F = b.tremove(_G.LibDraw.fontstrings) or _G.LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
-            F:SetFontObject("GameFontNormal")
-            F:SetText(text)
-            F:SetTextColor(_G.LibDraw.line.r, _G.LibDraw.line.g, _G.LibDraw.line.b, _G.LibDraw.line.a)
-            if p then
-                local width = F:GetStringWidth() - 4
-                local offsetX = width * 0.5
-                local offsetY = F:GetStringHeight() + 3.5
-                local pwidth = width * p * 0.01
-                _G.FHAugment.drawLine(
-                    textX - offsetX,
-                    textY - offsetY,
-                    (textX + offsetX),
-                    textY - offsetY,
-                    4,
-                    r,
-                    g,
-                    b,
-                    0.25
-                )
-                _G.FHAugment.drawLine(
-                    textX - offsetX,
-                    textY - offsetY,
-                    (textX + offsetX) - (width - pwidth),
-                    textY - offsetY,
-                    4,
-                    r,
-                    g,
-                    b,
-                    1
-                )
-            end
-            F:SetPoint("TOPLEFT", b.UIParent, "TOPLEFT", textX - (F:GetStringWidth() * 0.5), textY)
-            F:Show()
-            b.tinsert(_G.LibDraw.fontstrings_used, F)
-        end
+        b.Draw2DText = _G.LibDraw.Text
         b.WorldToScreenRaw = function(...)
             local x, y = select(2, wmbapi.WorldToScreen(...))
             return x, 1 - y
@@ -433,9 +396,7 @@ function br:checkBrOutOfDate()
                 if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then
                     local msg =
                         "BadRotations is currently out of date. Local Version: " ..
-                        brlocVersion ..
-                            " Current Version: " ..
-                                brcurrVersion .. ".  Please download latest version for best performance."
+                        brlocVersion .. " Current Version: " .. brcurrVersion .. ".  Please download latest version for best performance."
                     if br.isChecked("Overlay Messages") then
                         b.RaidNotice_AddMessage(b.RaidWarningFrame, msg, {r = 1, g = 0.3, b = 0.1})
                     else
