@@ -847,6 +847,14 @@ function br.convertName(name)
 	return "None"
 end
 
+function br.devMode()
+	if br.isChecked("Dev Mode") then
+		_G.br = br
+	else
+		_G.br = nil
+	end
+end
+
 function br.bossHPLimit(unit, hp)
 	-- Boss Active/Health Max
 	local bossHPMax = bossHPMax or 0

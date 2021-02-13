@@ -12,14 +12,8 @@ end
 function br:ObjectManager()
 	local function ObjectManagerUpdate(self)
 		if br.unlocked then
-			if
-				br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and
-					br.data.settings[br.selectedSpec].toggles ~= nil
-			 then
-				if
-					br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and
-						br.data.settings[br.selectedSpec].toggles["Power"] == 1
-				 then
+			if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
+				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
 					--if br.timer:useTimer("omUpdate", 1) then
 					br:updateOM()
 					br.om:Update()
@@ -78,6 +72,7 @@ function br.BadRotationsUpdate(self)
 		end
 		return false
 	elseif br.unlocked and br._G.GetObjectCount() ~= nil then
+		br.devMode()
 		-- Check BR Out of Date
 		br:checkBrOutOfDate()
 		-- Get Current Addon Name
@@ -85,15 +80,9 @@ function br.BadRotationsUpdate(self)
 		-- Load Saved Settings
 		br:loadSavedSettings()
 		-- Continue Load
-		if
-			br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and
-				br.data.settings[br.selectedSpec].toggles ~= nil
-		 then
+		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 			-- BR Main Toggle Off
-			if
-				br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and
-					br.data.settings[br.selectedSpec].toggles["Power"] ~= 1
-			 then
+			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 				-- BR Main Toggle On - Main Cycle
 				-- BR Main Toggle On - Main Cycle
 				-- Clear Queue
@@ -113,11 +102,7 @@ function br.BadRotationsUpdate(self)
 				br.fallDist = br.getFallDistance() or 0
 				-- Quaking helper
 				if br.getOptionCheck("Quaking Helper") then
-					if
-						(br._G.UnitChannelInfo("player") or br._G.UnitCastingInfo("player")) and
-							br.getDebuffRemain("player", 240448) < 0.5 and
-							br.getDebuffRemain("player", 240448) > 0
-					 then
+					if (br._G.UnitChannelInfo("player") or br._G.UnitCastingInfo("player")) and br.getDebuffRemain("player", 240448) < 0.5 and br.getDebuffRemain("player", 240448) > 0 then
 						br._G.RunMacroText("/stopcasting")
 					end
 				end
@@ -155,19 +140,12 @@ function br.BadRotationsUpdate(self)
 					br.rotationChanged = false
 				end
 				-- Queue Casting
-				if
-					(br.isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and
-						not br._G.UnitChannelInfo("player")
-				 then
+				if (br.isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not br._G.UnitChannelInfo("player") then
 					if br.castQueue() then
 						return
 					end
 				end
-				if
-					(not br.isChecked("Queue Casting") or br.GetUnitIsDeadOrGhost("player") or not br._G.UnitAffectingCombat("player")) and
-						br.player ~= nil and
-						#br.player.queue ~= 0
-				 then
+				if (not br.isChecked("Queue Casting") or br.GetUnitIsDeadOrGhost("player") or not br._G.UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
 					br._G.wipe(br.player.queue)
 					if not br.isChecked("Mute Queue") then
 						if not br.isChecked("Queue Casting") then
@@ -186,9 +164,7 @@ function br.BadRotationsUpdate(self)
 					br.smartQueue()
 				end
 				-- Update Player
-				if
-					br.player ~= nil and (not br._G.CanExitVehicle() or (br.GetUnitExists("target") and br.getDistance("target") < 5))
-				 then
+				if br.player ~= nil and (not br._G.CanExitVehicle() or (br.GetUnitExists("target") and br.getDistance("target") < 5)) then
 					br.player:update()
 				end
 				-- Automatic catch the pig
@@ -221,10 +197,7 @@ function br.BadRotationsUpdate(self)
 					br:slashHelpList()
 				end
 				-- Show Main Button
-				if
-					br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and
-						br.data.settings[br.selectedSpec].toggles["Main"] ~= 0
-				 then
+				if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
 					if not br._G.UnitAffectingCombat("player") then
 						br.data.settings[br.selectedSpec].toggles["Main"] = 1
 						br.mainButton:Show()
