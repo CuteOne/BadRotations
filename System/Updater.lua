@@ -1,4 +1,4 @@
-local addonName, br = ...
+local _, br = ...
 ----------------------------------------------------------------------------------------------------
 -- Variables
 ----------------------------------------------------------------------------------------------------
@@ -9,6 +9,7 @@ br.updater = {}
 
 local addonPath
 local currentCommit
+local latestCommit
 local purple = "|cffa330c9"
 local isInitialized = false
 
@@ -20,27 +21,37 @@ local function IsSettingChecked()
 end
 
 local function Print(msg)
-   if msg == nil then return end
+   if msg == nil then
+      return
+   end
    print(br.classColor .. "[BadRotations] |cffFFFFFF" .. msg)
 end
 
 local function PrintError(msg)
-   if msg == nil then return end
+   if msg == nil then
+      return
+   end
    print(br.classColor .. "[BadRotations] |cffff6666" .. msg)
 end
 
 local function RaidWarning(message)
    if br.isChecked("Overlay Messages") then
-      RaidNotice_AddMessage(RaidWarningFrame, message, {r = 1, g = 0.3, b = 0.1})
+      br._G.RaidNotice_AddMessage(br._G.RaidWarningFrame, message, {r = 1, g = 0.3, b = 0.1})
    end
 end
 
 local function SendRequestAsync(url, OnComplete)
-   SendHTTPRequest(url, nil, function(body, code, req, res, err)
-      if type(OnComplete) == "function" then
-         OnComplete(body, code, req, res, err)
-      end
-   end, nil, 0)
+   br._G.SendHTTPRequest(
+      url,
+      nil,
+      function(body, code, req, res, err)
+         if type(OnComplete) == "function" then
+            OnComplete(body, code, req, res, err)
+         end
+      end,
+      nil,
+      0
+   )
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -60,70 +71,95 @@ end
 local function SetLatestCommitAsync(OnComplete)
    local url = apiUrl .. "commits/latest"
 
-   SendRequestAsync(url, function(body, code, req, res, err)
-      latestCommit = body
+   SendRequestAsync(
+      url,
+      function(body, code, req, res, err)
+         latestCommit = body
 
-      if type(OnComplete) == "function" then
-         OnComplete(body, code, req, res, err)
+         if type(OnComplete) == "function" then
+            OnComplete(body, code, req, res, err)
+         end
       end
-   end)
+   )
 end
 
 local function CheckForUpdatesAsync(OnComplete)
-   SetLatestCommitAsync(function()
-      if currentCommit == latestCommit then
-         if type(OnComplete) == "function" then
-            OnComplete()
-         end
-      end
-
-      local url = apiUrl .. "commits/diff/" .. currentCommit
-      SendRequestAsync(url, function(json)
-         local aheadBy = json:match('"AheadBy":(.-),')
-         if aheadBy == "0" then
-            return
-            -- if not isInitialized then
-            --    Print("Up to date. Version "..purple..currentCommit:sub(1, 7))
-            -- end
-            -- if type(OnComplete) == "function" then
-            --    OnComplete(json)
-            -- end
-            -- return
-         end
-               
-         local commitSection = json:match('"Commits":%[(.-)%]')
-         Print("Local version: "..purple..currentCommit:sub(1, 7).." |cffFFFFFFLatest version: "..purple..latestCommit:sub(1, 7)..".")
-         if commitSection then 
-            for commit in commitSection:gmatch("{(.-)}") do
-               local author = commit:match('"Author":"(.-)",')
-               local message = commit:match('"Message":"(.-)["\r\n]')
-               print("    "..purple..author..": |cffFFFFFF "..message)
+   SetLatestCommitAsync(
+      function()
+         if currentCommit == latestCommit then
+            if type(OnComplete) == "function" then
+               OnComplete()
             end
-         else
-            print("     No commits were returned! Blame Shell!")
          end
 
-         --    Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n"..
-         --    "Please update for best performance via Git or "..purple.."/br update")
-         --    RaidWarning("BadRotations is currently " .. aheadBy .. " versions out of date.\nPlease update for best performance via Git or "..purple.."/br update")
-         if aheadBy then
-            Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n".."Please update for best performance.")
-            RaidWarning("BadRotations is currently "..aheadBy.." versions out of date.\nPlease update for best performance.")
-         end
+         local url = apiUrl .. "commits/diff/" .. currentCommit
+         SendRequestAsync(
+            url,
+            function(json)
+               local aheadBy = json:match('"AheadBy":(.-),')
+               if aheadBy == "0" then
+                  return
+               -- if not isInitialized then
+               --    Print("Up to date. Version "..purple..currentCommit:sub(1, 7))
+               -- end
+               -- if type(OnComplete) == "function" then
+               --    OnComplete(json)
+               -- end
+               -- return
+               end
 
-         if type(OnComplete) == "function" then
-            OnComplete(json)
-         end
-      end)
-   end)
+               local commitSection = json:match('"Commits":%[(.-)%]')
+               Print(
+                  "Local version: " ..
+                     purple ..
+                        currentCommit:sub(1, 7) ..
+                           " |cffFFFFFFLatest version: " .. purple .. latestCommit:sub(1, 7) .. "."
+               )
+               if commitSection then
+                  for commit in commitSection:gmatch("{(.-)}") do
+                     local author = commit:match('"Author":"(.-)",')
+                     local message = commit:match('"Message":"(.-)["\r\n]')
+                     print("    " .. purple .. author .. ": |cffFFFFFF " .. message)
+                  end
+               else
+                  print("     No commits were returned! Blame Shell!")
+               end
+
+               --    Print("BadRotations is currently "..purple..aheadBy.." |cffffffff".."versions out of date.\n"..
+               --    "Please update for best performance via Git or "..purple.."/br update")
+               --    RaidWarning("BadRotations is currently " .. aheadBy .. " versions out of date.\nPlease update for best performance via Git or "..purple.."/br update")
+               if aheadBy then
+                  Print(
+                     "BadRotations is currently " ..
+                        purple ..
+                           aheadBy ..
+                              " |cffffffff" .. "versions out of date.\n" .. "Please update for best performance."
+                  )
+                  RaidWarning(
+                     "BadRotations is currently " ..
+                        aheadBy .. " versions out of date.\nPlease update for best performance."
+                  )
+               end
+
+               if type(OnComplete) == "function" then
+                  OnComplete(json)
+               end
+            end
+         )
+      end
+   )
 end
 
 -- Called on timer from System/Unlockers.lua after EWT has been loaded
 function br.updater:CheckOutdated()
-   if not IsSettingChecked() then return end
+   if not IsSettingChecked() then
+      return
+   end
 
    br.updater:Initialize()
-   if not isInitialized then return end
+   if not isInitialized then
+      return
+   end
    CheckForUpdatesAsync()
 end
 
@@ -131,8 +167,8 @@ end
 -- Initialize
 ----------------------------------------------------------------------------------------------------
 local function GetAddonName()
-   for i = 1, GetNumAddOns() do
-      local name, title = GetAddOnInfo(i)
+   for i = 1, br._G.GetNumAddOns() do
+      local name, title = br._G.GetAddOnInfo(i)
       if title == purple .. "BadRotations" then
          return name
       end
@@ -141,7 +177,7 @@ end
 
 local function InitCurrentCommit(latestCommit)
    local headFile = addonPath .. ".git\\refs\\heads\\master"
-   local headContent = ReadFile(headFile)
+   local headContent = br._G.ReadFile(headFile)
 
    if headContent ~= nil then
       currentCommit = headContent
@@ -150,7 +186,7 @@ local function InitCurrentCommit(latestCommit)
 
    -- Using Git, not GitHub can change the master branch to 'main'
    headFile = addonPath .. ".git\\refs\\heads\\main"
-   headContent = ReadFile(headFile)
+   headContent = br._G.ReadFile(headFile)
 
    if headContent ~= nil then
       currentCommit = headContent
@@ -158,26 +194,37 @@ local function InitCurrentCommit(latestCommit)
    end
 
    currentCommit = latestCommit
-   PrintError("Couldn't detect local Git master commit. ASSUMING latest version. Redownload may be needed if problems arise.")
+   PrintError(
+      "Couldn't detect local Git master commit. ASSUMING latest version. Redownload may be needed if problems arise."
+   )
    Print("Version: " .. purple .. currentCommit:sub(1, 7))
-   WriteFile(headFile, latestCommit, false, true)
+   br._G.WriteFile(headFile, latestCommit, false, true)
    return false
 end
 
 local initRequested = false
 function br.updater:Initialize()
-
-   if initRequested then return end
+   if initRequested then
+      return
+   end
    initRequested = true
-   addonPath = GetWoWDirectory() .. "\\Interface\\AddOns\\" .. GetAddonName() .. "\\"
+   addonPath = br._G.GetWoWDirectory() .. "\\Interface\\AddOns\\" .. GetAddonName() .. "\\"
 
-   SetLatestCommitAsync(function()
-      local hadLocalVersion = InitCurrentCommit(latestCommit)
-      if not hadLocalVersion then return end
-      if currentCommit == latestCommit then return end
+   SetLatestCommitAsync(
+      function()
+         local hadLocalVersion = InitCurrentCommit(latestCommit)
+         if not hadLocalVersion then
+            return
+         end
+         if currentCommit == latestCommit then
+            return
+         end
 
-      CheckForUpdatesAsync(function()
-            isInitialized = true
-      end)
-   end)
+         CheckForUpdatesAsync(
+            function()
+               isInitialized = true
+            end
+         )
+      end
+   )
 end
