@@ -1,4 +1,4 @@
-local addonName, br = ...
+local _, br = ...
 local b = br._G
 function br:loadUnlockerAPI()
     local unlocked = false
@@ -73,10 +73,23 @@ function br:loadUnlockerAPI()
     if wmbapi ~= nil then
         -- Active Player
         b.StopFalling = wmbapi.StopFalling
-        b.FaceDirection = function(a) if wmbapi.GetObject(a) then wmbapi.FaceDirection(GetAnglesBetweenObjects(a,"player"),true) else wmbapi.FaceDirection(a,true) end end
+        b.GetAnglesBetweenObjects = function(obj1, obj2)
+            if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
+                return wmbapi.GetAnglesBetweenObjects(obj1, obj2)
+            else
+                return 0, 0
+            end
+        end
+        b.FaceDirection = function(a)
+            if wmbapi.GetObject(a) then
+                wmbapi.FaceDirection(b.GetAnglesBetweenObjects(a, "player"), true)
+            else
+                wmbapi.FaceDirection(a, true)
+            end
+        end
         -- Object
         b.ObjectTypeFlags = wmbapi.ObjectTypeFlags
-        b.ObjectPointer = function(obj) 
+        b.ObjectPointer = function(obj)
             if b.UnitIsVisible(obj) then
                 return wmbapi.GetObject(obj)
             else
@@ -85,56 +98,65 @@ function br:loadUnlockerAPI()
         end
         b.ObjectExists = wmbapi.ObjectExists
         b.ObjectIsVisible = b.UnitIsVisible
-        b.ObjectPosition = function(obj) 
-            local x,y,z = wmbapi.ObjectPosition(obj) 
+        b.ObjectPosition = function(obj)
+            local x, y, z = wmbapi.ObjectPosition(obj)
             if x then
-                return x,y,z
+                return x, y, z
             else
-                return 0,0,0
+                return 0, 0, 0
             end
         end
-        b.ObjectFacing = function(obj) 
+        b.ObjectFacing = function(obj)
             if b.UnitIsVisible(obj) then
                 return wmbapi.ObjectFacing(obj)
             else
                 return 0
             end
         end
-        b.ObjectName = function(obj) 
+        b.ObjectName = function(obj)
             if b.UnitIsVisible(obj) then
                 return b.UnitName(obj)
             else
                 return ""
             end
         end
-        b.ObjectID = function(obj) 
+        b.ObjectID = function(obj)
             if b.UnitIsVisible(obj) then
                 return wmbapi.ObjectId(obj)
             else
                 return 0
             end
         end
-        b.ObjectDescriptor = function(obj,offset,type) return b.UnitIsVisible(obj) and wmbapi.ObjectDescriptor(obj,offset,type) end
-        b.ObjectIsUnit = function(obj) return b.UnitIsVisible(obj) and wmbapi.ObjectIsType(obj,wmbapi.GetObjectTypeFlagsTable().Unit) end
-        b.GetDistanceBetweenPositions = function(...) return (... and wmbapi.GetDistanceBetweenPositions(...)) or 0 end
-        b.GetDistanceBetweenObjects = function(obj1,obj2) 
+        b.ObjectDescriptor = function(obj, offset, type)
+            return b.UnitIsVisible(obj) and wmbapi.ObjectDescriptor(obj, offset, type)
+        end
+        b.ObjectIsUnit = function(obj)
+            return b.UnitIsVisible(obj) and wmbapi.ObjectIsType(obj, wmbapi.GetObjectTypeFlagsTable().Unit)
+        end
+        b.GetDistanceBetweenPositions = function(...)
+            return (... and wmbapi.GetDistanceBetweenPositions(...)) or 0
+        end
+        b.GetDistanceBetweenObjects = function(obj1, obj2)
             if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
-                return wmbapi.GetDistanceBetweenObjects(obj1,obj2)
+                return wmbapi.GetDistanceBetweenObjects(obj1, obj2)
             else
                 return 0
             end
         end
-        b.GetPositionBetweenObjects = function(obj1,obj2,dist) 
+        b.GetPositionBetweenObjects = function(obj1, obj2, dist)
             if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
-                return wmbapi.GetPositionBetweenObjects(obj1,obj2,dist)
+                return wmbapi.GetPositionBetweenObjects(obj1, obj2, dist)
             else
-                return 0,0,0
+                return 0, 0, 0
             end
         end
-        b.GetPositionFromPosition = function(...) return (... and wmbapi.GetPositionFromPosition(...)) or 0,0,0 end
-        b.ObjectIsFacing = function(obj1,obj2,toler) 
+        b.GetPositionFromPosition = function(...)
+            return (... and wmbapi.GetPositionFromPosition(...)) or 0, 0, 0
+        end
+        b.ObjectIsFacing = function(obj1, obj2, toler)
             if b.UnitIsVisible(obj1) and b.UnitIsVisible(obj2) then
-                return (toler and wmbapi.ObjectIsFacing(obj1,obj2,toler)) or (not toler and wmbapi.ObjectIsFacing(obj1,obj2))
+                return (toler and wmbapi.ObjectIsFacing(obj1, obj2, toler)) or
+                    (not toler and wmbapi.ObjectIsFacing(obj1, obj2))
             end
         end
         b.ObjectInteract = b.InteractUnit
@@ -149,25 +171,25 @@ function br:loadUnlockerAPI()
             if GUID and #GUID > 1 then
                 return wmbapi.GetObjectWithGUID(GUID)
             else
-                return "" 
+                return ""
             end
         end
         -- Unit
-        b.UnitBoundingRadius = function(obj) 
+        b.UnitBoundingRadius = function(obj)
             if b.UnitIsVisible(obj) then
                 return wmbapi.UnitBoundingRadius(obj)
             else
                 return 0
             end
         end
-        b.UnitCombatReach = function(obj) 
+        b.UnitCombatReach = function(obj)
             if b.UnitIsVisible(obj) then
                 return wmbapi.UnitCombatReach(obj)
             else
                 return 0
             end
         end
-        b.UnitTarget = function(obj) 
+        b.UnitTarget = function(obj)
             if b.UnitIsVisible(obj) then
                 return wmbapi.UnitTarget(obj)
             else
@@ -176,13 +198,13 @@ function br:loadUnlockerAPI()
         end
         b.UnitCastID = function(obj)
             if b.UnitIsVisible(obj) then
-                local spellId,target = wmbapi.UnitCasting(obj)
-                return spellId or 0,spellId or 0,target or "",target or ""
+                local spellId, target = wmbapi.UnitCasting(obj)
+                return spellId or 0, spellId or 0, target or "", target or ""
             else
-                return 0,0,"",""
+                return 0, 0, "", ""
             end
         end
-        b.UnitCreator = function(obj) 
+        b.UnitCreator = function(obj)
             if b.UnitIsVisible(obj) then
                 return wmbapi.UnitCreator(obj)
             else
@@ -196,25 +218,29 @@ function br:loadUnlockerAPI()
         b.ClickPosition = wmbapi.ClickPosition
         b.IsAoEPending = wmbapi.IsAoEPending
         b.GetTargetingSpell = wmbapi.IsAoEPending
-        b.WorldToScreen = function(...) 
-            local scale, x, y = UIParent:GetEffectiveScale(), select(2,wmbapi.WorldToScreen(...))
-            local sx = GetScreenWidth() * scale
-            local sy = GetScreenHeight() * scale
+        b.WorldToScreen = function(...)
+            local scale, x, y = b.UIParent:GetEffectiveScale(), select(2, wmbapi.WorldToScreen(...))
+            local sx = b.GetScreenWidth() * scale
+            local sy = b.GetScreenHeight() * scale
             return x * sx, y * sy
         end
-        b.ScreenToWorld = function(X, Y) 
-            local scale = UIParent:GetEffectiveScale()
-            local sx = GetScreenWidth() * scale
-            local sy = GetScreenHeight() * scale
+        b.ScreenToWorld = function(X, Y)
+            local scale = b.UIParent:GetEffectiveScale()
+            local sx = b.GetScreenWidth() * scale
+            local sy = b.GetScreenHeight() * scale
             return wmbapi.ScreenToWorld(X / sx, Y / sy)
         end
         b.GetMousePosition = function()
-            local cur_x, cur_y = GetCursorPosition()
+            local cur_x, cur_y = b.GetCursorPosition()
             return cur_x, cur_y
         end
         -- Hacks
-        b.IsHackEnabled = function() return end
-        b.SetHackEnabled = function() return true end
+        b.IsHackEnabled = function()
+            return
+        end
+        b.SetHackEnabled = function()
+            return true
+        end
         -- Files
         b.GetDirectoryFiles = wmbapi.GetDirectoryFiles
         b.ReadFile = wmbapi.ReadFile
@@ -224,48 +250,68 @@ function br:loadUnlockerAPI()
         b.DirectoryExists = wmbapi.DirectoryExists
         -- Callbacks
         b.AddEventCallback = function(Event, Callback)
-            if not BRFrames then
-                BRFrames = CreateFrame("Frame")
-                BRFrames:SetScript("OnEvent",BRFrames_OnEvent)
+            if not b.BRFrames then
+                b.BRFrames = b.CreateFrame("Frame")
+                b.BRFrames:SetScript("OnEvent", b.BRFrames_OnEvent)
             end
-            BRFrames:RegisterEvent(Event)
-            if not BRFramesEvent[Event] then
-                BRFramesEvent[Event] = Callback
+            b.BRFrames:RegisterEvent(Event)
+            if not b.BRFramesEvent[Event] then
+                b.BRFramesEvent[Event] = Callback
             end
         end
         -- Misc
         b.SendHTTPRequest = wmbapi.SendHttpRequest
         b.GetKeyState = wmbapi.GetKeyState
-        Offsets = {            
-            ["cggameobjectdata__flags"]="CGGameObjectData__Flags",
-            ["cgobjectdata__dynamicflags"]="CGObjectData__DynamicFlags"
+        br.Offsets = {
+            ["cggameobjectdata__flags"] = "CGGameObjectData__Flags",
+            ["cgobjectdata__dynamicflags"] = "CGObjectData__DynamicFlags"
         }
         b.GetOffset = function(offset)
-            return wmbapi.GetObjectDescriptorsTable()[Offsets[string.lower(offset)]]
+            return wmbapi.GetObjectDescriptorsTable()[br.Offsets[string.lower(offset)]]
         end
         -- Drawing
-        b.GetWoWWindow = GetPhysicalScreenSize
-        b.Draw2DLine = LibDraw.Draw2DLine
+        b.GetWoWWindow = b.GetPhysicalScreenSize
+        b.Draw2DLine = _G.LibDraw.Draw2DLine
         b.Draw2DText = function(textX, textY, text)
-            local F = tremove(LibDraw.fontstrings) or LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
+            local F = b.tremove(_G.LibDraw.fontstrings) or _G.LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
             F:SetFontObject("GameFontNormal")
             F:SetText(text)
-            F:SetTextColor(LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a)
+            F:SetTextColor(_G.LibDraw.line.r, _G.LibDraw.line.g, _G.LibDraw.line.b, _G.LibDraw.line.a)
             if p then
                 local width = F:GetStringWidth() - 4
-                local offsetX = width*0.5
+                local offsetX = width * 0.5
                 local offsetY = F:GetStringHeight() + 3.5
-                local pwidth = width*p*0.01
-                FHAugment.drawLine(textX-offsetX, textY-offsetY, (textX+offsetX), textY-offsetY, 4, r, g, b, 0.25)
-                FHAugment.drawLine(textX-offsetX, textY-offsetY, (textX+offsetX)-(width-pwidth), textY-offsetY, 4, r, g, b, 1)
+                local pwidth = width * p * 0.01
+                _G.FHAugment.drawLine(
+                    textX - offsetX,
+                    textY - offsetY,
+                    (textX + offsetX),
+                    textY - offsetY,
+                    4,
+                    r,
+                    g,
+                    b,
+                    0.25
+                )
+                _G.FHAugment.drawLine(
+                    textX - offsetX,
+                    textY - offsetY,
+                    (textX + offsetX) - (width - pwidth),
+                    textY - offsetY,
+                    4,
+                    r,
+                    g,
+                    b,
+                    1
+                )
             end
-            F:SetPoint("TOPLEFT", UIParent, "TOPLEFT", textX-(F:GetStringWidth()*0.5), textY)
+            F:SetPoint("TOPLEFT", b.UIParent, "TOPLEFT", textX - (F:GetStringWidth() * 0.5), textY)
             F:Show()
-            tinsert(LibDraw.fontstrings_used, F) 
+            b.tinsert(_G.LibDraw.fontstrings_used, F)
         end
         b.WorldToScreenRaw = function(...)
-            local x, y = select(2,wmbapi.WorldToScreen(...))
-            return x, 1-y
+            local x, y = select(2, wmbapi.WorldToScreen(...))
+            return x, 1 - y
         end
         unlocked = true
     end
@@ -292,10 +338,10 @@ function br:loadUnlockerAPI()
         -- ObjectPointer = function() return "" end
         -- ObjectExists = UnitExists
         -- ObjectIsVisible = UnitIsVisible
-        -- br._G.ObjectPosition = function() return 0,0,0 end
+        -- b.ObjectPosition = function() return 0,0,0 end
         -- ObjectFacing = function() return 0,0 end
         -- ObjectName = function() return "" end
-        -- br._G.ObjectID = function() return 0 end
+        -- b.ObjectID = function() return 0 end
         -- ObjectIsUnit = UnitIsUnit
         -- GetDistanceBetweenPositions = function() return 999 end
         -- GetDistanceBetweenObjects = function() return 999 end
@@ -309,8 +355,8 @@ function br:loadUnlockerAPI()
         -- GetObjectWithGUID = function() return "target" end
         -- -- Unit
         -- UnitBoundingRadius = function() return 0 end
-        -- br._G.UnitCombatReach = function() return 0 end
-        -- br._G.UnitTarget = function() return "target" end
+        -- b.UnitCombatReach = function() return 0 end
+        -- b.UnitTarget = function() return "target" end
         -- UnitCastID = function() return 0 end
         -- -- World
         -- TraceLine = function() return 0,0,0 end
@@ -338,11 +384,15 @@ function br:loadUnlockerAPI()
         -- GetKeyState = function() return false end
         unlocked = false
     end
-    -- Set Spell Queue Window 
+    -- Set Spell Queue Window
     if class == 8 or class == 9 then
-        if unlocked and br.prevQueueWindow ~= 400 then RunMacroText("/console SpellQueueWindow 400") end
+        if unlocked and br.prevQueueWindow ~= 400 then
+            b.RunMacroText("/console SpellQueueWindow 400")
+        end
     else
-        if unlocked and br.prevQueueWindow ~= 0 then RunMacroText("/console SpellQueueWindow 0") end
+        if unlocked and br.prevQueueWindow ~= 0 then
+            b.RunMacroText("/console SpellQueueWindow 0")
+        end
     end
     return unlocked
 end
@@ -352,44 +402,48 @@ local brlocVersion
 local brcurrVersion
 local brUpdateTimer
 function br:checkBrOutOfDate()
-    brlocVersion = GetAddOnMetadata(br.addonName,"Version")
-    if (not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) and br.player ~= nil then --and EasyWoWToolbox ~= nil then
-        local startTime = debugprofilestop()
+    brlocVersion = b.GetAddOnMetadata(br.addonName, "Version")
+    if (not brUpdateTimer or (b.GetTime() - brUpdateTimer) > 300) and br.player ~= nil then --and EasyWoWToolbox ~= nil then
+        local startTime = b.debugprofilestop()
         -- Request Current Version from GitHub
         if EasyWoWToolbox ~= nil then -- EWT
             --SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-            
+
             -- Check for commit updates from System/Updater.lua, which relies on EWT
             br.updater:CheckOutdated()
-            brUpdateTimer = GetTime()
+            brUpdateTimer = b.GetTime()
         elseif wmbapi ~= nil then -- MB
             local info = {
-            Url = 'https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc',
-            Method = 'GET'
+                Url = "https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc",
+                Method = "GET"
             }
-            if not brlocVersionRequest then
-                brlocVersionRequest = b.SendHTTPRequest(info)
+            if not br.locVersionRequest then
+                br.locVersionRequest = b.SendHTTPRequest(info)
             else
-                brlocVersionStatus, brlocVersionResponce = wmbapi.ReceiveHttpResponse(brlocVersionRequest)
-                if brlocVersionResponce then
-                    brcurrVersion = string.match(brlocVersionResponce.Body, "(%d+%p%d+%p%d+)")
+                br.locVersionStatus, br.locVersionResponce = wmbapi.ReceiveHttpResponse(br.locVersionRequest)
+                if br.locVersionResponce then
+                    brcurrVersion = string.match(br.locVersionResponce.Body, "(%d+%p%d+%p%d+)")
                 end
             end
             -- Check against current version installed
             if brlocVersion and brcurrVersion then
                 -- Print("Local: "..tostring(brlocVersion).." | Remote: "..tostring(brcurrVersion))
-                brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-                brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-                if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
-                    local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
+                local brcleanCurr = b.gsub(tostring(brcurrVersion), "%p", "")
+                local brcleanLoc = b.gsub(tostring(brlocVersion), "%p", "")
+                if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then
+                    local msg =
+                        "BadRotations is currently out of date. Local Version: " ..
+                        brlocVersion ..
+                            " Current Version: " ..
+                                brcurrVersion .. ".  Please download latest version for best performance."
                     if br.isChecked("Overlay Messages") then
-                        RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
+                        b.RaidNotice_AddMessage(b.RaidWarningFrame, msg, {r = 1, g = 0.3, b = 0.1})
                     else
-                        Print(msg)
+                        b.print(msg)
                     end
                 end
             end
-            brUpdateTimer = GetTime()
+            brUpdateTimer = b.GetTime()
         end
         br.debug.cpu:updateDebug(startTime, "outOfDate")
     end
