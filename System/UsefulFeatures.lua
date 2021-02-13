@@ -14,15 +14,15 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 -- idTip by Silverwind
 local hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, GetGlyphSocketInfo, tonumber, strfind =
-	hooksecurefunc,
-	select,
-	UnitBuff,
-	UnitDebuff,
-	UnitAura,
-	UnitGUID,
-	GetGlyphSocketInfo,
-	tonumber,
-	strfind
+	br._G.hooksecurefunc,
+	br._G.select,
+	br._G.UnitBuff,
+	br._G.UnitDebuff,
+	br._G.UnitAura,
+	br._G.UnitGUID,
+	br._G.GetGlyphSocketInfo,
+	br._G.tonumber,
+	br._G.strfind
 local types = {
 	spell = "SpellID:",
 	item = "ItemID:",
@@ -74,11 +74,11 @@ local function onSetHyperlink(self, link)
 		addLine(self, id, types.item)
 	end
 end
-hooksecurefunc(ItemRefTooltip, "SetHyperlink", onSetHyperlink)
-hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(br._G.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(br._G.GameTooltip, "SetHyperlink", onSetHyperlink)
 -- Spells
 hooksecurefunc(
-	GameTooltip,
+	br._G.GameTooltip,
 	"SetUnitBuff",
 	function(self, ...)
 		local id = select(10, UnitBuff(...))
@@ -88,7 +88,7 @@ hooksecurefunc(
 	end
 )
 hooksecurefunc(
-	GameTooltip,
+	br._G.GameTooltip,
 	"SetUnitDebuff",
 	function(self, ...)
 		local id = select(10, UnitDebuff(...))
@@ -98,7 +98,7 @@ hooksecurefunc(
 	end
 )
 hooksecurefunc(
-	GameTooltip,
+	br._G.GameTooltip,
 	"SetUnitAura",
 	function(self, ...)
 		local id = select(10, UnitAura(...))
@@ -112,11 +112,11 @@ hooksecurefunc(
 	function(link, ...)
 		local id = tonumber(link:match("spell:(%d+)"))
 		if id then
-			addLine(ItemRefTooltip, id, types.spell)
+			addLine(br._G.ItemRefTooltip, id, types.spell)
 		end
 	end
 )
-GameTooltip:HookScript(
+br._G.GameTooltip:HookScript(
 	"OnTooltipSetSpell",
 	function(self)
 		local id = select(3, self:GetSpell())
@@ -126,10 +126,10 @@ GameTooltip:HookScript(
 	end
 )
 -- NPCs
-GameTooltip:HookScript(
+br._G.GameTooltip:HookScript(
 	"OnTooltipSetUnit",
 	function(self)
-		if C_PetBattles.IsInBattle() then
+		if br._G.C_PetBattles.IsInBattle() then
 			return
 		end
 		local unit = select(2, self:GetUnit())
@@ -139,7 +139,7 @@ GameTooltip:HookScript(
 			local type = guid:match("%a+")
 			-- ID 970 seems to be used for players
 			if id and type ~= "Player" then
-				addLine(GameTooltip, id, types.unit)
+				addLine(br._G.GameTooltip, id, types.unit)
 			end
 		end
 	end
@@ -154,12 +154,12 @@ local function attachItemTooltip(self)
 		end
 	end
 end
-GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
-ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
-ItemRefShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
-ItemRefShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
-ShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
-ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
+br._G.GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
+br._G.ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
+br._G.ItemRefShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
+br._G.ItemRefShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
+br._G.ShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
+br._G.ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
 -- Glyphs -- Commented out due to Legion
 -- hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
 -- 	local id = select(4, GetGlyphSocketInfo(...))
@@ -169,26 +169,26 @@ ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
 -- 	if id then addLine(self, id, types.glyph) end
 -- end)
 -- Achievement Frame Tooltips
-local f = CreateFrame("frame")
+local f = br._G.CreateFrame("frame")
 f:RegisterEvent("ADDON_LOADED")
 f:SetScript(
 	"OnEvent",
 	function(_, _, what)
 		if what == "Blizzard_AchievementUI" then
-			for i, button in ipairs(AchievementFrameAchievementsContainer.buttons) do
+			for _, button in ipairs(br._G.AchievementFrameAchievementsContainer.buttons) do
 				button:HookScript(
 					"OnEnter",
 					function()
-						GameTooltip:SetOwner(button, "ANCHOR_NONE")
-						GameTooltip:SetPoint("TOPLEFT", button, "TOPRIGHT", 0, 0)
-						addLine(GameTooltip, button.id, types.achievement, true)
-						GameTooltip:Show()
+						br._G.GameTooltip:SetOwner(button, "ANCHOR_NONE")
+						br._G.GameTooltip:SetPoint("TOPLEFT", button, "TOPRIGHT", 0, 0)
+						addLine(br._G.GameTooltip, button.id, types.achievement, true)
+						br._G.GameTooltip:Show()
 					end
 				)
 				button:HookScript(
 					"OnLeave",
 					function()
-						GameTooltip:Hide()
+						br._G.GameTooltip:Hide()
 					end
 				)
 			end
@@ -196,12 +196,12 @@ f:SetScript(
 	end
 )
 local petAbilityTooltipID = false
-local orig_SharedPetBattleAbilityTooltip_SetAbility = SharedPetBattleAbilityTooltip_SetAbility
-function SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
+local orig_SharedPetBattleAbilityTooltip_SetAbility = br.SharedPetBattleAbilityTooltip_SetAbility
+function br.SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
 	orig_SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
 	petAbilityTooltipID = abilityInfo:GetAbilityID()
 end
-PetBattlePrimaryAbilityTooltip:HookScript(
+br._G.PetBattlePrimaryAbilityTooltip:HookScript(
 	"OnShow",
 	function(self)
 		local name = self.Name:GetText()
@@ -229,7 +229,7 @@ if not LibStub or LibStub.minor < LIBSTUB_MINOR then
 	-- returns empty library object or old library object if upgrade is needed
 	function LibStub:NewLibrary(major, minor)
 		assert(type(major) == "string", "Bad argument #2 to `NewLibrary' (string expected)")
-		minor = assert(tonumber(strmatch(minor, "%d+")), "Minor version must either be a number or contain a number.")
+		minor = assert(tonumber(br._G.strmatch(minor, "%d+")), "Minor version must either be a number or contain a number.")
 		local oldminor = self.minors[major]
 		if oldminor and oldminor >= minor then
 			return nil
