@@ -1,10 +1,10 @@
-local addonName, br = ...
+local _, br = ...
 br.engines = {}
 -- Main Engine
 function br:Engine()
 	if br.engines.Pulse_Engine == nil then
-		br.engines.Pulse_Engine = CreateFrame("Frame", nil, UIParent)
-		br.engines.Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
+		br.engines.Pulse_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
+		br.engines.Pulse_Engine:SetScript("OnUpdate", br.BadRotationsUpdate)
 		br.engines.Pulse_Engine:Show()
 	end
 end
@@ -12,19 +12,25 @@ end
 function br:ObjectManager()
 	local function ObjectManagerUpdate(self)
 		if br.unlocked then
-			if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
-				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
+			if
+				br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and
+					br.data.settings[br.selectedSpec].toggles ~= nil
+			 then
+				if
+					br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and
+						br.data.settings[br.selectedSpec].toggles["Power"] == 1
+				 then
 					--if br.timer:useTimer("omUpdate", 1) then
-						br:updateOM()
-						br.om:Update()
-					--end
+					br:updateOM()
+					br.om:Update()
+				--end
 				end
 			end
 		end
 	end
 	if br.engines.OM_Engine == nil then
 		-- ObjectManagerUpdate()
-		br.engines.OM_Engine = CreateFrame("Frame", nil, UIParent)
+		br.engines.OM_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
 		br.engines.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
 		br.engines.OM_Engine:Show()
 	end
@@ -34,7 +40,7 @@ end
 function br:getUpdateRate()
 	local updateRate = updateRate or 0.1
 
-	local FrameRate = GetFramerate() or 0
+	local FrameRate = br._G.GetFramerate() or 0
 	if br.isChecked("Auto Delay") then
 		if FrameRate >= 0 and FrameRate < 60 then
 			updateRate = (60 - FrameRate) / 60
@@ -50,8 +56,8 @@ function br:getUpdateRate()
 end
 
 local collectGarbage = true
-function BadRotationsUpdate(self)
-	local startTime = debugprofilestop()
+function br.BadRotationsUpdate(self)
+	local startTime = br._G.debugprofilestop()
 	local LibDraw = _G["LibDraw"]
 	local Print = br._G["Print"]
 	-- Check for Unlocker
@@ -79,14 +85,20 @@ function BadRotationsUpdate(self)
 		-- Load Saved Settings
 		br:loadSavedSettings()
 		-- Continue Load
-		if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
+		if
+			br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and
+				br.data.settings[br.selectedSpec].toggles ~= nil
+		 then
 			-- BR Main Toggle Off
-			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+			if
+				br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and
+					br.data.settings[br.selectedSpec].toggles["Power"] ~= 1
+			 then
 				-- BR Main Toggle On - Main Cycle
 				-- BR Main Toggle On - Main Cycle
 				-- Clear Queue
 				if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
-					wipe(br.player.queue)
+					br._G.wipe(br.player.queue)
 					if not br.isChecked("Mute Queue") then
 						Print("BR Disabled! - Queue Cleared.")
 					end
@@ -101,8 +113,12 @@ function BadRotationsUpdate(self)
 				br.fallDist = br.getFallDistance() or 0
 				-- Quaking helper
 				if br.getOptionCheck("Quaking Helper") then
-					if (UnitChannelInfo("player") or UnitCastingInfo("player")) and br.getDebuffRemain("player", 240448) < 0.5 and br.getDebuffRemain("player", 240448) > 0 then
-						RunMacroText("/stopcasting")
+					if
+						(br._G.UnitChannelInfo("player") or br._G.UnitCastingInfo("player")) and
+							br.getDebuffRemain("player", 240448) < 0.5 and
+							br.getDebuffRemain("player", 240448) > 0
+					 then
+						br._G.RunMacroText("/stopcasting")
 					end
 				end
 				if br.isCastingSpell(318763) then
@@ -111,10 +127,10 @@ function BadRotationsUpdate(self)
 				-- Blizz br._G.CastSpellByName bug bypass
 				if br.castID then
 					-- Print("Casting by ID")
-					CastSpellByID(botSpell, botUnit)
+					br._G.CastSpellByID(br.botSpell, br.botUnit)
 					br.castID = false
 				end
-				local playerSpec = GetSpecializationInfo(GetSpecialization())
+				local playerSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
 				if playerSpec == "" then
 					playerSpec = "Initial"
 				end
@@ -130,7 +146,7 @@ function BadRotationsUpdate(self)
 					br.ui:closeWindow("profile")
 					br.player:createOptions()
 					br.player:createToggles()
-					
+
 					br.player:update()
 					if br.player ~= nil and br.rotationChanged then
 						br:saveLastProfileTracker()
@@ -139,21 +155,28 @@ function BadRotationsUpdate(self)
 					br.rotationChanged = false
 				end
 				-- Queue Casting
-				if (br.isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not UnitChannelInfo("player") then
+				if
+					(br.isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and
+						not br._G.UnitChannelInfo("player")
+				 then
 					if br.castQueue() then
 						return
 					end
 				end
-				if (not br.isChecked("Queue Casting") or UnitIsDeadOrGhost("player") or not UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
-					wipe(br.player.queue)
+				if
+					(not br.isChecked("Queue Casting") or br.GetUnitIsDeadOrGhost("player") or not br._G.UnitAffectingCombat("player")) and
+						br.player ~= nil and
+						#br.player.queue ~= 0
+				 then
+					br._G.wipe(br.player.queue)
 					if not br.isChecked("Mute Queue") then
 						if not br.isChecked("Queue Casting") then
 							Print("Queue System Disabled! - Queue Cleared.")
 						end
-						if UnitIsDeadOrGhost("player") then
+						if br.GetUnitIsDeadOrGhost("player") then
 							Print("Player Death Detected! - Queue Cleared.")
 						end
-						if not UnitAffectingCombat("player") then
+						if not br._G.UnitAffectingCombat("player") then
 							Print("No Combat Detected! - Queue Cleared.")
 						end
 					end
@@ -163,7 +186,9 @@ function BadRotationsUpdate(self)
 					br.smartQueue()
 				end
 				-- Update Player
-				if br.player ~= nil and (not CanExitVehicle() or (UnitExists("target") and br.getDistance("target") < 5)) then
+				if
+					br.player ~= nil and (not br._G.CanExitVehicle() or (br.GetUnitExists("target") and br.getDistance("target") < 5))
+				 then
 					br.player:update()
 				end
 				-- Automatic catch the pig
@@ -175,29 +200,32 @@ function BadRotationsUpdate(self)
 					br.friend:Update()
 				end
 				-- Auto Loot
-				autoLoot()
+				br.autoLoot()
 				-- Close windows and swap br.selectedSpec on Spec Change
-				local thisSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+				local thisSpec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
 				if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
 					-- Closing the windows will save the position
 					br.ui:closeWindow("all")
 					br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
 					-- Update Selected Spec/Profile
-					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
-					br.selectedSpecID = GetSpecializationInfo(GetSpecialization())
+					br.selectedSpec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
+					br.selectedSpecID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
 					br.loader.loadProfiles()
 					br.loadLastProfileTracker()
-					br.activeSpecGroup = GetActiveSpecGroup()
+					br.activeSpecGroup = br._G.GetActiveSpecGroup()
 					br.data.loadedSettings = false
 					-- Load Default Settings
 					br:defaultSettings()
 					br.rotationChanged = true
-					wipe(br.commandHelp)
+					br._G.wipe(br.commandHelp)
 					br:slashHelpList()
 				end
 				-- Show Main Button
-				if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
-					if not UnitAffectingCombat("player") then
+				if
+					br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and
+						br.data.settings[br.selectedSpec].toggles["Main"] ~= 0
+				 then
+					if not br._G.UnitAffectingCombat("player") then
 						br.data.settings[br.selectedSpec].toggles["Main"] = 1
 						br.mainButton:Show()
 					end
@@ -214,9 +242,9 @@ function BadRotationsUpdate(self)
 				end
 				-- Get DBM/BigWigs Timer/Bars
 				-- global -> br.DBM.Timer
-				if IsAddOnLoaded("DBM-Core") then
+				if br._G.IsAddOnLoaded("DBM-Core") then
 					br.DBM:getBars()
-				elseif IsAddOnLoaded("BigWigs") then
+				elseif br._G.IsAddOnLoaded("BigWigs") then
 					if not br.DBM.BigWigs then
 						br.BWInit()
 					else
@@ -238,7 +266,7 @@ function BadRotationsUpdate(self)
 					-- Ensure we have all the settings recorded
 					br.ui:recreateWindows()
 					-- Compare br.data.settings for the current spec/profile to the ui options
-					for k, v in pairs(br.data.settings[br.selectedSpec][br.selectedProfile]) do
+					for k, _ in pairs(br.data.settings[br.selectedSpec][br.selectedProfile]) do
 						local inOptions = br.data.ui[k] ~= nil
 						-- Remove any Check/Drop/Status Options that are no longer a UI Option
 						if br.data.ui[k] == nil then
