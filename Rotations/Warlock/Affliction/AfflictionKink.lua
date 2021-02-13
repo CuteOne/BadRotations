@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.0.6"
+local VerNum  = "2.0.8"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffFFBB00"
 local colorGreen = "|cff4DDB1D"
@@ -84,7 +84,14 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Burning Rush Disabled", tip = "Burning Rush Disabled.", highlight = 0, icon = br.player.spell.burningRush}
     };
     CreateButton("BurningRush",1,1)
-
+        -- Dark Soul Button
+    DarkSoulModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Dark Soul with Darkglare Enabled", tip = "Dark Soul with Darkglare Enabled.", highlight = 1, icon = br.player.spell.darkSoul},
+        [2] = { mode = "CDs", value = 2 , overlay = "Dark Soul with Cooldowns Enabled", tip = "Dark Soul with Cooldowns Enabled.", highlight = 1, icon = br.player.spell.darkSoul},
+        [3] = { mode = "TTD", value = 3 , overlay = "Dark Soul with TTD Enabled", tip = "Dark Soul with TTD Enabled.", highlight = 1, icon = br.player.spell.darkSoul},
+        [4] = { mode = "Off", value = 4 , overlay = "Dark Soul Disabled(Hotkey Only)", tip = "Dark Soul Disabled(Hotkey Only).", highlight = 1, icon = br.player.spell.darkSoul}
+    };
+    CreateButton("DarkSoul",0,1)
     -- Dot Blacklist button
     DotBlacklistModes = {
         [1] = { mode = "On", value = 1 , overlay = "Dot Blacklist Enabled", tip = "Dot Blacklist Enabled.", highlight = 1, icon = br.player.spell.corruption},
@@ -115,7 +122,7 @@ end
 local function createOptions ()
 	local optionTable
 
-	local function rotationOptions ()
+    local GeneralOptions = function()
 		-----------------------
 		--- GENERAL OPTIONS ---
 		-----------------------
@@ -170,8 +177,10 @@ local function createOptions ()
             
             -- Pre-Pull SoC Count
             br.ui:createSpinner(section, "Pre-Pull SoC Count", 3, 0, 15, 1, "Set desired amount of units to pre-pull SoC with (DBM Required). Min: 0 / Max: 15 / Interval: 1") 
-        br.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
+        end
 
+    local DotsOptions = function()
         -------------------------
         --- Damage Over Time  ---
         -------------------------
@@ -191,35 +200,37 @@ local function createOptions ()
             br.ui:createSpinnerWithout(section, "Siphon Life Count", 1, 1, 10, 1, "The maximum amount of running Siphon Life. Standard is 8")
                 
         br.ui:checkSectionState(section)
+        end
 
+    local OffensiveOptions = function()
 		-------------------------
         --- OFFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, colorPurple .."Affliction .:|:."..colorOrange.."Offensive")
             -- Seef of Corruption
-            br.ui:createSpinnerWithout(section, "Seed of Corruption Targets", 3, 1, 10, 1, "Set desired number of targets to cast SoC")
+            br.ui:createSpinnerWithout(section, "Seed of Corruption Targets", 6, 1, 20, 1, "Set desired number of targets to cast SoC")
             br.ui:createSpinnerWithout(section, "Seed of Corruption TTD", 6, 1, 25, 1, "|cffFFBB00Minimum Time to Die of a unit to cast Seed of Corruption on.")
             br.ui:createCheckbox(section, "Spam Seed of Corruption", "Check to spam SoC if SoC is talented")
             br.ui:createSpinner(section, "SoC Spam Delay", 0.1, 0, 10, 0.1, "Set desired delqy between SoC casts during SoC Spam. Min: 0 / Max: 10 / Interval: 0.1")
            
             -- Covenant TTD
-            br.ui:createSpinnerWithout(section, "Covenant TTD", 8, 1, 15, 1, "The TTD before casting your covenant ability")
+            br.ui:createSpinnerWithout(section, "Covenant TTD", 8, 1, 15, 1, "The TTD before casting your covenant ability default:8)")
             -- Haunt TTD
-            br.ui:createSpinnerWithout(section, "Haunt TTD", 6, 1, 15, 1, "The TTD before casting Haunt")
+            br.ui:createSpinnerWithout(section, "Haunt TTD", 6, 1, 15, 1, "The TTD before casting Haunt default:6)")
             -- Haunt TTD
-            br.ui:createSpinnerWithout(section, "Vile Taint TTD", 10, 1, 15, 1, "The TTD before casting Vile Taint")
+            br.ui:createSpinnerWithout(section, "Vile Taint TTD", 10, 1, 15, 1, "The TTD before casting Vile Taint (default:10)")
+                        -- Haunt TTD
+            br.ui:createSpinnerWithout(section, "PS TTD", 10, 1, 15, 1, "The TTD before casting PHantom Singularity (default:10)")
 
             -- Drain Soul Snipe
             br.ui:createCheckbox(section, "Drain Soul Snipe", "Will cast Drain Soul on dying units for shards generation.")
-
-
-        br.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
+        end
+    local CooldownsOptions = function()
 		-------------------------
         --- COOLDOWNS OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, colorPurple .."Affliction .:|:."..colorOrange.."Cooldowns")
-            -- Refresh Dots for Phantom
-            br.ui:createCheckbox(section, "Ignore Dark Soul during CDs", "Will toggle on/off the use of dark soul during cooldowns.")
             -- Phantom of Singularity
             br.ui:createCheckbox(section, "Phantom of Singularity", "Will cast Phantom of Singularity.")
             
@@ -238,7 +249,10 @@ local function createOptions ()
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
             
-        br.ui:checkSectionState(section)        
+        br.ui:checkSectionState(section)
+    end  
+    
+    local HotkeysOptions = function()
         -------------------------
 		---- HOTKEYS OPTIONS ----
 		-------------------------
@@ -264,26 +278,28 @@ local function createOptions ()
             -- Shadowfury Target
             br.ui:createDropdownWithout(section, "Shadowfury Target", {"|cffFFBB00Best", "|cffFFBB00Target", "|cffFFBB00Cursor"}, 1, "|cffFFBB00Shadowfury target")
         br.ui:checkSectionState(section)
+    end
 
+    local DefensiveOptions = function()
         -------------------------
 		--- DEFENSIVE OPTIONS ---
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, colorPurple .."Affliction .:|:."..colorOrange.."Defensive")
-            -- Soulstone
-		    br.ui:createDropdown(section, "Soulstone", {"|cffFFBB00Target","|cffFFBB00Mouseover","|cffFFBB00Tank", "|cffFFBB00Healer", "|cffFFBB00Healer/Tank", "|cffFFBB00Any", "|cffFFBB00Player"},
-            1, "|cffFFBB00Target to cast on")
-            
-            --Fear Solo Farming
-            br.ui:createSpinner(section, "Fear Bonus Mobs",   7,  0,  15,  1,  "|cffFFBB00Toggle the use of auto casting fear when solo farming.")
+                -- Soulstone
+		        br.ui:createDropdown(section, "Soulstone", {"|cffFFBB00Target","|cffFFBB00Mouseover","|cffFFBB00Tank", "|cffFFBB00Healer", "|cffFFBB00Healer/Tank", "|cffFFBB00Any", "|cffFFBB00Player"},
+                1, "|cffFFBB00Target to cast on")
+                
+                --Fear Solo Farming
+                br.ui:createSpinner(section, "Fear Bonus Mobs",   7,  0,  15,  1,  "|cffFFBB00Toggle the use of auto casting fear when solo farming.")
 
-            --- Healthstone Creation
-            br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFBB00Toggle creating healthstones, and how many in bag before creating more")
+                --- Healthstone Creation
+                br.ui:createSpinnerWithout(section, "Create Healthstone", "|cffFFBB00Toggle creating healthstones, and how many in bag before creating more")
 
-            -- Basic Healing Module
-            br.player.module.BasicHealing(section)
+                -- Basic Healing Module
+                br.player.module.BasicHealing(section)
 
-            -- Dark Pact
-            br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
+                -- Dark Pact
+                br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
             -- Mortal Coil 
             br.ui:createSpinner(section, "Mortal Coil",  60,  0,  100,  5,  "|cffFFBB00Health Percent to Cast At")
@@ -308,8 +324,8 @@ local function createOptions ()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percent to Cast At")
         br.ui:checkSectionState(section)
-    end
-    local function listsOptions()
+        end -- End Defensive Options Function
+    local ListsOptions = function()
         -------------------------
         ----  Lists Options -----
         -------------------------
@@ -325,6 +341,8 @@ local function createOptions ()
         br.ui:createCheckbox(section, "Fear", "Will cast fear on units around target.")
         br.ui:createScrollingEditBoxWithout(section,"Fear Units", Fear, "List of units to Fear.", 240, 40)
         br.ui:checkSectionState(section)
+    end
+    local ToggleOptions = function()
         ----------------------
 		--- TOGGLE OPTIONS ---
 		----------------------
@@ -340,21 +358,43 @@ local function createOptions ()
       
         -- Interrupts Key Toggle
         br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)  
-    br.ui:checkSectionState(section)
-
-    br.ui:checkSectionState(section)
+        br.ui:checkSectionState(section)
     end
 
 
 	optionTable = {{
-		[1] = "Rotation Options",
-        [2] = rotationOptions,
+		[1] = "General",
+        [2] = GeneralOptions,
+    },
+    {
+        [1] = "DoTs",
+        [2] = DotsOptions,
+	},
+    {
+        [1] = "Offensives",
+        [2] = OffensiveOptions,
+    },
+    {
+        [1] = "Defensives",
+        [2] = DefensiveOptions,
+    },
+    {
+        [1] = "Cooldowns",
+        [2] = CooldownsOptions,
+    },
+    {
+        [1] = "Hotkeys",
+        [2] = HotkeysOptions,
     },
     {
         [1] = "Lists",
-        [2] = listsOptions
-     
-	}}
+        [2] = ListsOptions,
+    },
+    {
+        [1] = "Toggles",
+        [2] = ToggleOptions,
+    }
+}
 	return optionTable
 end
 
@@ -374,6 +414,8 @@ local function runRotation()
     UpdateToggle("SeedOfCorruption", 0.25)
     UpdateToggle("DotBlacklist", 0.25)
     UpdateToggle("PetCommand", 0.25)
+    UpdateToggle("DarkSoul", 0.25)
+
 
     br.player.ui.mode.pc = br.data.settings[br.selectedSpec].toggles["PetCommand"]
     br.player.ui.mode.ss = br.data.settings[br.selectedSpec].toggles["Single"]
@@ -383,6 +425,7 @@ local function runRotation()
     br.player.ui.mode.dbl = br.data.settings[br.selectedSpec].toggles["DotBlacklist"]
     br.player.ui.mode.md = br.data.settings[br.selectedSpec].toggles["MultiDot"]
     br.player.ui.mode.cds = br.data.settings[br.selectedSpec].toggles["Cooldown"]
+    br.player.ui.mode.ds = br.data.settings[br.selectedSpec].toggles["DarkSoul"]
 
 
     --------------
@@ -1308,7 +1351,7 @@ local function actionList_LevelingAoE()
     if talent.phantomSingularity and isChecked("Phantom of Singularity") then 
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and (debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") or debuff.seedOfCorruption.count(thisUnit) == 1) then
+        if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and (debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") or debuff.seedOfCorruption.count(thisUnit) == 1) and ttd("target") > ui.value("PS TTD") then
             if cast.phantomSingularity("target") then br.addonDebug("[Action:Leveling AoE] Phantom Singularity") return true end 
             end
         end
@@ -1709,13 +1752,13 @@ local function actionList_LevelingST()
     ------------------------------------------------
     -- Phantom Singularity -------------------------
     ------------------------------------------------
-    if isChecked("Phantom of Singularity") and not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() then
+    if isChecked("Phantom of Singularity") and not talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and ttd("target") > ui.value("PS TTD") then
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Leveling ST] Phantom Singularity") return true end 
     end
     ------------------------------------------------
     -- Phantom Singularity (Dark Caller Talent)-----
     ------------------------------------------------
-    if isChecked("Phantom of Singularity") and talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)  then
+    if isChecked("Phantom of Singularity") and talent.darkCaller and not moving and talent.phantomSingularity and cd.soulRot.ready() and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45) and ttd("target") > ui.value("PS TTD") then
         if cast.phantomSingularity("target") then br.addonDebug("[Action:Leveling ST] Phantom Singularity") return true end 
     end
     ------------------------------------------------
@@ -2104,9 +2147,20 @@ apl.AoE = function()
     -- Dark Soul: Misery -----.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions.aoe+=/dark_soul,if=cooldown.summon_darkglare.remains>time_to_die
-    if talent.darkSoul and cd.summonDarkglare.remains() > getTTD("target") 
-    then
-        if cast.darkSoul("player") then debug("[Action:Rotation] Dark Soul (Darkglare CD > TimeToDie)") return true end
+    if talent.darkSoul then
+        if mode.ds ~= 4 and mode.ds == 1 then -- We don't have dark soul toggle off, so use with darkglare.
+            if not moving and pet.darkglare.active() then -- Dark soul is enabled, use with cooldowns. 
+                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end 
+            end 
+        elseif mode.ds ~= 4 and mode.ds == 2 then -- Dark Soul is enabled, use with cds or boss targets. 
+            if not moving and useCDs or isBoss("target") or ttd("target") > 40 and ttd("target") > ui.value("Dark Soul TTD") then 
+                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Cooldowns)") return true end 
+            end
+        elseif mode.ds ~= 4 and mode.ds == 3 then
+            if ttd("target") > ui.value("Dark Soul TTD") or cd.summonDarkglare.remains() > ttd("target") then 
+                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (TTD)") return true end 
+            end
+        end
     end
     if isChecked("Dark Soul: Misery") and SpecificToggle("Dark Soul: Misery") and not GetCurrentKeyBoardFocus() and not moving then
         if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Hotkey)") return true end
@@ -2436,7 +2490,7 @@ apl.Rotation = function()
     -- Phantom Singularity ---.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/phantom_singularity
-    if cast.phantomSingularity("target") then debug("[Action:Rotation] Phantom Singularity") return true end 
+    if cast.phantomSingularity("target") and ttd("target") > ui.value("PS TTD") then debug("[Action:Rotation] Phantom Singularity") return true end 
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Malefic Rapture - 5 Shards ------.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
@@ -2479,8 +2533,21 @@ apl.Rotation = function()
     -- Dark Soul: Misery -----.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/dark_soul,if=cooldown.summon_darkglare.remains>time_to_die
-    if talent.darkSoul and cd.summonDarkglare.remains() > getTTD("target") then
-        if cast.darkSoul("player") then debug("[Action:Rotation] Dark Soul (Darkglare CD > TimeToDie)") return true end
+    if talent.darkSoul then
+        if mode.ds ~= 4 and mode.ds == 1 then -- We don't have dark soul toggle off, so use with darkglare.
+            if not moving and pet.darkglare.active() then -- Dark soul is enabled, use with cooldowns. 
+                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end 
+            end 
+        elseif mode.ds ~= 4 and mode.ds == 2 then
+            if not moving and useCDs or isBoss("target") and pet.darkglare.active() and ttd("target") > ui.value("Dark Soul TTD") then 
+                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Cooldowns)") return true end 
+            end
+
+        elseif mode.ds ~= 4 and mode.ds == 3 then
+            if ttd("target") > ui.value("Dark Soul TTD") and cd.summonDarkglare.remains() > ttd("target") and isBoss() or ttd("target") > 30 then 
+                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (TTD)") return true end 
+            end
+        end
     end
     if isChecked("Dark Soul: Misery") and SpecificToggle("Dark Soul: Misery") and not GetCurrentKeyBoardFocus() and not moving then
         if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Hotkey)") return true end
@@ -2654,11 +2721,12 @@ local function actionList_PetControl()
     if UnitExists("pet")
     and not UnitIsDeadOrGhost("pet") 
     and not UnitExists("pettarget")
+    and hastar
     and inCombat
     and br.timer:useTimer("Summon Pet Delay",math.random(0.5,2))
     then
-        PetAssistMode()
-        PetAttack()
+       -- PetAssistMode()
+        --PetAttack()
         RunMacroText("/petattack")
     end
 
@@ -2666,8 +2734,9 @@ local function actionList_PetControl()
     and UnitExists("pet")
     and not UnitIsDeadOrGhost("pet") 
     and UnitExists("pettarget")
+    and not hastar
     then    
-        PetFollow()   
+        ---PetFollow()   
         RunMacroText("/petfollow")
         br.addonDebug("PET FOLLOW!")
     end
@@ -2916,7 +2985,7 @@ local function actionList_LevelingDsAoE()
     if isChecked("Phantom of Singularity") and UnitChannelInfo("player") == GetSpellInfo(198590) then
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-            if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") then
+            if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") and ttd("target") > ui.value("PS TTD") then
                 if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped Leveling AoE] Phantom Singularity") return true end 
             end
         end
@@ -3031,7 +3100,7 @@ apl.drainSoulAoE = function()
     if isChecked("Phantom of Singularity") and UnitChannelInfo("player") == GetSpellInfo(198590) then
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-            if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") then
+            if debuff.agony.count(thisUnit) >= ui.value("Agony Count") and debuff.corruption.count(thisUnit) >= ui.value("Corruption Count") and ttd("target") > ui.value("PS TTD") then
                 if cast.phantomSingularity("target") then br.addonDebug("[Action:Clipped AoE] Phantom Singularity") return true end 
             end
         end
@@ -3085,6 +3154,7 @@ apl.drainSoulST = function()
     and cd.phantomSingularity.remain() <= gcdMax
     and (cd.summonDarkglare.remains() == 0 or cd.summonDarkglare.remains() >= 45)
     and cd.soulRot.ready()
+    and ttd("target") > ui.value("PS TTD")
     and not moving then
         if isChecked("Refresh Dots before casting Phantom") and cd.summonDarkglare.remains() >= gcdMax then
             if actionList_PhantomPrep() then return end
@@ -3150,6 +3220,8 @@ local function actionList_PreCombat()
                     if cast.soulstone("player") then br.addonDebug("Casting Soulstone [Player]" ) return true end
                 end
             end
+
+            
 
             -- Create Healthstone
             if not moving and not inCombat and ui.checked("Create Healthstone") then

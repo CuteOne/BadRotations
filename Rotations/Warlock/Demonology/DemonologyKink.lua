@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.3.4"
+local versionNum = "1.3.5"
 local colorPurple = "|cff8788EE"
 local colorOrange    = "|cffb28cc7"								   
 local dreadstalkersActive, vilefiendActive, grimoireActive = false, false, false
@@ -984,7 +984,6 @@ local function runRotation()
                     end
                 end
             end
-
                     -- actions.implosion+=/summon_demonic_tyrant
             if not moving then
                 if cast.summonDemonicTyrant("target") then ui.debug("[Action:Implosion] Summon Demonic Tyrant")
@@ -1142,7 +1141,7 @@ local function runRotation()
     local function actionList_Implosion()
 
                 local casttime = select(4,GetSpellInfo(172))
-
+        
         -- actions.implosion=implosion,if=(buff.wild_imps.stack>=6&(soul_shard<3|prev_gcd.1.call_dreadstalkers|buff.wild_imps.stack>=9|prev_gcd.1.bilescourge_bombers|(!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan))&!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan&buff.demonic_power.down)|(time_to_die<3&buff.wild_imps.stack>0)|(prev_gcd.2.call_dreadstalkers&buff.wild_imps.stack>2&!talent.demonic_calling.enabled)
         if (wildImps >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImps >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) or not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and botSpell ~= spell.implosion and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImps > 0 and useCDs()) or (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling) then
             if cast.implosion("target") then ui.debug("[Action:Implosion] Implosion")
@@ -1250,7 +1249,7 @@ local function runRotation()
             -- Impending Catastrophe : Venthyr -------------
             ------------------------------------------------
             --321792
-            if covenant.venthyr.active and  ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+            if covenant.venthyr.active and ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
                 if cast.impendingCatastrophe() then br.addonDebug("[Action:Rotation] Impending Catastrophe") return true end
             end
             ------------------------------------------------
@@ -1278,7 +1277,7 @@ local function runRotation()
             ------------------------------------------------
             -- Soul Rot ------------------------------------
             ------------------------------------------------
-            if covenant.nightFae.active and  ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+            if covenant.nightFae.active and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
                 if cast.soulRot() then br.addonDebug("[Action:AoE] Soul Rot") return true end
             end 
             ------------------------------------------------
@@ -1296,7 +1295,7 @@ local function runRotation()
                 return true
             end
         end
-
+       
         local DisembodiedTongue = UnitBuffID("player", 322455)
 
         if (GetRealZoneText() == "Torghast, Tower of the Damned" and DisembodiedTongue or DisembodiedTongueLearned == true) then 
@@ -1366,6 +1365,9 @@ local function runRotation()
             if actionList_NetherPortal() then
                 return true
             end
+        end
+        if not moving then 
+            if actionList_CovenantSpells() then return end
         end
         -- actions+=/call_action_list,name=implosion,if=spell_targets.implosion>1
         if mode.rotation ~= 3 and #enemies.yards8t >= getOptionValue("Implosion Units") then
@@ -1439,7 +1441,9 @@ local function runRotation()
             if buff.demonicCore.exists() and (buff.demonicCore.stack() >= 0 or buff.demonicCore.remain() <= gcdMax * 5.7) then
                 if cast.demonbolt("target") then ui.debug("[Action:Implosion] Demonbolt (Proc)") return true end
             end
-            if actionList_CovenantSpells() then return end 
+            if not moving then 
+                if actionList_CovenantSpells() then return end
+            end
         end 
         -- actions+=/power_siphon,if=buff.wild_imps.stack>=2&buff.demonic_core.stack<=2&buff.demonic_power.down&spell_targets.implosion<2
         if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
@@ -1488,7 +1492,7 @@ local function runRotation()
             -- Impending Catastrophe : Venthyr -------------
             ------------------------------------------------
             --321792
-            if covenant.venthyr.active and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+            if covenant.venthyr.active and #enemies.yards10t >= 2 and ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
                 if cast.impendingCatastrophe() then br.addonDebug("[Action:AOE] Impending Catastrophe") return true end
             end
             --actions.covenant+=/decimating_bolt,if=cooldown.summon_darkglare.remains>5&(debuff.haunt.remains>4|!talent.haunt.enabled)
@@ -1509,7 +1513,7 @@ local function runRotation()
             ------------------------------------------------
             -- Soul Rot ------------------------------------
             ------------------------------------------------
-            if covenant.nightFae.active and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+            if covenant.nightFae.active and #enemies.yards8t >= 2 and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
                 if cast.soulRot() then br.addonDebug("[Action:AoE] Soul Rot") return true end
             end 
             ------------------------------------------------
