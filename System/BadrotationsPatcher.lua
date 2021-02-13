@@ -134,11 +134,7 @@ local TagHandlerList = {
 	"InteractUnit",
 	-- "CancelUnitBuff",
 	"TargetUnit",
-	"UnitGUID",
-	"C_NamePlate.SetTargetClampingInsets",
-	"AuraUtil.FindAuraBySpellId",
-	"AuraUtil.FindAuraByName",
-	"AuraUtil.FindAura"
+	"UnitGUID"
 }
 local UnlockList = {
 	"ToggleGameMenu",
@@ -251,10 +247,7 @@ local UnlockList = {
 	"AttackTarget",
 	-- "CancelItemTempEnchantment",
 	"CancelLogout",
-	"StartAttack",
-	"MainMenuBar.ClearAllPoints",
-	"UIParent.SetAttribute",
-	"MainMenuBar.SetPoint"
+	"StartAttack"
 }
 local function BrUnlock()
 	local lb = _G.__LB__
@@ -282,7 +275,10 @@ local function BrUnlock()
 	for _, method in ipairs(UnlockList) do
 		lbUnlock(method)
 	end
-
+	b.AuraUtil = {}
+	b.AuraUtil.FindAuraByName = function(...)
+		return lb.UnitTagHandler(lb.Unlock, _G.AuraUtil["FindAuraByName"], ...)
+	end
 	b.ObjectPointer = function(...)
 		return lb.ObjectPointer(...)
 	end
@@ -346,15 +342,11 @@ local function BrUnlock()
 		local X1, Y1, Z1 = br._G.ObjectPosition(Object1)
 		local X2, Y2, Z2 = br._G.ObjectPosition(Object2)
 		-- print(Unit1,X1,Y1,Z1,unit2,X2,Y2,Z2)
-		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan(
-			(Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))
-		) % math.pi
+		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
 	end
 
 	b.GetAnglesBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2)
-		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan(
-			(Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))
-		) % math.pi
+		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
 	end
 
 	b.GetPositionFromPosition = function(X, Y, Z, Distance, AngleXY, AngleXYZ)
