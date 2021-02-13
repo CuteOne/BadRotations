@@ -252,41 +252,51 @@ function br.read.commonReaders()
 		br._G.print(...)
 	end
 	--Frame:SetScript("OnEvent", addonReader)
-	br._G.GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-		if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
-			local name,lunit = self:GetUnit()
-			if not br._G.UnitIsVisible(lunit) then
-				return
-			end
-			local unit = br._G.ObjectPointer(lunit)
-			local burnUnit = br.getOptionCheck("Forced Burn") and br.isBurnTarget(unit) > 0
-			local playerTarget = br.GetUnitIsUnit(unit, "target")
-			local targeting = br.isTargeting(unit)
-			local hasThreat = br.hasThreat(unit) or targeting or br.isInProvingGround() or burnUnit
-			local reaction = br.GetUnitReaction(unit, "player") or 10
-			if br.isChecked("Target Validation Debug") and (not br._G.UnitIsPlayer(unit) or br._G.UnitIsCharmed(unit) or br.UnitDebuffID("player", 320102)) then
-				if br.isValidUnit(unit) then
-					self:AddLine("Unit is Valid",0,1,0)
-				elseif not br.getLineOfSight("player",unit) then
-					self:AddLine("LoS Fail",1,0,0)
-				elseif not (br.units[unit] ~= nil or br.GetUnitIsUnit(unit,"target") or br.lists.threatBypass[br.GetObjectID(unit)] ~= nil or burnUnit) then
-					self:AddLine("Not in Units Table",1,0,0)
-				elseif not (not br._G.UnitIsTapDenied(unit) or br.isDummy) then
-					self:AddLine("Unit is Tap Denied",1,0,0)
-				elseif not (br.isSafeToAttack(unit) or burnUnit) then
-					self:AddLine("Safe Attack Fail",1,0,0)
-				elseif not ((reaction < 5 and not br.isChecked("Hostiles Only")) or (br.isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or br.isDummy or burnUnit) then
-					self:AddLine("Reaction Value Fail",1,0,0)
-				elseif not ((br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(unit, "player") or (br._G.UnitIsCharmed(unit) and br._G.UnitCanAttack("player", unit)))) or not br.GetUnitIsFriend(unit, "player")) then
-					self:AddLine("MC Check Fail",1,0,0)
-				elseif br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(unit) then
-					self:AddLine("CC Check Fail",1,0,0)
-				elseif not hasThreat then
-					self:AddLine("Threat Fail",1,0,0)
+	br._G.GameTooltip:HookScript(
+		"OnTooltipSetUnit",
+		function(self)
+			if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
+				local _, lunit = self:GetUnit()
+				if not br._G.UnitIsVisible(lunit) then
+					return
+				end
+				local unit = br._G.UnitGUID(lunit)
+				local burnUnit = br.getOptionCheck("Forced Burn") and br.isBurnTarget(unit) > 0
+				local playerTarget = br.GetUnitIsUnit(unit, "target")
+				local targeting = br.isTargeting(unit)
+				local hasThreat = br.hasThreat(unit) or targeting or br.isInProvingGround() or burnUnit
+				local reaction = br.GetUnitReaction(unit, "player") or 10
+				if br.isChecked("Target Validation Debug") and (not br._G.UnitIsPlayer(unit) or br._G.UnitIsCharmed(unit) or br.UnitDebuffID("player", 320102)) then
+					if br.isValidUnit(unit) then
+						self:AddLine("Unit is Valid", 0, 1, 0)
+					elseif not br.getLineOfSight("player", unit) then
+						self:AddLine("LoS Fail", 1, 0, 0)
+					elseif not (br.units[unit] ~= nil or br.GetUnitIsUnit(unit, "target") or br.lists.threatBypass[br.GetObjectID(unit)] ~= nil or burnUnit) then
+						self:AddLine("Not in Units Table", 1, 0, 0)
+					elseif not (not br._G.UnitIsTapDenied(unit) or br.isDummy) then
+						self:AddLine("Unit is Tap Denied", 1, 0, 0)
+					elseif not (br.isSafeToAttack(unit) or burnUnit) then
+						self:AddLine("Safe Attack Fail", 1, 0, 0)
+					elseif not ((reaction < 5 and not br.isChecked("Hostiles Only")) or (br.isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or br.isDummy or burnUnit) then
+						self:AddLine("Reaction Value Fail", 1, 0, 0)
+					elseif
+						not ((br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(unit, "player") or (br._G.UnitIsCharmed(unit) and br._G.UnitCanAttack("player", unit)))) or
+							not br.GetUnitIsFriend(unit, "player"))
+					 then
+						self:AddLine("MC Check Fail", 1, 0, 0)
+					elseif br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(unit) then
+						self:AddLine("CC Check Fail", 1, 0, 0)
+					elseif not hasThreat then
+						self:AddLine("Threat Fail", 1, 0, 0)
+					elseif not br.enemyListCheck(unit) then
+						self:AddLine("List Check Fail", 1, 0, 0)
+					else
+						self:AddLine("Validation Failed", 0, 0, 1)
+					end
 				end
 			end
 		end
-	end)
+	)
 	---------------------------
 	--[[ Combat Log Reader --]]
 	local superReaderFrame = br._G.CreateFrame("Frame")
@@ -369,37 +379,37 @@ function br.read.commonReaders()
 				local MyClass = select(2, br._G.UnitClass("player"))
 				if MyClass == "MAGE" then -- Mage
 				end
-				-- if MyClass == "MONK" then -- Monk
-				-- 	local br = _G["br"]
-				-- 	local spec = _G["GetSpecialization"]
-				-- 	if br.player ~= nil and spec() == 3 and br.player.spell.fistsOfFury ~= nil then
-				-- 		local cd 	= br.player.cd
-				-- 		local spell = br.player.spell
-				-- 		local unit 	= br.player.unit
-				-- 		local var 	= br.player.variables
-				-- 		local comboSpells = {
-				-- 			[spell.blackoutKick]              = true,
-				-- 			[spell.chiBurst]                  = true,
-				-- 			[spell.chiWave]                   = true,
-				-- 			[spell.cracklingJadeLightning]    = true,
-				-- 			[spell.fistsOfFury]               = true,
-				-- 			[spell.fistOfTheWhiteTiger]       = true,
-				-- 			[spell.flyingSerpentKick]         = true,
-				-- 			[spell.risingSunKick]             = true,
-				-- 			[spell.rushingJadeWind]           = true,
-				-- 			[spell.spinningCraneKick]         = true,
-				-- 			[spell.tigerPalm]                 = true,
-				-- 			[spell.touchOfDeath]              = true,
-				-- 			[spell.whirlingDragonPunch]       = true,
-				-- 		}
-				-- 		if var.prevCombo == nil or not unit.inCombat() then var.prevCombo = 6603 end
-				-- 		if var.lastCombo == nil or not unit.inCombat() then var.lastCombo = 6603 end
-				-- 		if comboSpells[spell] and not (cd[spell].remain() > unit.gcd("true")) and unit.inCombat() then
-				-- 			var.lastCombo = var.prevCombo
-				-- 			var.prevCombo = 6603
-				-- 		end
-				-- 	end
-				-- end
+			-- if MyClass == "MONK" then -- Monk
+			-- 	local br = _G["br"]
+			-- 	local spec = _G["GetSpecialization"]
+			-- 	if br.player ~= nil and spec() == 3 and br.player.spell.fistsOfFury ~= nil then
+			-- 		local cd 	= br.player.cd
+			-- 		local spell = br.player.spell
+			-- 		local unit 	= br.player.unit
+			-- 		local var 	= br.player.variables
+			-- 		local comboSpells = {
+			-- 			[spell.blackoutKick]              = true,
+			-- 			[spell.chiBurst]                  = true,
+			-- 			[spell.chiWave]                   = true,
+			-- 			[spell.cracklingJadeLightning]    = true,
+			-- 			[spell.fistsOfFury]               = true,
+			-- 			[spell.fistOfTheWhiteTiger]       = true,
+			-- 			[spell.flyingSerpentKick]         = true,
+			-- 			[spell.risingSunKick]             = true,
+			-- 			[spell.rushingJadeWind]           = true,
+			-- 			[spell.spinningCraneKick]         = true,
+			-- 			[spell.tigerPalm]                 = true,
+			-- 			[spell.touchOfDeath]              = true,
+			-- 			[spell.whirlingDragonPunch]       = true,
+			-- 		}
+			-- 		if var.prevCombo == nil or not unit.inCombat() then var.prevCombo = 6603 end
+			-- 		if var.lastCombo == nil or not unit.inCombat() then var.lastCombo = 6603 end
+			-- 		if comboSpells[spell] and not (cd[spell].remain() > unit.gcd("true")) and unit.inCombat() then
+			-- 			var.lastCombo = var.prevCombo
+			-- 			var.prevCombo = 6603
+			-- 		end
+			-- 	end
+			-- end
 			end
 		end
 		-----------------------------
@@ -598,15 +608,19 @@ function br.read.commonReaders()
 			-- 278 = "Your Pet is not Dead" / "Your pet is dead. Use Revive Pet"
 			if errorMsg == 278 then
 				local revive = br._G.GetSpellInfo(50769) -- Used for string matching error messasge.
-				local match = string.find(messageErr,revive) ~= nil
-				if match then br.deadPet = true else br.deadPet = false end
+				local match = string.find(messageErr, revive) ~= nil
+				if match then
+					br.deadPet = true
+				else
+					br.deadPet = false
+				end
 			end
 			if not br.GetUnitIsDeadOrGhost("player") and (br.GetUnitIsDeadOrGhost("pet") or not br.GetUnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
 				br.deadPet = true
-				-- if deadPet == false then
-				-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
-				-- 	deadPet = false
-				-- end
+			-- if deadPet == false then
+			-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
+			-- 	deadPet = false
+			-- end
 			end
 		end
 		if event == "ENCOUNTER_START" then
