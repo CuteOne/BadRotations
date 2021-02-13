@@ -293,7 +293,7 @@ local function createOptions ()
                 br.ui:createSpinner(section, "Fear Bonus Mobs",   7,  0,  15,  1,  "|cffFFBB00Toggle the use of auto casting fear when solo farming.")
 
                 --- Healthstone Creation
-                br.ui:createSpinner(section, "Create Healthstone",  3,  0,  3,  5,  "|cffFFBB00Toggle creating healthstones, and how many in bag before creating more")
+                br.ui:createSpinnerWithout(section, "Create Healthstone", "|cffFFBB00Toggle creating healthstones, and how many in bag before creating more")
 
                 -- Basic Healing Module
                 br.player.module.BasicHealing(section)
