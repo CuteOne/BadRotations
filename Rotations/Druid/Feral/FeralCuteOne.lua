@@ -94,7 +94,7 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createDropdownWithout(section,"Potion", {"Focused Resolve","None"}, 1, "|cffFFFFFFSet Potion to use.")
+            br.ui:createDropdownWithout(section,"Potion", {"Spectral Agility","None"}, 1, "|cffFFFFFFSet Potion to use.")
             -- FlaskUp Module
             br.player.module.FlaskUp("Agility",section)
             -- Racial
@@ -656,7 +656,7 @@ actionList.Defensive = function()
                     if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
                         unit.cancelForm()
                         ui.debug("Cancel Form [Regrowth - OoC Break]")
-                    elseif unit.form() == 0 then
+                    elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
                        if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..unit.name(thisUnit)) return true end
                     end
                 end
@@ -667,8 +667,8 @@ actionList.Defensive = function()
                     if (thisHP <= ui.value("Regrowth") and unit.level() >= 49) or (unit.level() < 49 and thisHP <= ui.value("Regrowth") / 2) then
                         if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
                             unit.cancelForm()
-                            ui.debug("Cancel Form [Regrowth - OoC Break]")
-                        elseif unit.form() == 0 then
+                            ui.debug("Cancel Form [Regrowth - InC Break]")
+                        elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
                             if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC Instant] on "..unit.name(thisUnit)) return true end
                         end
                     end
@@ -679,8 +679,8 @@ actionList.Defensive = function()
                     if (thisHP <= ui.value("Regrowth") / 2) or buff.predatorySwiftness.remain() < unit.gcd(true) * 2 then
                         if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
                             unit.cancelForm()
-                            ui.debug("Cancel Form [Regrowth - OoC Break]")
-                        elseif unit.form() == 0 then
+                            ui.debug("Cancel Form [Regrowth - InC Break]")
+                        elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
                             if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC BT Hold] on "..unit.name(thisUnit)) return true end
                         end
                     end
@@ -793,9 +793,9 @@ actionList.Cooldowns = function()
             if ((unit.instance("raid") or (unit.instance("party") and unit.ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
                 or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28))
             then
-                if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
-                    use.potionOfFocusedResolve()
-                    ui.debug("Using Potion of Focused Resolve");
+                if ui.value("Potion") == 1 and use.able.potionOfSpectralAgility() then
+                    use.potionOfSpectralAgility()
+                    ui.debug("Using Potion of Spectral Agility");
                 end
             end
         end
@@ -1239,16 +1239,16 @@ actionList.PreCombat = function()
             then
                 if cast.prowl("player") then ui.debug("Casting Prowl [Pre-pull]"); return true end
             end
-            if buff.prowl.exists() then
-                -- Pre-pot
-                -- potion,name=old_war
-                if ui.value("Potion") ~= 5 and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) then
-                    if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
-                        use.potionOfFocusedResolve()
-                        ui.debug("Using Potion of Focused Resolve [Pre-Pull]");
-                    end
-                end
-            end -- End Prowl
+            -- if buff.prowl.exists() then
+            --     -- Pre-pot
+            --     -- potion,name=old_war
+            --     if ui.value("Potion") ~= 5 and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) then
+            --         if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
+            --             use.potionOfFocusedResolve()
+            --             ui.debug("Using Potion of Focused Resolve [Pre-Pull]");
+            --         end
+            --     end
+            -- end -- End Prowl
             -- Berserk/Tiger's Fury Pre-Pull
             if ui.checked("Berserk/Tiger's Fury Pre-Pull") and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) and unit.distance("target") < 8 then
                 if cast.able.berserk() and cast.able.tigersFury() then

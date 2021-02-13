@@ -829,7 +829,7 @@ end
 --dps()
 actionList.dps = function()
 
-    if mode.vanish == 1 and cast.able.vanish() and isBoss() then
+    if mode.vanish == 1 and mode.rotation == 1 and cast.able.vanish() and isBoss() and getCombatTime() < 2 then
         cast.adrenalineRush()
         cast.vanish()
         return true
