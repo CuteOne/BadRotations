@@ -134,7 +134,8 @@ local TagHandlerList = {
 	"InteractUnit",
 	-- "CancelUnitBuff",
 	"TargetUnit",
-	"UnitGUID"
+	"UnitGUID",
+	"UnitExists"
 }
 local UnlockList = {
 	"ToggleGameMenu",
@@ -306,12 +307,6 @@ local function BrUnlock()
 	b.UnitTarget = lb.UnitTarget
 	b.IsQuestObject = function(obj)
 		return false, false
-	end
-	b.UnitCastingInfo = function(...)
-		return lb.UnitTagHandler(_G.UnitCastingInfo, ...)
-	end
-	b.UnitChannelInfo = function(...)
-		return lb.UnitTagHandler(_G.UnitChannelInfo, ...)
 	end
 	b.UnitCastID = function(...)
 		local CastSpellID, CastTargetGUID, timeLeft, NotInterruptible = lb.UnitCastingInfo(...)
