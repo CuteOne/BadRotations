@@ -15,7 +15,7 @@ function br:MinimapButton()
 		self:ClearAllPoints()
 		self:SetPoint("CENTER", centerX, centerY)
 	end
-	local button = br._G.CreateFrame("Button", "BadRotationsButton", br._G.Minimap)
+	local button = br._G.CreateFrame("Button", "br.BadRotationsButton", br._G.Minimap)
 	button:SetHeight(25)
 	button:SetWidth(25)
 	button:SetFrameStrata("MEDIUM")
