@@ -280,9 +280,7 @@ local function BrUnlock()
 	b.AuraUtil.FindAuraByName = function(...)
 		return lb.UnitTagHandler(lb.Unlock, _G.AuraUtil["FindAuraByName"], ...)
 	end
-	b.ObjectPointer = function(...)
-		return lb.ObjectPointer(...)
-	end
+	b.ObjectPointer = b.UnitGUID --compatibility change as LB returns GUIDs instead of Pointers in their OM
 	b.ObjectPosition = function(...)
 		return lb.ObjectPosition(...)
 	end
