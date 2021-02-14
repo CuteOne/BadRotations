@@ -289,6 +289,8 @@ local function createOptions ()
 		        br.ui:createDropdown(section, "Soulstone", {"|cffFFBB00Target","|cffFFBB00Mouseover","|cffFFBB00Tank", "|cffFFBB00Healer", "|cffFFBB00Healer/Tank", "|cffFFBB00Any", "|cffFFBB00Player"},
                 1, "|cffFFBB00Target to cast on")
                 
+                br.ui:createCheckbox(section, "Soulstone Healer OOC [Mythic+]", "|cffFFBB00Toggle soulstoning your healer while doing mythic+ runs.")
+
                 --Fear Solo Farming
                 br.ui:createSpinner(section, "Fear Bonus Mobs",   7,  0,  15,  1,  "|cffFFBB00Toggle the use of auto casting fear when solo farming.")
 
@@ -987,7 +989,7 @@ end
             for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
                 if GetObjectExists(thisUnit) and fearUnits[GetObjectID(thisUnit)] then
-                    if not UnitIsUnit(thisUnit,"target") and not moving and not debuff.fear.exists(thisUnit) and not isCC(thisUnit) and fearCount < 1 then
+                    if hastar and not UnitIsUnit(thisUnit,"target") and not moving and not debuff.fear.exists(thisUnit) and not isCC(thisUnit) and fearCount < 1 then
                         if cast.fear(thisUnit) then br.addonDebug("Fearing unit.") return true end
                     end 
                 end
@@ -1003,6 +1005,23 @@ end
 
         if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
             if cast.soulstone("player") then return true end
+        end
+
+        local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
+        if isChecked("Soulstone Healer OOC [Mythic+]") and inInstance and not inRaid then
+           -- if (mapMythicPlusModeID ~= 0 or nil) or (mythicPlusLevel ~= 0 or nil) then
+                for i = 1, #br.friend do
+                    if UnitIsPlayer(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) or UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") 
+                    and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
+                    and (not buff.soulstone.exists(br.friend[i].unit))
+                    then
+                        if cast.soulstone(br.friend[i].unit, "dead") then
+                            br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
+                            return true
+                        end
+                    end
+                end
+           -- end
         end
 
         -- Unending Breath
@@ -1035,7 +1054,7 @@ end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 local thisHP = getHP(thisUnit)
-                if (not moving and i > 1 and not debuff.fear.exists(thisUnit) and thisHP > 80) or getTTD(thisUnit,20) >= 3 then
+                if hastar and (not moving and i > 1 and not debuff.fear.exists(thisUnit) and thisHP > 80) or getTTD(thisUnit,20) >= 3 then
                     if cast.fear(thisUnit) then br.addonDebug("Fearing bonus mobs") return true end
                 end
             end
@@ -1124,7 +1143,7 @@ end
         end
 
             -- Mortal Coil
-            if ui.checked("Mortal Coil") and php <= ui.value("Mortal Coil") then
+            if hastar and ui.checked("Mortal Coil") and php <= ui.value("Mortal Coil") then
                 if cast.mortalCoil() then br.addonDebug("Casting Mortal Coil") return true end
             end
 
@@ -1163,7 +1182,7 @@ end
             end
 
             -- Drain Life
-            if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and not moving then
+            if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and not moving and hastar then
                 if cast.drainLife() then
                     return
                 end
@@ -2037,7 +2056,7 @@ apl.AoE = function()
     if useCDs() and (covenant.necrolord.active or covenant.kyrian.active or covenant.none.active)
     and debuff.phantomSingularity.exists("target") and debuff.phantomSingularity.remains("target") < 2 
     then 
-        if apl.DarkGlarePrep() then return end 
+        if apl.darkGlarePrep() then return end 
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Seed Of Corruption | No STS -----.:|:.-----
