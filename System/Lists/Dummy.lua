@@ -167,5 +167,7 @@ br.lists.dummies = {
 	[154583] = "Stalward Guardian", 		  -- Elysian Hold
 	[154585] = "Valiant's Resolve",			  -- Elysian Hold
 	[154586] = "Stalward Phalanx", 			  -- Elysian Hold
-
+	[154564] = "Valiant's Humility", 		  -- Elysian Hold
+	[154567] = "Purity's Cleansing", 		  -- Elysian Hold
+	[160325] = "Humility's Obedience" 		  -- Elysian Hold
 }

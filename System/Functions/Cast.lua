@@ -94,7 +94,7 @@ function br.castGroundBetween(Unit,SpellID,maxDistance)
 end
 -- if shouldNotOverheal(spellCastTarget) > 80 then
 function br.shouldNotOverheal(Unit)
-	local myIncomingHeal,allIncomingHeal = 0
+	local myIncomingHeal,allIncomingHeal = 0,0
 	if br._G.UnitGetIncomingHeals(Unit,"player") ~= nil then myIncomingHeal = br._G.UnitGetIncomingHeals(Unit,"player") end
 	if br._G.UnitGetIncomingHeals(Unit) ~= nil then allIncomingHeal = br._G.UnitGetIncomingHeals(Unit) end
 	allIncomingHeal = allIncomingHeal or 0
