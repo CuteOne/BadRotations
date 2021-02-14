@@ -13,7 +13,7 @@ local function setVariable(self,unit,range,checkNoCombat,facing,type,table,count
     if unit ~= "player" then
         -- letter tag on end based on type of unit passed, if target or enemy unit then "t" otherwise first letter of what is passed in: f - "focus", p - "pet", m - "mouseover", etc 
         if br.units[unit] ~= nil then
-            insertTable = unsertTable.."t" -- Ex: enemies.yards8t (returns all enemies around target in 8yrds)
+            insertTable = insertTable.."t" -- Ex: enemies.yards8t (returns all enemies around target in 8yrds)
         else
             insertTable = insertTable..unit:sub(1,1) -- Ex: enemies.yards8f (returns all enemies around "focus" in 8yrds)
         end
