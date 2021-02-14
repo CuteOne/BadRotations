@@ -194,6 +194,11 @@ br.api.unit = function(self)
         local isExplosive = br["isExplosive"]
         return isExplosive(thisUnit)
     end
+    -- Is Tanking
+    unit.isTanking = function(thisUnit)
+        if thisUnit == nil then thisUnit = "player" end
+        return br.isTanking(thisUnit)
+    end
     -- Is Unit
     unit.isUnit = function(thisUnit,otherUnit)
         local UnitIsUnit = br._G["UnitIsUnit"]
