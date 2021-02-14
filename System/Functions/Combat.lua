@@ -260,6 +260,7 @@ function br.hasThreat(unit,playerUnit)
 	-- Print("Unit: "..tostring(UnitName(unit)).." | Player: "..tostring(playerUnit))
 	local playerInCombat = br._G.UnitAffectingCombat("player")
 	local unitInCombat = br._G.UnitAffectingCombat(unit)
+	local unitObject = br._G.ObjectPointer(unit)
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
 		if br.isChecked("Cast Debug") and not br.GetObjectExists("target") then br._G.print(br._G.UnitName(br.GetUnit(unit)).." is targetting "..br._G.UnitName(targetUnit)) end
@@ -275,15 +276,10 @@ function br.hasThreat(unit,playerUnit)
 	-- 		return true
 	end
 	-- Open World Mob Pack Validation
-	if instance == "none" and playerInCombat and unitInCombat then
-		local theseEnemies = br.getEnemies(unit,8)
-		if #theseEnemies == 1 and br.GetObjectExists("target") then --[[Print("[Open World Threat] Your Target "..UnitName(unit).." has threat on you.")]] return true end
-		for i = 1, #theseEnemies do
-			local thisUnit = theseEnemies[i]
-			if br.GetUnitIsUnit(unit,thisUnit) then return true end
-			-- Print("[Open World Threat] "..UnitName(thisUnit).." is within 8yrds of your target and has threat on you.") return true
-			-- if UnitIsUnit("target",thisUnit) then Print("[Open World Threat] "..UnitName(thisUnit)) return true end
-		end
+	if instance == "none" and playerInCombat and br.enemy[br._G.ObjectPointer("target")] ~= nil and br.enemy[objectUnit] == nil and getDistance("target",unitObject) < 8 then
+		-- if isChecked("Cast Debug") then Print("[Open World Threat] "..UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
+		-- Print("[Open World Threat] "..UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.")
+		return true
 	end
 	-- Player Threat Valdation
 	if threatSituation(playerUnit, unit) then

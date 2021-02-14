@@ -754,7 +754,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 							end
 						end
 						if debug == "rect" then
-							local enemyRectCount = br.getEnemiesInRect(effectRng,maxRange)
+							local enemyRectCount = br.getEnemiesInRect(effectRng,maxRange) or 0
 							if enemyRectCount >= minUnits then
 								return castingSpell(thisUnit,spellID,spellName,icon)
 							else
