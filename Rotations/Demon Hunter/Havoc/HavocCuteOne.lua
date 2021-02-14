@@ -3,53 +3,52 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function createToggles()
-    local CreateButton = br["CreateButton"]
     -- Rotation Button
-    br.RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.bladeDance},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladeDance},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.chaosStrike},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createButton(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    br.CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createButton(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    br.DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.darkness},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.darkness}
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createButton(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    br.InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createButton(InterruptModes,"Interrupt",4,0)
     -- Mover
-    br.MoverModes = {
+    local MoverModes = {
         [1] = { mode = "AC", value = 1 , overlay = "Movement Animation Cancel Enabled", tip = "Will Cancel Movement Animation.", highlight = 1, icon = br.player.spell.felRush},
         [2] = { mode = "On", value = 2 , overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 0, icon = br.player.spell.felRush},
         [3] = { mode = "Off", value = 3 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.felRush}
     };
-    CreateButton("Mover",5,0)
+    br.ui:createButton(MoverModes,"Mover",5,0)
     -- Hold Eye Beam
-    br.EyeBeamModes = {
+    local EyeBeamModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Eye beam", tip = "Use Eye beam", highlight = 1, icon = br.player.spell.eyeBeam},
         [2] = { mode = "Off", value = 2 , overlay = "Don't use Eye beam", tip = "Don't use Eye beam", highlight = 0, icon = br.player.spell.eyeBeam}
     };
-    CreateButton("EyeBeam",6,0)
+    br.ui:createButton(EyeBeamModes,"EyeBeam",6,0)
     -- Hold Fel Barrage
-    br.FelBarrageModes = {
+    local FelBarrageModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Fel Barrage", tip = "Use Fel Barrage", highlight = 1, icon = br.player.spell.felBarrage},
         [2] = { mode = "Off", value = 2 , overlay = "Don't use Fel Barrage", tip = "Don't use Fel Barrage", highlight = 0, icon = br.player.spell.felBarrage}
     };
-    CreateButton("FelBarrage",7,0)
+    br.ui:createButton(FelBarrageModes,"FelBarrage",7,0)
 end
 
 ---------------
@@ -214,8 +213,8 @@ var.useBasicTrinkets = false
 -- end
 local function eyebeamTTD()
     local length = talent.blindFury and 3 or 2
-    if enemies.yards20r > 0 then
-        for i = 1, enemies.yards20r do
+    if #enemies.yards20r > 0 then
+        for i = 1, #enemies.yards20r do
             if unit.ttd(enemies.yards20rTable[i]) >= length then
                 return true
             end
@@ -447,9 +446,9 @@ actionList.Demonic = function()
     end
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and not unit.moving() and enemies.yards20r > 0
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and not unit.moving() and #enemies.yards20r > 0
         and ((ui.value("Eye Beam Usage") == 1 and ui.mode.rotation == 1)
-            or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Units To AoE"))
+            or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Units To AoE"))
             or ui.mode.rotation == 2) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
@@ -579,7 +578,7 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15)
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and #enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
         and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
@@ -611,7 +610,7 @@ actionList.Normal = function()
     -- Eye Beam
     -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
-        and enemies.yards20r > 0 and not unit.moving() and talent.blindFury
+        and #enemies.yards20r > 0 and not unit.moving() and talent.blindFury
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Blind Fury]") return true end
@@ -767,8 +766,8 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",false,true)
     enemies.get(50)
-    enemies.yards20r, enemies.yards20rTable = br.getEnemiesInRect(10,20,false)
-    enemies.yards25r = br.getEnemiesInRect(8,25,false) or 0
+    enemies.rect.get(10,20,false)
+    enemies.rect.get(10,25,false)
     
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
         var.metaExtended = true 
