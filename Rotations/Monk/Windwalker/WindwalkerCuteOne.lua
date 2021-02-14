@@ -4,46 +4,45 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function createToggles()
-    local CreateButton = br["CreateButton"]
     -- Rotation Button
-    br.RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.tigerPalm },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.spinningCraneKick },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.tigerPalm },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.vivify}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createButton(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    br.CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.invokeXuenTheWhiteTiger },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.invokeXuenTheWhiteTiger },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.invokeXuenTheWhiteTiger }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createButton(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    br.DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.vivify },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.vivify }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createButton(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    br.InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.spearHandStrike },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.spearHandStrike }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createButton(InterruptModes,"Interrupt",4,0)
     -- Storm, Earth, and Fire Button
-    br.SefModes = {
+    local SefModes = {
         [1] = { mode = "Fixate", value = 1 , overlay = "SEF Fixate Enabled", tip = "SEF will Fixate on Target.", highlight = 1, icon = br.player.spell.stormEarthAndFireFixate},
         [2] = { mode = "Any", value = 2 , overlay = "SEF Fixate Disabled", tip = "SEF will attack any nearby targets.", highlight = 0, icon = br.player.spell.stormEarthAndFire},
     };
-    CreateButton("Sef",5,0)
+    br.ui:createButton(SefModes,"Sef",5,0)
     -- Flying Serpent Kick Button
-    br.FskModes = {
+    local FskModes = {
         [1] = { mode = "On", value = 2 , overlay = "Auto FSK Enabled", tip = "Will cast Flying Serpent Kick.", highlight = 1, icon = br.player.spell.flyingSerpentKick},
         [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = br.player.spell.flyingSerpentKickEnd}
     };
-    CreateButton("Fsk",6,0)
+    br.ui:createButton(FskModes,"Fsk",6,0)
 end
 
 ---------------
@@ -823,8 +822,8 @@ actionList.SingleTarget = function()
     end
     -- Chi Burst
     -- chi_burst,if=chi.max-chi>=1&active_enemies=1&raid_event.adds.in>20|chi.max-chi>=2&active_enemies>=2
-    if cast.able.chiBurst("player","rect",1,8) and (chiMax - chi >= 1 and ((ui.mode.rotation == 1 and enemies.yards40r == 1) or (ui.mode.rotation == 3 and enemies.yards40r > 0)))
-        or (chiMax - chi >= 2 and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 3 and enemies.yards40r > 1)))
+    if cast.able.chiBurst("player","rect",1,8) and (chiMax - chi >= 1 and ((ui.mode.rotation == 1 and #enemies.yards40r == 1) or (ui.mode.rotation == 3 and #enemies.yards40r > 0)))
+        or (chiMax - chi >= 2 and ((ui.mode.rotation == 1 and #enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 3 and #enemies.yards40r > 1)))
     then
         if cast.chiBurst("player","rect",1,8) then ui.debug("Casting Chi Burst [ST]") return true end
     end
@@ -954,7 +953,7 @@ actionList.AoE = function()
     -- Chi Burst
     -- chi_burst,if=chi.max-chi>=2
     if cast.able.chiBurst("player","rect",1,8) and chiMax - chi >= 2
-        and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and enemies.yards40r > 0))
+        and ((ui.mode.rotation == 1 and #enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and #enemies.yards40r > 0))
     then
         if cast.chiBurst("player","rect",1,8) then ui.debug("Casting Chi Burst [AOE]") return true end
     end
@@ -1052,7 +1051,7 @@ actionList.PreCombat = function()
                 -- -- Chi Burst
                 -- -- chi_burst,if=(!talent.serenity.enabled|!talent.fist_of_the_white_tiger.enabled)
                 -- if cast.able.chiBurst("player","rect",1,8) and (not talent.serenity or not talent.fistOfTheWhiteTiger)
-                --     and ((ui.mode.rotation == 1 and enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and enemies.yards40r > 0))
+                --     and ((ui.mode.rotation == 1 and #enemies.yards40r >= ui.value("Chi Burst Min Units")) or (ui.mode.rotation == 2 and #enemies.yards40r > 0))
                 -- then
                 --     if cast.chiBurst("player","rect",1,8) then ui.debug("") return true end
                 -- end
@@ -1125,7 +1124,7 @@ local function runRotation()
     enemies.get(8,"player",false,true)
     enemies.get(10)
     enemies.get(20)
-    enemies.yards40r = br.getEnemiesInRect(8,40,false) or 0
+    enemies.rect.get(8,40,false)
 
     -- Profile Variables
     if var.castFSK              == nil then var.castFSK             = false                 end
@@ -1136,7 +1135,7 @@ local function runRotation()
     if var.lowestMarkSkyreach   == nil then var.lowestMarkSkyreach  = 99                    end
     if var.profileStop          == nil then var.profileStop         = false                 end
     if not unit.inCombat() or var.lastCombo == nil then var.lastCombo = 1822 end --6603 end
-    var.chiBurstMoreThan1 = enemies.yards40r >= 1 and 1 or 0
+    var.chiBurstMoreThan1 = #enemies.yards40r >= 1 and 1 or 0
     var.fofExecute = 4 - (4 * (br._G.GetHaste() / 100))
     var.lowestMark = debuff.markOfTheCrane.lowest(5,"remain")
     -- debuff.mark_of_the_crane.remains+(debuff.recently_rushing_tiger_palm.up*20)
