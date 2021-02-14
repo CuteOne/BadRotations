@@ -11,38 +11,38 @@ local function createToggles()
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.tigerPalm },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.vivify}
     };
-    br.ui:createButton(RotationModes,"Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
     local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.invokeXuenTheWhiteTiger },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.invokeXuenTheWhiteTiger },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.invokeXuenTheWhiteTiger }
     };
-    br.ui:createButton(CooldownModes,"Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
     local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.vivify },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.vivify }
     };
-    br.ui:createButton(DefensiveModes,"Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
     local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.spearHandStrike },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.spearHandStrike }
     };
-    br.ui:createButton(InterruptModes,"Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- Storm, Earth, and Fire Button
     local SefModes = {
         [1] = { mode = "Fixate", value = 1 , overlay = "SEF Fixate Enabled", tip = "SEF will Fixate on Target.", highlight = 1, icon = br.player.spell.stormEarthAndFireFixate},
         [2] = { mode = "Any", value = 2 , overlay = "SEF Fixate Disabled", tip = "SEF will attack any nearby targets.", highlight = 0, icon = br.player.spell.stormEarthAndFire},
     };
-    br.ui:createButton(SefModes,"Sef",5,0)
+    br.ui:createToggle(SefModes,"Sef",5,0)
     -- Flying Serpent Kick Button
     local FskModes = {
         [1] = { mode = "On", value = 2 , overlay = "Auto FSK Enabled", tip = "Will cast Flying Serpent Kick.", highlight = 1, icon = br.player.spell.flyingSerpentKick},
         [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = br.player.spell.flyingSerpentKickEnd}
     };
-    br.ui:createButton(FskModes,"Fsk",6,0)
+    br.ui:createToggle(FskModes,"Fsk",6,0)
 end
 
 ---------------
