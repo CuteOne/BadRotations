@@ -1,10 +1,10 @@
-local br = _G["br"]
 local rotationName = "CuteOne"
 
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
+    local CreateButton = br["CreateButton"]
     -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.soulCleave},
@@ -436,7 +436,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
         end -- End Pull
@@ -488,7 +488,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop==true then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop==true) or unit.mounted() or unit.flying() or var.pause() or ui.mode.rotation==4 then
+    elseif (unit.inCombat() and var.profileStop==true) or unit.mounted() or unit.flying() or ui.pause() or ui.mode.rotation==4 then
         return true
     else
         if actionList.Defensive() then return true end
@@ -519,7 +519,7 @@ local function runRotation()
             ---------------------------
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
             -- Consume Magic
@@ -550,7 +550,7 @@ local function runRotation()
 end -- End runRotation
 local id = 581
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
