@@ -93,7 +93,7 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createDropdownWithout(section,"Potion", {"Focused Resolve","None"}, 1, "|cffFFFFFFSet Potion to use.")
+            br.ui:createDropdownWithout(section,"Potion", {"Spectral Agility","None"}, 1, "|cffFFFFFFSet Potion to use.")
             -- FlaskUp Module
             br.player.module.FlaskUp("Agility",section)
             -- Racial
@@ -217,11 +217,11 @@ var.clearcasting = 0
 var.enemyBlood = 0
 var.fbMaxEnergy = false
 var.friendsInRange = false
-var.htTimer = GetTime()
+var.htTimer = br._G.GetTime()
 var.incarnation = 0
 var.lastForm = 0
-var.lastRune = GetTime()
-var.leftCombat = GetTime()
+var.lastRune = br._G.GetTime()
+var.leftCombat = br._G.GetTime()
 var.lootDelay = 0
 var.minCount = 3
 var.noDoT = false
@@ -238,7 +238,7 @@ btGen.shred = false
 btGen.swipe = false
 btGen.thrash = false
 btGen.stack = 2
-btGen.timer = GetTime()
+btGen.timer = br._G.GetTime()
 btGen.triggers = 0
 
 -- Tick Remain - Init
@@ -262,7 +262,7 @@ local function autoProwl()
         if #enemies.yards20nc > 0 then
             for i = 1, #enemies.yards20nc do
                 local thisUnit = enemies.yards20nc[i]
-                local threatRange = max((20 + (unit.level(thisUnit) - unit.level())),5)
+                local threatRange = br._G.max((20 + (unit.level(thisUnit) - unit.level())),5)
                 local react = unit.reaction(thisUnit) or 10
                 if unit.distance(thisUnit) < threatRange and react < 4 and unit.enemy(thisUnit) and unit.canAttack(thisUnit) then
                     return true
@@ -360,7 +360,7 @@ local function findKindredSpirit()
     for i = 1, #br.friend do
         local thisUnit = br.friend[i].unit
         local thisRole = UnitGroupRolesAssigned(thisUnit)
-        if not UnitIsUnit(thisUnit,"player") and (kindredSpirit == nil or (not UnitExists(kindredSpirit) and not UnitIsDeadOrGhost(kindredSpirit))) then
+        if not unit.isUnit(thisUnit,"player") and (kindredSpirit == nil or (not unit.exists(kindredSpirit) and not unit.deadOrGhost(kindredSpirit))) then
             if thisRole == "DAMAGER" then
                 kindredSpirit = thisUnit
                 break
@@ -421,7 +421,7 @@ actionList.Extras = function()
                 if cast.catForm("player") then ui.debug("Casting Cat Form [Target In 20yrds]") return true end
             end
             -- Cat Form - Less Fall Damage
-            if (not br.canFly() or unit.inCombat() or unit.level() < 24 or not IsOutdoors())
+            if (not br.canFly() or unit.inCombat() or unit.level() < 24 or not unit._G.IsOutdoors())
                 and (not unit.swimming() or (not unit.moving() and unit.swimming() and #enemies.yards5f > 0))
                 and br.fallDist > 90 --falling > ui.value("Fall Timer")
             then
@@ -470,9 +470,9 @@ actionList.Extras = function()
             -- Swipe - AoE
             if cast.able.swipeCat() and #enemies.yards8 > 1 then
                 if var.swipeSoon == nil then
-                    var.swipeSoon = GetTime();
+                    var.swipeSoon = br._G.GetTime();
                 end
-                if var.swipeSoon ~= nil and var.swipeSoon < GetTime() - 1 then
+                if var.swipeSoon ~= nil and var.swipeSoon < br._G.GetTime() - 1 then
                     if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe [Death Cat Mode]") ; var.swipeSoon = nil; return true end
                 end
             end
@@ -482,8 +482,8 @@ actionList.Extras = function()
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                StopAttack()
-                ClearTarget()
+                br._G.StopAttack()
+                br._G.ClearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -655,7 +655,7 @@ actionList.Defensive = function()
                     if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
                         unit.cancelForm()
                         ui.debug("Cancel Form [Regrowth - OoC Break]")
-                    elseif unit.form() == 0 then
+                    elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
                        if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..unit.name(thisUnit)) return true end
                     end
                 end
@@ -664,14 +664,24 @@ actionList.Defensive = function()
                 if ui.value("Regrowth - InC") == 1 or not talent.bloodtalons then
                     -- Lowest Party/Raid or Player
                     if (thisHP <= ui.value("Regrowth") and unit.level() >= 49) or (unit.level() < 49 and thisHP <= ui.value("Regrowth") / 2) then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC Instant] on "..unit.name(thisUnit)) return true end
+                        if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
+                            unit.cancelForm()
+                            ui.debug("Cancel Form [Regrowth - InC Break]")
+                        elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
+                            if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC Instant] on "..unit.name(thisUnit)) return true end
+                        end
                     end
                 end
                 -- Hold Predatory Swiftness for Bloodtalons unless Health is Below Half of Threshold or Predatory Swiftness is about to Expire.
                 if ui.value("Regrowth - InC") == 2 and talent.bloodtalons then
                     -- Lowest Party/Raid or Player
                     if (thisHP <= ui.value("Regrowth") / 2) or buff.predatorySwiftness.remain() < unit.gcd(true) * 2 then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC BT Hold] on "..unit.name(thisUnit)) return true end
+                        if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
+                            unit.cancelForm()
+                            ui.debug("Cancel Form [Regrowth - InC Break]")
+                        elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
+                            if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [IC BT Hold] on "..unit.name(thisUnit)) return true end
+                        end
                     end
                 end
             end
@@ -708,14 +718,11 @@ actionList.Interrupts = function()
             end
         end
         -- Mighty Bash
-        if ui.checked("Mighty Bash") and cast.able.mightyBash() and talent.mightyBash and (cd.skullBash.exists() or unit.level() < 70) then
-            for i = 1, #enemies.yards5f do
+        if ui.checked("Mighty Bash") and cast.able.mightyBash() then
+            for i=1, #enemies.yards5f do
                 thisUnit = enemies.yards5f[i]
-                if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                    if cast.mightyBash(thisUnit) then
-                        ui.debug("Casting Mighty Bash on " .. unit.name(thisUnit))
-                        return true
-                    end
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                    if cast.mightyBash(thisUnit) then ui.debug("Casting Mighty Bash on "..unit.name(thisUnit)) return true end
                 end
             end
         end
@@ -785,9 +792,9 @@ actionList.Cooldowns = function()
             if ((unit.instance("raid") or (unit.instance("party") and unit.ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
                 or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28))
             then
-                if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
-                    use.potionOfFocusedResolve()
-                    ui.debug("Using Potion of Focused Resolve");
+                if ui.value("Potion") == 1 and use.able.potionOfSpectralAgility() then
+                    use.potionOfSpectralAgility()
+                    ui.debug("Using Potion of Spectral Agility");
                 end
             end
         end
@@ -1071,7 +1078,7 @@ actionList.Bloodtalons = function()
                 if cast.rake(thisUnit) then 
                     ui.debug("Casting Rake [BT - Ticks Gain]")
                     btGen.rake = true
-                    if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+                    if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
                     return true
                 end
             end
@@ -1087,7 +1094,7 @@ actionList.Bloodtalons = function()
                     if cast.moonfireFeral(thisUnit) then
                         ui.debug("Casting Moonfire [BT]")
                         btGen.moonfireFeral = true
-                        if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+                        if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
                         return true
                     end
                 end
@@ -1103,7 +1110,7 @@ actionList.Bloodtalons = function()
                 if cast.thrashCat("player","aoe",1,8) then
                     ui.debug("Casting Thrash [BT - Ticks Gain]")
                     btGen.thrash = true
-                    if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+                    if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
                     return true
                 end
             end
@@ -1115,7 +1122,7 @@ actionList.Bloodtalons = function()
         if cast.brutalSlash("player","aoe",1,8) then
             ui.debug("Casting Brutal Slash [BT]")
             btGen.brutalSlash = true
-            if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
             return true
         end
     end
@@ -1125,7 +1132,7 @@ actionList.Bloodtalons = function()
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT - Multi]")
             btGen.swipe = true
-            if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
             return true
         end
     end
@@ -1135,7 +1142,7 @@ actionList.Bloodtalons = function()
         if cast.shred() then
             ui.debug("Casting Shred [BT]")
             btGen.shred = true
-            if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
             return true
         end
     end
@@ -1145,7 +1152,7 @@ actionList.Bloodtalons = function()
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT]")
             btGen.swipe = true
-            if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
             return true
         end
     end
@@ -1155,7 +1162,7 @@ actionList.Bloodtalons = function()
         if cast.thrashCat("player","aoe",1,8) then
             ui.debug("Casting Thrash [BT - No Buff]")
             btGen.thrash = true
-            if btGen.timer - GetTime() <= 0 then btGen.timer = GetTime() + 4 end
+            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
             return true
         end
     end
@@ -1171,9 +1178,9 @@ actionList.PreCombat = function()
             -- Battle Scarred Augment Rune
             -- augmentation,type=defiled
             if ui.checked("Augment Rune") and unit.instance("raid") and not buff.battleScarredAugmentation.exists()
-                and use.able.battleScarredAugmentRune() and var.lastRune + unit.gcd(true) < GetTime()
+                and use.able.battleScarredAugmentRune() and var.lastRune + unit.gcd(true) < br._G.GetTime()
             then
-                if use.battleScarredAugmentRune() then ui.debug("Using Battle Scared Augment Rune") var.lastRune = GetTime() return true end
+                if use.battleScarredAugmentRune() then ui.debug("Using Battle Scared Augment Rune") var.lastRune = br._G.GetTime() return true end
             end
             -- Prowl - Non-PrePull
             if cast.able.prowl("player") 
@@ -1181,8 +1188,8 @@ actionList.PreCombat = function()
                 and autoProwl() 
                 and ui.mode.prowl == 1
                 and not buff.prowl.exists() 
-                and not IsResting() 
-                -- and GetTime() - var.leftCombat > lootDelay
+                and not br._G.IsResting() 
+                -- and br._G.GetTime() - var.leftCombat > lootDelay
             then
                 if cast.prowl("player") then ui.debug("Casting Prowl [Auto]") return true end
             end
@@ -1195,7 +1202,7 @@ actionList.PreCombat = function()
             -- Regrowth
             -- regrowth,if=talent.bloodtalons.enabled
             if cast.able.regrowth("player") and talent.bloodtalons and not buff.bloodtalons.exists()
-                and var.htTimer < GetTime() - 1 and not buff.prowl.exists()
+                and var.htTimer < br._G.GetTime() - 1 and not buff.prowl.exists()
                 and not cast.current.regrowth()
             then
                 if unit.form() ~= 0 then
@@ -1203,7 +1210,7 @@ actionList.PreCombat = function()
                     unit.cancelForm()
                     ui.debug("Cancel Form [Pre-pull]")
                 elseif unit.form() == 0 then
-                    if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = GetTime(); return true end
+                    if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = br._G.GetTime(); return true end
                 end
             end
             -- Azshara's Font of Power
@@ -1231,16 +1238,16 @@ actionList.PreCombat = function()
             then
                 if cast.prowl("player") then ui.debug("Casting Prowl [Pre-pull]"); return true end
             end
-            if buff.prowl.exists() then
-                -- Pre-pot
-                -- potion,name=old_war
-                if ui.value("Potion") ~= 5 and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) then
-                    if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
-                        use.potionOfFocusedResolve()
-                        ui.debug("Using Potion of Focused Resolve [Pre-Pull]");
-                    end
-                end
-            end -- End Prowl
+            -- if buff.prowl.exists() then
+            --     -- Pre-pot
+            --     -- potion,name=old_war
+            --     if ui.value("Potion") ~= 5 and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) then
+            --         if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
+            --             use.potionOfFocusedResolve()
+            --             ui.debug("Using Potion of Focused Resolve [Pre-Pull]");
+            --         end
+            --     end
+            -- end -- End Prowl
             -- Berserk/Tiger's Fury Pre-Pull
             if ui.checked("Berserk/Tiger's Fury Pre-Pull") and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) and unit.distance("target") < 8 then
                 if cast.able.berserk() and cast.able.tigersFury() then
@@ -1330,7 +1337,7 @@ local function runRotation()
     -- General Vars
     if not unit.inCombat() and not unit.exists("target") then
         if var.profileStop then var.profileStop = false end
-        var.leftCombat = GetTime()
+        var.leftCombat = br._G.GetTime()
     end
     var.unit5ID = br.GetObjectID(units.dyn5) or 0
     var.noDoT = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or var.unit5ID == 156869
@@ -1394,16 +1401,16 @@ local function runRotation()
     ripTicks = 7
 
     -- Bloodtalons - Reset
-    if btGen.timer - GetTime() <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
+    if btGen.timer - br._G.GetTime() <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
         if btGen.brutalSlash then btGen.brutalSlash = false end
         if btGen.moonfireFeral then btGen.moonfireFeral = false end
         if btGen.rake then btGen.rake = false end
         if btGen.shred then btGen.shred = false end
         if btGen.swipe then btGen.swipe = false end
         if btGen.thrash then btGen.thrash = false end
-        -- btGen.timer = GetTime() + 4
+        -- btGen.timer = br._G.GetTime() + 4
     end
-    -- if not buff.bloodtalons.exists() and btGen.timer - GetTime() > 0 then btGen.stack = 2 end
+    -- if not buff.bloodtalons.exists() and btGen.timer - br._G.GetTime() > 0 then btGen.stack = 2 end
     btGen.stack = 2 - buff.bloodtalons.stack()
     btGen.triggers = 0
     if not btGen.brutalSlash and talent.brutalSlash then btGen.triggers = btGen.triggers + 1 end
