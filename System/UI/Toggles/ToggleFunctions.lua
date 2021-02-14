@@ -1,4 +1,8 @@
 local _, br = ...
+function br.ui:createToggle(table,name,col,row)
+	br[name.."Modes"] = table
+	br["CreateButton"](name,col,row)
+end
 -- when we find a match, we reset tooltip
 function br.ResetTip(toggleValue, thisValue)
 	_G.GameTooltip:SetOwner(br["button" .. toggleValue], br.mainButton, 0, 0)
