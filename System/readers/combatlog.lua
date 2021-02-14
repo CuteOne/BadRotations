@@ -778,11 +778,13 @@ function cl:Monk(...)
         local myspell = br.player.spell
         local var = br.player.variables
         local comboSpells = {
+            [myspell.bonedustBrew] = true,
             [myspell.blackoutKick] = true,
             [myspell.chiBurst] = true,
             [myspell.chiWave] = true,
             [myspell.cracklingJadeLightning] = true,
             [myspell.expelHarm] = true,
+            [myspell.faelineStomp] = true,
             [myspell.fistsOfFury] = true,
             [myspell.fistOfTheWhiteTiger] = true,
             [myspell.flyingSerpentKick] = true,
@@ -791,8 +793,8 @@ function cl:Monk(...)
             [myspell.spinningCraneKick] = true,
             [myspell.tigerPalm] = true,
             [myspell.touchOfDeath] = true,
+            [myspell.weaponsOfOrder] = true,
             [myspell.whirlingDragonPunch] = true,
-            [myspell.faelineStomp] = true
         }
         if var.lastCombo == nil or not br._G.UnitAffectingCombat("player") then
             var.lastCombo = 6603
