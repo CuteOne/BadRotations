@@ -1,37 +1,36 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
 
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.windstrike},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.crashLightning},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.stormstrike},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healingSurge}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.feralSpirit},
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.feralSpirit},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.feralSpirit}
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.astralShift},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.astralShift}
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.windShear},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.windShear}
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
 end
 
 ---------------
@@ -200,9 +199,9 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
-                StopAttack()
-                ClearTarget()
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -215,7 +214,7 @@ actionList.Extras = function()
         end
     end
     -- Purge
-    if ui.checked("Purge") and cast.able.purge() and cast.dispel.purge("target") and not unit.br.isBoss() and unit.exists("target") then
+    if ui.checked("Purge") and cast.able.purge() and cast.dispel.purge("target") and not unit.isBoss() and unit.exists("target") then
         if cast.purge() then ui.debug("Casting Purge") return true end
     end
     -- Spirit Walk
@@ -362,7 +361,7 @@ actionList.AOE = function()
     end
     -- Sundering
     -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
+    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and #enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Flame Shock
@@ -422,7 +421,7 @@ actionList.AOE = function()
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
-    if ui.alwaysCdNever("Covenant Ability") and (unit.br.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
+    if ui.alwaysCdNever("Covenant Ability") and (unit.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
         if cast.chainHarvest() then ui.debug("Casting Chain Harvest [AOE]") return true end
     end
     -- Elemental Blast
@@ -606,7 +605,7 @@ actionList.Single = function()
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
-    if ui.alwaysCdNever("Covenant Ability") and (unit.br.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
+    if ui.alwaysCdNever("Covenant Ability") and (unit.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
         if cast.chainHarvest() then ui.debug("Casting Chain Harvest [ST]") return true end
     end
     -- Lightning Bolt
@@ -661,7 +660,7 @@ actionList.Single = function()
     end
     -- Sundering
     -- sundering,if=raid_event.adds.in>=40
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
+    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and #enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
     end
     -- Fire Nova
@@ -794,12 +793,11 @@ local function runRotation()
 
     -- Enemies Lists
     enemies.get(5)
-    -- enemies.get(5,"player",false,true)
     enemies.get(8)
     enemies.get(8,"player",false,true)
     enemies.get(10)
-    enemies.yards10t = enemies.get(10,units.get(5))
-    enemies.yards11r = getEnemiesInRect(10,11,false) or 0
+    enemies.get(10,units.get(5))
+    enemies.rect.get(10,11,false)
     enemies.get(20)
     enemies.get(30)
     enemies.get(40,"player",false,true)
