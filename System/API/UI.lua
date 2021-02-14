@@ -30,15 +30,15 @@ br.api.ui = function(self)
     end
     if ui.pause == nil then
         ui.pause = function(ignoreChannel)
-            local pause = _G["pause"]
+            --local pause = _G["pause"]
             if ignoreChannel == nil then ignoreChannel = false end
-            return pause(ignoreChannel)
+            return br.pause(ignoreChannel)
         end
     end
     if ui.pullTimer == nil then
         ui.pullTimer = function()
-            local PullTimerRemain = _G["PullTimerRemain"]
-            return PullTimerRemain()
+            --local PullTimerRemain = _G["PullTimerRemain"]
+            return br.PullTimerRemain()
         end
     end
     if ui.toggle == nil then

@@ -149,7 +149,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
         else
           uX, uY = br.GetFuturePostion(unit, castTime)
         end
-        local rUnit = br.UnitBoundingRadius(unit)
+        local rUnit = br._G.UnitBoundingRadius(unit)
         return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
     end
 

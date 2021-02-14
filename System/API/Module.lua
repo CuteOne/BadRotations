@@ -14,7 +14,7 @@ br.api.module = function(self)
     local use               = self.use
     local var               = {}
     var.getItemInfo         = _G["GetItemInfo"]
-    var.getHealPot          = _G["getHealthPot"]
+    var.getHealPot          = br.getHealthPot
 
     -- Basic Healing Module
     module.BasicHealing = function(section)
