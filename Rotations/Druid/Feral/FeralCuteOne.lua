@@ -3,46 +3,45 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function createToggles()
-    local CreateButton = br["CreateButton"]
     -- Rotation Button
-    br.RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipeCat },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipeCat },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shred },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createButton(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    br.CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.berserk },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.berserk },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.berserk }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createButton(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    br.DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.survivalInstincts },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.survivalInstincts }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createButton(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    br.InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.skullBash },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.skullBash }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createButton(InterruptModes,"Interrupt",4,0)
     -- Cleave Button
-	br.CleaveModes = {
+	local CleaveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.rake },
         [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.rake }
     };
-    CreateButton("Cleave",5,0)
+    br.ui:createButton(CleaveModes,"Cleave",5,0)
     -- Prowl Button
-	br.ProwlModes = {
+	local ProwlModes = {
         [1] = { mode = "On", value = 1 , overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = br.player.spell.prowl },
         [2] = { mode = "Off", value = 2 , overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spell.prowl }
     };
-    CreateButton("Prowl",6,0)
+    br.ui:createButton(ProwlModes,"Prowl",6,0)
 end
 
 ---------------
@@ -1326,7 +1325,6 @@ local function runRotation()
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
     enemies.get(40) -- makes enemies.yards40
-    enemies.yards30r = br.getEnemiesInRect(10,30,false) or 0
     enemies.get(20,"player",true) -- makes enemies.yards20nc
     enemies.get(13,"player",false,true) -- makes enemies.yards13f
     enemies.get(8) -- makes enemies.yards8
