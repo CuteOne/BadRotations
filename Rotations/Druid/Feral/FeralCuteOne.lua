@@ -420,7 +420,7 @@ actionList.Extras = function()
                 if cast.catForm("player") then ui.debug("Casting Cat Form [Target In 20yrds]") return true end
             end
             -- Cat Form - Less Fall Damage
-            if (not br.canFly() or unit.inCombat() or unit.level() < 24 or not unit._G.IsOutdoors())
+            if (not br.canFly() or unit.inCombat() or unit.level() < 24 or not unit.IsOutdoors())
                 and (not unit.swimming() or (not unit.moving() and unit.swimming() and #enemies.yards5f > 0))
                 and br.fallDist > 90 --falling > ui.value("Fall Timer")
             then
