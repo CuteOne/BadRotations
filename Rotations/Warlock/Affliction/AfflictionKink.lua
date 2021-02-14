@@ -2074,7 +2074,7 @@ apl.AoE = function()
     -- Seed Of Corruption | STS --------.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions.aoe+=/seed_of_corruption,if=talent.sow_the_seeds.enabled&can_seed
-    if mode.soc ~= 2 and isChecked("Spam Seed of Corruption") and talent.sowTheSeeds and #enemies.yards10t >= ui.value("Seed of Corruption Targets") and not moving and not cast.inFlight.seedOfCorruption() then
+    if mode.soc ~= 2 and isChecked("Spam Seed of Corruption") and talent.sowTheSeeds and #enemies.yards10t >= ui.value("Seed of Corruption Targets") and not moving and not cast.seedOfCorruption.inFlight() then
         if (not moving and not debuff.seedOfCorruption.exists(thisUnit) or not debuff.corruption.exists(thisUnit) and not debuff.seedOfCorruption.exists(thisUnit) and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) >= ui.value("Seed of Corruption TTD")
         and br.timer:useTimer("SoC Spam", ui.value("SoC Spam Delay")) then
             if cast.seedOfCorruption(thisUnit) then br.addonDebug("[Action:AoE] Spamming Seed of Corruption") return true end
