@@ -327,33 +327,11 @@ function br.loader:new(spec,specName)
             br.api.debuffs(self.debuff[k],k,v)
         end
 
-        self.units.get = function(range,aoe)
-            local dynString = "dyn"..range
-            if aoe == nil then aoe = false end
-            if aoe then dynString = dynString.."AOE" end
-            local facing = not aoe
-            local thisUnit = br.dynamicTarget(range, facing)
-            -- Build units.dyn varaible
-            if self.units[dynString] == nil then self.units[dynString] = {} end
-            self.units[dynString] = thisUnit
-            return thisUnit -- Backwards compatability for old way
-        end
+        -- Make Units Functions from br.api.units
+        if self.units == nil then self.units = {} br.api.units(self) end
 
-        self.enemies.get = function(range,unit,checkNoCombat,facing)
-            if unit == nil then unit = "player" end
-            if checkNoCombat == nil then checkNoCombat = false end
-            if facing == nil then facing = false end
-            local enemyTable = br.getEnemies(unit,range,checkNoCombat,facing)
-            -- Build enemies.yards variable
-            local insertTable = "yards"..range -- Ex: enemies.yards8 (returns all enemies around player in 8yrds)
-            if unit ~= "player" then insertTable = insertTable..unit:sub(1,1) end -- Ex: enemies.yards8t (returns all enemies around target in 8yrds)
-            if checkNoCombat then insertTable = insertTable.."nc" end -- Ex: enemies.yards8tnc (returns all units around target in 8yrds)
-            if facing then insertTable = insertTable.."f" end-- Ex: enemies.yards8tncf (returns all units the target is facing in 8yrds)
-            -- Add to table
-            if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else _G.wipe(self.enemies[insertTable]) end
-            if #enemyTable > 0 then br.insertTableIntoTable(self.enemies[insertTable],enemyTable) end
-            return enemyTable  -- Backwards compatability for old way
-        end
+        -- Make Enemies Functions from br.api.enemies
+        if self.enemies == nil then self.enemies = {} br.api.enemies(self) end
 
         -- Make Unit Functions from br.api.unit
         if self.unit == nil then self.unit = {} br.api.unit(self) end
@@ -366,35 +344,7 @@ function br.loader:new(spec,specName)
                 br.api.pets(pet,k,v,self)
             end
         end
-
-        -- if self.pet.buff == nil then self.pet.buff = {} end
-        -- self.pet.buff.exists = function(buffID,petID)
-        --     for k, v in pairs(self.pet) do
-        --         local pet = self.pet[k]
-        --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) ~= nil then return true end
-        --     end
-        --     return false
-        -- end
-
-        -- self.pet.buff.count = function(buffID,petID)
-        --     local petCount = 0
-        --     for k, v in pairs(self.pet) do
-        --         local pet = self.pet[k]
-        --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) ~= nil then petCount = petCount + 1 end
-        --     end
-        --     return petCount
-        -- end
-
-        -- self.pet.buff.missing = function(buffID,petID)
-        --     local petCount = 0
-        --     for k, v in pairs(self.pet) do
-        --         local pet = self.pet[k]
-        --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) == nil then petCount = petCount + 1 end
-        --     end
-        --     return petCount
-        -- end
-
-
+        
         -- Cycle through Items List
         for k,v in pairs(self.items) do --self.spell.items) do
             if self.charges         == nil then self.charges    = {} end -- Item Charge Functions

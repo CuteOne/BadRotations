@@ -51,6 +51,10 @@ br.api.unit = function(self)
         local UnitIsCharmed = br._G["UnitIsCharmed"]
         return UnitIsCharmed(thisUnit)
     end
+    -- Clear Targets
+    unit.clearTarget = function()
+        return br._G.ClearTarget()
+    end
     -- Dead
     unit.deadOrGhost = function(thisUnit)
         local UnitIsDeadOrGhost = br._G["UnitIsDeadOrGhost"]
@@ -273,6 +277,10 @@ br.api.unit = function(self)
             end
             autoAttackStarted = true
         end
+    end
+    -- Stop Attack
+    unit.stopAttack = function()
+        return br._G.StopAttack()
     end
     -- Swimming
     unit.swimming = function()

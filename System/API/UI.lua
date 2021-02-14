@@ -43,8 +43,7 @@ br.api.ui = function(self)
     end
     if ui.toggle == nil then
         ui.toggle = function(thisToggle)
-            local SpecificToggle = _G["SpecificToggle"]
-            return not _G.GetCurrentKeyBoardFocus() and SpecificToggle(thisToggle) or false
+            return not br._G.GetCurrentKeyBoardFocus() and br.SpecificToggle(thisToggle) or false
         end
     end
     if ui.value == nil then

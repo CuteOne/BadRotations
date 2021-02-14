@@ -40,4 +40,30 @@ br.api.pets = function(pet,k,v,brplayer)
     pet.id = function()
         return v
     end
+    -- if self.pet.buff == nil then self.pet.buff = {} end
+    -- self.pet.buff.exists = function(buffID,petID)
+    --     for k, v in pairs(self.pet) do
+    --         local pet = self.pet[k]
+    --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) ~= nil then return true end
+    --     end
+    --     return false
+    -- end
+
+    -- self.pet.buff.count = function(buffID,petID)
+    --     local petCount = 0
+    --     for k, v in pairs(self.pet) do
+    --         local pet = self.pet[k]
+    --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) ~= nil then petCount = petCount + 1 end
+    --     end
+    --     return petCount
+    -- end
+
+    -- self.pet.buff.missing = function(buffID,petID)
+    --     local petCount = 0
+    --     for k, v in pairs(self.pet) do
+    --         local pet = self.pet[k]
+    --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) == nil then petCount = petCount + 1 end
+    --     end
+    --     return petCount
+    -- end
 end

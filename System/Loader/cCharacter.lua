@@ -21,7 +21,7 @@ function br.cCharacter:new(class)
 	self.currentPet = "None" -- Current Pet
 	self.dynLastUpdate = 0 -- Timer variable to reduce Dynamic Target updating
 	self.dynTargetTimer = 0.5 -- Timer to reduce Dynamic Target updating (1/X = calls per second)
-	self.enemies = {} -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
+	--self.enemies = {} -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
 	self.essence = {} -- Azerite Essence
 	self.equiped = {} -- Item Equips
 	self.gcd = 1.5 -- Global Cooldown
@@ -84,7 +84,7 @@ function br.cCharacter:new(class)
 	self.talent = {} -- Talents
 	self.timeToMax = 0 -- Time To Max Power
 	self.traits = {} -- Azerite Traits
-	self.units = {} -- Dynamic Units (used for dynamic targeting, if false then target)
+	-- self.units = {} -- Dynamic Units (used for dynamic targeting, if false then target)
 	self.ui = {} -- UI API
 	self.variables = {} -- Custom Profile Variables
 

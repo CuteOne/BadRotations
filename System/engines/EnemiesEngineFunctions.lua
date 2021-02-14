@@ -401,7 +401,8 @@ function br.getEnemiesInCone(angle,length,checkNoCombat)
 	if length == nil then length = 0 end
     local playerX, playerY, playerZ = br.GetObjectPosition("player")
     local facing = br.GetObjectFacing("player")
-    local units = 0
+    local units = units or {}
+	local unitsCounter = 0
 	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
 	local inside = false
     for i = 1, #enemiesTable do
@@ -427,13 +428,14 @@ function br.getEnemiesInCone(angle,length,checkNoCombat)
 			end
 
             if inside then
-                units = units + 1
+                unitsCounter = unitsCoutner + 1
+				table.insert(units,thisUnit)
             end
         end
 	end
 
 	-- br.ChatOverlay(units)
-    return units
+    return unitsCounter, units
 end
 
 -- Rectangle Logic for Enemies
