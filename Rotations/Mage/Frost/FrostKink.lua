@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.2.2"
+local rotationVer  = "v1.2.4"
 local colorBlue     = "|cff3FC7EB"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
@@ -363,6 +363,16 @@ local function runRotation()
     local units = br.player.units
     local use = br.player.use
     local reapingDamage = getOptionValue("Reaping Flames Damage") * 1000
+
+    eunits.get(40)
+    enemies.get(10)
+    enemies.get(8)
+    enemies.get(8,"target") -- Makes enemies.yards8t
+    enemies.get(10, "target", true) -- makes enemeis.yards10tnc
+    enemies.get(10,"target") -- makes enemies.yards10t
+    enemies.get(18)
+    enemies.get(40, nil, nil, nil, spell.drainSoul)
+    enemies.get(40,"player",false,true) -- makes enemies.yards40f
 
     -- Super scuffed IF tracker
     local curIF = select(3,AuraUtil.FindAuraByName(GetSpellInfo(116267), "player", "HELPFUL"))
@@ -1033,8 +1043,7 @@ actions.cds+=/bag_of_tricks
             -- Mirrors of Torment : Venthyr ----------------
             ------------------------------------------------
             -- actions.aoe+=/mirrors_of_torment
-            if covenant.venthyr.active and spellUsable(314793) and select(2,GetSpellCooldown(314793)) <= gcdMax 
-            and blizzardUnits < 3 and (conduit.siphonedMalice or soulbind.wastelandPropriety) then
+            if covenant.venthyr.active and spellUsable(spell.mirrorsOfTorment) and select(2,GetSpellCooldown(spell.mirrorsOfTorment)) <= gcdMax and #enemies.yards8t >= 2 then
                 if cast.mirrorsOfTorment() then br.addonDebug("[Action:Cooldowns] Mirrors Of Torment") return true end
             end
             ------------------------------------------------
@@ -1128,6 +1137,20 @@ actions.cds+=/bag_of_tricks
             if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
         end
 
+        if mode.frozenOrb ~= 2 and not talent.concentratedCoolness then
+            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                if castFrozenOrb(1, true, 4) then return true end
+            else
+                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
+            end
+        else
+            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+                if cast.frozenOrb(nil,"aoe",1,8,true) then return true end 
+            else
+                if cast.frozenOrb(nil,"aoe",1,8,true) then return true end 
+            end
+        end
+
         if mode.frozenOrb == 1 and useCDs() and not talent.concentratedCoolness then
             if castFrozenOrb(1, true, 4) then return true end
         else
@@ -1198,7 +1221,7 @@ actions.cds+=/bag_of_tricks
 
         -- # Without GS, Ebonbolt is always shattered. With GS, Ebonbolt is shattered if it would waste Brain Freeze charge (i.e. when the mage starts casting Ebonbolt with Brain Freeze active) or when below 4 Icicles (if Ebonbolt is cast when the mage has 4-5 Icicles, it's better to use the Brain Freeze from it on Glacial Spike).
         -- actions.single+=/flurry,if=talent.ebonbolt.enabled&prev_gcd.1.ebonbolt&(!talent.glacial_spike.enabled|buff.icicles.stack<4|buff.brain_freeze.react)
-        if talent.ebonbolt and cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 3) then
+        if talent.ebonbolt and cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or bfExists) then
             if cast.flurry("target") then return true end
         end
 
@@ -1435,7 +1458,7 @@ actions.cds+=/bag_of_tricks
 
         -- # Simplified Flurry conditions from the ST action list. Since the mage is generating far less Brain Freeze charges, the exact condition here isn't all that important.
         -- actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.frostbolt&(buff.icicles.stack<4|!talent.glacial_spike.enabled)|prev_gcd.1.glacial_spike)
-        if (cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 3)) or (buff.brainFreeze.exists() and ((cast.last.frostbolt() and (iciclesStack < 4 or not talent.glacialSpike or targetUnit.ttd < 3)) or cast.last.glacialSpike())) then
+        if cast.last.ebonbolt() or bfExists and (cast.last.frostbolt() and (iciclesStack < 4 or not talent.glacialSpike) or cast.last.glacialSpike()) then
             if cast.flurry("target") then return true end
         end
 
@@ -1540,8 +1563,8 @@ actions.aoe+=/frostbolt
             end
         end
         -- actions.aoe+=/flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&buff.fingers_of_frost.react=0)
-        if (debuff.wintersChill.remain() <= 0 or not debuff.wintersChill.exists())
-        and (cast.last.ebonbolt() or buff.brainFreeze.exists() and buff.fingersOfFrost.exists())
+        if (debuff.wintersChill.exists() and debuff.wintersChill.remain() <= 0 or not debuff.wintersChill.exists())
+        and (cast.last.ebonbolt() or buff.brainFreeze.exists() and not buff.fingersOfFrost.exists())
         then
             if cast.flurry("target") then br.addonDebug("[Action:AoE] Flurry") return true end
         end
@@ -1638,7 +1661,7 @@ actions.st+=/frostbolt
 
         -- actions.st=flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.glacial_spike|prev_gcd.1.frostbolt&(!conduit.ire_of_the_ascended|cooldown.radiant_spark.remains|runeforge.freezing_winds)
         --|prev_gcd.1.radiant_spark|buff.fingers_of_frost.react=0&(debuff.mirrors_of_torment.up|buff.freezing_winds.up|buff.expanded_potential.react)))
-        if (debuff.wintersChill.remain() >= gcdMax or not debuff.wintersChill.exists())
+        if (not debuff.wintersChill.exists() or not debuff.wintersChill.exists())
         and cast.last.ebonbolt() or buff.brainFreeze.exists() 
         and (cast.last.glacialSpike() or cast.last.frostbolt())
         and (not IsSpellKnown(337058) or cd.radiantSpark.remains() >= gcdMax or runeforge.freezingWinds.equiped) or cast.last.radiantSpark() or buff.fingersOfFrost.exists() 
@@ -1740,7 +1763,7 @@ actions.st+=/frostbolt
             -- Mirrors of Torment : Venthyr ----------------
             ------------------------------------------------
             -- actions.st+=/mirrors_of_torment
-            if covenant.venthyr.active and spellUsable(314793) and select(2,GetSpellCooldown(314793)) <= gcdMax then
+            if covenant.venthyr.active and spellUsable(spell.mirrorsOfTorment) and select(2,GetSpellCooldown(spell.mirrorsOfTorment)) <= gcdMax then
                 if cast.mirrorsOfTorment() then br.addonDebug("[Action:Rotation] Mirrors Of Torment") return true end
             end
             ------------------------------------------------
@@ -1907,7 +1930,11 @@ actions.st+=/frostbolt
     -- Profile Stop | Pause
     if not UnitIsAFK("player") and not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or UnitIsAFK("player") or pause(true) or isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
+        elseif inCombat and IsAoEPending() then
+        SpellStopTargeting()
+        br.addonDebug("Canceling Spell")
+        return false
+    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or UnitIsAFK("player") or pause(true) or isCastingSpell(293491) then
         if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
