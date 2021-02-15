@@ -215,7 +215,7 @@ local function eyebeamTTD()
     local length = talent.blindFury and 3 or 2
     if #enemies.yards20r > 0 then
         for i = 1, #enemies.yards20r do
-            if unit.ttd(enemies.yards20rTable[i]) >= length then
+            if unit.ttd(enemies.yards20r[i]) >= length then
                 return true
             end
         end
