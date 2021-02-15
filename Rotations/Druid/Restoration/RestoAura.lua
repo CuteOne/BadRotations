@@ -2806,7 +2806,7 @@ local function runRotation()
 	-----------------
 	-- Pause
 	if
-		pause() or (travel and not inCombat) or stealthed or drinking or br.isCastingSpell(spell.tranquility) or
+		br.pause() or (travel and not inCombat) or stealthed or drinking or br.isCastingSpell(spell.tranquility) or
 			cd.global.remains() > 0
 	 then
 		return true
