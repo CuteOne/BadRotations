@@ -6,7 +6,7 @@ local rotationName = "Laksmackt" -- Change to name of profile listed in options 
 local function createToggles()
     -- Define custom toggles
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = {
             mode = "Auto",
             value = 1,
@@ -19,50 +19,50 @@ local function createToggles()
         [3] = {mode = "Sing", value = 3, overlay = "Force single target", tip = "Force single target", highlight = 0, icon = br.player.spell.wrath},
         [4] = {mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soothe}
     }
-    CreateButton("Rotation", 1, 0)
+    br.ui:createToggle(RotationModes,"Rotation", 1, 0)
 
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.celestialAlignment},
         [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.celestialAlignment},
         [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.celestialAlignment}
     }
-    CreateButton("Cooldown", 2, 0)
+    br.ui:createToggle(CooldownModes,"Cooldown", 2, 0)
 
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.barkskin},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.barkskin}
     }
-    CreateButton("Defensive", 3, 0)
+    br.ui:createToggle(DefensiveModes,"Defensive", 3, 0)
 
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.solarBeam},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam}
     }
-    CreateButton("Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
 
     -- FoN Button
-    ForceofNatureModes = {
+    local ForceofNatureModes = {
         [1] = {mode = "On", value = 1, overlay = "Force of Nature Enabled", tip = "Will Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature},
         [2] = {mode = "Key", value = 2, overlay = "Force of Nature hotkey", tip = "Key triggers Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature},
         [3] = {mode = "Off", value = 2, overlay = "Force of Nature Disabled", tip = "Will Not Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature}
     }
-    CreateButton("ForceofNature", 5, 0)
+    br.ui:createToggle(ForceofNatureModes,"ForceofNature", 5, 0)
 
-    FormsModes = {
+    local FormsModes = {
         [1] = {mode = "On", value = 1, overlay = "Auto Forms Enabled", tip = "Will change forms", highlight = 0, icon = br.player.spell.travelForm},
         [2] = {mode = "Key", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm},
         [3] = {mode = "Off", value = 3, overlay = "Auto Forms Disabled", tip = "Will Not change forms", highlight = 0, icon = br.player.spell.travelForm}
     }
-    CreateButton("Forms", 6, 0)
+    br.ui:createToggle(FormsModes,"Forms", 6, 0)
 
-    CovModes = {
+    local CovModes = {
         [1] = {mode = "On", value = 1, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward},
         [2] = {mode = "Off", value = 2, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward}
     }
-    CreateButton("Cov", 1, -1)
+    br.ui:createToggle(CovModes,"Cov", 1, -1)
 
     --[[
     --pots
@@ -83,7 +83,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Forms - SL 2101171530")
+        local section = br.ui:createSection(br.ui.window.profile, "Forms - SL 2101171530")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "Treant Key")
@@ -241,34 +241,16 @@ function timers.time(name, fn)
     local time = timers._timers[name]
     if fn then
         if not time then
-            time = GetTime()
+            time = br._G.GetTime()
         end
     else
         time = nil
     end
     timers._timers[name] = time
-    return time and (GetTime() - time) or 0
+    return time and (br._G.GetTime() - time) or 0
 end
 
 local function runRotation()
-    ---------------
-    --- Toggles --- -- List toggles here in order to update when pressed
-    ---------------
-    UpdateToggle("Rotation", 0.25)
-    UpdateToggle("Cooldown", 0.25)
-    UpdateToggle("Defensive", 0.25)
-    UpdateToggle("Interrupt", 0.25)
-    UpdateToggle("ForceofNature", 0.25)
-    UpdateToggle("Forms", 0.25)
-    --UpdateToggle("Pots", 0.25)
-
-    --    br.ui.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
-    --  br.ui.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["Rotation"]
-    --br.ui.player.mode.forms = br.data.settings[br.selectedSpec].toggles["Forms"]
-
-
-
-
     --------------
     --- Locals ---
     --------------
@@ -288,17 +270,18 @@ local function runRotation()
     local inRaid = br.player.instance == "raid"
     local solo = #br.friend == 1
     local race = br.player.race
-    local moving = isMoving("player")
-    local swimming = IsSwimming()
+    local moving = br.isMoving("player")
+    local swimming = br._G.IsSwimming()
+    local flying = br._G.IsFlying()
     local ttd = br.getTTD
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists() or br.player.buff.stampedingRoar.exists() or br.player.buff.stampedingRoarCat.exists() or br.player.buff.stampedingRoar.exists()
-    local hasteAmount = GetHaste() / 100
-    local masteryAmount = GetMastery() / 100
+    local hasteAmount = br._G.GetHaste() / 100
+    local masteryAmount = br._G.GetMastery() / 100
     local thisUnit
     local conduit = br.player.conduit
     local covenant = br.player.covenant
     local travel = br.player.buff.travelForm.exists()
-    local mount = GetShapeshiftForm() == 6 --- or maybe br.player.buff.mountForm.exists() but this is not working (mountform has no buff? idk)
+    local mount = br._G.GetShapeshiftForm() == 6 --- or maybe br.player.buff.mountForm.exists() but this is not working (mountform has no buff? idk)
     local cat = br.player.buff.catForm.exists()
     local moonkin = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
@@ -309,9 +292,9 @@ local function runRotation()
     -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
-        local castingInfo = {UnitCastingInfo("player")}
+        local castingInfo = {br._G.UnitCastingInfo("player")}
         if castingInfo[5] then
-            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow"))) / 1000)) < 0 then
+            if (br._G.GetTime() - ((castingInfo[5] - tonumber(br._G.C_CVar.GetCVar("SpellQueueWindow"))) / 1000)) < 0 then
                 return false
             end
         end
@@ -339,8 +322,8 @@ local function runRotation()
     end
 
     --wipe timers table
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        br._G.wipe(br.timersTable)
     end
     mode = br.player.ui.mode
     enemies.get(5)
@@ -394,7 +377,7 @@ local function runRotation()
             [1122] = "Summon Infernal"
         }
         for i = 1, #already_stunned_list do
-            local debuffSpellID = select(10, UnitDebuff(Unit, i))
+            local debuffSpellID = select(10, br._G.UnitDebuff(Unit, i))
             if debuffSpellID == nil then
                 return false
             end
@@ -412,7 +395,7 @@ local function runRotation()
 
     local function isCC(unit)
         if br.getOptionCheck("Don't break CCs") then
-            return isLongTimeCCed(Unit)
+            return br.isLongTimeCCed(unit)
         end
     end
 
@@ -452,7 +435,7 @@ local function runRotation()
         end
         return tonumber(counter)
     end
-    function getBiggestUnitCluster(maxRange, radius)
+    local function getBiggestUnitCluster(maxRange, radius)
         -- Description:
         -- returns the enemy with most enemies in radius in maxRange from player
 
@@ -477,7 +460,7 @@ local function runRotation()
             thisUnit = br.enemy[i].unit
             if br.getLineOfSight(thisUnit) == true then
                 if br.enemy[i].distance < maxRange then
-                    if getNumEnemies(thisUnit, radius) > enemiesInRange then
+                    if br.getNumEnemies(thisUnit, radius) > enemiesInRange then
                         theReturnUnit = thisUnit
                     end
                 end
@@ -488,7 +471,7 @@ local function runRotation()
 
     --Clear last cast table ooc to avoid strange casts
     if #br.lastCastTable.tracker > 0 then
-        wipe(br.lastCastTable.tracker)
+        br._G.wipe(br.lastCastTable.tracker)
     end
 
     local astral_max = 0
@@ -515,15 +498,15 @@ local function runRotation()
             --dummies inside of Freehold
             return true
         end
-        if hasBuff(263246, unit) then
+        if br.hasBuff(263246, unit) then
             -- shields on first boss in temple
             return true
         end
-        if hasBuff(260189, unit) then
+        if br.hasBuff(260189, unit) then
             -- shields on last boss in MOTHERLODE
             return true
         end
-        if hasBuff(261264, unit) or hasBuff(261265, unit) or hasBuff(261266, unit) then
+        if br.hasBuff(261264, unit) or br.hasBuff(261265, unit) or br.hasBuff(261266, unit) then
             -- shields on witches in wm
             return true
         end
@@ -539,15 +522,15 @@ local function runRotation()
     end
 
     local standingTime = 0
-    if DontMoveStartTime then
-        standingTime = GetTime() - DontMoveStartTime
+    if br.DontMoveStartTime then
+        standingTime = br._G.GetTime() - br.DontMoveStartTime
     end
 
-    function isExplosive(Unit)
+    function br.isExplosive(Unit)
         return br.GetObjectID(Unit) == 120651
     end
 
-    function getOutLaksTTDMAX()
+    local function getOutLaksTTDMAX()
         local highTTD = 0
         local mob_count = #enemies.yards45
         if mob_count > 6 then
@@ -555,7 +538,7 @@ local function runRotation()
         end
         if #enemies.yards45 > 0 then
             for i = 1, mob_count do
-                if br.getTTD(enemies.yards45[i]) > highTTD and br.getTTD(enemies.yards45[i]) < 999 and not isExplosive(enemies.yards45[i]) and br.isSafeToAttack(enemies.yards45[i]) then
+                if br.getTTD(enemies.yards45[i]) > highTTD and br.getTTD(enemies.yards45[i]) < 999 and not br.isExplosive(enemies.yards45[i]) and br.isSafeToAttack(enemies.yards45[i]) then
                     highTTD = br.getTTD(enemies.yards45[i])
                 end
             end
@@ -605,11 +588,11 @@ local function runRotation()
                 end
 
                 if (root == "Mass Entanglement" and cast.able.massEntanglement()) or cast.able.entanglingRoots() then
-                    for i = 1, GetObjectCountBR() do
-                        local object = GetObjectWithIndex(i)
+                    for i = 1, br._G.GetObjectCount() do
+                        local object = br._G.GetObjectWithIndex(i)
                         local ID = br._G.ObjectID(object)
                         if
-                            root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not isLongTimeCCed(object) and
+                            root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not br.isLongTimeCCed(object) and
                                 (br.getBuffRemain(object, 102359) < 2 or br.getBuffRemain(object, 339) < 2)
                          then
                             local x1, y1, z1 = br._G.ObjectPosition("player")
@@ -619,7 +602,7 @@ local function runRotation()
                                 br._G.CastSpellByName("Mighty Bash", object)
                                 return true
                             end
-                            if distance < root_range and not isLongTimeCCed(object) and not already_stunned(object) then
+                            if distance < root_range and not br.isLongTimeCCed(object) and not already_stunned(object) then
                                 br._G.CastSpellByName(root, object)
                             end
                         end
@@ -683,7 +666,7 @@ local function runRotation()
             end
 
             if
-                race == "Troll" and br.isChecked("Racial") and useCDs() and ttd("target") >= 12 and
+                race == "Troll" and br.isChecked("Racial") and br.useCDs() and ttd("target") >= 12 and
                     ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or
                         (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13))
              then
@@ -723,18 +706,18 @@ local function runRotation()
             local eclipse_in = false
             local eclipse_last = "none"
 
-            if GetSpellCount(190984) == 0 and GetSpellCount(194153) == 0 then
+            if br._G.GetSpellCount(190984) == 0 and br._G.GetSpellCount(194153) == 0 then
                 eclipse_in = true
             else
                 eclipse_in = false
             end
 
             if not eclipse_in then
-                if GetSpellCount(190984) == 0 and GetSpellCount(194153) > 0 then
+                if br._G.GetSpellCount(190984) == 0 and br._G.GetSpellCount(194153) > 0 then
                     -- starfire >0
                     eclipse_next = "solar"
                     eclipse_last = "lunar"
-                elseif GetSpellCount(190984) > 0 and GetSpellCount(194153) == 0 then
+                elseif br._G.GetSpellCount(190984) > 0 and br._G.GetSpellCount(194153) == 0 then
                     --wrath > 0
                     eclipse_next = "lunar"
                     eclipse_last = "solar"
@@ -757,10 +740,10 @@ local function runRotation()
                     end
                 end
             else
-                if IsSpellOverlayed(spell.starfire) then
+                if br._G.IsSpellOverlayed(spell.starfire) then
                     current_eclipse = "lunar"
                 end
-                if IsSpellOverlayed(spell.wrath) then
+                if br._G.IsSpellOverlayed(spell.wrath) then
                     current_eclipse = "solar"
                 end
             end
@@ -808,7 +791,7 @@ local function runRotation()
 
                 --if we are moving, we should try to starfall, otherwise rotate instants
 
-                if isMoving("player") and mode.rotation ~= 3 and (talent.stellarDrift and not buff.starfall.exists()) then
+                if br.isMoving("player") and mode.rotation ~= 3 and (talent.stellarDrift and not buff.starfall.exists()) then
                     if cast.able.sunfire(units.dyn45) and not debuff.sunfire.exists(units.dyn45) then
                         if cast.sunfire(units.dyn45) then
                             return true
@@ -837,14 +820,14 @@ local function runRotation()
 
 
 
-                if br.isChecked("Sunfire Explosives") and timers.time("Explosion_delay", isExplosive(units.dyn45)) > 1.5 then
+                if br.isChecked("Sunfire Explosives") and timers.time("Explosion_delay", br.isExplosive(units.dyn45)) > 1.5 then
                     --to kill explosives - need more work TODO
-                    if cast.able.sunfire(units.dyn45) and isExplosive(units.dyn45) then
+                    if cast.able.sunfire(units.dyn45) and br.isExplosive(units.dyn45) then
                         -- and timers.time("Explosion_delay", isExplosive(units.dyn45)) > 2.5 then
                         if not buff.balanceOfAllThingsArcane.exists() and not buff.balanceOfAllThingsNature.exists() then
                             --    Print(tostring(timers.time("Explosion_delay", isExplosive(units.dyn45))))
                             if cast.sunfire(units.dyn45) then
-                                br.addonDebug("killed explosive - at" .. timers.time("Explosion_delay", isExplosive(units.dyn45)))
+                                br.addonDebug("killed explosive - at" .. timers.time("Explosion_delay", br.isExplosive(units.dyn45)))
                                 return true
                             end
                         end
@@ -859,7 +842,7 @@ local function runRotation()
                     if mode.cov == 1 then
                         --convoke_the_spirits,
                         if
-                            useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
+                            br.useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
                                 ((convoke_desync and pew_remain() > 0 or pewbuff) and (power < 50 or ignore_starsurge) and
                                     (buff.eclipse_lunar.remains() > 6 or buff.eclipse_solar.remains() > 6) and
                                     (not runeforge.balanceOfAllThings.equiped or buff.balanceOfAllThingsNature.stack() > 3 or buff.balanceOfAllThingsArcane.stack() > 3))
@@ -878,7 +861,7 @@ local function runRotation()
                     if debuff.sunfire.count() < br.getOptionValue("Max Sunfire Targets") then
                         for i = 1, #enemies.yards45 do
                             thisUnit = enemies.yards45[i]
-                            if UnitAffectingCombat(thisUnit) and not noDamageCheck(thisUnit) then
+                            if br._G.UnitAffectingCombat(thisUnit) and not noDamageCheck(thisUnit) then
                                 if br.getDistance(thisUnit, tank) <= 8 then
                                     splash_count = splash_count + 1
                                 end
@@ -887,7 +870,7 @@ local function runRotation()
                                             and (not cast.last.sunfire(1)
                                             and (debuff.sunfire.refresh(thisUnit) or buff.eclipse_solar.remains() < 3 and eclipse_in == "solar" and buff.eclipse_solar.remains() < 14 and talent.soulOfTheForest)
                                             and ttd(thisUnit) > (14 - #enemies.yards45 + debuff.sunfire.remains(thisUnit)) and (eclipse_in or (buff.eclipse_solar.remain() < gcd or (buff.eclipse_lunar.remain() < gcd))))
-                                            or isMoving("player") and not cast.last.sunfire(1)
+                                            or br.isMoving("player") and not cast.last.sunfire(1)
                                     then
                                         if cast.sunfire(thisUnit) then
                                             return true
@@ -911,7 +894,7 @@ local function runRotation()
                         end
                     end
 
-                    if power > 80 - (10 * buff.timewornDreambinder.stack()) - (buff.starfall.remains() * 3 / GetHaste() / 100) and buff.starfall.exists() then
+                    if power > 80 - (10 * buff.timewornDreambinder.stack()) - (buff.starfall.remains() * 3 / br._G.GetHaste() / 100) and buff.starfall.exists() then
                         starfall_wont_fall_off = true
                     end
 
@@ -951,10 +934,10 @@ local function runRotation()
                                     and (current_eclipse ~= "lunar" or #enemies.yards45 <= 4) then
                                 for i = 1, #enemies.yards45 do
                                     thisUnit = enemies.yards45[i]
-                                    if UnitAffectingCombat(thisUnit) then
+                                    if br._G.UnitAffectingCombat(thisUnit) then
                                         -- moonfire
                                         if (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) and br.getTTD(thisUnit) > (14 + (#enemies.yards45 * 1.5)) / #enemies.yards45 + debuff.moonfire.remain(thisUnit) then
-                                            if pew_remain() == 0 and not useCDs() and (convoke_desync or cd.convokeTheSpirits.ready() or not covenant.nightFae.active)
+                                            if pew_remain() == 0 and not br.useCDs() and (convoke_desync or cd.convokeTheSpirits.ready() or not covenant.nightFae.active)
                                                     or #enemies.yards45 < (5 * (1 + (talent.twinMoons and 0 or 1)))
                                                     or (current_eclipse == "solar" or (current_eclipse == "any" or current_eclipse == "lunar")
                                                     and not talent.soulOfTheForest or buff.primordialArcanicPulsar.count() >= 250)
@@ -994,7 +977,7 @@ local function runRotation()
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
-                        elseif br.player.ui.mode.forceofNature == 2 and br.isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
+                        elseif br.player.ui.mode.forceofNature == 2 and br.isChecked("Treants Key") and br.SpecificToggle("Treants Key") and not br._G.GetCurrentKeyBoardFocus() then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
@@ -1013,7 +996,7 @@ local function runRotation()
                     end
 
                     -- celestialAlignment
-                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
+                    if br.getCombatTime() > 2 and br.useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if
                             (buff.starfall.exists() or power > 50) and not eclipse_in and not pewbuff and
                                 (not covenant.nightFae.active or convoke_desync or cd.convokeTheSpirits.ready() or getOutLaksTTDMAX() < 20)
@@ -1034,7 +1017,7 @@ local function runRotation()
                                 getOutLaksTTDMAX() > 15 and -- or (buff.primordial_arcanic_pulsar.value<250|buff.primordial_arcanic_pulsar.value>=250)
                                     buff.starfall.exists() and
                                     (pew_remain() > 50) or
-                                    not useCDs()
+                                    not br.useCDs()
                              then
                                 if cast.kindredSpirits("player") then
                                     return true
@@ -1108,7 +1091,7 @@ local function runRotation()
                     --moon shit here .. not supported ..cause fuck that
 
                     -- Warrior of Elune
-                    if useCDs() and br.isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
+                    if br.useCDs() and br.isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
                         if cast.warriorOfElune() then
                             return true
                         end
@@ -1138,7 +1121,7 @@ local function runRotation()
 
                     --adaptive swarm here
                     if mode.cov == 1 then
-                        if cast.able.adaptiveSwarm("target") and not isExplosive("target") then
+                        if cast.able.adaptiveSwarm("target") and not br.isExplosive("target") then
                             if not debuff.adaptiveSwarm.exists("target") or debuff.adaptiveSwarm.exists("target") and debuff.adaptiveSwarm.remains("target") < 3 then
                                 if cast.adaptiveSwarm("target") then
                                     return true
@@ -1147,7 +1130,7 @@ local function runRotation()
                         end
 
                         --convoke_the_spirits
-                        if useCDs() and covenant.nightFae and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 then
+                        if br.useCDs() and covenant.nightFae and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 then
                             if ((convoke_desync and pew_remain() > 0 or pewbuff)
                                     and power < 40
                                     and (buff.eclipse_lunar.remains() > 10 or buff.eclipse_solar.remains() > 10)) then
@@ -1208,7 +1191,7 @@ local function runRotation()
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
-                        elseif br.player.ui.mode.forceofNature == 2 and br.isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
+                        elseif br.player.ui.mode.forceofNature == 2 and br.isChecked("Treants Key") and br.SpecificToggle("Treants Key") and not br._G.GetCurrentKeyBoardFocus() then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
@@ -1237,11 +1220,11 @@ local function runRotation()
                             end
                         end
                     end
-                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
+                    if br.getCombatTime() > 2 and br.useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if not talent.incarnationChoseOfElune then
                             if
                                 (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or is_aoe or
-                                    hasBloodLust() and (hasBloodLustRemain() < 20) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment)))) and
+                                    br.hasBloodLust() and (br.br.hasBloodLustRemain() < 20) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment)))) and
                                     not pewbuff and
                                     (not covenant.nightFae.active or (cd.convokeTheSpirits.remains() - gcd) <= 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6 - gcd))
                              then
@@ -1252,7 +1235,7 @@ local function runRotation()
                         else
                             if
                                 (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or is_aoe or
-                                    hasBloodLust() and (hasBloodLustRemain() < 30) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment)))) and
+                                    br.hasBloodLust() and (br.br.hasBloodLustRemain() < 30) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment)))) and
                                     not pewbuff and
                                     (not covenant.nightFae.active or cd.convokeTheSpirits.remains() == 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6))
                              then
@@ -1263,7 +1246,7 @@ local function runRotation()
                         end
                     end
 
-                    local save_for_ca_inc = (pew_remain() > 0 or not convoke_desync and covenant.night_fae or not useCDs()) or false
+                    local save_for_ca_inc = (pew_remain() > 0 or not convoke_desync and covenant.night_fae or not br.useCDs()) or false
 
                     -- fury of elune - single target
                     if
@@ -1288,12 +1271,12 @@ local function runRotation()
                     -- cancel starlord here
                     if buff.starlord.exists() and buff.starlord.remains() < 5 and (buff.eclipse_solar.remains() > 5 or buff.eclipse_lunar.remains() > 5) and power > 90 then
                         br.addonDebug("[Cancel SL]:Buff Remains:" .. tostring(buff.starlord.remain()) .. "Astral Def:" .. tostring(astral_def))
-                        cancelBuff(279709)
+                        br.cancelBuff(279709)
                     end
 
                     --starsurge - first of many
                     if cast.able.starsurge("target") then
-                        if covenant.nightFae.active and convoke_desync and cd.convokeTheSpirits.remains() < 5 and useCDs() then
+                        if covenant.nightFae.active and convoke_desync and cd.convokeTheSpirits.remains() < 5 and br.useCDs() then
                             if cast.starsurge("target") then
                                 br.addonDebug("[SS] Night Fae")
                                 return true
@@ -1349,7 +1332,7 @@ local function runRotation()
                         end
                     end
                     -- Warrior of Elune
-                    if useCDs() and br.isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
+                    if br.useCDs() and br.isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
                         if cast.warriorOfElune() then
                             return true
                         end
@@ -1359,7 +1342,7 @@ local function runRotation()
                     if
                         cast.able.starfire("target") and current_eclipse == "lunar" or eclipse_next == "solar" or eclipse_next == "any" or
                             buff.warriorOfElune.exists() and current_eclipse == "lunar" or
-                            ((buff.incarnationChoseOfElune.remains() > getCastTime(spell.wrath) or buff.celestialAlignment.remains() > getCastTime(spell.wrath)) and pewbuff)
+                            ((buff.incarnationChoseOfElune.remains() > br.getCastTime(spell.wrath) or buff.celestialAlignment.remains() > br.getCastTime(spell.wrath)) and pewbuff)
                      then
                         if cast.starfire("target") then
                             return true
@@ -1392,10 +1375,10 @@ local function runRotation()
                         end
                         --convoke_the_spirits,
                         if
-                            useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
+                            br.useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
                                 ((convoke_desync and pew_remain() ~= 0 or pewbuff) and (buff.balanceOfAllThingsNature.stack() == 5 or buff.balanceOfAllThingsArcane.stack() == 5))
                          then
-                            CastSpellByID(323764, "player")
+                            br._G.CastSpellByID(323764, "player")
                             return true
                         end
                     end
@@ -1406,7 +1389,7 @@ local function runRotation()
                             (buff.balanceOfAllThingsNature.remains() > 4.5 or buff.balanceOfAllThingsArcane.remains() > 4.5) and
                                 (pew_remain() > 7 or (cd.empowerBond.remains() > 7 and not buff.kindredEmpowermentEnergize.exists() and covenant.kyrian.active))
                          then
-                            cancelBuff(279709)
+                            br.cancelBuff(279709)
                         end
                     end
 
@@ -1425,8 +1408,8 @@ local function runRotation()
 
                         --starsurge,if=(cooldown.convoke_the_spirits.remains<5&!druid.no_cds&(variable.convoke_desync|cooldown.ca_inc.remains<5))&astral_power>40&covenant.night_fae&!druid.no_cds
                         if not noDamageCheck("target") and ((cd.convokeTheSpirits.remains() < 5 and cd.convokeTheSpirits.remains() - gcd > 0)
-                                and useCDs() and (convoke_desync or pew_remain() < 5))
-                                and power > 40 and covenant.nightFae.active and useCDs() and mode.cov == 1
+                                and br.useCDs() and (convoke_desync or pew_remain() < 5))
+                                and power > 40 and covenant.nightFae.active and br.useCDs() and mode.cov == 1
                         then
                             if cast.starsurge("target") then
                                 br.addonDebug("[SS] - Overflow1 - cd:" .. tostring(cd.convokeTheSpirits.remains()))
@@ -1487,7 +1470,7 @@ local function runRotation()
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
-                        elseif br.player.ui.mode.forceofNature == 2 and br.isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
+                        elseif br.player.ui.mode.forceofNature == 2 and br.isChecked("Treants Key") and br.SpecificToggle("Treants Key") and not br._G.GetCurrentKeyBoardFocus() then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
@@ -1501,7 +1484,7 @@ local function runRotation()
                             if
                                 (eclipse_next == "lunar" or eclipse_next == "solar" or eclipse_next == "any" or buff.balanceOfAllThingsNature.remains() > 4.5 or
                                     buff.balanceOfAllThingsArcane.remains() > 4.5 or
-                                    power > 90 and pew_remain() == 0 and useCDs()) and
+                                    power > 90 and pew_remain() == 0 and br.useCDs()) and
                                     (pew_remain() > 30 or pew_remain() == 0)
                              then
                                 if cast.kindredSpirits("player") then
@@ -1512,11 +1495,11 @@ local function runRotation()
                     end
 
                     --pewbuff
-                    if br.getCombatTime() > 2 and useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
+                    if br.getCombatTime() > 2 and br.useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                             if
                                 (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or
-                                    hasBloodLust() and (hasBloodLustRemain() < 20)) and
+                                    br.hasBloodLust() and (br.br.hasBloodLustRemain() < 20)) and
                                     (convoke_desync or cd.convokeTheSpirits.remain() - gcd <= 0)
                              then
                                 if cast.celestialAlignment() then
@@ -1527,7 +1510,7 @@ local function runRotation()
                             if
                                 cast.able.incarnationChoseOfElune() and
                                     (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or
-                                        hasBloodLust() and (hasBloodLustRemain() < 30)) and
+                                        br.hasBloodLust() and (br.br.hasBloodLustRemain() < 30)) and
                                     (convoke_desync or cd.convokeTheSpirits.remain() - gcd <= 0)
                              then
                                 if cast.incarnationChoseOfElune() then
@@ -1536,7 +1519,7 @@ local function runRotation()
                             end
                         end
                     end
-                    local aspPerSec = int(current_eclipse == "lunar") * 8 / getCastTime(spell.starfire) + int(not current_eclipse == "lunar") * 6 / getCastTime(spell.wrath) + 0.2 / hasteAmount
+                    local aspPerSec = int(current_eclipse == "lunar") * 8 / br.getCastTime(spell.starfire) + int(not current_eclipse == "lunar") * 6 / br.getCastTime(spell.wrath) + 0.2 / hasteAmount
 
                     --Starsurge .. what is this ...  wtf
                     if not noDamageCheck("target") then
@@ -1567,7 +1550,7 @@ local function runRotation()
                                     or current_eclipse ~= "solar" and eclipse_next == "solar"
                                     or current_eclipse ~= "solar" and eclipse_next == "any"
                                     or (buff.warriorOfElune.exists() and current_eclipse == "lunar")
-                                    or ((buff.celestialAlignment.remain() < getCastTime(spell.wrath) or buff.incarnationChoseOfElune.remain() < getCastTime(spell.wrath)) and pewbuff)
+                                    or ((buff.celestialAlignment.remain() < br.getCastTime(spell.wrath) or buff.incarnationChoseOfElune.remain() < br.getCastTime(spell.wrath)) and pewbuff)
                             then
                                 --    if cast.starfire(getBiggestUnitCluster(45, 8)) then
                                 if cast.starfire("target") then
@@ -1589,7 +1572,7 @@ local function runRotation()
 
     local function defensive()
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
-        if br.isChecked("Pot/Stoned") and php <= br.getValue("Pot/Stoned") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(156634) or br.hasItem(177278)) then
+        if br.isChecked("Pot/Stoned") and php <= br.getValue("Pot/Stoned") and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(156634) or br.hasItem(177278)) then
             if br.canUseItem(177278) then
                 br.useItem(177278)
             elseif br.canUseItem(5512) then
@@ -1598,10 +1581,10 @@ local function runRotation()
                 br.useItem(156634)
             elseif br.canUseItem(169451) then
                 br.useItem(169451)
-            elseif br.canUseItem(getHealthPot()) then
-                br.useItem(getHealthPot())
-            elseif br.canUseItem(getHealthPot()) then
-                br.useItem(getHealthPot())
+            elseif br.canUseItem(br.getHealthPot()) then
+                br.useItem(br.getHealthPot())
+            elseif br.canUseItem(br.getHealthPot()) then
+                br.useItem(br.getHealthPot())
             end
         end
 
@@ -1645,12 +1628,12 @@ local function runRotation()
             end
         end
         -- Rebirth
-        if inCombat and br.isChecked("Rebirth") and cd.rebirth.remain() <= gcd and not isMoving("player") then
+        if inCombat and br.isChecked("Rebirth") and cd.rebirth.remain() <= gcd and not br.isMoving("player") then
             if br.getOptionValue("Rebirth") == 1 then
                 tanks = br.getTanksTable()
                 for i = 1, #tanks do
                     thisUnit = tanks[i].unit
-                    if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
+                    if br.GetUnitIsDeadOrGhost(thisUnit) and br._G.UnitIsPlayer(thisUnit) then
                         if cast.rebirth(thisUnit, "dead") then
                             return true
                         end
@@ -1659,7 +1642,7 @@ local function runRotation()
             elseif inCombat and br.getOptionValue("Rebirth") == 2 then
                 for i = 1, #br.friend do
                     thisUnit = br.friend[i].unit
-                    if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
+                    if br.GetUnitIsDeadOrGhost(thisUnit) and br._G.UnitGroupRolesAssigned(thisUnit) == "HEALER" and br._G.UnitIsPlayer(thisUnit) then
                         if cast.rebirth(thisUnit, "dead") then
                             return true
                         end
@@ -1668,14 +1651,14 @@ local function runRotation()
             elseif inCombat and br.getOptionValue("Rebirth") == 3 then
                 for i = 1, #br.friend do
                     thisUnit = br.friend[i].unit
-                    if UnitIsDeadOrGhost(thisUnit) and (UnitGroupRolesAssigned(thisUnit) == "TANK" or UnitGroupRolesAssigned(thisUnit) == "HEALER") and UnitIsPlayer(thisUnit) then
+                    if br.GetUnitIsDeadOrGhost(thisUnit) and (br._G.UnitGroupRolesAssigned(thisUnit) == "TANK" or br._G.UnitGroupRolesAssigned(thisUnit) == "HEALER") and br._G.UnitIsPlayer(thisUnit) then
                         if cast.rebirth(thisUnit, "dead") then
                             return true
                         end
                     end
                 end
             elseif inCombat and br.getOptionValue("Rebirth") == 4 then
-                if br.GetUnitExists("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
+                if br.GetUnitExists("mouseover") and br._GetUnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
                     if cast.rebirth("mouseover", "dead") then
                         return true
                     end
@@ -1683,7 +1666,7 @@ local function runRotation()
             elseif inCombat and br.getOptionValue("Rebirth") == 5 then
                 for i = 1, #br.friend do
                     thisUnit = br.friend[i].unit
-                    if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
+                    if br.GetUnitIsDeadOrGhost(thisUnit) and br._G.UnitIsPlayer(thisUnit) then
                         if cast.rebirth(thisUnit, "dead") then
                             return true
                         end
@@ -1700,7 +1683,7 @@ local function runRotation()
         elseif br.getOptionValue("offheal") == 3 then
             for i = 1, #br.friend do
                 thisUnit = br.friend[i].unit
-                if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
+                if br.GetUnitIsDeadOrGhost(thisUnit) and br._G.UnitGroupRolesAssigned(thisUnit) == "HEALER" and br._G.UnitIsPlayer(thisUnit) then
                     offheal = true
                 end
             end
@@ -1749,7 +1732,7 @@ local function runRotation()
     end
 
     local function interrupts()
-        if useInterrupts() then
+        if br.useInterrupts() then
             for i = 1, #enemies.yards45 do
                 thisUnit = enemies.yards45[i]
                 if br.canInterrupt(thisUnit, br.getValue("InterruptAt")) then
@@ -1798,7 +1781,7 @@ local function runRotation()
 
             if br.isChecked("Freehold - root grenadier") or br.isChecked("Atal - root Spirit of Gold") or br.isChecked("All - root Emissary of the Tides") or br.isChecked("KR - Minions of Zul") then
                 --br.addonDebug("Mob:" .. thisUnit .. " Health: " .. br.getHP(thisUnit))
-                if cast.able.massEntanglement() and not isLongTimeCCed(thisUnit) and br.getHP(thisUnit) > 90 then
+                if cast.able.massEntanglement() and not br.isLongTimeCCed(thisUnit) and br.getHP(thisUnit) > 90 then
                     if (root_UnitList[br.GetObjectID(thisUnit)] ~= nil and br.getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.massEntanglement(thisUnit) then
                             br.addonDebug("Mass Rooting:" .. thisUnit)
@@ -1806,7 +1789,7 @@ local function runRotation()
                         end
                     end
                 end
-                if cast.able.entanglingRoots() and not isLongTimeCCed(thisUnit) and br.getHP(thisUnit) > 90 then
+                if cast.able.entanglingRoots() and not br.isLongTimeCCed(thisUnit) and br.getHP(thisUnit) > 90 then
                     if (root_UnitList[br.GetObjectID(thisUnit)] ~= nil and br.getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.entanglingRoots(thisUnit) then
                             br.addonDebug("Rooting:" .. thisUnit)
@@ -1820,10 +1803,10 @@ local function runRotation()
     local function PreCombat()
         if br.isValidUnit("target") then
             -- Pre-Pull Timer
-            if br.isChecked("Pre-Pull Timer") and br.GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                if PullTimerRemain() <= br.getOptionValue("Pre-Pull Timer") then
+            if br.isChecked("Pre-Pull Timer") and br.GetObjectExists("target") and not br.GetUnitIsDeadOrGhost("target") and br._G.UnitCanAttack("target", "player") then
+                if br.PullTimerRemain() <= br.getOptionValue("Pre-Pull Timer") then
                     if mode.forms ~= 3 then
-                        if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
+                        if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not br.isMoving("player") then
                             if cast.moonkinForm() then
                                 return true
                             end
@@ -1846,26 +1829,26 @@ local function runRotation()
                 end
             end
         end
-        if br.isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
-            bossHelper()
+        if br.isChecked("Freehold - pig") and br._G.GetMinimapZoneText() == "Ring of Booty" then
+            br.bossHelper()
         end
     end
 
     local function travel_form()
-        if SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
+        if br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() then
             if not travel then
                 if cast.travelForm("Player") then
                     return true
                 end
             end
-            if SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
+            if br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() then
                 return
             end
         end
     end
 
     local function bear_form()
-        if SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+        if br.SpecificToggle("Bear Key") and not br._G.GetCurrentKeyBoardFocus() then
             if not bear then
                 if cast.bearForm("Player") then
                     return true
@@ -1877,14 +1860,14 @@ local function runRotation()
                     return true
                 end
             end
-            if SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+            if br.SpecificToggle("Bear Key") and not br._G.GetCurrentKeyBoardFocus() then
                 return
             end
         end
     end
 
     local function cat_form()
-        if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+        if br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() then
             if not cat then
                 if cast.catForm("player") then
                     return true
@@ -1913,7 +1896,7 @@ local function runRotation()
                 end
             end
 
-            if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+            if br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() then
                 return
             end
         end
@@ -1941,9 +1924,9 @@ local function runRotation()
         if br.isChecked("Auto Innervate") and inCombat and cast.able.innervate() then
             for i = 1, #br.friend do
                 if
-                    UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and br.getDistance(br.friend[i].unit) < 45 and not UnitIsDeadOrGhost(br.friend[i].unit) and
+                    br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and br.getDistance(br.friend[i].unit) < 45 and not br.GetUnitIsDeadOrGhost(br.friend[i].unit) and
                         br.getLineOfSight(br.friend[i].unit) and
-                        not hasBuff(29166, br.friend[i].unit)
+                        not br.hasBuff(29166, br.friend[i].unit)
                  then
                     if cast.innervate(br.friend[i].unit) then
                         return true
@@ -1966,36 +1949,36 @@ local function runRotation()
 
             --Resurrection
             if br.getOptionValue("Revive") == 1 then
-                if br.isChecked("Revive") and not inCombat and not isMoving("player") then
-                    if UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
+                if br.isChecked("Revive") and not inCombat and not br.isMoving("player") then
+                    if br._G.UnitIsPlayer("target") and br.GetUnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
                         if cast.revive("target", "dead") then
                             return true
                         end
                     end
                 end
             elseif br.getOptionValue("Revive") == 2 then
-                if br.GetUnitExists("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
+                if br.GetUnitExists("mouseover") and br.GetUnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
                     if cast.revive("mouseover", "dead") then
                         return true
                     end
                 end
             end
             -- Wild Growth
-            if br.isChecked("OOC Wild Growth") and not isMoving("player") and php <= br.getValue("OOC Wild Growth") then
+            if br.isChecked("OOC Wild Growth") and not br.isMoving("player") and php <= br.getValue("OOC Wild Growth") then
                 if cast.wildGrowth() then
                     return true
                 end
             end
             -- Regrowth
-            if br.isChecked("OOC Regrowth") and not isMoving("player") and php <= br.getValue("OOC Regrowth") then
+            if br.isChecked("OOC Regrowth") and not br.isMoving("player") and php <= br.getValue("OOC Regrowth") then
                 if cast.regrowth("player") then
                     return true
                 end
             end
             -- Shapeshift Form Management
             standingTime = 0
-            if DontMoveStartTime then
-                standingTime = GetTime() - DontMoveStartTime
+            if br.DontMoveStartTime then
+                standingTime = br._G.GetTime() - br.DontMoveStartTime
             end
 
             if mode.forms == 1 then
@@ -2009,60 +1992,60 @@ local function runRotation()
 
                 -- Flight Form
                 if
-                    not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > br.getOptionValue("Fall Timer")]] and br.player.level >= 58 and
+                    not inCombat and br.canFly() and not swimming and br.fallDist > 90 --[[falling > br.getOptionValue("Fall Timer")]] and br.player.level >= 58 and
                         not buff.prowl.exists()
                  then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                    if br._G.GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
-                        RunMacroText("/CancelForm")
-                        CastSpellByID(783, "player")
+                        br._G.RunMacroText("/CancelForm")
+                        br._G.CastSpellByID(783, "player")
                         return true
                     else
-                        CastSpellByID(783, "player")
+                        br._G.CastSpellByID(783, "player")
                         return true
                     end
                 end
                 -- Aquatic Form
-                if (not inCombat) --[[or br.getDistance("target") >= 10--]] and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                if (not inCombat) --[[or br.getDistance("target") >= 10--]] and swimming and not travel and not buff.prowl.exists() and br.isMoving("player") then
+                    if br._G.GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
-                        RunMacroText("/CancelForm")
-                        CastSpellByID(783, "player")
+                        br._G.RunMacroText("/CancelForm")
+                        br._G.CastSpellByID(783, "player")
                         return true
                     else
-                        CastSpellByID(783, "player")
+                        br._G.CastSpellByID(783, "player")
                         return true
                     end
                 end
                 -- Travel Form
-                if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not mount and not IsIndoors() and IsMovingTime(1) then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                        RunMacroText("/CancelForm")
-                        if br.isChecked("Use Mount Form") and not canFly() then
-                            CastSpellByID(210053, "player")
+                if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not mount and not br._G.IsIndoors() and br.IsMovingTime(1) then
+                    if br._G.GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        br._G.RunMacroText("/CancelForm")
+                        if br.isChecked("Use Mount Form") and not br.canFly() then
+                            br._G.CastSpellByID(210053, "player")
                         else
-                            CastSpellByID(783, "player")
+                            br._G.CastSpellByID(783, "player")
                         end
                         return true
                     else
-                        if br.isChecked("Use Mount Form") and not canFly() then
-                            CastSpellByID(210053, "player")
+                        if br.isChecked("Use Mount Form") and not br.canFly() then
+                            br._G.CastSpellByID(210053, "player")
                         else
-                            CastSpellByID(783, "player")
+                            br._G.CastSpellByID(783, "player")
                         end
                         return true
                     end
                 end
                 -- Cat Form
-                if not cat and not IsMounted() and not flying and IsIndoors() then
+                if not cat and not br._G.IsMounted() and not flying and br._G.IsIndoors() then
                     -- Cat Form when not swimming or flying or stag and not in combat
-                    if moving and IsMovingTime(3) and not swimming and not flying and not travel then
+                    if moving and br.IsMovingTime(3) and not swimming and not flying and not travel then
                         if cast.catForm("player") then
                             return true
                         end
                     end
                     -- Cat Form - Less Fall Damage
-                    if (not canFly() or inCombat or br.player.level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
+                    if (not br.canFly() or inCombat or br.player.level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
                         --falling > br.getOptionValue("Fall Timer") then
                         if cast.catForm("player") then
                             return true
@@ -2077,9 +2060,9 @@ local function runRotation()
     --- Rotations ---
     -----------------
     -- Pause
-    if not IsMounted() or mode.rotation == 4 then
+    if not br._G.IsMounted() or mode.rotation == 4 then
         -- br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists())
-        if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists() then
+        if drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists() then
             return true
         else
             ---------------------------------
@@ -2088,13 +2071,13 @@ local function runRotation()
             if not inCombat and not br.UnitBuffID("player", 115834) then
 
                 if mode.forms == 2 then
-                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                    if br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() then
                         cat_form()
                         return true
-                    elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+                    elseif br.SpecificToggle("Bear Key") and not br._G.GetCurrentKeyBoardFocus() then
                         bear_form()
                         return true
-                    elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
+                    elseif br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() then
                         travel_form()
                         return true
                     end
@@ -2103,7 +2086,7 @@ local function runRotation()
                 if extras() then
                     return true
                 end
-                if useDefensive() then
+                if br.useDefensive() then
                     if defensive() then
                         return true
                     end
@@ -2117,13 +2100,13 @@ local function runRotation()
             -----------------------------
             if inCombat and not br.UnitBuffID("player", 115834) then
                 if mode.forms == 2 then
-                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                    if br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() then
                         cat_form()
                         return true
-                    elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+                    elseif br.SpecificToggle("Bear Key") and not br._G.GetCurrentKeyBoardFocus() then
                         bear_form()
                         return true
-                    elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
+                    elseif br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() then
                         travel_form()
                         return true
                     end
@@ -2131,12 +2114,12 @@ local function runRotation()
                 if extras() then
                     return true
                 end
-                if useInterrupts() then
+                if br.useInterrupts() then
                     if interrupts() then
                         return true
                     end
                 end
-                if useDefensive() then
+                if br.useDefensive() then
                     if defensive() then
                         return true
                     end
@@ -2159,7 +2142,7 @@ if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
 
-tinsert(
+br._G.tinsert(
     br.rotations[id],
     {
         name = rotationName,
