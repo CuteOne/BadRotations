@@ -256,7 +256,7 @@ function br.hasThreat(unit, playerUnit)
 	end
 
 	local function threatSituation(friendlyUnit, enemyUnit)
-		if not UnitIsVisible(friendlyUnit) or not UnitIsVisible(enemyUnit) then
+		if not br._G.UnitIsVisible(friendlyUnit) or not br._G.UnitIsVisible(enemyUnit) then
 			return false
 		end
 		local _, _, threatPct = br._G.UnitDetailedThreatSituation(friendlyUnit, enemyUnit)
