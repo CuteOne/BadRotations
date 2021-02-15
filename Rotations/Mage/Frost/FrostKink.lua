@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.2.4"
+local rotationVer  = "v1.2.5"
 local colorBlue     = "|cff3FC7EB"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
@@ -128,8 +128,6 @@ local function createOptions()
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
-
-
         -- Ice Floes Delay
         br.ui:createSpinnerWithout(section, "Ice Floes Delay", 1.5, 0, 10, 0.1, "|cffFFBB00Delay between casting Ice Floes.")
 
@@ -175,6 +173,8 @@ local function createOptions()
 
         -- Predict movement
         --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
+                -- Pre-Pull Timer
+        br.ui:createCheckbox(section, "Pull OoC", "|cffFFBB00 Toggles whether or not the rotation automatically engages into combat.")
         -- Auto target
         br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
         br.ui:checkSectionState(section)
@@ -364,7 +364,7 @@ local function runRotation()
     local use = br.player.use
     local reapingDamage = getOptionValue("Reaping Flames Damage") * 1000
 
-    eunits.get(40)
+    units.get(40)
     enemies.get(10)
     enemies.get(8)
     enemies.get(8,"target") -- Makes enemies.yards8t
@@ -1821,8 +1821,6 @@ actions.st+=/frostbolt
        -- end
 
         if spellQueueReady() then
-
-
             if moving then
                 -- actions.movement+=/ice_floes,if=buff.ice_floes.down
                 if talent.iceFloes and not buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
@@ -1882,7 +1880,6 @@ actions.st+=/frostbolt
         end
 
         if not inCombat and not (IsFlying() or IsMounted()) then
-            if (not isChecked("Opener") or opener == true) then
                 if useCDs() and isChecked("Pre-Pull Logic") and GetObjectExists("target") and getDistance("target") < 40 then
                     local frostboltExecute = cast.time.frostbolt() + (getDistance("target") / 35)
                     if pullTimer <= frostboltExecute then
@@ -1897,7 +1894,8 @@ actions.st+=/frostbolt
                     end
                 end
 
-                if targetUnit and (not isChecked("Opener") or opener == true) then
+                if targetUnit then
+
                     if isChecked("Pet Management") and not talent.lonelyWinter and not UnitAffectingCombat("pet") then
                         PetAssistMode()
                         PetAttack("target")
@@ -1921,26 +1919,36 @@ actions.st+=/frostbolt
                         end
                     end
                 end
-            end
         end -- End No Combat
+
     end -- End Action List - PreCombat
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not UnitIsAFK("player") and not inCombat and not hastar and profileStop == true then
-        profileStop = false
-        elseif inCombat and IsAoEPending() then
+    if UnitIsAFK("player") and not inCombat and not hastar and profileStop==true then
+    elseif inCombat and IsAoEPending() then
         SpellStopTargeting()
         br.addonDebug("Canceling Spell")
         return false
-    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or UnitIsAFK("player") or pause(true) or isCastingSpell(293491) then
+    elseif (inCombat and profileStop==true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or UnitIsAFK("player") or pause() or mode.rotation == 4 then
         if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
         end
         return true
     else
+        if isChecked("Pull OoC") and solo and not inCombat then 
+            if not moving then
+                if br.timer:useTimer("Frostbolt delay", 1.5) then
+                    if cast.frostbolt() then br.addonDebug("Casting Frostbolt (Pull Spell)") return end
+                end
+            else
+                if br.timer:useTimer("IL Delay", 1.5) then
+                    if cast.iceLance() then br.addonDebug("Casting Ice Lance (Pull Spell)") return end
+                end
+            end
+        end
 
     -----------------------
     --- Extras Rotation ---
@@ -1960,7 +1968,7 @@ actions.st+=/frostbolt
     --------------------------
     --- In Combat Rotation ---
     --------------------------        
-        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit then
+        if inCombat and not profileStop then
 
         --------------------------
         --- Defensive Rotation ---
@@ -1993,11 +2001,6 @@ actions.st+=/frostbolt
                 elseif getOptionValue("APL Mode") == 3 then
                     if bfExists then if cast.flurry("target") then return true end end
                     if cast.iceLance("target") then return true end
-
-                    -----------------------
-                    ---     Essences    ---
-                    -----------------------
-                    if cd.global.remain() <= gcd then if actionList_Essences() then return end end
                 end
             end
         end
