@@ -1,6 +1,7 @@
 -- define br global that will hold the bot global background features
 local _, br = ...
-br._G = setmetatable({}, {__index=_G})
+br._G = setmetatable({}, {__index = _G})
+br.unlock = {}
 br.data = {}
 br.data.settings = {}
 br.addonName = "BadRotations"
@@ -214,7 +215,9 @@ function frame:OnEvent(event)
 	if event == "PLAYER_ENTERING_WORLD" then
 		-- Update Selected Spec
 		br.selectedSpecID, br.selectedSpec = _G.GetSpecializationInfo(_G.GetSpecialization())
-		if br.selectedSpec == "" then br.selectedSpec = "Initial" end
+		if br.selectedSpec == "" then
+			br.selectedSpec = "Initial"
+		end
 		br.activeSpecGroup = _G.GetActiveSpecGroup()
 		if br.data == nil then
 			br.data = {}

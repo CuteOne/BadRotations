@@ -1,5 +1,6 @@
 local _, br = ...
 local b = br._G
+local unlock = br.unlock
 local CurrentTable, OldTable
 local function copyTable(datatable)
 	local tblRes = {}
@@ -250,9 +251,9 @@ local UnlockList = {
 	"CancelLogout",
 	"StartAttack"
 }
-local function BrUnlock()
+function unlock.LBUnlock()
+	local unlocked = false
 	local lb = _G.__LB__
-	print("huy")
 	for _, val in ipairs(TagHandlerList) do
 		for _, rot in ipairs(UnlockList) do
 			if val == rot then
@@ -367,7 +368,7 @@ local function BrUnlock()
 			lb.SetPlayerAngles(arg)
 		end
 	end
-	function b.ObjectIsFacing(obj1, obj2, degrees)
+	b.ObjectIsFacing = function(obj1, obj2, degrees)
 		local Facing = lb.ObjectFacing(obj1)
 		local AngleToUnit = b.GetAnglesBetweenObjects(obj1, obj2)
 		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
@@ -398,7 +399,7 @@ local function BrUnlock()
 		return lb.WriteFile(...)
 	end
 	-- local addedOM,removedOM = {}, {}
-	function b.GetObjectCount()
+	b.GetObjectCount = function()
 		if not OldTable and not CurrentTable then
 			CurrentTable = lb.GetObjects()
 			return #CurrentTable, true, CurrentTable, {}
@@ -419,11 +420,11 @@ local function BrUnlock()
 			return #CurrentTable, true, TempTable, TempTableOld
 		end
 	end
-	function b.GetObjectWithIndex(n)
-		return CurrentTable[n]
+	b.GetObjectWithIndex = function(...)
+		return CurrentTable[...]
 	end
-	function b.GetObjectWithGUID(n)
-		return n
+	b.GetObjectWithGUID = function(...)
+		return ...
 	end
 	b.GetMousePosition = function()
 		local cur_x, cur_y = br._G.GetCursorPosition()
@@ -435,15 +436,6 @@ local function BrUnlock()
 	b.IsAoEPending = lb.IsAoEPending
 	b.ClickPosition = lb.ClickPosition
 	b.UnitBoundingRadius = lb.UnitBoundingRadius
-	br.unlocked = true
+	unlocked = true
+	return unlocked
 end
-local f = _G.CreateFrame("Frame", "BrUnlock")
-f:SetScript(
-	"OnUpdate",
-	function()
-		if not br.unlocked and _G.lb then
-			-- print("123")
-			BrUnlock()
-		end
-	end
-)

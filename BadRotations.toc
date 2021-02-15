@@ -5,7 +5,9 @@
 ## Version: 1.33.8
 
 BadRotations.lua
-System\BadRotationsPatcher.lua
+Unlockers\luabox.lua
+Unlockers\ewt.lua
+Unlockers\minibot.lua
 bindings.xml
 misc.xml
 
