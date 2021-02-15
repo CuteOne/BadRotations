@@ -273,7 +273,6 @@ br.api.unit = function(self)
         -- if (autoShoot and not IsCurrentSpell(75)) or not IsCurrentSpell(6603) then
         if autoAttackStarted == nil or not unit.inCombat() then autoAttackStarted = false end
         -- if not IsCurrentSpell(6603) then
-        br._G.StartAttack(thisUnit)
         if not autoAttackStarted then
             if autoShoot then
                 self.ui.debug("Casting Auto Shot")
@@ -282,6 +281,7 @@ br.api.unit = function(self)
             end
             autoAttackStarted = true
         end
+        return br._G.StartAttack()
     end
     -- Stop Attack
     unit.stopAttack = function()
