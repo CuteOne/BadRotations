@@ -15,17 +15,17 @@ function br:MinimapButton()
 		self:ClearAllPoints()
 		self:SetPoint("CENTER", centerX, centerY)
 	end
-	local button = br._G.CreateFrame("Button", "br.BadRotationsButton", br._G.Minimap)
-	button:SetHeight(25)
-	button:SetWidth(25)
-	button:SetFrameStrata("MEDIUM")
-	button:SetPoint("CENTER", 75.70, -6.63)
-	button:SetMovable(true)
-	button:SetUserPlaced(true)
-	button:SetNormalTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
-	button:SetPushedTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
-	button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
-	button:SetScript(
+	br.BadRotationsButton = br._G.CreateFrame("Button", "BadRotationsButton", br._G.Minimap)
+	br.BadRotationsButton:SetHeight(25)
+	br.BadRotationsButton:SetWidth(25)
+	br.BadRotationsButton:SetFrameStrata("MEDIUM")
+	br.BadRotationsButton:SetPoint("CENTER", 75.70, -6.63)
+	br.BadRotationsButton:SetMovable(true)
+	br.BadRotationsButton:SetUserPlaced(true)
+	br.BadRotationsButton:SetNormalTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
+	br.BadRotationsButton:SetPushedTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
+	br.BadRotationsButton:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
+	br.BadRotationsButton:SetScript(
 		"OnMouseDown",
 		function(self, button)
 			if button == "RightButton" then
@@ -43,13 +43,13 @@ function br:MinimapButton()
 			end
 		end
 	)
-	button:SetScript(
+	br.BadRotationsButton:SetScript(
 		"OnMouseUp",
 		function(self)
 			self:SetScript("OnUpdate", nil)
 		end
 	)
-	button:SetScript(
+	br.BadRotationsButton:SetScript(
 		"OnClick",
 		function(self, button)
 			if button == "LeftButton" then
@@ -62,14 +62,14 @@ function br:MinimapButton()
 						br.mainButton:Show()
 					end
 				elseif br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() and br._G.UnitAffectingCombat("player") then
-					br._G_.print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+					br._G_.print("Combat Lockdown detected. Unable to modify br.BadRotationsButton bar. Please try again when out of combat.")
 				elseif not br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() then
 					br.ui:toggleWindow("config")
 				end
 			end
 		end
 	)
-	button:SetScript(
+	br.BadRotationsButton:SetScript(
 		"OnEnter",
 		function(self)
 			br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
@@ -83,7 +83,7 @@ function br:MinimapButton()
 			br._G.GameTooltip:Show()
 		end
 	)
-	button:SetScript(
+	br.BadRotationsButton:SetScript(
 		"OnLeave",
 		function(self)
 			br._G.GameTooltip:Hide()
