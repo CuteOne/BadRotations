@@ -337,7 +337,7 @@ local function ferociousBiteFinish(thisUnit)
 end
 -- Primal Wrath Usable
 local function usePrimalWrath()
-    if talent.primalWrath and cast.able.primalWrath("player","aoe",1,8) and cast.safe.primalWrath("player","aoe",1,8)
+    if talent.primalWrath and cast.able.primalWrath("player","aoe",1,8)
         and ((ui.mode.rotation == 1 and #enemies.yards8 > 1) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
         and not unit.isExplosive("target")
     then
@@ -1265,7 +1265,7 @@ actionList.PreCombat = function()
             end
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-            if range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+            if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
                 unit.startAttack("target")
             end
         end
@@ -1561,7 +1561,7 @@ local function runRotation()
                     -- Primal Wrath
                     -- primal_wrath,if=druid.primal_wrath.ticks_gained_on_refresh>=20&combo_points>=2
                     if usePrimalWrath() and ticksGain.rip >= 20 and comboPoints >= 2 then
-                        if cast.primalWrath(nil,"aoe",1,8) then ui.debug("Casting Primal Wrath [High Tick Gain]") return true end
+                        if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [High Tick Gain]") return true end
                     end
                     -- Run Action List - Finisher
                     -- run_action_list,name=finisher,if=combo_points>=(5-variable.4cp_bite)

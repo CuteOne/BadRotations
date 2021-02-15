@@ -439,10 +439,10 @@ actionList.Demonic = function()
     end
     -- Throw Glaive
     -- throw_glaive,if=conduit.serrated_glaive.enabled&cooldown.eye_beam.remains<6&!buff.metamorphosis.up&!debuff.exposed_wound.up
-    if ui.checked("Throw Glaive") and cast.able.throwGlaive(nil,"aoe",1,10) and conduit.serratedGlaive.enabled and cd.eyeBeam.remains() < 6
+    if ui.checked("Throw Glaive") and cast.able.throwGlaive() and conduit.serratedGlaive.enabled and cd.eyeBeam.remains() < 6
         and not buff.metamorphosis.exists() and not debuff.exposedWound.exists(units.dyn10)
     then
-        if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
+        if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
@@ -504,8 +504,8 @@ actionList.Demonic = function()
     end
     -- Throw Glaive
     -- throw_glaive,if=buff.out_of_range.up
-    if ui.checked("Throw Glaive") and cast.able.throwGlaive(nil,"aoe",1,10) and unit.distance(units.dyn30) > 8 then
-        if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Out of Range]") return true end
+    if ui.checked("Throw Glaive") and cast.able.throwGlaive() and unit.distance(units.dyn30) > 8 then
+        if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Out of Range]") return true end
     end
     -- Fel Rush
     -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
@@ -517,8 +517,8 @@ actionList.Demonic = function()
     end
     -- Throw Glaive
     -- throw_glaive,if=talent.demon_blades.enabled
-    if ui.checked("Throw Glaive") and cast.able.throwGlaive(nil,"aoe",1,10) and talent.demonBlades then
-        if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Demon Blades]") return true end
+    if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
+        if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Demon Blades]") return true end
     end
 end -- End Action List - Demonic
 
@@ -573,8 +573,8 @@ actionList.Normal = function()
     end
     -- Throw Glaive
     -- throw_glaive,if=conduit.serrated_glaive.enabled&cooldown.eye_beam.remains<6&!buff.metamorphosis.up&!debuff.exposed_wound.up
-    if ui.checked("Throw Glaive") and cast.able.throwGlaive(nil,"aoe",1,10) and conduit.serratedGlaive and cd.eyeBeam.remains() < 6 and not buff.metamorphosis.exists() and not debuff.exposedWound.exists(units.dyn10) then
-        if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
+    if ui.checked("Throw Glaive") and cast.able.throwGlaive() and conduit.serratedGlaive and cd.eyeBeam.remains() < 6 and not buff.metamorphosis.exists() and not debuff.exposedWound.exists(units.dyn10) then
+        if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
     -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15)
@@ -650,8 +650,8 @@ actionList.Normal = function()
     end
     -- Throw Glaive
     -- throw_glaive,if=talent.demon_blades.enabled
-    if ui.checked("Throw Glaive") and cast.able.throwGlaive(nil,"aoe",1,10) and talent.demonBlades then
-        if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Demon Blades]") return true end
+    if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
+        if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Demon Blades]") return true end
     end
 end -- End Action List - Normal
 
@@ -698,7 +698,7 @@ actionList.PreCombat = function()
                     if cast.throwGlaive("target","aoe") then ui.debug("Casting Throw Glaive [Pre-Pull]") return true end
                 end
                 -- Torment
-                if cast.able.torment("target") and (cast.timeSinceLast.throwGlaive(nil,"aoe",1,10) > unit.gcd(true) or not ui.checked("Throw Glaive")) then
+                if cast.able.torment("target") and (cast.timeSinceLast.throwGlaive() > unit.gcd(true) or not ui.checked("Throw Glaive")) then
                     if cast.torment("target") then ui.debug("Casting Torment [Pre-Pull]") return true end
                 end
             end
@@ -864,8 +864,8 @@ local function runRotation()
                 end
                 -- Throw Glaive
                 -- throw_glaive,if=buff.fel_bombardment.stack=5&(buff.immolation_aura.up|!buff.metamorphosis.up)
-                if ui.checked("Throw Glaive") and cast.able.throwGlaive(nil,"aoe",1,10) and buff.felBombardment.stack() == 5 and (buff.immolationAura.exists() or not buff.metamorphosis.exists()) then
-                    if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Fel Bombardment]") return true end
+                if ui.checked("Throw Glaive") and cast.able.throwGlaive() and buff.felBombardment.stack() == 5 and (buff.immolationAura.exists() or not buff.metamorphosis.exists()) then
+                    if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Fel Bombardment]") return true end
                 end
                 -- Call Action List - Essence Break
                 -- call_action_list,name=essence_break,if=talent.essence_break.enabled&(variable.waiting_for_essence_break|debuff.essence_break.up)
