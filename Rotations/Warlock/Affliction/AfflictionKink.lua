@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.1.0"
+local VerNum  = "2.1.1"
 local var = {} 
 local dsInterrupt = false
 
@@ -87,7 +87,7 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Burning Rush Disabled", tip = "Burning Rush Disabled.", highlight = 0, icon = br.player.spell.burningRush}
     };
     CreateButton("BurningRush",1,1)
-        -- Dark Soul Button
+    -- Dark Soul Button
     DarkSoulModes = {
         [1] = { mode = "On", value = 1 , overlay = "Dark Soul with Darkglare Enabled", tip = "Dark Soul with Darkglare Enabled.", highlight = 1, icon = br.player.spell.darkSoul},
         [2] = { mode = "CDs", value = 2 , overlay = "Dark Soul with Cooldowns Enabled", tip = "Dark Soul with Cooldowns Enabled.", highlight = 1, icon = br.player.spell.darkSoul},
@@ -1939,9 +1939,9 @@ apl.DarkGlarePrep = function()
     if cast.able.vileTaint() and talent.vileTaint and not moving 
     and cd.summonDarkglare.remains() < 2
     then
-        if ClipDrainSoul()  then 
+        --if ClipDrainSoul()  then 
             if br.timer:useTimer("VTDelay", 1) and cast.vileTaint(nil,"aoe",1,8,true) then debug("[Action:Dark Glare Prep] Vile Taunt") return true end
-        end
+        --end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Dark Soul: Misery -----.:|:.-----.:|:.-----
@@ -1961,22 +1961,22 @@ apl.DarkGlarePrep = function()
     -- actions.darkglare_prep+=/berserking
     -- actions.darkglare_prep+=/fireblood
     if isChecked("Racial") and race == "Troll" or race == "Orc" or race == "DarkIronDwarf" then
-        if ClipDrainSoul()  then 
+       -- if ClipDrainSoul()  then 
             if cast.racial("player") then debug("[Action:Dark Glare Prep] Racial")
                 return true
             end
-        end
+       --  end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Intellect Potion ------.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions.darkglare_prep+=/potion
     if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
-        if ClipDrainSoul()  then 
+        --if ClipDrainSoul()  then 
             debug("[Action:Dark Glare Prep] Intellect Potion")
             use.battlePotionOfIntellect() 
             return true
-        end
+        --end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Covenant Abilities ----.:|:.-----.:|:.-----
@@ -1990,11 +1990,11 @@ apl.DarkGlarePrep = function()
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions.darkglare_prep+=/summon_darkglare
     if getSpellCD(spell.summonDarkglare) == 0 then
-        if ClipDrainSoul()  then 
+       -- if ClipDrainSoul()  then 
             CastSpellByName(GetSpellInfo(spell.summonDarkglare)) 
             debug("[Action:Dark Glare Prep] Summon Darkglare")
             return true
-        end
+     --   end
     end
 end -- End of Dark Glare Prep APL
 
@@ -2450,26 +2450,26 @@ apl.Rotation = function()
                     thisUnit = "target"
                 end
                 if getDistance(thisUnit)  <= 40 and not noDotCheck(thisUnit) and debuff.agony.remain(thisUnit) <= ui.value("Agony Refresh") and getTTD(thisUnit) > debuff.agony.remain(thisUnit) + (2/spellHaste) and (not isExhaust(thisUnit)) then
-                   if ClipDrainSoul() then 
+                   --if ClipDrainSoul() then 
                       if cast.agony(thisUnit) then br.addonDebug("[Action:Rotation] Agony [Multi-Dot-Refresh]") return true end
-                   end
+                --   end
                 end
             end
         end
     end -- Multi-Dotting Disabled
     if mode.md == 2 and not noDotCheck("target") and debuff.agony.remain("target") <= ui.value("Agony Refresh") and getTTD("target") > debuff.agony.remain("target") + (2/spellHaste) and (not isExhaust("target")) then
-        if ClipDrainSoul() then 
+        --if ClipDrainSoul() then 
             if cast.agony("target") then br.addonDebug("[Action:Rotation] Agony [ST-Refresh]") return true end
-        end
+       -- end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Haunt -------.:|:.-----.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/haunt
     if not moving then 
-        if ClipDrainSoul() then 
+       -- if ClipDrainSoul() then 
             if cast.haunt("target") then debug("[Action:Rotation] Haunt") return true end
-        end
+       -- end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- DarkGlarePrep | Venthyr ---------.:|:.-----
@@ -2511,9 +2511,9 @@ apl.Rotation = function()
     if cast.able.vileTaint() and talent.vileTaint and not moving and getTTD("target") > 10
     and (shards > 1 or #enemies.yards10t > 2) and cd.summonDarkglare.remains() > 12 
     then
-        if ClipDrainSoul() then 
+       -- if ClipDrainSoul() then 
             if br.timer:useTimer("VTDelay", 1) and cast.vileTaint(nil,"aoe",1,8,true) then debug("[Action:Rotation] Vile Taunt") return true end
-        end
+       -- end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Unstable Affliction ---.:|:.-----.:|:.-----
@@ -2521,9 +2521,9 @@ apl.Rotation = function()
     -- actions+=/unstable_affliction,if=dot.unstable_affliction.remains<4
     if talent.rampantAfflictions then 
         if not moving and (not lcast or GetTime() - lcast >= 2.5) and debuff.unstableAffliction2.remains("target") <= ui.value("UA Refresh") then
-            if ClipDrainSoul() then 
+         --   if ClipDrainSoul() then 
                 if CastSpellByName(GetSpellInfo(342938),"target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end
-            end
+           -- end
         end
     else -- We don't have rampantAfflictions 
         if not moving and (not lcast or GetTime() - lcast >= 2.5) and debuff.unstableAffliction.remains("target") < ui.value("UA Refresh") then 
@@ -3490,7 +3490,7 @@ end -- End Action List - PreCombat
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-         if inCombat and isValidUnit("target") then
+         if inCombat and hastar then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
