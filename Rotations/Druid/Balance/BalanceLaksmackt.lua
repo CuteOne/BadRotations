@@ -2062,7 +2062,7 @@ local function runRotation()
     -- Pause
     if not br._G.IsMounted() or mode.rotation == 4 then
         -- br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists())
-        if drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists() then
+        if br.pause() and drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists() then
             return true
         else
             ---------------------------------
