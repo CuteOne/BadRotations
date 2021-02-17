@@ -1,5 +1,5 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.2.1"
+local rotationVersion = "1.2.5"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 local var = {}
@@ -1417,8 +1417,8 @@ end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/shifting_power,if=buff.combustion.up&!action.fire_blast.charges&active_enemies>=variable.combustion_shifting_power&action.phoenix_flames.full_recharge_time>full_reduction,interrupt_if=action.fire_blast.charges=action.fire_blast.max_charges
         if buff.combustion.react() and charges.fireBlast.count() < 1 
-        and #enemies.yards8t >= var.combustion_shifting_power 
-        and charges.fireBlast.timeTillFull() > 4 and not charges.fireBlast.count() > 1 
+        and #enemies.yards8t >= var.num(var.combustion_shifting_power)
+        and charges.fireBlast.timeTillFull() > 4 and var.num(charges.fireBlast.count()) > 1 
         and not moving
         and getDistance("target") <= 18
         then
@@ -1965,12 +1965,12 @@ end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # When Hardcasting Flame Strike, Fire Blasts should be used to generate Hot Streaks and to extend Blaster Master.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- actions+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=!variable.fire_blast_pooling&variable.time_to_combustion>0&active_enemies>=variable.hard_cast_flamestrike&!firestarter.active&!buff.hot_streak.react&(buff.heating_up.react&action.flamestrike.execute_remains<0.5|charges_fractional>=2)
+        -- actions+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=!variable.fire_blast_pooling&variable.time_to_combustion>0
+        --&active_enemies>=variable.hard_cast_flamestrike&!firestarter.active&!buff.hot_streak.react&(buff.heating_up.react&action.flamestrike.execute_remains<0.5|charges_fractional>=2)
         if not var.fire_blast_pooling 
         and var.time_to_combustion > 0 and #enemies.yards10t >= var.hard_cast_flamestrike 
         and not talent.firestarter and not buff.hotStreak.react() 
-        and (buff.heatingUp.react and cast.current.flamestrike() 
-        and cast.timeRemain() or charges.fireBlast.frac >= 2) 
+        and (buff.heatingUp.react() and cast.current.flamestrike() and var.execute_remains or charges.fireBlast.frac() >= 2) 
         then
             if cast.fireBlast("target") then debug("[Action:Rotation] Fire Blast (Interrupt Flamestrike, extend Blaster Master)(8)") return true end 
         end 
@@ -1981,7 +1981,7 @@ end
         -- &!variable.fire_blast_pooling&(!action.fireball.executing&!action.pyroblast.in_flight&buff.heating_up.react|action.fireball.executing&!buff.hot_streak.react|action.pyroblast.in_flight&buff.heating_up.react&!buff.hot_streak.react)
         if firestarterActive and charges.fireBlast.count() >= 1 
         and not var.fire_blast_pooling and (not cast.current.fireball() 
-        and not cast.inFlight.pyroblast() and buff.heatingUp.react() or cast.current.fireball() 
+        and not cast.pyroblast.inFlight() and buff.heatingUp.react() or cast.current.fireball() 
         and not buff.hotStreak.react() or cast.inFlight.pyroblast() 
         and buff.heatingUp.react() and not buff.hotStreak.react())
         then
@@ -2052,7 +2052,7 @@ end
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation == 4 then
+        elseif (inCombat and profileStop == true) or UnitIsAFK("player") or IsMounted() or IsFlying() or pause(true) or mode.rotation ==4 then
             return true
         else
             if isChecked("Pull OoC") and solo and not inCombat then 
