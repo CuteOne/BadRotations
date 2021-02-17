@@ -22,6 +22,7 @@ br.lists.ccUnits = {
     [173016] = { name = "Corpse Collector", spell = 334748 },
     [166302] = { name = "Corpse Collector", spell = 334748 },
     [173044] = { name = "Stitching Assistant", spell = 334748 },
+    [165872] = { name = "Stitching Assistant", spell = 327130 },
     [165911] = { name = "Loyal Creation", spell = 327240 },
     [165872] = { name = "Flesh Crafter", spell = 327130 },
 

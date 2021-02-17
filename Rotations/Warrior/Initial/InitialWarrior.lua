@@ -18,8 +18,8 @@ local function createToggles()
     CreateButton("Defensive",2,0)
     -- Movement Button
     MoverModes = {
-        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", highlight = 1, icon = br.player.spell.charge},
-        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spell.charge}
+        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", tip = "Will use Charge.", highlight = 1, icon = br.player.spell.charge},
+        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spell.charge}
     };
     CreateButton("Mover", 3, 0)
 end
