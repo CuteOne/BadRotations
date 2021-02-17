@@ -15,7 +15,7 @@ br.novaEngineTables.DispelID = {
 	[145206] = {stacks = 0 }, -- Aqua Bomb(Proving Grounds)
 	[138733] = {stacks = 0 , range = 8}, -- Jin'rokh the Breaker (Ionization)
 	-- Ko'ragh
-	[142913] = {stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
+	[182185] = {stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
 	[185066] = {stacks = 0}, -- Mark of Necromancer red level
 	-- Xavius
 	[206651] = {stacks = 3}, -- Xavius Darkening Soul
@@ -51,7 +51,6 @@ br.novaEngineTables.DispelID = {
 	-- Temple of Sethraliss
 	[268008] = { stacks = 0 }, --https://www.wowhead.com/spell=268008/snake-charm
 	[268013] = { stacks = 0 }, --https://www.wowhead.com/spell=268013/flame-shock
-	[268013] = { stacks = 0 }, --https://www.wowhead.com/spell=268013/flame-shock
 	[273563] = { stacks = 0 }, --https://www.wowhead.com/spell=273563/neurotoxin
 	[272657] = { stacks = 0 }, --https://www.wowhead.com/spell=272657/noxious-breath
 	[267027] = { stacks = 0 }, --https://www.wowhead.com/spell=267027/cytotoxin
@@ -76,7 +75,7 @@ br.novaEngineTables.DispelID = {
 	[255582] = { stacks = 0 }, -- https://www.wowhead.com/spell=255582/molten-gold
 	[255041] = { stacks = 0 }, -- https://www.wowhead.com/spell=255041/terrifying-screech
 	[255371] = { stacks = 0 }, -- https://www.wowhead.com/spell=255371/terrifying-visage
-	[255371] = { stacks = 2 }, --https://www.wowhead.com/spell=250372/lingering-nausea
+	[250372] = { stacks = 2 }, --https://www.wowhead.com/spell=250372/lingering-nausea
 	-- Freehold
 	[257908] = { stacks = 0 }, -- https://www.wowhead.com/spell=257908/oiled-blade
 	[257436] = { stacks = 0 }, -- https://www.wowhead.com/spell=257436/poisoning-strike
@@ -95,7 +94,7 @@ br.novaEngineTables.DispelID = {
 	[271563] = { stacks = 0 }, -- https://www.wowhead.com/spell=271563/embalming-fluid
 	[270507] = { stacks = 0 }, -- https://www.wowhead.com/spell=270507/poison-barrage
 	-- Underrot
-	[276031] = { stacks = 2 }, -- https://www.wowhead.com/spell=265468/withering-curse
+	[265486] = { stacks = 2 }, -- https://www.wowhead.com/spell=265468/withering-curse
 	[266209] = { stacks = 0 }, -- https://www.wowhead.com/spell=266209/wicked-frenzy
 	[272180] = { stacks = 0 }, -- https://www.wowhead.com/spell=272180/death-bolt
 	[272609] = { stacks = 0 }, -- https://www.wowhead.com/spell=272609/maddening-gaze
