@@ -1266,7 +1266,6 @@ end
         and charges.fireBlast.count() < 1 
         and #enemies.yards8t >= var.num(var.combustion_shifting_power) 
         and charges.phoenixFlames.timeTillFull() > 4 
-        and not charges.fireBlast.count() > 1 
         then 
             if cast.shiftingPower("target") then debug("[Action:RoP Phase] Shifting Power (2)") return true end 
         end
@@ -1367,9 +1366,6 @@ end
         -- actions.combustion_phase+=/call_action_list,name=active_talents
         if actionList_ActiveTalents() then return end
         -- actions.combustion_phase+=/combustion,use_off_gcd=1,use_while_casting=1,if=buff.combustion.down&(!runeforge.disciplinary_command|buff.disciplinary_command.up|buff.disciplinary_command_frost.up&talent.rune_of_power&cooldown.buff_disciplinary_command.ready)&(!runeforge.grisly_icicle|debuff.grisly_icicle.up)&(action.meteor.in_flight&action.meteor.in_flight_remains<=variable.combustion_cast_remains|action.scorch.executing&action.scorch.execute_remains<variable.combustion_cast_remains|action.fireball.executing&action.fireball.execute_remains<variable.combustion_cast_remains|action.pyroblast.executing&action.pyroblast.execute_remains<variable.combustion_cast_remains|action.flamestrike.executing&action.flamestrike.execute_remains<variable.combustion_cast_remains)
-    if isChecked("Combustion") and SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() and not moving then
-        if cast.combustion("player") then br.addonDebug("[Action:Combust Phase] Combustion (Hotkey)") return true end
-    end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Other cooldowns that should be used with Combustion should only be used with an actual Combustion cast and not with a Sun King's Blessing proc.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1492,7 +1488,9 @@ end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=!conduit.infernal_cascade&charges>=1&buff.combustion.up&!buff.firestorm.react&!buff.hot_streak.react&hot_streak_spells_in_flight+buff.heating_up.react<2
         if not conduit.infernalCascade and charges.fireBlast.count() >= 1 
-        and buff.combustion.react() and not buff.firestorm.react() and not buff.hotStreak.react() 
+        and buff.combustion.react() 
+        and (runeforge.firestorm.equiped and not buff.firestorm.react() or not runeforge.firestorm.equiped) 
+        and not buff.hotStreak.react() 
         and var.num(hot_streak_spells_in_flight) + var.num(buff.heatingUp.remains()) < 2 
         then 
             if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (No Infernal Cascade) (12)") return true end 
@@ -1506,7 +1504,18 @@ end
 
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=needed_fire_blasts,op=set,value=ceil(variable.extended_combustion_remains%(buff.infernal_cascade.duration-gcd.max)),if=conduit.infernal_cascade
 
-        -- actions.combustion_phase+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=conduit.infernal_cascade&charges>=1&(variable.expected_fire_blasts>=variable.needed_fire_blasts|variable.extended_combustion_remains<=buff.infernal_cascade.duration|buff.infernal_cascade.stack<2|buff.infernal_cascade.remains<gcd.max|cooldown.shifting_power.ready&active_enemies>=variable.combustion_shifting_power&covenant.night_fae)&buff.combustion.up&(!buff.firestorm.react|buff.infernal_cascade.remains<0.5)&!buff.hot_streak.react&hot_streak_spells_in_flight+buff.heating_up.react<2
+        -- actions.combustion_phase+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=conduit.infernal_cascade&charges>=1&(variable.expected_fire_blasts>=variable.needed_fire_blasts|variable.extended_combustion_remains<=buff.infernal_cascade.duration|buff.infernal_cascade.stack<2|buff.infernal_cascade.remains<gcd.max|cooldown.shifting_power.ready
+        --&active_enemies>=variable.combustion_shifting_power&covenant.night_fae)&buff.combustion.up&(!buff.firestorm.react|buff.infernal_cascade.remains<0.5)&!buff.hot_streak.react&hot_streak_spells_in_flight+buff.heating_up.react<2
+        if conduit.infernalCascade and charges.fireBlast.count() >= 1 
+        and (var.num(var.expected_fire_blasts) >= var.num(var.needed_fire_blasts) 
+        or var.bool(var.extended_combustion_remains) <= var.num(buff.infernalCascade.duration() 
+        or buff.infernalCascade.remains() < gcdMax or cd.shiftingPower.ready() 
+        and #enemies.yards8t >= var.bool(var.combustion_shifting_power)
+        and covenant.nightFae.active) and buff.combustion.react() and runeforge.firestorm.equiped and not buff.firestorm.react() or not runeforge.firestorm.equiped 
+        or var.num(buff.infernalCascade.remains()) < 0.5) and not buff.hotStreak.react() and var.num(var.hot_streak_spells_in_flight) + var.num(buff.heatingUp.remains() < 2) 
+        then
+            if cast.fireBlast("target") then debug("Combust phase, infernal cascade bullshit") return true end 
+        end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Prepare Disciplinary Command for Combustion. Note that the Rune of Power from Combustion counts as an Arcane spell, so Arcane spells are only necessary if that talent is not used.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1514,6 +1523,7 @@ end
 
         -- actions.combustion_phase+=/arcane_explosion,if=runeforge.disciplinary_command&buff.disciplinary_command.down&buff.disciplinary_command_arcane.down&cooldown.buff_disciplinary_command.ready&!talent.rune_of_power
         if runeforge.disciplinaryCommand.equiped and not buff.disciplinaryCommand.react() and not var.bool(disciplinary_command_arcane) and not talent.runeOfPower and getDistance("target") <= 8 then
+
         end
 
         -- actions.combustion_phase+=/frostbolt,if=runeforge.disciplinary_command&buff.disciplinary_command.down&buff.disciplinary_command_frost.down
@@ -1538,9 +1548,16 @@ end
         --&action.scorch.execute_remains<variable.combustion_cast_remains|action.fireball.executing&action.fireball.execute_remains<variable.combustion_cast_remains|action.pyroblast.executing
         --&action.pyroblast.execute_remains<variable.combustion_cast_remains|action.flamestrike.executing&action.flamestrike.execute_remains<variable.combustion_cast_remains)
 
-        --if not buff.combustion.react() and cast.meteor.inFlight() and var.execute_remains <= var.combustion_cast_remains or cast.current.scorch() and var.execute_remains < var.combustion_cast_remains or cas.current.fireball() and var.execute_remains < var.combustion_cast_remains
-    
-        
+        if not buff.combustion.react() and cast.last.meteor() 
+        and var.execute_remains <= var.combustion_cast_remains 
+        or cast.current.scorch() and var.execute_remains < var.combustion_cast_remains 
+        or cast.current.fireball() and var.execute_remains < var.combustion_cast_remains
+        or cast.current.pyroblast() and var.execute_remains < var.combustion_cast_remains 
+        or cast.current.flamestrike() and var.execute_remains < var.combustion_cast_remains 
+        then
+            if cast.combustion("player") then return true end 
+
+        end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Other cooldowns that should be used with Combustion should only be used with an actual Combustion cast and not with a Sun King's Blessing proc.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
