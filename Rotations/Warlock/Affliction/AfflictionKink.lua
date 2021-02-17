@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.1.1"
+local VerNum  = "2.1.3"
 local var = {} 
 local dsInterrupt = false
 
@@ -288,6 +288,9 @@ local function createOptions ()
 		--- DEFENSIVE OPTIONS ---
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, colorPurple .."Affliction .:|:."..colorOrange.."Defensive")
+
+                -- Auto target
+                br.ui:createCheckbox(section, "Demon Armor", "|cffFFBB00 Will auto buff ourselves with demon armor")
                 -- Soulstone
 		        br.ui:createDropdown(section, "Soulstone", {"|cffFFBB00Target","|cffFFBB00Mouseover","|cffFFBB00Tank", "|cffFFBB00Healer", "|cffFFBB00Healer/Tank", "|cffFFBB00Any", "|cffFFBB00Player"},
                 1, "|cffFFBB00Target to cast on")
@@ -450,7 +453,7 @@ local function runRotation()
     local cd = br.player.cd
     local charges = br.player.charges
     local deadMouse = UnitIsDeadOrGhost("mouseover")
-    local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+    local hastar = GetObjectExists("target")
     local debuff = br.player.debuff
     local debug = br.addonDebug
     local enemies = br.player.enemies
@@ -957,7 +960,7 @@ end
         -----------------------------------------------------------------------------------------------------------------------
         182452, -- Everchill Brambles
         -----------------------------------------------------------------------------------------------------------------------
-        -- Soul Ignitor
+                -- Soul Ignitor
     }
 
     local trinketCheck = function(tbl)
@@ -3342,7 +3345,7 @@ local function actionList_PreCombat()
             end
 
             -- Create Healthstone
-            if not moving and not inCombat and ui.checked("Create Healthstone") then
+            if solo and not moving and not inCombat and ui.checked("Create Healthstone") then
                 if GetItemCount(5512) < 1 and br.timer:useTimer("CH", math.random(0.35,3.96)) then
                      if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
                 end
@@ -3355,6 +3358,8 @@ local function actionList_PreCombat()
             if mode.soc ~= 2 and not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and aoeUnits >= ui.value("Pre-Pull SoC Count") and ui.checked("Pre-Pull SoC") then
                 CastSpellByName(GetSpellInfo(spell.seedOfCorruption)) br.addonDebug("[Action:Pre-Combat] Seed of Corruption [Pre-Pull]") return
             end
+            
+         --   if ui.checked("Demon Armor") and not buff.GetSpellInfo(285933).react() and br.timer:useTimer("DA Delay", 1.5) then CastSpellByName(GetSpellInfo(285933),"player") debug("Demon Armor, but kinky...") return true end 
         end
     end -- End No Combat
 end -- End Action List - PreCombat
@@ -3469,11 +3474,11 @@ end -- End Action List - PreCombat
 
         if level == 60 then
             if ((mode.rotation == 1 and #enemies.yards40f < ui.value("Multi-Target Units")) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
-              --  if apl.drainSoulST() then return end
+              if apl.drainSoulST() then return end
             end
 
             if ((mode.rotation == 1 and #enemies.yards40f >= ui.value("Multi-Target Units")) or (mode.rotation == 2 and #enemies.yards40f > 0)) then
-              --  if apl.drainSoulAoE() then return end
+               if apl.drainSoulAoE() then return end
             end
 
         elseif level < 60 then
