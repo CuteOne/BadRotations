@@ -1689,8 +1689,7 @@ end
         -- # Adds the duration of the Sun King's Blessing Combustion to the end of the current Combustion if the cast would complete during this Combustion.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=extended_combustion_remains,op=add,value=variable.skb_duration,if=conduit.infernal_cascade&(buff.sun_kings_blessing_ready.up|variable.extended_combustion_remains>1.5*gcd.max*(buff.sun_kings_blessing.max_stack-buff.sun_kings_blessing.stack))
-      --  if conduit.infernalCascade and (buff.sunKingsBlessings.react() or var.bool(var.extended_combustion_remains > 1.5 * gcdMax * var.bool(buff.sun)))
-      --  then 
+      --  if conduit.infernalCascade and (buff.sunKingsBlessings.react() or var.bool(var.extended_combustion_remains > 1.5 * gcdMax * var.bool(buff.sun)))    --  then 
        --  extended_combustion_remains = var.skb_duration end 
         
         -- actions.combustion_phase+=/bag_of_tricks,if=buff.combustion.down
