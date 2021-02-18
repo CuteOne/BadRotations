@@ -1,7 +1,8 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.2.5"
+local rotationVersion = "1.2.7"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
+local InterruptCast = false 
 local var = {}
 
 -- Load 
@@ -76,15 +77,13 @@ local function createOptions()
         
     local GeneralOptions = function()
     -- General Options
-         section = br.ui:createSection(br.ui.window.profile, colorRed .. "Fire " .. ".:|:. General ".. "Ver|" ..colorRed .. rotationVersion .. ".:|:. ")
+         section = br.ui:createSection(br.ui.window.profile, colorWhite .. "Fire " .. colorWhite .. ".:|:. " .. colorRed .. "General ".. colorWhite.."Ver|" ..colorRed .. rotationVersion .. colorWhite..".:|:. ")
         -- Casting Interrupt Delay
             br.ui:createSpinner(section, "Casting Interrupt Delay", 0.2, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
-        -- Enemy Target Lock
-            br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
-         -- Dummy DPS Test
+        -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 1 / Max: 60 / Interval: 5")
         -- Conjure Refreshments
-        br.ui:createCheckbox(section,"Conjure Refreshments")
+            br.ui:createCheckbox(section,"Conjure Refreshments")
 
         br.ui:checkSectionState(section)
     -- Pre-Combat Options
@@ -107,8 +106,13 @@ local function createOptions()
     local AoEOptions = function()
     -- AoE Options
         section = br.ui:createSection(br.ui.window.profile, colorWhite .. "AoE " .. colorRed .. ".:|:. " .. colorWhite .. " Area of Effect")
+        -- Predict movement
+            br.ui:createCheckbox(section, "Predict Movement", "|cffFFFFFF Predict movement of units for Meteor/Flamestrike Units (works best in solo/dungeons)")
         -- AoE Meteor
-            br.ui:createSpinner(section,"Meteor Targets",  3,  1,  10,  1, "Min AoE Units")
+        -- Cataclysm Target
+            br.ui:createDropdownWithout(section, "Meteor Target", {"Target", "Best"}, 1, "|cffFFFFFFMeteor target")
+            br.ui:createSpinner(section,"Meteor Targets",  3,  1,  15,  1, "Min AoE Units")
+            br.ui:createCheckbox(section, "Ignore Meteor Targets during CDs", "|cffFFFFFFToggle Use Meteor during CDs regardless of unit count.")
             br.ui:createCheckbox(section, "Use Meteor outside ROP", "If Unchecked, will only use Meteor if ROP buff is up")
 
         -- Flamestrike
@@ -167,9 +171,6 @@ local function createOptions()
 
         -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-
-        -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
         -- Gift of The Naaru
             if br.player.race == "Draenei" then
@@ -265,7 +266,7 @@ local function createOptions()
     },
     {
         [1] = "Interrupts",
-        [2] = IntteruptOptions,
+        [2] = InterruptOptions,
     },
     {
         [1] = "Hotkeys",
@@ -343,12 +344,6 @@ local function runRotation()
 
         --cooldown.combustion.remains<action.fire_blast.full_recharge_time+cooldown.fire_blast.duration*azerite.blaster_master.enabled
         --if traits.blasterMaster then bMasterFBCRG = charges.fireBlast.timeTillFull() + fblastCDduration else bMasterFBCRG = 0 end
-
-                --Clear last cast table ooc to avoid strange casts
-        if not inCombat and #br.lastCast.tracker > 0 then
-            wipe(br.lastCast.tracker)
-        end
-
 
        var.disciplinary_command_arcane = 0;
        var.disciplinary_command_frost = 0;
@@ -837,11 +832,168 @@ end
              wipe(timersTable)
         end
 
+          --calc damge
+    local function calcDamage(spellID, unit)
+        local spellPower = GetSpellBonusDamage(5)
+        local spMod
+        local dmg = 0
+        local frostMageDmg = 0.81
+        if spellID == spell.frostbolt then
+            dmg = spellPower * 0.511
+        elseif spellID == spell.iceLance then
+            dmg = spellPower * 0.35
+            if unit.frozen then
+                dmg = dmg * 3
+            end
+        elseif spellID == spell.waterbolt then
+            dmg = spellPower * 0.75 * 0.2925
+        elseif spellID == spell.iceNova then
+            dmg = spellPower * 0.45 * 400 / 100
+        elseif spellID == spell.flurry then
+            dmg = spellPower * 0.316 * 3
+        elseif spellID == spell.ebonbolt then
+            dmg = spellPower * 3.2175
+        else
+            return 0
+        end
+        return dmg * frostMageDmg * (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+    end
+
+    local function calcHP(unit)
+        local thisUnit = unit.unit
+        local hp = UnitHealth(thisUnit)
+        if br.unlocked then --EasyWoWToolbox ~= nil then
+            local castID, _, castTarget = UnitCastID("player")
+            if castID and castTarget and GetUnitIsUnit(unit, castTarget) and playerCasting then
+                hp = hp - calcDamage(castID, unit)
+            end
+            for k, v in pairs(spell.abilities) do
+                if br.InFlight.Check(v, thisUnit) then
+                    hp = hp - calcDamage(v, unit)
+                end
+            end
+            -- if UnitIsVisible("pet") then
+            --     castID, _, castTarget = UnitCastID("pet")
+            --     if castID and castTarget and UnitIsUnit(unit, castTarget) and UnitCastingInfo("pet") then
+            --         local castRemain = (select(5, UnitCastingInfo("pet")) / 1000) - GetTime()
+            --         if castRemain < 0.5 then
+            --             hp = hp - calcDamage(castID, unit)
+            --         end
+            --     end
+            -- end
+        end
+        return hp
+    end
+
+            --local enemies table with extra data
+    local facingUnits = 0
+    local enemyTable40 = {}
+    if #enemies.yards40 > 0 then
+        local highestHP
+        local lowestHP
+        local distance20Max
+        local distance20Min
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if GetUnitIsUnit(thisUnit, "target") and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or GetUnitIsUnit(thisUnit, "target")) then
+                local enemyUnit = {}
+                enemyUnit.unit = thisUnit
+                enemyUnit.ttd = ttd(thisUnit)
+                enemyUnit.distance = getDistance(thisUnit)
+                enemyUnit.distance20 = math.abs(enemyUnit.distance - 20)
+                enemyUnit.hpabs = UnitHealth(thisUnit)
+                enemyUnit.facing = getFacing("player", thisUnit)
+                if getOptionValue("APL Mode") == 2 then
+                    enemyUnit.frozen = isFrozen(thisUnit)
+                end
+                enemyUnit.calcHP = calcHP(enemyUnit)
+                tinsert(enemyTable40, enemyUnit)
+                if enemyUnit.facing then
+                    facingUnits = facingUnits + 1
+                end
+                if highestHP == nil or highestHP < enemyUnit.hpabs then
+                    highestHP = enemyUnit.hpabs
+                end
+                if lowestHP == nil or lowestHP > enemyUnit.hpabs then
+                    lowestHP = enemyUnit.hpabs
+                end
+                if distance20Max == nil or distance20Max < enemyUnit.distance20 then
+                    distance20Max = enemyUnit.distance20
+                end
+                if distance20Min == nil or distance20Min > enemyUnit.distance20 then
+                    distance20Min = enemyUnit.distance20
+                end
+            end
+        end
+        if #enemyTable40 > 1 then
+            for i = 1, #enemyTable40 do
+                local hpNorm = (5 - 1) / (highestHP - lowestHP) * (enemyTable40[i].hpabs - highestHP) + 5 -- normalization of HP value, high is good
+                if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0 / 0) then
+                    hpNorm = 0
+                end -- NaN check
+                local distance20Norm = (3 - 1) / (distance20Max - distance20Min) * (enemyTable40[i].distance20 - distance20Min) + 1 -- normalization of distance 20, low is good
+                if distance20Norm ~= distance20Norm or tostring(distance20Norm) == tostring(0 / 0) then
+                    distance20Norm = 0
+                end -- NaN check
+                local enemyScore = hpNorm + distance20Norm
+                if enemyTable40[i].facing then
+                    enemyScore = enemyScore + 10
+                end
+                if enemyTable40[i].ttd > 1.5 then
+                    enemyScore = enemyScore + 10
+                end
+                enemyTable40[i].enemyScore = enemyScore
+            end
+            table.sort(
+                enemyTable40,
+                function(x, y)
+                    return x.enemyScore > y.enemyScore
+                end
+            )
+        end
+        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and (UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
+            TargetUnit(enemyTable40[1].unit)
+            return true
+        end
+        for i = 1, #enemyTable40 do
+            if UnitIsUnit(enemyTable40[i].unit, "target") then
+                targetUnit = enemyTable40[i]
+            end
+        end
+    end
+
         --Clear last cast table ooc to avoid strange casts
         if not inCombat and #br.lastCast.tracker > 0 then
             wipe(br.lastCast.tracker)
         end
+        -- spell usable check
+        local function spellUsable(spellID)
+            if isKnown(spellID) and not select(2, IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 then
+                return true
+            end
+            return false
+        end
+        ---Target move timer
+        if lastTargetX == nil then lastTargetX, lastTargetY, lastTargetZ = 0,0,0 end
+            targetMoveCheck = targetMoveCheck or false
+            if br.timer:useTimer("targetMove", math.random(0.2,0.8)) or combatTime < 0.2 then
+                if GetObjectExists("target") then
+                local currentX, currentY, currentZ = GetObjectPosition("target")
+                local targetMoveDistance = math.sqrt(((currentX-lastTargetX)^2)+((currentY-lastTargetY)^2)+((currentZ-lastTargetZ)^2))
+                lastTargetX, lastTargetY, lastTargetZ = GetObjectPosition("target")
+                if targetMoveDistance < 3 then targetMoveCheck = true else targetMoveCheck = false end
+            end
+        end
 
+        --Tank move check for aoe
+        local tankMoving = false
+        if inInstance then
+            for i = 1, #br.friend do
+                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and isMoving(br.friend[i].unit) then
+                    tankMoving = true
+                end
+            end
+        end
 
         local dispelDelay = 1.5
         if isChecked("Dispel delay") then
@@ -993,6 +1145,35 @@ end
                 end
             end
         end
+
+         --Remove Curse, Yoinked from Aura balance
+            if isChecked("Remove Curse") then
+                if getOptionValue("Remove Curse") == 1 then
+                    if canDispel("player",spell.removeCurse) then
+                        if cast.removeCurse("player") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 2 then
+                    if canDispel("target",spell.removeCurse) then
+                        if cast.removeCurse("target") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 3 then
+                    if canDispel("player",spell.removeCurse) then
+                        if cast.removeCurse("player") then return true end
+                    elseif canDispel("target",spell.removeCurse) then
+                        if cast.removeCurse("target") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 4 then
+                    if canDispel("mouseover",spell.removeCurse) then
+                        if cast.removeCurse("mouseover") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 5 then
+                    for i = 1, #br.friend do
+                        if canDispel(br.friend[i].unit,spell.removeCurse) then
+                            if cast.removeCurse(br.friend[i].unit) then return true end
+                        end
+                    end
+                end
+            end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
         
@@ -1066,8 +1247,8 @@ end
                 
             -- Conjure Refreshments
             if solo and not moving and not inCombat and ui.checked("Conjure Refreshments") then
-                if GetItemCount(5512) < 1 and br.timer:useTimer("CR", math.random(0.35,2.6)) then
-                     if cast.createHealthstone() then br.addonDebug("Casting Conjure Refreshments" ) return true end
+                if GetItemCount(113509) < 1 and br.timer:useTimer("CR", math.random(0.35,1.4)) then
+                     if CastSpellByName(GetSpellInfo(190336)) then br.addonDebug("Casting Conjure Refreshments" ) return true end
                 end
             end
 
@@ -1139,11 +1320,46 @@ end
         or talent.runeOfPower and buff.runeOfpower.react() 
         and var.time_to_combustion > cd.meteor.remains() or ttd("target") < var.time_to_combustion 
         then
-            if createCastFunction("best", false, 1, 8, spell.meteor, nil, false, 0) and TargetLastEnemy() then teorLast = true
+            if createCastFunction("best", false, 1, 8, spell.meteor, nil, false, 0) and TargetLastEnemy() then 
+                teorLast = true
                 debug("[Action:Talents] Meteor")
                 return true 
             end
-        end
+
+            if ui.value("Meteor Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.meteor, nil, false, 0) and TargetLastEnemy() then 
+                        teorLast = true debug("[Action:Talents] Meteor") return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.meteor, nil, false, 0) and TargetLastEnemy() then 
+                        teorLast = true debug("[Action:Talents] Meteor") return true 
+                    end
+                end
+            elseif ui.value("Meteor Target") == 2 then
+                if useCDs() and ui.checked("Ignore Cataclysm units when using CDs") then
+                    if ui.checked("Predict Movement") then
+                        if cast.meteor("best",false,1,8,true) then
+                            teorLast = true debug("[Action:Talents] Meteor") return true 
+                        end
+                    else
+                        if cast.meteor("best",false,1,8) then
+                            teorLast = true debug("[Action:Talents] Meteor") return true 
+                        end 
+                    end
+                else 
+                    if ui.checked("Predict Movement") then
+                        if cast.meteor("best",false,1,8,true) then
+                            teorLast = true debug("[Action:Talents] Meteor") return true 
+                        end
+                    else
+                        if cast.meteor("best",false,1,8) then
+                            teorLast = true debug("[Action:Talents] Meteor") return true 
+                        end 
+                    end
+                end 
+            end
+        end -- End SimC Meteor APL
         -- actions.active_talents+=/dragons_breath,if=talent.alexstraszas_fury&(buff.combustion.down&!buff.hot_streak.react)
         if talent.alexstraszasFury and (not buff.combustion.react() and not buff.hotStreak.react()) and getDistance("target") <= 8 then
             if cast.dragonsBreath("player") then debug("[Action:Talents] Dragon's Breath") return true end  
@@ -1302,7 +1518,7 @@ end
         and buff.combustion.react() or not buff.combustion.react() 
         and cd.combustion.remains() < cast.time.scorch() 
         then
-            if cast.scorch("target") then debug("[Action:Combust Phase] Scorch ()") return true end
+            if cast.scorch("target") then return true end
         end
         -- actions.combustion_phase+=/living_bomb,if=buff.combustion.remains<gcd.max&active_enemies>1
         if talent.livingBomb and buff.combustion.remains() < gcdMax and #enemies.yards10t > 1 then
@@ -1473,8 +1689,7 @@ end
         -- # Adds the duration of the Sun King's Blessing Combustion to the end of the current Combustion if the cast would complete during this Combustion.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=extended_combustion_remains,op=add,value=variable.skb_duration,if=conduit.infernal_cascade&(buff.sun_kings_blessing_ready.up|variable.extended_combustion_remains>1.5*gcd.max*(buff.sun_kings_blessing.max_stack-buff.sun_kings_blessing.stack))
-      --  if conduit.infernalCascade and (buff.sunKingsBlessings.react() or var.bool(var.extended_combustion_remains > 1.5 * gcdMax * var.bool(buff.sun)))
-      --  then 
+      --  if conduit.infernalCascade and (buff.sunKingsBlessings.react() or var.bool(var.extended_combustion_remains > 1.5 * gcdMax * var.bool(buff.sun)))    --  then 
        --  extended_combustion_remains = var.skb_duration end 
         
         -- actions.combustion_phase+=/bag_of_tricks,if=buff.combustion.down
@@ -1556,7 +1771,6 @@ end
         or cast.current.flamestrike() and var.execute_remains < var.combustion_cast_remains 
         then
             if cast.combustion("player") then return true end 
-
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Other cooldowns that should be used with Combustion should only be used with an actual Combustion cast and not with a Sun King's Blessing proc.
@@ -1614,7 +1828,7 @@ end
             if cast.phoenixFlames("player") then debug("[Action:Combust Phase] Phoenix Flames ()") return true end 
         end
         -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
-        debug("[Action:Combust Phase] Scorch ()")
+        --debug("[Action:Combust Phase] Scorch ()")
         if not buff.combustion.react() and cd.combustion.remains() < cast.time.flamestrike() 
         and #enemies.yards6t >= var.combustion_flamestrike 
         and not moving 
@@ -1634,12 +1848,12 @@ end
             if cast.fireball("target") then debug("[Action:Combust Phase] Fireball ()") return true end 
         end
         -- actions.combustion_phase+=/scorch,if=buff.combustion.remains>cast_time&buff.combustion.up|buff.combustion.down&cooldown.combustion.remains<cast_time
-        if buff.combustion.remains() > cast.time.scorch() 
+        --[[if buff.combustion.remains() > cast.time.scorch() 
         and buff.combustion.react() or not buff.combustion.react() 
         and cd.combustion.remains() < cast.time.scorch() 
         then
             if cast.scorch("target") then debug("[Action:Combust Phase] Scorch (combustion)") return true end
-        end
+        end]]
         -- actions.combustion_phase+=/living_bomb,if=buff.combustion.remains<gcd.max&active_enemies>1
         if #enemies.yards8t > 1 and buff.combustion.remains() < gcdMax
         then
@@ -1994,9 +2208,15 @@ end
         if cast.current.shiftingPower() and charges.fireBlast.timeTillFull() < 4 and buff.hotStreak.react() and combatTime > 10 and InterruptCast(spell.shiftingPower) then
             if cast.fireBlast("target")then debug("[Action:Rotation] Fire Blast (10)") return true end 
         end
-        -- actions+=/scorch
-            if cast.scorch("target") then debug("[Action:Rotation] Scorch Filler (11)") return true end 
 
+        -- actions+=/scorch
+        if cast.fireball("target") then debug("[Action:Rotation] Fireball Filler (11)") return true end 
+        if (not buff.combustion.exists() and not cast.last.combustion()) 
+        and (not buff.runeOfPower.exists() 
+        and not cast.last.runeOfPower()) 
+        then --and not cast.current.fireball() then ----[[and not buff.heatingUp.exists()--]] and not buff.hotStreak.exists() then --]]
+            if cast.fireball("target") then fballLast = true debug("[Action:Rotation] Fireball Filler (12)") return true end
+        end
 
         -- actions+=/call_action_list,name=combustion_phase,if=variable.time_to_combustion<=0
         if (mode.combustion ~= 4 and var.time_to_combustion <= 0) then
@@ -2057,13 +2277,13 @@ end
         else
             if isChecked("Pull OoC") and solo and not inCombat then 
                 if not moving and hastar and UnitCanAttack("target", "player") and not UnitIsDeadOrGhost("target") then
-                   -- if br.timer:useTimer("target", 1.5) then
+                    if br.timer:useTimer("target", math.random(0.2,1.5)) then
                         if cast.fireball("target") then br.addonDebug("Casting Fireball (Pull Spell)") return end
-                  --  end
-                else
-                  --  if br.timer:useTimer("Scorch Delay", 1.5) then
+                    end
+                elseif moving and hastar and UnitCanAttack("target", "player") and not UnitIsDeadOrGhost("target") then
+                    if br.timer:useTimer("Scorch Delay", math.random(0.2,1.5)) then
                         if cast.scorch("target") then br.addonDebug("Casting Scorch (Pull Spell)") return end
-                  --  end
+                    end
                 end
             end
 -----------------------
@@ -2130,6 +2350,7 @@ end
                     end
                 end
 
+                
                     if actionList_Rotation() then return end 
 
 
