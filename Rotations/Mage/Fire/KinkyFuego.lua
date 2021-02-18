@@ -1,5 +1,5 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.2.6"
+local rotationVersion = "1.2.7"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 local InterruptCast = false 
@@ -110,7 +110,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Predict Movement", "|cffFFFFFF Predict movement of units for Meteor/Flamestrike Units (works best in solo/dungeons)")
         -- AoE Meteor
         -- Cataclysm Target
-            br.ui:createDropdownWithout(section, "Meteor Target", {"Target", "Best", "Cursor"}, 1, "|cffFFFFFFCataclysm target")
+            br.ui:createDropdownWithout(section, "Meteor Target", {"Target", "Best"}, 1, "|cffFFFFFFMeteor target")
             br.ui:createSpinner(section,"Meteor Targets",  3,  1,  15,  1, "Min AoE Units")
             br.ui:createCheckbox(section, "Ignore Meteor Targets during CDs", "|cffFFFFFFToggle Use Meteor during CDs regardless of unit count.")
             br.ui:createCheckbox(section, "Use Meteor outside ROP", "If Unchecked, will only use Meteor if ROP buff is up")
@@ -1829,7 +1829,7 @@ end
             if cast.phoenixFlames("player") then debug("[Action:Combust Phase] Phoenix Flames ()") return true end 
         end
         -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
-        debug("[Action:Combust Phase] Scorch ()")
+        --debug("[Action:Combust Phase] Scorch ()")
         if not buff.combustion.react() and cd.combustion.remains() < cast.time.flamestrike() 
         and #enemies.yards6t >= var.combustion_flamestrike 
         and not moving 
@@ -1849,12 +1849,12 @@ end
             if cast.fireball("target") then debug("[Action:Combust Phase] Fireball ()") return true end 
         end
         -- actions.combustion_phase+=/scorch,if=buff.combustion.remains>cast_time&buff.combustion.up|buff.combustion.down&cooldown.combustion.remains<cast_time
-        if buff.combustion.remains() > cast.time.scorch() 
+        --[[if buff.combustion.remains() > cast.time.scorch() 
         and buff.combustion.react() or not buff.combustion.react() 
         and cd.combustion.remains() < cast.time.scorch() 
         then
             if cast.scorch("target") then debug("[Action:Combust Phase] Scorch (combustion)") return true end
-        end
+        end]]
         -- actions.combustion_phase+=/living_bomb,if=buff.combustion.remains<gcd.max&active_enemies>1
         if #enemies.yards8t > 1 and buff.combustion.remains() < gcdMax
         then
@@ -2211,8 +2211,13 @@ end
         end
 
         -- actions+=/scorch
-        if cast.scorch("target") then debug("[Action:Rotation] Scorch Filler (11)") return true end 
-
+        if cast.fireball("target") then debug("[Action:Rotation] Fireball Filler (11)") return true end 
+        if (not buff.combustion.exists() and not cast.last.combustion()) 
+        and (not buff.runeOfPower.exists() 
+        and not cast.last.runeOfPower()) 
+        then --and not cast.current.fireball() then ----[[and not buff.heatingUp.exists()--]] and not buff.hotStreak.exists() then --]]
+            if cast.fireball("target") then fballLast = true debug("[Action:Rotation] Fireball Filler (12)") return true end
+        end
 
         -- actions+=/call_action_list,name=combustion_phase,if=variable.time_to_combustion<=0
         if (mode.combustion ~= 4 and var.time_to_combustion <= 0) then
@@ -2276,7 +2281,7 @@ end
                     if br.timer:useTimer("target", math.random(0.2,1.5)) then
                         if cast.fireball("target") then br.addonDebug("Casting Fireball (Pull Spell)") return end
                     end
-                elseif not moving and hastar and UnitCanAttack("target", "player") and not UnitIsDeadOrGhost("target") then
+                elseif moving and hastar and UnitCanAttack("target", "player") and not UnitIsDeadOrGhost("target") then
                     if br.timer:useTimer("Scorch Delay", math.random(0.2,1.5)) then
                         if cast.scorch("target") then br.addonDebug("Casting Scorch (Pull Spell)") return end
                     end
