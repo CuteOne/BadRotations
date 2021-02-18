@@ -5,57 +5,57 @@ local rotationName = "Laksmackt" -- Change to name of profile listed in options 
 local function createToggles()
     -- Cooldown Button
     local CooldownModes = {
-        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection", highlight = 0, icon = br.player.spell.tranquility},
-        [2] = {mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target", highlight = 0, icon = br.player.spell.tranquility},
-        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used", highlight = 0, icon = br.player.spell.tranquility}
+        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection", highlight = 0, icon = br.player.spell.tranquility },
+        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target", highlight = 0, icon = br.player.spell.tranquility },
+        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used", highlight = 0, icon = br.player.spell.tranquility }
     }
 
-    br.ui:createToggle(CooldownModes,"Cooldown", 1, 0)
+    br.ui:createToggle(CooldownModes, "Cooldown", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns", highlight = 0, icon = br.player.spell.barkskin},
-        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used", highlight = 0, icon = br.player.spell.barkskin}
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns", highlight = 0, icon = br.player.spell.barkskin },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used", highlight = 0, icon = br.player.spell.barkskin }
     }
-    br.ui:createToggle(DefensiveModes,"Defensive", 2, 0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
     -- Decurse Button
     local DecurseModes = {
-        [1] = {mode = "On", value = 1, overlay = "Decurse Enabled", tip = "Decurse Enabled", highlight = 0, icon = br.player.spell.naturesCure},
-        [2] = {mode = "Off", value = 2, overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.naturesCure}
+        [1] = { mode = "On", value = 1, overlay = "Decurse Enabled", tip = "Decurse Enabled", highlight = 0, icon = br.player.spell.naturesCure },
+        [2] = { mode = "Off", value = 2, overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.naturesCure }
     }
-    br.ui:createToggle(DecurseModes,"Decurse", 3, 0)
+    br.ui:createToggle(DecurseModes, "Decurse", 3, 0)
     -- Interrupt Button
     local InterruptModes = {
-        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 0, icon = br.player.spell.mightyBash},
-        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mightyBash}
+        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 0, icon = br.player.spell.mightyBash },
+        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mightyBash }
     }
-    br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
     -- DPS Button
     local DPSModes = {
-        [1] = {mode = "On", value = 1, overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 0, icon = br.player.spell.sunfire},
-        [2] = {mode = "Off", value = 2, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.sunfire}
+        [1] = { mode = "On", value = 1, overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 0, icon = br.player.spell.sunfire },
+        [2] = { mode = "Off", value = 2, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.sunfire }
     }
-    br.ui:createToggle(DPSModes,"DPS", 1, -1)
+    br.ui:createToggle(DPSModes, "DPS", 1, -1)
 
     local FormsModes = {
-        [1] = {mode = "On", value = 1, overlay = "Auto Forms Enabled", tip = "Will change forms", highlight = 0, icon = br.player.spell.travelForm},
-        [2] = {mode = "Key", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm},
-        [3] = {mode = "Off", value = 3, overlay = "Auto Forms Disabled", tip = "Will Not change forms", highlight = 0, icon = br.player.spell.travelForm}
+        [1] = { mode = "On", value = 1, overlay = "Auto Forms Enabled", tip = "Will change forms", highlight = 0, icon = br.player.spell.travelForm },
+        [2] = { mode = "Key", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm },
+        [3] = { mode = "Off", value = 3, overlay = "Auto Forms Disabled", tip = "Will Not change forms", highlight = 0, icon = br.player.spell.travelForm }
     }
-    br.ui:createToggle(FormsModes,"Forms", 5, 0)
+    br.ui:createToggle(FormsModes, "Forms", 5, 0)
 
     -- Rejuvenation Button
     local PrehotModes = {
-        [1] = {mode = "On", value = 1, overlay = "Pre-Hot", tip = "Pre-hot Enabled", highlight = 0, icon = br.player.spell.rejuvenation},
-        [2] = {mode = "Tank", value = 2, overlay = "Pre-Hot", tip = "Pre-hot on TANK", highlight = 0, icon = br.player.spell.rejuvenation},
-        [3] = {mode = "Off", value = 3, overlay = "Pre-Hot", tip = "Pre-hots disabled", highlight = 0, icon = br.player.spell.rejuvenation}
+        [1] = { mode = "On", value = 1, overlay = "Pre-Hot", tip = "Pre-hot Enabled", highlight = 0, icon = br.player.spell.rejuvenation },
+        [2] = { mode = "Tank", value = 2, overlay = "Pre-Hot", tip = "Pre-hot on TANK", highlight = 0, icon = br.player.spell.rejuvenation },
+        [3] = { mode = "Off", value = 3, overlay = "Pre-Hot", tip = "Pre-hots disabled", highlight = 0, icon = br.player.spell.rejuvenation }
     }
-    br.ui:createToggle(PrehotModes,"Prehot", 5, -1)
+    br.ui:createToggle(PrehotModes, "Prehot", 5, -1)
 
     local HEALSModes = {
-        [1] = {mode = "On", value = 1, overlay = "Heals Enabled", tip = "Heals Enabled", highlight = 0, icon = 145108},
-        [2] = {mode = "Off", value = 2, overlay = "Heals Disabled", tip = "Heals Disabled", highlight = 0, icon = 145108}
+        [1] = { mode = "On", value = 1, overlay = "Heals Enabled", tip = "Heals Enabled", highlight = 0, icon = 145108 },
+        [2] = { mode = "Off", value = 2, overlay = "Heals Disabled", tip = "Heals Disabled", highlight = 0, icon = 145108 }
     }
-    br.ui:createToggle(HEALSModes,"HEALS", 0, -1)
+    br.ui:createToggle(HEALSModes, "HEALS", 0, -1)
 end
 
 ---------------
@@ -72,7 +72,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
         br.ui:createDropdownWithout(section, "Owl Key", br.dropOptions.Toggle, 6, "Set a key for Owl/DPS form")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
-        br.ui:createDropdownWithout(section, "Auto Forms", {"Any", "Travel Forms", "Cat Form"}, 1, "|cffFFFFFFSelect the forms you want to use while moving")
+        br.ui:createDropdownWithout(section, "Auto Forms", { "Any", "Travel Forms", "Cat Form" }, 1, "|cffFFFFFFSelect the forms you want to use while moving")
         br.ui:createCheckbox(section, "Use Mount Form", "Uses the Mount Form for ground travel.", 1)
         br.ui:createCheckbox(section, "Cat Charge", "Use Wild Charge to close distance.", 1)
         br.ui:createCheckbox(section, "Break form for critical", "", 1)
@@ -92,12 +92,12 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Pots")
         br.ui:createCheckbox(section, "Auto use Pots")
         br.ui:createDropdownWithout(
-            section,
-            "Pots - burst healing",
-            {"None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury"},
-            1,
-            "",
-            "Use Pot when Incarnation/Celestial Alignment is up"
+                section,
+                "Pots - burst healing",
+                { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" },
+                1,
+                "",
+                "Use Pot when Incarnation/Celestial Alignment is up"
         )
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
@@ -105,7 +105,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
         br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
-        br.ui:createDropdown(section, "Convoke Spirits", {"DPS", "HEAL", "BOTH", "Manual"}, 3, "How to use Convoke Spirits")
+        br.ui:createDropdown(section, "Convoke Spirits", { "DPS", "HEAL", "BOTH", "Manual" }, 3, "How to use Convoke Spirits")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Heals")
@@ -145,16 +145,16 @@ local function createOptions()
         br.ui:createSpinner(section, "Auto Soothe", 1, 0, 100, 5, "TTD for soothing")
         br.ui:createSpinner(section, "Ironbark", 30, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createDropdownWithout(
-            section,
-            "Ironbark Target",
-            {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"},
-            7,
-            "|cffFFFFFFcast Ironbark Target"
+                section,
+                "Ironbark Target",
+                { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny" },
+                7,
+                "|cffFFFFFFcast Ironbark Target"
         )
         br.ui:createSpinner(section, "Auto Innervate", 10, 0, 100, 50, "Mana Percent to Cast At")
-        br.ui:createDropdown(section, "Revive", {"Target", "Mouseover"}, 1, "|ccfFFFFFFTarget to Cast On")
+        br.ui:createDropdown(section, "Revive", { "Target", "Mouseover" }, 1, "|ccfFFFFFFTarget to Cast On")
         -- Rebirth
-        br.ui:createDropdown(section, "Rebirth", {"Target", "Mouseover", "Tank", "Healer", "Healer/Tank", "Any"}, 1, "|cffFFFFFFTarget to cast on")
+        br.ui:createDropdown(section, "Rebirth", { "Target", "Mouseover", "Tank", "Healer", "Healer/Tank", "Any" }, 1, "|cffFFFFFFTarget to cast on")
         br.ui:createCheckbox(section, "Auto mass Resurrection")
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
 
@@ -175,10 +175,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Trinkets")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 1 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP"}, 1, "", "")
+        br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP" }, 1, "", "")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 2 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP", "DPS target"}, 1, "", "")
+        br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP", "DPS target" }, 1, "", "")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -325,273 +325,273 @@ local fishfeast = 0
 
 local precast_spell_list = {
     --spell_id	, precast_time	,	spell_name
-    {214652, 5, "Acidic Fragments"},
-    {205862, 5, "Slam"},
-    {259832, 1.5, "Massive Glaive - Stormbound Conqueror (Warport Wastari, Zuldazar, for testing purpose only)"},
-    {218774, 5, "Summon Plasma Spheres"},
-    {206949, 5, "Frigid Nova"},
-    {206517, 5, "Fel Nova"},
-    {207720, 5, "Witness the Void"},
-    {206219, 5, "Liquid Hellfire"},
-    {211439, 5, "Will of the Demon Within"},
-    {209270, 5, "Eye of Guldan"},
-    {227071, 5, "Flame Crash"},
-    {233279, 5, "Shattering Star"},
-    {233441, 5, "Bone Saw"},
-    {235230, 5, "Fel Squall"},
-    {231854, 5, "Unchecked Rage"},
-    {232174, 5, "Frosty Discharge"},
-    {230139, 5, "Hydra Shot"},
-    {233264, 5, "Embrace of the Eclipse"},
-    {236542, 5, "Sundering Doom"},
-    {236544, 5, "Doomed Sundering"},
-    {235059, 5, "Rupturing Singularity"},
-    {288693, 3, "Tormented Soul - Grave Bolt (Reaping affix)"},
-    {262347, 5, "Static Pulse"},
-    {302420, 5, "Queen's Decree: Hide"},
-    {260333, 7, "Tantrum - Underrot 2nd boss"},
-    {255577, 5, "Transfusion"}, -- https://www.wowhead.com/spell=255577/transfusion
-    {259732, 5, "Festering Harvest"}, --https://www.wowhead.com/spell=259732/festering-harvest
-    {285388, 5, "Vent Jets"}, --https://www.wowhead.com/spell=285388/vent-jets
-    {291626, 3, "Cutting Beam"}, --https://www.wowhead.com/spell=291626/cutting-beam
-    {300207, 3, "shock-coil"}, -- https://www.wowhead.com/spell=300207/shock-coil
-    {297261, 5, "rumble"}, -- https://www.wowhead.com/spell=297261/rumble
-    {262347, 5, "pulse"} --https://www.wowhead.com/spell=262347/static-pulse
+    { 214652, 5, "Acidic Fragments" },
+    { 205862, 5, "Slam" },
+    { 259832, 1.5, "Massive Glaive - Stormbound Conqueror (Warport Wastari, Zuldazar, for testing purpose only)" },
+    { 218774, 5, "Summon Plasma Spheres" },
+    { 206949, 5, "Frigid Nova" },
+    { 206517, 5, "Fel Nova" },
+    { 207720, 5, "Witness the Void" },
+    { 206219, 5, "Liquid Hellfire" },
+    { 211439, 5, "Will of the Demon Within" },
+    { 209270, 5, "Eye of Guldan" },
+    { 227071, 5, "Flame Crash" },
+    { 233279, 5, "Shattering Star" },
+    { 233441, 5, "Bone Saw" },
+    { 235230, 5, "Fel Squall" },
+    { 231854, 5, "Unchecked Rage" },
+    { 232174, 5, "Frosty Discharge" },
+    { 230139, 5, "Hydra Shot" },
+    { 233264, 5, "Embrace of the Eclipse" },
+    { 236542, 5, "Sundering Doom" },
+    { 236544, 5, "Doomed Sundering" },
+    { 235059, 5, "Rupturing Singularity" },
+    { 288693, 3, "Tormented Soul - Grave Bolt (Reaping affix)" },
+    { 262347, 5, "Static Pulse" },
+    { 302420, 5, "Queen's Decree: Hide" },
+    { 260333, 7, "Tantrum - Underrot 2nd boss" },
+    { 255577, 5, "Transfusion" }, -- https://www.wowhead.com/spell=255577/transfusion
+    { 259732, 5, "Festering Harvest" }, --https://www.wowhead.com/spell=259732/festering-harvest
+    { 285388, 5, "Vent Jets" }, --https://www.wowhead.com/spell=285388/vent-jets
+    { 291626, 3, "Cutting Beam" }, --https://www.wowhead.com/spell=291626/cutting-beam
+    { 300207, 3, "shock-coil" }, -- https://www.wowhead.com/spell=300207/shock-coil
+    { 297261, 5, "rumble" }, -- https://www.wowhead.com/spell=297261/rumble
+    { 262347, 5, "pulse" } --https://www.wowhead.com/spell=262347/static-pulse
 }
 --end of dbm list
 local debuff_list = {
     --junkyard
-    {spellID = 298669, stacks = 0, secs = 1}, -- Taze
+    { spellID = 298669, stacks = 0, secs = 1 }, -- Taze
     -- Uldir
-    {spellID = 262313, stacks = 0, secs = 5}, -- Malodorous Miasma
-    {spellID = 262314, stacks = 0, secs = 3}, -- Putrid Paroxysm
-    {spellID = 264382, stacks = 0, secs = 1}, -- Eye Beam
-    {spellID = 264210, stacks = 0, secs = 5}, -- Jagged Mandible
-    {spellID = 265360, stacks = 0, secs = 5}, -- Roiling Deceit
-    {spellID = 265129, stacks = 0, secs = 5}, -- Omega Vector
-    {spellID = 266948, stacks = 0, secs = 5}, -- Plague Bomb
-    {spellID = 274358, stacks = 0, secs = 5}, -- Rupturing Blood
-    {spellID = 274019, stacks = 0, secs = 1}, -- Mind Flay
-    {spellID = 272018, stacks = 0, secs = 1}, -- Absorbed in Darkness
-    {spellID = 273359, stacks = 0, secs = 5}, -- Shadow Barrage
+    { spellID = 262313, stacks = 0, secs = 5 }, -- Malodorous Miasma
+    { spellID = 262314, stacks = 0, secs = 3 }, -- Putrid Paroxysm
+    { spellID = 264382, stacks = 0, secs = 1 }, -- Eye Beam
+    { spellID = 264210, stacks = 0, secs = 5 }, -- Jagged Mandible
+    { spellID = 265360, stacks = 0, secs = 5 }, -- Roiling Deceit
+    { spellID = 265129, stacks = 0, secs = 5 }, -- Omega Vector
+    { spellID = 266948, stacks = 0, secs = 5 }, -- Plague Bomb
+    { spellID = 274358, stacks = 0, secs = 5 }, -- Rupturing Blood
+    { spellID = 274019, stacks = 0, secs = 1 }, -- Mind Flay
+    { spellID = 272018, stacks = 0, secs = 1 }, -- Absorbed in Darkness
+    { spellID = 273359, stacks = 0, secs = 5 }, -- Shadow Barrage
     -- Freehold
-    {spellID = 257437, stacks = 0, secs = 5}, -- Poisoning Strike
-    {spellID = 267523, stacks = 0, secs = 5}, -- Cutting Surge
-    {spellID = 256363, stacks = 0, secs = 5}, -- Ripper Punch
+    { spellID = 257437, stacks = 0, secs = 5 }, -- Poisoning Strike
+    { spellID = 267523, stacks = 0, secs = 5 }, -- Cutting Surge
+    { spellID = 256363, stacks = 0, secs = 5 }, -- Ripper Punch
     -- Shrine of the Storm
-    {spellID = 264526, stacks = 0, secs = 5}, -- Grasp from the Depths
-    {spellID = 264166, stacks = 0, secs = 1}, -- Undertow
-    {spellID = 268214, stacks = 0, secs = 1}, -- Carve Flesh
-    {spellID = 276297, stacks = 0, secs = 5}, -- Void Seed
-    {spellID = 268322, stacks = 0, secs = 5}, -- Touch of the Drowned
+    { spellID = 264526, stacks = 0, secs = 5 }, -- Grasp from the Depths
+    { spellID = 264166, stacks = 0, secs = 1 }, -- Undertow
+    { spellID = 268214, stacks = 0, secs = 1 }, -- Carve Flesh
+    { spellID = 276297, stacks = 0, secs = 5 }, -- Void Seed
+    { spellID = 268322, stacks = 0, secs = 5 }, -- Touch of the Drowned
     -- Siege of Boralus
-    {spellID = 256897, stacks = 0, secs = 5}, -- Clamping Jaws
-    {spellID = 273470, stacks = 0, secs = 3}, -- Gut Shot
-    {spellID = 275014, stacks = 0, secs = 5}, -- Putrid Waters
+    { spellID = 256897, stacks = 0, secs = 5 }, -- Clamping Jaws
+    { spellID = 273470, stacks = 0, secs = 3 }, -- Gut Shot
+    { spellID = 275014, stacks = 0, secs = 5 }, -- Putrid Waters
     -- Tol Dagor
-    {spellID = 258058, stacks = 0, secs = 1}, -- Squeeze
-    {spellID = 260016, stacks = 0, secs = 3}, -- Itchy Bite
-    {spellID = 260067, stacks = 0, secs = 5}, -- Vicious Mauling
-    {spellID = 258864, stacks = 0, secs = 5}, -- Suppression Fire
-    {spellID = 258917, stacks = 0, secs = 3}, -- Righteous Flames
-    {spellID = 256198, stacks = 0, secs = 5}, -- Azerite Rounds: Incendiary
-    {spellID = 256105, stacks = 0, secs = 1}, -- Explosive Burst
+    { spellID = 258058, stacks = 0, secs = 1 }, -- Squeeze
+    { spellID = 260016, stacks = 0, secs = 3 }, -- Itchy Bite
+    { spellID = 260067, stacks = 0, secs = 5 }, -- Vicious Mauling
+    { spellID = 258864, stacks = 0, secs = 5 }, -- Suppression Fire
+    { spellID = 258917, stacks = 0, secs = 3 }, -- Righteous Flames
+    { spellID = 256198, stacks = 0, secs = 5 }, -- Azerite Rounds: Incendiary
+    { spellID = 256105, stacks = 0, secs = 1 }, -- Explosive Burst
     -- Waycrest Manor
-    {spellID = 266035, stacks = 0, secs = 1}, -- Bone Splinter
-    {spellID = 260703, stacks = 0, secs = 1}, -- Unstable Runic Mark
-    {spellID = 260741, stacks = 0, secs = 1}, -- Jagged Nettles
-    {spellID = 264050, stacks = 0, secs = 3}, -- Infected Thorn
-    {spellID = 264556, stacks = 0, secs = 2}, -- Tearing Strike
-    {spellID = 264150, stacks = 0, secs = 1}, -- Shatter
-    {spellID = 265761, stacks = 0, secs = 1}, -- Thorned Barrage
-    {spellID = 263905, stacks = 0, secs = 1}, -- Marking Cleave
-    {spellID = 264153, stacks = 0, secs = 3}, -- Spit
-    {spellID = 278456, stacks = 0, secs = 3}, -- Infest
-    {spellID = 271178, stacks = 0, secs = 3}, -- Ravaging Leap
-    {spellID = 265880, stacks = 0, secs = 1}, -- Dread Mark
-    {spellID = 265882, stacks = 0, secs = 1}, -- Lingering Dread
-    {spellID = 264378, stacks = 0, secs = 5}, -- Fragment Soul
-    {spellID = 261438, stacks = 0, secs = 1}, -- Wasting Strike
-    {spellID = 261440, stacks = 0, secs = 1}, -- Virulent Pathogen
-    {spellID = 268202, stacks = 0, secs = 1}, -- Death Lens
+    { spellID = 266035, stacks = 0, secs = 1 }, -- Bone Splinter
+    { spellID = 260703, stacks = 0, secs = 1 }, -- Unstable Runic Mark
+    { spellID = 260741, stacks = 0, secs = 1 }, -- Jagged Nettles
+    { spellID = 264050, stacks = 0, secs = 3 }, -- Infected Thorn
+    { spellID = 264556, stacks = 0, secs = 2 }, -- Tearing Strike
+    { spellID = 264150, stacks = 0, secs = 1 }, -- Shatter
+    { spellID = 265761, stacks = 0, secs = 1 }, -- Thorned Barrage
+    { spellID = 263905, stacks = 0, secs = 1 }, -- Marking Cleave
+    { spellID = 264153, stacks = 0, secs = 3 }, -- Spit
+    { spellID = 278456, stacks = 0, secs = 3 }, -- Infest
+    { spellID = 271178, stacks = 0, secs = 3 }, -- Ravaging Leap
+    { spellID = 265880, stacks = 0, secs = 1 }, -- Dread Mark
+    { spellID = 265882, stacks = 0, secs = 1 }, -- Lingering Dread
+    { spellID = 264378, stacks = 0, secs = 5 }, -- Fragment Soul
+    { spellID = 261438, stacks = 0, secs = 1 }, -- Wasting Strike
+    { spellID = 261440, stacks = 0, secs = 1 }, -- Virulent Pathogen
+    { spellID = 268202, stacks = 0, secs = 1 }, -- Death Lens
     -- Atal'Dazar
-    {spellID = 253562, stacks = 0, secs = 3}, -- Wildfire
-    {spellID = 254959, stacks = 0, secs = 2}, -- Soulburn
-    {spellID = 255558, stacks = 0, secs = 5}, -- Tainted Blood
-    {spellID = 255814, stacks = 0, secs = 5}, -- Rending Maul
-    {spellID = 250372, stacks = 0, secs = 5}, -- Lingering Nausea
-    {spellID = 250096, stacks = 0, secs = 1}, -- Wracking Pain
-    {spellID = 256577, stacks = 0, secs = 5}, -- Soulfeast
+    { spellID = 253562, stacks = 0, secs = 3 }, -- Wildfire
+    { spellID = 254959, stacks = 0, secs = 2 }, -- Soulburn
+    { spellID = 255558, stacks = 0, secs = 5 }, -- Tainted Blood
+    { spellID = 255814, stacks = 0, secs = 5 }, -- Rending Maul
+    { spellID = 250372, stacks = 0, secs = 5 }, -- Lingering Nausea
+    { spellID = 250096, stacks = 0, secs = 1 }, -- Wracking Pain
+    { spellID = 256577, stacks = 0, secs = 5 }, -- Soulfeast
     -- King's Rest
-    {spellID = 269932, stacks = 0, secs = 3}, -- Gust Slash
-    {spellID = 265773, stacks = 0, secs = 4}, -- Spit Gold
-    {spellID = 270084, stacks = 0, secs = 3}, -- Axe Barrage
-    {spellID = 270865, stacks = 0, secs = 3}, -- Hidden Blade
-    {spellID = 270289, stacks = 0, secs = 3}, -- Purification Beam
-    {spellID = 271564, stacks = 0, secs = 3}, -- Embalming
-    {spellID = 267618, stacks = 0, secs = 3}, -- Drain Fluids
-    {spellID = 270487, stacks = 0, secs = 3}, -- Severing Blade
-    {spellID = 270507, stacks = 0, secs = 5}, -- Poison Barrage
-    {spellID = 266231, stacks = 0, secs = 3}, -- Severing Axe
-    {spellID = 267273, stacks = 0, secs = 3}, -- Poison Nova
-    {spellID = 268419, stacks = 0, secs = 3}, -- Gale Slash
+    { spellID = 269932, stacks = 0, secs = 3 }, -- Gust Slash
+    { spellID = 265773, stacks = 0, secs = 4 }, -- Spit Gold
+    { spellID = 270084, stacks = 0, secs = 3 }, -- Axe Barrage
+    { spellID = 270865, stacks = 0, secs = 3 }, -- Hidden Blade
+    { spellID = 270289, stacks = 0, secs = 3 }, -- Purification Beam
+    { spellID = 271564, stacks = 0, secs = 3 }, -- Embalming
+    { spellID = 267618, stacks = 0, secs = 3 }, -- Drain Fluids
+    { spellID = 270487, stacks = 0, secs = 3 }, -- Severing Blade
+    { spellID = 270507, stacks = 0, secs = 5 }, -- Poison Barrage
+    { spellID = 266231, stacks = 0, secs = 3 }, -- Severing Axe
+    { spellID = 267273, stacks = 0, secs = 3 }, -- Poison Nova
+    { spellID = 268419, stacks = 0, secs = 3 }, -- Gale Slash
     -- MOTHERLODE!!
-    {spellID = 269298, stacks = 0, secs = 1}, -- Widowmaker
-    {spellID = 262347, stacks = 0, secs = 1}, -- Static Pulse
-    {spellID = 263074, stacks = 0, secs = 3}, -- Festering Bite
-    {spellID = 262270, stacks = 0, secs = 1}, -- Caustic Compound
-    {spellID = 262794, stacks = 0, secs = 1}, -- Energy Lash
-    {spellID = 259853, stacks = 0, secs = 3}, -- Chemical Burn
-    {spellID = 269092, stacks = 0, secs = 1}, -- Artillery Barrage
-    {spellID = 262348, stacks = 0, secs = 1}, -- Mine Blast
-    {spellID = 260838, stacks = 0, secs = 1}, -- Homing Missile
+    { spellID = 269298, stacks = 0, secs = 1 }, -- Widowmaker
+    { spellID = 262347, stacks = 0, secs = 1 }, -- Static Pulse
+    { spellID = 263074, stacks = 0, secs = 3 }, -- Festering Bite
+    { spellID = 262270, stacks = 0, secs = 1 }, -- Caustic Compound
+    { spellID = 262794, stacks = 0, secs = 1 }, -- Energy Lash
+    { spellID = 259853, stacks = 0, secs = 3 }, -- Chemical Burn
+    { spellID = 269092, stacks = 0, secs = 1 }, -- Artillery Barrage
+    { spellID = 262348, stacks = 0, secs = 1 }, -- Mine Blast
+    { spellID = 260838, stacks = 0, secs = 1 }, -- Homing Missile
     -- Temple of Sethraliss
-    {spellID = 263371, stacks = 0, secs = 1}, -- Conduction
-    {spellID = 272657, stacks = 0, secs = 3}, -- Noxious Breath
-    {spellID = 267027, stacks = 0, secs = 1}, -- Cytotoxin
-    {spellID = 272699, stacks = 0, secs = 3}, -- Venomous Spit
-    {spellID = 268013, stacks = 0, secs = 5}, -- Flame Shock
+    { spellID = 263371, stacks = 0, secs = 1 }, -- Conduction
+    { spellID = 272657, stacks = 0, secs = 3 }, -- Noxious Breath
+    { spellID = 267027, stacks = 0, secs = 1 }, -- Cytotoxin
+    { spellID = 272699, stacks = 0, secs = 3 }, -- Venomous Spit
+    { spellID = 268013, stacks = 0, secs = 5 }, -- Flame Shock
     -- Underrot
-    {spellID = 265019, stacks = 0, secs = 1}, -- Savage Cleave
-    {spellID = 265568, stacks = 0, secs = 1}, -- Dark Omen
-    {spellID = 260685, stacks = 0, secs = 5}, -- Taint of G'huun
-    {spellID = 278961, stacks = 0, secs = 5}, -- Decaying Mind
-    {spellID = 260455, stacks = 0, secs = 1}, -- Serrated Fangs
-    {spellID = 273226, stacks = 0, secs = 1}, -- Decaying Spores
-    {spellID = 269301, stacks = 0, secs = 5}, -- Putrid Blood
+    { spellID = 265019, stacks = 0, secs = 1 }, -- Savage Cleave
+    { spellID = 265568, stacks = 0, secs = 1 }, -- Dark Omen
+    { spellID = 260685, stacks = 0, secs = 5 }, -- Taint of G'huun
+    { spellID = 278961, stacks = 0, secs = 5 }, -- Decaying Mind
+    { spellID = 260455, stacks = 0, secs = 1 }, -- Serrated Fangs
+    { spellID = 273226, stacks = 0, secs = 1 }, -- Decaying Spores
+    { spellID = 269301, stacks = 0, secs = 5 }, -- Putrid Blood
     -- all
-    {spellID = 302421, stacks = 0, secs = 5} -- Queen's Decree
+    { spellID = 302421, stacks = 0, secs = 5 } -- Queen's Decree
 }
 local pre_hot_list = {
     --snipe list
     --Battle of Dazar'alor
-    [283572] = {targeted = true}, --"Sacred Blade"
-    [284578] = {targeted = true}, --"Penance"
-    [286988] = {targeted = true}, --Divine Burst"
-    [282036] = {targeted = true}, --"Fireball"
-    [282182] = {targeted = false}, --"Buster Cannon"
+    [283572] = { targeted = true }, --"Sacred Blade"
+    [284578] = { targeted = true }, --"Penance"
+    [286988] = { targeted = true }, --Divine Burst"
+    [282036] = { targeted = true }, --"Fireball"
+    [282182] = { targeted = false }, --"Buster Cannon"
     --Uldir
-    [279669] = {targeted = false}, --"Bacterial Outbreak"
-    [279660] = {targeted = false}, --"Endemic Virus"
-    [274262] = {targeted = false}, --"Explosive Corruption"
+    [279669] = { targeted = false }, --"Bacterial Outbreak"
+    [279660] = { targeted = false }, --"Endemic Virus"
+    [274262] = { targeted = false }, --"Explosive Corruption"
     --Reaping
-    [288693] = {targeted = true}, --"Grave Bolt",
+    [288693] = { targeted = true }, --"Grave Bolt",
     --Atal'Dazar
-    [250096] = {targeted = true}, --"Wracking Pain"
-    [253562] = {targeted = true}, --"Wildfire"
-    [252781] = {targeted = true}, --"Unstable Hex"
-    [252923] = {targeted = true}, --"Venom Blast"
-    [253239] = {targeted = true}, -- Dazarai Juggernaut - Merciless Assault },
-    [256846] = {targeted = true}, --'Dinomancer Kisho - Deadeye Aim'},
-    [257407] = {targeted = true}, -- Rezan - Pursuit},
+    [250096] = { targeted = true }, --"Wracking Pain"
+    [253562] = { targeted = true }, --"Wildfire"
+    [252781] = { targeted = true }, --"Unstable Hex"
+    [252923] = { targeted = true }, --"Venom Blast"
+    [253239] = { targeted = true }, -- Dazarai Juggernaut - Merciless Assault },
+    [256846] = { targeted = true }, --'Dinomancer Kisho - Deadeye Aim'},
+    [257407] = { targeted = true }, -- Rezan - Pursuit},
     --Kings Rest
-    [267618] = {targeted = true}, --"Drain Fluids"
-    [267308] = {targeted = true}, --"Lighting Bolt"
-    [270493] = {targeted = true}, --"Spectral Bolt"
-    [269973] = {targeted = true}, --"Deathly Chill"
-    [270923] = {targeted = true}, --"Shadow Bolt"
-    [272388] = {targeted = true}, --"Shadow Barrage"
-    [266231] = {targeted = true}, -- Kula the Butcher - Severing Axe},
-    [270507] = {targeted = true}, --  Spectral Beastmaster - Poison Barrage},
-    [265773] = {targeted = true}, -- The Golden Serpent - Spit Gold},
-    [270506] = {targeted = true}, -- Spectral Beastmaster - Deadeye Shot},
-    [270487] = {targeted = true}, -- https://www.wowhead.com/spell=270487/severing-blade
-    [268586] = {targeted = true}, -- https://www.wowhead.com/spell=268586/blade-combo
+    [267618] = { targeted = true }, --"Drain Fluids"
+    [267308] = { targeted = true }, --"Lighting Bolt"
+    [270493] = { targeted = true }, --"Spectral Bolt"
+    [269973] = { targeted = true }, --"Deathly Chill"
+    [270923] = { targeted = true }, --"Shadow Bolt"
+    [272388] = { targeted = true }, --"Shadow Barrage"
+    [266231] = { targeted = true }, -- Kula the Butcher - Severing Axe},
+    [270507] = { targeted = true }, --  Spectral Beastmaster - Poison Barrage},
+    [265773] = { targeted = true }, -- The Golden Serpent - Spit Gold},
+    [270506] = { targeted = true }, -- Spectral Beastmaster - Deadeye Shot},
+    [270487] = { targeted = true }, -- https://www.wowhead.com/spell=270487/severing-blade
+    [268586] = { targeted = true }, -- https://www.wowhead.com/spell=268586/blade-combo
     --Free Hold
-    [259092] = {targeted = true}, --"Lightning Bolt"
-    [281420] = {targeted = true}, --"Water Bolt"
-    [257267] = {targeted = false}, --"Swiftwind Saber"
-    [257739] = {targeted = true}, -- Blacktooth Scrapper - Blind Rage},
-    [258338] = {targeted = true}, -- Captain Raoul - Blackout Barrel},
-    [256979] = {targeted = true}, -- Captain Eudora - Powder Shot},
+    [259092] = { targeted = true }, --"Lightning Bolt"
+    [281420] = { targeted = true }, --"Water Bolt"
+    [257267] = { targeted = false }, --"Swiftwind Saber"
+    [257739] = { targeted = true }, -- Blacktooth Scrapper - Blind Rage},
+    [258338] = { targeted = true }, -- Captain Raoul - Blackout Barrel},
+    [256979] = { targeted = true }, -- Captain Eudora - Powder Shot},
     --Siege of Boralus
-    [272588] = {targeted = true}, --"Rotting Wounds"
-    [272827] = {targeted = false}, --"Viscous Slobber"
-    [257883] = {targeted = false}, -- "Break Water"
-    [257063] = {targeted = true}, --"Brackish Bolt"
-    [272571] = {targeted = true}, --"Choking Waters"
-    [257641] = {targeted = true}, -- Kul Tiran Marksman - Molten Slug},
-    [272874] = {targeted = true}, -- Ashvane Commander - Trample},
-    [272581] = {targeted = true}, -- Bilge Rat Tempest - Water Spray},
-    [272528] = {targeted = true}, -- Ashvane Sniper - Shoot},
-    [272542] = {targeted = true}, -- Ashvane Sniper - Ricochet},
+    [272588] = { targeted = true }, --"Rotting Wounds"
+    [272827] = { targeted = false }, --"Viscous Slobber"
+    [257883] = { targeted = false }, -- "Break Water"
+    [257063] = { targeted = true }, --"Brackish Bolt"
+    [272571] = { targeted = true }, --"Choking Waters"
+    [257641] = { targeted = true }, -- Kul Tiran Marksman - Molten Slug},
+    [272874] = { targeted = true }, -- Ashvane Commander - Trample},
+    [272581] = { targeted = true }, -- Bilge Rat Tempest - Water Spray},
+    [272528] = { targeted = true }, -- Ashvane Sniper - Shoot},
+    [272542] = { targeted = true }, -- Ashvane Sniper - Ricochet},
     -- Temple of Sethraliss
-    [263775] = {targeted = true}, --"Gust"
-    [263365] = {targeted = true}, --"https://www.wowhead.com/spell=263365/a-peal-of-thunder"
-    [268013] = {targeted = true}, --"Flame Shock"
-    [272699] = {targeted = true}, --"Venomous Spit"
-    [268703] = {targeted = true}, -- Charged Dust Devil - Lightning Bolt},
-    [272670] = {targeted = true}, -- Sandswept Marksman - Shoot},
-    [267278] = {targeted = true}, -- Static-charged Dervish - Electrocute},
-    [272820] = {targeted = true}, -- Spark Channeler - Shock},
-    [274642] = {targeted = true}, -- Hoodoo Hexer - Lava Burst},
-    [268061] = {targeted = true}, -- Plague Doctor - Chain Lightning},
+    [263775] = { targeted = true }, --"Gust"
+    [263365] = { targeted = true }, --"https://www.wowhead.com/spell=263365/a-peal-of-thunder"
+    [268013] = { targeted = true }, --"Flame Shock"
+    [272699] = { targeted = true }, --"Venomous Spit"
+    [268703] = { targeted = true }, -- Charged Dust Devil - Lightning Bolt},
+    [272670] = { targeted = true }, -- Sandswept Marksman - Shoot},
+    [267278] = { targeted = true }, -- Static-charged Dervish - Electrocute},
+    [272820] = { targeted = true }, -- Spark Channeler - Shock},
+    [274642] = { targeted = true }, -- Hoodoo Hexer - Lava Burst},
+    [268061] = { targeted = true }, -- Plague Doctor - Chain Lightning},
     --Shrine of the Storm
-    [268347] = {targeted = true}, --"Void Bolt"
-    [267969] = {targeted = true}, --"Water Blast"
-    [268233] = {targeted = true}, --"Electrifying Shock"
-    [268315] = {targeted = true}, --"Lash"
-    [268177] = {targeted = true}, --"Windblast"
-    [268273] = {targeted = true}, --"Deep Smash"
-    [268317] = {targeted = true}, --"Rip Mind"
-    [265001] = {targeted = true}, --"Sea Blast"
-    [274703] = {targeted = true}, --"Void Bolt"
-    [264166] = {targeted = true}, -- Aqusirr - Undertow},
-    [268214] = {targeted = true}, -- Runecarver Sorn - Carve Flesh},
+    [268347] = { targeted = true }, --"Void Bolt"
+    [267969] = { targeted = true }, --"Water Blast"
+    [268233] = { targeted = true }, --"Electrifying Shock"
+    [268315] = { targeted = true }, --"Lash"
+    [268177] = { targeted = true }, --"Windblast"
+    [268273] = { targeted = true }, --"Deep Smash"
+    [268317] = { targeted = true }, --"Rip Mind"
+    [265001] = { targeted = true }, --"Sea Blast"
+    [274703] = { targeted = true }, --"Void Bolt"
+    [264166] = { targeted = true }, -- Aqusirr - Undertow},
+    [268214] = { targeted = true }, -- Runecarver Sorn - Carve Flesh},
     --Motherlode
-    [259856] = {targeted = true}, --"Chemical Burn"
-    [260318] = {targeted = true}, --"Alpha Cannon"
-    [262268] = {targeted = true}, --"Caustic Compound"
-    [263262] = {targeted = true}, --"Shale Spit"
-    [263628] = {targeted = true}, --"Charged Claw"
-    [268185] = {targeted = true}, -- Refreshment Vendor, Iced Spritzer},
-    [258674] = {targeted = true}, -- Off-Duty Laborer - Throw Wrench},
-    [276304] = {targeted = true}, -- Rowdy Reveler - Penny For Your Thoughts},
-    [263209] = {targeted = true}, -- Mine Rat - Throw Rock},
-    [263202] = {targeted = true}, -- Venture Co. Earthshaper - Rock Lance},
-    [262794] = {targeted = true}, -- Venture Co. Mastermind - Energy Lash},
-    [260669] = {targeted = true}, -- Rixxa Fluxflame - Propellant Blast},
-    [271456] = {targeted = true}, -- https://www.wowhead.com/spell=271456/drill-smash},
+    [259856] = { targeted = true }, --"Chemical Burn"
+    [260318] = { targeted = true }, --"Alpha Cannon"
+    [262268] = { targeted = true }, --"Caustic Compound"
+    [263262] = { targeted = true }, --"Shale Spit"
+    [263628] = { targeted = true }, --"Charged Claw"
+    [268185] = { targeted = true }, -- Refreshment Vendor, Iced Spritzer},
+    [258674] = { targeted = true }, -- Off-Duty Laborer - Throw Wrench},
+    [276304] = { targeted = true }, -- Rowdy Reveler - Penny For Your Thoughts},
+    [263209] = { targeted = true }, -- Mine Rat - Throw Rock},
+    [263202] = { targeted = true }, -- Venture Co. Earthshaper - Rock Lance},
+    [262794] = { targeted = true }, -- Venture Co. Mastermind - Energy Lash},
+    [260669] = { targeted = true }, -- Rixxa Fluxflame - Propellant Blast},
+    [271456] = { targeted = true }, -- https://www.wowhead.com/spell=271456/drill-smash},
     --Underrot
-    [260879] = {targeted = true}, --"Blood Bolt"
-    [265084] = {targeted = true}, --"Blood Bolt"
-    [259732] = {targeted = false}, --"Festering Harvest"
-    [266209] = {targeted = false}, --"Wicked Frenzy"
-    [265376] = {targeted = true}, -- Fanatical Headhunter - Barbed Spear},
-    [265625] = {targeted = true}, -- Befouled Spirit - Dark Omen},
+    [260879] = { targeted = true }, --"Blood Bolt"
+    [265084] = { targeted = true }, --"Blood Bolt"
+    [259732] = { targeted = false }, --"Festering Harvest"
+    [266209] = { targeted = false }, --"Wicked Frenzy"
+    [265376] = { targeted = true }, -- Fanatical Headhunter - Barbed Spear},
+    [265625] = { targeted = true }, -- Befouled Spirit - Dark Omen},
     --Tol Dagor
-    [257777] = {targeted = true}, --"Crippling Shiv"
-    [258150] = {targeted = true}, --"Salt Blast"
-    [258869] = {targeted = true}, --"Blaze"
-    [256039] = {targeted = true}, -- Overseer Korgus - Deadeye},
-    [185857] = {targeted = true}, -- Ashvane Spotter - Shoot},
+    [257777] = { targeted = true }, --"Crippling Shiv"
+    [258150] = { targeted = true }, --"Salt Blast"
+    [258869] = { targeted = true }, --"Blaze"
+    [256039] = { targeted = true }, -- Overseer Korgus - Deadeye},
+    [185857] = { targeted = true }, -- Ashvane Spotter - Shoot},
     --work shop_
-    [294195] = {targeted = true}, --https://www.wowhead.com/spell=294195/arcing-zap
-    [293827] = {targeted = true}, --https://www.wowhead.com/spell=293827/giga-wallop
-    [292264] = {targeted = true}, -- https://www.wowhead.com/spell=292264/giga-zap
+    [294195] = { targeted = true }, --https://www.wowhead.com/spell=294195/arcing-zap
+    [293827] = { targeted = true }, --https://www.wowhead.com/spell=293827/giga-wallop
+    [292264] = { targeted = true }, -- https://www.wowhead.com/spell=292264/giga-zap
     --junk yard
-    [300650] = {targeted = true}, --https://www.wowhead.com/spell=300650/suffocating-smog
-    [299438] = {targeted = true}, --https://www.wowhead.com/spell=299438/sledgehammer
-    [300188] = {targeted = true}, -- https://www.wowhead.com/spell=300188/scrap-cannon#used-by-npc
-    [302682] = {targeted = true}, --https://www.wowhead.com/spell=302682/mega-taze
+    [300650] = { targeted = true }, --https://www.wowhead.com/spell=300650/suffocating-smog
+    [299438] = { targeted = true }, --https://www.wowhead.com/spell=299438/sledgehammer
+    [300188] = { targeted = true }, -- https://www.wowhead.com/spell=300188/scrap-cannon#used-by-npc
+    [302682] = { targeted = true }, --https://www.wowhead.com/spell=302682/mega-taze
     --Waycrest Manor
-    [260701] = {targeted = true}, --"Bramble Bolt"
-    [260700] = {targeted = true}, --"Ruinous Bolt"
-    [261438] = {targeted = true}, --"Wasting Strike"
-    [266225] = {targeted = true}, --Darkened Lightning"
-    [273653] = {targeted = true}, --"Shadow Claw"
-    [265881] = {targeted = true}, --"Decaying Touch"
-    [264153] = {targeted = true}, --"Spit"
-    [278444] = {targeted = true}, --"Infest"
-    [167385] = {targeted = true}, --"Infest"
-    [263891] = {targeted = true}, -- Heartsbane Vinetwister - Grasping Thorns},
-    [264510] = {targeted = true}, -- Crazed Marksman - Shoot},
-    [260699] = {targeted = true}, -- Coven Diviner - Soul Bolt},
-    [260551] = {targeted = true}, -- Soulbound Goliath - Soul Thorns},
-    [260741] = {targeted = true}, -- Heartsbane Triad - Jagged Nettles},
-    [268202] = {targeted = true} -- Gorak Tul - Death Lens},
+    [260701] = { targeted = true }, --"Bramble Bolt"
+    [260700] = { targeted = true }, --"Ruinous Bolt"
+    [261438] = { targeted = true }, --"Wasting Strike"
+    [266225] = { targeted = true }, --Darkened Lightning"
+    [273653] = { targeted = true }, --"Shadow Claw"
+    [265881] = { targeted = true }, --"Decaying Touch"
+    [264153] = { targeted = true }, --"Spit"
+    [278444] = { targeted = true }, --"Infest"
+    [167385] = { targeted = true }, --"Infest"
+    [263891] = { targeted = true }, -- Heartsbane Vinetwister - Grasping Thorns},
+    [264510] = { targeted = true }, -- Crazed Marksman - Shoot},
+    [260699] = { targeted = true }, -- Coven Diviner - Soul Bolt},
+    [260551] = { targeted = true }, -- Soulbound Goliath - Soul Thorns},
+    [260741] = { targeted = true }, -- Heartsbane Triad - Jagged Nettles},
+    [268202] = { targeted = true } -- Gorak Tul - Death Lens},
 }
-local CC_CreatureTypeList = {"Beast", "Dragonkin"}
+local CC_CreatureTypeList = { "Beast", "Dragonkin" }
 local StunsBlackList = {
     -- Atal'Dazar
     [87318] = "Dazar'ai Colossus",
@@ -789,7 +789,8 @@ local function runRotation()
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
     local freemana = buff.innervate.exists() or buff.symbolOfHope.exists()
 
-    if talent.balanceAffinity then -- BalanceAffinity adds one stance
+    if talent.balanceAffinity then
+        -- BalanceAffinity adds one stance
         mount = br._G.GetShapeshiftForm() == 6
     else
         mount = br._G.GetShapeshiftForm() == 5
@@ -867,6 +868,14 @@ local function runRotation()
         return count
     end
 
+    local function can_swiftmend(unit)
+        if buff.rejuvenation.exists(unit) or buff.regrowth.exists(unit) or buff.wildGrowth.exists(unit) then
+            return true
+        else
+            return false
+        end
+    end
+
     local function getAllHotCnt(time_remain)
         local hotCnt = 0
         for i = 1, #br.friend do
@@ -921,14 +930,14 @@ local function runRotation()
                 local thisUnit = enemies.yards40[i]
                 if not noDamageCheck(thisUnit) then
                     if
-                        br.isChecked("Safe Dots") and
+                    br.isChecked("Safe Dots") and
                             ((inInstance and #tanks > 0 and br.getDistance(thisUnit, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or
-                                (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
-                                solo or
-                                (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)) or
+                                    (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
+                                    solo or
+                                    (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)) or
                             --need to add, or if tank is dead or
                             not br.isChecked("Safe Dots")
-                     then
+                    then
                         if debuff.sunfire.count() < br.getOptionValue("Max Sunfire Targets") and cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
                             if cast.sunfire(thisUnit) then
                                 return true
@@ -963,9 +972,9 @@ local function runRotation()
         --covenant here
 
         if
-            br.useCDs() and cast.able.convokeTheSpirits() and (br.getOptionValue("Convoke Spirits") == 1 or br.getOptionValue("Convoke Spirits") == 3) and br.getTTD("target") > 10 and
+        br.useCDs() and cast.able.convokeTheSpirits() and (br.getOptionValue("Convoke Spirits") == 1 or br.getOptionValue("Convoke Spirits") == 3) and br.getTTD("target") > 10 and
                 (buff.heartOfTheWild.exists() or cd.heartOfTheWild.remains() > 30 or not talent.heartOfTheWild or not br.isChecked("Heart of the Wild"))
-         then
+        then
             if cast.convokeTheSpirits() then
                 return true
             end
@@ -1028,12 +1037,12 @@ local function runRotation()
         end
 
         if
-            br.SpecificToggle("Owl Key") and not br._G.GetCurrentKeyBoardFocus() and
+        br.SpecificToggle("Owl Key") and not br._G.GetCurrentKeyBoardFocus() and
                 (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical")) and
                 br.isChecked("Break form for dots") and
                 (not debuff.moonfire.exists("target") or not debuff.sunfire.exists("target")) or
                 not br.isChecked("Break form for dots")
-         then
+        then
             return
         end
     end
@@ -1096,7 +1105,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if cast.able.swiftmend(lowest.unit) and count_hots(lowest.unit) > 0 then
+                if cast.able.swiftmend(lowest.unit) and can_swiftmend(lowest.unit) then
                     if cast.swiftmend(lowest.unit) then
                         br.addonDebug("[CRIT]Swiftmend on: " .. br._G.UnitName(lowest.unit))
                         return true
@@ -1139,15 +1148,15 @@ local function runRotation()
         if br.isChecked("Aggressive Dots") and mode.dPS == 1 and lowest.hp > br.getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
             local thisUnit = "target"
             if
-                br.isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
+            br.isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
                     ((inInstance and #tanks > 0 and br.getDistance(thisUnit, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or
-                        (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
-                        solo or
-                        (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90))(
-                        --need to add, or if tank is dead or
-                        not br.isChecked("Safe Dots") or #tanks == 0
+                            (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
+                            solo or
+                            (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90))(
+                    --need to add, or if tank is dead or
+                            not br.isChecked("Safe Dots") or #tanks == 0
                     )
-             then
+            then
                 if not debuff.sunfire.exists("target") and mana > br.getOptionValue("DPS Save mana") then
                     if cast.sunfire("target", "aoe", 1, sunfire_radius) then
                         br.addonDebug("Aggressive  Sunfire - target")
@@ -1242,9 +1251,9 @@ local function runRotation()
                     if br._G.UnitInRange(br.friend[i].unit) then
                         for _, v in pairs(debuff_list) do
                             if
-                                br.getDebuffRemain(br.friend[i].unit, v.spellID) > v.secs and br.getDebuffStacks(br.friend[i].unit, v.spellID) >= v.stacks and
+                            br.getDebuffRemain(br.friend[i].unit, v.spellID) > v.secs and br.getDebuffStacks(br.friend[i].unit, v.spellID) >= v.stacks and
                                     not buff.rejuvenation.exists(br.friend[i].unit)
-                             then
+                            then
                                 if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
                                     if cast.rejuvenation(br.friend[i].unit) then
                                         br.addonDebug("[DEBUFF]Germination on: " .. br._G.UnitName(br.friend[i].unit))
@@ -1312,7 +1321,8 @@ local function runRotation()
             -- Waycrest Manor
             if inInstance and inCombat and select(8, br._G.GetInstanceInfo()) == 1862 then
                 for i = 1, #br.friend do
-                    if br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 and br.friend[i].hp < 95 then --Jagged Nettles
+                    if br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 and br.friend[i].hp < 95 then
+                        --Jagged Nettles
                         heal_target = br.friend[i].unit
                     end
                 end
@@ -1322,14 +1332,14 @@ local function runRotation()
             if inInstance and inCombat and select(8, br._G.GetInstanceInfo()) == 1762 then
                 for i = 1, #br.friend do
                     if
-                        br.getDebuffRemain(br.friend[i].unit, 267626) ~= 0 or -- Dessication
+                    br.getDebuffRemain(br.friend[i].unit, 267626) ~= 0 or -- Dessication
                             br.getDebuffRemain(br.friend[i].unit, 267618) ~= 0 or -- Drain Fluids
                             br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0 or -- Severing axe from axe lady in council
                             br.getDebuffRemain(br.friend[i].unit, 272388) ~= 0 or -- shadow barrage
                             br.getDebuffRemain(br.friend[i].unit, 265773) > 1 or -- spit-gold
                             (br.getDebuffRemain(br.friend[i].unit, 270487) ~= 0 and br.getDebuffStacks(br.friend[i].unit, 270487) > 1) and -- severing-blade
-                                br.friend[i].hp < 95
-                     then
+                                    br.friend[i].hp < 95
+                    then
                         heal_target = br.friend[i].unit
                     end
                 end
@@ -1377,7 +1387,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if cast.able.swiftmend() and count_hots(heal_target) > 0 and (br.getHP(heal_target) < 80 or (seth_routine and br.getHP(heal_target) < 95)) then
+                if cast.able.swiftmend() and can_swiftmend(heal_target) and (br.getHP(heal_target) < 80 or (seth_routine and br.getHP(heal_target) < 95)) then
                     if cast.swiftmend(heal_target) then
                         br.addonDebug("[BOSS]Swiftmend on: " .. br._G.UnitName(heal_target))
                         return true
@@ -1411,9 +1421,9 @@ local function runRotation()
 
             -- Flight Form
             if
-                not inCombat and br.canFly() and not swimming and (br.fallDist > 90 or 1 == 1) and level >= 24 and not buff.prowl.exists() and
+            not inCombat and br.canFly() and not swimming and (br.fallDist > 90 or 1 == 1) and level >= 24 and not buff.prowl.exists() and
                     (br.getOptionValue("Auto Forms") == 1 or br.getOptionValue("Auto Forms") == 2)
-             then
+            then
                 if br._G.GetShapeshiftForm() ~= 0 and not buff.travelForm.exists() then
                     -- br._G.RunMacroText("/CancelForm")
                     br._G.CastSpellByID(783, "player")
@@ -1422,9 +1432,9 @@ local function runRotation()
             end
             -- Aquatic Form
             if
-                (not inCombat) --[[or br.getDistance("target") >= 10--]] and swimming and not travel and not buff.prowl.exists() and br.isMoving("player") and
+            (not inCombat) --[[or br.getDistance("target") >= 10--]] and swimming and not travel and not buff.prowl.exists() and br.isMoving("player") and
                     (br.getOptionValue("Auto Forms") == 1 or br.getOptionValue("Auto Forms") == 2)
-             then
+            then
                 if br._G.GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                     -- CancelShapeshiftForm()
                     br._G.RunMacroText("/CancelForm")
@@ -1434,9 +1444,9 @@ local function runRotation()
             end
             -- Travel Form
             if
-                not inCombat and not swimming and level >= 24 and not buff.prowl.exists() and not travel and not mount and not br._G.IsIndoors() and br.isMovingTime(1) and
+            not inCombat and not swimming and level >= 24 and not buff.prowl.exists() and not travel and not mount and not br._G.IsIndoors() and br.isMovingTime(1) and
                     (br.getOptionValue("Auto Forms") == 1 or br.getOptionValue("Auto Forms") == 2)
-             then
+            then
                 -- Print(br._G.GetShapeshiftForm())
                 if br._G.GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                     br._G.RunMacroText("/CancelForm")
@@ -1457,9 +1467,9 @@ local function runRotation()
             end
             -- Cat Form
             if
-                not cat and not br._G.IsMounted() and not flying and (br._G.IsIndoors() or br.getOptionValue("Auto Forms") == 3) and
+            not cat and not br._G.IsMounted() and not flying and (br._G.IsIndoors() or br.getOptionValue("Auto Forms") == 3) and
                     (br.getOptionValue("Auto Forms") == 1 or br.getOptionValue("Auto Forms") == 3)
-             then
+            then
                 -- Cat Form when not swimming or flying or stag and not in combat
                 if moving and not swimming and not flying and not travel then
                     if cast.catForm("player") then
@@ -1502,9 +1512,10 @@ local function runRotation()
                     local _, _, _, startCast, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo(thisUnit)
 
                     if
-                        php <= br.getOptionValue("Barkskin") or br.br._G.UnitDebuffID("player", 265773) or -- spit-gold from KR
+                    php <= br.getOptionValue("Barkskin") or br.br._G.UnitDebuffID("player", 265773) or -- spit-gold from KR
                             br.br._G.UnitDebuffID("player", 302420) and thisUnit == 155433 and br.getCastTimeRemain(thisUnit) < 4
-                     then -- 302420
+                    then
+                        -- 302420
                         if cast.barkskin() then
                             return
                         end
@@ -1541,21 +1552,21 @@ local function runRotation()
 
             if br.isChecked("Rebirth") and not moving and inCombat then
                 if
-                    br.getOptionValue("Rebirth") == 1 and -- Target
+                br.getOptionValue("Rebirth") == 1 and -- Target
                         br._G.UnitIsPlayer("target") and
                         br.GetUnitIsDeadOrGhost("target") and
                         br.GetUnitIsFriend("target", "player")
-                 then
+                then
                     if cast.rebirth("target", "dead") then
                         return true
                     end
                 end
                 if
-                    br.getOptionValue("Rebirth") == 2 and -- Mouseover
+                br.getOptionValue("Rebirth") == 2 and -- Mouseover
                         br._G.UnitIsPlayer("mouseover") and
                         br.GetUnitIsDeadOrGhost("mouseover") and
                         br.GetUnitIsFriend("mouseover", "player")
-                 then
+                then
                     if cast.rebirth("mouseover", "dead") then
                         return true
                     end
@@ -1574,9 +1585,9 @@ local function runRotation()
                     -- Healer
                     for i = 1, #br.friend do
                         if
-                            br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
+                        br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
                                 (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER")
-                         then
+                        then
                             if cast.rebirth(br.friend[i].unit, "dead") then
                                 return true
                             end
@@ -1587,10 +1598,10 @@ local function runRotation()
                     -- Tank/Healer
                     for i = 1, #br.friend do
                         if
-                            br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
+                        br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") and
                                 (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or br.friend[i].role == "TANK" or
-                                    br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
-                         then
+                                        br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
+                        then
                             if cast.rebirth(br.friend[i].unit, "dead") then
                                 return true
                             end
@@ -1618,11 +1629,11 @@ local function runRotation()
                 for i = 1, #enemies.yards15 do
                     local thisUnit = enemies.yards15[i]
                     if
-                        cast.able.mightyBash() and br.isCrowdControlCandidates(thisUnit) and not br.getUnitID(thisUnit) == 130488 and not already_stunned(thisUnit) and
+                    cast.able.mightyBash() and br.isCrowdControlCandidates(thisUnit) and not br.getUnitID(thisUnit) == 130488 and not already_stunned(thisUnit) and
                             br.GetUnitExists(thisUnit) and
                             br.getBuffRemain(thisUnit, 226510) == 0 and
                             br.getDistance(thisUnit, "player") <= 5
-                     then
+                    then
                         if cast.mightyBash(thisUnit) then
                             --Print("Stun")
                             return true
@@ -1637,10 +1648,10 @@ local function runRotation()
                         end
                         -- Mighty Bash
                         if
-                            br.isChecked("Mighty Bash") and talent.mightyBash and br.getDistance(thisUnit, "player") <= 8 and br.getBuffRemain(thisUnit, 226510) == 0 and
+                        br.isChecked("Mighty Bash") and talent.mightyBash and br.getDistance(thisUnit, "player") <= 8 and br.getBuffRemain(thisUnit, 226510) == 0 and
                                 StunsBlackList[br.GetObjectID(thisUnit)] == nil and
                                 (thisUnit == 130488 and br.isChecked("Motherload - Stun jockeys") or thisUnit ~= 130488)
-                         then
+                        then
                             if cast.mightyBash(thisUnit) then
                                 --Print("Stun")
                                 return true
@@ -1657,10 +1668,10 @@ local function runRotation()
                 local thisUnit = enemies.yards30[i]
                 --br.canInterrupt(thisUnit, 99)
                 if
-                    br._G.UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] and br.getCastTimeRemain(thisUnit) > br.getCastTime(spell.hibernate) and
+                br._G.UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] and br.getCastTimeRemain(thisUnit) > br.getCastTime(spell.hibernate) and
                         StunsBlackList[br.GetObjectID(thisUnit)] == nil and
                         not br.isBoss(thisUnit)
-                 then
+                then
                     --and br._G.UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and br._G.UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and br._G.UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923)
                     --and br._G.UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
                     if cast.hibernate(thisUnit) then
@@ -1711,10 +1722,10 @@ local function runRotation()
             elseif br.getOptionValue("Ironbark Target") == 6 then
                 for i = 1, #br.friend do
                     if
-                        br.friend[i].hp <= br.getValue("Ironbark") and
+                    br.friend[i].hp <= br.getValue("Ironbark") and
                             (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or br.friend[i].role == "TANK" or
-                                br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
-                     then
+                                    br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
+                    then
                         if cast.ironbark(br.friend[i].unit) then
                             return true
                         end
@@ -1791,9 +1802,9 @@ local function runRotation()
                                 local px, py, pz = br._G.ObjectPosition("player")
                                 loc.z = select(3, br._G.TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                                 if
-                                    loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
+                                loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
                                         br._G.TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil
-                                 then
+                                then
                                     -- Check z and LoS, ignore terrain and m2 collisions
                                     br.useItem(13)
                                     br._G.ClickPosition(loc.x, loc.y, loc.z)
@@ -1843,9 +1854,9 @@ local function runRotation()
                                 local px, py, pz = br._G.ObjectPosition("player")
                                 loc.z = select(3, br._G.TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                                 if
-                                    loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
+                                loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
                                         br._G.TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil
-                                 then
+                                then
                                     -- Check z and LoS, ignore terrain and m2 collisions
                                     br.useItem(13)
                                     br._G.ClickPosition(loc.x, loc.y, loc.z)
@@ -1930,14 +1941,14 @@ local function runRotation()
             local thisUnit = enemies.yards40[i]
             if not noDamageCheck(thisUnit) then
                 if
-                    br.isChecked("Safe Dots") and
+                br.isChecked("Safe Dots") and
                         ((inInstance and #tanks > 0 and br.getDistance(thisUnit, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or
-                            (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
-                            solo or
-                            (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)) or
+                                (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
+                                solo or
+                                (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)) or
                         --need to add, or if tank is dead or
                         not br.isChecked("Safe Dots")
-                 then
+                then
                     if cast.able.sunfire() and mana > br.getOptionValue("DPS Save mana") then
                         if debuff.sunfire.count() == 0 then
                             if cast.sunfire(br.getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
@@ -2056,16 +2067,16 @@ local function runRotation()
 
         --pocket size computing device
         if
-            br.isChecked("Trinket 1") and br.canUseItem(13) and br.getOptionValue("Trinket 1 Mode") == 4 or
+        br.isChecked("Trinket 1") and br.canUseItem(13) and br.getOptionValue("Trinket 1 Mode") == 4 or
                 br.isChecked("Trinket 2") and br.canUseItem(14) and br.getOptionValue("Trinket 2 Mode") == 4
-         then
+        then
             local Trinket13 = _G.GetInventoryItemID("player", 13)
             local Trinket14 = _G.GetInventoryItemID("player", 14)
             if
-                (Trinket13 == 167555 or Trinket14 == 167555) and lowest.hp >= 60 and ttd("target") > 10 and not br.isMoving("player") and not noDamageCheck("target") and
+            (Trinket13 == 167555 or Trinket14 == 167555) and lowest.hp >= 60 and ttd("target") > 10 and not br.isMoving("player") and not noDamageCheck("target") and
                     not buff.innervate.exists("player") and
                     burst == false
-             then
+            then
                 if br.canUseItem(167555) then
                     br.player.use.pocketSizedComputationDevice()
                 end
@@ -2089,11 +2100,11 @@ local function runRotation()
             --   if combo == 5 then
             if debuff.rip.count() < br.getOptionValue("Max RIP Targets") and not br.isExplosive(thisUnit) then
                 if
-                    (not debuff.rip.exists(thisUnit) or
+                (not debuff.rip.exists(thisUnit) or
                         (debuff.rip.remain(thisUnit) < 4) and
-                            (ttd(thisUnit) > (debuff.rip.remain(thisUnit) + 24) or
-                                (debuff.rip.remain(thisUnit) + combo * 4 < ttd(thisUnit) and debuff.rip.remain(thisUnit) + 4 + combo * 4 > ttd(thisUnit))))
-                 then
+                                (ttd(thisUnit) > (debuff.rip.remain(thisUnit) + 24) or
+                                        (debuff.rip.remain(thisUnit) + combo * 4 < ttd(thisUnit) and debuff.rip.remain(thisUnit) + 4 + combo * 4 > ttd(thisUnit))))
+                then
                     if cast.rip(thisUnit) then
                         br.addonDebug("[CAT-DPS] Applying Rip")
                         return true
@@ -2103,11 +2114,11 @@ local function runRotation()
 
             -- Rake
             if
-                cast.able.rake() and (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and ttd(thisUnit) >= 10 and
+            cast.able.rake() and (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and ttd(thisUnit) >= 10 and
                     (combo < 5 or debuff.rake.remain(thisUnit) < 1) and
                     aoe_count < 4 and
                     not br.isExplosive(thisUnit)
-             then
+            then
                 if cast.rake(thisUnit) then
                     br.addonDebug("[CAT-DPS] Raking")
                     return true
@@ -2117,10 +2128,10 @@ local function runRotation()
             -- Ferocious Bite
             --ferocious_bite,if=(combo_points>3&target.time_to_die<3)|(combo_points=5&energy>=50&dot.rip.remains>14)&spell_targets.swipe_cat<5
             if
-                cast.able.ferociousBite() and cat and combo > 3 and ttd(thisUnit) < 3 or
+            cast.able.ferociousBite() and cat and combo > 3 and ttd(thisUnit) < 3 or
                     (combo == 5 and br.player.power.energy.amount() >= 40 and (debuff.rip.remain(thisUnit) > 8 or not cast.able.rip())) and #enemies.yards8 < 5 and
-                        not noDamageCheck(thisUnit)
-             then
+                            not noDamageCheck(thisUnit)
+            then
                 if cast.ferociousBite(thisUnit) then
                     br.addonDebug("[CAT-DPS] Bite: " .. br._G.UnitName(thisUnit) .. " Combo points: " .. combo .. " ttd: " .. ttd(thisUnit))
                     return true
@@ -2154,12 +2165,12 @@ local function runRotation()
         end
 
         if
-            br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
+        br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
                 (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical")) and
                 br.isChecked("Break form for dots") and
                 (not debuff.moonfire.exists("target") or not debuff.sunfire.exists("target")) or
                 not br.isChecked("Break form for dots")
-         then
+        then
             return
         end
     end -- end cat loop
@@ -2256,9 +2267,9 @@ local function runRotation()
                         local object = br._G.GetObjectWithIndex(i)
                         local ID = br._G.ObjectID(object)
                         if
-                            root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not isCC(object) and not already_stunned(object) and
+                        root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not isCC(object) and not already_stunned(object) and
                                 (br.getBuffRemain(object, 102359) < 2 or br.getBuffRemain(object, 339) < 2)
-                         then
+                        then
                             local x1, y1, z1 = br._G.ObjectPosition("player")
                             local x2, y2, z2 = br._G.ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
@@ -2267,7 +2278,7 @@ local function runRotation()
                                     if root == 339 and distance <= 8 then
                                         root = 5211
                                         root_range = 8
-                                    --br._G.CastSpellByName("Mighty Bash", object)
+                                        --br._G.CastSpellByName("Mighty Bash", object)
                                     end
                                 end
                             end
@@ -2307,10 +2318,10 @@ local function runRotation()
             end
 
             if
-                br.isChecked("Swiftmend") and cast.able.swiftmend() and count_hots(lowest.unit) > 0 and
+            br.isChecked("Swiftmend") and cast.able.swiftmend() and can_swiftmend(lowest.unit) and
                     (lowest.hp <= br.getValue("Swiftmend") or (talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists())) and
                     (not inInstance or (inInstance and br.getDebuffStacks(lowest.unit, 209858) < br.getValue("Necrotic Rot")))
-             then
+            then
                 if cast.swiftmend(lowest.unit) then
                     return true
                 end
@@ -2383,9 +2394,9 @@ local function runRotation()
                                 end
                             end
                             if
-                                (lifebloom_count >= br.getValue("Photosynthesis Count") or bursting) and
+                            (lifebloom_count >= br.getValue("Photosynthesis Count") or bursting) and
                                     (not buff.lifebloom.exists("Player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5 and php < 80))
-                             then
+                            then
                                 raid_bloom_target = "player"
                                 br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. br.getValue("Photosynthesis Count") .. "]")
                             else
@@ -2410,10 +2421,10 @@ local function runRotation()
                                             kill_boss = "boss2target"
                                         end
                                         if
-                                            kill_boss and cast.able.lifebloom(tanks[i].unit) and br._G.UnitThreatSituation(tanks[i].unit, kill_boss) ~= nil and
+                                        kill_boss and cast.able.lifebloom(tanks[i].unit) and br._G.UnitThreatSituation(tanks[i].unit, kill_boss) ~= nil and
                                                 br._G.UnitThreatSituation(tanks[i].unit, kill_boss) > 2 and
                                                 br.getLineOfSight("player", tanks[i].unit)
-                                         then
+                                        then
                                             raid_bloom_target = tanks[i].unit
                                             break
                                         else
@@ -2458,26 +2469,26 @@ local function runRotation()
                                 end
                             end
                             if
-                                (lifebloom_count >= br.getValue("Photosynthesis Count") or bursting) and
+                            (lifebloom_count >= br.getValue("Photosynthesis Count") or bursting) and
                                     (not buff.lifebloom.exists("Player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5 and php < 80))
-                             then
+                            then
                                 if cast.lifebloom("player") then
                                     br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. br.getValue("Photosynthesis Count") .. "]")
                                     return true
                                 end
                             elseif
-                                lifebloom_count < br.getValue("Photosynthesis Count") and
+                            lifebloom_count < br.getValue("Photosynthesis Count") and
                                     (not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and br.getHP(tank) < 80))
-                             then
+                            then
                                 if cast.lifebloom(tank) then
                                     br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. br.getValue("Photosynthesis Count") .. "]")
                                     return true
                                 end
                             end
                         elseif
-                            talent.photosynthesis and not cast.last.lifebloom(1) and (inRaid or #tanks > 1) and buff.lifebloom.remains() < 2 and
+                        talent.photosynthesis and not cast.last.lifebloom(1) and (inRaid or #tanks > 1) and buff.lifebloom.remains() < 2 and
                                 not runeforge.theDarkTitansLesson.equiped
-                         then
+                        then
                             if cast.lifebloom("player") then
                                 br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. br.getValue("Photosynthesis Count") .. "]")
                                 return true
@@ -2498,18 +2509,18 @@ local function runRotation()
                         --raid shit here
                         local raid_bloom_target = "none"
                         if
-                            runeforge.theDarkTitansLesson.equiped and
+                        runeforge.theDarkTitansLesson.equiped and
                                 (not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5))
-                         then
+                        then
                             if cast.lifebloom("player") then
                                 return true
                             end
                         end
                         -- keep it on focus
                         if
-                            br._G.UnitExists("focustarget") and not br.GetUnitIsDeadOrGhost("focustarget") and br._G.UnitAffectingCombat("focustarget") and br.hasThreat("focustarget") and
+                        br._G.UnitExists("focustarget") and not br.GetUnitIsDeadOrGhost("focustarget") and br._G.UnitAffectingCombat("focustarget") and br.hasThreat("focustarget") and
                                 br.getLineOfSight("focustarget", "player")
-                         then
+                        then
                             raid_bloom_target = "focustarget"
                         end
                         if raid_bloom_target == "none" then
@@ -2523,9 +2534,9 @@ local function runRotation()
                                     --stick it on the tank that has aggro
                                     br._G.print("Tell Laks this: " .. tostring(br._G.UnitThreatSituation(tank, "boss1target")))
                                     if
-                                        cast.able.lifebloom(tank) and br._G.UnitThreatSituation(tank, "boss1target") ~= nil and br._G.UnitThreatSituation(tank, "boss1target") > 2 and
+                                    cast.able.lifebloom(tank) and br._G.UnitThreatSituation(tank, "boss1target") ~= nil and br._G.UnitThreatSituation(tank, "boss1target") > 2 and
                                             br.getLineOfSight("player", tank)
-                                     then
+                                    then
                                         raid_bloom_target = tank
                                         break
                                     end
@@ -2588,9 +2599,9 @@ local function runRotation()
                         if CurrentBleedstack > BleedStack then
                             BleedStack = CurrentBleedstack
                             BleedFriend = br.friend[i]
-                        --br.addonDebug("Hotcount: " .. hotCount .. " Check: " .. (grievance_value - (hotCount * hotvalue)))
-                        --debug stuff
-                        --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
+                            --br.addonDebug("Hotcount: " .. hotCount .. " Check: " .. (grievance_value - (hotCount * hotvalue)))
+                            --debug stuff
+                            --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
                         end
                     end
                     if br.isChecked("Decaying Mind") then
@@ -2601,8 +2612,8 @@ local function runRotation()
                         if CurrentBleedstack > BleedStack then
                             BleedStack = CurrentBleedstack
                             BleedFriend = br.friend[i]
-                        --debug stuff
-                        --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
+                            --debug stuff
+                            --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
                         end
                     end
                 end
@@ -2627,9 +2638,9 @@ local function runRotation()
                                     local px, py, pz = br._G.ObjectPosition("player")
                                     loc.z = select(3, br._G.TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                                     if
-                                        loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
+                                    loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
                                             br._G.TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil
-                                     then
+                                    then
                                         -- Check z and LoS, ignore terrain and m2 collisions
                                         if cast.efflorescence() then
                                             br._G.ClickPosition(loc.x, loc.y, loc.z)
@@ -2651,7 +2662,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if count_hots(BleedFriend.unit) > 0 then
+                if can_swiftmend(BleedFriend.unit) then
                     if cast.swiftmend(BleedFriend.unit) then
                         return true
                     end
@@ -2690,9 +2701,9 @@ local function runRotation()
                                 local px, py, pz = br._G.ObjectPosition("player")
                                 loc.z = select(3, br._G.TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
                                 if
-                                    loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
+                                loc.z ~= nil and br._G.TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and
                                         br._G.TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil
-                                 then
+                                then
                                     -- Check z and LoS, ignore terrain and m2 collisions
                                     if cast.efflorescence() then
                                         br._G.ClickPosition(loc.x, loc.y, loc.z)
@@ -2718,17 +2729,17 @@ local function runRotation()
             if br.isChecked("Rejuvenation") then
                 for i = 1, #tanks do
                     if
-                        talent.germination and (tanks[i].hp <= br.getValue("Germination Tank") or freemana) and
+                    talent.germination and (tanks[i].hp <= br.getValue("Germination Tank") or freemana) and
                             (not buff.rejuvenationGermination.exists(tanks[i].unit) or buff.rejuvenationGermination.remain(tanks[i].unit) < 4.5)
-                     then
+                    then
                         if cast.rejuvenation(tanks[i].unit) then
                             br.addonDebug("[Rejuv]Germination on: " .. tanks[i].unit)
                             return true
                         end
                     elseif
-                        not talent.germination and (tanks[i].hp <= br.getValue("Rejuvenation Tank") or freemana) and
+                    not talent.germination and (tanks[i].hp <= br.getValue("Rejuvenation Tank") or freemana) and
                             (not buff.rejuvenation.exists(tanks[i].unit) or buff.rejuvenation.remain(tanks[i].unit) < 4.5)
-                     then
+                    then
                         if cast.rejuvenation(tanks[i].unit) then
                             br.addonDebug("[Rejuv]rejuvenation on: " .. br._G.UnitName(tanks[i].unit))
                             return true
@@ -2737,17 +2748,17 @@ local function runRotation()
                 end
                 for i = 1, #br.friend do
                     if
-                        talent.germination and (br.friend[i].hp <= br.getValue("Germination") or freemana) and
+                    talent.germination and (br.friend[i].hp <= br.getValue("Germination") or freemana) and
                             (not buff.rejuvenationGermination.exists(br.friend[i].unit) or buff.rejuvenationGermination.remain(br.friend[i].unit) < 4.5)
-                     then
+                    then
                         if cast.rejuvenation(br.friend[i].unit) then
                             br.addonDebug("[Rejuv]Germination on: " .. br._G.UnitName(br.friend[i].unit))
                             return true
                         end
                     elseif
-                        (br.friend[i].hp <= br.getValue("Rejuvenation") or freemana) and
+                    (br.friend[i].hp <= br.getValue("Rejuvenation") or freemana) and
                             (not buff.rejuvenation.exists(br.friend[i].unit) or buff.rejuvenation.remain(br.friend[i].unit) < 4.5)
-                     then
+                    then
                         if cast.rejuvenation(br.friend[i].unit) then
                             br.addonDebug("[Rejuv]rejuvenation on: " .. br._G.UnitName(br.friend[i].unit))
                             return true
@@ -2760,17 +2771,17 @@ local function runRotation()
             if not moving or buff.incarnationTreeOfLife.exists() then
                 for i = 1, #br.friend do
                     if
-                        br.isChecked("Regrowth Tank") and br.friend[i].hp <= br.getValue("Regrowth Tank") and
+                    br.isChecked("Regrowth Tank") and br.friend[i].hp <= br.getValue("Regrowth Tank") and
                             (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
                             (not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot")))
-                     then
+                    then
                         if cast.regrowth(br.friend[i].unit) then
                             return true
                         end
                     elseif
-                        br.isChecked("Regrowth") and br.friend[i].hp <= br.getValue("Regrowth") and
+                    br.isChecked("Regrowth") and br.friend[i].hp <= br.getValue("Regrowth") and
                             (not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot")))
-                     then
+                    then
                         if cast.regrowth(br.friend[i].unit) then
                             return true
                         end
@@ -2928,9 +2939,9 @@ local function runRotation()
         end
 
         if
-            br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
+        br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
                 (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical"))
-         then
+        then
             return
         end
     end
@@ -2961,10 +2972,10 @@ local function runRotation()
                 if tank_unit and br.getLineOfSight("player", tank_unit) then
                     -- cenarionWard
                     if
-                        not br.isChecked("Smart Hot") and talent.cenarionWard and br.isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tank_unit) and
+                    not br.isChecked("Smart Hot") and talent.cenarionWard and br.isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tank_unit) and
                             cast.able.cenarionWard(tank_unit) and
                             br.getLineOfSight(tank_unit, "player")
-                     then
+                    then
                         if cast.cenarionWard(tank_unit) then
                             br.addonDebug("[PRE-HOT]:CW on: " .. br._G.UnitName(tank_unit))
                             return true
@@ -3023,12 +3034,12 @@ local function runRotation()
 
     -- Pause
     if
-        br.pause() or br._G.IsMounted() or flying or drinking or br.isCastingSpell(spell.tranquility) or br.isCasting(spell.replicaOfKnowledge) or br.isCasting(293491) or br.hasBuff(250873) or
+    br.pause() or br._G.IsMounted() or flying or drinking or br.isCastingSpell(spell.tranquility) or br.isCasting(spell.replicaOfKnowledge) or br.isCasting(293491) or br.hasBuff(250873) or
             br.hasBuff(115834) or
             br.hasBuff(58984) or
             br.hasBuff(185710) or
             buff.soulshape.exists()
-     then
+    then
         --or stealthed (travel and not inCombat) or
         return true
     else
@@ -3136,24 +3147,24 @@ local function runRotation()
             end
             if mode.forms == 2 then
                 if
-                    br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
+                br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
                         (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical"))
-                 then
+                then
                     cat_rest()
                     return true
                 elseif
-                    br.SpecificToggle("Owl Key") and not br._G.GetCurrentKeyBoardFocus() and
+                br.SpecificToggle("Owl Key") and not br._G.GetCurrentKeyBoardFocus() and
                         (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical"))
-                 then
+                then
                     owl_rest()
                     return true
                 elseif br.SpecificToggle("Bear Key") and not br._G.GetCurrentKeyBoardFocus() then
                     bear_rest()
                     return true
                 elseif
-                    br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() and
+                br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() and
                         (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical"))
-                 then
+                then
                     travel_rest()
                     return true
                 else
@@ -3192,25 +3203,25 @@ local function runRotation()
             end
             if mode.forms == 2 then
                 if
-                    br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
+                br.SpecificToggle("Cat Key") and not br._G.GetCurrentKeyBoardFocus() and
                         (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical")) and
                         (br.isChecked("Break form for dots") and (debuff.moonfire.exists("target") and debuff.sunfire.exists("target")) or not br.isChecked("Break form for dots"))
-                 then
+                then
                     cat_combat()
                     return true
                 elseif
-                    br.SpecificToggle("Owl Key") and not br._G.GetCurrentKeyBoardFocus() and
+                br.SpecificToggle("Owl Key") and not br._G.GetCurrentKeyBoardFocus() and
                         (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical"))
-                 then
+                then
                     owl_combat()
                     return true
                 elseif br.SpecificToggle("Bear Key") and not br._G.GetCurrentKeyBoardFocus() then
                     bear_combat()
                     return true
                 elseif
-                    br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() and
+                br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() and
                         (br.isChecked("Break form for critical") and lowest.hp > br.getOptionValue("Critical HP") or not br.isChecked("Break form for critical"))
-                 then
+                then
                     travel_combat()
                     return true
                 end
@@ -3275,11 +3286,11 @@ if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
 br._G.tinsert(
-    br.rotations[id],
-    {
-        name = rotationName,
-        toggles = createToggles,
-        options = createOptions,
-        run = runRotation
-    }
+        br.rotations[id],
+        {
+            name = rotationName,
+            toggles = createToggles,
+            options = createOptions,
+            run = runRotation
+        }
 )
