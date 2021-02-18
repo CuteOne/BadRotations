@@ -363,7 +363,7 @@ local function runRotation()
     -- end
 
     -- Blacklist enemies
-    local function br.isTotem (unit)
+    local function isTotem (unit)
         local eliteTotems = {
             -- totems we can dot
             [125977] = "Reanimate Totem",
