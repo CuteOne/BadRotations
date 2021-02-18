@@ -87,25 +87,24 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createSpinner(section, "Bursting", 3, 0, 10, 4, "", "Burst Targets - also counts as number under critical")
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Hot Value (calculated to see how much healing is needed for Griev")
+        br.ui:createCheckbox(section, "Sunfire Explosives")
+
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Pots")
         br.ui:createCheckbox(section, "Auto use Pots")
-        br.ui:createDropdownWithout(
-                section,
-                "Pots - burst healing",
-                { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" },
-                1,
-                "",
-                "Use Pot when Incarnation/Celestial Alignment is up"
-        )
+        br.ui:createDropdownWithout(section, "Pots - burst healing", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createCheckbox(section, "OOC Healing", "Enables/Disables out of combat healing.", 1)
         br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
         br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
-        br.ui:createDropdown(section, "Convoke Spirits", { "DPS", "HEAL", "BOTH", "Manual" }, 3, "How to use Convoke Spirits")
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Covenant")
+        br.ui:createDropdownWithout(section, "Covenant Ability", { "DPS", "HEAL", "BOTH", "Manual" }, 3, "when")
+        br.ui:createSpinnerWithout(section, "Covenant Ability Health", 70, 0, 100, 5, "Health % for switching to healer")
+        br.ui:createSpinnerWithout(section, "Covenant Ability Heal Targets", 3, 0, 40, 1, "Minimum hurt Targets")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Heals")
@@ -144,13 +143,7 @@ local function createOptions()
         --br.ui:createCheckbox(section, "Auto Soothe")
         br.ui:createSpinner(section, "Auto Soothe", 1, 0, 100, 5, "TTD for soothing")
         br.ui:createSpinner(section, "Ironbark", 30, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createDropdownWithout(
-                section,
-                "Ironbark Target",
-                { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny" },
-                7,
-                "|cffFFFFFFcast Ironbark Target"
-        )
+        br.ui:createDropdownWithout(section, "Ironbark Target", { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny" }, 7, "|cffFFFFFFcast Ironbark Target")
         br.ui:createSpinner(section, "Auto Innervate", 10, 0, 100, 50, "Mana Percent to Cast At")
         br.ui:createDropdown(section, "Revive", { "Target", "Mouseover" }, 1, "|ccfFFFFFFTarget to Cast On")
         -- Rebirth
@@ -175,10 +168,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Trinkets")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP" }, 1, "", "")
+        br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "On Lust" }, 1, "", "")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP", "DPS target" }, 1, "", "")
+        br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "On Lust", "DPS target" }, 1, "", "")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -227,6 +220,10 @@ local function isCC(unit)
         return br.isLongTimeCCed(unit)
     end
     return false
+end
+
+function isExplosive(Unit)
+    return GetObjectID(Unit) == 120651
 end
 
 local timers = {}
@@ -287,7 +284,7 @@ local function already_stunned(Unit)
 end
 
 local function noDamageCheck(unit)
-    if br.isChecked("Dont DPS spotter") and br.GetObjectID(unit) == 135263 then
+    if isChecked("Sunfire Explosives") and br.GetObjectID(unit) == 120651 then
         return true
     end
     if isCC(unit) then
@@ -462,8 +459,7 @@ local debuff_list = {
     -- all
     { spellID = 302421, stacks = 0, secs = 5 } -- Queen's Decree
 }
-local pre_hot_list = {
-    --snipe list
+local pre_hot_list = {   --snipe list
     --Battle of Dazar'alor
     [283572] = { targeted = true }, --"Sacred Blade"
     [284578] = { targeted = true }, --"Penance"
@@ -507,6 +503,7 @@ local pre_hot_list = {
     --Siege of Boralus
     [272588] = { targeted = true }, --"Rotting Wounds"
     [272827] = { targeted = false }, --"Viscous Slobber"
+    [272581] = { targeted = true }, -- "Water Spray"
     [257883] = { targeted = false }, -- "Break Water"
     [257063] = { targeted = true }, --"Brackish Bolt"
     [272571] = { targeted = true }, --"Choking Waters"
@@ -517,8 +514,12 @@ local pre_hot_list = {
     [272542] = { targeted = true }, -- Ashvane Sniper - Ricochet},
     -- Temple of Sethraliss
     [263775] = { targeted = true }, --"Gust"
+    [268061] = { targeted = true }, --"Chain Lightning"
+    [272820] = { targeted = true }, --"Shock"
     [263365] = { targeted = true }, --"https://www.wowhead.com/spell=263365/a-peal-of-thunder"
     [268013] = { targeted = true }, --"Flame Shock"
+    [274642] = { targeted = true }, --"Lava Burst"
+    [268703] = { targeted = true }, --"Lightning Bolt"
     [272699] = { targeted = true }, --"Venomous Spit"
     [268703] = { targeted = true }, -- Charged Dust Devil - Lightning Bolt},
     [272670] = { targeted = true }, -- Sandswept Marksman - Shoot},
@@ -527,6 +528,7 @@ local pre_hot_list = {
     [274642] = { targeted = true }, -- Hoodoo Hexer - Lava Burst},
     [268061] = { targeted = true }, -- Plague Doctor - Chain Lightning},
     --Shrine of the Storm
+    [265001] = { targeted = true }, --"Sea Blast"
     [268347] = { targeted = true }, --"Void Bolt"
     [267969] = { targeted = true }, --"Water Blast"
     [268233] = { targeted = true }, --"Electrifying Shock"
@@ -536,11 +538,14 @@ local pre_hot_list = {
     [268317] = { targeted = true }, --"Rip Mind"
     [265001] = { targeted = true }, --"Sea Blast"
     [274703] = { targeted = true }, --"Void Bolt"
+    [268214] = { targeted = true }, --"Carve Flesh"
     [264166] = { targeted = true }, -- Aqusirr - Undertow},
     [268214] = { targeted = true }, -- Runecarver Sorn - Carve Flesh},
     --Motherlode
     [259856] = { targeted = true }, --"Chemical Burn"
     [260318] = { targeted = true }, --"Alpha Cannon"
+    [262794] = { targeted = true }, --"Energy Lash"
+    [263202] = { targeted = true }, --"Rock Lance"
     [262268] = { targeted = true }, --"Caustic Compound"
     [263262] = { targeted = true }, --"Shale Spit"
     [263628] = { targeted = true }, --"Charged Claw"
@@ -577,6 +582,7 @@ local pre_hot_list = {
     --Waycrest Manor
     [260701] = { targeted = true }, --"Bramble Bolt"
     [260700] = { targeted = true }, --"Ruinous Bolt"
+    [260699] = { targeted = true }, --"Soul Bolt"
     [261438] = { targeted = true }, --"Wasting Strike"
     [266225] = { targeted = true }, --Darkened Lightning"
     [273653] = { targeted = true }, --"Shadow Claw"
@@ -674,31 +680,28 @@ local StunsBlackList = {
 
 local someone_casting = false
 
--- local frame = CreateFrame("Frame")
--- frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
--- local function reader()
---     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
---     -- print(...)
---     --[[
---      if param == "SPELL_CAST_SUCCESS" and spell == 193316 then
---          -- or param == "SPELL_AURA_REMOVED" then
---          C_Timer.After(0.02, function()
---              --    print("refresh rtb")
---              dice_reroll = true
---          end)
---      end]]
---     if param == "SPELL_CAST_START" then
---         C_Timer.After(0.02, function()
---             someone_casting = true
---             --Print(source .. "/" .. sourceName .. " is casting " .. spellName)
---         end)
---     end
--- end
--- frame:SetScript("OnEvent", reader)
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local function reader()
+    -- local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    local _, param, _, _, _, _, _, _, _, _, _, _, _, _, _ = CombatLogGetCurrentEventInfo()
+    if param == "SPELL_CAST_SUCCESS" and spell == 193316 then
+        -- or param == "SPELL_AURA_REMOVED" then
+        C_Timer.After(0.02, function()
+            --    print("refresh rtb")
+            dice_reroll = true
+        end)
+    end
+    if param == "SPELL_CAST_START" then
+        C_Timer.After(0.02, function()
+            someone_casting = true
+            --Print(source .. "/" .. sourceName .. " is casting " .. spellName)
+        end)
+    end
+end
+frame:SetScript("OnEvent", reader)
 
 local eclipse_next = "any"
-local wrath_counter = 0
-local starfire_counter = 0
 local x = 0
 
 local function runRotation()
@@ -729,9 +732,6 @@ local function runRotation()
     -- local combatTime                                    = br.getCombatTime()
     local cd = br.player.cd
     -- local charges                                       = br.player.charges
-    local gcd = br.player.gcd
-    local lowest = br.friend[1]
-    local LastEfflorescenceTime = nil
     local buff = br.player.buff
     local runeforge = br.player.runeforge
     local lastSpell = br.lastSpellCast
@@ -739,29 +739,22 @@ local function runRotation()
     local combo = br.player.power.comboPoints.amount()
     local debuff = br.player.debuff
     local drinking = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0 or br.getBuffRemain("player", 185710) ~= 0
-    local resable = br._G.UnitIsPlayer("target") and br.GetUnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") and br._G.UnitInRange("target")
     local deadtar = br.GetUnitIsDeadOrGhost("target") or br.isDummy()
     local deadMouse, hasMouse, playerMouse = br._G.UnitIsDeadOrGhost("mouseover"), br.GetObjectExists("mouseover"), br._G.UnitIsPlayer("mouseover")
     local hastar = hastar or br.GetObjectExists("target")
     local playertar = br._G.UnitIsPlayer("target")
     local enemies = br.player.enemies
     local friends = br.friends or {}
-    local falling, swimming, flying = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying()
     local moving = br.isMoving("player") ~= false or br.player.moving
     local gcdMax = br.player.gcdMax
-    local healPot = br.getHealthPot()
     local inCombat = br.isInCombat("player")
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
     local inRaid = br.player.instance == "raid"
 
-    local stealthed = br.UnitBuffID("player", 5215) ~= nil
     local level = br.player.level
-    local lowestHP = br.friend[1].unit
     local mana = br.player.power.mana.percent()
     -- local mode = br.player.mode
     local php = br.player.health
-    local power, powmax, powgen = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
-    local pullTimer = br.DBM:getPulltimer()
     local race = br.player.race
     local racial = br.player.getRacial()
     local spell = br.player.spell
@@ -777,15 +770,12 @@ local function runRotation()
     local mode = br.player.ui.mode
     local solo = #br.friend == 1
     local tanks = br.getTanksTable()
-    local tank = nil
+    local tank
     local covenant = br.player.covenant
-    local critical = nil
     local ttd = br.getTTD
-    local BleedFriend = nil
+    local BleedFriend
     local BleedFriendCount = 0
     local BleedStack = 0
-    local norepeat = false
-    local hasteAmount = br._G.GetHaste() / 100
     local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
     local freemana = buff.innervate.exists() or buff.symbolOfHope.exists()
 
@@ -811,7 +801,6 @@ local function runRotation()
     friends.yards40 = br.getAllies("player", 40)
 
     local lowest = br.friend[1]
-    local friends = friends or {}
 
     local sunfire_target = 0
     local sunfire_radius = 8
@@ -838,6 +827,7 @@ local function runRotation()
         end
     end
     --old un-used feng functions
+
 
     local function count_hots(unit)
         local count = 0
@@ -913,7 +903,6 @@ local function runRotation()
 
     local function owl_combat()
         local is_aoe = #enemies.yards45 > 1 or false
-        local current_eclipse = "none"
         local eclipse_in = (buff.eclipse_solar.exists() or buff.eclipse_lunar.exists()) or false
 
         --  Print("In Eclipse: " .. tostring(eclipse_in) .. " next:  " .. eclipse_next)
@@ -925,38 +914,38 @@ local function runRotation()
         end
 
         --dots
-        if mana > br.getOptionValue("DPS Save mana") then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not noDamageCheck(thisUnit) then
-                    if
-                    br.isChecked("Safe Dots") and
-                            ((inInstance and #tanks > 0 and br.getDistance(thisUnit, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or
-                                    (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
-                                    solo or
-                                    (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)) or
-                            --need to add, or if tank is dead or
-                            not br.isChecked("Safe Dots")
-                    then
-                        if debuff.sunfire.count() < br.getOptionValue("Max Sunfire Targets") and cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
-                            if cast.sunfire(thisUnit) then
-                                return true
-                            end
-                        end
 
-                        if (debuff.moonfire.count() < br.getOptionValue("Max Moonfire Targets") or br.isBoss(thisUnit)) and ttd(thisUnit) > 5 then
-                            if cast.able.moonfire() then
-                                if not debuff.moonfire.exists(thisUnit) then
-                                    if cast.moonfire(thisUnit) then
-                                        br.addonDebug("Initial Moonfire")
-                                        return true
-                                    end
-                                elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
-                                    if cast.moonfire(thisUnit) then
-                                        br.addonDebug("Refreshing moonfire - remain: " .. round(debuff.moonfire.remain(thisUnit), 3))
-                                        return true
-                                    end
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not noDamageCheck(thisUnit) then
+                if
+                br.isChecked("Safe Dots") and
+                        ((inInstance and #tanks > 0 and br.getDistance(thisUnit, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or
+                                (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
+                                solo or
+                                (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)) or
+                        --need to add, or if tank is dead or
+                        not br.isChecked("Safe Dots")
+                then
+                    if debuff.sunfire.count() < br.getOptionValue("Max Sunfire Targets") and cast.able.sunfire(thisUnit) and debuff.sunfire.refresh(thisUnit) then
+                        if cast.sunfire(thisUnit) then
+                            return true
+                        end
+                    end
+
+                    if (debuff.moonfire.count() < br.getOptionValue("Max Moonfire Targets") or br.isBoss(thisUnit)) and ttd(thisUnit) > 5 then
+                        if cast.able.moonfire() then
+                            if not debuff.moonfire.exists(thisUnit) then
+                                if cast.moonfire(thisUnit) then
+                                    br.addonDebug("Initial Moonfire")
+                                    return true
                                 end
+                            elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
+                                if cast.moonfire(thisUnit) then
+                                    br.addonDebug("Refreshing moonfire - remain: " .. round(debuff.moonfire.remain(thisUnit), 3))
+                                    return true
+                                end
+
                             end
                         end
                     end
@@ -970,6 +959,21 @@ local function runRotation()
         end
 
         --covenant here
+        if br.useCDs()
+                and (covenant.nightFae.active and cast.able.convokeTheSpirits() or (covenant.venthyr.active and cast.able.ravenousFrenzy()))
+                and (getOptionValue("Covenant Ability") == 1 or getOptionValue("Covenant Ability") == 3)
+                and getOutLaksTTDMAX() > 20
+                and (buff.heartOfTheWild.exists() or cd.heartOfTheWild.remains() > 30 or not talent.heartOfTheWild or not isChecked("Heart of the Wild")) then
+            if covenant.nightFae.active then
+                if cast.convokeTheSpirits() then
+                    return true
+                end
+            elseif covenant.venthyr.active then
+                if cast.ravenousFrenzy() then
+                    return true
+                end
+            end
+        end
 
         if
         br.useCDs() and cast.able.convokeTheSpirits() and (br.getOptionValue("Convoke Spirits") == 1 or br.getOptionValue("Convoke Spirits") == 3) and br.getTTD("target") > 10 and
@@ -1008,7 +1012,10 @@ local function runRotation()
 
         if is_aoe then
             -- AOE
-            if cast.able.wrath() and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_aoe) or buff.eclipse_solar.exists() then
+            if cast.able.wrath()
+                    and not eclipse_in and (eclipse_next == "lunar" or eclipse_next == "any" and is_aoe)
+                    or buff.eclipse_solar.exists()
+            then
                 if cast.wrath(units.dyn45) then
                     return true
                 end
@@ -1021,7 +1028,10 @@ local function runRotation()
         else
             -- ST
             if cast.able.starfire() then
-                if buff.eclipse_lunar.exists() or (not eclipse_in and eclipse_next == "solar") or (not eclipse_in and eclipse_next == "any") then
+                if buff.eclipse_lunar.exists()
+                        or (not eclipse_in and eclipse_next == "solar")
+                        or (not eclipse_in and eclipse_next == "any")
+                then
                     if cast.starfire(br.getBiggestUnitCluster(45, 8)) then
                         return true
                     end
@@ -1093,8 +1103,9 @@ local function runRotation()
 
         if mode.hEALS == 1 then
             --critical
-            if br.isChecked("Critical HP") and lowest.hp <= br.getOptionValue("Critical HP") then
-                if br.isChecked("Natures Swiftness") and cast.able.naturesSwiftness() then
+            if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
+
+                if isChecked("Natures Swiftness") and cast.able.naturesSwiftness() then
                     if cast.naturesSwiftness() then
                         br.addonDebug("[CRIT] Natures Swiftness")
                     end
@@ -1144,6 +1155,18 @@ local function runRotation()
             end
         end
 
+        if br.isChecked("Sunfire Explosives") and timers.time("Explosion_delay", isExplosive(units.dyn45)) > 0.25 then
+            if cast.able.sunfire(units.dyn45) and isExplosive(units.dyn45) then
+                --     Print(tostring(timers.time("Explosion_delay", isExplosive(units.dyn45))))
+                if cast.sunfire(units.dyn45) then
+                    br.addonDebug("killed explosive - at" .. timers.time("Explosion_delay", isExplosive(units.dyn45)))
+                    return true
+                end
+            end
+        end
+
+
+
         -- aggressive dots
         if br.isChecked("Aggressive Dots") and mode.dPS == 1 and lowest.hp > br.getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
             local thisUnit = "target"
@@ -1181,9 +1204,7 @@ local function runRotation()
                     countSmart = smarthottargets
                 end
 
-                local spellTarget = nil
-                local furthers_friend
-                local furthest_distance = 0
+                local spellTarget
 
                 if someone_casting and mode.hEALS == 1 then
                     for i = 1, countSmart do
@@ -1191,31 +1212,6 @@ local function runRotation()
                         local _, _, _, _, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo(thisUnit)
                         spellTarget = select(3, br._G.UnitCastID(thisUnit))
 
-                        --[[
-                        --wild charge stuff  - not working, needs more testing
-                        if talent.wildCharge and cast.able.wildCharge() and spellTarget == "player" then
-                            -- find furthest friend in range
-                            if br.isSelected("Smart Charge") then
-                                if #friends > 1 then
-                                    for i = 1, #friends do
-                                        if br.getDistance(friends[i].unit) > furthest_distance then
-                                            furthest_distance = br.getDistance(friends[i].unit)
-                                            furthers_friend = friends[i].unit
-                                        end
-                                    end
-                                    if spellTarget ~= nil and endCast
-                                            and (spellcastID == 253239 or spellcastID == 268932)
-                                            and ((endCast / 1000) - br._G.GetTime()) < 1
-                                            and br._G.GetShapeshiftForm() == 0 then
-                                        if cast.wildCharge(furthers_friend) then
-                                            br.addonDebug("[CHARGE] to " .. br._G.UnitName(furthers_friend))
-                                            return true
-                                        end
-                                    end
-                                end
-                            end
-                        end
-        ]]
                         if br.isChecked("Smart Hot") then
                             --        if someone_casting then
                             if spellTarget ~= nil and endCast and pre_hot_list[spellcastID] and ((endCast / 1000) - br._G.GetTime()) < 1 then
@@ -1509,7 +1505,7 @@ local function runRotation()
             if br.isChecked("Barkskin") and cast.able.barkskin() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    local _, _, _, startCast, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo(thisUnit)
+                    --        local _, _, _, startCast, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo(thisUnit)
 
                     if
                     php <= br.getOptionValue("Barkskin") or br.br._G.UnitDebuffID("player", 265773) or -- spit-gold from KR
@@ -1784,7 +1780,7 @@ local function runRotation()
                             -- get players in melee range of tank's target
                             local meleeFriends = br.getAllies(tankTarget, 5)
                             -- get the best ground circle to encompass the most of them
-                            local loc = nil
+                            local loc
                             if #meleeFriends >= 8 then
                                 loc = br.getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
                             else
@@ -1836,7 +1832,7 @@ local function runRotation()
                             -- get players in melee range of tank's target
                             local meleeFriends = br.getAllies(tankTarget, 5)
                             -- get the best ground circle to encompass the most of them
-                            local loc = nil
+                            local loc
                             if #meleeFriends >= 8 then
                                 loc = br.getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
                             else
@@ -2013,34 +2009,13 @@ local function runRotation()
     -----------------------------
     --- In Combat - Rotations ---
     -----------------------------
-
+    --unused for now
+    --[[
     local function round(num, numDecimalPlaces)
         local mult = 10 ^ (numDecimalPlaces or 0)
         return math.floor(num * mult + 0.5) / mult
     end
-
-    local function fully_auto_dps()
-        if cat and buff.prowl.exists() then
-        end
-    end
-
-    local function auto_combat()
-        --[[
-        A	1.00	rake,if=buff.shadowmeld.up|buff.prowl.up
-        B	1.00	auto_attack
-        C	35.73	moonfire,target_if=refreshable|(prev_gcd.1.sunfire&remains<duration*0.8&spell_targets.sunfire=1)
-        D	17.10	sunfire,target_if=refreshable|(prev_gcd.1.moonfire&remains<duration*0.8)
-        E	4.81	solar_wrath,if=energy<=50&!buff.cat_form.up
-        F	15.95	cat_form,if=!buff.cat_form.up&energy>50
-        G	0.78	ferocious_bite,if=(combo_points>3&target.time_to_die<3)|(combo_points=5&energy>=50&dot.rip.remains>14)&spell_targets.swipe_cat<5
-        0.00	swipe_cat,if=spell_targets.swipe_cat>=6
-        H	11.52	rip,target_if=refreshable&combo_points=5
-        I	33.48	rake,target_if=refreshable
-        J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
-        0.00	shred
-        ]]
-    end
-
+    ]]
     local function cat_combat()
         --cat_dps
 
@@ -2064,24 +2039,6 @@ local function runRotation()
         end
         --auto attack
         br._G.StartAttack(units.dyn5)
-
-        --pocket size computing device
-        if
-        br.isChecked("Trinket 1") and br.canUseItem(13) and br.getOptionValue("Trinket 1 Mode") == 4 or
-                br.isChecked("Trinket 2") and br.canUseItem(14) and br.getOptionValue("Trinket 2 Mode") == 4
-        then
-            local Trinket13 = _G.GetInventoryItemID("player", 13)
-            local Trinket14 = _G.GetInventoryItemID("player", 14)
-            if
-            (Trinket13 == 167555 or Trinket14 == 167555) and lowest.hp >= 60 and ttd("target") > 10 and not br.isMoving("player") and not noDamageCheck("target") and
-                    not buff.innervate.exists("player") and
-                    burst == false
-            then
-                if br.canUseItem(167555) then
-                    br.player.use.pocketSizedComputationDevice()
-                end
-            end
-        end
 
         --rush if we can -
         if talent.wildCharge and br.isChecked("Cat Charge") and #enemies.yards8 < 1 then
@@ -2191,12 +2148,15 @@ local function runRotation()
         end
         -- Nature's Cure / Cleanse
         --        local _, _, _, _, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo(enemies.yards40[1])
-        if #enemies.yards40 > 0 then
-            spellTarget = select(3, br._G.UnitCastID(enemies.yards40[1]))
-        end
         if mode.decurse == 1 then
+            if #enemies.yards40 > 0 then
+                spellTarget = select(3, br._G.UnitCastID(enemies.yards40[1]))
+            end
             for i = 1, #friends.yards40 do
-                if br.canDispel(br.friend[i].unit, spell.naturesCure) then
+                if br.canDispel(br.friend[i].unit, spell.naturesCure)
+                        and (br.getDebuffStacks(br.friend[i].unit, 240443) == 0 or br.getDebuffStacks("player", 240443) >= br.getOptionValue("Bursting")) --https://www.wowhead.com/spell=240443/burst
+                        and (not br.UnitDebuffID(br.friend[i].unit, 319603) or br.UnitDebuffID(br.friend[i].unit, 319603) and br.isCasting(319592, enemies.yards40[1]) and br.GetUnitIsUnit(spellTarget, br.friend[i].unit)) -- https://www.wowhead.com/spell=319592/stone-shattering-leap
+                then
                     if cast.naturesCure(br.friend[i].unit) then
                         br.addonDebug("Casting Nature's Cure")
                         return true
@@ -2205,12 +2165,6 @@ local function runRotation()
             end
         end
     end -- end cleanse
-
-    local function isCC(unit)
-        if br.getOptionCheck("Don't break CCs") then
-            return br.isLongTimeCCed(unit)
-        end
-    end
 
     local function root_cc()
         if talent.mightyBash and cast.able.mightyBash() then
@@ -2507,7 +2461,7 @@ local function runRotation()
                         end
                     else
                         --raid shit here
-                        local raid_bloom_target = "none"
+                        raid_bloom_target = "none"
                         if
                         runeforge.theDarkTitansLesson.equiped and
                                 (not buff.lifebloom.exists("player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5))
@@ -2918,8 +2872,13 @@ local function runRotation()
         end
 
         if br.isChecked("auto dash") and not catspeed then
-            if cast.tigerDash() then
+            if cast.stampedingRoarCat("player") then
                 return true
+            end
+            if talent.tigerDash then
+                if cast.tigerDash() then
+                    return true
+                end
             end
             if cast.dash() then
                 return true
