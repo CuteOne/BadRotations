@@ -284,7 +284,7 @@ local function already_stunned(Unit)
 end
 
 local function noDamageCheck(unit)
-    if isChecked("Sunfire Explosives") and br.GetObjectID(unit) == 120651 then
+    if br.isChecked("Sunfire Explosives") and br.GetObjectID(unit) == 120651 then
         return true
     end
     if isCC(unit) then
@@ -1103,9 +1103,9 @@ local function runRotation()
 
         if mode.hEALS == 1 then
             --critical
-            if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
+            if br.isChecked("Critical HP") and lowest.hp <= br.getOptionValue("Critical HP") then
 
-                if isChecked("Natures Swiftness") and cast.able.naturesSwiftness() then
+                if br.isChecked("Natures Swiftness") and cast.able.naturesSwiftness() then
                     if cast.naturesSwiftness() then
                         br.addonDebug("[CRIT] Natures Swiftness")
                     end
@@ -1508,8 +1508,8 @@ local function runRotation()
                     --        local _, _, _, startCast, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo(thisUnit)
 
                     if
-                    php <= br.getOptionValue("Barkskin") or br.br._G.UnitDebuffID("player", 265773) or -- spit-gold from KR
-                            br.br._G.UnitDebuffID("player", 302420) and thisUnit == 155433 and br.getCastTimeRemain(thisUnit) < 4
+                    php <= br.getOptionValue("Barkskin") or br.UnitDebuffID("player", 265773) or -- spit-gold from KR
+                            br.UnitDebuffID("player", 302420) and thisUnit == 155433 and br.getCastTimeRemain(thisUnit) < 4
                     then
                         -- 302420
                         if cast.barkskin() then
@@ -2010,12 +2010,12 @@ local function runRotation()
     --- In Combat - Rotations ---
     -----------------------------
     --unused for now
-    --[[
+
     local function round(num, numDecimalPlaces)
         local mult = 10 ^ (numDecimalPlaces or 0)
         return math.floor(num * mult + 0.5) / mult
     end
-    ]]
+
     local function cat_combat()
         --cat_dps
 
