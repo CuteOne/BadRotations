@@ -428,7 +428,7 @@ function br.getEnemiesInCone(angle,length,checkNoCombat)
 			end
 
             if inside then
-                unitsCounter = unitsCoutner + 1
+                unitsCounter = unitsCounter + 1
 				table.insert(units,thisUnit)
             end
         end
@@ -457,7 +457,7 @@ function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 	end
 	local LibDraw = _G.LibStub("LibDraw-1.0")
 	checkNoCombat = checkNoCombat or false
-	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
+	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length)
 	local enemyCounter = 0
 	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
 	local enemiesInRect = enemiesInRect or {}
