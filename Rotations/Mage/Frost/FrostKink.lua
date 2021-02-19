@@ -1,5 +1,5 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.2.5"
+local rotationVer  = "v1.2.6"
 local colorBlue     = "|cff3FC7EB"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
@@ -356,7 +356,7 @@ local function runRotation()
     local solo = br.player.instance == "none"
     local spell = br.player.spell
     local talent = br.player.talent
-    local targetUnit = nil
+    local targetUnit = "target"
     local thp = getHP("target")
     local travelTime = getDistance("target") / 50 --Ice lance
     local ttm = br.player.power.mana.ttm()
@@ -400,7 +400,16 @@ local function runRotation()
         return false
     end
 
-    -- Show/Hide toggles
+    local function UnitCastID(obj)
+            if UnitIsVisible(obj) then
+                local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitCastingInfo(obj)
+                return spellId or 0,spellId or 0 or ""
+            else
+                return 0,0,"",""
+            end
+        end
+
+            -- Show/Hide toggles
     if not UnitAffectingCombat("player") then
         if not talent.cometStorm then
             buttonCometStorm:Hide()
@@ -413,17 +422,7 @@ local function runRotation()
             buttonEbonbolt:Show()
         end
     end
-
-    local function UnitCastID(obj)
-            if UnitIsVisible(obj) then
-                local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitCastingInfo(obj)
-                return spellId or 0,spellId or 0 or ""
-            else
-                return 0,0,"",""
-            end
-        end
-
-    -- spellqueue ready
+-- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
         local castingInfo = {UnitCastingInfo("player")}
@@ -466,6 +465,7 @@ local function runRotation()
         end
         return false
     end       
+     
 
     -- Ice Floes
    -- if moving and talent.iceFloes and buff.iceFloes.exists() then
@@ -489,12 +489,7 @@ local function runRotation()
         iciclesStack = iciclesStack + 1
     end
 
-    units.get(40)
-    enemies.get(10)
-    enemies.get(10, "target", true)
-    enemies.get(40, nil, nil, nil, spell.frostbolt)
-
-    local dispelDelay = 1.5
+ local dispelDelay = 1.5
     if isChecked("Dispel delay") then
         dispelDelay = getValue("Dispel delay")
     end
@@ -502,7 +497,6 @@ local function runRotation()
     if profileStop == nil or not inCombat then
         profileStop = false
     end
-
     --ttd
     local function ttd(unit)
         local ttdSec = getTTD(unit)
@@ -512,8 +506,7 @@ local function runRotation()
         if ttdSec == -1 then
             return 999
         end
-        return
-         ttdSec
+        return ttdSec
     end
     --is frozen
     local function isFrozen(unit)
@@ -725,14 +718,14 @@ local function runRotation()
                 end
             )
         end
-        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and (UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
-            TargetUnit(enemyTable40[1].unit)
-            return true
-        end
         for i = 1, #enemyTable40 do
             if UnitIsUnit(enemyTable40[i].unit, "target") then
                 targetUnit = enemyTable40[i]
             end
+        end
+        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and (UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
+            TargetUnit(enemyTable40[1].unit)
+            return true
         end
     end
 
@@ -753,7 +746,7 @@ local function runRotation()
         end
     end
 
-    -- Frozen orb
+    --
     local function castFrozenOrb(minUnits, safe, minttd)
         if not isKnown(spell.frozenOrb) or getSpellCD(spell.frozenOrb) ~= 0 or mode.frozenOrb ~= 1 then
             return false
@@ -817,7 +810,6 @@ local function runRotation()
             end
         end
     end
-
     --Tank move check for aoe
     local tankMoving = false
     if inInstance then
@@ -838,6 +830,16 @@ local function runRotation()
     -- Opener Variables
     if not inCombat and not GetObjectExists("target") then
         fbInc = false
+    end
+
+    --Tank move check for aoe
+    local tankMoving = false
+    if inInstance then
+        for i = 1, #br.friend do
+            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and isMoving(br.friend[i].unit) then
+                tankMoving = true
+            end
+        end
     end
 
     local function actionList_Extras()
@@ -1022,7 +1024,7 @@ actions.cds+=/bag_of_tricks
 
 
     local function actionList_Cooldowns()
-        if useCDs() and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") then
+        if useCDs() and ttd("target") >= getOptionValue("Cooldowns Time to Die Limit") then
             -- actions.cds=potion,if=prev_off_gcd.icy_veins|fight_remains<30
             if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (cast.last.icyVeins() or ttd("target") < 30) then
                 br.addonDebug("[Action:Cooldowns] Damage Potion")
@@ -1737,7 +1739,6 @@ actions.st+=/frostbolt
             return true 
         end
         
-
         -- actions.st+=/ice_nova
         if cast.able.iceNova() then 
             if cast.iceNova("target") then br.addonDebug("[Action:ST] Ice Nova") return true end 
@@ -1815,8 +1816,6 @@ actions.st+=/frostbolt
             SpellStopCasting()
             return true
         end
-
-        if UnitChannelInfo("player") == GetSpellInfo(spell.shiftingPower) then SpellStopCasting() end 
 
 
         if spellQueueReady() then
@@ -1924,7 +1923,8 @@ actions.st+=/frostbolt
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if UnitIsAFK("player") and not inCombat and not hastar and profileStop==true then
+    if not UnitIsAFK("player") and not inCombat and not hastar and profileStop==true then
+        profileStop = false
     elseif inCombat and IsAoEPending() then
         SpellStopTargeting()
         br.addonDebug("Canceling Spell")
@@ -1946,6 +1946,12 @@ actions.st+=/frostbolt
                     if cast.iceLance() then br.addonDebug("Casting Ice Lance (Pull Spell)") return end
                 end
             end
+        end
+
+                if UnitChannelInfo("player") == GetSpellInfo(spell.shiftingPower) then 
+            ChatOverlay("no shifting power allowed!")
+            SpellStopCasting() 
+            return true 
         end
 
     -----------------------
