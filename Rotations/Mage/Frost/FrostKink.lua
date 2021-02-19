@@ -468,9 +468,9 @@ local function runRotation()
     end       
 
     -- Ice Floes
-    if moving and talent.iceFloes and buff.iceFloes.exists() then
-        moving = false
-    end
+   -- if moving and talent.iceFloes and buff.iceFloes.exists() then
+   ---     moving = false
+   --- end
 
     --rop notice
    --[[ if not ropNotice and talent.runeOfPower then
@@ -905,9 +905,9 @@ local function runRotation()
             end     
 
         -- Slow Fall
-        if isChecked("Slow Fall Distance") and cast.able.slowFall() and not buff.slowFall.exists() then
+        if isChecked("Slow Fall Distance") and not buff.slowFall.exists() then
             if IsFalling() and getFallDistance() >= getOptionValue("Slow Fall Distance") then
-                if cast.slowFall() then return end
+                if cast.slowFall("player") then return end
             end
         end         
     end
@@ -1351,9 +1351,9 @@ actions.cds+=/bag_of_tricks
         end
 
         -- actions.single+=/call_action_list,name=movement
-        if talent.iceFloes and moving and not buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
-            if cast.iceFloes("player") then return true end
-        end
+       -- if talent.iceFloes and moving and buff.iceFloes.exists() and charges.iceFloes.count() > 0 and playerCastRemain < 0.5 then
+    --        if cast.iceFloes("player") then return true end
+     --   end
 
         -- actions.single+=/frostbolt
         --Filler Spell
@@ -1815,10 +1815,9 @@ actions.st+=/frostbolt
             SpellStopCasting()
             return true
         end
-        --if (((buff.fingersOfFrost.count() > 1 and not isChecked("No Ice Lance")) or ((ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (buff.fingersOfFrost.count() > 1 or ifCheck() and interruptCast(spell.ebonbolt)) then
-         --   SpellStopCasting()
-         --   return true
-       -- end
+
+        if UnitChannelInfo("player") == GetSpellInfo(spell.shiftingPower) then SpellStopCasting() end 
+
 
         if spellQueueReady() then
             if moving then
@@ -1864,11 +1863,7 @@ actions.st+=/frostbolt
             if actionList_ST_SL() then return true end
         end
     end
-
-    local function actionList_Opener()
-        opener = true
-    end
-
+    
     local function actionList_PreCombat()
         local petPadding = 2
         if isChecked("Pet Management") and not talent.lonelyWinter and not (IsFlying() or IsMounted()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonWaterElemental() + petPadding) and not moving then
@@ -1922,6 +1917,9 @@ actions.st+=/frostbolt
         end -- End No Combat
 
     end -- End Action List - PreCombat
+
+
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1965,28 +1963,40 @@ actions.st+=/frostbolt
     ------------------------------
         if actionList_PreCombat() then return true end
 
+                        if talent.iceFloes and moving then
+                    -- If we have ice floes charges and we don't have the buff, cast ice floes. 
+                    if charges.iceFloes.count() > 0 and not buff.iceFloes.exists() then
+                        if cast.iceFloes("player") then return true end 
+                    end
+                    -- If we have ice floes up, and we're currently casting a spell while moving with the ice floes buff, attmept to get a free IF by batching at the end of the cast. 
+                    if UnitCastingInfo("player") ~= nil and charges.iceFloes.count() > 0 and buff.iceFloes.exists() and playerCastRemain <= 0.5 then
+                        if cast.iceFloes("player") then br.addonDebug("[Advanced] Ice Floes (Moving, Cast Time < 0.5, Batched)") return true end 
+                    end
+                    
+               end
+                if talent.iceFloes and moving and buff.iceFloes.exists() then if cast.frostbolt() then return true end end 
+
     --------------------------
     --- In Combat Rotation ---
     --------------------------        
-        if inCombat and not profileStop then
+        if (inCombat or cast.inFlight.frostbolt() or spellQueueReady()) and profileStop == false then
 
         --------------------------
         --- Defensive Rotation ---
         --------------------------
-            if actionList_Defensive() then return true end
+        if actionList_Defensive() then return true end
 
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
-            if actionList_Interrupts() then return true end
-
+        if actionList_Interrupts() then return true end
             if br.queueSpell then
                 ChatOverlay("Pausing for queuecast")
                 return true 
             end
 
-            if not pause(true) and targetUnit.calcHP > 0 and (targetUnit.facing or isChecked("Auto Facing")) then
-                if isChecked("Pet Management") and not talent.lonelyWinter and UnitIsVisible("pet") and not GetUnitIsUnit("pettarget", "target") and targetUnit then
+            if not pause(true) and hastar then
+                if isChecked("Pet Management") and not talent.lonelyWinter and UnitIsVisible("pet") and not GetUnitIsUnit("pettarget", "target")  then
                     PetAttack()
                 end
             --------------------------
