@@ -4,33 +4,62 @@ local rotationName = "RalphShadow" -- Change to name of profile listed in option
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
+    local CreateButton = br["CreateButton"]
     -- Rotation Button
-    RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.shadowform },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.mindSear },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mindFlay },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.shadowMend}
-    };
-    CreateButton("Rotation",1,0)
+    br.RotationModes = {
+        [1] = {
+            mode = "Auto",
+            value = 1,
+            overlay = "Automatic Rotation",
+            tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range",
+            highlight = 1,
+            icon = br.player.spell.swipeBear
+        },
+        [2] = {
+            mode = "Multi",
+            value = 2,
+            overlay = "Multi Target",
+            tip = "Multi Target Rotation",
+            highlight = 1,
+            icon = br.player.spell.regrowth
+        },
+		[3] = {
+            mode = "Sing",
+            value = 3,
+            overlay = "Single Target",
+            tip = "Single Target Only",
+            highlight = 1,
+            icon = br.player.spell.swipeBear
+        },
+        [4] = {
+            mode = "Off",
+            value = 4,
+            overlay = "DPS Rotation Disabled",
+            tip = "Disable DPS Rotation",
+            highlight = 0,
+            icon = br.player.spell.regrowth
+        }
+    }
+     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
-    CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.voidEruption },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.voidEruption },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.mindBlast }
-    };
-    CreateButton("Cooldown",2,0)
+    br.CooldownModes = {
+        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.ascendance},
+        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.fireElemental},
+        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.earthElemental}
+    }
+    CreateButton("Cooldown", 2, 0)
     -- Defensive Button
-    DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dispersion }
-    };
-    CreateButton("Defensive",3,0)
+    br.DefensiveModes = {
+        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.astralShift},
+        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.earthShield}
+    }
+    CreateButton("Defensive", 3, 0)
     -- Interrupt Button
-    InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence }
-    };
-    CreateButton("Interrupt",4,0)
+    br.InterruptModes = {
+        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.windShear},
+        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hex}
+    }
+    CreateButton("Interrupt", 4, 0)
 end
 
 ---------------
@@ -43,7 +72,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+        local section = br.ui:createSection(br.ui.window.profile,  "General")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
@@ -256,7 +285,7 @@ local function CwC()
     
     -- # Use Searing Nightmare if you will hit enough targets and Power Infusion and Voidform are not ready, or to refresh SW:P on two or more targets.
     -- actions.cwc=searing_nightmare,use_while_casting=1,target_if=(variable.searing_nightmare_cutoff&!variable.pool_for_cds)|(dot.shadow_word_pain.refreshable&spell_targets.mind_sear>1)
-    if (useCDs() and cd.voidEruption.exists() or not useCDs()) and ((snmCutoff and not pool) or (not swpCheck and #searEnemies > 1)) and cast.current.mindSear() then
+    if (br.useCDs() and cd.voidEruption.exists() or not br.useCDs()) and ((snmCutoff and not pool) or (not swpCheck and #searEnemies > 1)) and cast.current.mindSear() then
         if power > 30 then
             if cast.searingNightmare("target") then ui.debug("Searing nightmare if will hit 3+ targets [CwC]") return end
         end
@@ -264,7 +293,7 @@ local function CwC()
     
     -- # Short Circuit Searing Nightmare condition to keep SW:P up in AoE
     -- actions.cwc+=/searing_nightmare,use_while_casting=1,target_if=talent.searing_nightmare.enabled&dot.shadow_word_pain.refreshable&spell_targets.mind_sear>2
-    if ((useCDs() and cd.voidEruption.exists()) or not useCDs()) and talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) and power > 30 then
+    if ((br.useCDs() and cd.voidEruption.exists()) or not br.useCDs()) and talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,br._G.UnitChannelInfo("player")) == br._G.GetSpellInfo(48045) and power > 30 then
         if cast.searingNightmare("target") then ui.debug('SNM to refresh SW:P [CwC]') return end
     end
 end
@@ -325,7 +354,7 @@ local function snmEnabled()
 end
 
 function noDotCheck(unit)
-    if br.GetObjectID(unit) == 171557 or UnitIsCharmed(unit) then
+    if br.GetObjectID(unit) == 171557 or br._G.UnitIsCharmed(unit) then
         return true
     else
         return false
@@ -345,7 +374,7 @@ actionList.Extra = function()
     -- PowerWord: Fort
     if ui.checked("Power Word: Fortitude") then
         for i = 1, #br.friend do
-            if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+            if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
                 if cast.powerWordFortitude() then return end
             end
         end
@@ -354,9 +383,9 @@ actionList.Extra = function()
     if ui.checked("DPS Testing") then
         if br.GetObjectExists("target") then
             if br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and br.isDummy() then
-                StopAttack()
-                ClearTarget()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                br._G.StopAttack()
+                br._G.ClearTarget()
+                br._G.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 profileStop = true
             end
         end
@@ -367,12 +396,12 @@ end -- End Action List - Extra
 actionList.Defensive = function()
     -- Fade
     if br.isChecked("Fade") then
-        if not solo and UnitThreatSituation("player") ~= nil and UnitThreatSituation("player") > 1 then
+        if not solo and br._G.UnitThreatSituation("player") ~= nil and br._G.UnitThreatSituation("player") > 1 then
             if cast.fade("player") then ui.debug("Defensive - Casting fade") return end
         end
     end
     -- Healthstone
-    if ui.checked("Healthstone") and php <= ui.value("Healthstone") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(171267)) then
+    if ui.checked("Healthstone") and php <= ui.value("Healthstone") and inCombat and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(171267)) then
         if br.canUseItem(5512) then
             br.useItem(5512)
         elseif br.canUseItem(healPot) then
@@ -396,7 +425,7 @@ actionList.Defensive = function()
         end
     end
     -- PowerWord: Shield
-    if not debuff.weakenedSoul.exists('player') and (ui.checked("PWS: Body and Soul") and talent.bodyAndSoul and moving and not IsFalling() or inCombat and php <= ui.value('Power Word: Shield')) then
+    if not debuff.weakenedSoul.exists('player') and (ui.checked("PWS: Body and Soul") and talent.bodyAndSoul and moving and not br._G.IsFalling() or inCombat and php <= ui.value('Power Word: Shield')) then
         if cast.powerWordShield("player") then ui.debug("BnS or low health PW:S [Defensive]") return end
     end
     -- Shadow Mend
@@ -407,7 +436,7 @@ end -- End Action List - Defensive
 
 -- Action List - Interrrupt
 actionList.Interrupt = function()
-    if useInterrupts() then
+    if br.useInterrupts() then
         -- Silence
         unit.interruptable(thisUnit,ui.value("Interrupt At"))
         if ui.checked("Silence") then
@@ -452,7 +481,7 @@ end -- End Action List - Interrupt
 actionList.Cooldown = function()
     -- # Use Power Infusion with Voidform. Hold for Voidform comes off cooldown in the next 10 seconds otherwise use on cd unless the Pelagos Trait Combat Meditation is talented, or if there will not be another Void Eruption this fight.
     -- actions.cds=power_infusion,if=buff.voidform.up|!soulbind.combat_meditation.enabled&cooldown.void_eruption.remains>=10|fight_remains<cooldown.void_eruption.remains
-    if useCDs() then
+    if br.useCDs() then
         if voidform or cd.voidEruption.remain() >= 10 or ttd('target') < cd.voidEruption.remain() then
             if cast.powerInfusion() then return end
         end
@@ -632,7 +661,7 @@ actionList.Main = function()
    
     -- # Use Void Eruption on cooldown pooling at least 40 insanity but not if you will overcap insanity in VF. Make sure shadowfiend/mindbender is on cooldown before VE.
     -- actions.main+=/void_eruption,if=variable.pool_for_cds&insanity>=40&(insanity<=85|talent.searing_nightmare.enabled&variable.searing_nightmare_cutoff)&!cooldown.fiend.up
-    if useCDs() and not voidform and not moving and power >= 40 and (power <= 85 or (talent.searingNightmare and snmCutoff)) and cd.shadowfiend.exists() then
+    if br.useCDs() and not voidform and not moving and power >= 40 and (power <= 85 or (talent.searingNightmare and snmCutoff)) and cd.shadowfiend.exists() then
         if cast.voidEruption() then ui.debug("Casting Void Eruption [Main]") return end
     end
     
@@ -644,12 +673,12 @@ actionList.Main = function()
 
     -- # Use Shadow Crash on CD unless there are adds incoming.
     -- actions.main+=/shadow_crash,if=raid_event.adds.in>10
-    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and ((not tankMoving and (inRaid or inInstance)) or (not inInstance and not inRaid and not isMoving("target"))) then
-        if cast.shadowCrash("best",nil,1,8) then ui.debug("Casting Shadow Crash [Main]") SpellStopTargeting() return end
+    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and ((not tankMoving and (inRaid or inInstance)) or (not inInstance and not inRaid and not br.isMoving("target"))) then
+        if cast.shadowCrash("best",nil,1,8) then ui.debug("Casting Shadow Crash [Main]") br._G.SpellStopTargeting() return end
     end
 
     -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-    if ((useCDs() and cd.voidEruption.exists()) or not useCDs()) and talent.searingNightmare and #searEnemies > searCutoff and not moving and power > 30 and not cast.current.mindSear() then
+    if ((br.useCDs() and cd.voidEruption.exists()) or not br.useCDs()) and talent.searingNightmare and #searEnemies > searCutoff and not moving and power > 30 and not cast.current.mindSear() then
         if cast.mindSear('target') then ui.debug("Mind Sear on 4+ [Main]") return end
     end
 
@@ -725,7 +754,7 @@ actionList.Main = function()
     end
     
     -- actions.main+=/mindbender,if=dot.vampiric_touch.ticking&(talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff|dot.shadow_word_pain.ticking)
-    if useCDs() and debuff.vampiricTouch.exists('target') and (talent.searingNightmare and #searEnemies > searCutoff or debuff.shadowWordPain.exists('target')) then
+    if br.useCDs() and debuff.vampiricTouch.exists('target') and (talent.searingNightmare and #searEnemies > searCutoff or debuff.shadowWordPain.exists('target')) then
         if talent.mindBender and ttd("target") >= 6 then
             if cast.mindBender('target') then ui.debug("Casting Mindbender [Main]") return end
         else
@@ -872,7 +901,7 @@ local function runRotation()
     inRaid = br.player.instance == "raid"
     level                                           = br.player.level
     mode                                            = br.player.ui.mode
-    moving                                          = isMoving('player')
+    moving                                          = br.isMoving('player')
     mrdm                                            = math.random
     power                                           = br.player.power.insanity.amount()
     php                                             = br.player.health
@@ -887,10 +916,10 @@ local function runRotation()
     voidform                                        = buff.voidForm.exists()
     -- General Locals   
     hastar                                          = br.GetObjectExists("target")
-    healPot                                         = getHealthPot()
-    profileStop                                     = profileStop or false
+    healPot                                         = br.getHealthPot()
+    profileStop                                     = br.profileStop or false
     ttd                                             = br.getTTD
-    haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4
+    haltProfile = (inCombat and profileStop) or (br._G.IsMounted() or br._G.IsFlying()) or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -926,7 +955,7 @@ local function runRotation()
     tankMoving = false
     if inInstance then
         for i = 1, #br.friend do
-            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and isMoving(br.friend[i].unit) then
+            if (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.isMoving(br.friend[i].unit) then
                 tankMoving = true
             end
         end
@@ -937,7 +966,7 @@ local function runRotation()
 
     --Clear last cast table ooc to avoid strange casts
     if not inCombat and #br.lastCastTable.tracker > 0 then
-        wipe(br.lastCastTable.tracker)
+        br._G.wipe(br.lastCastTable.tracker)
     end
     ---------------------
     --- Begin Profile ---
@@ -988,7 +1017,7 @@ local function runRotation()
 end -- End runRotation
 local id = 258 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
