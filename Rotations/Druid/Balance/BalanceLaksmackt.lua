@@ -1658,7 +1658,7 @@ local function runRotation()
                     end
                 end
             elseif inCombat and br.getOptionValue("Rebirth") == 4 then
-                if br.GetUnitExists("mouseover") and br._GetUnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
+                if br.GetUnitExists("mouseover") and br.GetUnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
                     if cast.rebirth("mouseover", "dead") then
                         return true
                     end
