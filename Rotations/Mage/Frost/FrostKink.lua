@@ -1,6 +1,7 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.2.6"
+local rotationVer  = "v1.2.7"
 local colorBlue     = "|cff3FC7EB"
+local colorWhite = "|cffffffff"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -118,7 +119,13 @@ local function createOptions()
         ------------------------
         --- GENERAL  OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  colorBlue .. "Frost " .. ".:|:. " .. colorBlue .. " General " .. "Ver|" ..colorBlue .. rotationVer .. ".:|:. ")
+        section = br.ui:createSection(br.ui.window.profile,  
+         colorBlue .. " Frost" .. 
+         colorWhite .. " .:|:. " .. 
+         colorBlue .. "General ".. 
+         colorWhite.."Ver: " ..
+         colorBlue .. rotationVer .. 
+         colorWhite.." .:|:. ")
         -- APL
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
 
@@ -143,7 +150,7 @@ local function createOptions()
         ------------------------
         ---   DPS SETTINGS   ---
         ------------------------
-         section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DPS" .. ".:|:. " ..colorBlue .. " DPS Settings")
+         section = br.ui:createSection(br.ui.window.profile, colorBlue .. " DPS" .. colorWhite .. ".:|:. " ..colorBlue .. " DPS Settings")
         -- Blizzard Units
         br.ui:createSpinnerWithout(section, "Blizzard Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Blizzard will be cast on.")
         
@@ -181,7 +188,7 @@ local function createOptions()
         ------------------------
         ---     UTILITY      ---
         ------------------------
-         section = br.ui:createSection(br.ui.window.profile, colorBlue .. "UTLY" .. ".:|:. " ..colorBlue .. " Utility")
+         section = br.ui:createSection(br.ui.window.profile, colorBlue .. " UTLY" .. colorWhite.. ".:|:. " ..colorBlue .. " Utility")
         -- Spellsteal
         br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
 
@@ -202,7 +209,7 @@ local function createOptions()
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, colorBlue .. "CDs" .. ".:|:. " ..colorBlue .. " Cooldowns")
+        section = br.ui:createSection(br.ui.window.profile, colorBlue .. " CDs" .. colorWhite.. ".:|:. " ..colorBlue .. " Cooldowns")
         -- Cooldowns Time to Die limit
         br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
 
@@ -226,7 +233,7 @@ local function createOptions()
         ------------------------
         --- Defensive OPTIONS ---
         ------------------------
-      section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DEF" .. ".:|:. " ..colorBlue .. " Defensive")
+      section = br.ui:createSection(br.ui.window.profile, colorBlue .. " DEF" .. colorWhite.. ".:|:. " ..colorBlue .. " Defensive")
         -- Healthstone
         br.ui:createSpinner(section, "Pot/Stoned", 60, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
@@ -254,7 +261,7 @@ local function createOptions()
         ------------------------
         ---Interrupt  OPTIONS---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+        section = br.ui:createSection(br.ui.window.profile, colorBlue.." Interrupts")
         -- Interrupt Percentage
         br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percent to Cast At")
         -- Don't interrupt
@@ -264,7 +271,7 @@ local function createOptions()
         ------------------------
         ---TOGGLE KEY OPTIONS---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        section = br.ui:createSection(br.ui.window.profile, colorBlue.." Toggle Keys")
         -- Single/Multi Toggle
         br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
@@ -363,17 +370,6 @@ local function runRotation()
     local units = br.player.units
     local use = br.player.use
     local reapingDamage = getOptionValue("Reaping Flames Damage") * 1000
-
-    units.get(40)
-    enemies.get(10)
-    enemies.get(8)
-    enemies.get(8,"target") -- Makes enemies.yards8t
-    enemies.get(10, "target", true) -- makes enemeis.yards10tnc
-    enemies.get(10,"target") -- makes enemies.yards10t
-    enemies.get(18)
-    enemies.get(40, nil, nil, nil, spell.drainSoul)
-    enemies.get(40,"player",false,true) -- makes enemies.yards40f
-
     -- Super scuffed IF tracker
     local curIF = select(3,AuraUtil.FindAuraByName(GetSpellInfo(116267), "player", "HELPFUL"))
     if curIF then
@@ -388,7 +384,6 @@ local function runRotation()
         if5Start = 0
         if5End = 0
     end
-
     local function ifCheck()
         if if5Start ~= 0 and isChecked("No Ice Lance") then
             --cast_time+travel_time>incanters_flow_time_to.5.up&cast_time+travel_time<incanters_flow_time_to.4.down
@@ -400,16 +395,7 @@ local function runRotation()
         return false
     end
 
-    local function UnitCastID(obj)
-            if UnitIsVisible(obj) then
-                local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitCastingInfo(obj)
-                return spellId or 0,spellId or 0 or ""
-            else
-                return 0,0,"",""
-            end
-        end
-
-            -- Show/Hide toggles
+    -- Show/Hide toggles
     if not UnitAffectingCombat("player") then
         if not talent.cometStorm then
             buttonCometStorm:Hide()
@@ -422,7 +408,7 @@ local function runRotation()
             buttonEbonbolt:Show()
         end
     end
--- spellqueue ready
+    -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
         local castingInfo = {UnitCastingInfo("player")}
@@ -465,20 +451,19 @@ local function runRotation()
         end
         return false
     end       
-     
 
     -- Ice Floes
-   -- if moving and talent.iceFloes and buff.iceFloes.exists() then
-   ---     moving = false
-   --- end
+    if moving and talent.iceFloes and buff.iceFloes.exists() then
+        moving = false
+    end
 
     --rop notice
-   --[[ if not ropNotice and talent.runeOfPower then
+    if not ropNotice and talent.runeOfPower then
         print("Rune Of Power talent not supported in rotation yet, use manually")
         ropNotice = true
     elseif ropNotice and not talent.runeOfPower then
         ropNotice = false
-    end--]]
+    end
 
     --buff cache locals
     local fofExists = buff.fingersOfFrost.exists()
@@ -489,7 +474,12 @@ local function runRotation()
         iciclesStack = iciclesStack + 1
     end
 
- local dispelDelay = 1.5
+    units.get(40)
+    enemies.get(10)
+    enemies.get(10, "target", true)
+    enemies.get(40, nil, nil, nil, spell.frostbolt)
+
+    local dispelDelay = 1.5
     if isChecked("Dispel delay") then
         dispelDelay = getValue("Dispel delay")
     end
@@ -718,14 +708,15 @@ local function runRotation()
                 end
             )
         end
+        
+        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and (UnitIsDeadOrGhost("target")) and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
+            TargetUnit(enemyTable40[1].unit)
+            return true
+        end
         for i = 1, #enemyTable40 do
             if UnitIsUnit(enemyTable40[i].unit, "target") then
                 targetUnit = enemyTable40[i]
             end
-        end
-        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and (UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
-            TargetUnit(enemyTable40[1].unit)
-            return true
         end
     end
 
@@ -826,22 +817,6 @@ local function runRotation()
         Z = select(3, TraceLine(X, Y, Z + 10, X, Y, Z - 10, 0x110))
         print(Z)
     end
-
-    -- Opener Variables
-    if not inCombat and not GetObjectExists("target") then
-        fbInc = false
-    end
-
-    --Tank move check for aoe
-    local tankMoving = false
-    if inInstance then
-        for i = 1, #br.friend do
-            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and isMoving(br.friend[i].unit) then
-                tankMoving = true
-            end
-        end
-    end
-
     local function actionList_Extras()
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
             StopAttack()
@@ -1052,7 +1027,7 @@ actions.cds+=/bag_of_tricks
             -- Shifting Power : Night Fae ------------------
             ------------------------------------------------
             -- actions.aoe+=/shifting_power
-            if covenant.nightFae.active and spellUsable(314791) and select(2,GetSpellCooldown(314791)) <= gcdMax then
+            if covenant.nightFae.active and spellUsable(314791) and select(2,GetSpellCooldown(314791)) <= gcdMax and ttd("target") > 8 then
                 if cast.shiftingPower() then br.addonDebug("[Action:Cooldowns] Shifting Power") return true end
             end
             ------------------------------------------------
@@ -1627,7 +1602,7 @@ actions.aoe+=/frostbolt
             if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion") return true end 
         end
         -- actions.aoe+=/ebonbolt
-        if mode.ebonbolt ~= 2 and not moving and targetUnit.ttd > 5 and targetUnit.facing then 
+        if mode.ebonbolt ~= 2 and not moving and ttd("target") > 5 then 
             if cast.ebonbolt("target") then br.addonDebug("[Action:AoE] Ebonbolt") return true end
         end 
         -- actions.aoe+=/ice_lance,if=runeforge.glacial_fragments&talent.splitting_ice&travel_time<ground_aoe.blizzard.remains
@@ -1752,7 +1727,7 @@ actions.st+=/frostbolt
         -- actions.st+=/ebonbolt
         --if cast.able.ebonbolt() then if cast.ebonbolt("target") then return true end end 
         -- actions.aoe+=/ebonbolt
-        if mode.ebonbolt == 1 and not moving and targetUnit.ttd > 5 and targetUnit.facing and not bfExists then 
+        if mode.ebonbolt == 1 and not moving and ttd("target") > 5 and not bfExists then 
             if cast.ebonbolt("target") then return true end
         end 
             -- actions.st+=/radiant_spark,if=(!runeforge.freezing_winds|active_enemies>=2)&buff.brain_freeze.react
@@ -1985,7 +1960,7 @@ actions.st+=/frostbolt
     --------------------------
     --- In Combat Rotation ---
     --------------------------        
-        if (inCombat or cast.inFlight.frostbolt() or spellQueueReady()) and profileStop == false then
+        if (inCombat or cast.inFlight.frostbolt() or spellQueueReady()) and profileStop == false and isValidUnit("target") and getDistance("target") < 40 then
 
         --------------------------
         --- Defensive Rotation ---
