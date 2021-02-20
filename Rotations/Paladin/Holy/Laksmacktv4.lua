@@ -1105,7 +1105,7 @@ actionList.Cooldown = function()
         if br.getOptionValue("BoS Target") == 2 then
             -- tank only
             for i = 1, #tanks do
-                if tanks[i].hp <= ui.checked("Blessing of Sacrifice") then
+                if tanks[i].hp <= ui.value("Blessing of Sacrifice") then
                     if cast.blessingOfSacrifice(tanks[i].unit) then
                         return true
                     end
@@ -1234,7 +1234,7 @@ actionList.Cooldown = function()
     end
     -- Avenging Wrath
     if ui.checked("Avenging Wrath") and cast.able.avengingWrath() and not talent.avengingCrusader then
-        if br.getLowAllies(ui.checked "Avenging Wrath") >= ui.value("Avenging Wrath Targets") then
+        if br.getLowAllies(ui.value("Avenging Wrath")) >= ui.value("Avenging Wrath Targets") then
             if cast.avengingWrath() then
                 return true
             end
@@ -1242,7 +1242,7 @@ actionList.Cooldown = function()
     end
     -- Avenging Crusader
     if ui.checked("Avenging Crusader") and cast.able.avengingCrusader() and talent.avengingCrusader and br.getDistance("target") <= 5 then
-        if br.getLowAllies(ui.checked "Avenging Crusader") >= ui.value("Avenging Crusader Targets") then
+        if br.getLowAllies(ui.value("Avenging Crusader")) >= ui.value("Avenging Crusader Targets") then
             if cast.avengingCrusader() then
                 return true
             end
@@ -1258,7 +1258,7 @@ actionList.Cooldown = function()
     end
 
     -- Unstable Temporal Time Shifter
-    if ui.checked("Eng Brez") and br.canUseItem(158379) and not moving and inCombat and lowest.hp > ui.checked("Critical HP") then
+    if ui.checked("Eng Brez") and br.canUseItem(158379) and not moving and inCombat and lowest.hp > ui.value("Critical HP") then
         if br.getOptionValue("Eng Brez") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
             UseItemByName(158379, "target")
         end
