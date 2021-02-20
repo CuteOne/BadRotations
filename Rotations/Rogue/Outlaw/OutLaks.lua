@@ -845,7 +845,7 @@ actionList.dps = function()
         end
     else
 
-    if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and getCombatTime() > 4 or isBoss() then
+    if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and getCombatTime() > 4 then
         if cast.vanish() then
             return true
         end
@@ -1561,7 +1561,7 @@ actionList.Interrupt = function()
                         end
                     end
                 else
-                    if cloakList[interruptID] then
+                    if cloakList[interruptID] and mode.cloak == 1 then
                         if cast.cloakOfShadows() then
                             return true
                         end
