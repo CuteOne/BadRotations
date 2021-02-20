@@ -13,15 +13,15 @@ function br:loadUnlockerAPI()
         unlocked = false
     end
     -- Set Spell Queue Window
-    if class == 8 or class == 9 then
+    --if class == 8 or class == 9 then
         if unlocked and br.prevQueueWindow ~= 400 then
             b.RunMacroText("/console SpellQueueWindow 400")
         end
-    else
-        if unlocked and br.prevQueueWindow ~= 0 then
-            b.RunMacroText("/console SpellQueueWindow 0")
-        end
-    end
+    --else
+    --     if unlocked and br.prevQueueWindow ~= 0 then
+    --         b.RunMacroText("/console SpellQueueWindow 0")
+    --     end
+    -- end
     return unlocked
 end
 

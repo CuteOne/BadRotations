@@ -619,10 +619,12 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 	local aoeCast = (debug == "ground" or debug == "aoe" or debug == "cone" or debug == "rect")
 	-- Base Spell Availablility Check
 	if (baseSpellID == spellID or overrideSpellID == spellID) and _G.IsUsableSpell(spellID) and not select(2,_G.IsUsableSpell(spellID)) -- Usability Checks
-	 	 and br.getSpellCD(spellID) <= 0.5 and (br.getSpellCD(61304) <= 0.5 or select(2,_G.GetSpellBaseCooldown(spellID)) <= 0.5) -- Cooldown Checks
-	 	 and (br.isKnown(spellID) or debug == "known") -- Known/Current Checks
-	 	 and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
-	 	 and (not aoeCast or (aoeCast and (br.isDummy() or br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits)))) -- Safe to AoE Check
+	 	and br.getSpellCD(spellID) <= 0.5 and (br.getSpellCD(61304) <= 0 or select(2,_G.GetSpellBaseCooldown(spellID)) <= 0 
+		 	or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= 0.5)) -- Cooldown Checks
+	 	-- and (br.isKnown(spellID) or debug == "known") -- Known/Current Checks
+		and (br.isKnown(spellID) or debug == "known") --and ((not _G.IsCurrentSpell(spellID) and not br.isCastingSpell(spellID,"player"))) -- Known/Current Checks
+	 	and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
+	 	and (not aoeCast or (aoeCast and (br.isDummy() or br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits)))) -- Safe to AoE Check
 	then
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
