@@ -70,7 +70,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Brutal Slash in Opener", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Brutal Slash in Opener")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-	    -- Berserk/Tiger's Fury Pre-Pull
+	        -- Berserk/Tiger's Fury Pre-Pull
             br.ui:createCheckbox(section, "Berserk/Tiger's Fury Pre-Pull")
             -- Travel Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
@@ -420,7 +420,7 @@ actionList.Extras = function()
                 if cast.catForm("player") then ui.debug("Casting Cat Form [Target In 20yrds]") return true end
             end
             -- Cat Form - Less Fall Damage
-            if (not br.canFly() or unit.inCombat() or unit.level() < 24 or not unit.IsOutdoors())
+            if (not br.canFly() or unit.inCombat() or unit.level() < 24 or not unit.outdoors())
                 and (not unit.swimming() or (not unit.moving() and unit.swimming() and #enemies.yards5f > 0))
                 and br.fallDist > 90 --falling > ui.value("Fall Timer")
             then

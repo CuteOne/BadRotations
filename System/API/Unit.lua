@@ -248,6 +248,10 @@ br.api.unit = function(self)
         local UnitIsPlayer = br._G["UnitIsPlayer"]
         return UnitIsPlayer(thisUnit)
     end
+    -- Outdoors
+    unit.outdoors = function()
+        return br._G["IsOutdoors"]
+    end
     -- Race
     unit.race = function(thisUnit)
         local select = _G["select"]
