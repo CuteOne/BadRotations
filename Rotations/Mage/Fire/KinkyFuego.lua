@@ -1,5 +1,5 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.2.7"
+local rotationVersion = "1.2.9"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 local InterruptCast = false 
@@ -8,7 +8,6 @@ local var = {}
 -- Load 
 if not var.kinky_tracker then 
     var.kinky_tracker = {} 
-    br.addonDebug(colorWhite .. " ----------------------------------- <|:-:|" .. colorRed .. ">Kinky Tracker Initializing...".. colorWhite .. "|:-:|>" .. colorWhite .. " -------------------------- ") 
 end
 if not var.intBuffs then intBufs = 0 end 
 if not var.hasteBuffs then hasteBuffs = 0 end
@@ -77,7 +76,13 @@ local function createOptions()
         
     local GeneralOptions = function()
     -- General Options
-         section = br.ui:createSection(br.ui.window.profile, colorWhite .. "Fire " .. colorWhite .. ".:|:. " .. colorRed .. "General ".. colorWhite.."Ver|" ..colorRed .. rotationVersion .. colorWhite..".:|:. ")
+         section = br.ui:createSection(br.ui.window.profile, 
+         colorRed .. "Fire" .. 
+         colorWhite .. " .:|:. " .. 
+         colorRed .. "General ".. 
+         colorWhite.."Ver: " ..
+         colorRed .. rotationVersion .. 
+         colorWhite.." .:|:. ")
         -- Casting Interrupt Delay
             br.ui:createSpinner(section, "Casting Interrupt Delay", 0.2, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
         -- Dummy DPS Test
@@ -109,16 +114,18 @@ local function createOptions()
         -- Predict movement
             br.ui:createCheckbox(section, "Predict Movement", "|cffFFFFFF Predict movement of units for Meteor/Flamestrike Units (works best in solo/dungeons)")
         -- AoE Meteor
-        -- Cataclysm Target
+        -- Meteor Target
             br.ui:createDropdownWithout(section, "Meteor Target", {"Target", "Best"}, 1, "|cffFFFFFFMeteor target")
             br.ui:createSpinner(section,"Meteor Targets",  3,  1,  15,  1, "Min AoE Units")
             br.ui:createCheckbox(section, "Ignore Meteor Targets during CDs", "|cffFFFFFFToggle Use Meteor during CDs regardless of unit count.")
             br.ui:createCheckbox(section, "Use Meteor outside ROP", "If Unchecked, will only use Meteor if ROP buff is up")
 
-        -- Flamestrike
-            br.ui:createSpinnerWithout(section,"FS Targets (Firestorm)",  3,  1,  10,  1, "Min AoE Units")
-            br.ui:createSpinnerWithout(section,"FS Targets (Hot Streak)",  3,  1,  10,  1, "Min AoE Units")
-            br.ui:createSpinnerWithout(section,"FS Targets (Flame Patch)",  3,  1,  10,  1, "Min AoE Units")
+        -- AoE Flamestrike 
+        -- Flamestrike Target
+            br.ui:createDropdownWithout(section, "Flamestrike Target", {"Target", "Best"}, 1, "|cffFFFFFFFlamestrike target")
+            --br.ui:createSpinnerWithout(section,"FS Targets (Firestorm)",  3,  1,  10,  1, "Min AoE Units")
+            --br.ui:createSpinnerWithout(section,"FS Targets (Hot Streak)",  3,  1,  10,  1, "Min AoE Units")
+            --br.ui:createSpinnerWithout(section,"FS Targets (Flame Patch)",  3,  1,  10,  1, "Min AoE Units")
 
         -- Rune of Power
             br.ui:createSpinnerWithout(section,"RoP Targets",  3,  1,  10,  1, "Min AoE Units")
@@ -199,6 +206,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Counterspell")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+        -- Don't interrupt
+        br.ui:createCheckbox(section, "Do Not Cancel Cast", "|cffFFBB00Will not interrupt own spellcasting to cast Counterspell or interrupt casts for Max dps")
         br.ui:checkSectionState(section)
 
     end 
@@ -533,7 +542,7 @@ local function runRotation()
             ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
             -- Cast Tracker .:|:.-----.:|:.-----.:|:.-----
             ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            if param == "SPELL_CAST_SUCCESS"
+          --[[  if param == "SPELL_CAST_SUCCESS"
             and source == br.guid 
             then
                 local spellId, spellName, spellSchool = select(12, ...)
@@ -567,7 +576,7 @@ local function runRotation()
                     var.disciplinary_command_frost = 0;
                     var.disciplinary_command_fire = 0;
                 end
-            end
+            end]]
             
             ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
             -- Proc Tracker .:|:.-----.:|:.-----.:|:.-----
@@ -600,10 +609,10 @@ local function runRotation()
             end -- End SPELL_DAMAGE - Event
 
 
-            if param == "SPELL_AURA_REMOVED" 
-            and source == br.guid 
-            then
-            end
+            --if param == "SPELL_AURA_REMOVED" 
+           -- and source == br.guid 
+           -- then
+           --end
         end
 end
 
@@ -885,7 +894,7 @@ end
         return hp
     end
 
-            --local enemies table with extra data
+    --local enemies table with extra data
     local facingUnits = 0
     local enemyTable40 = {}
     if #enemies.yards40 > 0 then
@@ -895,22 +904,18 @@ end
         local distance20Min
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if GetUnitIsUnit(thisUnit, "target") and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or GetUnitIsUnit(thisUnit, "target")) then
+            if (GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
                 enemyUnit.distance = getDistance(thisUnit)
-                enemyUnit.distance20 = math.abs(enemyUnit.distance - 20)
+                enemyUnit.distance20 = math.abs(getDistance(thisUnit) - 20)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
                 enemyUnit.facing = getFacing("player", thisUnit)
-                if getOptionValue("APL Mode") == 2 then
-                    enemyUnit.frozen = isFrozen(thisUnit)
-                end
-                enemyUnit.calcHP = calcHP(enemyUnit)
-                tinsert(enemyTable40, enemyUnit)
                 if enemyUnit.facing then
                     facingUnits = facingUnits + 1
                 end
+                tinsert(enemyTable40, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then
                     highestHP = enemyUnit.hpabs
                 end
@@ -925,40 +930,8 @@ end
                 end
             end
         end
-        if #enemyTable40 > 1 then
-            for i = 1, #enemyTable40 do
-                local hpNorm = (5 - 1) / (highestHP - lowestHP) * (enemyTable40[i].hpabs - highestHP) + 5 -- normalization of HP value, high is good
-                if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0 / 0) then
-                    hpNorm = 0
-                end -- NaN check
-                local distance20Norm = (3 - 1) / (distance20Max - distance20Min) * (enemyTable40[i].distance20 - distance20Min) + 1 -- normalization of distance 20, low is good
-                if distance20Norm ~= distance20Norm or tostring(distance20Norm) == tostring(0 / 0) then
-                    distance20Norm = 0
-                end -- NaN check
-                local enemyScore = hpNorm + distance20Norm
-                if enemyTable40[i].facing then
-                    enemyScore = enemyScore + 10
-                end
-                if enemyTable40[i].ttd > 1.5 then
-                    enemyScore = enemyScore + 10
-                end
-                enemyTable40[i].enemyScore = enemyScore
-            end
-            table.sort(
-                enemyTable40,
-                function(x, y)
-                    return x.enemyScore > y.enemyScore
-                end
-            )
-        end
-        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and (UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
+        if isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable40[1].unit)
-            return true
-        end
-        for i = 1, #enemyTable40 do
-            if UnitIsUnit(enemyTable40[i].unit, "target") then
-                targetUnit = enemyTable40[i]
-            end
         end
     end
 
@@ -1177,20 +1150,20 @@ end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
         
-    -- Action List - Interrupts
-        local function actionList_Interrupts()
-            if useInterrupts() then
-                for i=1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-        -- Counterspell
-                        if isChecked("Counterspell") then
-                            if cast.counterspell(thisUnit) then return end
+    local function actionList_Interrupts()
+        if useInterrupts() and cd.counterspell.remain() == 0 then
+            if not isChecked("Do Not Cancel Cast") or not playerCasting then
+                for i = 1, #enemyTable40 do
+                    local thisUnit = enemyTable40[i].unit
+                    if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
+                        if cast.counterspell(thisUnit) then
+                            return
                         end
                     end
                 end
-            end -- End useInterrupts check
-        end -- End Action List - Interrupts
+            end
+        end
+    end
 
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
@@ -1438,16 +1411,52 @@ end
             if actionList_Combustion_Cooldown() then return end 
         end
         -- actions.combustion_phase+=/flamestrike,if=(buff.hot_streak.react&active_enemies>=variable.combustion_flamestrike)|(buff.firestorm.react&active_enemies>=variable.combustion_flamestrike-runeforge.firestorm)
-        if standingTime > 1 
-        and (buff.hotStreak.react() and #enemies.yards6t >= var.combustion_flamestrike
+        if (buff.hotStreak.react() and #enemies.yards6t >= var.combustion_flamestrike
         or (runeforge.firestorm.equiped and buff.firestorm.react()
         and #enemies.yards6t >= var.combustion_flamestrike-var.num(runeforge.firestorm.equiped)))
         then
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
-                SpellStopTargeting()
-                debug("[Action:Combust Phase] Flamestrike [No combust] (1)")
-                return true
-            end
+             if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then
+                        SpellStopTargeting() 
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end 
+                end
+            end 
         end
 
         -- actions.combustion_phase+=/pyroblast,if=buff.sun_kings_blessing_ready.up&buff.sun_kings_blessing_ready.remains>cast_time
@@ -1466,19 +1475,19 @@ end
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (1)") return true end
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.hot_streak.react&buff.combustion.up
-        if hotterStreak and buff.combustion.react() and buff.combustion.remains() > cast.time.pyroblast() + gcdMax then
+        if buff.hotStreak.react() and buff.combustion.react() then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (2)") return true end
         end
 
         -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
-        if cast.last.scorch() and heatsUp and buff.heatingUp.remains() < cast.time.pyroblast() + gcdMax and #enemies.yards10t < var.combustion_flamestrike then
+        if cast.last.scorch() and buff.heatingUp.react() and buff.heatingUp.remains() < cast.time.pyroblast() + gcdMax and #enemies.yards10t < var.combustion_flamestrike then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (3)") return true end
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Using Shifting Power during Combustion to restore Fire Blast and Phoenix Flame charges can be beneficial, but usually only on AoE.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/shifting_power,if=buff.combustion.up&!action.fire_blast.charges&active_enemies>=variable.combustion_shifting_power&action.phoenix_flames.full_recharge_time>full_reduction,interrupt_if=action.fire_blast.charges=action.fire_blast.max_charges
-        if buff.combustion.react() and getDistance("target") <= 18 and not moving 
+        if buff.combustion.react() and getDistance("target") <= 16 and not moving 
         and charges.fireBlast.count() < 1 
         and #enemies.yards8t >= var.num(var.combustion_shifting_power) 
         and charges.phoenixFlames.timeTillFull() > 4 
@@ -1499,11 +1508,48 @@ end
         and #enemies.yards6t >= var.combustion_flamestrike 
         and not moving 
         then 
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
-                SpellStopTargeting()
-                debug("[Action:Combust Phase] Flamestrike [No combust] (1)")
-                return true
-            end
+            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then
+                        SpellStopTargeting() 
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
+                        return true 
+                    end 
+                end
+            end 
         end
         -- actions.combustion_phase+=/fireball,if=buff.combustion.down&cooldown.combustion.remains<cast_time&!conduit.flame_accretion
         if not buff.combustion.react() 
@@ -1594,13 +1640,49 @@ end
         and #enemies.yards6t >= ui.value("FS Targets (Hot Streak)")) 
        -- or (buff.firestorm.react() 
         --and #enemies.yards6t >= var.combustion_flamestrike-var.bool(runeforge.firestorm.equiped)) or ui.value("FS Targets (Firestorm)") 
-        and standingTime > 1
         then
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
-                SpellStopTargeting()
-                debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (12)") 
-                return true
-            end
+             if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then
+                        SpellStopTargeting() 
+                        debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (12)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (12)") 
+                        return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (12)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (12)") 
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (12)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (12)") 
+                        return true 
+                    end 
+                end
+            end 
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.sun_kings_blessing_ready.up&buff.sun_kings_blessing_ready.remains>cast_time
         if runeforge.sunKingsBlessings.equiped and buff.sunKingsBlessings.react() and buff.sunKingsBlessings.remains() > cast.time.pyroblast() then
@@ -1620,12 +1702,12 @@ end
              if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (pyroclasm) (12)") return true end
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.hot_streak.react&buff.combustion.up
-        if hotterStreak and buff.combustion.react() then
+        if buff.hotStreak.react() and buff.combustion.react() then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Hot Streak) (12)") return true end
         end
 
         -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
-        if cast.last.scorch() and heatsUp and #enemies.yards10t < var.combustion_flamestrike then
+        if cast.last.scorch() and buff.heatingUp.react() and #enemies.yards10t < var.combustion_flamestrike then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (heating up) (12)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1636,7 +1718,7 @@ end
         and #enemies.yards8t >= var.num(var.combustion_shifting_power)
         and charges.fireBlast.timeTillFull() > 4 and var.num(charges.fireBlast.count()) > 1 
         and not moving
-        and getDistance("target") <= 18
+        and getDistance("target") <= 16
         then
             if cast.shiftingPower("target") then debug("[Action:Combust Phase] Shifting Power (Fire Blast timing, combust up) (12)") return true end 
         end
@@ -1649,14 +1731,56 @@ end
             if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (St/AOE) (12)") return true end 
         end
         -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
-        if not buff.combustion.react() and standingTime > 1
+        if not buff.combustion.react() and not moving 
         and cd.combustion.remains() < cast.time.flamestrike()
         and #enemies.yards6t >= var.combustion_flamestrike 
         then
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+            --[[if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
                 debug("[Action:Combust Phase] Flamestrike (Combust down, cd < cast time & enemies >= combust flamestrike, aoe) (12)") 
                 return true
+            end]]
+            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Combust down, cd < cast time & enemies >= combust flamestrike, aoe) (12)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Combust down, cd < cast time & enemies >= combust flamestrike, aoe) (12)") 
+                        return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Combust down, cd < cast time & enemies >= combust flamestrike, aoe) (12)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Combust down, cd < cast time & enemies >= combust flamestrike, aoe) (12)") 
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Combust down, cd < cast time & enemies >= combust flamestrike, aoe) (12)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike (Combust down, cd < cast time & enemies >= combust flamestrike, aoe) (12)") 
+                        return true 
+                    end 
+                end
             end
         end
         -- actions.combustion_phase+=/fireball,if=buff.combustion.down&cooldown.combustion.remains<cast_time&!conduit.flame_accretion
@@ -1737,9 +1861,9 @@ end
         -- actions.combustion_phase+=/counterspell,if=runeforge.disciplinary_command&buff.disciplinary_command.down&buff.disciplinary_command_arcane.down&cooldown.buff_disciplinary_command.ready&!talent.rune_of_power
 
         -- actions.combustion_phase+=/arcane_explosion,if=runeforge.disciplinary_command&buff.disciplinary_command.down&buff.disciplinary_command_arcane.down&cooldown.buff_disciplinary_command.ready&!talent.rune_of_power
-        if runeforge.disciplinaryCommand.equiped and not buff.disciplinaryCommand.react() and not var.bool(disciplinary_command_arcane) and not talent.runeOfPower and getDistance("target") <= 8 then
+       -- if runeforge.disciplinaryCommand.equiped and not buff.disciplinaryCommand.react() and not var.bool(disciplinary_command_arcane) and not talent.runeOfPower and getDistance("target") <= 8 then
 
-        end
+       -- end
 
         -- actions.combustion_phase+=/frostbolt,if=runeforge.disciplinary_command&buff.disciplinary_command.down&buff.disciplinary_command_frost.down
         if runeforge.disciplinaryCommand.equiped 
@@ -1780,7 +1904,7 @@ end
             if actionList_Combustion_Cooldown() then return end 
         end 
 
-    if not moving then
+   -- if not moving then
        -- actions.combustion_phase+=/pyroblast,if=buff.sun_kings_blessing_ready.up&buff.sun_kings_blessing_ready.remains>cast_time
         if runeforge.sunKingsBlessings.equiped and buff.sunKingsBlessings.react() and buff.sunKingsBlessings.remains() > cast.time.pyroblast() then
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (Sun Kings Blessing) (2)") return true end 
@@ -1805,7 +1929,7 @@ end
         if cast.last.scorch() and heatsUp and #enemies.yards6t < var.combustion_flamestrike then
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (Heating Up, enemies<combust FS) (2)") return true end 
         end
-    end
+   -- end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Using Shifting Power during Combustion to restore Fire Blast and Phoenix Flame charges can be beneficial, but usually only on AoE.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1813,7 +1937,7 @@ end
         if buff.combustion.react() and charges.fireBlast.count() < 1 and #enemies.yards8t >= var.num(var.shifting_power_before_combustion) and charges.phoenixFlames.timeTillFull() > 4 then
             -- =action.fire_blast.charges=action.fire_blast.max_charges
             if not moving and cast.current.shiftingPower() then 
-                if charges.fireBlast.max() and getDistance("target") <= 18 and not moving then
+                if charges.fireBlast.max() and getDistance("target") <= 16 and not moving then
                     if cast.shiftingPower("target") then debug("[Action:Combust Phase] Shifting Power ()") return true end 
                 end
             end
@@ -1833,10 +1957,52 @@ end
         and #enemies.yards6t >= var.combustion_flamestrike 
         and not moving 
         then 
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+            --[[if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
                 debug("[Action:Combust Phase] Flamestrike [Enemies>=var combust flamestrike] (1)")
                 return true
+            end]]
+            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [Enemies>=var combust flamestrike] (1)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [Enemies>=var combust flamestrike] (1)") 
+                        return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [Enemies>=var combust flamestrike] (1)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [Enemies>=var combust flamestrike] (1)") 
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [Enemies>=var combust flamestrike] (1)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Combust Phase] Flamestrike [Enemies>=var combust flamestrike] (1)")
+                        return true 
+                    end 
+                end
             end
         end
         -- actions.combustion_phase+=/fireball,if=buff.combustion.down&cooldown.combustion.remains<cast_time&!conduit.flame_accretion
@@ -1871,11 +2037,50 @@ end
 
     local function actionList_RopPhase()
         -- actions.rop_phase=flamestrike,if=active_enemies>=variable.hot_streak_flamestrike&(buff.hot_streak.react|buff.firestorm.react)
-        if #enemies.yards6t >= var.hard_cast_flamestrike and (buff.hotStreak.react() or runeforge.firestorm.equiped and buff.firestorm.react()) and not moving and getDistance("target") < 40 then 
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+        if #enemies.yards6t >= var.hard_cast_flamestrike and (buff.hotStreak.react() or runeforge.firestorm.equiped and buff.firestorm.react()) and not moving and getDistance("target") < 40 then     
+            --[[if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
                 debug("[Action:Standard] Flamestrike [Enemies>=Hot Streak Flamestrike] (1)")
                 return true
+            end]]
+
+            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Enemies>=Hot Streak Flamestrike] (1)") return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Enemies>=Hot Streak Flamestrike] (1)") return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Enemies>=Hot Streak Flamestrike] (1)") return true end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Enemies>=Hot Streak Flamestrike] (1)") 
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Enemies>=Hot Streak Flamestrike] (1)") 
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Enemies>=Hot Streak Flamestrike] (1)") 
+                        return true 
+                    end 
+                end
             end
         end
         -- actions.rop_phase+=/pyroblast,if=buff.sun_kings_blessing_ready.up&buff.sun_kings_blessing_ready.remains>cast_time
@@ -1952,11 +2157,53 @@ end
        -- # With enough targets, it is a gain to cast Flamestrike as filler instead of Fireball.
        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
        -- actions.rop_phase+=/flamestrike,if=active_enemies>=variable.hard_cast_flamestrike
-        if #enemies.yards8t >= var.hard_cast_flamestrike and standingTime > 1 then 
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+        if #enemies.yards8t >= var.hard_cast_flamestrike and not moving then 
+            --[[if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
                 debug("[Action:Standard] Flamestrike [Hardcast] (11)")
                 return true
+            end]]
+            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (11)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                       debug("[Action:Standard] Flamestrike [Hardcast] (11)")
+                        return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                       debug("[Action:Standard] Flamestrike [Hardcast] (11)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (11)") 
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (11)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (11)")
+                        return true 
+                    end 
+                end
             end
         end
         -- actions.rop_phase+=/fireball
@@ -1980,7 +2227,7 @@ end
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (2)") return true end 
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
-        if buff.hotStreak.react()
+        if buff.hotStreak.react() and not buff.combustion.react()
         and (cast.last.fireball() or firestarterActive or cast.pyroblast.inFlight()) 
         then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (4)") return true end 
@@ -2053,10 +2300,52 @@ end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.standard_rotation+=/flamestrike,if=active_enemies>=variable.hard_cast_flamestrike
         if #enemies.yards6t >= var.hard_cast_flamestrike and not moving and getDistance("target") < 40 then 
-            if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
+            --[[if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then
                 SpellStopTargeting()
                 debug("[Action:Standard] Flamestrike [Hardcast] (14)")
                 return true
+            end]]
+            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
+                if ui.checked("Predict Movement") then -- We have "Best" selected.
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (14)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (14)")
+                        return true 
+                    end
+                end
+            elseif ui.value("Flamestrike Target") == 2 then
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (14)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (14)")
+                        return true 
+                    end 
+                end
+                if ui.checked("Predict Movement") then
+                    if cast.flamestrike("best",false,1,8,true) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (14)")
+                        return true 
+                    end
+                elseif not moving or targetMovingCheck then
+                    if cast.flamestrike("best",false,1,8) then
+                        SpellStopTargeting()
+                        debug("[Action:Standard] Flamestrike [Hardcast] (14)")
+                        return true 
+                    end 
+                end
             end
         end
         -- actions.standard_rotation+=/fireball
@@ -2067,26 +2356,12 @@ end
     end -- End Action List - Standard
 
     local function actionList_Rotation()
-           if inCombat and not buff.hotStreak.exists() and not buff.pyroclasm.exists() and not buff.heatingUp.exists() and not pyroReady and cast.current.pyroblast() then
-           -- if br.timer:useTimer("hc stop Delay", 0.20 / (1 + GetHaste() / 100)) then
-            --CancelPendingSpell()
-            SpellStopCasting()
-            ChatOverlay("no hardcast allowed!")
-        return true end 
-
-        if spellQueueReady() then 
-
-          
-        if inCombat and IsAoEPending() then
-            SpellStopTargeting()
-            return true
-        end
-
+    if spellQueueReady() then 
         -- actions+=/shifting_power,if=buff.combustion.down&!(buff.infernal_cascade.up&buff.hot_streak.react)&variable.shifting_power_before_combustion
         if covenant.nightFae.active and not buff.shiftingPower.react() 
         and (not buff.infernalCascade.react() and buff.hotStreak.react()) 
         and var.bool(var.shifting_power_before_combustion) 
-        and getDistance("target") <= 18 and not moving
+        and getDistance("target") <= 16 and not moving
         then
             if cast.shiftingPower("target") then debug("[Action:Rotation] Shifting Power (1)") return true end
         end
@@ -2169,6 +2444,7 @@ end
         end
         -- actions+=/rune_of_power,if=buff.rune_of_power.down&!buff.firestorm.react&(variable.time_to_combustion>=buff.rune_of_power.duration&variable.time_to_combustion>action.fire_blast.full_recharge_time|variable.time_to_combustion>fight_remains)
         if not buff.runeOfPower.react() and not buff.firestorm.react() 
+        and not buff.combustion.react()
         and (var.time_to_combustion >= buff.runeOfPower.duration() 
         and var.time_to_combustion > charges.fireBlast.timeTillFull() 
         or var.time_to_combustion > ttd("target")) 
@@ -2205,15 +2481,18 @@ end
         -- # Avoid capping Fire Blast charges while channeling Shifting Power
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/fire_blast,use_while_casting=1,if=action.shifting_power.executing&full_recharge_time<action.shifting_power.tick_reduction&buff.hot_streak.down&time>10
-        if cast.current.shiftingPower() and charges.fireBlast.timeTillFull() < 4 and buff.hotStreak.react() and combatTime > 10 and InterruptCast(spell.shiftingPower) then
-            if cast.fireBlast("target")then debug("[Action:Rotation] Fire Blast (10)") return true end 
+        if cast.current.shiftingPower() and charges.fireBlast.timeTillFull() < 4 and buff.hotStreak.react() and combatTime > 10 and InterruptCast() then
+            if cast.fireBlast("target")then debug("[Action:Rotation] Fire Blast (Avoid Capping FB during Shifting Power) (10)") return true end 
         end
 
         -- actions+=/scorch
-        if cast.fireball("target") then debug("[Action:Rotation] Fireball Filler (11)") return true end 
+        if cast.scorch("target") then debug("[Action:Rotation] Scorch Filler (11)") return true end 
+
         if (not buff.combustion.exists() and not cast.last.combustion()) 
         and (not buff.runeOfPower.exists() 
         and not cast.last.runeOfPower()) 
+        and not moving 
+        and (talent.searingTouch and thp > 30)
         then --and not cast.current.fireball() then ----[[and not buff.heatingUp.exists()--]] and not buff.hotStreak.exists() then --]]
             if cast.fireball("target") then fballLast = true debug("[Action:Rotation] Fireball Filler (12)") return true end
         end
@@ -2223,7 +2502,9 @@ end
             if actionList_CombustionPhase() then return end 
         end
         -- actions+=/call_action_list,name=rop_phase,if=buff.rune_of_power.up&variable.time_to_combustion>0
-        if talent.runeOfPower and buff.runeOfPower.react() and (var.time_to_combustion > 0 or mode.combustion ~= 4) then 
+        if talent.runeOfPower and buff.runeOfPower.react() 
+        and (var.time_to_combustion > 0 or mode.combustion ~= 4) 
+        then 
             if actionList_RopPhase() then return end 
         end
         -- actions+=/call_action_list,name=standard_rotation,if=variable.time_to_combustion>0&buff.rune_of_power.down
@@ -2233,6 +2514,60 @@ end
         end
     end
 
+    local function interruptCast()
+        local spellID = select(9, UnitCastingInfo("player"))
+        if spellID == nil then
+            spellID = 0
+        end
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[9] and castingInfo[9] == spellID then
+            if isChecked("Casting Interrupt Delay") then
+                if (GetTime()-(castingInfo[4]/1000)) >= getOptionValue("Casting Interrupt Delay") then
+                    return true
+                end
+            else
+                return true
+            end
+        end
+        return false
+    end
+
+    local actionList_CancelCast = function()
+        if inCombat and not buff.hotStreak.exists() and not buff.pyroclasm.exists() and not buff.heatingUp.exists() and not pyroReady and interruptCast() then
+            if cast.current.pyroblast() then
+                --if br.timer:useTimer("hc stop Delay", 0.32 / (1 + GetHaste() / 100)) then
+                    --CancelPendingSpell()
+                    SpellStopCasting()
+                    ChatOverlay("no hardcast allowed!")
+                  --  return false 
+                --end 
+            end 
+        end
+       if inCombat and buff.combustion.react() and buff.heatingUp.exists() and pyroReady or buff.hotStreak.exists() and #enemies.yards6t > 1 and interruptCast() then
+            if cast.current.fireball() then
+                -- if br.timer:useTimer("hc stop Delay", 0.20 / (1 + GetHaste() / 100)) then
+                --CancelPendingSpell()
+                SpellStopCasting()
+                ChatOverlay("no scorch during combust or RoP and having procs!")
+                --return true 
+            end
+       end 
+        --if inCombat and talent.searingTouch and thp < 30 and cast.current.fireball() and interruptCast() then
+      --      SpellStopCasting()
+      ---      ChatOverlay("Intterupt Fireball, we should be scorching!")
+           -- return true 
+     --   end
+        -- Cancel Ice Block. 
+        if buff.iceBlock.exists("player") and php >= 75 then
+            cancelBuff(spell.iceBlock)
+            br.addonDebug("Cancelling Iceblock")
+        end
+        -- Cancel AoE targeting. 
+        if buff.hotStreak.exists("player") and IsAoEPending() then
+            SpellStopTargeting()
+            br.addonDebug(colorRed.."Aoe Not Cast. Canceling Spell",true)
+        end            
+    end
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -2244,34 +2579,13 @@ end
                 end
             end
         end
-    
-
-                if inCombat and not buff.hotStreak.exists() and not buff.pyroclasm.exists() and not buff.heatingUp.exists() and not pyroReady then
-            if cast.current.pyroblast() then
-            --if br.timer:useTimer("hc stop Delay", 0.32 / (1 + GetHaste() / 100)) then
-            --CancelPendingSpell()
-            SpellStopCasting()
-            ChatOverlay("no hardcast allowed!")
-        return true end --end 
-    end
-
-
-        if buff.iceBlock.exists("player") and php >= 75 then
-            cancelBuff(spell.iceBlock)
-            br.addonDebug("Cancelling Iceblock")
-        end
-        if buff.hotStreak.exists("player") and IsAoEPending() then
-            SpellStopTargeting()
-            br.addonDebug(colorRed.."Aoe Not Cast. Canceling Spell",true)
-            return false
-        end
-        if buff.combustion.react() and UnitCastingInfo("player") == GetSpellInfo(spell.firebolt) then
-            SpellStopCasting() 
-        end
-
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
+        elseif inCombat and IsAoEPending() then
+            SpellStopTargeting()
+            br.addonDebug("Canceling Spell")
+            return false
         elseif (inCombat and profileStop == true) or UnitIsAFK("player") or IsMounted() or IsFlying() or pause(true) or mode.rotation ==4 then
             return true
         else
@@ -2300,28 +2614,15 @@ end
             if actionList_PreCombat() then return end
 --------------------------
 --- In Combat Rotation ---
---------------------------
-            if inCombat and not profileStop then              
+-------------------------- 
+            if inCombat and hastar then   
+                if actionList_CancelCast() then return end          
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
-        -- Trinkets
-        
+
                 if actionList_Cooldowns() then return end
-
-                        if buff.combustion.react() and UnitCastingInfo("player") == GetSpellInfo(spell.firebolt) then
-            SpellStopCasting() 
-        end
-
-                        if inCombat and not buff.hotStreak.exists() and not buff.pyroclasm.exists() and not buff.heatingUp.exists() and not pyroReady then
-            if cast.current.pyroblast() then
-            --if br.timer:useTimer("hc stop Delay", 0.32 / (1 + GetHaste() / 100)) then
-            --CancelPendingSpell()
-            SpellStopCasting()
-            ChatOverlay("no hardcast allowed!")
-        return true end --end 
-    end
         ------------------------------
         -- MIRROR IMAGE --------------
         ------------------------------
@@ -2334,7 +2635,7 @@ end
         ------------------------------
         -- RUNE OF POWER -------------
         ------------------------------
-                if  (useCDs() or (#enemies.yards8t >= getValue("RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") then
+                if  (useCDs() or (#enemies.yards8t >= getValue("RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") and not buff.combustion.react() then
                     if talent.firestarter then
                         if (cd.combustion.remains() <= gcd and getHP("target") < 90) or (charges.runeOfPower.count() == 2 and (cd.combustion.remains() > 20 or getHP("target") >= 90)) then
                             if cast.runeOfPower("player") then br.addonDebug("Casting Rune of Power")
@@ -2342,7 +2643,7 @@ end
                             end
                         end
                     elseif not talent.firestarter then
-                        if cd.combustion.remains() <= gcd or (charges.runeOfPower.count()== 2 or charges.runeOfPower.timeTillFull() < 2) then
+                        if cd.combustion.remains() <= gcd or (charges.runeOfPower.count()== 2 or charges.runeOfPower.timeTillFull() < 2) and not buff.combustion.react() then
                             if cast.runeOfPower("player") then br.addonDebug("Casting Rune of Power")
                                 return
                             end
