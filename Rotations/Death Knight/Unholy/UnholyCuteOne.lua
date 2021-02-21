@@ -259,7 +259,7 @@ actionList.PetManagement = function()
             ui.debug("Setting Pet to Passive")
         end
         -- Pet Attack / retreat
-        if (not UnitExists("pettarget") or not validTarget) and (unit.inCombat() or petCombat) then
+        if (not br._G.UnitExists("pettarget") or not validTarget) and (unit.inCombat() or petCombat) then
             if ui.value("Pet Target") == 1 and unit.valid(units.dyn40) then
                 br._G.PetAttack(units.dyn40)
             elseif ui.value("Pet Target") == 2 and validTarget then
@@ -1033,7 +1033,7 @@ end -- End runRotation
 -- Add To Rotation List
 local id = 252
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -1140,7 +1140,7 @@ end -- runRotation
 -- Loader Key
 local id = 251
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

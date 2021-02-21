@@ -6,23 +6,23 @@ local rotationName = "Initial"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.runeStrike },
         [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.runeStrike }
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.deathStrike },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.deathStrike }
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enabled Interrupt", highlight = 1, icon = br.player.spell.mindFreeze },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disable Interrupt", highlight = 0, icon = br.player.spell.mindFreeze }
     };
-    CreateButton("Interrupt",3,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
 end
 
 ---------------
@@ -160,7 +160,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- actions=auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
         end
@@ -186,7 +186,7 @@ local function runRotation()
     units                                         = br.player.units
     use                                           = br.player.use
     -- General Locals
-    var.haltProfile                               = (unit.inCombat() and var.profileStop) or unit.mounted() or pause() or ui.mode.rotation==4
+    var.haltProfile                               = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     -- Enemies
@@ -225,7 +225,7 @@ local function runRotation()
                 if actionList.Interrupts() then return true end
                 -- Start Attack
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     br._G.StartAttack(units.dyn5)
                 end
                 -- Death Grip
@@ -264,7 +264,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1455
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

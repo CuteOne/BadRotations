@@ -244,24 +244,24 @@ local function runRotation()
     local combatTime = br.getCombatTime()
     local cd = br.player.cd
     local charges = br.player.charges
-    local deadMouse = UnitIsDeadOrGhost("mouseover")
+    local deadMouse = br.GetUnitIsDeadOrGhost("mouseover")
     local deadtar,
         attacktar,
         hastar,
-        playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
+        playertar = br.GetUnitIsDeadOrGhost("target"), br._G.UnitCanAttack("target", "player"), br.GetObjectExists("target"), br._G.UnitIsPlayer("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
     local essence = br.player.essence
     local falling,
         swimming,
         flying,
-        moving = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
+        moving = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying(), br._G.GetUnitSpeed("player") > 0
     local fatality = false
     local flaskBuff = br.getBuffRemain("player", br.player.flask.wod.buff.staminaBig)
-    local friendly = friendly or br.GetUnitIsFriend("target", "player")
+    local friendly = br.GetUnitIsFriend("target", "player")
     local gcd = br.player.gcd
     local hasMouse = br.GetObjectExists("mouseover")
-    local healPot = getHealthPot()
+    local healPot = br.getHealthPot()
     local inCombat = br.player.inCombat
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
@@ -272,7 +272,7 @@ local function runRotation()
     local multidot = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation == 2) and br.player.ui.mode.rotation ~= 3
     local perk = br.player.perk
     local php = br.player.health
-    local playerMouse = UnitIsPlayer("mouseover")
+    local playerMouse = br._G.UnitIsPlayer("mouseover")
     local potion = br.player.potion
     local power,
         powmax,
@@ -283,7 +283,6 @@ local function runRotation()
     local runicPower = br.player.power.runicPower.amount()
     local powerDeficit = br.player.power.runicPower.deficit()
     local solo = #br.friend < 2
-    local friendsInRange = friendsInRange
     local spell = br.player.spell
     local stealth = br.player.stealth
     local talent = br.player.talent
@@ -300,15 +299,15 @@ local function runRotation()
     enemies.get(30)
     enemies.get(40)
 
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        br._G.wipe(br.timersTable)
     end
 
-    if leftCombat == nil then
-        leftCombat = GetTime()
+    if br.leftCombat == nil then
+        br.leftCombat = br._G.GetTime()
     end
-    if profileStop == nil then
-        profileStop = false
+    if br.profileStop == nil then
+        br.profileStop = false
     end
 
     local bloodDrinkerCheck = not cd.blooddrinker.exists() and 1 or 0
@@ -332,7 +331,7 @@ local function runRotation()
         end
 
         --marrowrend
-        if ((buff.boneShield.remains("player") <= runeTimeTill(3)) or (buff.boneShield.remains("player") <= (gcd + bloodDrinkerCheck * (talent.blooddrinker and 1 or 0) * 2)) or (buff.boneShield.stack() < 3)) and powerDeficit >= 20 then
+        if ((buff.boneShield.remains("player") <= br.runeTimeTill(3)) or (buff.boneShield.remains("player") <= (gcd + bloodDrinkerCheck * (talent.blooddrinker and 1 or 0) * 2)) or (buff.boneShield.stack() < 3)) and powerDeficit >= 20 then
             if cast.marrowrend() then
                 return
             end
@@ -378,7 +377,7 @@ local function runRotation()
         end
 
         --runestrike
-        if talent.runeStrike and ((charges.runeStrike.frac() >= 1.8 or buff.dancingRuneWeapon.exists()) and runeTimeTill(3) >= gcd) then
+        if talent.runeStrike and ((charges.runeStrike.frac() >= 1.8 or buff.dancingRuneWeapon.exists()) and br.runeTimeTill(3) >= gcd) then
             if cast.runeStrike() then
                 return
             end
@@ -395,7 +394,7 @@ local function runRotation()
         end
 
         --HS Cast
-        if buff.dancingRuneWeapon.exists() or (runeTimeTill(4) < gcd) then
+        if buff.dancingRuneWeapon.exists() or (br.runeTimeTill(4) < gcd) then
             if cast.heartStrike("target") then
                 return
             end
@@ -427,7 +426,7 @@ local function runRotation()
             end
         end
 
-        if (runeTimeTill(2) < gcd) or (buff.boneShield.stack() >= 6) then
+        if (br.runeTimeTill(2) < gcd) or (buff.boneShield.stack() >= 6) then
             if cast.heartStrike() then
                 return
             end
@@ -449,7 +448,7 @@ local function runRotation()
         if br.isChecked("Dark Command") and inInstance then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+                if br._G.UnitThreatSituation("player", thisUnit) ~= nil and br._G.UnitThreatSituation("player", thisUnit) <= 2 and br._G.UnitAffectingCombat(thisUnit) then
                     if cast.darkCommand(thisUnit) then
                         return
                     end
@@ -459,9 +458,9 @@ local function runRotation()
     end
 
     local function defensive_List()
-        if useDefensive() and not stealth and not flight then
+        if br.useDefensive() and not stealth and not flying then
             -- Pot/Stoned
-            if br.isChecked("Pot/Stoned") and php <= br.getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or br.hasItem(5512)) then
+            if br.isChecked("Pot/Stoned") and php <= br.getOptionValue("Pot/Stoned") and inCombat and (br.hasHealthPot() or br.hasItem(5512)) then
                 if br.canUseItem(5512) then
                     br.useItem(5512)
                 elseif br.canUseItem(healPot) then
@@ -505,12 +504,12 @@ local function runRotation()
             end
             -- Raise Ally
             if br.isChecked("Raise Ally") then
-                if br.getOptionValue("Raise Ally - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
+                if br.getOptionValue("Raise Ally - Target") == 1 and br._G.UnitIsPlayer("target") and br.GetUnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
                     if cast.raiseAlly("target", "dead") then
                         return
                     end
                 end
-                if br.getOptionValue("Raise Ally - Target") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
+                if br.getOptionValue("Raise Ally - Target") == 2 and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
                     if cast.raiseAlly("mouseover", "dead") then
                         return
                     end
@@ -520,7 +519,7 @@ local function runRotation()
     end -- end defensive list
 
     local function key_List()
-        if br.isChecked("Bone Storm Key") and SpecificToggle("Bone Storm Key") and br.getOptionValue("Bone Storm Usage") == 1 then
+        if br.isChecked("Bone Storm Key") and br.SpecificToggle("Bone Storm Key") and br.getOptionValue("Bone Storm Usage") == 1 then
             if power >= 100 then
                 if cast.bonestorm() then
                     return true
@@ -541,7 +540,7 @@ local function runRotation()
 
             return true
         end
-        if br.isChecked("Deaths Advance Key") and SpecificToggle("Deaths Advance Key") then
+        if br.isChecked("Deaths Advance Key") and br.SpecificToggle("Deaths Advance Key") then
             if cast.able.deathsAdvance() then
                 if cast.deathsAdvance("player") then
                     return true
@@ -549,13 +548,13 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Death and Decay Key") and br.player.ui.mode.dND == 2 and SpecificToggle("Death and Decay Key") then
+        if br.isChecked("Death and Decay Key") and br.player.ui.mode.dND == 2 and br.SpecificToggle("Death and Decay Key") then
             if cast.deathAndDecay("player") then
                 return true
             end
         end
 
-        if br.isChecked("Deaths Caress Key") and SpecificToggle("Deaths Caress Key") then
+        if br.isChecked("Deaths Caress Key") and br.SpecificToggle("Deaths Caress Key") then
             if cast.able.deathsCaress() then
                 if cast.deathsCaress("target") then
                     return true
@@ -563,7 +562,7 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Death Grip Key") and SpecificToggle("Death Grip Key") then
+        if br.isChecked("Death Grip Key") and br.SpecificToggle("Death Grip Key") then
             if cast.able.deathGrip() then
                 if cast.deathGrip("target") then
                     return true
@@ -571,7 +570,7 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Gorefiends Grasp Key") and SpecificToggle("Gorefiends Grasp Key") then
+        if br.isChecked("Gorefiends Grasp Key") and br.SpecificToggle("Gorefiends Grasp Key") then
             if cast.able.gorefiendsGrasp() then
                 if cast.gorefiendsGrasp("target") then
                     return true
@@ -581,9 +580,9 @@ local function runRotation()
     end
 
     local function interrupt_List()
-        if useInterrupts() then
+        if br.useInterrupts() then
             for i = 1, #enemies.yards30 do
-                thisUnit = enemies.yards30[i]
+                local thisUnit = enemies.yards30[i]
                 if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     -- Death Grip
                     if br.isChecked("Death Grip - Int") and br.getDistance(thisUnit) > 8 then
@@ -610,7 +609,7 @@ local function runRotation()
     -- end int list
 
     local function cooldown_List()
-        if useCDs() and br.getDistance(units.dyn5) < 5 then
+        if br.useCDs() and br.getDistance(units.dyn5) < 5 then
             -- Trinkets
             if br.isChecked("Trinkets") then
                 if br.canUseItem(13) then
@@ -621,7 +620,7 @@ local function runRotation()
                 end
             end
             if br.isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
-                if castSpell("player", racial, false, false, false) then
+                if br.castSpell("player", racial, false, false, false) then
                     return
                 end
             end
@@ -634,9 +633,9 @@ local function runRotation()
         end -- End useCooldowns check
     end
 
-    if not inCombat and not hastar and profileStop == true then
-        profileStop = false
-    elseif (inCombat and profileStop == true) or pause() or mode.rotation == 4 then
+    if not inCombat and not hastar and br.profileStop == true then
+        br.profileStop = false
+    elseif (inCombat and br.profileStop == true) or br.pause() or mode.rotation == 4 then
         return true
     else
         if key_List() then
@@ -652,7 +651,7 @@ local function runRotation()
         end
 
         --end In Combat check
-        if inCombat and profileStop == false and br.isValidUnit(units.dyn5) then
+        if inCombat and br.profileStop == false and br.isValidUnit(units.dyn5) then
             -- auto_attack
             if br.getDistance("target") < 5 then
                 br._G.StartAttack()
@@ -678,7 +677,7 @@ local id = 250
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
-tinsert(
+br._G.tinsert(
     br.rotations[id],
     {
         name = rotationName,
