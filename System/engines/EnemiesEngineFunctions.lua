@@ -103,7 +103,7 @@ function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
 	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.br.getEnemies")
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.getEnemies")
     return enemiesTable
 end
 
@@ -195,7 +195,7 @@ function br.isSafeToAttack(unit)
 			end
 		end
 		-- Debugging
-		br.debug.cpu:updateDebug(startTime,"enemiesEngine.br.isSafeToAttack")
+		br.debug.cpu:updateDebug(startTime,"enemiesEngine.isSafeToAttack")
 	end
 	-- if all went fine return true
 	return true
@@ -391,7 +391,7 @@ function br.dynamicTarget(range,facing)
 		end
 	end
 	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.br.dynamicTarget")
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.dynamicTarget")
 	return bestUnit
 end
 

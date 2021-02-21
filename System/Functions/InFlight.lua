@@ -14,8 +14,8 @@ local projectileSpeed = {
 function InFlight.Hit(spellID, destinationGUID, sourceGUID)
     local target, source
     local function distance(unit1, unit2)
-        local x1, y1, z1 = br._G.br._G.ObjectPosition(unit1)
-        local x2, y2, z2 = br._G.br._G.ObjectPosition(unit2)
+        local x1, y1, z1 = br._G.ObjectPosition(unit1)
+        local x2, y2, z2 = br._G.ObjectPosition(unit2)
         return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
     end
     if spellID == 44614 then --override for flurry

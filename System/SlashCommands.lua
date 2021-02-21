@@ -380,7 +380,7 @@ function br.handler(message, editbox)
 	elseif msg == "disengage" then
 		-- Forward Disengage
 		if _G.IsLeftShiftKeyDown() then
-			br._G.br._G.CastSpellByName(br._G.GetSpellInfo(781))
+			br._G.CastSpellByName(br._G.GetSpellInfo(781))
 		else
 			forewardDisengage()
 		end

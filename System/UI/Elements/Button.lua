@@ -246,7 +246,7 @@ function br.ui:createExportButton(parent, buttonName, x, y)
             -- -- Save br.data for current profile to Settings folder
             -- local exportDir = br:checkDirectories("Exported Settings")
             -- local savedSettings = deepcopy(br.data)
-            -- local settingsFile = br.selectedSpec..br.selectedProfileName
+            -- local settingsFile = br.selectedSpec..selectedProfileName
             -- if savedSettings ~= nil then
             --     br.tableSave(savedSettings,exportDir .. settingsFile .. ".lua")
             --     Print("Exported Settings for Profile "..settingsFile.." to Exported Settings Folder")

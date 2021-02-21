@@ -176,7 +176,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
+            if unit.combatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
                 unit.stopAttack()
                 unit.clearTarget()
                 ui.print(var.tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -514,7 +514,7 @@ local function runRotation()
                 unit.startAttack(units.dyn5)
             end
             -- Consume Magic
-            if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.br.isBoss("target") and unit.exists("target") then
+            if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.isBoss("target") and unit.exists("target") then
                 if cast.consumeMagic("target") then ui.debug("Casting Consume Magic") return true end
             end
             -- Throw Glaive

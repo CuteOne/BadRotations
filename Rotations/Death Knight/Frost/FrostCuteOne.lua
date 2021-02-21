@@ -189,7 +189,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
                 var.profileStop = true
                 unit.stopAttack()
                 unit.clearTarget()
@@ -213,7 +213,7 @@ actionList.Extras = function()
     if ui.checked("Death Grip") and cast.able.deathGrip() and unit.inCombat() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if unit.distance(thisUnit) > 10 and not unit.br.isDummy(thisUnit)
+            if unit.distance(thisUnit) > 10 and not unit.isDummy(thisUnit)
                 and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))                
             then
                 if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Out of Melee]") return true end

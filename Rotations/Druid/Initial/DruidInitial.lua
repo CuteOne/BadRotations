@@ -103,7 +103,7 @@ local function ferociousBiteFinish(thisUnit)
     local damage = 0
     local finishHim = false
     if thisUnit == nil then thisUnit = units.dyn5 end
-    if comboPoints > 0 and not unit.br.isDummy(thisUnit) then
+    if comboPoints > 0 and not unit.isDummy(thisUnit) then
         local comboStart = desc:find(" "..comboPoints.." ",1,true)
         if comboStart ~= nil then
             comboStart = comboStart + 2
