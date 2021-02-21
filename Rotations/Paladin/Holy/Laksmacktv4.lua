@@ -140,13 +140,7 @@ local function createOptions()
         br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
 
         br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile, "Corruption Management")
-        br.ui:createCheckbox(section, "Use Hammer of Justice on TFTB")
-        br.ui:createCheckbox(section, "Use Blinding Light on TFTB")
-        br.ui:createCheckbox(section, "Use Blessing of Freedom for Snare")
-        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
-        br.ui:createSpinnerWithout(section, "Eye Of Corruption Stacks - Cloak", 1, 0, 20, 1)
-        br.ui:checkSectionState(section)
+
     end
     local function mplusoptions()
         section = br.ui:createSection(br.ui.window.profile, "M+ Settings")
@@ -191,7 +185,7 @@ local function createOptions()
 end
 
 -----Locals
-local glimmerCount = 0
+
 local buff
 local cast
 local cd
@@ -205,9 +199,7 @@ local inCombat
 local item
 local level
 local mode
-local buff
 local ui
-local cast
 local php
 --local spell
 local talent
@@ -222,7 +214,7 @@ local drinking = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("pl
 
 local ttd
 
-local burst = nil
+local burst
 local Burststack = 0
 local BleedFriendCount = 0
 local BleedStack = 0
@@ -238,6 +230,21 @@ local holyPowerMax
 
 
 -- homemade functions
+
+-- spellqueue ready
+local function spellQueueReady()
+    --Check if we can queue cast
+    local castingInfo = { UnitCastingInfo("player") }
+    if castingInfo[5] then
+        if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow"))) / 1000)) < 0 then
+            --     Print((GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow"))) / 1000)))
+            return false
+        end
+        --       Print((GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow"))) / 1000)))
+    end
+    return true
+end
+
 local timers = {}
 timers._timers = {}
 function timers.time(name, fn)
@@ -584,7 +591,7 @@ end
 actionList.ooc = function()
     --things to do ooc
 
-    if ui.checked("Auto Drink") and getMana("player") <= br.getOptionValue("Auto Drink") and not moving and br.getDebuffStacks("player", 240443) == 0 and br.getDebuffStacks("player", 240443) == 0 then
+    if ui.checked("Auto Drink") and br.getMana("player") <= br.getOptionValue("Auto Drink") and not moving and br.getDebuffStacks("player", 240443) == 0 and br.getDebuffStacks("player", 240443) == 0 then
         --240443 == bursting
         -- 226510 == sanguine
         --drink list
@@ -744,33 +751,6 @@ end
 
 actionList.Extra = function()
 
-    if ui.checked("Use Blinding Light on TFTB") or ui.checked("Use Hammer of Justice on TFTB") then
-
-        local stun = 0
-
-        if talent.blindingLight and cast.able.blindingLight() and ui.checked("Use Blinding Light on TFTB") then
-            stun = 115750
-        elseif ui.checked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
-            stun = 853
-        end
-
-        for i = 1, GetObjectCount() do
-            local object = GetObjectWithIndex(i)
-            local ID = br._G.ObjectID(object)
-
-            if stun ~= 0 then
-                if ID == 161895 and not isLongTimeCCed(object) and not debuff.blindingLight.exists(object) and not debuff.hammerOfJustice.exists(object) then
-                    local x1, y1, z1 = br._G.ObjectPosition("player")
-                    local x2, y2, z2 = br._G.ObjectPosition(object)
-                    local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
-                    if distance < 10 then
-                        br._G.CastSpellByName(GetSpellInfo(stun), object)
-                        return true
-                    end
-                end
-            end -- end the thing
-        end
-    end
 
 end -- End Action List - Extra
 
@@ -834,16 +814,6 @@ actionList.Defensive = function()
             end
         end
 
-        --shroudOfResolve / cloak
-        if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) then
-            if ui.checked("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or ui.checked("Use Cloak") == 2 and br.getDebuffStacks("player", 315161) >= br.getOptionValue("Eye Of Corruption Stacks - Cloak")
-                    or ui.checked("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    return
-                end
-            end
-        end
 
 
         -- Blessing of Freedom
@@ -1044,18 +1014,19 @@ actionList.Cooldown = function()
     }
 
     if cast.able.blessingOfProtection() or cast.able.blessingOfFreedom() then
-        for i = 1, #br.friend do
-            if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
-                    spellTarget = select(3, br._G.UnitCastID(thisUnit))
+        if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
+                spellTarget = select(3, br._G.UnitCastID(thisUnit))
+            end
+            if spellTarget ~= nil and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
+                if cast.blessingOfFreedom(spellTarget) then
+                    return true
                 end
-                if spellTarget ~= nil and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
-                    if cast.blessingOfFreedom(spellTarget) then
-                        return true
-                    end
-                end
+            end
+
+            for i = 1, #br.friend do
                 if (ui.checked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0) -- barrel in FH
                         or br.getDebuffRemain(br.friend[i].unit, 258058) ~= 0 -- squuuuuze in TD
                         or br.getDebuffRemain(br.friend[i].unit, 257478) ~= 0 --crippling-bite in FH
@@ -1070,28 +1041,29 @@ actionList.Cooldown = function()
                     end
                 end
             end
-            if ui.checked("Blessing of Protection") and cast.able.blessingOfProtection() then
-                if (br.friend[i].hp <= ui.value("Blessing of Protection")
-                        or br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
-                        or (br.getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
-                        or (ui.checked("Tol Dagor - Deadeye") and br.getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
-                        or (ui.checked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
-                        or (ui.checked("KR - Severing axe") and br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
-                then
-                    if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
-                            and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-                        if cast.blessingOfProtection(br.friend[i].unit) then
-                            return true
-                        end
+        end
+        if ui.checked("Blessing of Protection") and cast.able.blessingOfProtection() then
+            if (br.friend[i].hp <= ui.value("Blessing of Protection")
+                    or br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                    or (br.getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
+                    or (ui.checked("Tol Dagor - Deadeye") and br.getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
+                    or (ui.checked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
+                    or (ui.checked("KR - Severing axe") and br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
+            then
+                if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
+                        and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                    if cast.blessingOfProtection(br.friend[i].unit) then
+                        return true
                     end
                 end
             end
         end
     end
 
+
     -- Lay on Hands        --LoH / LayonHands
     if ui.checked("Lay on Hands") and cast.able.layOnHands(br.friend[1].unit) and not debuff.forbearance.exists(br.friend[1].unit) and UnitInRange(br.friend[1].unit) then
-        if lowest.hp <= ui.value("Lay on Hands") then
+        if timers.time("LoH Timer", lowest.hp <= ui.value("Lay on Hands")) > 0.8 then
             if cast.layOnHands(lowest.unit) then
                 return true
             end
@@ -1223,7 +1195,7 @@ actionList.Cooldown = function()
               end
           end
       end
-  ]]
+    ]]
     -- Holy Avenger
     if ui.checked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger then
         if br.getLowAllies(ui.value("Holy Avenger")) >= ui.value("Holy Avenger Targets") then
@@ -1258,17 +1230,17 @@ actionList.Cooldown = function()
     end
 
     -- Unstable Temporal Time Shifter
-    if ui.checked("Eng Brez") and br.canUseItem(158379) and not moving and inCombat and lowest.hp > ui.value("Critical HP") then
+    if ui.checked("Eng Brez") and br.canUseItem(184308) and not moving and inCombat and lowest.hp > ui.value("Critical HP") then
         if br.getOptionValue("Eng Brez") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
-            UseItemByName(158379, "target")
+            br._G.UseItemByName(184308, "target")
         end
         if br.getOptionValue("Eng Brez") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
-            UseItemByName(158379, "mouseover")
+            br._G.UseItemByName(184308, "mouseover")
         end
         if br.getOptionValue("Eng Brez") == 3 then
             for i = 1, #br.friend do
                 if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
-                    UseItemByName(158379, br.friend[i].unit)
+                    br._G.UseItemByName(184308, br.friend[i].unit)
                 end
             end
         end
@@ -1286,7 +1258,7 @@ actionList.heal = function()
 
     --checking for HE
     if br.data.settings[br.selectedSpec][br.selectedProfile]["HE ActiveCheck"] == false and br.timer:useTimer("Error delay", 3.5) then
-        Print("HEAL ENGINE IS NOT ON - HEAL ENGINE NEED TO BE ON - YOU SHOULD TURN THE HEAL ENGINE ON.")
+        br._G.print("HEAL ENGINE IS NOT ON - HEAL ENGINE NEED TO BE ON - YOU SHOULD TURN THE HEAL ENGINE ON.")
         return
     end
     -- tanks = br.getTanksTable()
@@ -1473,6 +1445,8 @@ actionList.heal = function()
             healTarget = lowest.unit
             healReason = "HEAL"
         end
+    end
+    if healTarget ~= "none" and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
         if cast.wordOfGlory(healTarget) then
             healTarget = "none"
             return true
@@ -1717,36 +1691,38 @@ local function runRotation()
                 if actionList.Extra() then
                     return true
                 end
-                if not br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() or lowest.hp <= br.getOptionValue("Critical HP") then
-                    if actionList.Defensive() then
-                        return true
-                    end
-                    if actionList.PreCombat() then
-                        return true
-                    end
-                    if actionList.Interrupt() then
-                        return true
-                    end
-                    if actionList.Cooldown() then
-                        return true
-                    end
-                    if br.player.ui.mode.cleanse == 1 then
-                        if actionList.cleanse() then
+                if spellQueueReady() then
+                    if not br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() or lowest.hp <= br.getOptionValue("Critical HP") then
+                        if actionList.Defensive() then
+                            return true
+                        end
+                        if actionList.PreCombat() then
+                            return true
+                        end
+                        if actionList.Interrupt() then
+                            return true
+                        end
+                        if actionList.Cooldown() then
+                            return true
+                        end
+                        if br.player.ui.mode.cleanse == 1 then
+                            if actionList.cleanse() then
+                                return true
+                            end
+                        end
+                        if talent.glimmerOfLight and (mode.glimmer == 1 or mode.glimmer == 3) and cast.able.holyShock() or cast.able.lightOfDawn() then
+                            -- and glimmerCount <= 8
+                            if actionList.glimmer() then
+                                return true
+                            end
+                        end
+                        if actionList.heal() then
                             return true
                         end
                     end
-                    if talent.glimmerOfLight and (mode.glimmer == 1 or mode.glimmer == 3) and cast.able.holyShock() or cast.able.lightOfDawn() then
-                        -- and glimmerCount <= 8
-                        if actionList.glimmer() then
-                            return true
-                        end
-                    end
-                    if actionList.heal() then
+                    if actionList.dps() then
                         return true
                     end
-                end
-                if actionList.dps() then
-                    return true
                 end
             end
         end -- end pause
