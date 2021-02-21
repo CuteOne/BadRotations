@@ -126,7 +126,7 @@ function br.smartQueue()
         br.queueSpell = false
     end
 
-    if (br.queueSpell and br.isChecked("Smart Queue") and ((br._G.GetTime() - queueSpellTime) <= br.getOptionValue("Smart Queue") and not br._G.UnitChannelInfo("player")
+    if br.queueSpell and br.isChecked("Smart Queue") and (((br._G.GetTime() - queueSpellTime) <= br.getOptionValue("Smart Queue") and not br._G.UnitChannelInfo("player")
 			and (br._G.UnitIsVisible(queueSpellTarget) or br.getOptionValue(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") == 2) and br._G.UnitAffectingCombat("player")) 
 		or (br._G.IsAoEPending() and br.isChecked("Smart Queue") and br.isChecked(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") and br._G.UnitAffectingCombat("player")))
 		and (br.queueSpell ~= 1776 or br.getFacing("target", "player"))
@@ -147,7 +147,7 @@ function br.smartQueue()
                 end
             elseif br.getOptionValue(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") == 3 then
                 if br.createCastFunction("player","debug",nil,nil,br.queueSpell) then
-					br._G.CastSpellByName(br._G.etSpellInfo(br.queueSpell))
+					br._G.CastSpellByName(br._G.GetSpellInfo(br.queueSpell))
 					br.ChatOverlay("Casted Queued Spell: " .. br._G.GetSpellInfo(br.queueSpell))
                     return true
                 end
