@@ -437,6 +437,7 @@ function unlock.LBUnlock()
 	b.IsAoEPending = lb.IsAoEPending
 	b.ClickPosition = lb.ClickPosition
 	b.UnitBoundingRadius = lb.UnitBoundingRadius
+	b.CancelPendingSpell = lb.CancelPendingSpells()
 	unlocked = true
 	return unlocked
 end
