@@ -217,7 +217,7 @@ function br.canDispel(Unit, spellID)
 		-- Arcane Torrent
 		if spellID == select(7, _G.GetSpellInfo(69179)) then typesList = {"Magic"} end
 	end
-	if br.hasItem(177278) then typesList = {"Disease", "Poison", "Curse", } end
+	if br.hasItem(177278) and spellID == 177278 then typesList = {"Disease", "Poison", "Curse", } end -- Phail of Serenity
 	local function ValidType(debuffType)
 		local typeCheck = false
 		if typesList == nil then
