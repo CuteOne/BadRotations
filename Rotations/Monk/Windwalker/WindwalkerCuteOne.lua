@@ -333,7 +333,7 @@ actionList.Defensive = function()
         end
         -- Vivify
         if ui.checked("Vivify") and cast.able.vivify() and not unit.moving() then
-            local thisUnit = (unit.friend("target") and not unit.deadOrGhost("target")) and "target" or "player"
+            local thisUnit = (unit.friend("target") and not unit.deadOrGhost("target") and unit.player("target")) and "target" or "player"
             if unit.hp(thisUnit) <= ui.value("Vivify") or (not unit.inCombat() and unit.hp(thisUnit) < 90) then
                 if cast.vivify(thisUnit) then ui.debug("Casting Vivify on "..unit.name(thisUnit)) return true end
             end
@@ -789,7 +789,7 @@ actionList.SingleTarget = function()
     -- Fists of Fury
     -- fists_of_fury,if=(raid_event.adds.in>cooldown.fists_of_fury.duration*0.8|raid_event.adds.up)&(energy.time_to_max>execute_time-1|chi.max-chi<=1|buff.storm_earth_and_fire.remains<execute_time+1)|fight_remains<execute_time+1
     if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > unit.gcd(true) --and ui.useAOE(8,ui.value("Fists of Fury Min Units"))
-        and (energyTTM() > var.fofExecute - 1 or chiMax - chi <= 1 or buff.stormEarthAndFire.remains() < var.fofExecute + 1 or (ui.useCDs() and units.ttdGroup(5) < var.fofExecute + 1))
+        and (energyTTM() > var.fofExecute - 1 or chiMax - chi <= 1 or buff.stormEarthAndFire.remains() < var.fofExecute + 1 or (ui.useCDs() and unit.ttdGroup(5) < var.fofExecute + 1))
     then
         if cast.fistsOfFury() then ui.debug("Casting Fists of Fury [ST]") return true end
     end
