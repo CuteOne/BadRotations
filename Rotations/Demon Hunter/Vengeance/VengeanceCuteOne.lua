@@ -427,8 +427,8 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- auto_attack
-            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                br._G.StartAttack(units.dyn5)
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists("target") and unit.distance("target") < 5 then
+                unit.startAttack("target")
             end
         end -- End Pull
     end -- End No Combat
@@ -511,7 +511,7 @@ local function runRotation()
             -- Start Attack
             -- auto_attack
             if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                br._G.StartAttack(units.dyn5)
+                unit.startAttack(units.dyn5)
             end
             -- Consume Magic
             if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.br.isBoss("target") and unit.exists("target") then
