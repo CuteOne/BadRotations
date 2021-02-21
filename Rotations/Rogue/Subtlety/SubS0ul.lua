@@ -279,7 +279,7 @@ local function runRotation()
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
                 local thisHP = br._G.UnitHealthMax(thisUnit)
-                local thisRole = br._G.unit.role(thisUnit)
+                local thisRole = unit.role(thisUnit)
                 if not br.GetUnitIsDeadOrGhost(thisUnit) and unit.distance(unit, thisUnit) < 40 then
                     if thisRole == "TANK" then hpLimit = hpLimit + (thisHP * 0.15) end
                     if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.3) end
