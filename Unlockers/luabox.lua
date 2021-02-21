@@ -277,6 +277,7 @@ function unlock.LBUnlock()
 	for _, method in ipairs(UnlockList) do
 		lbUnlock(method)
 	end
+	b.GetCameraPosition = function(...) return lb.GetCameraPosition(...) end
 	b.AuraUtil = {}
 	b.AuraUtil.FindAuraByName = function(...)
 		return lb.UnitTagHandler(lb.Unlock, _G.AuraUtil["FindAuraByName"], ...)
@@ -301,7 +302,7 @@ function unlock.LBUnlock()
 		return lb.UnitMovementFlags(...)
 	end
 	b.TraceLine = function(...)
-		lb.Raycast(...)
+		return lb.Raycast(...)
 	end
 	b.UnitTarget = lb.UnitTarget
 	b.IsQuestObject = function(obj)
@@ -379,7 +380,7 @@ function unlock.LBUnlock()
 	-- br.getFacing = ObjectFacingObject
 	b.UnitCreator = lb.ObjectCreator
 	b.ObjectName = lb.ObjectName
-	b.GetDistanceBetweenPositions = lb.GetDistance3D
+	b.GetDistanceBetweenObjects = function(...) return lb.GetDistance3D(...) end
 	b.GetMapId = lb.GetMapId
 	b.UnitIsMounted = function(...)
 		return lb.UnitHasFlag(..., lb.EUnitFlags.Mount)
