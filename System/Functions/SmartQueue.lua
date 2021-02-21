@@ -127,9 +127,9 @@ function br.smartQueue()
     end
 
     if ((br.queueSpell and br.isChecked("Smart Queue") and (br._G.GetTime() - queueSpellTime) <= br.getOptionValue("Smart Queue") and not br._G.UnitChannelInfo("player") and (br._G.UnitIsVisible(queueSpellTarget) or br.getOptionValue(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") == 2) and br._G.UnitAffectingCombat("player")) or
-    (br._G.IsAoEPending() and br.isChecked("Smart Queue") and br.isChecked(br._G.GetSpellInfo(br._G.GetTargetingSpell()) .. " (Queue)") and br._G.UnitAffectingCombat("player"))) and (br.queueSpell ~= 1776 or br.getFacing("target", "player")) then
-		if br._G.IsAoEPending() and br.getOptionValue(br._G.GetSpellInfo(br._G.GetTargetingSpell()) .. " (Queue)") ~= 3 then
-            local pendingSpell = br._G.GetTargetingSpell()
+    (br._G.IsAoEPending() and br.isChecked("Smart Queue") and br.isChecked(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") and br._G.UnitAffectingCombat("player"))) and (br.queueSpell ~= 1776 or br.getFacing("target", "player")) then
+		if br._G.IsAoEPending() and br.getOptionValue(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") ~= 3 then
+            local pendingSpell = br.queueSpell
             br._G.CancelPendingSpell()
             br._G.CastSpellByName(br._G.GetSpellInfo(pendingSpell), "cursor")
             return true
