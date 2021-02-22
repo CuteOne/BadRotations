@@ -64,6 +64,7 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local buff
 local cast
 local cd
 local debuff

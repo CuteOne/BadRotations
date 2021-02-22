@@ -63,8 +63,9 @@ end
 local buff
 local cast
 local cd
-local comboPoints
+local combo
 local debuff
+local energy
 local has
 local mode
 local ui

@@ -75,6 +75,7 @@ local cd
 local enemies
 local furyDeficit
 local has
+local item
 local module
 local ui
 local unit
