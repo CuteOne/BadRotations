@@ -1,51 +1,50 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
-loadSupport("PetCuteOne")
+br.loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.serpentSting },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.carve },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.raptorStrike },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.exhilaration}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheEagle },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheEagle },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheEagle }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.aspectOfTheTurtle }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.muzzle },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.muzzle }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes"Interrupt",4,0)
     -- Harpoon Button
-    HarpoonModes = {
+    local HarpoonModes = {
         [1] = { mode = "On", value = 1 , overlay = "Harpoon Enabled", tip = "Will cast Harpoon.", highlight = 1, icon = br.player.spell.harpoon },
         [2] = { mode = "Off", value = 2 , overlay = "Harpoon Disabled", tip = "Will NOT cat Harpoon.", highlight = 0, icon = br.player.spell.harpoon }
     };
-    CreateButton("Harpoon",5,0)
+    br.ui:createToggle(HarpoonModes"Harpoon",5,0)
     -- MD Button
-    MisdirectionModes = {
+    local MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",6,0)
+    br.ui:createToggle(MisdirectionModes"Misdirection",6,0)
     -- Pet summon
-    PetSummonModes = {
+    local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
         [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
         [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
@@ -53,13 +52,13 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    CreateButton("PetSummon",7,0)
+    br.ui:createToggle(PetSummonModes"PetSummon",7,0)
     -- Aspect of the Eagle
-    aotEModes = {
+    local aotEModes = {
         [1] = { mode = "On", value = 1 , overlay = "Aspect of the Eagle Enabled", tip = "Aspect of the Eagle Enabled", highlight = 1, icon = br.player.spell.aspectOfTheEagle },
         [2] = { mode = "Off", value = 2 , overlay = "Aspect of the Eagle Disabled", tip = "Aspect of the Eagle Disabled", highlight = 0, icon = br.player.spell.aspectOfTheEagle }
     };
-    CreateButton("aotE",8,0)
+    br.ui:createToggle(aotEModes"aotE",8,0)
 end
 
 ---------------
@@ -187,22 +186,11 @@ local function focusTimeTill(amount)
     return ((amount-focus)/focusRegen)+0.5
 end
 
--- local function castRegen(spellID)
---     if GetSpellInfo(spellID) ~= nil then
---         local desc = GetSpellDescription(spellID)
---         local generates = desc:gsub("%D+", "")
---         local amount = generates:sub(-2)
---         return tonumber(amount)
---     else
---         return 0
---     end
--- end
-
 local function nextBomb(nextBomb)
-    local _,_,currentBomb = GetSpellInfo(spell.wildfireBomb)
-    local _,_,shrapnelBomb = GetSpellInfo(spell.shrapnelBomb)
-    local _,_,volatileBomb = GetSpellInfo(spell.volatileBomb)
-    local _,_,pheromoneBomb = GetSpellInfo(spell.pheromoneBomb)
+    local _,_,currentBomb = br._G.GetSpellInfo(spell.wildfireBomb)
+    local _,_,shrapnelBomb = br._G.GetSpellInfo(spell.shrapnelBomb)
+    local _,_,volatileBomb = br._G.GetSpellInfo(spell.volatileBomb)
+    local _,_,pheromoneBomb = br._G.GetSpellInfo(spell.pheromoneBomb)
     if talent.wildfireInfusion and nextBomb ~= nil then
         if currentBomb == shrapnelBomb then return nextBomb == spell.shrapnelBomb end -- spell.volatileBomb
         if currentBomb == volatileBomb then return nextBomb == spell.volatileBomb end -- spell.pheromoneBomb
@@ -221,18 +209,9 @@ local function eagleScout()
     end
 end
 
--- local function outOfMelee()
---     if focus + cast.regen.killCommand() < focusMax then return false end
---     for i = 1, #enemies.yards40f do
---         local thisUnit = enemies.yards40f[i]
---         if unit.distance(thisUnit) > var.eagleRange and debuff.serpentSting.refresh(thisUnit) then return false end
---     end
---     return true
--- end
-
 -- Multi-Dot HP Limit Set
 local function canDoT(thisUnit)
-    if not unit.br.isBoss(thisUnit) then ui.debug("") return true end
+    if not unit.isBoss(thisUnit) then ui.debug("") return true end
     local unitHealthMax = unit.healthMax(thisUnit)
     local maxHealth = 0
     for i = 1, #enemies.yards40 do
@@ -250,10 +229,10 @@ actionList.Extra = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.br.isDummy() then
-                StopAttack()
-                ClearTarget()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
+                ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -264,7 +243,7 @@ actionList.Extra = function()
         if unit.valid("target") and unit.distance("target") < 40 then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
-                local tankInRange, tankUnit = isTankInRange()
+                local tankInRange, tankUnit = unit.isTankInRange()
                 if tankInRange then misdirectUnit = tankUnit end
             end
             -- Misdirect to Focus
@@ -406,31 +385,6 @@ actionList.Cooldown = function()
     then
         if cast.aspectOfTheEagle() then ui.debug("Casting Aspect of the Eagle") return true end
     end
-    -- -- Ashvane's Razor Coral
-    -- -- use_item,name=ashvanes_razor_coral,if=equipped.dribbling_inkpod&(debuff.razor_coral_debuff.down|time_to_pct_30<1|(health.pct<30&buff.guardian_of_azeroth.up|buff.memory_of_lucid_dreams.up))|(!equipped.dribbling_inkpod&(buff.memory_of_lucid_dreams.up|buff.guardian_of_azeroth.up)|debuff.razor_coral_debuff.down)|target.time_to_die<20
-    -- if equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() and equiped.dribblingInkpod() and ((not debuff.razorCoral.exists(var.eagleUnit)
-    --     or unit.hp(var.eagleUnit) <= 30 or (unit.hp(var.eagleUnit) < 30 and buff.guardianOfAzeroth.exists() or buff.memoryOfLucidDreams.exists()))
-    --     or (not equiped.dribblingInkpod() and (buff.memoryOfLucidDreams.exists() or buff.guardianOfAzeroth.exists()) or not debuff.razorCoral.exists(var.eagleUnit))
-    --     or (unit.ttd(var.eagleUnit) < 20 and ui.useCDs()))
-    -- then
-    --     use.ashvanesRazorCoral()
-    --     return
-    -- end
-    -- -- Galecaller's Boon
-    -- -- use_item,name=galecallers_boon,if=cooldown.memory_of_lucid_dreams.remains|talent.wildfire_infusion.enabled&cooldown.coordinated_assault.remains|cooldown.cyclotronic_blast.remains|!essence.memory_of_lucid_dreams.major&cooldown.coordinated_assault.remains
-    -- if equiped.galecallersBoon() and use.able.galecallersBoon() and (cd.memoryOfLucidDreams.remain() > 0
-    --     or talent.wildfireInfusion and cd.coordinatedAssault.remain() > 0 or cd.pocketSizedComputationDevice.remain() > 0
-    --     or not essence.memoryOfLucidDreams.active and cd.coordinatedAssault.remain() > 0)
-    -- then
-    --     use.galecallersBoon()
-    --     return
-    -- end
-    -- -- Azshara's Font of Power
-    -- -- use_item,name=azsharas_font_of_power
-    -- if equiped.azsharasFontOfPower() and use.able.azsharasFontOfPower() then
-    --     use.azsharasFontOfPower()
-    --     return
-    -- end
     -- Heart Essence
     if ui.checked("Use Essence") then
         -- Focused Azerite Beam
@@ -496,10 +450,10 @@ actionList.Cooldown = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=essence.memory_of_lucid_dreams.major&full_recharge_time<1.5*gcd&focus<action.mongoose_bite.cost&!cooldown.memory_of_lucid_dreams.remains
-    if cast.able.wildfireBomb() and essence.memoryOfLucidDreams.active and charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true)
+    if cast.able.wildfireBomb(nil,"aoe") and essence.memoryOfLucidDreams.active and charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true)
         and focus < cast.cost.mongooseBite() and cd.memoryOfLucidDreams.remain() == 0
     then
-        if cast.wildfireBomb() then ui.debug("Casting Wildfire Bomb [CD]") return true end
+        if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [CD]") return true end
     end
     -- Memory of Lucid Dreams
     -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
@@ -555,13 +509,13 @@ actionList.St = function()
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
-    if cast.able.steelTrap() and focus + focusRegen < focusMax then
+    if cast.able.steelTrap("best",nil,1,5) and focus + focusRegen < focusMax then
         if cast.steelTrap("best",nil,1,5) then ui.debug("Casting Steel Trap [ST]") return true end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=focus+cast_regen<focus.max&refreshable&full_recharge_time<gcd&!buff.memory_of_lucid_dreams.up|focus+cast_regen<focus.max&(!dot.wildfire_bomb.ticking&(!buff.coordinated_assault.up|buff.mongoose_fury.stack<1|time_to_die<18|!dot.wildfire_bomb.ticking&azerite.wilderness_survival.rank>0))&!buff.memory_of_lucid_dreams.up
-    if cast.able.wildfireBomb() and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) and not buff.memoryOfLucidDreams.exists() 
-        or focus + cast.regen.wildfireBomb() < focusMax and (not debuff.wildfireBomb.exists(units.dyn40) and (not buff.coordinatedAssault.exists() 
+    if cast.able.wildfireBomb(nil,"aoe") and focus + cast.regen.wildfireBomb(nil,"aoe") < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) and not buff.memoryOfLucidDreams.exists() 
+        or focus + cast.regen.wildfireBomb(nil,"aoe") < focusMax and (not debuff.wildfireBomb.exists(units.dyn40) and (not buff.coordinatedAssault.exists() 
             or buff.mongooseFury.stack() < 1 or unit.ttd(units.dyn40) < 18 or not debuff.wildfireBomb.exists(units.dyn40) and traits.wildernessSurvival.rank > 0))
         and not buff.memoryOfLucidDreams.exists()
     then
@@ -604,7 +558,7 @@ actionList.St = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable
-    if cast.able.wildfireBomb() and debuff.wildfireBomb.refresh(units.dyn40) then
+    if cast.able.wildfireBomb(nil,"aoe") and debuff.wildfireBomb.refresh(units.dyn40) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [ST - Refresh]") return true end
     end 
     -- Serpent Sting
@@ -645,17 +599,17 @@ actionList.Cleave = function()
     -- Carve
     -- carve,if=dot.shrapnel_bomb.ticking
     -- carve,if=dot.shrapnel_bomb.ticking&!talent.hydras_bite.enabled|dot.shrapnel_bomb.ticking&active_enemies>5
-    if cast.able.carve() and (debuff.shrapnelBomb.exists(units.dyn5) and not talent.hydrasBite or debuff.shrapnelBomb.exists(units.dyn5) and #enemies.yards5 > 5) then
+    if cast.able.carve(nil,"cone",1,5) and (debuff.shrapnelBomb.exists(units.dyn5) and not talent.hydrasBite or debuff.shrapnelBomb.exists(units.dyn5) and #enemies.yards5 > 5) then
         if cast.carve(nil,"cone",1,5) then ui.debug("Casting Carve [AOE - Shrapnel Bomb]") return true end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=!talent.guerrilla_tactics.enabled|full_recharge_time<gcd|raid_event.adds.remains<6&raid_event.adds.exists
-    if cast.able.wildfireBomb() and (not talent.guerrillaTactics or charges.wildfireBomb.timeTillFull() < unit.gcd(true) or ui.useAOE()) then
+    if cast.able.wildfireBomb(nil,"aoe") and (not talent.guerrillaTactics or charges.wildfireBomb.timeTillFull() < unit.gcd(true) or ui.useAOE()) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [AOE - Cap Prevention]") return true end
     end
     -- Butchery
     -- butchery,if=charges_fractional>2.5|dot.shrapnel_bomb.ticking|cooldown.wildfire_bomb.remains>active_enemies-gcd|debuff.blood_of_the_enemy.remains|raid_event.adds.remains<5&raid_event.adds.exists
-    if cast.able.butchery() and (charges.butchery.frac() > 2.5 or debuff.shrapnelBomb.exists(units.dyn5)
+    if cast.able.butchery("player","aoe") and (charges.butchery.frac() > 2.5 or debuff.shrapnelBomb.exists(units.dyn5)
         or cd.wildfireBomb.remain() > #enemies.yards8 - unit.gcd(true) or debuff.bloodOfTheEnemy.remain(units.dyn5) or ui.useAOE())
     then
         if cast.butchery("player","aoe") then ui.debug("Casting Butchery [AOE - Cap Prevention]") return end
@@ -667,7 +621,7 @@ actionList.Cleave = function()
     end
     -- Chakrams
     -- chakrams
-    if cast.able.chakrams() and enemies.yards40r > 0 then
+    if cast.able.chakrams(nil,"rect",1,40) and #enemies.yards40r > 0 then
         if cast.chakrams(nil,"rect",1,40) then ui.debug("Casting Chakrams [AOE]") return true end
     end
     -- Kill Command
@@ -682,7 +636,7 @@ actionList.Cleave = function()
     end
     -- Carve
     -- carve,if=talent.guerrilla_tactics.enabled
-    if cast.able.carve() and (talent.guerrillaTactics) then
+    if cast.able.carve(nil,"cone",1,5) and (talent.guerrillaTactics) then
         if cast.carve(nil,"cone",1,5) then ui.debug("Casting Carve [AOE - Guerrilla Tactics]") return true end
     end
     -- Butchery
@@ -697,27 +651,27 @@ actionList.Cleave = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable|talent.wildfire_infusion.enabled
-    if cast.able.wildfireBomb() and (debuff.wildfireBomb.refresh(units.dyn40) or talent.wildfireInfusion) then
+    if cast.able.wildfireBomb(nil,"aoe") and (debuff.wildfireBomb.refresh(units.dyn40) or talent.wildfireInfusion) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [AOE - Refresh]") return true end
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.react
-    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.br.isDummy()) and (buff.vipersVenom.exists()) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.isDummy()) and (buff.vipersVenom.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [AOE - Viper's Venom]") return true end
     end
     -- Carve
     -- carve,if=cooldown.wildfire_bomb.remains>variable.carve_cdr%2
-    if cast.able.carve() and (cd.wildfireBomb.remain() > var.carveCdr / 2) then
+    if cast.able.carve(nil,"cone",1,5) and (cd.wildfireBomb.remain() > var.carveCdr / 2) then
         if cast.carve(nil,"cone",1,5) then ui.debug("Casting Carve [AOE - No Bombs]") return true end
     end
     -- Steel Trap
     -- steel_trap
-    if cast.able.steelTrap() then
+    if cast.able.steelTrap("best",nil,1,5) then
         if cast.steelTrap("best",nil,1,5) then ui.debug("Casting Steel Trap [AOE]") return true end
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=refreshable&buff.tip_of_the_spear.stack<3&next_wi_bomb.volatile|refreshable&azerite.latent_poison.rank>0
-    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.br.isDummy())
+    if cast.able.serpentSting(var.lowestSerpentSting) and canDoT(var.lowestSerpentSting) and (unit.ttd(var.lowestSerpentSting) > 3 or unit.isDummy())
         and (debuff.serpentSting.refresh(var.lowestSerpentSting) and buff.tipOfTheSpear.stack() < 3
         and nextBomb(spell.volatileBomb) or debuff.serpentSting.refresh(var.lowestSerpentSting) and traits.latentPoison.rank > 0)
     then
@@ -772,12 +726,12 @@ actionList.ApSt = function()
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
-    if cast.able.steelTrap() and focus + focusRegen < focusMax then
+    if cast.able.steelTrap("best",nil,1,5) and focus + focusRegen < focusMax then
         if cast.steelTrap("best",nil,1,5) then ui.debug("Casting Steel Trap [AP]") return true end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)|time_to_die<18&!dot.wildfire_bomb.ticking
-    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
+    if cast.able.wildfireBomb(nil,"aoe") and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
         and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists()
         or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1) or (unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)) 
     then
@@ -828,7 +782,7 @@ actionList.ApSt = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=!ticking
-    if cast.able.wildfireBomb() and not debuff.wildfireBomb.exists(units.dyn40) then
+    if cast.able.wildfireBomb(nil,"aoe") and not debuff.wildfireBomb.exists(units.dyn40) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [AP - No Debuff]") return true end
     end
 end -- End Action List - Alpha Predator
@@ -866,7 +820,7 @@ actionList.ApWfi = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<1.5*gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
-    if cast.able.wildfireBomb() and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true) or focus + focusRegen < focusMax
+    if cast.able.wildfireBomb(nil,"aoe") and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true) or focus + focusRegen < focusMax
         and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40)
             or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - cast.regen.killCommand() * 3))
     then
@@ -881,7 +835,7 @@ actionList.ApWfi = function()
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.mongoose_fury.remains&next_wi_bomb.pheromone
-    if cast.able.mongooseBite() and talent.mongooseBite and buff.mongooseFury.exists() and nextBomb(spell.pheromoneBomb) then
+    if cast.able.mongooseBite(var.eagleUnit) and talent.mongooseBite and buff.mongooseFury.exists() and nextBomb(spell.pheromoneBomb) then
         if cast.mongooseBite(var.eagleUnit,nil,1,var.eagleRange) then ui.debug("Casting Mongoose Bite [ApWfi - Next Pheromone]") return true end
     end
     -- Kill Command
@@ -894,7 +848,7 @@ actionList.ApWfi = function()
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
-    if cast.able.steelTrap() and focus + focusRegen < focusMax then
+    if cast.able.steelTrap("best",nil,1,5) and focus + focusRegen < focusMax then
         if cast.steelTrap("best",nil,1,5) then ui.debug("Casting Steel Trap [ApWfi]") return true end
     end
     -- Raptor Strike
@@ -913,12 +867,12 @@ actionList.ApWfi = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.shrapnel&focus>30&dot.serpent_sting.remains>5*gcd
-    if cast.able.wildfireBomb() and nextBomb(spell.shrapnelBomb) and focus > 30 and debuff.serpentSting.remain(units.dyn40) > 5 * unit.gcd(true) then
+    if cast.able.wildfireBomb(nil,"aoe") and nextBomb(spell.shrapnelBomb) and focus > 30 and debuff.serpentSting.remain(units.dyn40) > 5 * unit.gcd(true) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [ApWfi - Next Shrapnel]") return true end
     end
     -- Chakrams
     -- chakrams,if=!buff.mongoose_fury.remains
-    if cast.able.chakrams() and enemies.yards40r > 0 and not buff.mongooseFury.exists() then
+    if cast.able.chakrams(nil,"rect",1,40) and #enemies.yards40r > 0 and not buff.mongooseFury.exists() then
         if cast.chakrams(nil,"rect",1,40) then ui.debug("Casting Chakrams [ApWfi]") return true end
     end
     -- Serpent Sting
@@ -947,7 +901,7 @@ actionList.ApWfi = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel&focus>50
-    if cast.able.wildfireBomb() and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
+    if cast.able.wildfireBomb(nil,"aoe") and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
         or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50)
     then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [ApWfi]") return true end
@@ -991,7 +945,7 @@ actionList.Wfi = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max|(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
-    if cast.able.wildfireBomb() and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true)
+    if cast.able.wildfireBomb(nil,"aoe") and (charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true)
         or (nextBomb(spell.volatileBomb) and debuff.serpentSting.refresh(units.dyn40))
         or (nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - cast.regen.killCommand() * 3))
     then
@@ -1009,12 +963,12 @@ actionList.Wfi = function()
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
-    if cast.able.steelTrap() and focus + focusRegen < focusMax then
+    if cast.able.steelTrap("best",nil,1,5) and focus + focusRegen < focusMax then
         if cast.steelTrap("best",nil,1,5) then ui.debug("Casting Steel Trap [Wfi]") return true end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<1.5*gcd
-    if cast.able.wildfireBomb() and charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true) then
+    if cast.able.wildfireBomb(nil,"aoe") and charges.wildfireBomb.timeTillFull() < 1.5 * unit.gcd(true) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [Wfi - Cap Prevention]") return true end
     end
     -- Coordinated Assault
@@ -1038,7 +992,7 @@ actionList.Wfi = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.shrapnel&dot.serpent_sting.remains>5*gcd
-    if cast.able.wildfireBomb() and nextBomb(spell.shrapnelBomb) and debuff.serpentSting.remain(units.dyn40) > 5 * unit.gcd(true) then
+    if cast.able.wildfireBomb(nil,"aoe") and nextBomb(spell.shrapnelBomb) and debuff.serpentSting.remain(units.dyn40) > 5 * unit.gcd(true) then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [Wfi - Next Shrapnel]") return true end
     end
     -- Serpent Sting
@@ -1048,7 +1002,7 @@ actionList.Wfi = function()
     end
     -- Chakrams
     -- chakrams,if=!buff.mongoose_fury.remains
-    if cast.able.chakrams() and enemies.yards40r > 0 and not buff.mongooseFury.exists() then
+    if cast.able.chakrams(nil,"rect",1,40) and #enemies.yards40r > 0 and not buff.mongooseFury.exists() then
         if cast.chakrams(nil,"rect",1,40) then ui.debug("Casting Chakrams [Wfi]") return true end
     end
     -- Mongoose Bite
@@ -1068,7 +1022,7 @@ actionList.Wfi = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel
-    if cast.able.wildfireBomb() and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40))
+    if cast.able.wildfireBomb(nil,"aoe") and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40))
         or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb))
     then
         if cast.wildfireBomb(nil,"aoe") then ui.debug("Casting Wildfire Bomb [Wfi]") return true end
@@ -1091,7 +1045,7 @@ actionList.Opener = function()
         then
             -- Begin
             if not opener.OPN1 then
-                Print("Starting Opener")
+                ui.print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
                 br._G.StartAttack()
@@ -1118,7 +1072,7 @@ actionList.Opener = function()
             elseif opener.SS1 and not opener.WB1 then
                 if level < 20 or charges.wildfireBomb.count() == 0 then
                     cast.openerFail("wildfireBomb","WB1",opener.count)
-                elseif cast.able.wildfireBomb() then
+                elseif cast.able.wildfireBomb(nil,"aoe") then
                     cast.opener("wildfireBomb","WB1",opener.count)
                 end
                 opener.count = opener.count + 1
@@ -1165,12 +1119,12 @@ actionList.PreCombat = function()
             if cast.steelTrap("target") then ui.debug("Casting Steel Trap [Pre-Combat]") return true end
         end
         -- Serpent Sting
-        if cast.able.serpentSting("target") and (unit.ttd("target") > 3 or unit.br.isDummy()) and not debuff.serpentSting.exists("target") then
+        if cast.able.serpentSting("target") and (unit.ttd("target") > 3 or unit.isDummy()) and not debuff.serpentSting.exists("target") then
             if cast.serpentSting("target") then ui.debug("Casting Serpent Sting [Pre-Combat]") return true end
         end
         -- Start Attack
         if unit.distance("target") < 5 then
-            unit.startAttack()
+            unit.startAttack("target")
         end
     end
     -- Call Action List - Opener
@@ -1224,11 +1178,11 @@ local function runRotation()
     enemies.get(20,"pet")
     enemies.get(30)
     enemies.get(30,"pet")
-    enemies.yards30r = getEnemiesInRect(10,30,false) or 0
+    enemies.rect.get(10,30,false)
     enemies.get(40)
     enemies.get(40,"player",true)
     enemies.get(40,"player",false,true)
-    enemies.yards40r = getEnemiesInRect(10,40,false) or 0
+    enemies.rect.get(10,40,false)
     -- Opener Reset
     if (not unit.inCombat() and not unit.exists("target")) or opener.complete == nil then
         opener.count = 0
@@ -1280,8 +1234,8 @@ local function runRotation()
         if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
             if cast.playDead() then ui.debug("Casting Play Dead [Pet]") return true end
         end
-        StopAttack()
-        if unit.br.isDummy() then ClearTarget() end
+        unit.stopAttack()
+        if unit.isDummy() then unit.clearTarget() end
         return true
     else
         ---------------------------------
