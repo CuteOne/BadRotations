@@ -432,7 +432,7 @@ actionList.Defensive = function()
                 and unit.hp(thisUnit) <= ui.value("Lay On Hands") and unit.distance(thisUnit) < 40
             then
                 if cast.layOnHands(thisUnit) then
-                    ui.debug("Casting Lay On Hands on " .. unit.name(thisUnit) .. " [" .. unit.hp(thisUnit) .. "% Remaining]")
+                    ui.debug("Casting Lay On Hands on " .. tostring(unit.name(thisUnit)) .. " [" .. tostring(unit.hp(thisUnit)) .. "% Remaining]")
                     return true
                 end
             end
