@@ -4,36 +4,36 @@ local rotationName = "Bigsie"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.aimedShot },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot }
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
-    CreateButton("Interrupt",2,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",2,0)
     -- MD Button
-    MisdirectionModes = {
+    local MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",0,1)
+    br.ui:createToggle(MisdirectionModes,"Misdirection",0,1)
     -- Volley Button
-    VolleyModes = {
+    local VolleyModes = {
         [1] = { mode = "On", value = 1 , overlay = "Volley Enabled", tip = "Volley Enabled", highlight = 1, icon = br.player.spell.volley },
         [2] = { mode = "Off", value = 2 , overlay = "Volley Disabled", tip = "Volley Disabled", highlight = 0, icon = br.player.spell.volley }
     };
-    CreateButton("Volley",1,1)
+    br.ui:createToggle(VolleyModes,"Volley",1,1)
     -- CC Button
-    CCModes = {
+    local CCModes = {
         [1] = { mode = "On", value = 1 , overlay = "CC Enabled", tip = "CC Enabled", highlight = 1, icon = br.player.spell.freezingTrap },
         [2] = { mode = "Off", value = 2 , overlay = "CC Disabled", tip = "CC Disabled", highlight = 0, icon = br.player.spell.freezingTrap }
     };
-    CreateButton("CC",2,1)
+    br.ui:createToggle(CCModes,"CC",2,1)
 end
 
 ---------------
@@ -913,7 +913,7 @@ local function runRotation()
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
-    var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or pause() or buff.feignDeath.exists() or ui.mode.rotation==4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
 
     -- Aimed Shots Serpent Sting spread
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or units.target
@@ -942,7 +942,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists(units.target) and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile and (not unit.isCasting() or pause(true)) then
+    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true)) then
         StopAttack()
         return true
     else
