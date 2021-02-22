@@ -85,10 +85,10 @@ br.rotations.support["PetCuteOne"] = {
         end
 
         --Set Pause Key
-        if ui.toggle("Pause Mode") or br.player.ui.value("Pause Mode") == 6 then
+        if br.player.ui.toggle("Pause Mode") or br.player.ui.value("Pause Mode") == 6 then
             pausekey = br._G.IsLeftAltKeyDown()
         else
-            pausekey = ui.toggle("Pause Mode")
+            pausekey = br.player.ui.toggle("Pause Mode")
         end
         paused = pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.player.ui.checked("Pause Mode")
 
