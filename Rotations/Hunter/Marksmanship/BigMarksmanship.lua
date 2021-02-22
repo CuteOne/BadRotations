@@ -1,5 +1,4 @@
 local rotationName = "Bigsie"
-local br = _G["br"]
 ---------------
 --- Toggles ---
 ---------------
