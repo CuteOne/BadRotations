@@ -148,24 +148,26 @@ end
 ----------------
 --- ROTATION ---
 ----------------
-local someone_casting = false
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-local function reader()
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
-    if param == "SPELL_CAST_START" and unitType == "Creature" then
-        C_Timer.After(0.02, function()
-            someone_casting = true
-        end)
-    end
-end
-frame:SetScript("OnEvent", reader)
-
 local function runRotation()
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
+    ---------------
+    ---CombatLog---
+    ---------------
+    local someone_casting = false
+    local frame = CreateFrame("Frame")
+    frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    local function reader()
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+        local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
+        if param == "SPELL_CAST_START" and unitType == "Creature" then
+            C_Timer.After(0.02, function()
+                someone_casting = true
+            end)
+        end
+    end
+    frame:SetScript("OnEvent", reader)
+    ---------------
+    --- Toggles --- -- List toggles here in order to update when pressed
+    ---------------
     UpdateToggle("Rotation",0.25)
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
@@ -182,9 +184,9 @@ local function runRotation()
             buttonST:Show()
         end
     end
---------------
---- Locals ---
---------------
+    --------------
+    --- Locals ---
+    --------------
     local module                              = br.player.module
     local runeforge                           = br.player.runeforge
     local buff                                = br.player.buff
@@ -203,6 +205,7 @@ local function runRotation()
     local has                                 = br.player.has
     local inCombat                            = br.player.inCombat
     local level                               = br.player.level
+    local ui                                  = br.player.ui
     local mode                                = br.player.ui.mode
     local race                                = br.player.race
     local racial                              = br.player.getRacial()
@@ -317,21 +320,6 @@ local function runRotation()
         return false
     end
 
-    local function trinket_Pop()
-        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) and not hasEquiped(184016, 13) and not hasEquiped(181333, 13) then
-                useItem(13)
-            end
-            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) and not hasEquiped(184016, 14) and not hasEquiped(181333, 14) then
-                useItem(14)
-            end
-        end
-        -- Skuler's Wing
-        if isChecked("Trinkets") and (GetInventoryItemID("player", 13) == 184016 or GetInventoryItemID("player", 14) == 184016) and canUseItem(184016) and combatTime > 5 then
-            useItem(184016)
-        end
-    end
-
     local enemyTable30 = { }
     local enemyTable10 = { }
     local enemyTable5 = { }
@@ -412,6 +400,26 @@ local function runRotation()
             TargetUnit(enemyTable30[1].unit)
         end
     end
+
+    local function trinket_Pop()
+        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
+            if canUseItem(13) and not hasEquiped(178715, 13) and not hasEquiped(184016, 13) and not hasEquiped(181333, 13) and not hasEquiped(179350, 13) then
+                useItem(13)
+            end
+            if canUseItem(14) and not hasEquiped(178715, 14) and not hasEquiped(184016, 14) and not hasEquiped(181333, 14) and not hasEquiped(179350, 14) then
+                useItem(14)
+            end
+        end
+        -- Inscrutable Quantum Device
+        if isChecked("Trinkets") and (GetInventoryItemID("player", 13) == 179350 or GetInventoryItemID("player", 14) == 179350) and canUseItem(179350) and (buff.shadowBlades.exists() or (br.isBoss() and fightRemain <= 20)) then
+            useItem(179350)
+        end
+        -- Skuler's Wing
+        if isChecked("Trinkets") and (GetInventoryItemID("player", 13) == 184016 or GetInventoryItemID("player", 14) == 184016) and canUseItem(184016) and combatTime >= 10 then
+            useItem(184016)
+        end
+    end
+
     --Just nil fixes
     if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
     if enemyTable30.highestTTD == nil then enemyTable30.highestTTD = 999 end
@@ -441,9 +449,9 @@ local function runRotation()
     if isChecked("Ignore Blacklist for SS") and mode.rotation ~= 2 then
         enemies10 = #enemies.get(10)
     end
---------------------
---- Action Lists ---
---------------------
+    --------------------
+    --- Action Lists ---
+    --------------------
     local function actionList_Extra()
         if not inCombat then
             -- actions.precombat+=/apply_poison
@@ -655,12 +663,16 @@ local function runRotation()
             if cast.sliceAndDice("player") then return true end
         end
         -- # Rupture condition for opener with MA
-        if talent.premeditation and isBoss() and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 4 and cd.vanish.remain() < 118) then
+        if talent.premeditation and isBoss() and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 5 and cd.vanish.remain() < 118) then
             if cast.rupture("target") then return true end
         end
         -- Kyrian opener
         if sndCondition == 1 and buff.symbolsOfDeath.exists() and (combatTime < 4 and cd.vanish.remain() < 118) and cast.able.echoingReprimand() then
             if cast.echoingReprimand("target") then return true end
+        end
+        -- # Rupture for opener
+        if not talent.premeditation and sndCondition == 1 and buff.symbolsOfDeath.exists() and (combatTime < 5 and cd.vanish.remain() < 118) and not debuff.rupture.exists("target") and combo > 1 then
+            if cast.rupture("target") then return true end
         end
         -- Necro, Fae, Venthyr opener
         if sndCondition == 1 and not stealthedRogue and (not talent.premeditation or debuff.rupture.exists("target")) and (combatTime < 4 and cd.vanish.remain() < 118) then
@@ -737,7 +749,7 @@ local function runRotation()
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus.
         -- actions.cds+=/symbols_of_death,if=variable.snd_condition&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)
         if mode.sod == 1 and sndCondition == 1 and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and (fightRemain > 10 or isBoss()) and
-         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd == 0 and ttd("target") > getOptionValue("CDs TTD Limit") then
+         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd < 0.5 and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- # If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or not stealthed without any CP.
@@ -867,8 +879,8 @@ local function runRotation()
         -- Added vanish checks, coming off gcd to prevent casting after finisher and on GCD
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
         if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3 or charges.shadowDance.frac() >= 1.75) and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
-         and shdComboPoints and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target") or not talent.premeditation)
-         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
+         and shdComboPoints and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target"))
+         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and gcd < 0.5 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -903,7 +915,7 @@ local function runRotation()
         if (buff.shurikenTornado.exists() and comboDeficit <= 2) or (enemies10 >= 4 and combo >= 4) or (comboDeficit <= (1 - finishThd)) then
             if actionList_Finishers() then return true end
         end
----------------------------WTF IS STEALTHED SEPSIS
+        ---------------------------WTF IS STEALTHED SEPSIS
         -- actions.stealthed+=/shadowstrike,if=stealthed.sepsis&spell_targets.shuriken_storm<4
         -- actions.stealthed+=/shiv,if=talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped&spell_targets.shuriken_storm<5
         if talent.nightstalker and runeforge.tinyToxicBlade.equiped and enemies10 < 5 then
@@ -1000,25 +1012,25 @@ local function runRotation()
             if cast.shurikenToss("target") then return true end
         end
     end
------------------
---- Rotations ---
------------------
+    -----------------
+    --- Rotations ---
+    -----------------
     -- Pause
     if IsMounted() or IsFlying() or pause() or mode.rotation==3 or ((buff.soulshape.exists() or hasBuff(338659)) and not inCombat) then
         return true
     else
----------------------------------
---- Out Of Combat - Rotations ---
----------------------------------
+    ---------------------------------
+    --- Out Of Combat - Rotations ---
+    ---------------------------------
         if not cast.last.vanish(1) then
             if actionList_Extra() then return true end
         end
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
------------------------------
---- In Combat - Rotations --- 
------------------------------
+    -----------------------------
+    --- In Combat - Rotations --- 
+    -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
             if cast.last.vanish(1) and mode.vanish == 2 then StopAttack() end
             if actionList_Defensive() then return true end
@@ -1054,9 +1066,12 @@ local function runRotation()
                 StartAttack("target")
             end
             -- OG Opener
-            if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + getLatency()) and isBoss() then
+            if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < 0.5 and isBoss() then
                 cast.shadowBlades("player")
                 cast.symbolsOfDeath("player")
+                if isChecked("Trinkets") then
+                    useItem(179350)
+                end
                 if not covenant.kyrian.active then
                     cast.shadowDance("player")
                 end
@@ -1076,7 +1091,7 @@ local function runRotation()
                 if gcd < getLatency() then
                     -- # Check CDs at first
                     -- actions+=/call_action_list,name=cds
-                    if validTarget and targetDistance < 5 then
+                    if targetDistance < 5 then
                         if actionList_Cooldowns() then return true end
                     end
                     -- # Apply Slice and Dice at 2+ CP during the first 10 seconds, after that 4+ CP if it expires within the next GCD or is not up
