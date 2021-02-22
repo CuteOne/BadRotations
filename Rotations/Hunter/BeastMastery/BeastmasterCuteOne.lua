@@ -832,7 +832,7 @@ local function runRotation()
     enemies.get(5,"pet")
     
     -- Variables
-    var.haltProfile   = ((unit.inCombat() and var.profileStop) or IsMounted() or unit.flying() or pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
+    var.haltProfile   = ((unit.inCombat() and var.profileStop) or IsMounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
 
     --wipe timers table
     if timersTable then
