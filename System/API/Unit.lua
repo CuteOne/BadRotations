@@ -199,6 +199,10 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "player" end
         return br.isTanking(thisUnit)
     end
+    -- Is Tank In Range
+    unit.isTankInRange = function()
+        return br.isTankInRange()
+    end
     -- Is Unit
     unit.isUnit = function(thisUnit,otherUnit)
         local UnitIsUnit = br._G["UnitIsUnit"]
@@ -265,11 +269,25 @@ br.api.unit = function(self)
         if playerUnit == nil then playerUnit = "player" end
         return GetUnitReaction(thisUnit,playerUnit)
     end
+    -- Resting
+    unit.resting = function()
+        return br._G.IsResting()
+    end
     -- Role
     unit.role = function(thisUnit)
         local UnitGroupRolesAssigned = br._G["UnitGroupRolesAssigned"]
         if thisUnit == nil then thisUnit = "target" end
         return UnitGroupRolesAssigned(thisUnit)
+    end
+    -- Standing Time
+    local standingTimer
+    unit.standingTime = function()
+        local GetTime = br._G["GetTime"]
+        if standingTimer == nil then standingTimer = GetTime() end
+        if self.unit.moving() then
+            standingTimer = GetTime()
+        end
+        return GetTime() - standingTimer
     end
     -- Start Attack
     local autoAttackStarted

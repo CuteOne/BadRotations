@@ -35,6 +35,11 @@ br.api.ui = function(self)
             return br.pause(ignoreChannel)
         end
     end
+    if ui.print == nil then
+        ui.print = function(msg)
+            return br._G.print(msg)
+        end
+    end
     if ui.pullTimer == nil then
         ui.pullTimer = function()
             --local PullTimerRemain = _G["PullTimerRemain"]
