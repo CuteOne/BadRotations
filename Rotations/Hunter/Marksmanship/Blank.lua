@@ -5,32 +5,32 @@ local rotationName = "None" -- Change to name of profile listed in options drop 
 ---------------
 local function createToggles() -- Define custom toggles
 -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
 -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
 -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
 -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
 end
 
 ---------------
@@ -43,7 +43,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+        local section = br.ui:createSection(br.ui.window.profile,  "General")
 
         br.ui:checkSectionState(section)
         ------------------------
@@ -98,10 +98,10 @@ local function runRotation()
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed
 ---------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
+        br.UpdateToggle("Rotation",0.25)
+        br.UpdateToggle("Cooldown",0.25)
+        br.UpdateToggle("Defensive",0.25)
+        br.UpdateToggle("Interrupt",0.25)
 --------------
 --- Locals ---
 --------------
