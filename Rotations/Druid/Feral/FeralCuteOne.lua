@@ -358,7 +358,7 @@ local function findKindredSpirit()
     local kindredSpirit
     for i = 1, #br.friend do
         local thisUnit = br.friend[i].unit
-        local thisRole = UnitGroupRolesAssigned(thisUnit)
+        local thisRole = br._G.UnitGroupRolesAssigned(thisUnit)
         if not unit.isUnit(thisUnit,"player") and (kindredSpirit == nil or (not unit.exists(kindredSpirit) and not unit.deadOrGhost(kindredSpirit))) then
             if thisRole == "DAMAGER" then
                 kindredSpirit = thisUnit
@@ -430,7 +430,7 @@ actionList.Extras = function()
         -- Kindred Spirits
         if ui.alwaysCdNever("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindredSpirit) then
             if (#br.friend > 1 and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then            
-                if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..UnitName(var.kindredSpirit).." [Kyrian]") return true end
+                if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..br._G.UnitName(var.kindredSpirit).." [Kyrian]") return true end
             end
         end
     end -- End Shapeshift Form Management
@@ -451,7 +451,7 @@ actionList.Extras = function()
     -- Death Cat mode
     if ui.checked("Death Cat Mode") and buff.catForm.exists() then
         if unit.exists("target") and unit.distance(units.dyn8AOE) > 8 then
-            ClearTarget()
+            br._G.ClearTarget()
         end
         if autoProwl() then
             -- Tiger's Fury - Low Energy
@@ -620,7 +620,7 @@ actionList.Defensive = function()
             if ui.checked("Wild Growth") and not unit.inCombat() and cast.able.wildGrowth() then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
-                    local lowHealthCandidates = getUnitsToHealAround(thisUnit, 30, ui.value("Wild Growth"), #br.friend)
+                    local lowHealthCandidates = br.getUnitsToHealAround(thisUnit, 30, ui.value("Wild Growth"), #br.friend)
                     if #lowHealthCandidates > 1 and not unit.moving() then
                         if unit.form() ~= 0 then
                             unit.cancelForm()
@@ -1542,7 +1542,7 @@ local function runRotation()
                         local thisUnit = enemies.yards5f[i]
                         if ferociousBiteFinish(thisUnit) and not usePrimalWrath() then
                             if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
-                                ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..round2(unit.hp(thisUnit),0).."% health remaining.")
+                                ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..br.round2(unit.hp(thisUnit),0).."% health remaining.")
                             end
                             if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Execute]"); return true end
                         end

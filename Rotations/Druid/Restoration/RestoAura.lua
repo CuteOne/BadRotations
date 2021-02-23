@@ -2008,7 +2008,7 @@ local function runRotation()
 			for i = 1, #br.friend do
 				if
 					br.isChecked("Regrowth Tank") and br.friend[i].hp <= br.getValue("Regrowth Tank") and
-						(br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
+						(br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
 						(not inInstance or (inInstance and br.getDebuffStacks(br.friend[i].unit, 209858) < br.getValue("Necrotic Rot")))
 				 then
 					if cast.regrowth(br.friend[i].unit) then
@@ -2132,7 +2132,7 @@ local function runRotation()
 				{spellID = 269301, stacks = 0, secs = 5} -- Putrid Blood
 			}
 			for i = 1, #br.friend do
-				if UnitInRange(br.friend[i].unit) then
+				if br._G.UnitInRange(br.friend[i].unit) then
 					for k, v in pairs(debuff_list) do
 						if
 							br.getDebuffRemain(br.friend[i].unit, v.spellID) > v.secs and
@@ -2186,7 +2186,7 @@ local function runRotation()
 				{282742, 5, "Storm of Annihilation"} -- Crucible of Storms
 			}
 			for j = 1, #br.friend do
-				if UnitInRange(br.friend[j].unit) then
+				if br._G.UnitInRange(br.friend[j].unit) then
 					for i = 1, #precast_spell_list do
 						local boss_spell_id = precast_spell_list[i][1]
 						local precast_time = precast_spell_list[i][2]
@@ -2388,13 +2388,13 @@ local function runRotation()
 		-- Feral Affinity
 		if talent.feralAffinity and br.GetUnitExists("target") then
 			local nearEnemies = #enemies.yards5f
-			if not catRecover and br.player.power.energy.amount() < 50 and combo == 0 then
-				catRecover = true
-			elseif catRecover and br.player.power.energy.amount() == 100 then
-				catRecover = false
+			if not br.druid.catRecover and br.player.power.energy.amount() < 50 and combo == 0 then
+				br.druid.catRecover = true
+			elseif br.druid.catRecover and br.player.power.energy.amount() == 100 then
+				br.druid.catRecover = false
 			end
 			if
-				(catRecover or not cat or not br.isChecked("Auto Shapeshifts") or
+				(br.druid.catRecover or not cat or not br.isChecked("Auto Shapeshifts") or
 					(br.isChecked("Auto Shapeshifts") and br.getOptionValue("Auto Shapeshifts") == 2)) and
 					br.isChecked("HOT Mode")
 			 then
@@ -2468,7 +2468,7 @@ local function runRotation()
 				if debuff.sunfire.remains("target") > 2 and debuff.moonfire.remains("target") > 2 then
 					-- Cat Form
 					if
-						not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and
+						not cat and (not bear or (bear and (not br.druid.bearTimer or br._G.GetTime() - br.druid.bearTimer >= br.druid.catRecharge))) and
 							br.GetUnitExists("target") and
 							br.getDistance("target", "player") <= 8 and
 							((br.isChecked("Auto Shapeshifts") and
@@ -2554,7 +2554,7 @@ local function runRotation()
 				end
 				-- Cat Form
 				if
-					not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and
+					not cat and (not bear or (bear and (not br.druid.bearTimer or br._G.GetTime() - br.druid.bearTimer >= br.druid.catRecharge))) and
 						br.GetUnitExists("target") and
 						br.getDistance("target", "player") <= 8 and
 						((br.isChecked("Auto Shapeshifts") and
@@ -2622,7 +2622,7 @@ local function runRotation()
 				end
 				-- Cat Form
 				if
-					not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and
+					not cat and (not bear or (bear and (not br.druid.bearTimer or br._G.GetTime() - br.druid.bearTimer >= br.druid.catRecharge))) and
 						br.GetUnitExists("target") and
 						br.getDistance("target", "player") <= 8 and
 						((br.isChecked("Auto Shapeshifts") and
@@ -2648,15 +2648,15 @@ local function runRotation()
 							(br.getOptionValue("Auto Shapeshifts") == 1 or br.getOptionValue("Auto Shapeshifts") == 3)) or
 							br.isChecked("DPS Key"))
 				 then
-					bearTimer = GetTime()
-					catRecharge = br.player.power.energy.ttm()
+					br.druid.bearTimer = br._G.GetTime()
+					br.druid.catRecharge = br.player.power.energy.ttm()
 					if cast.bearForm("player") then
 						br.addonDebug("Casting Bear Form")
 						return true
 					end
 				end
 				-- Bear Swipe
-				if bear and GetTime() - bearTimer < catRecharge then
+				if bear and br._G.GetTime() - br.druid.bearTimer < br.druid.catRecharge then
 					if cast.swipeBear() then
 						br.addonDebug("Casting Swipe (Bear)")
 						return true
@@ -2677,7 +2677,7 @@ local function runRotation()
 			if mana >= br.getOptionValue("DPS Save mana") then
 				-- Moonkin form
 				if
-					not moonkin and not moving and not travel and not IsMounted() and GetTime() - br.shiftTimer > 5 and
+					not moonkin and not moving and not travel and not br._G.IsMounted() and br._G.GetTime() - br.shiftTimer > 5 and
 						((br.isChecked("Auto Shapeshifts") and
 							(br.getOptionValue("Auto Shapeshifts") == 1 or br.getOptionValue("Auto Shapeshifts") == 3)) or
 							br.isChecked("DPS Key"))
@@ -2845,21 +2845,21 @@ local function runRotation()
 		if inCombat then
 			if not br.isChecked("DPS Key") then
 				if
-					(restoDPS and lowest.hp <= br.getOptionValue("Critical Heal")) or buff.incarnationTreeOfLife.exists() or
+					(br.druid.restoDPS and lowest.hp <= br.getOptionValue("Critical Heal")) or buff.incarnationTreeOfLife.exists() or
 						mode.dPS == 1
 				 then
 					br.ChatOverlay("Healing Engaged")
 					br.addonDebug("Healing Engaged")
-					restoDPS = false
+					br.druid.restoDPS = false
 				elseif
-					not restoDPS and lowest.hp > br.getOptionValue("DPS") and not buff.incarnationTreeOfLife.exists() and mode.dPS == 2
+					not br.druid.restoDPS and lowest.hp > br.getOptionValue("DPS") and not buff.incarnationTreeOfLife.exists() and mode.dPS == 2
 				 then
 					br.ChatOverlay("DPS Engaged")
 					br.addonDebug("DPS Engaged")
-					restoDPS = true
+					br.druid.restoDPS = true
 				end
 			end
-			if br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and br.isChecked("DPS Key") then
+			if br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() and br.isChecked("DPS Key") then
 				if actionList_DPS() then
 					return true
 				end
@@ -2882,7 +2882,7 @@ local function runRotation()
 				if actionList_Decurse() then
 					return true
 				end
-				if (not restoDPS and not br.isChecked("DPS Key")) or br.isChecked("DPS Key") then
+				if (not br.druid.restoDPS and not br.isChecked("DPS Key")) or br.isChecked("DPS Key") then
 					if actionList_AOEHealing() then
 						return true
 					end
@@ -2892,7 +2892,7 @@ local function runRotation()
 				end
 				if
 					#enemies.yards5 < 1 and mode.dPS == 2 and br.isChecked("DPS Key") and not br.SpecificToggle("DPS Key") and
-						not GetCurrentKeyBoardFocus()
+						not br._G.GetCurrentKeyBoardFocus()
 				 then
 					-- Moonfire
 					if
@@ -2921,13 +2921,13 @@ local function runRotation()
 						end
 					end
 				end
-				if not br.isChecked("DPS Key") and mode.dPS == 2 and restoDPS then
+				if not br.isChecked("DPS Key") and mode.dPS == 2 and br.druid.restoDPS then
 					if
 						not br.GetUnitExists("target") or
-							(UnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target")) and #enemies.yards40 ~= 0 and
+							(br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target")) and #enemies.yards40 ~= 0 and
 								br.getOptionValue("Target Dynamic Target")
 					 then
-						TargetUnit(enemies.yards40[1])
+						br._G.TargetUnit(enemies.yards40[1])
 					end
 					if br.GetUnitExists("target") and not br.GetUnitIsFriend("target") then
 						if actionList_DPS() then
@@ -2935,7 +2935,7 @@ local function runRotation()
 						end
 					end
 				end
-				if (not restoDPS and not br.isChecked("DPS Key")) or br.isChecked("DPS Key") then
+				if (not br.druid.restoDPS and not br.isChecked("DPS Key")) or br.isChecked("DPS Key") then
 					if actionList_Rejuvenation() then
 						return true
 					end
@@ -2943,7 +2943,7 @@ local function runRotation()
 						return true
 					end
 					if
-						(br.isChecked("DPS Key") and br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or
+						(br.isChecked("DPS Key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus()) or
 							(not br.isChecked("DPS Key") and mode.dPS == 2)
 					 then
 						if actionList_DPS() then
@@ -2960,7 +2960,7 @@ local id = 105
 if br.rotations[id] == nil then
 	br.rotations[id] = {}
 end
-tinsert(
+br._G.tinsert(
 	br.rotations[id],
 	{
 		name = rotationName,
