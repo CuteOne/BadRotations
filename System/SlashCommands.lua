@@ -103,6 +103,7 @@ function br:slashHelpList()
 	SLASH_BR1, SLASH_BR2 = "/br", "/badrotations"
 	br.SlashCommandHelp("br", "Toggles BadRotations On/Off")
 	br.SlashCommandHelp("br help", "Displays this list of help commands. ***Obviously***")
+	br.SlashCommandHelp("br cooldowns", "Toggles CDs between on/off")
 	br.SlashCommandHelp("br blacklist mouseover", "Adds/Removes mouseover unit to healing blacklist.")
 	br.SlashCommandHelp("br blacklist dump", "Prints all units currently on blacklist.")
 	br.SlashCommandHelp("br blacklist clear", "Clears the blacklist.")
@@ -140,6 +141,9 @@ function br.handler(message, editbox)
 	elseif msg == "help" then
 		-- Help
 		br.SlashCommandHelp("Print Help")
+	elseif msg1 == "cooldowns" then
+		if not br.player then return false end
+		if br.player.ui.mode.cooldown == 2 then br._G.RunMacroText("/br toggle Cooldown 3") else br._G.RunMacroText("/br toggle Cooldown 2") end
 	elseif msg1 == "blacklist" then
 		-- Blacklist
 		if msg2 == "dump" then
