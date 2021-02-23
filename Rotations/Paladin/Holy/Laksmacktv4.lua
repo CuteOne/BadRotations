@@ -59,10 +59,11 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 20200609-1605")
+        section = br.ui:createSection(br.ui.window.profile, "General - 20210223-0855")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createCheckbox(section, "Aggressive Glimmer")
+        br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
 
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -87,6 +88,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Blessing of Sacrifice", 40, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createDropdownWithout(section, "BoS Target", { "Any", "Tanks" }, 1, "Target for BoS")
         br.ui:createCheckbox(section, "Blessing of Freedom", "Use Blessing of Freedom")
+        br.ui:createCheckbox(section, "Automatic Aura replacement")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Trinkets")
         --br.ui:createCheckbox(section,"glimmer debug")
@@ -106,6 +108,7 @@ local function createOptions()
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
             br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
+            br.ui:createCheckbox(section, "Arcane Torrent HP Gen")
         end
         if br.player.race == "LightforgedDraenei" then
             --lightsJudgment
@@ -122,6 +125,9 @@ local function createOptions()
         end
         br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "DPS Options")
+        br.ui:createCheckbox(section, "Shield of the Righteous")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Pots")
         br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
@@ -146,13 +152,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "M+ Settings")
         -- m+ Rot
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
-        br.ui:createCheckbox(section, "Freehold - pig", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFCatches pig in Freehold|cffFFBB00.", 1)
-        br.ui:createCheckbox(section, "Freehold - Blackout Barrel", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble blackout barrel|cffFFBB00.", 1)
-        br.ui:createCheckbox(section, "KR - Severing axe", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Severing Axe|cffFFBB00.", 1)
-        br.ui:createCheckbox(section, "Motherload - Stun jockeys", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFStun ...jockeys ... |cffFFBB00.", 1)
-        br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Deadeye target|cffFFBB00.", 1)
-        br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
-        br.ui:createCheckbox(section, "Shrine - ignore adds last boss", "wont DPS those critters", 1)
+        br.ui:createSpinner(section, "Infused Holy Light Grievous", 70, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:checkSectionState(section)
     end
 
@@ -197,13 +197,16 @@ local gcdMax
 local has
 local inCombat
 local item
+local eating
 local level
+local stun
 local mode
 local ui
 local php
 --local spell
 local talent
 local units
+local unit
 local use
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
@@ -226,10 +229,92 @@ local healTargetHealth
 local holyPower
 local holyPowerMax
 
+--lists
 
+-- Stun list - format  MOB_ID, CAST_ID, CHAN_ID, BUFF_ID, AGGRO_FLAG, NOTES
+local stunList = {
+    [168319] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "TEST MOB" },
+    [171887] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = 1, NOTES = "Affix - Stun Spiteful" },
+    [168572] = { CAST_ID = nil, CHAN_ID = "328177", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Fungi Stormer CC Logic" },
+    [173943] = { CAST_ID = nil, CHAN_ID = "336451", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Domina Venomblade Trash CC Logic" },
+    [163862] = { CAST_ID = nil, CHAN_ID = "336451", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Domina Venomblade Trash CC Logic" },
+    [172590] = { CAST_ID = nil, CHAN_ID = "336451", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Domina Venomblade Trash CC Logic" },
+    [168747] = { CAST_ID = "328651", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Domina Venomblade Trash CC Logic" },
+    [164737] = { CAST_ID = "328400", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Domina Venomblade Trash CC Logic" },
+    [168022] = { CAST_ID = nil, CHAN_ID = "328429", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Slime Tentacle Stun Crushing Embrace" },
+    [168907] = { CAST_ID = nil, CHAN_ID = "328429", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Slime Tentacle Stun Crushing Embrace" },
+    [165529] = { CAST_ID = "325701", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "HOA - Depraved Collector Siphon Life CC Logic" },
+    [170486] = { CAST_ID = nil, CHAN_ID = "332329", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "DOS - Atal'ai Devoted CC Logic" },
+    [170480] = { CAST_ID = nil, CHAN_ID = "332671", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "DOS - Atal'ai Deathwalker CC Logic" },
+    [167963] = { CAST_ID = "332156", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "DOS - Headless Client CC Logic" },
+    [164920] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = "322569", AGGRO_FLAG = nil, NOTES = "MISTS - Drust Soulcleaver Stun Logic" },
+    [172991] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = "322569", AGGRO_FLAG = nil, NOTES = "MISTS - Drust Soulcleaver Stun Logic" },
+    [166276] = { CAST_ID = nil, CHAN_ID = "331743", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "MISTS - Mistveil Guardian CC Logic" },
+    [162046] = { CAST_ID = "320861", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Famished Tick Drain Essence CC Logic" },
+    [169753] = { CAST_ID = "320861", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Famished Tick Drain Essence CC Logic" },
+    [166396] = { CAST_ID = "324609", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Noble Skirmisher CC Logic" },
+    [162049] = { CAST_ID = "322169", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Growing Mistrust Stun Logic" },
+    [173016] = { CAST_ID = "334747", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "NW - Corpse Harvester/Collector CC Logic" },
+    [166302] = { CAST_ID = "334747", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "NW - Corpse Harvester/Collector CC Logic" },
+    [165222] = { CAST_ID = "320822", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "NW - Bonemender Final Bargain/Bonemend Stun Logic" },
+    [165222] = { CAST_ID = "335143", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "NW - Bonemender Final Bargain/Bonemend Stun Logic" }
+}
+
+-- Fear list - format  MOB_ID, CAST_ID, CHAN_ID, BUFF_ID, AGGRO_FLAG, NOTES
+local fearList = {
+    [171887] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Fear Big Slime" },
+    [168022] = { CAST_ID = nil, CHAN_ID = "328429", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Slime Tentacle Stun Crushing Embrace" },
+    [162046] = { CAST_ID = "320861", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Famished Tick Drain Essence CC Logic" },
+    [169753] = { CAST_ID = "320861", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Famished Tick Drain Essence CC Logic" },
+    [162049] = { CAST_ID = "322169", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Growing Mistrust Stun Logic" }
+}
 
 
 -- homemade functions
+
+local function already_stunned(unit)
+    if unit == nil then
+        br._G.print("error")
+        return false
+    end
+    local already_stunned_list = {
+        [105421] = "Blinding Light",
+        [47481] = "Gnaw",
+        [5211] = "Mighty Bash",
+        [22570] = "Maim",
+        [19577] = "Intimidation",
+        [119381] = "Leg Sweep",
+        [853] = "Hammer of Justice",
+        [408] = "Kidney Shot",
+        [1833] = "Cheap Shot",
+        [199804] = "Between the eyes",
+        [107570] = "Storm Bolt",
+        [46968] = "Shockwave",
+        [221562] = "Asphyxiate",
+        [91797] = "Monstrous Blow",
+        [179057] = "Chaos Nova",
+        [211881] = "Fel Eruption",
+        [1822] = "Rake",
+        [192058] = "Capacitor Totem",
+        [118345] = "Pulverize",
+        [89766] = "Axe Toss",
+        [30283] = "Shadowfury",
+        [1122] = "Summon Infernal",
+    }
+    for i = 1, 22 do
+        -- br._G.print(select(10, UnitDebuff(Unit, i)))
+        local debuffSpellID = select(10, br._G.UnitDebuff(unit, i))
+        -- br._G.print(tostring(already_stunned_list[tonumber(debuffSpellID)]))
+        if already_stunned_list[tonumber(debuffSpellID)] ~= nil then
+            return true
+        end
+        --   if debuffSpellID == nil then
+        --        return false
+        --     end
+    end
+    return false
+end
+
 
 --can we heal?  to avoid spam
 local function canheal(unit)
@@ -703,7 +788,7 @@ actionList.dps = function()
             or not inInstance or not inRaid or solo then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and br.getFacing("player", thisUnit) then
+            if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not br._G.UnitIsPlayer(thisUnit) and br.getFacing("player", thisUnit) then
                 if cast.holyShock(thisUnit) then
                     br.addonDebug("[DPS]HolyShock on " .. br._G.UnitName(thisUnit) .. " w/Glimmer")
                     return true
@@ -736,7 +821,7 @@ actionList.dps = function()
         end
     end
 
-    if lowest.hp > ui.value("Word of Glory") and cast.able.shieldOfTheRighteous() and (holyPower >= 3 or buff.divinePurpose.exists()) then
+    if ui.checked("Shield of the Righteous") and lowest.hp > ui.value("Word of Glory") and cast.able.shieldOfTheRighteous() and (holyPower >= 3 or buff.divinePurpose.exists()) then
         if cast.shieldOfTheRighteous(units.dyn5) then
             return true
         end
@@ -758,6 +843,140 @@ actionList.Extra = function()
         end
     end
 
+    if unit.inCombat() and mode.stuns == 1 and (talent.blindingLight and cd.blindingLight.ready() or cd.hammerOfJustice.ready()) then
+        for i = 1, br._G.GetObjectCount() do
+            local object = br._G.GetObjectWithIndex(i)
+            local ID = br._G.ObjectID(object)
+            local unitStun = stunList[ID]
+
+            if unitStun ~= nil and br.getBuffRemain(object, 226510) == 0
+                    and not br.GetUnitIsDeadOrGhost(object)
+                    and not already_stunned(object)
+                    and not br.isLongTimeCCed(object)
+                    and br.getDistance(object) <= 10
+            then
+                if ((not unitStun.AGGRO_FLAG or br.GetUnitIsUnit("player", br._G.UnitTarget(object)))
+                        and (
+                        (unitStun.CAST_ID and br.isCasting(unitStun.CAST_ID))
+                                or unitStun.CHAN_ID and br.isCasting(unitStun.CHAN_ID) and br._G.UnitChannelInfo(object)
+                                or unitStun.BUFF_ID and br.getBuffRemain(object, unitStun.BUFF_ID) > 0
+                                or not unitStun.CAST_ID and not unitStun.CHAN_ID and not unitStun.BUFF_ID)
+                )
+                then
+                    br.addonDebug(tostring(already_stunned(object)))
+
+                    if cast.hammerOfJustice(object) then
+                        br.addonDebug("[STUN]: Hammer on " .. br._G.UnitName(object))
+                        return true
+                    end
+                    if cast.blindingLight() then
+                        br.addonDebug("[STUN]: BlindingLight")
+                        return true
+                    end
+                end
+            end
+        end -- end stun
+    end -- end radar
+
+
+
+
+
+
+    --dungeon specific stuff
+    --Plaguefall
+
+    -- Fear Big Slime
+    if ui.checked("PF - Fear Big Slime") and select(8, GetInstanceInfo()) == 13228 then
+        for i = 1, br._G.GetObjectCount() do
+            local object = br._G.GetObjectWithIndex(i)
+            local ID = br._G.ObjectID(object)
+            if ID == 171887 and getDistance(object) <= 20 and cast.able.turnEvil() then
+                if cast.turnEvil(object) then
+                    return true
+                end
+            end
+        end
+    end
+
+    --Sanguine Depths  (2284)
+    if br._G.UnitCastingInfo("target") == GetSpellInfo(326827) and cast.able.blessingOfFreedom() then
+        if cast.blessingOfFreedom("player") then
+            return true
+        end
+    end
+
+    --Necrotic Wake (2286)
+    if br._G.UnitCastingInfo("boss1") == GetSpellInfo(320788) and cast.able.blessingOfFreedom() then
+        if cast.blessingOfFreedom("boss1target") then
+            return true
+        end
+    end
+
+    --Theater of Pain (2293)
+    if (br._G.UnitCastingInfo("boss1") == GetSpellInfo(317231) or br._G.UnitCastingInfo("boss1") == GetSpellInfo(320729)) and br.getDebuffRemain("player", 331606) ~= 0 and cast.able.blessingOfFreedom() then
+        if cast.blessingOfFreedom("player") then
+            return true
+        end
+    end
+
+
+
+    --Awakening/Mad Paragon
+    if ui.checked("Awakening/Mad Paragon Playstyle") and (lowest.hp > ui.value("Word of Glory")) then
+        --HoW Prio for Wings Extension
+        if br.player.runeforge.madParagon.equiped and buff.avengingWrath.exists() and br._G.IsSpellOverlayed(24275) then
+            if cast.hammerOfWrath(units.dyn30) then
+                return
+            end
+        end
+        --Non Holy Avenger Generation w/preset cap at less than 5
+        if holyPower < 5 and not buff.holyAvenger.exists() then
+            if cast.able.crusaderStrike() and cd.holyShock.remain() >= 1.5 then
+                if cast.crusaderStrike(units.dyn5) then
+                    br.addonDebug("[PARA]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+                    return true
+                end
+            end
+            if cast.able.judgment() and cd.holyShock.remain() > 1 then
+                if cast.judgment(units.dyn30) then
+                    br.addonDebug("[PARA]Judgment on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+                    return true
+                end
+            end
+        end
+        --Holy Avenger prevent overcap
+        if holyPower < 2 and buff.holyAvenger.exists() then
+            if cast.able.crusaderStrike and cd.holyShock.remain() >= 1.5 then
+                if cast.crusaderStrike(units.dyn5) then
+                    br.addonDebug("[PARA]HA-CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+                    return true
+                end
+            end
+            if cast.able.judgment() and cd.holyShock.remain() > 1 then
+                if cast.judgment(units.dyn30) then
+                    br.addonDebug("[PARA]HA-Judgment on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+                    return true
+                end
+            end
+        end
+        --Use SOTR instead of WOG while wings is up
+        if buff.avengingWrath.exists() and cast.able.shieldOfTheRighteous() then
+            if cast.shieldOfTheRighteous(units.dyn5) then
+                br.addonDebug("[PARA]SOTR on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+                return true
+            end
+        end
+        --WOG Phish for Wings
+        if not buff.avengingWrath.exists() and (holyPower >= 3 or buff.divinePurpose.exists()) then
+            if cast.wordOfGlory(lowest.unit) then
+                br.addonDebug("[FISHING] WoG on: " .. br._G.UnitName(lowest.unit))
+                healTarget = lowest.unit
+                healReason = "GOFISH"
+                return true
+            end
+        end
+    end
 end -- End Action List - Extra
 
 -- Action List - Defensive
@@ -780,10 +999,6 @@ actionList.Defensive = function()
                 br.useItem(156634)
             elseif br.canUseItem(169451) then
                 br.useItem(169451)
-            elseif br.canUseItem(getHealthPot()) then
-                br.useItem(getHealthPot())
-            elseif br.canUseItem(getHealthPot()) then
-                br.useItem(getHealthPot())
             end
         end
 
@@ -819,7 +1034,6 @@ actionList.Defensive = function()
                 end
             end
         end
-
 
 
         -- Blessing of Freedom
@@ -965,7 +1179,7 @@ actionList.Cooldown = function()
                 br.useItem(169299)
             end
         end
-    end  -- end pots
+    end -- end pots
 
     if ui.checked("Bursting") and inInstance and #tanks > 0 then
         Burststack = br.getDebuffStacks(tanks[1].unit, 240443)
@@ -1004,6 +1218,19 @@ actionList.Cooldown = function()
             return true
         end
     end
+    if ui.checked("Arcane Torrent HP Gen") and race == "BloodElf" and br.getSpellCD(69179) == 0 then
+        if holyPower < 5 and not buff.holyAvenger.exists() then
+            if castSpell("player", racial, false, false, false) then
+                return true
+            end
+        end
+        if holyPower < 2 and buff.holyAvenger.exists() then
+            if castSpell("player", racial, false, false, false) then
+                return true
+            end
+        end
+    end
+
     -- Light's Judgment
     if ui.checked("Light's Judgment") and race == "LightforgedDraenei" and br.getSpellCD(255647) == 0 then
         if #enemies.yards40 >= ui.checked("Light's Judgment") then
@@ -1019,8 +1246,8 @@ actionList.Cooldown = function()
         [264560] = { targeted = true } --"choking-brine"
     }
 
-    --[[
     if cast.able.blessingOfProtection() or cast.able.blessingOfFreedom() then
+
         if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
@@ -1049,24 +1276,27 @@ actionList.Cooldown = function()
                 end
             end
         end
+
         if ui.checked("Blessing of Protection") and cast.able.blessingOfProtection() then
-            if (br.friend[i].hp <= ui.value("Blessing of Protection")
-                    or br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
-                    or (br.getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
-                    or (ui.checked("Tol Dagor - Deadeye") and br.getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
-                    or (ui.checked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
-                    or (ui.checked("KR - Severing axe") and br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
-            then
-                if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
-                        and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-                    if cast.blessingOfProtection(br.friend[i].unit) then
-                        return true
+            for i = 1, #br.friend do
+                if (br.friend[i].hp <= ui.value("Blessing of Protection")
+                        or br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                        or (br.getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
+                        or (ui.checked("Tol Dagor - Deadeye") and br.getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
+                        or (ui.checked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
+                        or (ui.checked("KR - Severing axe") and br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
+                then
+                    if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
+                            and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                        if cast.blessingOfProtection(br.friend[i].unit) then
+                            return true
+                        end
                     end
                 end
             end
         end
     end
-]]
+
 
     -- Lay on Hands        --LoH / LayonHands
     if ui.checked("Lay on Hands") and cast.able.layOnHands(br.friend[1].unit) and not debuff.forbearance.exists(br.friend[1].unit) and br._G.UnitInRange(br.friend[1].unit) then
@@ -1238,21 +1468,20 @@ actionList.Cooldown = function()
 
     -- Unstable Temporal Time Shifter
     if ui.checked("Eng Brez") and br.canUseItem(184308) and not moving and inCombat and lowest.hp > ui.value("Critical HP") then
-        if br.getOptionValue("Eng Brez") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
+        if br.getOptionValue("Eng Brez") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target", "player") then
             br._G.UseItemByName(184308, "target")
         end
-        if br.getOptionValue("Eng Brez") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
+        if br.getOptionValue("Eng Brez") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
             br._G.UseItemByName(184308, "mouseover")
         end
         if br.getOptionValue("Eng Brez") == 3 then
             for i = 1, #br.friend do
-                if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
+                if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
                     br._G.UseItemByName(184308, br.friend[i].unit)
                 end
             end
         end
     end
-
 
 end -- End Action List - Cooldowns
 
@@ -1353,7 +1582,7 @@ actionList.heal = function()
             end
         end
         if talent.glimmerOfLight and healTarget == "none" and mode.glimmer == 1 and (not br.player.inCombat or ui.checked("OOC Glimmer")) then
-            br._G.print("GLIMMER - Heal Target?:  " .. healTarget .. "|" .. healReason)
+            -- br._G.print("GLIMMER - Heal Target?:  " .. healTarget .. "|" .. healReason)
             -- ooc blanketting
             for i = 1, #br.friend do
                 if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and (br.getLineOfSight(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) or br.friend[i].unit == "player") then
@@ -1437,7 +1666,7 @@ actionList.heal = function()
                 --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < ui.checked("Infused Flash of Light")))
             end
         end
-        if healTarget ~= "none" then
+        if healTarget ~= "none" and healReason ~= "GRIV" then
             healTargetHealth = round(br.getHP(healTarget), 1)
             --   if healTargetHealth < ui.checked("Infused Flash of Light") then
             if cast.flashOfLight(healTarget) then
@@ -1445,6 +1674,26 @@ actionList.heal = function()
                 healTarget = "none"
                 return true
                 --      end
+            end
+        end
+    end
+
+    if cd.holyLight.ready() and buff.infusionOfLight.exists() and not cast.last.holyLight() and not br.isMoving("player") then
+        if healTarget ~= "none" and healReason == "GRIV" then
+            if lowest.hp <= ui.value("Infused Holy Light Grievous") and (br.getLineOfSight(lowest.unit, "player") and br._G.UnitInRange(lowest.unit) or lowest.unit == "player") then
+                healTarget = lowest.unit
+                healReason = "HEAL"
+                --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < ui.checked("Infused Holy Light")))
+            end
+        end
+        if healTarget ~= "none" and healReason == "GRIV" and not buff.beaconOfLight.exists(healTarget) then
+            healTargetHealth = round(br.getHP(healTarget), 1)
+            if healTargetHealth < ui.value("Infused Holy Light Grievous") then
+                if cast.holyLight(healTarget) then
+                    br.addonDebug("[" .. healReason .. "] (I)holyLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (ui.value("Infused Holy Light")))
+                    healTarget = "none"
+                    return true
+                end
             end
         end
     end
@@ -1472,12 +1721,12 @@ actionList.heal = function()
 
     if cd.flashOfLight.ready() and not br.isMoving("player") then
         if healTarget == "none" then
-            if lowest.hp <= ui.value("Flash of Light") and (br.getLineOfSight(lowest.unit, "player") and br._G.UnitInRange(lowest.unit) or lowest.unit == "player") then
+            if lowest.hp <= ui.value("Flash of Light") and canheal(lowest.unit) then
                 healTarget = lowest.unit
                 healReason = "HEAL"
             end
         end
-        if healTarget ~= "none" then
+        if healTarget ~= "none" and healReason ~= "GRIV" then
             healTargetHealth = round(br.getHP(healTarget), 1)
             if cast.flashOfLight(healTarget) then
                 br.addonDebug(" OF [" .. healReason .. "] flashOfLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
@@ -1525,6 +1774,7 @@ local function runRotation()
     lowest = br.friend[1]
     use = br.player.use
     tanks = br.getTanksTable()
+    unit = br.player.unit
     healTarget = "none"
     healReason = "none"
     healTargetHealth = 100
@@ -1533,6 +1783,8 @@ local function runRotation()
     solo = br.friends == 1
     holyPower = br.player.power.holyPower.amount()
     holyPowerMax = br.player.power.holyPower.max()
+    eating = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0 or br.getBuffRemain("player", 308433) ~= 0
+
 
     -- General Locals
     hastar = br.GetObjectExists("target")
@@ -1609,7 +1861,7 @@ local function runRotation()
     ---------------------
     -- Profile Stop | Pause
     if (not IsMounted() or buff.divineSteed.exists()) then
-        if br.pause() or drinking or br.hasBuff(250873) or br.hasBuff(115834) or br.hasBuff(58984) or br.hasBuff(185710) or br.isCastingSpell(212056) then
+        if br.pause() or eating or br.hasBuff(250873) or br.hasBuff(115834) or br.hasBuff(58984) or br.hasBuff(185710) or br.isCastingSpell(212056) then
             return true
         else
             if not inCombat then
