@@ -5,17 +5,17 @@ local rotationName = "Overlord"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.frostBolt },
         [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.frostBolt }
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.frostNova},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.frostNova}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
 end
 
 ---------------
@@ -55,6 +55,7 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local buff
 local cast
 local cd
 local debuff
@@ -113,14 +114,14 @@ local function runRotation()
     use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or pause() or mode.rotation==4
+    haltProfile                                   = (unit.inCombat() and profileStop) or br._G.IsMounted() or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
     units.get(40,true)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = GetTime() end
+    if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
 
     ---------------------
     --- Begin Profile ---
@@ -129,7 +130,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = GetTime()
+        br.pauseTime = br._G.GetTime()
         return true
     else
         ---------------------------------
@@ -158,7 +159,7 @@ local function runRotation()
                 ------------------------------
                 -- Start Attack
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     br._G.StartAttack(units.dyn5)
                 end
                 --Arcane Explosion
@@ -185,7 +186,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1449 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
