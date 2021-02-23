@@ -57,7 +57,7 @@ local function toggle(name, index, check)
 		k = string.lower(k)
 		if name == k then
 			if check then
-				br.toggleFound = true
+				toggleFound = true
 				break
 			end
 			if index == nil then
