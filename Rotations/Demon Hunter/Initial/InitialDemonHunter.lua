@@ -5,17 +5,17 @@ local rotationName = "Initial"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.chaosStrike },
         [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.chaosStrike }
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = select(2,GetItemSpell(br.player.items.legionHealthstone))},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = select(2,GetItemSpell(br.player.items.legionHealthstone))}
+    local DefensiveModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = select(2,br._G.GetItemSpell(br.player.items.legionHealthstone))},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = select(2,br._G.GetItemSpell(br.player.items.legionHealthstone))}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
 end
 
 ---------------
@@ -100,7 +100,7 @@ end -- End Action List - Defensive
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    if not unit.inCombat() and not IsMounted() then
+    if not unit.inCombat() and not br._G.IsMounted() then
         -- Fel Crystal Fragments
         if ui.checked("Fel Crystal Fragments") and not buff.felCrystalInfusion.exists() and use.able.felCrystalFragments() and has.felCrystalFragments() then
             if use.felCrystalFragments() then ui.debug("Using Fel Crystal Fragments") return true end
@@ -116,7 +116,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- actions=auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
         end
@@ -144,7 +144,7 @@ local function runRotation()
     units                                         = br.player.units
     use                                           = br.player.use
     -- General Locals
-    var.haltProfile                                   = (unit.inCombat() and var.profileStop) or IsMounted() or pause() or ui.mode.rotation==4
+    var.haltProfile                                   = (unit.inCombat() and var.profileStop) or br._G.IsMounted() or br.pause() or ui.mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     -- Enemies
@@ -178,7 +178,7 @@ local function runRotation()
             if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 -- Start Attack
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     br._G.StartAttack(units.dyn5)
                 end
                 -- Trinkets
@@ -212,7 +212,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1456
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
