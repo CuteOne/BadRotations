@@ -16,13 +16,13 @@ local function createToggles()
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.deathStrike },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.deathStrike }
     };
-    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Interrupt Button
     local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enabled Interrupt", highlight = 1, icon = br.player.spell.mindFreeze },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disable Interrupt", highlight = 0, icon = br.player.spell.mindFreeze }
     };
-    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",3,0)
 end
 
 ---------------
