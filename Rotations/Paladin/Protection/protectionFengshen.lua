@@ -1,13 +1,14 @@
-﻿local rotationName = "Feng"
+local rotationName = "Feng"
 local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
-local StunSpellList="332671|326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
+local StunSpellList="326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
 local HoJPrioList = "164702|164362|170488|165905|165251|165556"
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
+	local CreateButton = br["CreateButton"]
 	-- Rotation Button
-	RotationModes = {
+	br.RotationModes = {
 	[1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.avengersShield },
 	[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.avengersShield },
 	[3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.judgment },
@@ -15,44 +16,44 @@ local function createToggles()
 	}
 	CreateButton("Rotation",1,0)
 	-- Cooldown Button
-	CooldownModes = {
+	br.CooldownModes = {
 	[1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.avengingWrath },
 	[2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.avengingWrath },
 	[3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avengingWrath }
 	};
 	CreateButton("Cooldown",2,0)
 	-- Defensive Button
-	DefensiveModes = {
+	br.DefensiveModes = {
 	[1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.guardianOfAncientKings },
 	[2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.guardianOfAncientKings }
 	};
 	CreateButton("Defensive",3,0)
 	-- Interrupt Button
-	InterruptModes = {
+	br.InterruptModes = {
 	[1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.hammerOfJustice },
 	[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
 	};
 	CreateButton("Interrupt",4,0)
 	-- Boss Encounter Case
-	BossCaseModes = {
+	br.BossCaseModes = {
 	[1] = { mode = "On", value = 1 , overlay = "BossCase Enabled", tip = "Boss Encounter Case Enabled.", highlight = 1, icon = br.player.spell.blessingOfFreedom },
 	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.blessingOfFreedom }
 	};
 	CreateButton("BossCase",0,1)
 	-- Holy Power logic
-	HolyPowerlogicModes = {
+	br.HolyPowerlogicModes = {
 	[1] = { mode = "Attack", value = 1 , overlay = "Attack logic Enabled", tip = "Holy Power logic (Attack)", highlight = 1, icon = br.player.spell.shieldOfTheRighteous },
 	[2] = { mode = "Defense", value = 2 , overlay = "Defense logic Enabled", tip = "Holy Power logic (Defense)", highlight = 1, icon = br.player.spell.wordOfGlory }
 	};
 	CreateButton("HolyPowerlogic",1,1)
 	-- Auto cancel
-	AutocancelModes = {
+	br.AutocancelModes = {
 	[1] = { mode = "On", value = 1 , overlay = "Auto cancel Enabled", tip = "Auto cancel BoP and DS\n(Only In Instance and Raid)", highlight = 1, icon = br.player.spell.blessingOfProtection },
 	[2] = { mode = "Off", value = 2 , overlay = "Auto cancel Disabled", tip = "Auto cancel BoP and DS Disabled", highlight = 0, icon = br.player.spell.blessingOfProtection }
 	};
 	CreateButton("Autocancel",2,1)
 	-- Blessed Hammer
-	BlessedHammerModes = {
+	br.BlessedHammerModes = {
 	[1] = { mode = "On", value = 1 , overlay = "Blessed Hammer Enabled", tip = "Use Blessed Hammer to get Holy Power when you are free\nEnabled", highlight = 1, icon = br.player.spell.blessedHammer },
 	[2] = { mode = "Off", value = 2 , overlay = "Blessed Hammer Disabled", tip = "Use Blessed Hammer to get Holy Power when you are free\nDisabled", highlight = 0, icon = br.player.spell.blessedHammer }
 	};
@@ -63,7 +64,7 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-
+	
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
@@ -88,11 +89,11 @@ local function createOptions()
 		-- Racial
 		br.ui:createCheckbox(section,"Racial")
 		-- Trinkets
-		br.ui:createDropdown(section,"Use Trinkets 1", {"|cffFFFFFFHealth","|cffFFFF00Cooldowns","|cff00FF00Everything"}, 1, "","|cffFFFFFFWhen to use trinkets.")
-		br.ui:createDropdownWithout(section,"Trinkets 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createDropdown(section,"Use Trinkets 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns"}, 1, "","|cffFFFFFFWhen to use trinkets.")
+		br.ui:createDropdownWithout(section,"Trinkets 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround","|cffFFFFFFAll Health","|cffFFFFFFTanks Health","|cffFFFFFFSelf Health"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
 		br.ui:createSpinnerWithout(section, "Trinkets 1",  70,  0,  100,  5,  "Health Percentage to use at")
-		br.ui:createDropdown(section,"Use Trinkets 2", {"|cffFFFFFFHealth","|cffFFFF00Cooldowns","|cff00FF00Everything"}, 1, "","|cffFFFFFFWhen to use trinkets.")
-		br.ui:createDropdownWithout(section,"Trinkets 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createDropdown(section,"Use Trinkets 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns"}, 1, "","|cffFFFFFFWhen to use trinkets.")
+		br.ui:createDropdownWithout(section,"Trinkets 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround","|cffFFFFFFAll Health","|cffFFFFFFTanks Health","|cffFFFFFFSelf Health"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
 		br.ui:createSpinnerWithout(section, "Trinkets 2",  70,  0,  100,  5,  "Health Percentage to use at")
 		-- Seraphim
 		br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
@@ -210,7 +211,6 @@ local function runRotation()
 	--------------
 	local holyPower     = br.player.power.holyPower.amount()
 	local holyPowerMax  = br.player.power.holyPower.max()
-	local artifact      = br.player.artifact
 	local buff          = br.player.buff
 	local cast          = br.player.cast
 	local cd            = br.player.cd
@@ -221,29 +221,27 @@ local function runRotation()
 	local gcd           = br.player.gcd
 	local gcdMax        = br.player.gcdMax
 	local hastar        = br.GetObjectExists("target")
-	local healPot       = getHealthPot()
 	local inCombat      = br.player.inCombat
 	local level         = br.player.level
 	local inInstance    = br.player.instance=="party"
 	local inRaid        = br.player.instance=="raid"
 	local lowest        = br.friend[1]
+	local moving        = br.isMoving("player")
 	local mode          = br.player.ui.mode
 	local php           = br.player.health
 	local race          = br.player.race
 	local racial        = br.player.getRacial()
 	local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player")
-	local solo          = GetNumGroupMembers() == 0
 	local spell         = br.player.spell
 	local talent        = br.player.talent
 	local ttd           = br.getTTD("target")
 	local units         = br.player.units
-	local level         = br.player.level
 	local module        = br.player.module
 	local use           = br.player.use
 	local SotR          = true
 	local BoF           = true
 	local RInterrupts   = true
-
+	
 	units.get(5)
 	units.get(10)
 	units.get(30)
@@ -251,7 +249,7 @@ local function runRotation()
 	enemies.get(8)
 	enemies.get(10)
 	enemies.get(30)
-
+	
 	if profileStop == nil then profileStop = false end
 	if consecrationRemain == nil then consecrationRemain = 0 end
 	if cast.last.consecration() then consecrationRemain = 11.5 end
@@ -281,9 +279,9 @@ local function runRotation()
 	for i in string.gmatch(br.getOptionValue("HoJ Prio Units"), "%d+") do
 		HoJList[tonumber(i)] = true
 	end
-
+	
 	-- infinite Divine Steed
-	if br.isChecked("infinite Divine Steed key") and (SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
+	if br.isChecked("infinite Divine Steed key") and (br.SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
 		if br.getBuffRemain("player", 254474) <= 0.5 and not UnitAffectingCombat("player") then
 			if cast.divineSteed() then return true end
 			RemoveTalent(22433)
@@ -297,16 +295,16 @@ local function runRotation()
 			LearnTalent(22434)
 		end
 	end
-	if br.isChecked("Automatic Aura replacement") and not castingUnit() then
+	if br.isChecked("Automatic Aura replacement") and not br.castingUnit() then
 		if not inInstance and not inRaid then
-			if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) then
-				if br._G.CastSpellByName(GetSpellInfo(465)) then return true end
-			elseif not buff.crusaderAura.exists() and IsMounted() then
-				if br._G.CastSpellByName(GetSpellInfo(32223)) then return true end
+			if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) and cast.able.devotionAura() then
+				if cast.devotionAura("player") then return true end
+			elseif not buff.crusaderAura.exists() and IsMounted() and cast.able.crusaderAura() then
+				if cast.crusaderAura("player") then return true end
 			end
 		end
-		if (inInstance or inRaid) and not buff.devotionAura.exists() then
-			if br._G.CastSpellByName(GetSpellInfo(465)) then return true end
+		if (inInstance or inRaid) and not inCombat and not buff.devotionAura.exists() and cast.able.devotionAura() then
+			if cast.devotionAura("player") then return true end
 		end
 	end
 	--------------------
@@ -330,21 +328,21 @@ local function runRotation()
 					if cast.handOfReckoning("target") then return true end
 				end
 				if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
-					CancelUnitBuffID("player", spell.blessingOfProtection)
+					CancelUnitBuffID("player",spell.blessingOfProtection)
 				end
 				if not talent.finalStand and br.GetObjectID("boss1") ~= 162060 and br.GetObjectID("boss1") ~= 164261 then
 					if buff.divineShield.exists() and cast.able.handOfReckoning() then
 						if cast.handOfReckoning("target") then return true end
 					end
 					if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
-						CancelUnitBuffID("player", spell.divineShield)
+						CancelUnitBuffID("player",spell.divineShield)
 					end
 				end
 			end
 		end
 		-- Flash of Light
-		if br.isChecked("OOC FoL") and cast.able.flashOfLight() and not inCombat and not isMoving("player") then
-				-- Player
+		if br.isChecked("OOC FoL") and cast.able.flashOfLight() and not inCombat and not moving then
+			-- Player
 			if br.getOptionValue("OOC FoL Target") == 1 then
 				if php <= br.getValue("OOC FoL") then
 					if cast.flashOfLight("player") then return true end
@@ -366,7 +364,7 @@ local function runRotation()
 	end -- End Action List - Extras
 	-- Action List - Defensives
 	local function actionList_Defensive()
-		if useDefensive() then
+		if br.useDefensive() then
 			module.BasicHealing()
 			if br.isChecked("PoS removes Necrotic") and inInstance and br.getDebuffStacks("player", 209858) >= br.getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
 				if use.phialOfSerenity() then return true end
@@ -613,26 +611,26 @@ local function runRotation()
 				end
 			end
 			-- Redemption
-			if br.isChecked("Redemption") and not inCombat then
-				if br.getOptionValue("Redemption")==1 and not isMoving("player") and resable and not castingUnit() then
+			if br.isChecked("Redemption") and not inCombat and not moving and not br.castingUnit() then
+				if br.getOptionValue("Redemption")==1 and resable then
 					if cast.redemption("target","dead") then return true end
 				end
-				if br.getOptionValue("Redemption")==2 and not isMoving("player") and resable and not castingUnit() then
+				if br.getOptionValue("Redemption")==2 and resable then
 					if cast.redemption("mouseover","dead") then return true end
 				end
 			end
 			-- Blessing of Freedom
-			if br.isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
+			if br.isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and br.hasNoControl(spell.blessingOfFreedom) then
 				if cast.blessingOfFreedom("player") then return true end
 			end
 			-- Flash of Light
 			if br.isChecked("Flash of Light") then
-				if (forceHeal or (inCombat and php <= br.getOptionValue("Flash of Light") / 2) or (not inCombat and php <= br.getOptionValue("Flash of Light"))) and not isMoving("player") then
+				if (forceHeal or (inCombat and php <= br.getOptionValue("Flash of Light") / 2) or (not inCombat and php <= br.getOptionValue("Flash of Light"))) and not moving then
 					if cast.flashOfLight("player") then return true end
 				end
 			end
 			-- Engineering Revive
-			if br.isChecked("Engineering Revive") and br.canUseItem(184308) and not isMoving("player") and inCombat then
+			if br.isChecked("Engineering Revive") and br.canUseItem(184308) and not moving and inCombat then
 				if br.getOptionValue("Engineering Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") then
 					UseItemByName(184308,"target")
 				elseif br.getOptionValue("Engineering Revive") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") then
@@ -657,7 +655,7 @@ local function runRotation()
 		-- Atal'ai Devoted logic
 		if select(8, GetInstanceInfo()) == 2291 then
 			for i = 1, #enemies.yards10 do
-			local thisUnit = enemies.yards10[i]
+				local thisUnit = enemies.yards10[i]
 				if UnitCastingInfo(thisUnit) == GetSpellInfo(332329) and getCastTimeRemain(thisUnit) ~=0 and getCastTimeRemain(thisUnit) < 2 and br.getBuffRemain(thisUnit,343503) == 0 then
 					if cast.able.hammerOfJustice() then
 						if cast.hammerOfJustice(thisUnit) then return true end
@@ -675,10 +673,6 @@ local function runRotation()
 					if cast.blessingOfProtection(br.friend[i].unit) then return true end
 				end
 			end
-		end
-		-- Dark Exile
-		if UnitCastingInfo("boss1") == GetSpellInfo(321894) and cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
-			if cast.blessingOfProtection("boss1target") then return true end
 		end
 		-- Infectious Rain
 		if UnitChannelInfo("boss1") ~= GetSpellInfo(331399) and br.getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
@@ -713,7 +707,7 @@ local function runRotation()
 		-- Divine Toll
 		if (br.GetObjectID("boss1") == 165946 or br.GetObjectID("boss1") == 164185 or br.GetObjectID("boss1") == 167406) and cast.able.divineToll() then
 			for i = 1, #enemies.yards30 do
-			local thisUnit = enemies.yards30[i]
+				local thisUnit = enemies.yards30[i]
 				if br.GetObjectID(thisUnit) == 166524 or br.GetObjectID(thisUnit) == 164363 or br.GetObjectID(thisUnit) == 167999 then
 					if cast.divineToll(thisUnit) then return true end
 				end
@@ -739,16 +733,16 @@ local function runRotation()
 			-- Wretched Phlegm
 			if select(8, GetInstanceInfo()) == 2289 then
 				for i = 1, #enemies.yards30 do
-				local thisUnit = enemies.yards30[i]
+					local thisUnit = enemies.yards30[i]
 					if UnitCastingInfo(thisUnit) == GetSpellInfo(334926) then
 						if cast.blessingOfFreedom("player") then return true end
 					end
 				end
 			end
 			-- Rooted in Anima
-			if GetObjectID("boss1") == 165521 then
+			if br.GetObjectID("boss1") == 165521 then
 				for i = 1, #br.friend do
-					if getDebuffRemain(br.friend[i].unit,341746) ~= 0 then
+					if br.getDebuffRemain(br.friend[i].unit,341746) ~= 0 then
 						if cast.blessingOfFreedom(br.friend[i].unit) then return true end
 					end
 				end
@@ -760,29 +754,29 @@ local function runRotation()
 		-- Trinkets
 		if br.isChecked("Use Trinkets 1") and br.canUseItem(13) then
 			if br.getOptionValue("Trinkets 1 Mode") == 1 then
-				if (php <= br.getOptionValue("Trinkets 1") and br.getOptionValue("Use Trinkets 1") == 1) or (br.getOptionValue("Use Trinkets 1") == 2 and useCDs()) or br.getOptionValue("Use Trinkets 1") == 3 then
+				if (php <= br.getOptionValue("Trinkets 1") and br.getOptionValue("Use Trinkets 1") == 1) or (br.getOptionValue("Use Trinkets 1") == 2 and br.useCDs()) or br.getOptionValue("Use Trinkets 1") == 3 then
 					br.useItem(13)
 					return true
 				end
 			elseif br.getOptionValue("Trinkets 1 Mode") == 2 then
-				if (php <= br.getOptionValue("Trinkets 1") and br.getOptionValue("Use Trinkets 1") == 1) or (br.getOptionValue("Use Trinkets 1") == 2 and useCDs()) or br.getOptionValue("Use Trinkets 1") == 3 then
+				if (php <= br.getOptionValue("Trinkets 1") and br.getOptionValue("Use Trinkets 1") == 1) or (br.getOptionValue("Use Trinkets 1") == 2 and br.useCDs()) or br.getOptionValue("Use Trinkets 1") == 3 then
 					if useItemGround("target",13,40,0,nil) then return true end
 				end
 			end
 		end
 		if br.isChecked("Use Trinkets 2") and br.canUseItem(14) then
 			if br.getOptionValue("Trinkets 2 Mode") == 1 then
-				if (php <= br.getOptionValue("Trinkets 2") and br.getOptionValue("Use Trinkets 2") == 1) or (br.getOptionValue("Use Trinkets 2") == 2 and useCDs()) or br.getOptionValue("Use Trinkets 2") == 3 then
+				if (php <= br.getOptionValue("Trinkets 2") and br.getOptionValue("Use Trinkets 2") == 1) or (br.getOptionValue("Use Trinkets 2") == 2 and br.useCDs()) or br.getOptionValue("Use Trinkets 2") == 3 then
 					br.useItem(14)
 					return true
 				end
 			elseif br.getOptionValue("Trinkets 2 Mode") == 2 then
-				if (php <= br.getOptionValue("Trinkets 2") and br.getOptionValue("Use Trinkets 2") == 1) or (br.getOptionValue("Use Trinkets 2") == 2 and useCDs()) or br.getOptionValue("Use Trinkets 2") == 3 then
+				if (php <= br.getOptionValue("Trinkets 2") and br.getOptionValue("Use Trinkets 2") == 1) or (br.getOptionValue("Use Trinkets 2") == 2 and br.useCDs()) or br.getOptionValue("Use Trinkets 2") == 3 then
 					if useItemGround("target",14,40,0,nil) then return true end
 				end
 			end
 		end
-		if useCDs() or burst then
+		if br.useCDs() or burst then
 			-- Racials
 			if br.isChecked("Racial") then
 				if race == "Orc" or race == "Troll" and br.getSpellCD(racial) == 0 then
@@ -809,7 +803,7 @@ local function runRotation()
 	end -- End Action List - Cooldowns
 	-- Action List - Interrupts
 	local function actionList_Interrupts()
-		if useInterrupts() then
+		if br.useInterrupts() then
 			if br.isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
@@ -887,7 +881,7 @@ local function runRotation()
 	--Profile Stop | Pause
 	if not inCombat and not hastar and profileStop == true then
 		profileStop = false
-	elseif (inCombat and profileStop == true) or IsFlying() or pause() or mode.rotation == 4 then
+	elseif (inCombat and profileStop == true) or IsFlying() or br.pause() or mode.rotation == 4 then
 		return true
 	else
 		if actionList_Extras() then return end
@@ -896,7 +890,7 @@ local function runRotation()
 			if BossEncounterCase() then return end
 		end
 		if actionList_Opener() then return end
-		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false and BoF == true and not castingUnit() then
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and profileStop==false and BoF == true and not br.castingUnit() then
 			if actionList_Interrupts() then return end
 			if actionList_Cooldowns() then return end
 			----------------------------------
