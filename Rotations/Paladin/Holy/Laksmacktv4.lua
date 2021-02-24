@@ -63,6 +63,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createCheckbox(section, "Aggressive Glimmer")
+        br.ui:createCheckbox(section, "Aggressive Hammer of Wrath")
         br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
 
         br.ui:checkSectionState(section)
@@ -108,7 +109,8 @@ local function createOptions()
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
             br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
-            br.ui:createCheckbox(section, "Arcane Torrent HP Gen")
+            br.ui:createCheckbox(section, "Arcane Torrent HolyPower")
+
         end
         if br.player.race == "LightforgedDraenei" then
             --lightsJudgment
@@ -195,6 +197,7 @@ local equiped
 local gcd
 local gcdMax
 local has
+local racial
 local inCombat
 local item
 local eating
@@ -271,6 +274,11 @@ local fearList = {
 
 
 -- homemade functions
+
+local function round(num, numDecimalPlaces)
+    local mult = 10 ^ (numDecimalPlaces or 0)
+    return math.floor(num * mult + 0.5) / mult
+end
 
 local function already_stunned(unit)
     if unit == nil then
@@ -571,6 +579,32 @@ noconc_list = {
     [161241] = "voidweaver - malthir"
 }
 
+actionList.hammerOfWrathDPS = function()
+
+
+    --br._G.print(tostring(br.getSpellCD(24275)))
+
+    if lowest.hp > ui.value("Critical HP") and br.player.inCombat and br.getSpellCD(24275) < 1 and (holyPower < 5 or buff.holyAvenger.exists() and holyPower < 3) then
+        if br._G.IsSpellOverlayed(24275) then
+            if cast.hammerOfWrath("target") then
+                br.addonDebug("[DPS] Hammer of Wrath 1")
+                return true
+            end
+        else
+            for i = 1, #enemies.yards30 do
+                --     br._G.print(unit.hp(enemies.yards30[i]))
+                if unit.hp(enemies.yards30[i]) < 20 and br.getFacing("player", enemies.yards30[i]) and not br.GetUnitIsDeadOrGhost(enemies.yards30[i]) then
+                    if br._G.CastSpellByName(br._G.GetSpellInfo(spell.hammerOfWrath), enemies.yards30[i]) then
+                        br.addonDebug("[DPS] Hammer of Wrath2")
+                        br._G.print("FOOO")
+                        return true
+                    end
+                end
+            end
+        end
+    end
+end
+
 actionList.glimmer = function()
 
     -- br.player.ui.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
@@ -716,12 +750,6 @@ actionList.dps = function()
     --Auto attack
     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
         br._G.StartAttack()
-    end
-
-    if br._G.IsSpellOverlayed(24275) then
-        if cast.hammerOfWrath("target") then
-            return
-        end
     end
 
 
@@ -919,7 +947,6 @@ actionList.Extra = function()
             return true
         end
     end
-
 
 
     --Awakening/Mad Paragon
@@ -1198,39 +1225,33 @@ actionList.Cooldown = function()
         end
     end
     -- Arcane Torrent
-    if ui.checked("Arcane Torrent Dispel") and race == "BloodElf" and br.getSpellCD(69179) == 0 then
-        local torrentUnit = 0
-        for i = 1, #enemies.yards8 do
-            local thisUnit = enemies.yards8[i]
-            if br.canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
-                torrentUnit = torrentUnit + 1
-                if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
-                    if castSpell("player", racial, false, false, false) then
+
+    -- br._G.print(tostring(br.player.getRacial()))
+    if br.player.race == "BloodElf" and br.getSpellCD(155145) == 0 and inCombat then
+        if ui.checked("Arcane Torrent Dispel") then
+            local torrentUnit = 0
+            for i = 1, #enemies.yards8 do
+                local thisUnit = enemies.yards8[i]
+                if br.canDispel(thisUnit, select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))) then
+                    torrentUnit = torrentUnit + 1
+                    if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
+                        br._G.CastSpellByName(br._G.GetSpellInfo(155145))
+                        --     if br.castSpell("player", racial, false, false, false) then
                         return true
                     end
                     break
                 end
             end
         end
-    end
-    if ui.checked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and cast.able.racial() and br.player.power.mana.percent() < br.getOptionValue("Arcane Torrent Mana") then
-        if castSpell("player", racial, false, false, false) then
+        if ui.checked("Arcane Torrent Mana") and br.player.power.mana.percent() < ui.value("Arcane Torrent Mana") then
+            br._G.CastSpellByName(br._G.GetSpellInfo(155145))
+            return true
+        end
+        if ui.checked("Arcane Torrent HolyPower") and (buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5) then
+            br._G.CastSpellByName(br._G.GetSpellInfo(155145))
             return true
         end
     end
-    if ui.checked("Arcane Torrent HP Gen") and race == "BloodElf" and br.getSpellCD(69179) == 0 then
-        if holyPower < 5 and not buff.holyAvenger.exists() then
-            if castSpell("player", racial, false, false, false) then
-                return true
-            end
-        end
-        if holyPower < 2 and buff.holyAvenger.exists() then
-            if castSpell("player", racial, false, false, false) then
-                return true
-            end
-        end
-    end
-
     -- Light's Judgment
     if ui.checked("Light's Judgment") and race == "LightforgedDraenei" and br.getSpellCD(255647) == 0 then
         if #enemies.yards40 >= ui.checked("Light's Judgment") then
@@ -1628,12 +1649,12 @@ actionList.heal = function()
     end
 
     if healTarget == "none" and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
-        if (lowest.hp <= ui.value("Word of Glory")) then
+        if (lowest.hp <= ui.value("Word of Glory")) and canheal(lowest.unit) then
             healTarget = lowest.unit
             healReason = "HEAL"
         end
     end
-    if healTarget ~= "none" and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+    if healTarget ~= "none" and canheal(healTarget) and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
         if cast.wordOfGlory(healTarget) then
             healTarget = "none"
             return true
@@ -1920,6 +1941,12 @@ local function runRotation()
                                 return true
                             end
                         end
+                        if ui.checked("Aggressive Hammer of Wrath") then
+                            -- and lowest.hp > br.getOptionValue("Critical HP") then
+                            if actionList.hammerOfWrathDPS() then
+                                return true
+                            end
+                        end
                         if talent.glimmerOfLight and (mode.glimmer == 1 or mode.glimmer == 3) and cast.able.holyShock() then
                             -- and glimmerCount <= 8
                             if actionList.glimmer() then
@@ -1929,6 +1956,9 @@ local function runRotation()
                         if actionList.heal() then
                             return true
                         end
+                    end
+                    if actionList.hammerOfWrathDPS() then
+                        return true
                     end
                     if actionList.dps() then
                         return true
