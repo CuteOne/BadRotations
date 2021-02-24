@@ -122,7 +122,7 @@ function br.TogglesFrame()
 	)
 	br.mainButton:SetScript(
 		"OnMouseWheel",
-		function(delta)
+		function(_,delta)
 			if _G.IsLeftAltKeyDown() then
 				local Go = false
 				if delta < 0 and br.data.settings["buttonSize"] > 1 then
