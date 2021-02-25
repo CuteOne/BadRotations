@@ -6,48 +6,68 @@ local rotationName = "Laks M+ " -- Change to name of profile listed in options d
 local function createToggles()
     local CreateButton = br["CreateButton"]
     -- Rotation Button
-    br.CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 0, icon = br.player.spell.holyAvenger },
         [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.auraMastery },
         [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.absolution }
     }
-    CreateButton("Cooldown", 1, 0)
+    br.ui:createToggle(CooldownModes, "Cooldown", 1, 0)
+
     -- Defensive Button
-    br.DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 0, icon = br.player.spell.divineProtection },
         [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.blessingOfProtection }
     }
-    CreateButton("Defensive", 2, 0)
-    -- Interrupt Button
-    br.InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 0, icon = br.player.spell.blindingLight },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.blindingLight }
-    }
-    CreateButton("Interrupt", 3, 0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
+
     -- Cleanse Button
-    br.CleanseModes = {
+    local CleanseModes = {
         [1] = { mode = "On", value = 1, overlay = "Cleanse Enabled", tip = "Cleanse Enabled", highlight = 0, icon = br.player.spell.cleanse },
         [2] = { mode = "Off", value = 2, overlay = "Cleanse Disabled", tip = "Cleanse Disabled", highlight = 0, icon = br.player.spell.cleanse }
     }
-    CreateButton("Cleanse", 4, 0)
+    br.ui:createToggle(CleanseModes, "Cleanse", 3, 0)
+
     -- Glimmer
-    br.GlimmerModes = {
+    local GlimmerModes = {
         [1] = { mode = "On", value = 1, overlay = "Glimmer mode", tip = "Glimmer on", highlight = 0, icon = 287280 },
         [2] = { mode = "Off", value = 2, overlay = "Normal", tip = "Glimmer off", highlight = 0, icon = br.player.spell.holyShock },
         [3] = { mode = "Tank", value = 3, overlay = "Normal", tip = "Glimmer on tank", highlight = 0, icon = 278573 }
     }
-    CreateButton("Glimmer", 5, 0)
+    br.ui:createToggle(GlimmerModes, "Glimmer", 4, 0)
+
     -- DPS
-    br.DPSModes = {
+    local DPSModes = {
         [1] = { mode = "On", value = 1, overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 0, icon = br.player.spell.judgment },
         [2] = { mode = "Off", value = 2, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.judgment },
     }
-    CreateButton("DPS", 6, 0)
-    br.PotsModes = {
+    br.ui:createToggle(DPSModes, "DPS", 5, 0)
+
+    local PotsModes = {
         [1] = { mode = "On", value = 1, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
         [2] = { mode = "Off", value = 2, overlay = "Use Pots", tip = "Use Pots", highlight = 0, icon = 2259 },
     }
-    CreateButton("Pots", 7, 0)
+    br.ui:createToggle(PotsModes, "Pots", 6, 0)
+
+    -- Interrupt Button
+    local InterruptModes = {
+        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 0, icon = br.player.spell.blindingLight },
+        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.blindingLight }
+    }
+    br.ui:createToggle(InterruptModes, "Interrupt", 1, 1)
+
+    -- M+ Stuns
+    local StunModes = {
+        [1] = { mode = "On", value = 1, overlay = "DPS Enabled", tip = "M+ Stun Logic Enabled", highlight = 0, icon = br.player.spell.hammerOfJustice },
+        [2] = { mode = "Off", value = 2, overlay = "DPS Disabled", tip = "M+ Stun Logic Disabled", highlight = 0, icon = br.player.spell.hammerOfJustice },
+    }
+    br.ui:createToggle(StunModes, "Stuns", 2, 1)
+
+    -- FREEEDOM!!
+    local FreedomModes = {
+        [1] = { mode = "On", value = 1, overlay = "Freedoms Enabled", tip = "M+ Freedom/BoP Logic Enabled", highlight = 0, icon = br.player.spell.blessingOfFreedom },
+        [2] = { mode = "Off", value = 2, overlay = "Freedoms Disabled", tip = "M+ Freedom/BoP Logic Disabled", highlight = 0, icon = br.player.spell.blessingOfFreedom },
+    }
+    br.ui:createToggle(FreedomModes, "Freedom", 3, 1)
 
 
 end
@@ -100,7 +120,11 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "DPS-Target", "w/DPS KEY" }, 1, "", "")
 
-        -- br.ui:createCheckbox(section, "Advanced Trinket Support")
+        br.ui:createCheckbox(section, "Advanced Trinket Support")
+        -- Tuft of Smoldering Plumeage Trinket Support
+        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - min", 20, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
+        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - max", 20, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
+        br.ui:createDropdownWithout(section, "Tuft of Smoldering Plumeage Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFHealer/DPS" }, 1, "|cffFFFFFFTarget for Tuft of Smoldering Plumeage")
 
         br.ui:checkSectionState(section)
 
@@ -155,6 +179,7 @@ local function createOptions()
         -- m+ Rot
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
         br.ui:createSpinner(section, "Infused Holy Light Grievous", 70, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createCheckbox(section, "DBM/BW Precast CDs", "Uses DBM or BW to precast mitigation spells", 1)
         br.ui:checkSectionState(section)
     end
 
@@ -253,6 +278,7 @@ local stunList = {
     [164920] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = "322569", AGGRO_FLAG = nil, NOTES = "MISTS - Drust Soulcleaver Stun Logic" },
     [172991] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = "322569", AGGRO_FLAG = nil, NOTES = "MISTS - Drust Soulcleaver Stun Logic" },
     [166276] = { CAST_ID = nil, CHAN_ID = "331743", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "MISTS - Mistveil Guardian CC Logic" },
+    [165251] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = " MIST - that fucking Fox/Vulpine thingy" },
     [162046] = { CAST_ID = "320861", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Famished Tick Drain Essence CC Logic" },
     [169753] = { CAST_ID = "320861", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Famished Tick Drain Essence CC Logic" },
     [166396] = { CAST_ID = "324609", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "SD - Noble Skirmisher CC Logic" },
@@ -342,9 +368,9 @@ end
 -- spellqueue ready
 local function spellQueueReady()
     --Check if we can queue cast
-    local castingInfo = { UnitCastingInfo("player") }
+    local castingInfo = { br._G.UnitCastingInfo("player") }
     if castingInfo[5] then
-        if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow"))) / 1000)) < 0 then
+        if (br._G.GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow"))) / 1000)) < 0 then
             --     Print((GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow"))) / 1000)))
             return false
         end
@@ -359,13 +385,13 @@ function timers.time(name, fn)
     local time = timers._timers[name]
     if fn then
         if not time then
-            time = GetTime()
+            time = br._G.GetTime()
         end
     else
         time = nil
     end
     timers._timers[name] = time
-    return time and (GetTime() - time) or 0
+    return time and (br._G.GetTime() - time) or 0
 end
 
 local function noConc(unit)
@@ -407,6 +433,20 @@ local function noDamageCheck(unit)
 
     return false --catchall
 end
+
+local precast_spell_list = {
+    --spell_id	, precast_time	,	spell_name,     spell to cast
+    { 214652, 1.5, "Blood Barrier", "devotionAura" }, -- DOS Hakkar
+    { 320141, 1.5, "Diabolical Dooooooom!", "devotionAura" }, -- DOS Manastorms
+    { 320230, 1.5, "Explosive Contrivance", "devotionAura" }, -- DOS Dealer
+    { 319733, 1.5, "Stone Call", "devotionAura" }, -- HOA Echelon
+    { 323552, 1.5, "Volley of Power", "devotionAura" }, -- HOA Adjugator
+    { 328791, 1.5, "Ritual of Woe", "devotionAura" }, -- HOA Lord Chamberlain
+    { 325360, 1.5, "Rite of Supremacy", "devotionAura" } -- SD Grand Proctor Beryllia
+
+
+}
+--end of dbm list
 
 local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
     if not br.isKnown(spell) or br.getSpellCD(spell) ~= 0 or select(2, br._G.IsUsableSpell(spell)) then
@@ -689,7 +729,8 @@ actionList.cleanse = function()
     -- Cleanse
     if cast.able.cleanse() and not cast.last.cleanse() then
         for i = 1, #br.friend do
-            if br.canDispel(br.friend[i].unit, spell.cleanse) and (br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
+            if br.canDispel(br.friend[i].unit, spell.cleanse) and (br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player")
+            then
                 if br.player.race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
                     if cast.racial("player") then
                         return true
@@ -748,7 +789,7 @@ actionList.dps = function()
     -- j / con / HS / CS
 
     --Auto attack
-    if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
+    if not IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
         br._G.StartAttack()
     end
 
@@ -842,9 +883,9 @@ actionList.dps = function()
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) and br.getFacing("player", units.dyn5) and #enemies.yards8 >= 1 then
+    if not ui.checked("Awakening/Mad Paragon Playstyle") and talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
         if cast.crusaderStrike(units.dyn5) then
-            br.addonDebug("[DPSx]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+            br.addonDebug("[xDPS]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
         end
     end
@@ -858,6 +899,25 @@ actionList.dps = function()
 end
 
 actionList.Extra = function()
+
+    -- I like DBM
+    if ui.checked("DBM/BW Precast CDs") and cast.able.devotionAura() and inCombat then
+        for i = 1, 7 do
+            local boss_spell_id = precast_spell_list[i][1]
+            local precast_time = precast_spell_list[i][2]
+            local spell_name = precast_spell_list[i][3]
+            local spelltocast = precast_spell_list[i][4]
+            local time_remain = br.DBM:getPulltimer(nil, boss_spell_id)
+            --   br._G.print(spelltocast)
+            -- Cast things for boss encounter
+            if spelltocast == "devotionAura" and time_remain < precast_time then
+                if cast.devotionAura("player") then
+                    br.addonDebug("[PRE-DBM] Devo (" .. spell_name .. ")")
+                    return true
+                end
+            end
+        end
+    end
 
     if ui.checked("Automatic Aura replacement") then
         if not buff.devotionAura.exists() and (not br._G.IsMounted() or buff.divineSteed.exists()) then
@@ -886,7 +946,7 @@ actionList.Extra = function()
                 if ((not unitStun.AGGRO_FLAG or br.GetUnitIsUnit("player", br._G.UnitTarget(object)))
                         and (
                         (unitStun.CAST_ID and br.isCasting(unitStun.CAST_ID))
-                                or unitStun.CHAN_ID and br.isCasting(unitStun.CHAN_ID) and br._G.UnitChannelInfo(object)
+                                or unitStun.CHAN_ID and br._G.UnitCastingInfo(object) == GetSpellInfo(unitStun.CHAN_ID)
                                 or unitStun.BUFF_ID and br.getBuffRemain(object, unitStun.BUFF_ID) > 0
                                 or not unitStun.CAST_ID and not unitStun.CHAN_ID and not unitStun.BUFF_ID)
                 )
@@ -906,15 +966,37 @@ actionList.Extra = function()
         end -- end stun
     end -- end radar
 
-
-
-
-
+    if ui.checked("Advanced Trinket Support") and (184020 == 159630 or Trinket14 == 184020) and br.canUseItem(184020) and br._G.UnitInRange(br.friend[1].unit) then
+        local tuftTarget = nil
+        for i = 1, #br.friend do
+            if br.friend[i].hp < 100 and br._G.UnitInRange(br.friend[i].unit) and not unit.deadOrGhost(br.friend[i].unit) then
+                if ui.value("Tuft of Smoldering Plumeage Target") == 1 then
+                    if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) and (solo or OWGroup or inRaid or (inInstance)) then
+                        tuftTarget = br.friend[i].unit
+                    end
+                elseif ui.value("Tuft of Smoldering Plumeage Target") == 2 then
+                    if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance)) then
+                        tuftTarget = br.friend[i].unit
+                    end
+                elseif ui.value("Tuft of Smoldering Plumeage Target") == 3 and br.getDebuffRemain("player", 267037) == 0 and php <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) then
+                    tuftTarget = "player"
+                elseif ui.value("Tuft of Smoldering Plumeage Target") == 4 then
+                    if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
+                        if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) and (not inInstance or (inInstance)) then
+                            tuftTarget = br.friend[i].unit
+                        end
+                    end
+                end
+                if tuftTarget ~= nil then
+                    br.useItem(184020, tuftTarget)
+                    return true
+                end
+            end
+        end
+    end
 
     --dungeon specific stuff
-    --Plaguefall
-
-    -- Fear Big Slime
+    -- Plaguefall   (13228)
     if ui.checked("PF - Fear Big Slime") and select(8, GetInstanceInfo()) == 13228 then
         for i = 1, br._G.GetObjectCount() do
             local object = br._G.GetObjectWithIndex(i)
@@ -928,21 +1010,27 @@ actionList.Extra = function()
     end
 
     --Sanguine Depths  (2284)
-    if br._G.UnitCastingInfo("target") == GetSpellInfo(326827) and cast.able.blessingOfFreedom() then
-        if cast.blessingOfFreedom("player") then
-            return true
-        end
-    end
-
-    --Necrotic Wake (2286)
-    if br._G.UnitCastingInfo("boss1") == GetSpellInfo(320788) and cast.able.blessingOfFreedom() then
-        if cast.blessingOfFreedom("boss1target") then
-            return true
+    if (cast.able.blessingOfFreedom() or cast.able.divineShield()) and select(8, GetInstanceInfo()) == 2284 then
+        for i = 1, br._G.GetObjectCount() do
+            local object = br._G.GetObjectWithIndex(i)
+            local ID = br._G.ObjectID(object)
+            if someone_casting and ID == 162040 and getDistance(object) <= 40 then
+                if br._G.UnitCastingInfo("target") == br._G.GetSpellInfo(326827) and cast.able.blessingOfFreedom then
+                    if cast.blessingOfFreedom("player") then
+                        return true
+                    end
+                end
+                if br.getDebuffRemain("player", 326827) ~= 0 and not br.UnitDebuffID("player", 326827) and cast.able.divineShield() then
+                    if cast.divineShield("player") then
+                        return true
+                    end
+                end
+            end
         end
     end
 
     --Theater of Pain (2293)
-    if (br._G.UnitCastingInfo("boss1") == GetSpellInfo(317231) or br._G.UnitCastingInfo("boss1") == GetSpellInfo(320729)) and br.getDebuffRemain("player", 331606) ~= 0 and cast.able.blessingOfFreedom() then
+    if br._G.ObjectID("target") == 162329 and (br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(317231) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320729)) and br.getDebuffRemain("player", 331606) ~= 0 and cast.able.blessingOfFreedom() then
         if cast.blessingOfFreedom("player") then
             return true
         end
@@ -1064,10 +1152,7 @@ actionList.Defensive = function()
 
 
         -- Blessing of Freedom
-        if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() and br.isMoving("player")
-                and (br.hasNoControl(spell.blessingOfFreedom)
-                or ui.checked("Use Blessing of Freedom for Snare") and debuff.graspingTendrils.exists("player")
-                or debuff.vileCorruption.exists("player")) then
+        if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() and br.hasNoControl(spell.blessingOfFreedom) then
             if cast.blessingOfFreedom("player") then
                 return true
             end
@@ -1128,7 +1213,7 @@ actionList.Interrupt = function()
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
             local distance = br.getDistance(thisUnit)
-            if (HOJ_unitList[br.GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
+            if (HOJ_unitList[br.GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, br._G.UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, br._G.GetSpellInfo(br._G.UnitChannelInfo(thisUnit)))] ~= nil) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
                 if cast.hammerOfJustice(thisUnit) then
                     return true
                 end
@@ -1140,7 +1225,7 @@ actionList.Interrupt = function()
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
             local distance = br.getDistance(thisUnit)
-            if br.canInterrupt(thisUnit, 99) and distance <= 10 and not br.isBoss(thisUnit) and StunsBlackList[br.GetObjectID(thisUnit)] == nil and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+            if br.canInterrupt(thisUnit, 99) and distance <= 10 and not br.isBoss(thisUnit) and StunsBlackList[br.GetObjectID(thisUnit)] == nil and br._G.UnitCastingInfo(thisUnit) ~= br._G.GetSpellInfo(257899) and br._G.UnitCastingInfo(thisUnit) ~= br._G.GetSpellInfo(258150) and br._G.UnitCastingInfo(thisUnit) ~= br._G.GetSpellInfo(252923) then
                 -- Blinding Light
                 if ui.checked("Blinding Light") then
                     if cast.blindingLight() then
@@ -1164,7 +1249,7 @@ actionList.Interrupt = function()
     if br.useInterrupts() and talent.repentance and cast.able.repentance() and ui.checked("Repentance as Interrupt") then
         for i = 1, #enemies.yards30 do
             thisUnit = enemies.yards30[i]
-            if br.canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > getCastTime(spell.repentance) and StunsBlackList[br.GetObjectID(thisUnit)] == nil and not br.isBoss(thisUnit) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
+            if br.canInterrupt(thisUnit, 99) and br._G.getCastTimeRemain(thisUnit) > br._G.getCastTime(spell.repentance) and StunsBlackList[br.GetObjectID(thisUnit)] == nil and not br.isBoss(thisUnit) and br._G.UnitCastingInfo(thisUnit) ~= br._G.GetSpellInfo(257899) and br._G.UnitCastingInfo(thisUnit) ~= br._G.GetSpellInfo(258150) and br._G.UnitCastingInfo(thisUnit) ~= br._G.GetSpellInfo(252923) and br._G.UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
                 if cast.repentance(thisUnit) then
                     return true
                 end
@@ -1263,36 +1348,46 @@ actionList.Cooldown = function()
 
 
     --BoP and BoF   blessing of freedom blessing of protection
-    pre_BoF_list = {
-        [264560] = { targeted = true } --"choking-brine"
+    local pre_BoF_list = {
+        [320788] = { targeted = true }, --"NW Last boss",
+        [324608] = { targeted = true }, --]/charged-stomp
+        [317231] = { targeted = nil }, --/crushing-slam
+        [320729] = { targeted = nil }, --/massive-cleave
     }
 
-    if cast.able.blessingOfProtection() or cast.able.blessingOfFreedom() then
-
-        if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
+    if unit.inCombat() and mode.freedom == 1 and cast.able.blessingOfFreedom() then
+        if cast.able.blessingOfFreedom() then
+            local endCast, spellcastID, spellTarget
             for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
-                spellTarget = select(3, br._G.UnitCastID(thisUnit))
+                _, _, _, _, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo("player")
+                if spellcastID ~= nil then
+                    local unitBOF = pre_BoF_list[spellcastID]
+                    if unitBOF and unitBOF.targeted == true then
+                        spellTarget = select(3, br._G.UnitCastID(enemies.yards40[i]))
+                    else
+                        spellTarget = "player"
+                    end
+                end
             end
-            if spellTarget ~= nil and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - GetTime()) < 1 then
+            if spellTarget ~= nil and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - br._G.GetTime()) < 1 then
                 if cast.blessingOfFreedom(spellTarget) then
                     return true
                 end
             end
 
-            for i = 1, #br.friend do
-                if (ui.checked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0) -- barrel in FH
-                        or br.getDebuffRemain(br.friend[i].unit, 258058) ~= 0 -- squuuuuze in TD
-                        or br.getDebuffRemain(br.friend[i].unit, 257478) ~= 0 --crippling-bite in FH
-                        or br.getDebuffRemain(br.friend[i].unit, 274383) ~= 0 -- rat-traps in FH
-                        or br.getDebuffRemain(br.friend[i].unit, 257747) ~= 0 -- earth-shaker in FH
-                        or br.getDebuffRemain(br.friend[i].unit, 268050) ~= 0 -- anchor-of-binding in Shrine
-                        or br.getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
-                        or br.getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
-                then
-                    if cast.blessingOfFreedom(br.friend[i].unit) then
+            -- Debuff
+            local BoFDebuff = { 319941, 330810, 326827, 324608, 292942, 329326, 295929, 292910, 334926, 329905, 341746 }
+            for k, v in pairs(BoFDebuff) do
+                if br.getDebuffRemain("player", v) ~= 0 then
+                    if cast.blessingOfFreedom("player") then
                         return true
+                    end
+                end
+                for i = 1, #br.friend do
+                    if br.getDebuffRemain(br.friend[i].unit, v) ~= 0 then
+                        if cast.blessingOfFreedom(br.friend[i].unit) then
+                            return true
+                        end
                     end
                 end
             end
@@ -1300,12 +1395,9 @@ actionList.Cooldown = function()
 
         if ui.checked("Blessing of Protection") and cast.able.blessingOfProtection() then
             for i = 1, #br.friend do
-                if (br.friend[i].hp <= ui.value("Blessing of Protection")
-                        or br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
-                        or (br.getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
-                        or (ui.checked("Tol Dagor - Deadeye") and br.getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
-                        or (ui.checked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
-                        or (ui.checked("KR - Severing axe") and br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
+                if br.friend[i].hp <= ui.value("Blessing of Protection")
+                        or br.getDebuffRemain(br.friend[i].unit, 323406) ~= 0 --323406/jagged-gash
+                        or br.getDebuffRemain(br.friend[i].unit, 324154) ~= 0 --324154 / dark - stride
                 then
                     if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
                             and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
@@ -1625,14 +1717,14 @@ actionList.heal = function()
     end -- end holy shock
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
+    if not ui.checked("Awakening/Mad Paragon Playstyle") and talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
         end
     end
 
-    if cast.able.crusaderStrike() and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and br.getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
+    if not ui.checked("Awakening/Mad Paragon Playstyle") and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and br.getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
@@ -1765,6 +1857,22 @@ end -- End Action List - PreCombat
 ----------------
 --- ROTATION ---
 ----------------
+
+local someone_casting = false
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local function reader()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    if param == "SPELL_CAST_START" and bit.band(sourceFlags, 0x00000800) > 0 then
+        C_Timer.After(0.02, function()
+            someone_casting = true
+            --   Print(sourceName .. " is casting " .. spellName .. " - creature[" .. tostring(bit.band(sourceFlags, 0x00000800) > 0) .. "]")
+        end)
+    end
+end
+frame:SetScript("OnEvent", reader)
+
 local function runRotation()
 
     ---------------------
@@ -1930,8 +2038,11 @@ local function runRotation()
                         if actionList.PreCombat() then
                             return true
                         end
-                        if actionList.Interrupt() then
-                            return true
+                        -- executed outside of gcd
+                        --We will check for interrupt whenever someone is casting (based on log)
+                        if someone_casting == true and inCombat then
+                            if actionList.Interrupt() then
+                            end
                         end
                         if actionList.Cooldown() then
                             return true
