@@ -332,7 +332,7 @@ local function runRotation()
         local inCombat = br.player.inCombat
         local inInstance = br.player.instance == "party"
         local inRaid = br.player.instance == "raid"
-        local falling, swimming, flying, moving = br.getFallTime(), br._G.br._G.IsSwimming(), br._G.IsFlying(), br._G.GetUnitSpeed("player") > 0
+        local falling, swimming, flying, moving = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying(), br._G.GetUnitSpeed("player") > 0
         local lastSpell = br.lastSpellCast
         local level = br.player.level
         local mana = br.player.power.mana.percent()
