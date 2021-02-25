@@ -223,7 +223,7 @@ local function runRotation()
 	local php           = br.player.health
 	local race          = br.player.race
 	local racial        = br.player.getRacial()
-	local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player")
+	local resable       = br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player")
 	local spell         = br.player.spell
 	local talent        = br.player.talent
 	local ttd           = br.getTTD("target")
@@ -251,7 +251,7 @@ local function runRotation()
 	local lowestUnit = "player"
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i].unit
-		if UnitInRange(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) and br.getLineOfSight("player",thisUnit) then
+		if br._G.UnitInRange(thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) and br._G.UnitIsVisible(thisUnit) and br.getLineOfSight("player",thisUnit) then
 			local thisHP = br.getHP(thisUnit)
 			local lowestHP = br.getHP(lowestUnit)
 			if thisHP < lowestHP then
@@ -274,9 +274,9 @@ local function runRotation()
 
 	if br.isChecked("Automatic Aura replacement") and not br.castingUnit() then
 		if not inInstance and not inRaid then
-			if not buff.devotionAura.exists() and (not IsMounted() or buff.divineSteed.exists()) and cast.able.devotionAura() then
+			if not buff.devotionAura.exists() and (not br._G.IsMounted() or buff.divineSteed.exists()) and cast.able.devotionAura() then
 				if cast.devotionAura("player") then return true end
-			elseif not buff.crusaderAura.exists() and IsMounted() and cast.able.crusaderAura() then
+			elseif not buff.crusaderAura.exists() and br._G.IsMounted() and cast.able.crusaderAura() then
 				if cast.crusaderAura("player") then return true end
 			end
 		end
@@ -293,7 +293,7 @@ local function runRotation()
 		if br.isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
-				if UnitThreatSituation("player",thisUnit) ~= nil and UnitThreatSituation("player",thisUnit) <= 2 and UnitAffectingCombat(thisUnit) and br.GetObjectID(thisUnit) ~= 174773 then
+				if br._G.UnitThreatSituation("player",thisUnit) ~= nil and br._G.UnitThreatSituation("player",thisUnit) <= 2 and br._G.UnitAffectingCombat(thisUnit) and br.GetObjectID(thisUnit) ~= 174773 then
 					if cast.handOfReckoning(thisUnit) then return true end
 				end
 			end
@@ -330,7 +330,7 @@ local function runRotation()
 				local torrentUnit = 0
 				for i=1, #enemies.yards8 do
 					local thisUnit = enemies.yards8[i]
-					if br.canDispel(thisUnit,select(7,GetSpellInfo(GetSpellInfo(69179)))) then
+					if br.canDispel(thisUnit,select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))) then
 						torrentUnit = torrentUnit + 1
 						if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
 							if br.castSpell("player",racial,false,false,false) then return true end
@@ -348,33 +348,33 @@ local function runRotation()
 					end
 					-- Target
 				elseif br.getOptionValue("Lay on Hands Target") == 2 then
-					if br.getHP("target") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+					if br.getHP("target") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("target") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.layOnHands("target") then return true end
 					end
 					-- Mouseover
 				elseif br.getOptionValue("Lay on Hands Target") == 3 then
-					if br.getHP("mouseover") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+					if br.getHP("mouseover") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.layOnHands("mouseover") then return true end
 					end
 				elseif br.getHP(lowestUnit) <= br.getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if br.getOptionValue("Lay on Hands Target") == 4 then
-						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Healer
 					elseif br.getOptionValue("Lay on Hands Target") == 5 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Healer/Tank
 					elseif br.getOptionValue("Lay on Hands Target") == 6 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Healer/Damager
 					elseif br.getOptionValue("Lay on Hands Target") == 7 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Any
@@ -402,17 +402,17 @@ local function runRotation()
 				if br.isChecked("Word of Glory - Party") then
 					if br.getHP(lowestUnit) <= br.getOptionValue("Word of Glory - Party") and not br.GetUnitIsUnit(lowestUnit,"player") then
 						if br.getOptionValue("WoG - Party Target") == 1 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+							if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
 						elseif br.getOptionValue("WoG - Party Target") == 2 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+							if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
 						elseif br.getOptionValue("WoG - Party Target") == 3 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" or UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+							if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" or br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
@@ -436,33 +436,33 @@ local function runRotation()
 					end
 					-- Target
 				elseif br.getOptionValue("Blessing of Protection Target") == 2 then
-					if br.getHP("target") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("target") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+					if br.getHP("target") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("target") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.blessingOfProtection("target") then return true end
 					end
 					-- Mouseover
 				elseif br.getOptionValue("Blessing of Protection Target") == 3 then
-					if br.getHP("mouseover") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+					if br.getHP("mouseover") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfProtection("mouseover") then return true end
 					end
 				elseif br.getHP(lowestUnit) <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
 					if br.getOptionValue("Blessing of Protection Target") == 4 then
-						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Healer
 					elseif br.getOptionValue("Blessing of Protection Target") == 5 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Healer/Tank
 					elseif br.getOptionValue("Blessing of Protection Target") == 6 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Healer/Damager
 					elseif br.getOptionValue("Blessing of Protection Target") == 7 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Any
@@ -475,33 +475,33 @@ local function runRotation()
 			if br.isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
 				-- Target
 				if br.getOptionValue("Blessing Of Sacrifice Target") == 1 then
-					if br.getHP("target") <= br.getValue("Blessing Of Sacrifice") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+					if br.getHP("target") <= br.getValue("Blessing Of Sacrifice") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.blessingOfSacrifice("target") then return true end
 					end
 					-- Mouseover
 				elseif br.getOptionValue("Blessing Of Sacrifice Target") == 2 then
-					if br.getHP("mouseover") <= br.getValue("Blessing Of Sacrifice") and UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+					if br.getHP("mouseover") <= br.getValue("Blessing Of Sacrifice") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfSacrifice("mouseover") then return true end
 					end
 				elseif br.getHP(lowestUnit) <= br.getValue("Blessing Of Sacrifice") and not br.GetUnitIsUnit(lowestUnit,"player") and not cast.last.blessingOfProtection() then
 					-- Tank
 					if br.getOptionValue("Blessing Of Sacrifice Target") == 3 then
-						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Healer
 					elseif br.getOptionValue("Blessing Of Sacrifice Target") == 4 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Healer/Tank
 					elseif br.getOptionValue("Blessing Of Sacrifice Target") == 5 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Healer/Damager
 					elseif br.getOptionValue("Blessing Of Sacrifice Target") == 6 then
-						if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Any
@@ -587,14 +587,14 @@ local function runRotation()
 			end
 			-- Engineering Revive
 			if br.isChecked("Engineering Revive") and br.canUseItem(184308) and not moving and inCombat then
-				if br.getOptionValue("Engineering Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") then
-					UseItemByName(184308,"target")
-				elseif br.getOptionValue("Engineering Revive") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") then
-					UseItemByName(184308,"mouseover")
+				if br.getOptionValue("Engineering Revive") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") then
+					br._G.UseItemByName(184308,"target")
+				elseif br.getOptionValue("Engineering Revive") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+					br._G.UseItemByName(184308,"mouseover")
 				elseif br.getOptionValue("Engineering Revive") == 3 then
 					for i =1, #br.friend do
-						if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit,"player") then
-							UseItemByName(184308,br.friend[i].unit)
+						if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit,"player") then
+							br._G.UseItemByName(184308,br.friend[i].unit)
 						end
 					end
 				end
@@ -609,10 +609,10 @@ local function runRotation()
 			end
 		end
 		-- Atal'ai Devoted logic
-		if select(8,GetInstanceInfo()) == 2291 then
+		if select(8,br._G.GetInstanceInfo()) == 2291 then
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
-				if UnitCastingInfo(thisUnit) == GetSpellInfo(332329) and br.getCastTimeRemain(thisUnit) ~=0 and br.getCastTimeRemain(thisUnit) < 2 and br.getBuffRemain(thisUnit,343503) == 0 then
+				if br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(332329) and br.getCastTimeRemain(thisUnit) ~=0 and br.getCastTimeRemain(thisUnit) < 2 and br.getBuffRemain(thisUnit,343503) == 0 then
 					if cast.able.hammerOfJustice() then
 						if cast.hammerOfJustice(thisUnit) then return true end
 					end
@@ -631,19 +631,19 @@ local function runRotation()
 			end
 		end
 		-- Infectious Rain
-		if UnitChannelInfo("boss1") ~= GetSpellInfo(331399) and br.getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
+		if br._G.UnitChannelInfo("boss1") ~= br._G.GetSpellInfo(331399) and br.getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
 			if cast.cleanseToxins("player") then return true end
 		end
 		-- Will to
 		if race == "Human" and br.getSpellCD(59752) == 0 and (br.getDebuffRemain("player",321893) ~= 0 or br.getDebuffRemain("player",331847) ~= 0 or br.getDebuffRemain("player",319611) ~= 0) then
-			if br._G.CastSpellByName(GetSpellInfo(59752)) then return true end
+			if br._G.CastSpellByName(br._G.GetSpellInfo(59752)) then return true end
 		end
 		-- Gloom Squall
 		if br.getBuffRemain("player",324089) ~= 0 then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
-				if (br.GetObjectID(thisUnit) == 162099 or br.GetObjectID(thisUnit) == 162133) and (UnitCastingInfo(thisUnit) == GetSpellInfo(322903) or UnitCastingInfo(thisUnit) == GetSpellInfo(324103)) then
-					RunMacroText("/click ExtraActionButton1")
+				if (br.GetObjectID(thisUnit) == 162099 or br.GetObjectID(thisUnit) == 162133) and (br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(322903) or br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(324103)) then
+					br._G.RunMacroText("/click ExtraActionButton1")
 				end
 			end
 		end
@@ -655,7 +655,7 @@ local function runRotation()
 					if cast.hammerOfJustice(thisUnit) then return true end
 				end
 				-- Opportunity Strikes
-				if UnitChannelInfo(thisUnit) == GetSpellInfo(333540) then
+				if br._G.UnitChannelInfo(thisUnit) == br._G.GetSpellInfo(333540) then
 					if cast.hammerOfJustice(thisUnit) then return true end
 				end
 			end
@@ -671,12 +671,12 @@ local function runRotation()
 		end
 		-- Blessing of Freedom
 		if cast.able.blessingOfFreedom() then
-			if UnitCastingInfo("boss1") == GetSpellInfo(320788) or UnitCastingInfo("boss1") == GetSpellInfo(324608) or UnitCastingInfo("boss1") == GetSpellInfo(319941) then
+			if br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320788) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(324608) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(319941) then
 				BoF = false
 				if cast.blessingOfFreedom("boss1target") then return true end
 			end
 			-- Oppressive Banner
-			if (UnitCastingInfo("boss1") == GetSpellInfo(317231) or UnitCastingInfo("boss1") == GetSpellInfo(320729)) and br.getDebuffRemain("player",331606) ~= 0 then
+			if (br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(317231) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320729)) and br.getDebuffRemain("player",331606) ~= 0 then
 				if cast.blessingOfFreedom("player") then return true end
 			end
 			-- Debuff
@@ -687,10 +687,10 @@ local function runRotation()
 				end
 			end
 			-- Wretched Phlegm
-			if select(8,GetInstanceInfo()) == 2289 then
+			if select(8,br._G.GetInstanceInfo()) == 2289 then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
-					if UnitCastingInfo(thisUnit) == GetSpellInfo(334926) then
+					if br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(334926) then
 						if cast.blessingOfFreedom("player") then return true end
 					end
 				end
@@ -715,7 +715,7 @@ local function runRotation()
 				if br.useItemGround("target",13,40,0,nil) then return true end
 			elseif br.getOptionValue("Trinkets 1 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 1") then
 				if br.useItem(13,lowest.unit) then return true end
-			elseif br.getOptionValue("Trinkets 1 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 1") and UnitGroupRolesAssigned(lowest.unit) == "TANK" then
+			elseif br.getOptionValue("Trinkets 1 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 1") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
 				if useItem(13,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 1 Mode") == 5 and php <= br.getOptionValue("Trinkets 1") then
 				if br.useItem(13,"player") then return true end
@@ -728,7 +728,7 @@ local function runRotation()
 				if br.useItemGround("target",14,40,0,nil) then return true end
 			elseif br.getOptionValue("Trinkets 2 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 2") then
 				if br.useItem(14,lowest.unit) then return true end
-			elseif br.getOptionValue("Trinkets 2 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 2") and UnitGroupRolesAssigned(lowest.unit) == "TANK" then
+			elseif br.getOptionValue("Trinkets 2 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 2") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
 				if useItem(14,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 2 Mode") == 5 and php <= br.getOptionValue("Trinkets 2") then
 				if br.useItem(14,"player") then return true end
@@ -765,7 +765,7 @@ local function runRotation()
 			if br.isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
-					if (select(8,UnitCastingInfo(thisUnit)) == false or select(7,UnitChannelInfo(thisUnit)) == false) and br.getFacing("player",thisUnit) then
+					if (select(8,br._G.UnitCastingInfo(thisUnit)) == false or select(7,br._G.UnitChannelInfo(thisUnit)) == false) and br.getFacing("player",thisUnit) then
 						RInterrupts = false
 						if cast.avengersShield(thisUnit) then return true end
 					end
@@ -777,10 +777,10 @@ local function runRotation()
 				local distance = br.getDistance(thisUnit)
 				-- Stun Spells
 				local interruptID
-				if UnitCastingInfo(thisUnit) then
-					interruptID = select(9,UnitCastingInfo(thisUnit))
-				elseif UnitChannelInfo(thisUnit) then
-					interruptID = select(8,UnitChannelInfo(thisUnit))
+				if br._G.UnitCastingInfo(thisUnit) then
+					interruptID = select(9,br._G.UnitCastingInfo(thisUnit))
+				elseif br._G.UnitChannelInfo(thisUnit) then
+					interruptID = select(8,br._G.UnitChannelInfo(thisUnit))
 				end
 				if interruptID ~=nil and StunSpellsList[interruptID] and br.getBuffRemain(thisUnit,343503) == 0 then
 					if br.isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and br.getBuffRemain(thisUnit,226510) == 0 then
@@ -818,7 +818,7 @@ local function runRotation()
 	-- Action List - Opener
 	actionList.Opener = function()
 		-- infinite Divine Steed
-		if br.isChecked("infinite Divine Steed key") and (br.SpecificToggle("infinite Divine Steed key") and not GetCurrentKeyBoardFocus()) then
+		if br.isChecked("infinite Divine Steed key") and (br.SpecificToggle("infinite Divine Steed key") and not br._G.GetCurrentKeyBoardFocus()) then
 			if br.getBuffRemain("player", 254474) <= 0.5 then
 				if cast.divineSteed() then return true end
 				RemoveTalent(22433)
@@ -841,14 +841,14 @@ local function runRotation()
 				end
 				-- Target
 			elseif br.getOptionValue("OOC FoL Target") == 2 then
-				if br.getHP("target") <= br.getValue("OOC FoL") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
+				if br.getHP("target") <= br.getValue("OOC FoL") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 					if cast.flashOfLight("target") then return true end
 				end
 				-- Player and Target
 			elseif br.getOptionValue("OOC FoL Target") == 3 then
 				if php <= br.getValue("OOC FoL") then
 					if cast.flashOfLight("player") then return true end
-				elseif br.getHP("target") <= br.getValue("OOC FoL") and UnitIsPlayer("target") and br.GetUnitIsFriend("target","player")then
+				elseif br.getHP("target") <= br.getValue("OOC FoL") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player")then
 					if cast.flashOfLight("target") then return true end
 				end
 			end
@@ -864,7 +864,7 @@ local function runRotation()
 				if cast.judgment("target") then return true end
 			end
 			-- Start Attack
-			if not IsAutoRepeatSpell(GetSpellInfo(6603)) and br.getDistance("target") <= 5 then
+			if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.getDistance("target") <= 5 then
 				br._G.StartAttack()
 			end
 		end
@@ -873,11 +873,11 @@ local function runRotation()
 	--- Begin Profile ---
 	---------------------
 	--Profile Stop | Pause
-	if not inCombat and not IsMounted() and not br.pause() then
+	if not inCombat and not br._G.IsMounted() and not br.pause() then
 		if actionList.Opener() then return true end
 		if actionList.Defensive() then return true end
 	end
-	if inCombat and (not IsMounted() or buff.divineSteed.exists()) and BoF == true and not br.pause() then
+	if inCombat and (not br._G.IsMounted() or buff.divineSteed.exists()) and BoF == true and not br.pause() then
 		if actionList.Extras() then return true end
 		if mode.bossCase == 1 then
 			if actionList.BossEncounterCase() then return true end
@@ -914,7 +914,7 @@ local function runRotation()
 			if cast.judgment(units.dyn30) then return true end
 		end
 		-- Hammer of Wrath
-		if br.isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (br.getHP(units.dyn30) <= 20 or (level >=58 and buff.avengingWrath.exists()) or br.getBuffRemain("player", 345693) ~= 0) and mob30 then
+		if br.isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player", 345693) ~= 0) and mob30 then
 			if cast.hammerOfWrath(units.dyn30) then return true end
 		end
 		-- Avenger's Shield
