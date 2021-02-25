@@ -151,15 +151,15 @@ function unlock.MBUnlock()
     b.IsAoEPending = wmbapi.IsAoEPending
     b.GetTargetingSpell = wmbapi.IsAoEPending
     b.WorldToScreen = function(...)
-        local scale, x, y = b.UIParent:GetEffectiveScale(), select(2, wmbapi.WorldToScreen(...))
-        local sx = b.GetScreenWidth() * scale
-        local sy = b.GetScreenHeight() * scale
+        local scale, x, y = UIParent:GetEffectiveScale(), select(2, wmbapi.WorldToScreen(...))
+        local sx = GetScreenWidth() * scale
+        local sy = GetScreenHeight() * scale
         return x * sx, y * sy
     end
     b.ScreenToWorld = function(X, Y)
-        local scale = b.UIParent:GetEffectiveScale()
-        local sx = b.GetScreenWidth() * scale
-        local sy = b.GetScreenHeight() * scale
+        local scale = UIParent:GetEffectiveScale()
+        local sx = GetScreenWidth() * scale
+        local sy = GetScreenHeight() * scale
         return wmbapi.ScreenToWorld(X / sx, Y / sy)
     end
     b.GetMousePosition = function()
@@ -203,8 +203,8 @@ function unlock.MBUnlock()
     end
     -- Drawing
     b.GetWoWWindow = b.GetPhysicalScreenSize
-    b.Draw2DLine = _G.LibDraw.Draw2DLine
-    b.Draw2DText = _G.LibDraw.Text
+    b.Draw2DLine = _G.LibStub("LibDraw-1.0").Draw2DLine
+    b.Draw2DText = _G.LibStub("LibDraw-1.0").Text
     b.WorldToScreenRaw = function(...)
         local x, y = select(2, wmbapi.WorldToScreen(...))
         return x, 1 - y

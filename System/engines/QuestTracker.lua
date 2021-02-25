@@ -8,7 +8,12 @@ local questTooltipScanQuest = _G.CreateFrame ("GameTooltip", "QuestPlateTooltipS
 local ScannedQuestTextCache = {}
 
 function br.isQuestUnit(Pointer)
-	local guid = br._G.UnitGUID(Pointer)
+	local guid
+	if not _G.lb then
+		guid = br._G.UnitGUID(Pointer)
+	else
+		guid = Pointer
+	end
 	--local myName = UnitName("player")
 	questTooltipScanQuest:SetOwner(_G.WorldFrame, 'ANCHOR_NONE')
 	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
@@ -113,6 +118,7 @@ local function FunctionQuestLogUpdate() --private
 end
 
 function br.isQuestObject(object) --Ty Ssateneth
+	if _G.lb then return end
 	local objectID = br._G.ObjectID(object)
 	local ignoreObjects = {
 		[327571] = true,

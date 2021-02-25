@@ -18,7 +18,6 @@ local TagHandlerList = {
 	"IsSpellInRange",
 	"IsItemInRange",
 	"UnitInRange",
-	"br.isCritter",
 	"UnitAura",
 	"UnitAuraSlots",
 	"UnitPlayerControlled",
@@ -317,9 +316,9 @@ function unlock.LBUnlock()
 	b.CreateDirectory = lb.CreateDirectory
 	b.GetDirectoryFiles = lb.GetFiles
 	b.GetKeyState = lb.GetKeyState
-	b.WorldToScreen = function(wX, wY, wZ)
-		local ResolutionCoef = _G.WorldFrame:GetWidth() / lb.GetWindowSize()
-		local sX, sY = lb.WorldToScreen(wX, wY, wZ)
+	b.WorldToScreen = function (...)
+		local ResolutionCoef = WorldFrame:GetWidth() / lb.GetWindowSize()
+		local sX, sY = lb.WorldToScreen(...)
 		if sX and sY then
 			return sX * ResolutionCoef, -sY * ResolutionCoef
 		else
@@ -329,6 +328,10 @@ function unlock.LBUnlock()
 	b.ScreenToWorld = function()
 		return 0, 0
 	end
+	b.WorldToScreenRaw = function(...)
+        local x, y = lb.WorldToScreen(...)
+        return x, y
+    end
 	b.GetDistanceBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2)
 		return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2))
 	end
@@ -377,6 +380,7 @@ function unlock.LBUnlock()
 		degrees = degrees and br._G.rad(degrees) / 2 or math.pi / 2
 		return ShortestAngle < degrees
 	end
+	b.ObjectInteract = b.InteractUnit
 	-- br.getFacing = ObjectFacingObject
 	b.UnitCreator = lb.ObjectCreator
 	b.ObjectName = lb.ObjectName

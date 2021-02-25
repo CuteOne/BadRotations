@@ -1,5 +1,5 @@
 local _, br = ...
-local LibDraw = _G["LibDraw"]
+local LibDraw = LibStub("LibDraw-1.0")
 local trackerFrame = _G.CreateFrame("Frame")
 local drawInterval = 0.006
 br.DrawTargets = {}
@@ -126,29 +126,6 @@ function br.objectTracker()
 	if (br.timer:useTimer("Tracker Lag", 0.07) or (br.isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
 		LibDraw.clearCanvas()
 		if br.isChecked("Enable Tracker") then
-			for i = 1, #br.om do
-				if br._G.UnitCanAttack( "player",br.om[i].unit) then
-					local pX,pY,pZ = br._G.ObjectPosition("player")
-					local oX,oY,oZ = br._G.ObjectPosition(br.om[i].unit)
-					local isNull = false
-					if not (oX and oY and oZ and pX and pY and pZ) then
-						isNull = true
-					end
-					if not isNull then
-						-- if br.isChecked("Draw Lines to Tracked Objects") then
-							-- if not (p2dX > sWidth or p2dX < 0 or p2dY > sHeight or p2dY < 0) then
-							-- 	if TraceLine(xOb, yOb, zOb, pX,pY,pZ, 0x10) == nil then
-							-- 		SetDrawColor(0, 1, 0, 1)
-							-- 	else
-							LibDraw.SetColor(0,255,0,100)
-								-- end
-								LibDraw.Line(pX,pY,pZ,oX,oY,oZ)
-							-- end
-						-- end
-						-- Draw2DText(o2dX * sWidth - (sWidth * magicScale), o2dY * sHeight - (sHeight * (magicScale * 1/2)), text, 24)
-					end
-				end
-			end
 			-- Horrific Vision - Objects Managed from OM from br.lists.horrificVisions and placed in br.objects when detected
 			local instanceID = _G.IsInInstance() and select(8,_G.GetInstanceInfo()) or 0
 			-- Reset Horrific Vision Potion Blacklist out of instance
