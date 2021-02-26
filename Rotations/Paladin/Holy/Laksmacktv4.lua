@@ -83,6 +83,8 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
+        br.ui:createDropdownWithout(section, "Turn Evil Key", br.dropOptions.Toggle, 6, "Fear mouseover")
+        br.ui:createDropdownWithout(section, "Repentance Key", br.dropOptions.Toggle, 6, "CC mousover")
         br.ui:createCheckbox(section, "Aggressive Glimmer")
         br.ui:createCheckbox(section, "Aggressive Hammer of Wrath")
         br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
@@ -105,6 +107,9 @@ local function createOptions()
         br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "Minimum LoD Targets", true)
         br.ui:createSpinner(section, "Infused Flash of Light", 70, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Flash of Light", 50, 0, 100, 5, "", "Health Percent to Cast At")
+        -- Beacon of Virtue
+        br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createSpinner(section, "Aura Mastery", 50, 0, 100, 5, "", "Health Percent to Cast At")
@@ -913,6 +918,23 @@ end
 
 actionList.Extra = function()
 
+
+    if SpecificToggle("Turn Evil Key") and not GetCurrentKeyBoardFocus() then
+        br._G.CastSpellByName(GetSpellInfo(spell.turnEvil), "mouseover")
+        return
+    end
+    if SpecificToggle("Repentance Key") and not GetCurrentKeyBoardFocus() then
+        br._G.CastSpellByName(GetSpellInfo(spell.repentance), "mouseover")
+        return
+    end
+
+    if covenant.kyrian.active and not br.hasItem(177278) and cast.able.summonSteward() then
+        if cast.summonSteward() then
+            return true
+        end
+    end
+
+
     -- I like DBM
     if ui.checked("DBM/BW Precast CDs") and cast.able.devotionAura() and inCombat then
         for i = 1, 7 do
@@ -1249,7 +1271,6 @@ actionList.Interrupt = function()
                 if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice()
                         and br.getBuffRemain(thisUnit, 226510) == 0 -- never stun in Sanguine
                         and not br.isExplosive(thisUnit)
-                        and (thisUnit == 130488 and ui.checked("ML - Stun jockeys") or thisUnit ~= 130488)
                 then
                     if cast.hammerOfJustice(thisUnit) then
                         return true
@@ -1731,7 +1752,7 @@ actionList.heal = function()
                 --and canheal(lowest.unit) then
                 healTarget = lowest.unit
                 healReason = "HEAL"
-                br.addonDebug("setting lowest to: " .. healTarget)
+                --        br.addonDebug("setting lowest to: " .. healTarget)
             end
         end
         if talent.glimmerOfLight and healTarget == "none" and mode.glimmer == 1 and (not br.player.inCombat or ui.checked("OOC Glimmer")) then
