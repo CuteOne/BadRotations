@@ -82,6 +82,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General - 20210223-0855")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
+        br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
         br.ui:createCheckbox(section, "Aggressive Glimmer")
         br.ui:createCheckbox(section, "Aggressive Hammer of Wrath")
         br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
@@ -93,6 +94,12 @@ local function createOptions()
         br.ui:createSpinner(section, "Holy Shock", 80, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "LotM player HP limit", 50, 0, 100, 5, "", "Light of the Martyr Self HP limit")
+        --Divine Toll
+        br.ui:createDropdown(section, "Divine Toll", { "At 0 Holy Power", "As a Heal" }, 1)
+        br.ui:createSpinnerWithout(section, "Divine Toll Units", 3, 1, 5, 1)
+        br.ui:createSpinnerWithout(section, "Divine Toll Health", 70, 0, 100, 1)
+        br.ui:createSpinnerWithout(section, "Max Holy Power", 2, 0, 5, 1, "Only use Divine Toll when at or below this value")
+        br.ui:checkSectionState(section)
         -- Light of Dawn
         br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "Minimum LoD Targets", true)
@@ -791,6 +798,12 @@ actionList.dps = function()
     --Auto attack
     if not IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
         br._G.StartAttack()
+    end
+
+    if br.isChecked("Divine Toll during DPS Key") and dpskey and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
+        if cast.divineToll(units.dyn30) then
+            return true
+        end
     end
 
 
@@ -1674,6 +1687,33 @@ actionList.heal = function()
                 end
             end
             --here is an idea - what if healtarget is 80%+ HP and has glimmer buff on them .. but someone else in the group does not
+        end
+    end
+
+    -- Beacon of Virtue
+    if br.isChecked("Beacon of Virtue") and talent.beaconOfVirtue and br.getSpellCD(200025) == 0 then
+        if br.getSpellCD(20473) <= gcdMax or holyPower >= 3 or br.getSpellCD(304971) <= gcdMax or buff.divinePurpose.exists() then
+            if br.getLowAllies(br.getValue("Beacon of Virtue")) >= br.getValue("BoV Targets") then
+                if CastSpellByName(br._G.GetSpellInfo(spell.beaconOfVirtue), lowest.unit) then
+                    return true
+                end
+            end
+        end
+    end
+
+    -- Divine Toll
+    if br.isChecked("Divine Toll") and cast.able.divineToll() and (holyPower <= br.getValue("Max Holy Power") or br.getDebuffStacks(lowest.unit, 240443) >= 4) then
+        if br.getOptionValue("Divine Toll") == 1 and holyPower == 0 then
+            if cast.divineToll(lowest.unit) then
+                return true
+            end
+        end
+        if br.getOptionValue("Divine Toll") == 2 then
+            if br.getLowAllies(br.getValue("Divine Toll Health")) >= br.getValue("Divine Toll Units") then
+                if cast.divineToll(lowest.unit) then
+                    return true
+                end
+            end
         end
     end
 
