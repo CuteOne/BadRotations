@@ -132,7 +132,7 @@ local TagHandlerList = {
 	"UseItemByName",
 	"SpellIsTargeting",
 	"InteractUnit",
-	-- "CancelUnitBuff",
+	"CancelUnitBuff",
 	"TargetUnit",
 	"UnitGUID",
 	"UnitExists"

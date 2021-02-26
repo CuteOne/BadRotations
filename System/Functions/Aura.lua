@@ -5,7 +5,7 @@ function br.CancelUnitBuffID(unit, spellID, filter)
 		local _, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
 		if buffSpellID ~= nil then
 			if buffSpellID == spellID then
-				_G.CancelUnitBuff(unit, i)
+				br._G.CancelUnitBuff(unit, i)
 				return true
 			end
 		else
