@@ -114,7 +114,7 @@ br.novaEngineTables.DispelID = {
 	-- Maut
 	[314993] = {stacks = 0, range = 10}, --https://www.wowhead.com/spell=314992/drain-essence
 	-- Nalthor the Rimebinder (Necrotic Wake)
-	[320788] = {stacks = 0, range = 15}, --https://www.wowhead.com/spell=320788/frozen-binds
+	[320788] = {stacks = 0, range = 12}, --https://www.wowhead.com/spell=320788/frozen-binds
 
 
 
