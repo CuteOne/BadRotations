@@ -993,3 +993,11 @@ function br.isTableEmpty(table)
 	end
 	return retval
 end
+
+function br.getItemGlow(object)
+	if not lb then
+		return br._G.ObjectDescriptor(object,br._G.GetOffset("CGObjectData__DynamicFlags"),"uint")
+	else
+		return lb.ObjectHasDynamicFlag(object, lb.EUnitDynamicFlags.SpecialInfo)
+	end
+end
