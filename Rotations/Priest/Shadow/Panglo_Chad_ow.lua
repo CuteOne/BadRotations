@@ -713,7 +713,7 @@ local function runRotation()
     end
 end
 
-local id = 258 -- Change to the spec id profile is for.
+local id = 0 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end

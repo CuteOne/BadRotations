@@ -1,4 +1,3 @@
-local br = _G["br"]
 local rotationName = "Initial"
 
 ---------------
@@ -6,23 +5,23 @@ local rotationName = "Initial"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spell.tigerPalm},
         [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spell.tigerPalm}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spell.vivify},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spell.vivify}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.legSweep},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Interrupt Defensive", highlight = 0, icon = br.player.spell.legSweep}
     };
-    CreateButton("Interrupt",3,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",3,0)
 end
 
 ---------------
@@ -212,8 +211,8 @@ local function runRotation()
     units                                           = br.player.units
     use                                             = br.player.use
     -- General Locals
-    var.getHealPot                                  = _G["getHealthPot"]()
-    var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or pause() or ui.mode.rotation==4
+    var.getHealPot                                  = br["getHealthPot"]()
+    var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation==4
     -- Units
     units.get(5)
     units.get(40)
