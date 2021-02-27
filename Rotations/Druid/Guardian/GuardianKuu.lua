@@ -344,9 +344,9 @@ local function runRotation()
     local conduit = br.player.conduit
     local covenant = br.player.covenant
     local deadtar, attacktar, hastar, playertar =
-        deadtar or br.GetUnitIsDeadOrGhost("target"),
-        attacktar or br._G.UnitCanAttack("target", "player"),
-        hastar or br.GetObjectExists("target"),
+        br.GetUnitIsDeadOrGhost("target"),
+        br._G.UnitCanAttack("target", "player"),
+        br.GetObjectExists("target"),
         br._G.UnitIsPlayer("target")
     local debuff = br.player.debuff
     local energy, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.regen(), br.player.power.energy.deficit()

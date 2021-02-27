@@ -113,9 +113,9 @@ local function runRotation()
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+        local falling, swimming, flying, moving             = br.getFallTime(), IsSwimming(), IsFlying(), br._G.GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
-        local healPot                                       = getHealthPot()
+        local healPot                                       = br.getHealthPot()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
@@ -133,8 +133,8 @@ local function runRotation()
         local ttm                                           = br.player.timeToMax
         local units                                         = br.player.units
         
-        if leftCombat == nil then leftCombat = GetTime() end
-        if profileStop == nil then profileStop = false end
+        if br.leftCombat == nil then br.leftCombat = GetTime() end
+        if br.profileStop == nil then br.profileStop = false end
 
 --------------------
 --- Action Lists ---
@@ -144,13 +144,13 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if br.pause() or (br._G.UnitExists("target") and (br.GetUnitIsDeadOrGhost("target") or not br._G.UnitCanAttack("target", "player"))) or mode.rotation == 4 then
             return true
         else
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and br.GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            if not inCombat and br.GetObjectExists("target") and not br.GetUnitIsDeadOrGhost("target") and br._G.UnitCanAttack("target", "player") then
                 print("No up to date rotation found for this spec.")
 
             end -- End Out of Combat Rotation

@@ -142,7 +142,7 @@ end
 
 local labels = {
     lowest = nil,
-    br.dynamicTarget = {
+    dynamicTarget = {
         range5 = nil,
         range40 = nil,
     },
@@ -321,7 +321,7 @@ local buff
 local cast
 local cd
 local charges
-local br.dynamicTarget
+local dynamicTarget
 local enemies
 local friends
 local lastSoothingMist = {
@@ -1395,7 +1395,7 @@ local function runRotation()
 
 end
 
-local id = 270
+local id = 0
 
 if br.rotations[id] == nil then
     br.rotations[id] = {}

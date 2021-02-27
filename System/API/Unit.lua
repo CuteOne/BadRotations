@@ -368,8 +368,8 @@ br.api.unit = function(self)
         local GetWeaponEnchantInfo = br._G["GetWeaponEnchantInfo"]
         local _, mainExp, _, _, _, offExp = GetWeaponEnchantInfo()
         local timeRemain = 0
-        if offHand and self.unit.weaponImbue.exists(imbueId,true) then timeRemain = offExp - br._G..GetTime() end
-        if not offHand and self.unit.weaponImbue.exists(imbueId) then timeRemain = mainExp - br._G..GetTime() end
+        if offHand and self.unit.weaponImbue.exists(imbueId,true) then timeRemain = offExp - br._G.GetTime() end
+        if not offHand and self.unit.weaponImbue.exists(imbueId) then timeRemain = mainExp - br._G.GetTime() end
         return timeRemain > 0 and timeRemain or 0
     end
     -- Weapon Imbue Charges

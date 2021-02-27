@@ -9,52 +9,52 @@ local lastTargetX, lastTargetY, lastTargetZ
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.arcaneOrb},
         [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneMissiles},
     }
-    CreateButton("Rotation", 1, 0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.runeofPower},
         [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.runeofPower},
         [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.arcaneBlast},
         [4] = {mode = "Lust", value = 4, overlay = "Cooldowns With Lust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.runeofPower}
     }
-    CreateButton("Cooldown", 2, 0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.prismaticBarrier},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.prismaticBarrier}
     }
-    CreateButton("Defensive", 3, 0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterspell},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterspell}
     }
-    CreateButton("Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- Arcane Orb Button
-    ArcaneOrbModes = {
+    local ArcaneOrbModes = {
         [1] = {mode = "On", value = 1, overlay = "Auto AO Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.arcaneOrb},
         [2] = {mode = "Off", value = 2, overlay = "Auto AO Disabled", tip = "Will not use Arcane Orb", highlight = 0, icon = br.player.spell.arcaneOrb}
     }
-    CreateButton("ArcaneOrb", 5, 0)
+    br.ui:createToggle(ArcaneOrbModes,"ArcaneOrb",5,0)
 
     -- Rune of Power Button
-    RuneOfPowerModes = {
+    local RuneOfPowerModes = {
         [1] = {mode = "On", value = 1, overlay = "Auto Rune Of Power Enabled", tip = "Will Automatically use Arcane Orb", highlight = 1, icon = br.player.spell.runeofPower},
         [2] = {mode = "Off", value = 2, overlay = "Auto Rune Of Power Disabled", tip = "Will not use Arcane Orb", highlight = 0, icon = br.player.spell.runeofPower}
     }
-    CreateButton("RuneOfPower", 1, 1)
+    br.ui:createToggle(RuneOfPowerModes,"RuneOfPower", 1, 1)
 
     -- Final Burn Button
-    FinalBurnModes = {
+    local FinalBurnModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Auto Final Burn Enabled", tip = "Will Enter Final Burn Automatically", highlight = 1, icon = br.player.spell.fireBlast},
         [2] = {mode = "On", value = 2, overlay = "Final Burn Enabled", tip = "Will Force Final Burn", highlight = 1, icon = br.player.spell.fireBlast},
         [3] = {mode = "Off", value = 3, overlay = "Final Burn Disabled", tip = "Final Burn Disabled", highlight = 0, icon = br.player.spell.fireBlast}
     }
-    CreateButton("FinalBurn", 2, 1)
+    br.ui:createToggle(FinalBurnModes,"FinalBurn", 2, 1)
 end
 --------------- 
 --- OPTIONS ---
@@ -252,10 +252,10 @@ local function runRotation()
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed
 ---------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
+        br.UpdateToggle("Rotation",0.25)
+        br.UpdateToggle("Cooldown",0.25)
+        br.UpdateToggle("Defensive",0.25)
+        br.UpdateToggle("Interrupt",0.25)
         br.player.ui.mode.rop = br.data.settings[br.selectedSpec].toggles["RuneOfPower"]
         br.player.ui.mode.fb = br.data.settings[br.selectedSpec].toggles["FinalBurn"]
         br.player.ui.mode.ao = br.data.settings[br.selectedSpec].toggles["ArcaneOrb"]
@@ -276,10 +276,10 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local friendly                                      = br.GetUnitIsFriend("target", "player")
-        local moving                                        = isMoving("player") ~= false or br.player.moving
+        local moving                                        = br.isMoving("player") ~= false or br.player.moving
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
-        local healPot                                       = getHealthPot()
+        local healPot                                       = br.getHealthPot()
         local has                                           = br.player.has
         local ui                                            = br.player.ui
         local inInstance                                    = br.player.instance=="party"
@@ -289,8 +289,8 @@ local function runRotation()
         local mode                                          = br.player.ui.mode
         local perk                                          = br.player.perk   
         local hasPet                                        = IsPetActive()     
-        local playerCasting                                 = UnitCastingInfo("player")
-        local playerMouse                                   = UnitIsPlayer("mouseover")
+        local playerCasting                                 = br._G.UnitCastingInfo("player")
+        local playerMouse                                   = br._G.UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local hasMouse                                      = br.GetObjectExists("mouseover")
         local php                                           = br.player.health
@@ -308,7 +308,7 @@ local function runRotation()
         local inInstance                                    = br.player.unit.instance() == "party"
         local inRaid                                        = br.player.unit.instance() == "raid"
         local manaPercent                                   = br.player.power.mana.percent()
-        local lastSpell                                     = lastSpellCast
+        local lastSpell                                     = br.lastSpellCast
         local targetUnit                                    = nil
         local thp                                           = br.getHP("target")
         local travelTime                                    = br.getDistance("target") / 50 --Ice lance
@@ -332,10 +332,10 @@ local function runRotation()
             dispelDelay = br.getValue("Dispel delay")
         end
 
-        if profileStop == nil or not inCombat then
-            profileStop = false
+        if br.profileStop == nil or not inCombat then
+            br.profileStop = false
         end
-        if leftCombat == nil then leftCombat = GetTime() end
+        if br.leftCombat == nil then br.leftCombat = GetTime() end
 
         local var = {}
         var.ccMaxStack = 3
@@ -364,7 +364,7 @@ local function runRotation()
    -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
-        local castingInfo = {UnitCastingInfo("player")}
+        local castingInfo = {br._G.UnitCastingInfo("player")}
         if castingInfo[5] then
             if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
                 return false
@@ -375,7 +375,7 @@ local function runRotation()
 
     --cast time
     local function interruptCast(spellID)
-        local castingInfo = {UnitCastingInfo("player")}
+        local castingInfo = {br._G.UnitCastingInfo("player")}
         if castingInfo[9] and castingInfo[9] == spellID then
             if br.isChecked("Casting Interrupt Delay") then
                 if (GetTime()-(castingInfo[4]/1000)) >= br.getOptionValue("Casting Interrupt Delay") then
@@ -390,8 +390,8 @@ local function runRotation()
 
     --Player cast remain
     local playerCastRemain = 0
-    if UnitCastingInfo("player") then
-        playerCastRemain = (select(5, UnitCastingInfo("player")) / 1000) - GetTime()
+    if br._G.UnitCastingInfo("player") then
+        playerCastRemain = (select(5, br._G.UnitCastingInfo("player")) / 1000) - GetTime()
     end
 
     -- Pet Stance
@@ -415,8 +415,8 @@ local function runRotation()
         dispelDelay = br.getValue("Dispel delay")
     end
 
-    if profileStop == nil or not inCombat then
-        profileStop = false
+    if br.profileStop == nil or not inCombat then
+        br.profileStop = false
     end
     --ttd
     local function ttd(unit)
@@ -461,7 +461,7 @@ local function runRotation()
         local thisUnit = unit.unit
         local hp = br._G.UnitHealth(thisUnit)
         if br.unlocked then --EasyWoWToolbox ~= nil then
-            local castID, _, castTarget = UnitCastID("player")
+            local castID, _, castTarget = br._G.UnitCastID("player")
             if castID and castTarget and br.GetUnitIsUnit(unit, castTarget) and playerCasting then
                 hp = hp - calcDamage(castID, unit)
             end
@@ -490,7 +490,7 @@ local function runRotation()
     }
     local function spellstealCheck(unit)
         local i = 1
-        local buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)
+        local buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = br._G.UnitBuff(unit, i)
         while buffName do
             if doNotSteal[spellId] then
                 return false
@@ -498,7 +498,7 @@ local function runRotation()
                 return true
             end
             i = i + 1
-            buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)            
+            buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = br._G.UnitBuff(unit, i)            
         end
         return false
     end
@@ -511,7 +511,7 @@ local function runRotation()
             [127315] = "Reanimate Totem",
             [146731] = "Zombie Dust Totem"
         }
-        local creatureType = UnitCreatureType(unit)
+        local creatureType = br._G.UnitCreatureType(unit)
         local objectID = br.GetObjectID(unit)
         if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then
@@ -533,14 +533,14 @@ local function runRotation()
     }
 
     local function noDotCheck(unit)
-        if br.isChecked("Dot Blacklist") and (noDotUnits[br.GetObjectID(unit)] or UnitIsCharmed(unit)) then
+        if br.isChecked("Dot Blacklist") and (noDotUnits[br.GetObjectID(unit)] or br._G.UnitIsCharmed(unit)) then
             return true
         end
         if br.isTotem(unit) then
             return true
         end
         local unitCreator = br._G.UnitCreator(unit)
-        if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then
+        if unitCreator ~= nil and br._G.UnitIsPlayer(unitCreator) ~= nil and br._G.UnitIsPlayer(unitCreator) == true then
             return true
         end
         if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then
@@ -550,8 +550,8 @@ local function runRotation()
     end
 
     local standingTime = 0
-    if DontMoveStartTime then
-        standingTime = GetTime() - DontMoveStartTime
+    if br.DontMoveStartTime then
+        standingTime = GetTime() - br.DontMoveStartTime
     end
 
     --wipe timers table
@@ -569,7 +569,7 @@ local function runRotation()
         local distance20Min
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or br.GetUnitIsUnit(thisUnit, "target")) then
+            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not br.GetUnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or br.GetUnitIsUnit(thisUnit, "target")) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -622,12 +622,12 @@ local function runRotation()
                 end
             )
         end
-        if br.isChecked("Auto Target") and #enemyTable40 > 0 and ((br.GetUnitExists("target") and (UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
-            TargetUnit(enemyTable40[1].unit)
+        if br.isChecked("Auto Target") and #enemyTable40 > 0 and ((br.GetUnitExists("target") and (br.GetUnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
+            br._G.TargetUnit(enemyTable40[1].unit)
             return true
         end
         for i = 1, #enemyTable40 do
-            if UnitIsUnit(enemyTable40[i].unit, "target") then
+            if br.GetUnitIsUnit(enemyTable40[i].unit, "target") then
                 targetUnit = enemyTable40[i]
             end
         end
@@ -667,21 +667,21 @@ end
         safe = safe or true
         local function getRectUnit(facing)
             local halfWidth = width/2
-            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
-            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
-            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+            local nlX, nlY, nlZ = br._G.GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+            local nrX, nrY, nrZ = br._G.GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+            local frX, frY, frZ = br._G.GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
             return nlX, nlY, nrX, nrY, frX, frY
         end
         local enemiesTable = br.getEnemies("player", length, true)
-        local facing = ObjectFacing("player")        
+        local facing = br._G.ObjectFacing("player")        
         local unitsInRect = 0
         local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
         local thisUnit
         for i = 1, #enemiesTable do
             thisUnit = enemiesTable[i]
             local uX, uY, uZ = br._G.ObjectPosition(thisUnit)
-            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
-                if safe and not UnitAffectingCombat(thisUnit) and not br.isDummy(thisUnit) then
+            if br.isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not br._G.TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
+                if safe and not br._G.UnitAffectingCombat(thisUnit) and not br.isDummy(thisUnit) then
                     unitsInRect = 0
                     break
                 end            
@@ -701,7 +701,7 @@ end
     function mageDamage()
         local X,Y,Z = br._G.ObjectPosition("player")
         print(Z)
-        Z = select(3, TraceLine(X, Y, Z + 10, X, Y, Z - 10, 0x110))
+        Z = select(3, br._G.TraceLine(X, Y, Z + 10, X, Y, Z - 10, 0x110))
         print(Z)
     end
 
@@ -792,7 +792,7 @@ local function actionList_Leveling()
         end
 
         -- Arcane Orb Key
-        if mode.arcaneOrb == 2 and br.isChecked("Arcane Orb Key") and SpecificToggle("Arcane Orb Key") and not GetCurrentKeyBoardFocus() and cast.able.arcaneOrb() then
+        if mode.arcaneOrb == 2 and br.isChecked("Arcane Orb Key") and br.SpecificToggle("Arcane Orb Key") and not GetCurrentKeyBoardFocus() and cast.able.arcaneOrb() then
             if castarcaneOrb(1, true, 4) then return true end 
         end
 
@@ -822,14 +822,14 @@ end
 local function actionList_Extras()
     if not IsFlying() and not IsMounted() and not IsResting() then
         if br.isChecked("DPS Testing") and br.GetObjectExists("target") and br.getCombatTime() >= (tonumber(br.getOptionValue("DPS Testing")) * 60) and br.isDummy() then
-            StopAttack()
-            ClearTarget()
+            br._G.StopAttack()
+            br._G.ClearTarget()
             if br.isChecked("Pet Management") and not talent.lonelyWinter then
-                PetStopAttack()
-                PetFollow()
+                br._G.PetStopAttack()
+                br._G.PetFollow()
             end
             print(tonumber(br.getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
-            profileStop = true
+            br.profileStop = true
         end
 
         --Prismatic Barrier
@@ -842,7 +842,7 @@ local function actionList_Extras()
                 -- Arcane Intellect
         if br.isChecked("Prismatic Barrier") and br.timer:useTimer("PB Delay", math.random(15, 30)) then
             for i = 1, #br.friend do
-                if not buff.prismaticBarrier.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                if not buff.prismaticBarrier.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br.GetUnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
                     if cast.prismaticBarrier() then return true end
                 end
             end
@@ -861,14 +861,14 @@ local function actionList_Extras()
         if cast.conjuremanaGem() then br.addonDebug("Casting Conjure Mana Gem" ) return true end
     end
         -- Arcane Orb Key
-        if mode.arcaneOrb == 2 or br.isChecked("Arcane Orb Key") and SpecificToggle("Arcane Orb Key") and not GetCurrentKeyBoardFocus() and cast.able.arcaneOrb() then
+        if mode.arcaneOrb == 2 or br.isChecked("Arcane Orb Key") and br.SpecificToggle("Arcane Orb Key") and not GetCurrentKeyBoardFocus() and cast.able.arcaneOrb() then
             if castarcaneOrb(1, true, 4) then return true end 
         end
 
         -- Arcane Intellect
         if br.isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
             for i = 1, #br.friend do
-                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br._GetUnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
                     if cast.arcaneIntellect() then return true end
                 end
             end
@@ -876,14 +876,14 @@ local function actionList_Extras()
 
         -- Trinkets
             -- Trinket 1
-            if (br.getOptionValue("Trinket 1") == 1 or (br.getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
+            if (br.getOptionValue("Trinket 1") == 1 or (br.getOptionValue("Trinket 1") == 2 and br.useCDs())) and inCombat then
                 if use.able.slot(13) then
                     use.slot(13)
                 end
             end
 
         -- Trinket 2
-            if (br.getOptionValue("Trinket 2") == 1 or (br.getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
+            if (br.getOptionValue("Trinket 2") == 1 or (br.getOptionValue("Trinket 2") == 2 and br.useCDs())) and inCombat then
                 if use.able.slot(14) then
                     use.slot(14)
                 end
@@ -891,7 +891,7 @@ local function actionList_Extras()
 
         -- Slow Fall
         if br.isChecked("Slow Fall Distance") and cast.able.slowFall() and not buff.slowFall.exists() then
-            if IsFalling() and getFallDistance() >= br.getOptionValue("Slow Fall Distance") then
+            if IsFalling() and br.getFallDistance() >= br.getOptionValue("Slow Fall Distance") then
                 if cast.slowFall() then return end
             end
         end     
@@ -899,7 +899,7 @@ local function actionList_Extras()
     end
 
     local function actionList_Interrupts()
-        if useInterrupts() and cd.counterspell.remain() == 0 then
+        if br.useInterrupts() and cd.counterspell.remain() == 0 then
             if not br.isChecked("Do Not Cancel Cast") or not playerCasting then
                 for i = 1, #enemyTable40 do
                     local thisUnit = enemyTable40[i].unit
@@ -914,11 +914,11 @@ local function actionList_Extras()
     end    
 
 local function actionList_Defensive()
-        if useDefensive() then
+        if br.useDefensive() then
             --Ice Block
             if br.isChecked("Ice Block") and php <= br.getOptionValue("Ice Block") and cd.iceBlock.remain() <= gcd then
-                if UnitCastingInfo("player") then
-                    SpellStopCasting()
+                if br._G.UnitCastingInfo("player") then
+                    br._G.SpellStopCasting()
                 end
                 if cast.iceBlock("player") then
                     return true
@@ -926,7 +926,7 @@ local function actionList_Defensive()
             end
 
             --Pot/Stone
-            if br.isChecked("Pot/Stoned") and php <= br.getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or br.hasItem(5512)) then
+            if br.isChecked("Pot/Stoned") and php <= br.getOptionValue("Pot/Stoned") and inCombat and (br.hasHealthPot() or br.hasItem(5512)) then
                 if br.canUseItem(5512) then
                     br.useItem(5512)
                 elseif br.canUseItem(healPot) then
@@ -936,7 +936,7 @@ local function actionList_Defensive()
 
             --Heirloom Neck
             if br.isChecked("Heirloom Neck") and php <= br.getOptionValue("Heirloom Neck") then
-                if hasEquiped(heirloomNeck) then
+                if br.hasEquiped(heirloomNeck) then
                     if GetItemCooldown(heirloomNeck) == 0 then
                         br.useItem(heirloomNeck)
                     end
@@ -952,7 +952,7 @@ local function actionList_Defensive()
 
             --Gift of the Naaru (Racial)
             if br.player.race == "Draenei"  and br.isChecked("Gift of the Naaru") and php <= br.getOptionValue("Gift of the Naaru") and php > 0 then
-                if castSpell("player", racial, false, false, false) then
+                if br.castSpell("player", racial, false, false, false) then
                     return
                 end
             end
@@ -1030,7 +1030,7 @@ actions.cooldowns+=/presence_of_mind,if=debuff.touch_of_the_magi.up&!covenant.ky
 actions.cooldowns+=/use_mana_gem,if=cooldown.evocation.remains>0&((talent.enlightened.enabled&mana.pct<=80&mana.pct>=65)|(!talent.enlightened.enabled&mana.pct<=85))
 ]]--
 local function actionList_Cooldowns()
-    if useCDs() and not moving and targetUnit.ttd >= br.getOptionValue("Cooldowns Time to Die Limit") or br.isBoss("target") or br.isDummy() then
+    if br.useCDs() and not moving and targetUnit.ttd >= br.getOptionValue("Cooldowns Time to Die Limit") or br.isBoss("target") or br.isDummy() then
 
     -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
     if br.isChecked("Potion") 
@@ -1368,7 +1368,7 @@ local function actionList_AoE()
 
 
     --actions.aoe+=/evocation,interrupt_if=mana.pct>=85,interrupt_immediate=1
-    if manaPercent >= 85 and UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:AoE] Cancel Evocation") SpellStopCasting() return true end
+    if manaPercent >= 85 and br._G.UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:AoE] Cancel Evocation") br._G.SpellStopCasting() return true end
 
     if cast.able.evocation()
     and not buff.runeofPower.exists()
@@ -1512,7 +1512,7 @@ if br.player.race == "LightforgedDraenei" or br.player.race == "Vulpera"
     end
 
     --actions.opener+=/evocation,if=buff.rune_of_power.down,interrupt_if=mana.pct>=85,interrupt_immediate=1
-    if manaPercent >= 85 and buff.evocation.exists() then SpellStopCasting() return end 
+    if manaPercent >= 85 and buff.evocation.exists() then br._G.SpellStopCasting() return end 
 
     if cast.able.evocation()
     and not buff.runeofPower.exists()
@@ -1545,7 +1545,7 @@ local function actionList_BurnPhase()
     if cast.able.arcaneBlast() then if cast.arcaneBlast() then br.addonDebug("[Action:Burn] Arcane Blast") return true end end 
 
     -- Evocation
-    if manaPercent >= 85 and UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:Rotation] Cancel Evocation") SpellStopCasting() return true end
+    if manaPercent >= 85 and br._G.UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:Rotation] Cancel Evocation") br._G.SpellStopCasting() return true end
      --  if UnitCastingInfo("player") == GetSpellInfo(spell.evocation) and manaPercent >= 83 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
     if cast.able.evocation() and manaPercent <= ui.value("Evocation Mana Percent") then
         if cast.evocation() then br.addonDebug("[Action:Burn] Casting Evocation") return true end
@@ -1696,7 +1696,7 @@ local function actionList_Rotation()
 
     -- Cancel Evocation 
     --actions.aoe+=/evocation,interrupt_if=mana.pct>=85,interrupt_immediate=1
-    if manaPercent >= 85 and UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:Rotation] Cancel Evocation") SpellStopCasting() return true end
+    if manaPercent >= 85 and br._G.UnitCastingInfo("player") and buff.evocation.exists() then br.addonDebug("[Action:Rotation] Cancel Evocation") br._G.SpellStopCasting() return true end
   --  if UnitCastingInfo("player") == GetSpellInfo(spell.evocation) and manaPercent >= 83 then CancelUnitBuff("player", GetSpellInfo(spell.evocation)) br.addonDebug("Canceled Evo") return true end
     if cast.able.evocation() and manaPercent <= ui.value("Evocation Mana Percent") then
         if cast.evocation() then br.addonDebug("Casting Evocation (>= 85 mana)") return true end end -- Somehow cancel at 85% max mana
@@ -1714,12 +1714,12 @@ end-- End of Rotation
 -----------------
 --- Rotations ---
 -----------------
-    if not inCombat and not hastar and profileStop == true then
-        profileStop = false
-    elseif (inCombat and profileStop == true) or UnitChannelInfo("player") or IsMounted() or IsFlying() or pause(true) or br.isCastingSpell(293491) then
-        if not pause(true) and IsPetAttackActive() and br.isChecked("Pet Management") then
-            PetStopAttack()
-            PetFollow()
+    if not inCombat and not hastar and br.profileStop == true then
+        br.profileStop = false
+    elseif (inCombat and profileStop == true) or br._G.UnitChannelInfo("player") or IsMounted() or IsFlying() or br.pause(true) or br.isCastingSpell(293491) then
+        if not br.pause(true) and IsPetAttackActive() and br.isChecked("Pet Management") then
+            br._G.PetStopAttack()
+            br._G.PetFollow()
         end
         return true
     else
@@ -1745,7 +1745,7 @@ end-- End of Rotation
                 if actionList_Opener() then return true end
             end--]]
 
-            if useCDs() and br.isBoss("target") or br.getTTD("target") >= 20 or br.isDummy() then
+            if br.useCDs() and br.isBoss("target") or br.getTTD("target") >= 20 or br.isDummy() then
                 if actionList_Cooldowns() then return end
             end
 
