@@ -87,7 +87,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Repentance Key", br.dropOptions.Toggle, 6, "CC mousover")
         br.ui:createCheckbox(section, "Aggressive Glimmer")
         br.ui:createCheckbox(section, "Aggressive Hammer of Wrath")
-        br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
+        -- br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
 
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -769,22 +769,6 @@ actionList.ooc = function()
         item=113509/conjured-mana-bun
         item=126936/sugar-crusted-fish-feast ff
         ]]
-
-        if not ui.checked("Sugar Crusted Fish Feast") or (ui.checked("Sugar Crusted Fish Feast") and not br.hasItem(126936)) and not br.hasBuff(185710) then
-            if br.hasItem(65499) and br.canUseItem(65499) then
-                br.useItem(65499)
-            end
-            if br.hasItem(113509) and br.canUseItem(113509) then
-                br.useItem(113509)
-            end
-            if br.hasItem(159867) and br.canUseItem(159867) then
-                br.useItem(159867)
-            end
-            if br.hasItem(163784) and br.canUseItem(163784) then
-                br.useItem(163784)
-            end
-
-        end
     end
     --I got nothing else to do
     local standingTime = 0
@@ -893,7 +877,8 @@ actionList.dps = function()
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if not ui.checked("Awakening/Mad Paragon Playstyle") and talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and br.getFacing("player", units.dyn5) then
+    if talent.crusadersMight and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
+            and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and br.getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[xDPS]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
@@ -904,9 +889,10 @@ actionList.dps = function()
             and lowest.hp > ui.value("Word of Glory")
             and cast.able.shieldOfTheRighteous()
             and (holyPower >= 3 or buff.divinePurpose.exists())
-            and not talent.awakening or talent.awakening and #enemies.yards5f > 4 or buff.avengingWrath.exists() or buff.avengingCrusader.exists()
+            -- Paragon/Awakening
+            and talent.awakening and buff.avengingWrath.exists() or not talent.awakening
     then
-        if cast.shieldOfTheRighteous(units.dyn5) then
+        if cast.shieldOfTheRighteous() then
             return true
         end
     end
@@ -1084,9 +1070,9 @@ actionList.Extra = function()
 
 
     --Awakening/Mad Paragon
-    if ui.checked("Awakening/Mad Paragon Playstyle") and lowest.hp > ui.value("Word of Glory") and lowest.hp > ui.value("Critical HP") then
+    --[[if ui.checked("Awakening/Mad Paragon Playstyle") and lowest.hp > ui.value("Word of Glory") and lowest.hp > ui.value("Critical HP") then
         --Non Holy Avenger Generation w/preset cap at less than 5
-        if holyPower < 5 and not buff.holyAvenger.exists() then
+        if (holyPower < 5 and not buff.holyAvenger.exists()) or holyPower < 2 and buff.holyAvenger.exists()) then
             if cd.crusaderStrike.ready() and cd.holyShock.remain() >= 1.5 and br.getFacing("player", units.dyn5) then
                 if cast.crusaderStrike(units.dyn5) then
                     br.addonDebug("[PARA]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
@@ -1119,7 +1105,7 @@ actionList.Extra = function()
                 return true
             end
         end
-    end
+    end]]
 end -- End Action List - Extra
 
 -- Action List - Defensive
@@ -1441,7 +1427,7 @@ actionList.Cooldown = function()
 
 
     -- Lay on Hands        --LoH / LayonHands
-    if ui.checked("Lay on Hands") and cast.able.layOnHands(br.friend[1].unit) and not debuff.forbearance.exists(br.friend[1].unit) and br._G.UnitInRange(br.friend[1].unit) then
+    if ui.checked("Lay on Hands") and cd.layOnHands.ready() and not debuff.forbearance.exists(lowest.unit) and br._G.UnitInRange(lowest.unit) then
         if timers.time("LoH Timer", lowest.hp <= ui.value("Lay on Hands")) > 0.8 then
             if cast.layOnHands(lowest.unit) then
                 return true
@@ -1774,21 +1760,15 @@ actionList.heal = function()
         end
     end -- end holy shock
 
-    --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if not ui.checked("Awakening/Mad Paragon Playstyle") and talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and br.getFacing("player", units.dyn5) then
-        if cast.crusaderStrike(units.dyn5) then
-            br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-            return true
-        end
-    end
 
-    if not ui.checked("Awakening/Mad Paragon Playstyle") and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and br.getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
-        if cast.crusaderStrike(units.dyn5) then
-            br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-            return true
+    --[[
+        if (holyPower < 5 and not buff.holyAvenger.exists() or holyPower < 3 and buff.holyAvenger.exists()) and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and br.getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
+            if cast.crusaderStrike(units.dyn5) then
+                br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+                return true
+            end
         end
-    end
-
+    ]]
 
     -- Light of Dawn
     if ui.checked("Light of Dawn") and cd.lightOfDawn.ready() and (holyPower >= 3 or buff.divinePurpose.exists()) then
@@ -1803,14 +1783,27 @@ actionList.heal = function()
             healTarget = lowest.unit
             healReason = "HEAL"
         end
+        --WOG fishing for Wings
+        if healTarget == "none" and talent.awakening and not buff.avengingWrath.exists() then
+            healTarget = lowest.unit
+            healReason = "FISH"
+        end
     end
     if healTarget ~= "none" and canheal(healTarget) and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
         if cast.wordOfGlory(healTarget) then
+            br.addonDebug("[" .. healReason .. "] WOG : " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
             healTarget = "none"
             return true
         end
     end
-
+    --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
+    if talent.crusadersMight and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
+            and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and br.getFacing("player", units.dyn5) then
+        if cast.crusaderStrike(units.dyn5) then
+            br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+            return true
+        end
+    end
 
     -- Bestow Faith
     if talent.bestowFaith and cd.bestowFaith.ready() then
