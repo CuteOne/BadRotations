@@ -890,13 +890,12 @@ actionList.dps = function()
             and cast.able.shieldOfTheRighteous()
             and (holyPower >= 3 or buff.divinePurpose.exists())
             -- Paragon/Awakening
-            and talent.awakening and buff.avengingWrath.exists() or not talent.awakening
+            and (talent.awakening and buff.avengingWrath.exists() or not talent.awakening)
     then
         if cast.shieldOfTheRighteous() then
             return true
         end
     end
-
 end
 
 actionList.Extra = function()
