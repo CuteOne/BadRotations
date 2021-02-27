@@ -832,11 +832,11 @@ local function runRotation()
     enemies.get(5,"pet")
     
     -- Variables
-    var.haltProfile   = ((unit.inCombat() and var.profileStop) or IsMounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
+    var.haltProfile   = ((unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
 
     --wipe timers table
-    if timersTable then
-        wipe(timersTable)
+    if br._G.timersTable then
+        br._G.wipe(br._G.timersTable)
     end
 
     if ui.checked("Enemy Target Lock") and unit.inCombat() and unit.friend("target", "player") then
@@ -954,7 +954,7 @@ local function runRotation()
 end -- End runRotation
 local id = 253
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

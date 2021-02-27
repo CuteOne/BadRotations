@@ -168,10 +168,10 @@ local cast
 local cd
 local charges
 local covenant
-local conduit
+--local conduit
 local debuff
 local enemies
-local equiped
+--local equiped
 local module
 local power
 local runeforge
@@ -308,7 +308,7 @@ actionList.Interrupts = function()
                     end
 					 -- Freezing Trap
                     if ui.checked("Freezing Trap") then
-                        if cast.freezingTrap(thisUnit,ground) then ui.debug("Casting Freezing Trap") return true end
+                        if cast.freezingTrap(thisUnit,"ground") then ui.debug("Casting Freezing Trap") return true end
                     end
                 end
             end
@@ -796,7 +796,7 @@ local function runRotation()
 end -- End runRotation
 local id = 254
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -360,7 +360,9 @@ actionList.Cooldowns = function()
             end
             -- Elysian Decree
             -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
-            if cast.able.elysianDecree() and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs()) then
+            if cast.able.elysianDecree() and unit.standingTime() > 2
+                and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs())
+            then
                 if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
             end
         end
@@ -434,7 +436,9 @@ actionList.Demonic = function()
     end
     -- Glaive Tempest
     -- glaive_tempest,if=active_enemies>desired_targets|raid_event.adds.in>10
-    if cast.able.glaiveTempest("player","aoe",1,8) and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
+    if cast.able.glaiveTempest("player","aoe",1,8) and unit.standingTime() > 2
+        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs() or unit.ttd(units.dyn5) >= 7)
+    then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
     -- Throw Glaive
@@ -566,8 +570,8 @@ actionList.Normal = function()
     end
     -- Glaive Tempest
     -- glaive_tempest,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>10)
-    if cast.able.glaiveTempest("player","aoe",1,8) and not var.waitingForMomentum
-        and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
+    if cast.able.glaiveTempest("player","aoe",1,8) and not var.waitingForMomentum and unit.standingTime() > 2
+        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs() or unit.ttd(units.dyn5) >= 7)
     then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
@@ -770,9 +774,9 @@ local function runRotation()
     enemies.rect.get(10,25,false)
     
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
-        var.metaExtended = true 
+        var.metaExtended = true
     elseif not buff.metamorphosis.exists() then
-        var.metaExtended = false 
+        var.metaExtended = false
     end
 
     var.ruinedTrail = talent.trailOfRuin and 1 or 0

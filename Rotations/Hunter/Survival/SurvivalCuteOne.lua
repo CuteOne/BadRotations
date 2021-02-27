@@ -296,7 +296,7 @@ actionList.Defensive = function()
             if #enemies.yards40f > 0 then
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if ui.value("Tranquilizing Shot") == 1 or (ui.value("Tranquilizing Shot") == 2 and br._G.UnitIsUnit(thisUnit,"target")) then
+                    if ui.value("Tranquilizing Shot") == 1 or (ui.value("Tranquilizing Shot") == 2 and unit.isUnit(thisUnit,"target")) then
                         if unit.valid(thisUnit) and cast.dispel.tranquilizingShot(thisUnit) then
                             if cast.tranquilizingShot(thisUnit) then ui.debug("Casting Tranquilizing Shot") return true end
                         end
@@ -843,7 +843,7 @@ actionList.ApWfi = function()
     if cast.able.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < 1.5 * unit.gcd(true)
         and focus + cast.regen.killCommand() < focusMax - 20
     then
-        br._G.print("Focus: "..focus..", Regen: "..br.round2(cast.regen.killCommand(),2)..", Max: "..focusMax)
+        ui.print("Focus: "..focus..", Regen: "..br.round2(cast.regen.killCommand(),2)..", Max: "..focusMax)
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApWfi - Cap Prevention]") return true end
     end
     -- Steel Trap
@@ -1048,7 +1048,7 @@ actionList.Opener = function()
                 ui.print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
-                br._G.StartAttack()
+                unit.startAttack()
                 return
             -- Coordinated Assault
             elseif opener.OPN1 and not opener.CA1 then
@@ -1097,7 +1097,7 @@ actionList.Opener = function()
                 return
             -- End
             elseif opener.KC1 and opener.OPN1 then
-                br._G.print("Opener Complete")
+                ui.print("Opener Complete")
                 opener.count = 0
                 opener.complete = true
             end
@@ -1332,7 +1332,7 @@ local function runRotation()
 end -- End runRotation
 local id = 255
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

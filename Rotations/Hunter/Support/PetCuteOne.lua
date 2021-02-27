@@ -24,7 +24,7 @@ local targetSwitchTimer = br._G.GetTime()
 
 br.rotations.support["PetCuteOne"] = {
     options = function()
-        -- Pet Options    
+        -- Pet Options
         local section = br.ui:createSection(br.ui.window.profile, "Pet")
             -- Pet Target
             br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit", "Assist"},1,"Select how you want pet to acquire targets.")
@@ -63,8 +63,8 @@ br.rotations.support["PetCuteOne"] = {
     run = function()
         local function getCurrentPetMode()
             local petMode = "None"
-            for i = 1, NUM_PET_ACTION_SLOTS do
-                local name, _, _,isActive = GetPetActionInfo(i)
+            for i = 1, br._G["NUM_PET_ACTION_SLOTS"] do
+                local name, _, _,isActive = br._G.GetPetActionInfo(i)
                 if isActive then
                     if name == "PET_MODE_ASSIST" then petMode = "Assist" end
                     if name == "PET_MODE_DEFENSIVEASSIST" then petMode = "Defensive" end
@@ -73,7 +73,7 @@ br.rotations.support["PetCuteOne"] = {
             end
             return petMode
         end
-        
+
         local function getLootableCount()
             local count = 0
             for k, v in pairs(br.lootable) do
@@ -109,7 +109,7 @@ br.rotations.support["PetCuteOne"] = {
         units                                         = br.player.units
         var                                           = br.player.variables
         -- General Locals
-        var.haltPetProfile                                  = br._G.UnitCastingInfo("pet") or br._G.UnitHasVehicleUI("player") or br._G.CanExitVehicle("player") or br._G.UnitOnTaxi("player") or unit.mounted() or unit.flying()
+        var.haltPetProfile                            = br._G.UnitCastingInfo("pet") or br._G.UnitHasVehicleUI("player") or br._G.CanExitVehicle("player") or br._G.UnitOnTaxi("player") or unit.mounted() or unit.flying()
                                                                 or paused or buff.feignDeath.exists() or buff.playDead.exists("pet") or mode.rotation==4
         -- Pet Specific Locals
         local callPet                                       = spell["callPet"..mode.petSummon]
@@ -392,7 +392,7 @@ br.rotations.support["PetCuteOne"] = {
                 -- Toxic Sting
                 if cast.able.toxicSting() then
                     if cast.toxicSting(br.petTarget) then ui.debug("[Pet] Cast Toxic Sting") return true end
-                end                
+                end
             end
             -- Heal Abilities
             if ui.checked("Use Heal Ability") then
@@ -418,25 +418,24 @@ br.rotations.support["PetCuteOne"] = {
             if ui.checked("Use Purge Ability") and unit.inCombat() then
                 if #enemies.yards5p > 0 then
                     local dispelled = false
-                    local dispelledUnit = "player"
                     for i = 1, #enemies.yards5p do
                         local thisUnit = enemies.yards5p[i]
                         if ui.value("Purge") == 1 or (ui.value("Purge") == 2 and unit.isUnit(thisUnit,"target")) then
                             if unit.valid(thisUnit) and cast.dispel.spiritPulse(thisUnit) then --br.canDispel(thisUnit,spell.spiritPulse) then
                                 if cast.able.spiritPulse(thisUnit,"pet") then
-                                    if cast.spiritPulse(thisUnit,"pet") then ui.debug("[Pet] Cast Spirit Pulse") dispelled = true; dispelledUnit = thisUnit; break end
+                                    if cast.spiritPulse(thisUnit,"pet") then ui.debug("[Pet] Cast Spirit Pulse") dispelled = true; break end
                                 elseif cast.able.chiJiTranq(thisUnit,"pet") then
-                                    if cast.chiJiTranq(thisUnit,"pet") then ui.debug("[Pet] Cast Chi-Ji Tranquility") dispelled = true; dispelledUnit = thisUnit; break end
+                                    if cast.chiJiTranq(thisUnit,"pet") then ui.debug("[Pet] Cast Chi-Ji Tranquility") dispelled = true; break end
                                 elseif cast.able.naturesGrace(thisUnit,"pet") then
-                                    if cast.naturesGrace(thisUnit,"pet") then ui.debug("[Pet] Cast Nature's Grace") dispelled = true; dispelledUnit = thisUnit; break end
+                                    if cast.naturesGrace(thisUnit,"pet") then ui.debug("[Pet] Cast Nature's Grace") dispelled = true; break end
                                 elseif cast.able.netherEnergy(thisUnit,"pet") then
-                                    if cast.netherEnergy(thisUnit,"pet") then ui.debug("[Pet] Cast Nether Energy") dispelled = true; dispelledUnit = thisUnit; break end
+                                    if cast.netherEnergy(thisUnit,"pet") then ui.debug("[Pet] Cast Nether Energy") dispelled = true; break end
                                 elseif cast.able.sonicScreech(thisUnit,"pet") then
-                                    if cast.sonicScreech(thisUnit,"pet") then ui.debug("[Pet] Cast Sonic Screech") dispelled = true; dispelledUnit = thisUnit; break end
+                                    if cast.sonicScreech(thisUnit,"pet") then ui.debug("[Pet] Cast Sonic Screech") dispelled = true; break end
                                 elseif cast.able.soothingWater(thisUnit,"pet") then
-                                    if cast.soothingWater(thisUnit,"pet") then ui.debug("[Pet] Cast Soothing Water") dispelled = true; dispelledUnit = thisUnit; break end
+                                    if cast.soothingWater(thisUnit,"pet") then ui.debug("[Pet] Cast Soothing Water") dispelled = true; break end
                                 elseif cast.able.sporeCloud(thisUnit,"pet") then
-                                    if cast.sporeCloud(thisUnit,"pet") then ui.debug("[Pet] Cast Spore Cloud") dispelled = true; dispelledUnit = thisUnit; break end
+                                    if cast.sporeCloud(thisUnit,"pet") then ui.debug("[Pet] Cast Spore Cloud") dispelled = true; break end
                                 end
                             end
                         end
@@ -457,8 +456,8 @@ br.rotations.support["PetCuteOne"] = {
             end
             -- Auto Growl
             if ui.checked("Auto Growl") and unit.inCombat() then
-                local _, autoCastEnabled = GetSpellAutocast(spell.growl)
-                if autoCastEnabled then DisableSpellAutocast(spell.growl) end
+                local _, autoCastEnabled = br._G.GetSpellAutocast(spell.growl)
+                if autoCastEnabled then br._G.DisableSpellAutocast(spell.growl) end
                 if not unit.isTankInRange() and not buff.prowl.exists("pet") then
                     if ui.value("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                         if cast.misdirection("pet") then ui.debug("[Pet] Cast Misdirection on Pet") return true end

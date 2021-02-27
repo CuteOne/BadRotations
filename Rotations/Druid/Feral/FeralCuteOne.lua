@@ -216,11 +216,12 @@ var.clearcasting = 0
 var.enemyBlood = 0
 var.fbMaxEnergy = false
 var.friendsInRange = false
-var.htTimer = br._G.GetTime()
+var.getTime = br._G.GetTime()
+var.htTimer = var.getTime
 var.incarnation = 0
 var.lastForm = 0
-var.lastRune = br._G.GetTime()
-var.leftCombat = br._G.GetTime()
+var.lastRune = var.getTime
+var.leftCombat = var.getTime
 var.lootDelay = 0
 var.minCount = 3
 var.noDoT = false
@@ -237,7 +238,7 @@ btGen.shred = false
 btGen.swipe = false
 btGen.thrash = false
 btGen.stack = 2
-btGen.timer = br._G.GetTime()
+btGen.timer = var.getTime
 btGen.triggers = 0
 
 -- Tick Remain - Init
@@ -251,7 +252,7 @@ local cp4Bite = 0
 local filler = 0
 -- variable,name=rip_ticks,value=7
 local ripTicks = 7
-local bestRip = 0
+--local bestRip = 0
 
 -----------------
 --- Functions ---
@@ -261,7 +262,7 @@ local function autoProwl()
         if #enemies.yards20nc > 0 then
             for i = 1, #enemies.yards20nc do
                 local thisUnit = enemies.yards20nc[i]
-                local threatRange = br._G.max((20 + (unit.level(thisUnit) - unit.level())),5)
+                local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())),5)
                 local react = unit.reaction(thisUnit) or 10
                 if unit.distance(thisUnit) < threatRange and react < 4 and unit.enemy(thisUnit) and unit.canAttack(thisUnit) then
                     return true
@@ -316,7 +317,7 @@ local function snipeTF()
 end
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
-    local GetSpellDescription = _G["GetSpellDescription"]
+    local GetSpellDescription = br._G["GetSpellDescription"]
     local desc = GetSpellDescription(spell.ferociousBite)
     local damage = 0
     local finishHim = false
@@ -358,7 +359,7 @@ local function findKindredSpirit()
     local kindredSpirit
     for i = 1, #br.friend do
         local thisUnit = br.friend[i].unit
-        local thisRole = br._G.UnitGroupRolesAssigned(thisUnit)
+        local thisRole = unit.role(thisUnit)
         if not unit.isUnit(thisUnit,"player") and (kindredSpirit == nil or (not unit.exists(kindredSpirit) and not unit.deadOrGhost(kindredSpirit))) then
             if thisRole == "DAMAGER" then
                 kindredSpirit = thisUnit
@@ -430,7 +431,7 @@ actionList.Extras = function()
         -- Kindred Spirits
         if ui.alwaysCdNever("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindredSpirit) then
             if (#br.friend > 1 and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then            
-                if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..br._G.UnitName(var.kindredSpirit).." [Kyrian]") return true end
+                if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..unit.name(var.kindredSpirit).." [Kyrian]") return true end
             end
         end
     end -- End Shapeshift Form Management
@@ -451,7 +452,7 @@ actionList.Extras = function()
     -- Death Cat mode
     if ui.checked("Death Cat Mode") and buff.catForm.exists() then
         if unit.exists("target") and unit.distance(units.dyn8AOE) > 8 then
-            br._G.ClearTarget()
+            unit.clearTarget()
         end
         if autoProwl() then
             -- Tiger's Fury - Low Energy
@@ -469,9 +470,9 @@ actionList.Extras = function()
             -- Swipe - AoE
             if cast.able.swipeCat() and #enemies.yards8 > 1 then
                 if var.swipeSoon == nil then
-                    var.swipeSoon = br._G.GetTime();
+                    var.swipeSoon = var.getTime;
                 end
-                if var.swipeSoon ~= nil and var.swipeSoon < br._G.GetTime() - 1 then
+                if var.swipeSoon ~= nil and var.swipeSoon < var.getTime - 1 then
                     if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe [Death Cat Mode]") ; var.swipeSoon = nil; return true end
                 end
             end
@@ -481,8 +482,8 @@ actionList.Extras = function()
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                br._G.StopAttack()
-                br._G.ClearTarget()
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -1077,7 +1078,7 @@ actionList.Bloodtalons = function()
                 if cast.rake(thisUnit) then 
                     ui.debug("Casting Rake [BT - Ticks Gain]")
                     btGen.rake = true
-                    if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+                    if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
                     return true
                 end
             end
@@ -1093,7 +1094,7 @@ actionList.Bloodtalons = function()
                     if cast.moonfireFeral(thisUnit) then
                         ui.debug("Casting Moonfire [BT]")
                         btGen.moonfireFeral = true
-                        if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+                        if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
                         return true
                     end
                 end
@@ -1105,11 +1106,11 @@ actionList.Bloodtalons = function()
     if cast.able.thrashCat() and not btGen.thrash then
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
-            if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + GetMastery()) - var.tastyBlood then
+            if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood then
                 if cast.thrashCat("player","aoe",1,8) then
                     ui.debug("Casting Thrash [BT - Ticks Gain]")
                     btGen.thrash = true
-                    if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+                    if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
                     return true
                 end
             end
@@ -1121,7 +1122,7 @@ actionList.Bloodtalons = function()
         if cast.brutalSlash("player","aoe",1,8) then
             ui.debug("Casting Brutal Slash [BT]")
             btGen.brutalSlash = true
-            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
             return true
         end
     end
@@ -1131,7 +1132,7 @@ actionList.Bloodtalons = function()
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT - Multi]")
             btGen.swipe = true
-            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
             return true
         end
     end
@@ -1141,7 +1142,7 @@ actionList.Bloodtalons = function()
         if cast.shred() then
             ui.debug("Casting Shred [BT]")
             btGen.shred = true
-            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
             return true
         end
     end
@@ -1151,7 +1152,7 @@ actionList.Bloodtalons = function()
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT]")
             btGen.swipe = true
-            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
             return true
         end
     end
@@ -1161,7 +1162,7 @@ actionList.Bloodtalons = function()
         if cast.thrashCat("player","aoe",1,8) then
             ui.debug("Casting Thrash [BT - No Buff]")
             btGen.thrash = true
-            if btGen.timer - br._G.GetTime() <= 0 then btGen.timer = br._G.GetTime() + 4 end
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
             return true
         end
     end
@@ -1177,9 +1178,9 @@ actionList.PreCombat = function()
             -- Battle Scarred Augment Rune
             -- augmentation,type=defiled
             if ui.checked("Augment Rune") and unit.instance("raid") and not buff.battleScarredAugmentation.exists()
-                and use.able.battleScarredAugmentRune() and var.lastRune + unit.gcd(true) < br._G.GetTime()
+                and use.able.battleScarredAugmentRune() and var.lastRune + unit.gcd(true) < var.getTime
             then
-                if use.battleScarredAugmentRune() then ui.debug("Using Battle Scared Augment Rune") var.lastRune = br._G.GetTime() return true end
+                if use.battleScarredAugmentRune() then ui.debug("Using Battle Scared Augment Rune") var.lastRune = var.getTime return true end
             end
             -- Prowl - Non-PrePull
             if cast.able.prowl("player") 
@@ -1187,8 +1188,8 @@ actionList.PreCombat = function()
                 and autoProwl() 
                 and ui.mode.prowl == 1
                 and not buff.prowl.exists() 
-                and not br._G.IsResting() 
-                -- and br._G.GetTime() - var.leftCombat > lootDelay
+                and not unit.resting() 
+                -- and var.getTime - var.leftCombat > lootDelay
             then
                 if cast.prowl("player") then ui.debug("Casting Prowl [Auto]") return true end
             end
@@ -1201,7 +1202,7 @@ actionList.PreCombat = function()
             -- Regrowth
             -- regrowth,if=talent.bloodtalons.enabled
             if cast.able.regrowth("player") and talent.bloodtalons and not buff.bloodtalons.exists()
-                and var.htTimer < br._G.GetTime() - 1 and not buff.prowl.exists()
+                and var.htTimer < var.getTime - 1 and not buff.prowl.exists()
                 and not cast.current.regrowth()
             then
                 if unit.form() ~= 0 then
@@ -1209,7 +1210,7 @@ actionList.PreCombat = function()
                     unit.cancelForm()
                     ui.debug("Cancel Form [Pre-pull]")
                 elseif unit.form() == 0 then
-                    if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = br._G.GetTime(); return true end
+                    if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = var.getTime; return true end
                 end
             end
             -- Azshara's Font of Power
@@ -1308,6 +1309,7 @@ local function runRotation()
     energyRegen         = power.energy.regen()
     energyDeficit       = power.energy.deficit()
     multidot            = ui.mode.cleave == 1 and ui.mode.rotation < 3
+    var.getTime         = br._G.GetTime()
     var.kindredSpirit   = findKindredSpirit()
     var.lootDelay       = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
     var.minCount        = ui.useCDs() and 1 or 3
@@ -1335,7 +1337,7 @@ local function runRotation()
     -- General Vars
     if not unit.inCombat() and not unit.exists("target") then
         if var.profileStop then var.profileStop = false end
-        var.leftCombat = br._G.GetTime()
+        var.leftCombat = var.getTime
     end
     var.unit5ID = br.GetObjectID(units.dyn5) or 0
     var.noDoT = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or var.unit5ID == 156869
@@ -1399,16 +1401,16 @@ local function runRotation()
     ripTicks = 7
 
     -- Bloodtalons - Reset
-    if btGen.timer - br._G.GetTime() <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
+    if btGen.timer - var.getTime <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
         if btGen.brutalSlash then btGen.brutalSlash = false end
         if btGen.moonfireFeral then btGen.moonfireFeral = false end
         if btGen.rake then btGen.rake = false end
         if btGen.shred then btGen.shred = false end
         if btGen.swipe then btGen.swipe = false end
         if btGen.thrash then btGen.thrash = false end
-        -- btGen.timer = br._G.GetTime() + 4
+        -- btGen.timer = var.getTime + 4
     end
-    -- if not buff.bloodtalons.exists() and btGen.timer - br._G.GetTime() > 0 then btGen.stack = 2 end
+    -- if not buff.bloodtalons.exists() and btGen.timer - var.getTime > 0 then btGen.stack = 2 end
     btGen.stack = 2 - buff.bloodtalons.stack()
     btGen.triggers = 0
     if not btGen.brutalSlash and talent.brutalSlash then btGen.triggers = btGen.triggers + 1 end
@@ -1454,7 +1456,7 @@ local function runRotation()
     -- variable,name=best_rip,value=0,if=talent.primal_wrath.enabled
     if talent.primalWrath then
         var.ripTicksGain = 0
-        bestRip = 0
+        --bestRip = 0
     end
     for i = 1, #enemies.yards8 do
         local thisUnit = enemies.yards8[i]
@@ -1483,7 +1485,7 @@ local function runRotation()
             if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end
         end
     end
-    if talent.primalWrath then bestRip = var.ripTicksGain end
+    --if talent.primalWrath then bestRip = var.ripTicksGain end
     
     ---------------------
     --- Begin Profile ---
@@ -1625,7 +1627,7 @@ local function runRotation()
                         if cast.able.thrashCat() then
                             for i = 1, #enemies.yards8 do
                                 local thisUnit = enemies.yards8[i]
-                                if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + GetMastery()) - var.tastyBlood
+                                if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood
                                     and not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()
                                 then
                                     if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Ticks Gain]") return true end
@@ -1671,8 +1673,9 @@ local function runRotation()
     end --End Rotation Logic
 end -- End runRotation
 local id = 103
+--local _, br = ...
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
