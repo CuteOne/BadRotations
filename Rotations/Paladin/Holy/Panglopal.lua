@@ -39,9 +39,9 @@ local function createToggles()
     }
     CreateButton("Damage", 6, 0)
     br.BeaconModes = {
-        [1] = {mode = "BossTarget1", value = 1, overlay = "Boss1", tip = "BossTarget1", highlight = 0, icon = br.player.spell.beaconOfLight},
-        [2] = {mode = "BossTarget2", value = 2, overlay = "Boss2", tip = "BossTarget2", highlight = 0, icon = br.player.spell.beaconOfLight},
-        [3] = {mode = "BossTarget3", value = 3, overlay = "Boss3", tip = "BossTarget3", highlight = 0, icon = br.player.spell.beaconOfLight},
+        [1] = {mode = "1", value = 1, overlay = "Boss1", tip = "1", highlight = 0, icon = br.player.spell.beaconOfLight},
+        [2] = {mode = "2", value = 2, overlay = "Boss2", tip = "2", highlight = 0, icon = br.player.spell.beaconOfLight},
+        [3] = {mode = "3", value = 3, overlay = "Boss3", tip = "3", highlight = 0, icon = br.player.spell.beaconOfLight},
         [4] = {mode = "Off", value = 4, overlay = "Off", tip = "Off", highlight = 0, icon = br.player.spell.beaconOfLight}
     }
     CreateButton("Beacon", 7, 0)
@@ -76,7 +76,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Trinket 2 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFDPS-Target"}, 1, "", "")
         -- br.ui:createCheckbox(section, "Advanced Trinket Support")
         br.ui:checkSectionState(section) ]]
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.002")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1")
         br.ui:createCheckbox(section, "Raid Boss Helper")
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
@@ -367,10 +367,7 @@ local function runRotation()
                 elseif br.friend[i].distance < rangeInfront then
                     local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
                     if playerX and unitX then
-                        local angleToUnit = rad(atan2(unitY - playerY, unitX - playerX))
-                        if angleToUnit < 0 then
-                            angleToUnit = rad(360 + atan2(unitY - playerY, unitX - playerX))
-                        end
+                        local angleToUnit = select(1,br._G.GetAnglesBetweenObjects("player",thisUnit))
                         tinsert(coneTable, angleToUnit)
                     end
                 end
@@ -398,10 +395,46 @@ local function runRotation()
             br._G.FaceDirection(bestAngle)
             br._G.CastSpellByName(br._G.GetSpellInfo(spell))
             br._G.FaceDirection(curFacing)
-            lodFaced = true
             return true
         end
         return false
+    end
+
+    if ui.checked("Raid Boss Helper") then
+        if br.pause() then
+            return true
+        end
+        if (br._G.ObjectID("target") == 165759 or br._G.ObjectID("target") == 171577 or br._G.ObjectID("target") == 173112) and unit.inCombat() then
+            if unit.hp("target") < 100 then
+                if not buff.beaconOfLight.exists("target") and br._G.ObjectID("target") == 165759 then
+                    if cast.beaconOfLight("target") then
+                        return true
+                    end
+                end 
+                if cast.wordOfGlory("target") then
+                    return true
+                end
+                if holyPower < 3 and not (cast.current.flashOfLight() and buff.holyAvenger.exists("player")) then
+                    if cast.holyShock("target") then
+                        return true
+                    end
+                end
+                if buff.holyAvenger.exists("player") and not (cast.last.flashOfLight() and holyPower > 2) then
+                    if cast.flashOfLight("target") then
+                        return true
+                    end
+                end
+                if br._G.ObjectID("target") == 165759 and not buff.holyAvenger.exists("player") then
+                    if cast.bestowFaith("target") then
+                        return true
+                    end
+                    if cast.holyLight("target") then
+                        return true
+                    end
+                end
+            end
+            return true
+        end
     end
 
     if unit.inCombat() and ui.checked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue() and br.getSpellCD(200025) == 0 and not br._G.IsMounted() then
@@ -609,7 +642,7 @@ local function runRotation()
 
     local function bellsAndWhistles()
         -- cleanse your friends
-        if mode.cleanse == 1 and cast.able.cleanse() then
+        if mode.cleanse == 1 and not cd.cleanse.exists() then
             for i = 1, #br.friend do
                 if br.canDispel(br.friend[i].unit, spell.cleanse) and br.getLineOfSight(br.friend[i].unit) and unit.distance(br.friend[i].unit) <= 40 then
                     if cast.cleanse(br.friend[i].unit) then
@@ -1243,26 +1276,6 @@ local function runRotation()
         end
     end
 
-    if ui.checked("Raid Boss Helper") then
-        if (br._G.ObjectID("target") == 165759 or br._G.ObjectID("target") == 171577 or br._G.ObjectID("target") == 173112) and unit.inCombat() then
-            if unit.hp("target") < 100 then
-                if not buff.beaconOfLight.exists("target") and br._G.ObjectID("target") == 165759 then
-                    if cast.beaconOfLight("target") then
-                        return true
-                    end
-                end
-                if holyPower >= 3 or buff.divinePurpose.exists() then
-                    if cast.wordOfGlory("target") then
-                        return true
-                    end
-                end
-                if cast.holyShock("target") then
-                    return true
-                end
-            end
-        end
-    end
-
     --[[ if mode.mythic == 1 then
         local bleedLevel = 1
         local bleedTarget
@@ -1311,7 +1324,7 @@ local function runRotation()
         end
     end
     if (not br._G.IsMounted() or buff.divineSteed.exists()) then
-        if br.pause(true) or drinking or br.isLooting() then
+        if br.pause() or drinking or br.isLooting() then
             return true
         else
             if not unit.inCombat() and not br.UnitBuffID("player", 115834) then
