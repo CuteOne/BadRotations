@@ -273,7 +273,7 @@ local function runRotation()
             --Battle of Dazar'alor
             [283572] = "Sacred Blade",
             [284449] = "Reckoning",
-            [286988] = "Divine Burst",
+            [283626] = "Divine Burst",
             [282036] = "Fireball",
             [286988] = "Searing Embers",
             [286646] = "Gigavolt Charge",
@@ -312,7 +312,6 @@ local function runRotation()
             [268703] = "Lightning Bolt",
             [272699] = "Venomous Spit",
             --Shrine of the Storm
-            [265001] = "Sea Blast",
             [264560] = "Choking Brine",
             [264144] = "Undertow",
             [268347] = "Void Bolt",
@@ -924,7 +923,7 @@ local function runRotation()
     --timer
 end
 --runrotation
-local id = 73
+local id = 0
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end

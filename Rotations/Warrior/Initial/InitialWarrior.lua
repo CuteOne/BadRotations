@@ -5,23 +5,23 @@ local rotationName = "Overlord"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.victoryRush },
         [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.victoryRush}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.shieldBlock},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.shieldBlock}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Movement Button
-    MoverModes = {
+    local MoverModes = {
         [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", highlight = 1, icon = br.player.spell.charge},
         [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spell.charge}
     };
-    CreateButton("Mover", 3, 0)
+    br.ui:createToggle(MoverModes,"Mover", 3, 0)
 end
 
 ---------------
@@ -118,7 +118,7 @@ local function runRotation()
     use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or pause() or mode.rotation==4
+    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40

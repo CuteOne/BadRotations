@@ -5,17 +5,17 @@ local rotationName = "Overlord"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.sinisterStrike},
         [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.sinisterStrike}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.crimsonVial},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.crimsonVial}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
 end
 
 ---------------
@@ -123,7 +123,7 @@ local function runRotation()
     use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or pause() or mode.rotation==4
+    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -189,7 +189,7 @@ local function runRotation()
                 end
                 --Ambush
                 if buff.stealth.exists() and unit.exists("target") and unit.distance("target") < 5 then
-                    if CastSpellByID(8676) then ui.debug("Casting Ambush") return true end
+                    if br._G.CastSpellByID(8676) then ui.debug("Casting Ambush") return true end
                 end
                 --Eviscerate
                 if unit.level() >= 2 and ui.checked("Use Eviscerate") then

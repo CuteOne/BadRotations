@@ -560,7 +560,7 @@ local function runRotation()
         end -- End In Combat Rotation
     end -- Pause -- End Timer
 end -- End runRotation
-local id = 264
+local id = 0
 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then
     br.rotations[id] = {}

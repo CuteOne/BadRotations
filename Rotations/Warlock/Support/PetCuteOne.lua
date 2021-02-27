@@ -26,7 +26,7 @@ br.rotations.support["PetCuteOne"] = function()
     local units                                         = br.player.units
     -- General Locals
     local profileStop                                   = profileStop or false
-    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause(true) or mode.rotation==4
+    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or br.pause(true) or mode.rotation==4
     -- Units
     units.get(5)
     units.get(40)
@@ -41,7 +41,7 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40)
     enemies.get(40,"player",true)
     enemies.get(40,"player",false,true)
-    enemies.yards40r = getEnemiesInRect(10,40,false) or 0
+    enemies.yards40r = br.getEnemiesInRect(10,40,false) or 0
 
     -- local petTarget
     -- if petTarget == nil or not UnitExists(petTarget) or not br.isValidUnit(petTarget) then
@@ -59,12 +59,12 @@ br.rotations.support["PetCuteOne"] = function()
 
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()
-    local petCombat = UnitAffectingCombat("pet")
+    local petCombat = br._G.UnitAffectingCombat("pet")
     local petDistance = br.getDistance(petTarget,"pet") or 99
-    local petExists = UnitExists("pet")
+    local petExists = br._G.UnitExists("pet")
     local petHealth = br.getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = UnitExists(petTarget) and (br.isValidUnit(petTarget) or br.isDummy()) --or (not UnitExists("pettarget") and br.isValidUnit("target")) or br.isDummy()
+    local validTarget = br._G.UnitExists(petTarget) and (br.isValidUnit(petTarget) or br.isDummy()) --or (not UnitExists("pettarget") and br.isValidUnit("target")) or br.isDummy()
 
     -- if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
     --     waitForPetToAppear = GetTime()
@@ -93,14 +93,14 @@ br.rotations.support["PetCuteOne"] = function()
             PetAssistMode()
         elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
             PetDefensiveMode()
-        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) and not isUnitCasting("player") then
+        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) and not br.isUnitCasting("player") then
             PetPassiveMode()
         end
         -- Pet Attack / retreat
         if (inCombat or petCombat) and not haltProfile then
             PetAttack(petTarget)
         elseif not inCombat or (inCombat and not br.isValidUnit(petTarget)) or haltProfile
-            and IsPetAttackActive() and not isUnitCasting("player")
+            and IsPetAttackActive() and not br.isUnitCasting("player")
         then
             PetStopAttack()
             PetFollow()

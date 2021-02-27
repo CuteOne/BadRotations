@@ -594,7 +594,7 @@ end
     end
 
     -- Blacklist enemies
-    local function br.isTotem(unit)
+    local function isTotem(unit)
         local eliteTotems = {
             -- totems we can dot
             [125977] = "Reanimate Totem",
@@ -3136,7 +3136,7 @@ end -- End Action List - PreCombat
 end -- End Timer
 -- end -- End runRotation
 
-local id = 265 -- Change to the spec id profile is for.
+local id = 0 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

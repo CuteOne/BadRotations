@@ -470,7 +470,7 @@ local function runRotation()
         return true
     end
     -- Blacklist enemies
-    local function br.isTotem(unit)
+    local function isTotem(unit)
         local eliteTotems = {
             -- totems we can dot
             [125977] = "Reanimate Totem",
@@ -1897,7 +1897,7 @@ end
     end --End Rotation Logic
 end -- End Timer
 -- end -- End runRotation
-local id = 266
+local id = 0
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
