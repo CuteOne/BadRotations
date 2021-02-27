@@ -716,7 +716,7 @@ local function runRotation()
 			elseif br.getOptionValue("Trinkets 1 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 1") then
 				if br.useItem(13,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 1 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 1") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
-				if useItem(13,lowest.unit) then return true end
+				if br.useItem(13,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 1 Mode") == 5 and php <= br.getOptionValue("Trinkets 1") then
 				if br.useItem(13,"player") then return true end
 			end
@@ -729,7 +729,7 @@ local function runRotation()
 			elseif br.getOptionValue("Trinkets 2 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 2") then
 				if br.useItem(14,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 2 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 2") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
-				if useItem(14,lowest.unit) then return true end
+				if br.useItem(14,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 2 Mode") == 5 and php <= br.getOptionValue("Trinkets 2") then
 				if br.useItem(14,"player") then return true end
 			end
