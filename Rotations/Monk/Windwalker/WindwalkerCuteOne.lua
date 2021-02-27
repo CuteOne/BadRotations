@@ -1207,7 +1207,7 @@ local function runRotation()
     end
 
     -- Rising Sun Kick - WoO Chi Reduction Buff Remaining
-    if var.rskChiWoORemain == null then var.rskChiWoORemain = 0 var.rskChiWoOExpires = br._G.GetTime() end
+    if var.rskChiWoORemain == nil then var.rskChiWoORemain = 0 var.rskChiWoOExpires = br._G.GetTime() end
     var.rskChiWoORemain = var.rskChiWoOExpires - br._G.GetTime() <= 0 and 0 or var.rskChiWoOExpires - br._G.GetTime()
     if buff.weaponsOfOrderWW.exists() and cast.last.risingSunKick() and var.rskChiWoORemain == 0 then
         var.rskChiWoOExpires = br._G.GetTime() + 5
