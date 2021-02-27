@@ -998,34 +998,48 @@ actionList.Extra = function()
         end -- end stun
     end -- end radar
 
-    if ui.checked("Advanced Trinket Support") and (184020 == 159630 or Trinket14 == 184020) and br.canUseItem(184020) and br._G.UnitInRange(br.friend[1].unit) then
+    if ui.checked("Advanced Trinket Support") then
+        local Trinket13 = _G.GetInventoryItemID("player", 13)
+        local Trinket14 = _G.GetInventoryItemID("player", 14)
+        -- Tuft Logic
         local tuftTarget = nil
-        for i = 1, #br.friend do
-            if br.friend[i].hp < 100 and br._G.UnitInRange(br.friend[i].unit) and not unit.deadOrGhost(br.friend[i].unit) then
-                if ui.value("Tuft of Smoldering Plumeage Target") == 1 then
-                    if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) and (solo or OWGroup or inRaid or (inInstance)) then
-                        tuftTarget = br.friend[i].unit
-                    end
-                elseif ui.value("Tuft of Smoldering Plumeage Target") == 2 then
-                    if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance)) then
-                        tuftTarget = br.friend[i].unit
-                    end
-                elseif ui.value("Tuft of Smoldering Plumeage Target") == 3 and br.getDebuffRemain("player", 267037) == 0 and php <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) then
-                    tuftTarget = "player"
-                elseif ui.value("Tuft of Smoldering Plumeage Target") == 4 then
-                    if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
-                        if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) and (not inInstance or (inInstance)) then
+        if (Trinket13 == 184020 or Trinket14 == 184020) then
+            -- br._G.print("1. Trinket Detected")
+            for i = 1, #br.friend do
+                -- br._G.print("1.5. Finding Friends")
+                if br.friend[i].hp < 100 and canheal(br.friend[i].unit) then
+                    -- br._G.print("2. Found Friends")
+                    if ui.value("Tuft of Smoldering Plumeage Target") == 1 then
+                        if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) then
                             tuftTarget = br.friend[i].unit
+                            -- br._G.print("[ALL] Acquired Tuft Target")
+                        end
+                    elseif ui.value("Tuft of Smoldering Plumeage Target") == 2 then
+                        if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") then
+                            tuftTarget = br.friend[i].unit
+                            -- br._G.print("[TANK] Acquired Target")
+                        end
+                    elseif ui.value("Tuft of Smoldering Plumeage Target") == 3 and php <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) then
+                        tuftTarget = "player"
+                        -- br._G.print("[SELF] Acquired Tuft Target")
+                    elseif ui.value("Tuft of Smoldering Plumeage Target") == 4 then
+                        if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
+                            if br.friend[i].hp <= math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max")) then
+                                tuftTarget = br.friend[i].unit
+                                -- br._G.print("[HEALER/DPS] Acquired Tuft Target")
+                            end
                         end
                     end
-                end
-                if tuftTarget ~= nil then
-                    br.useItem(184020, tuftTarget)
-                    return true
+                    if tuftTarget ~= nil and br.canUseItem(184020) then
+                        -- br._G.print("3. Can use trinket")
+                        br._G.UseItemByName(184020, tuftTarget)
+                        -- br._G.print("4. Using trinket on target")
+                        return true
+                    end
                 end
             end
         end
-    end
+    end -- end trinket logic
 
     --dungeon specific stuff
     -- Plaguefall   (13228)
@@ -1987,8 +2001,8 @@ local function runRotation()
 
     local glimmerCount = 0
 
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        wipe(br.timersTable)
     end
 
     if br.player.runeforge.shadowbreaker.equiped then
