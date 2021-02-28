@@ -1,3 +1,4 @@
+local _, br = ...
 if br.lists == nil then br.lists = {} end
 br.lists.dummies = {
 -- Misc/Unknown
@@ -110,13 +111,13 @@ br.lists.dummies = {
 	[144074] = "Training Dummy", 			  -- Lvl 112 - 120 (Dazar'alor) - PVP Healing
 -- Level 112 - 122
 	[131992] = "Dungeoneer's Training Dummy",  -- Lvl 112 - 122 (Boralus) - Tanking
--- Level 113 - 120 
+-- Level 113 - 120
 	[132036] = "Training Dummy", 			  -- Lvl 113 - 120 (Boralus) - Healing
 -- Level 113 - 122
 	[144078] = "Dungeoneer's Training Dummy", -- Lvl 113 - 122 (Dazar'alor) - Tanking
 -- Level 114 - 120
 	[144075] = "Training Dummy", 			  -- Lvl 114 - 120 (Dazar'alor) - Healing
--- Level 60 
+-- Level 60
 	[174569] = "Training Dummy",			  -- Lvl 60 (Ardenweald)
 	[174570] = "Swarm Training Dummy",		  -- Lvl 60 (Ardenweald)
 	[174571] = "Cleave Training Dummy",		  -- Lvl 60 (Ardenweald)
@@ -152,10 +153,10 @@ br.lists.dummies = {
 	[113964] = "Raider's Training Dummy",     -- Lvl ?? (The Dreamgrove) - Tanking
 	[131983] = "Raider's Training Dummy",     -- Lvl ?? (Boralus) - Damage
 	[144086] = "Raider's Training Dummy",     -- Lvl ?? (Dazal'alor) - Damage
-	[174565] = "Raider's Training Dummy",	  -- Lvl ?? (Ardenweald) 
-	[174566] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Ardenweald) 
-	[174567] = "Raider's Training Dummy",	  -- Lvl ?? (Ardenweald) 
-	[174568] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Ardenweald) 
+	[174565] = "Raider's Training Dummy",	  -- Lvl ?? (Ardenweald)
+	[174566] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Ardenweald)
+	[174567] = "Raider's Training Dummy",	  -- Lvl ?? (Ardenweald)
+	[174568] = "Dungeoneer's Tanking Dummy",  -- Lvl ?? (Ardenweald)
 	[174491] = "Iron Tester", 				  -- Lvl ?? (Location Unknown)
 	[174488] = "Unbreakable Defender", 		  -- Lvl ?? (Location Unknown)
 	-- [174489] = "Necromantic Guide", 		  -- Lvl ?? (Location Unknown)

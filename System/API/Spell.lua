@@ -1,3 +1,4 @@
+local _, br = ...
 if br.api == nil then br.api = {} end
 -- cd is the table located at br.player.cd
 -- charges is the table located at br.player.charges
@@ -9,53 +10,33 @@ br.api.spells = function(spells,k,v,subtable)
         if spells.known == nil then spells.known = {} end
         local known = spells.known
         known[k] = function()
-            return isKnown(v)
+            return br.isKnown(v)
         end
-    end
-    if subtable == "cd" then -- Moved to own file API\CD.lua
-        -- if spells[k] == nil then spells[k] = {} end
-        -- local cd = spells[k]
-        -- cd.exists = function()
-        --     return getSpellCD(v) > 0
-        -- end
-        -- cd.remain = function()
-        --     return getSpellCD(v)
-        -- end
-        -- cd.remains = function()
-        --     return getSpellCD(v)
-        -- end
-        -- cd.duration = function()
-        --     local _, CD = GetSpellCooldown(v)
-        --     return CD
-        -- end
-        -- cd.ready = function()
-        --     return getSpellCD(v) == 0
-        -- end
     end
     if subtable == "charges" then
         if spells[k] == nil then spells[k] = {} end
         local charges = spells[k]
         charges.exists = function()
-            return getCharges(v) >= 1
+            return br.getCharges(v) >= 1
         end
         charges.count = function()
-            return getCharges(v)
+            return br.getCharges(v)
         end
         charges.frac = function()
-            return getChargesFrac(v)
+            return br.getChargesFrac(v)
         end
         charges.max = function()
-            return getChargesFrac(v,true)
+            return br.getChargesFrac(v,true)
         end
         charges.recharge = function(chargeMax)
             if chargeMax then
-                return getRecharge(v,true)
+                return br.getRecharge(v,true)
             else
-                return getRecharge(v)
+                return br.getRecharge(v)
             end
         end
         charges.timeTillFull = function()
-            return getFullRechargeTime(v)
+            return br.getFullRechargeTime(v)
         end
     end
 end

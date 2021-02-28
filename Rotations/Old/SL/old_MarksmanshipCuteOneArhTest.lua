@@ -131,36 +131,36 @@ local function runRotation()
         local animality                                     = false
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
+        local canFlask                                      = br.canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
-        local combatTime                                    = getCombatTime()
+        local combatTime                                    = br.getCombatTime()
         local combo                                         = br.player.comboPoints
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadPets                                      = deadPet
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
-        local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
+        local flaskBuff                                     = br.getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
+        local friendly                                      = friendly or br.GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
-        local hasMouse                                      = GetObjectExists("mouseover")
+        local hasMouse                                      = br.GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.items
         local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
+        local lootDelay                                     = br.getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].hp
         local mode                                          = br.player.ui.mode
         local multidot                                      = (br.player.ui.mode.cleave == 1 or br.player.ui.mode.rotation == 2) and br.player.ui.mode.rotation ~= 3
         local perk                                          = br.player.perk
-        local pethp                                         = getHP("pet")
+        local pethp                                         = br.getHP("pet")
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
@@ -175,7 +175,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local trait                                         = br.player.traits
         local trinketProc                                   = false
-        local ttd                                           = getTTD
+        local ttd                                           = br.getTTD
         local ttm                                           = br.player.power.focus.ttm()
         local units                                         = br.player.units
         local use                                           = br.player.use
@@ -214,7 +214,7 @@ local function runRotation()
                     --Aimed shot supposed to cast aimed shot at units under careful aim talent influence
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                            if (getHP(thisUnit) > 80 or getHP(thisUnit) < 20) and ttd("thisUnit") > (cast.time.aimedShot() + 2) then
+                            if (br.getHP(thisUnit) > 80 or br.getHP(thisUnit) < 20) and ttd("thisUnit") > (cast.time.aimedShot() + 2) then
                                 if cast.aimedShot(thisUnit) then return true end
                             end
                     end
@@ -257,7 +257,7 @@ local function runRotation()
                     --Aimed shot supposed to cast aimed shot at units under careful aim talent influence
                     for i = 1, #enemies.yards8t do
                         local thisUnit = #enemies.yards8t[i]
-                            if buff.trickShots.exists() and (getHP(thisUnit) > 80 or getHP(thisUnit) < 20) and ttd("thisUnits") > (cast.time.aimedShot() + 1) then
+                            if buff.trickShots.exists() and (br.getHP(thisUnit) > 80 or br.getHP(thisUnit) < 20) and ttd("thisUnits") > (cast.time.aimedShot() + 1) then
                                 if cast.aimedShot(thisUnit) then return true end
                             end
                     end
@@ -289,28 +289,28 @@ local function runRotation()
 
             -- Trinkets
             -- use_items
-            if getOptionValue("Trinkets") ~= 4 then
-                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
-                    useItem(13)
+            if br.getOptionValue("Trinkets") ~= 4 then
+                if (br.getOptionValue("Trinkets") == 1 or br.getOptionValue("Trinkets") == 3) and br.canUseItem(13) then
+                    br.useItem(13)
             end
-            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
-                    useItem(14)
+            if (br.getOptionValue("Trinkets") == 2 or br.getOptionValue("Trinkets") == 3) and br.canUseItem(14) then
+                    br.useItem(14)
                     end
             end                    
 
 					--Murder of crows actions.st+=/a_murder_of_crows
-                    if talent.aMurderOfCrows and isChecked("Murder of crows") then
+                    if talent.aMurderOfCrows and br.isChecked("Murder of crows") then
                         if cast.aMurderOfCrows(bestUnit) then return end
                     end    
 
                 --Trueshot
-                if isChecked("Trueshot") and
+                if br.isChecked("Trueshot") and
                 charges.aimedShot.count() < 1 and charges.aimedShot.recharge() > gcdMax then
                     if cast.trueshot() then return end
                 end
 
                 --DoubleTap
-                if isChecked("Double tap") and
+                if br.isChecked("Double tap") and
                 cast.able.rapidFire() or cd.rapidFire.remain() < gcdMax then
                    if cast.doubleTap() then return end
                 end
@@ -318,14 +318,14 @@ local function runRotation()
         end
 
         -- Dummy Test
-            if isChecked("DPS Testing") then
-                if GetObjectExists("target") then
-                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+            if br.isChecked("DPS Testing") then
+                if br.GetObjectExists("target") then
+                    if br.getCombatTime() >= (tonumber(br.getOptionValue("DPS Testing"))*60) and br.isDummy() then
                         StopAttack()
                         ClearTarget()
                         PetStopAttack()
                         PetFOllow()
-                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        Print(tonumber(br.getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
                 end
@@ -343,16 +343,16 @@ local function runRotation()
 --- In Combat - Rotations ---
 -----------------------------
         if not inCombat and not (IsFlying() or IsMounted()) then
-            if isValidUnit("target") and getDistance("target") < 45 then
+            if br.isValidUnit("target") and br.getDistance("target") < 45 then
                 -- Start Attack
-                StartAttack()
+                br._G.StartAttack()
             end
         end
-        if inCombat and profileStop==false and isValidUnit(units.dyn45) then
+        if inCombat and profileStop==false and br.isValidUnit(units.dyn45) then
     ---------------------------
     --- Action Lists ---
     ---------------------------
-            if getOptionValue("APL Mode") == 1 then
+            if br.getOptionValue("APL Mode") == 1 then
                 -- Cooldowns
                 if actionList_Cooldowns() then return end
                 -- Action List - Single

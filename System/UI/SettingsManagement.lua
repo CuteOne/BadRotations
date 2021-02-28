@@ -1,3 +1,4 @@
+local _, br = ...
 local function getFolderClassName(class)
 	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
 	if formatClass == "Deathknight" then
@@ -12,7 +13,7 @@ end
 -- Check Directories
 function br:checkDirectories(folder, class, spec, profile)
 	-- Set Settings Directory
-	local settingsDir = GetWoWDirectory() .. "\\Interface\\AddOns\\" .. br.addonName .. "\\Settings\\"
+	local settingsDir = br._G.GetWoWDirectory() .. "\\Interface\\AddOns\\" .. br.addonName .. "\\Settings\\"
 
 	-- Set Folder to Specified Folder if any
 	if folder == nil then
@@ -21,17 +22,17 @@ function br:checkDirectories(folder, class, spec, profile)
 		folder = folder .. "\\"
 	end
 	br.settingsDir = settingsDir .. folder
-	if not DirectoryExists(br.settingsDir) then
-		CreateDirectory(br.settingsDir)
+	if not br._G.DirectoryExists(br.settingsDir) then
+		br._G.CreateDirectory(br.settingsDir)
 	end
 
 	-- Set the Class Directory
 	if class == nil then
-		class = select(2, UnitClass("player"))
+		class = select(2, br._G.UnitClass("player"))
 	end
 	local classDir = br.settingsDir .. getFolderClassName(class) .. "\\"
-	if not DirectoryExists(classDir) then
-		CreateDirectory(classDir)
+	if not br._G.DirectoryExists(classDir) then
+		br._G.CreateDirectory(classDir)
 	end
 
 	-- Return Spec Directory if Profile is Tracker
@@ -47,8 +48,8 @@ function br:checkDirectories(folder, class, spec, profile)
 		spec = "Initial"
 	end
 	local specDir = classDir .. spec .. "\\"
-	if not DirectoryExists(specDir) then
-		CreateDirectory(specDir)
+	if not br._G.DirectoryExists(specDir) then
+		br._G.CreateDirectory(specDir)
 	end
 
 	-- Set the Profile Directory
@@ -61,8 +62,8 @@ function br:checkDirectories(folder, class, spec, profile)
 	-- end
 	-- Print("Profile by SpecID, selectedProfile: "..tostring(profile))
 	local profileDir = specDir .. profile .. "\\"
-	if not DirectoryExists(profileDir) then
-		CreateDirectory(profileDir)
+	if not br._G.DirectoryExists(profileDir) then
+		br._G.CreateDirectory(profileDir)
 	end
 
 	-- Return Path
@@ -79,7 +80,7 @@ function br:loadSettings(folder, class, spec, profile)
 		local profileFound = false
 		-- Load Settings
 		if br:findFileInFolder("savedSettings.lua", loadDir) then
-			Print("Loading Settings File From Directory: " .. loadDir)
+			br._G.print("Loading Settings File From Directory: " .. loadDir)
 			brdata = br.tableLoad(loadDir .. "savedSettings.lua")
 			fileFound = true
 		end
@@ -92,14 +93,14 @@ function br:loadSettings(folder, class, spec, profile)
 		end
 		if fileFound then
 			br.ui:closeWindow("all")
-			br.data = deepcopy(brdata)
+			br.data = br.deepcopy(brdata)
 			if profileFound then
-				br.profile = deepcopy(brprofile)
+				br.profile = br.deepcopy(brprofile)
 			end
-			Print("Loaded Settings for Profile " .. tostring(profile))
+			br._G.print("Loaded Settings for Profile " .. tostring(profile))
 		end
 		if not fileFound then
-			Print("No File Called 'savedSettings.lua' Found In " .. loadDir)
+			br._G.print("No File Called 'savedSettings.lua' Found In " .. loadDir)
 		end
 		if spec == nil then
 			spec = br.selectedSpec
@@ -124,18 +125,18 @@ end
 -- Save Settings
 function br:saveSettings(folder, class, spec, profile, wipe)
 	local saveDir = br:checkDirectories(folder, class, spec, profile)
-	local brdata = wipe and {} or deepcopy(br.data)
-	local brprofile = wipe and {} or deepcopy(br.profile)
-	Print("Saving Profiles and Settings to Directory: " .. tostring(saveDir))
+	local brdata = wipe and {} or br.deepcopy(br.data)
+	local brprofile = wipe and {} or br.deepcopy(br.profile)
+	br._G.print("Saving Profiles and Settings to Directory: " .. tostring(saveDir))
 	-- Save Files
 	br.tableSave(brdata, saveDir .. "savedSettings.lua")
 	br.tableSave(brprofile, saveDir .. "savedProfile.lua")
-	Print("Saved Settings for Profile " .. profile)
+	br._G.print("Saved Settings for Profile " .. profile)
 end
 
 function br:findFileInFolder(file, folder)
 	br.fileList = {}
-	br.fileList = GetDirectoryFiles(folder .. "*.lua")
+	br.fileList = br._G.GetDirectoryFiles(folder .. "*.lua")
 	for i = 1, #br.fileList do
 		if br.fileList[i] == file then
 			return true
@@ -149,7 +150,7 @@ function br:loadLastProfileTracker()
 	local selectedProfile = br.selectedSpec
 	if br:findFileInFolder("lastProfileTracker.lua", loadDir) then
 		local tracker = br.tableLoad(loadDir .. "lastProfileTracker.lua")
-		local specID = GetSpecializationInfo(GetSpecialization())
+		local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
 		if br.data == nil then
 			br.data = {}
 		end
@@ -180,17 +181,17 @@ function br:loadLastProfileTracker()
 			br.data.settings[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
 			br.data.settings[br.selectedSpec]["RotationDrop"] = 1
 		end
-		Print("Tracker Load - Last Profile: " .. tostring(br.data.settings[selectedProfile]["RotationDrop"]))
-		Print("Tracker Load - Last Profile Name: " .. tostring(br.data.settings[selectedProfile]["RotationDropValue"]))
+		br._G.print("Tracker Load - Last Profile: " .. tostring(br.data.settings[selectedProfile]["RotationDrop"]))
+		br._G.print("Tracker Load - Last Profile Name: " .. tostring(br.data.settings[selectedProfile]["RotationDropValue"]))
 	else
-		Print("No Tracker found for " .. selectedProfile .. "! Creating Tracker....")
+		br._G.print("No Tracker found for " .. selectedProfile .. "! Creating Tracker....")
 		br:saveLastProfileTracker()
 	end
 end
 
 function br:saveLastProfileTracker()
 	local saveDir = br:checkDirectories(nil, nil, nil, "Tracker")
-	local specID = GetSpecializationInfo(GetSpecialization()) or br.selectedSpecID
+	local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization()) or br.selectedSpecID
 	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil then
 		if br.data.tracker ~= nil then
 			if br.data.tracker[br.selectedSpec] == nil then
@@ -218,12 +219,12 @@ function br:saveLastProfileTracker()
 			end
 		end
 	else
-		Print("Nothing found, recreating tracker")
+		br._G.print("Nothing found, recreating tracker")
 		br.data.tracker = {}
 		br.data.tracker[br.selectedSpec] = {}
 		br.data.tracker[br.selectedSpec]["RotationDrop"] = 1
 		br.data.tracker[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
 	end
-	Print("Saving Tracker to Directory: " .. tostring(saveDir))
+	br._G.print("Saving Tracker to Directory: " .. tostring(saveDir))
 	br.tableSave(br.data.tracker, saveDir .. "lastProfileTracker.lua")
 end

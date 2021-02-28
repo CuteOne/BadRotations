@@ -224,7 +224,7 @@ local haltProfile
 local hastar
 local healPot
 local profileStop
-local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0 or getDebuffRemain("player", 185710) ~= 0 or getDebuffRemain("player", 297098) ~= 0 or getDebuffRemain("player", 274914) ~= 0
+local drinking = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0 or br.getDebuffRemain("player", 185710) ~= 0 or br.getDebuffRemain("player", 297098) ~= 0 or br.getDebuffRemain("player", 274914) ~= 0
 
 local ttd
 
@@ -336,7 +336,7 @@ local HOJ_unitList = {
     [152703] = "walkie-shockie-x1"
 }
 
-if isChecked("ML - Stun jockeys") then
+if br.isChecked("ML - Stun jockeys") then
     HOJ_unitlis[130488] = "Mech Jockey"
 end
 
@@ -352,20 +352,20 @@ noconc_list = {
 }
 
 local function noConc(unit)
-    if isBoss(unit) or noconc_list[GetObjectID(unit)] ~= nil then
+    if br.isBoss(unit) or noconc_list[br.GetObjectID(unit)] ~= nil then
         return true
     end
 end
 local function isCC(unit)
-    if getOptionCheck("Don't break CCs") then
+    if br.getOptionCheck("Don't break CCs") then
         return isLongTimeCCed(Unit)
     end
 end
 local function noDamageCheck(unit)
-    if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
+    if br.isChecked("Dont DPS spotter") and br.GetObjectID(unit) == 135263 then
         return true
     end
-    if isChecked("Shrine - ignore adds last boss") and GetObjectID(unit) == 135903 then
+    if br.isChecked("Shrine - ignore adds last boss") and br.GetObjectID(unit) == 135903 then
         return true
     end
     if isCC(unit) then
@@ -383,7 +383,7 @@ local function noDamageCheck(unit)
         -- shields on witches in wm
         return true
     end
-    if GetObjectID(thisUnit) == 128652 then
+    if br.GetObjectID(thisUnit) == 128652 then
         --https://www.wowhead.com/npc=128652/viqgoth
         return true
     end
@@ -392,11 +392,11 @@ local function noDamageCheck(unit)
 end
 
 local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
-    if not isKnown(spell) or getSpellCD(spell) ~= 0 or select(2, IsUsableSpell(spell)) then
+    if not br.isKnown(spell) or br.getSpellCD(spell) ~= 0 or select(2, IsUsableSpell(spell)) then
         return false
     end
     local curFacing = ObjectFacing("player")
-    local playerX, playerY, playerZ = ObjectPosition("player")
+    local playerX, playerY, playerZ = br._G.ObjectPosition("player")
     local coneTable = {}
 
     local unitsAround = 0
@@ -406,7 +406,7 @@ local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeA
             if br.friend[i].distance < rangeAround then
                 unitsAround = unitsAround + 1
             elseif br.friend[i].distance < rangeInfront then
-                local unitX, unitY, unitZ = ObjectPosition(thisUnit)
+                local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
                 if playerX and unitX then
                     local angleToUnit = rad(atan2(unitY - playerY, unitX - playerX))
                     if angleToUnit < 0 then
@@ -444,7 +444,7 @@ local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeA
             MoveAndSteerStop()
         end
         FaceDirection(bestAngle, true)
-        CastSpellByName(GetSpellInfo(spell))
+        br._G.CastSpellByName(GetSpellInfo(spell))
         FaceDirection(curFacing)
         if mouselookActive then
             MouselookStart()
@@ -482,8 +482,8 @@ actionList.glimmer = function()
 
 
         --Glimmer support
-        if isChecked("Aggressive Glimmer") and br.player.ui.mode.DPS == 1 and br.player.inCombat and UnitIsEnemy("target", "player") and lowest.hp > getValue("Critical HP") then
-            if br.player.ui.mode.DPS == 1 and not debuff.glimmerOfLight.exists("target", "EXACT") and GetUnitExists("target") and getFacing("player", "target") then
+        if br.isChecked("Aggressive Glimmer") and br.player.ui.mode.DPS == 1 and br.player.inCombat and UnitIsEnemy("target", "player") and lowest.hp > br.getValue("Critical HP") then
+            if br.player.ui.mode.DPS == 1 and not debuff.glimmerOfLight.exists("target", "EXACT") and br.GetUnitExists("target") and br.getFacing("player", "target") then
                 if cast.holyShock("target") then
                     br.addonDebug("[GLIM] Aggressive Glimmer on: " .. UnitName("target"))
                     return true
@@ -497,8 +497,8 @@ actionList.glimmer = function()
         if #tanks > 1 then
             --find lowest friend without glitter buff on them - tank first  for i = 1, #tanks do
             for i = 1, #tanks do
-                if UnitInRange(tanks[i].unit) and getLineOfSight(tanks[i].unit, "player") then
-                    if not UnitBuffID(tanks[i].unit, 287280) then
+                if UnitInRange(tanks[i].unit) and br.getLineOfSight(tanks[i].unit, "player") then
+                    if not br.UnitBuffID(tanks[i].unit, 287280) then
                         if cast.holyShock(tanks[i].unit) then
                             br.addonDebug("[GLIM] Tank-Glimmer on " .. UnitName(tanks[i].unit) .. "/" .. tostring(glimmerCount))
                             return true
@@ -511,7 +511,7 @@ actionList.glimmer = function()
         if mode.glimmer == 1 then
             glimmerTable = {}
             for i = 1, #br.friend do
-                if (UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") or br.friend[i].unit == "player") and not UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not UnitBuffID(br.friend[i].unit, 115191) then
+                if (UnitInRange(br.friend[i].unit) and br.getLineOfSight(br.friend[i].unit, "player") or br.friend[i].unit == "player") and not br.UnitBuffID(br.friend[i].unit, 287280, "PLAYER") and not br.UnitBuffID(br.friend[i].unit, 115191) then
                     tinsert(glimmerTable, br.friend[i])
                 end
             end
@@ -533,7 +533,7 @@ actionList.glimmer = function()
                 if cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
                     if glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
                         if cast.ruleOfLaw() then
-                            --Print(getDistance(glimmerTable[1]))
+                            --Print(br.getDistance(glimmerTable[1]))
                             br.addonDebug("[GLIM] Rule Of Law - distance: " .. tostring(glimmerTable[1].distance))
                             return true
                         end
@@ -549,16 +549,16 @@ actionList.glimmer = function()
     end
 
     -- Light of Dawn
-    if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
+    if br.isChecked("Light of Dawn") and cast.able.lightOfDawn() then
         if EasyWoWToolbox == nil then
-            if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff)
+            if healConeAround(br.getValue("LoD Targets"), br.getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff)
             then
                 if cast.lightOfDawn() then
                     return true
                 end
             end
         else
-            if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+            if bestConeHeal(spell.lightOfDawn, br.getValue("LoD Targets"), br.getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
                 healTarget = "none"
                 return true
             end
@@ -572,7 +572,7 @@ actionList.cleanse = function()
     -- Cleanse
     if cast.able.cleanse() and not cast.last.cleanse() then
         for i = 1, #br.friend do
-            if canDispel(br.friend[i].unit, spell.cleanse) and (getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
+            if br.canDispel(br.friend[i].unit, spell.cleanse) and (br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
                 if br.player.race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
                     if cast.racial("player") then
                         return true
@@ -588,7 +588,7 @@ end
 actionList.ooc = function()
     --things to do ooc
 
-    if isChecked("Auto Drink") and getMana("player") <= getOptionValue("Auto Drink") and not moving and getDebuffStacks("player", 240443) == 0 and getDebuffStacks("player", 240443) == 0 then
+    if br.isChecked("Auto Drink") and getMana("player") <= br.getOptionValue("Auto Drink") and not moving and br.getDebuffStacks("player", 240443) == 0 and br.getDebuffStacks("player", 240443) == 0 then
         --240443 == bursting
         -- 226510 == sanguine
         --drink list
@@ -600,26 +600,26 @@ actionList.ooc = function()
         item=126936/sugar-crusted-fish-feast ff
         ]]
 
-        if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) and not hasBuff(185710) then
-            if hasItem(65499) and canUseItem(65499) then
-                useItem(65499)
+        if not br.isChecked("Sugar Crusted Fish Feast") or (br.isChecked("Sugar Crusted Fish Feast") and not br.hasItem(126936)) and not hasBuff(185710) then
+            if br.hasItem(65499) and br.canUseItem(65499) then
+                br.useItem(65499)
             end
-            if hasItem(113509) and canUseItem(113509) then
-                useItem(113509)
+            if br.hasItem(113509) and br.canUseItem(113509) then
+                br.useItem(113509)
             end
-            if hasItem(159867) and canUseItem(159867) then
-                useItem(159867)
+            if br.hasItem(159867) and br.canUseItem(159867) then
+                br.useItem(159867)
             end
-            if hasItem(163784) and canUseItem(163784) then
-                useItem(163784)
+            if br.hasItem(163784) and br.canUseItem(163784) then
+                br.useItem(163784)
             end
-        elseif isChecked("Sugar Crusted Fish Feast") and hasItem(126936) then
-            local x1, y1, z1 = ObjectPosition("player")
+        elseif br.isChecked("Sugar Crusted Fish Feast") and br.hasItem(126936) then
+            local x1, y1, z1 = br._G.ObjectPosition("player")
             br.addonDebug("scaninning -  fish thingy")
             for i = 1, GetObjectCount() do
                 local object = GetObjectWithIndex(i)
-                local ID = ObjectID(object)
-                local x2, y2, z2 = ObjectPosition(object)
+                local ID = br._G.ObjectID(object)
+                local x2, y2, z2 = br._G.ObjectPosition(object)
                 local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                 if ID == 242405 and distance < 15 then
                     --print(tostring(distance))
@@ -627,8 +627,8 @@ actionList.ooc = function()
                     fishfeast = 1
                     return true
                 else
-                    if hasItem(126936) and canUseItem(126936) and fishfeast == 0 then
-                        useItem(126936)
+                    if br.hasItem(126936) and br.canUseItem(126936) and fishfeast == 0 then
+                        br.useItem(126936)
                         x1 = x1 + math.random(-2, 2)
                         ClickPosition(x1, y1, z1)
                         br.addonDebug("Placing fish thingy")
@@ -644,7 +644,7 @@ actionList.ooc = function()
     if DontMoveStartTime then
         standingTime = GetTime() - DontMoveStartTime
     end
-    if not isMoving("Player") and standingTime > getValue("OOC Holy Heal - Time") and not drinking and getMana("player") >= getValue("OOC Holy Heal - Mana") and getHP(lowest.unit) < getValue("OOC Holy Heal - Health") then
+    if not isMoving("Player") and standingTime > br.getValue("OOC Holy Heal - Time") and not drinking and getMana("player") >= br.getValue("OOC Holy Heal - Mana") and br.getHP(lowest.unit) < br.getValue("OOC Holy Heal - Health") then
         if cast.holyLight(lowest.unit) then
         end
     end
@@ -655,25 +655,25 @@ actionList.dps = function()
 
     --Auto attack
     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
-        StartAttack(units.dyn5)
+        br._G.StartAttack(units.dyn5)
     end
 
     --Judgment
     if cast.able.judgment() and cd.holyShock.remain() > 1 then
-        if #tanks == 0 or #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 then
+        if #tanks == 0 or #tanks > 0 and br.getDistance(units.dyn30, tanks[1].unit) <= 10 then
             if traits.indomitableJustice.active then
                 for i = 1, #enemies.yards30 do
-                    if getHP(enemies.yards30[i]) < getHP("player") and getFacing("player", enemies.yards30[i]) then
-                        br.addonDebug("[DPS]Judgment - indomitableJustice" .. "[" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
+                    if br.getHP(enemies.yards30[i]) < br.getHP("player") and br.getFacing("player", enemies.yards30[i]) then
+                        br.addonDebug("[DPS]Judgment - indomitableJustice" .. "[" .. round(br.getHP(enemies.yards30[i]), 2) .. "/" .. round(br.getHP("player"), 2) .. "]")
                         if cast.judgment(enemies.yards30[i]) then
                             return true
                         end
                     end
                 end
             end
-            if getFacing("player", units.dyn30) then
+            if br.getFacing("player", units.dyn30) then
                 if cast.judgment(units.dyn30) then
-                    br.addonDebug("[DPS]Judgment [" .. round(getHP(enemies.yards30[i]), 2) .. "/" .. round(getHP("player"), 2) .. "]")
+                    br.addonDebug("[DPS]Judgment [" .. round(br.getHP(enemies.yards30[i]), 2) .. "/" .. round(br.getHP("player"), 2) .. "]")
                     return true
                 end
             end
@@ -694,7 +694,7 @@ actionList.dps = function()
         end
     end
 
-    if isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+    if br.isChecked("Group CD's with DPS key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
         -- popping CD's with DPS Key
         if cast.holyAvenger() then
             return true
@@ -703,25 +703,25 @@ actionList.dps = function()
             return true
         end
         --trinkets w/CD
-        if isChecked("Trinket 1") and getOptionValue("Trinket 1 Mode") == 5 and inCombat then
-            if canUseItem(13) then
-                useItem(13)
+        if br.isChecked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+            if br.canUseItem(13) then
+                br.useItem(13)
             end
         end
-        if isChecked("Trinket 2") and getOptionValue("Trinket 1 Mode") == 5 and inCombat then
-            if canUseItem(14) then
-                useItem(14)
+        if br.isChecked("Trinket 2") and br.getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+            if br.canUseItem(14) then
+                br.useItem(14)
             end
         end
     end
 
-    if (inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 15
-            or #tanks > 0 and getDistance(tanks[1].unit) >= 90)
-            or (inRaid and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 40 or #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+    if (inInstance and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 15
+            or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
+            or (inRaid and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 40 or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
             or not inInstance or not inRaid or solo then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and getFacing("player", thisUnit) then
+            if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and br.getFacing("player", thisUnit) then
                 if cast.holyShock(thisUnit) then
                     br.addonDebug("[DPS]HolyShock on " .. UnitName(thisUnit) .. " w/Glimmer")
                     return true
@@ -735,19 +735,19 @@ actionList.dps = function()
     end
 
     --using DPS trinkets
-    if isChecked("Trinket 1") and getOptionValue("Trinket 1 Mode") == 4 and inCombat then
-        if canUseItem(13) then
-            useItem(13)
+    if br.isChecked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
+        if br.canUseItem(13) then
+            br.useItem(13)
         end
     end
-    if isChecked("Trinket 2") and getOptionValue("Trinket 2 Mode") == 4 and inCombat then
-        if canUseItem(14) then
-            useItem(14)
+    if br.isChecked("Trinket 2") and br.getOptionValue("Trinket 2 Mode") == 4 and inCombat then
+        if br.canUseItem(14) then
+            br.useItem(14)
         end
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) and getFacing("player", units.dyn5) and #enemies.yards8 >= 1 then
+    if cast.able.crusaderStrike() and ((talent.crusadersMight and cd.holyShock.remain() >= 1.5) or not talent.crusadersMight) and br.getFacing("player", units.dyn5) and #enemies.yards8 >= 1 then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[DPSx]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
@@ -757,27 +757,27 @@ end
 
 actionList.Extra = function()
 
-    if isChecked("Use Blinding Light on TFTB") or isChecked("Use Hammer of Justice on TFTB") then
+    if br.isChecked("Use Blinding Light on TFTB") or br.isChecked("Use Hammer of Justice on TFTB") then
 
         local stun = 0
 
-        if talent.blindingLight and cast.able.blindingLight() and isChecked("Use Blinding Light on TFTB") then
+        if talent.blindingLight and cast.able.blindingLight() and br.isChecked("Use Blinding Light on TFTB") then
             stun = 115750
-        elseif isChecked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
+        elseif br.isChecked("Use Hammer of Justice on TFTB") and cast.able.hammerOfJustice() then
             stun = 853
         end
 
         for i = 1, GetObjectCount() do
             local object = GetObjectWithIndex(i)
-            local ID = ObjectID(object)
+            local ID = br._G.ObjectID(object)
 
             if stun ~= 0 then
                 if ID == 161895 and not isLongTimeCCed(object) and not debuff.blindingLight.exists(object) and not debuff.hammerOfJustice.exists(object) then
-                    local x1, y1, z1 = ObjectPosition("player")
-                    local x2, y2, z2 = ObjectPosition(object)
+                    local x1, y1, z1 = br._G.ObjectPosition("player")
+                    local x2, y2, z2 = br._G.ObjectPosition(object)
                     local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                     if distance < 10 then
-                        CastSpellByName(GetSpellInfo(stun), object)
+                        br._G.CastSpellByName(GetSpellInfo(stun), object)
                         return true
                     end
                 end
@@ -793,39 +793,39 @@ actionList.Defensive = function()
 
     if useDefensive() then
         --engineering belt / plate pants
-        if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUseItem(6) then
-            useItem(6)
+        if br.isChecked("Engineering Belt") and php <= br.getOptionValue("Engineering Belt") and br.canUseItem(6) then
+            br.useItem(6)
         end
 
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
-        if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
-            if canUseItem(166799) then
-                useItem(166799)
-            elseif canUseItem(5512) then
-                useItem(5512)
-            elseif canUseItem(156634) then
-                useItem(156634)
-            elseif canUseItem(169451) then
-                useItem(169451)
-            elseif canUseItem(getHealthPot()) then
-                useItem(getHealthPot())
-            elseif canUseItem(getHealthPot()) then
-                useItem(getHealthPot())
+        if br.isChecked("Pot/Stoned") and php <= br.getValue("Pot/Stoned") and (hasHealthPot() or br.hasItem(5512) or br.hasItem(156634)) then
+            if br.canUseItem(166799) then
+                br.useItem(166799)
+            elseif br.canUseItem(5512) then
+                br.useItem(5512)
+            elseif br.canUseItem(156634) then
+                br.useItem(156634)
+            elseif br.canUseItem(169451) then
+                br.useItem(169451)
+            elseif br.canUseItem(getHealthPot()) then
+                br.useItem(getHealthPot())
+            elseif br.canUseItem(getHealthPot()) then
+                br.useItem(getHealthPot())
             end
         end
 
         -- Gift of the Naaru
-        if isChecked("Gift of The Naaru") and php <= getOptionValue("Gift of The Naaru") and php > 0 and br.player.race == "Draenei" then
+        if br.isChecked("Gift of The Naaru") and php <= br.getOptionValue("Gift of The Naaru") and php > 0 and br.player.race == "Draenei" then
             if castSpell("player", racial, false, false, false) then
                 return true
             end
         end
 
         -- Divine Shield
-        if isChecked("Divine Shield") and cast.able.divineShield() and not UnitDebuffID("player", 25771) then
-            if (php <= getOptionValue("Divine Shield") --health check
-                    or UnitDebuffID("player", 272571)) --choking water in siege
-                    or UnitDebuffID("player", 255421) --Devour
+        if br.isChecked("Divine Shield") and cast.able.divineShield() and not br.UnitDebuffID("player", 25771) then
+            if (php <= br.getOptionValue("Divine Shield") --health check
+                    or br.UnitDebuffID("player", 272571)) --choking water in siege
+                    or br.UnitDebuffID("player", 255421) --Devour
             then
                 if cast.divineShield() then
                     return true
@@ -835,8 +835,8 @@ actionList.Defensive = function()
 
 
         --	Divine Protection
-        if isChecked("Divine Protection") and cast.able.divineProtection() and not buff.divineShield.exists("player") then
-            if php <= getOptionValue("Divine Protection") then
+        if br.isChecked("Divine Protection") and cast.able.divineProtection() and not buff.divineShield.exists("player") then
+            if php <= br.getOptionValue("Divine Protection") then
                 if cast.divineProtection() then
                     return true
                 end
@@ -848,10 +848,10 @@ actionList.Defensive = function()
         end
 
         --shroudOfResolve / cloak
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and getDebuffStacks("player", 315161) >= getOptionValue("Eye Of Corruption Stacks - Cloak")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+        if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) then
+            if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                    or br.getValue("Use Cloak") == 2 and br.getDebuffStacks("player", 315161) >= br.getOptionValue("Eye Of Corruption Stacks - Cloak")
+                    or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                 if br.player.use.shroudOfResolve() then
                     return
                 end
@@ -860,9 +860,9 @@ actionList.Defensive = function()
 
 
         -- Blessing of Freedom
-        if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and isMoving("player")
+        if br.isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and isMoving("player")
                 and (hasNoControl(spell.blessingOfFreedom)
-                or isChecked("Use Blessing of Freedom for Snare") and debuff.graspingTendrils.exists("player")
+                or br.isChecked("Use Blessing of Freedom for Snare") and debuff.graspingTendrils.exists("player")
                 or debuff.vileCorruption.exists("player")) then
             if cast.blessingOfFreedom("player") then
                 return true
@@ -876,9 +876,9 @@ end -- End Action List - Defensive
 
 actionList.Interrupt = function()
 
-    if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() then
+    if br.isChecked("Hammer of Justice") and cast.able.hammerOfJustice() then
         for i = 1, #br.friend do
-            if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit, 272407) == 0 and br.friend[i].distance <= 10 then
+            if UnitIsCharmed(br.friend[i].unit) and br.getDebuffRemain(br.friend[i].unit, 272407) == 0 and br.friend[i].distance <= 10 then
                 if cast.hammerOfJustice(thisUnit) then
                     return true
                 end
@@ -923,8 +923,8 @@ actionList.Interrupt = function()
         }
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
-            local distance = getDistance(thisUnit)
-            if (HOJ_unitList[GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
+            local distance = br.getDistance(thisUnit)
+            if (HOJ_unitList[br.GetObjectID(thisUnit)] ~= nil or HOJ_list[select(9, UnitCastingInfo(thisUnit))] ~= nil or HOJ_list[select(7, GetSpellInfo(UnitChannelInfo(thisUnit)))] ~= nil) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
                 if cast.hammerOfJustice(thisUnit) then
                     return true
                 end
@@ -932,22 +932,22 @@ actionList.Interrupt = function()
         end
     end
 
-    if useInterrupts() and (cast.able.blindingLight() or cast.able.hammerOfJustice()) and (isChecked("Hammer of Justice") or isChecked("Blinding Light")) then
+    if useInterrupts() and (cast.able.blindingLight() or cast.able.hammerOfJustice()) and (br.isChecked("Hammer of Justice") or br.isChecked("Blinding Light")) then
         for i = 1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
-            local distance = getDistance(thisUnit)
-            if canInterrupt(thisUnit, 99) and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)] == nil and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+            local distance = br.getDistance(thisUnit)
+            if br.canInterrupt(thisUnit, 99) and distance <= 10 and not br.isBoss(thisUnit) and StunsBlackList[br.GetObjectID(thisUnit)] == nil and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
                 -- Blinding Light
-                if isChecked("Blinding Light") then
+                if br.isChecked("Blinding Light") then
                     if cast.blindingLight() then
                         return true
                     end
                 end
                 -- Hammer of Justice
-                if isChecked("Hammer of Justice") and cast.able.hammerOfJustice()
-                        and getBuffRemain(thisUnit, 226510) == 0 -- never stun in Sanguine
+                if br.isChecked("Hammer of Justice") and cast.able.hammerOfJustice()
+                        and br.getBuffRemain(thisUnit, 226510) == 0 -- never stun in Sanguine
                         and not isExplosive(thisUnit)
-                        and (thisUnit == 130488 and isChecked("ML - Stun jockeys") or thisUnit ~= 130488)
+                        and (thisUnit == 130488 and br.isChecked("ML - Stun jockeys") or thisUnit ~= 130488)
                 then
                     if cast.hammerOfJustice(thisUnit) then
                         return true
@@ -957,10 +957,10 @@ actionList.Interrupt = function()
         end
     end
     -- Repentance as interrupt
-    if useInterrupts() and talent.repentance and cast.able.repentance() and isChecked("Repentance as Interrupt") then
+    if useInterrupts() and talent.repentance and cast.able.repentance() and br.isChecked("Repentance as Interrupt") then
         for i = 1, #enemies.yards30 do
             thisUnit = enemies.yards30[i]
-            if canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > getCastTime(spell.repentance) and StunsBlackList[GetObjectID(thisUnit)] == nil and not isBoss(thisUnit) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
+            if br.canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > getCastTime(spell.repentance) and StunsBlackList[br.GetObjectID(thisUnit)] == nil and not br.isBoss(thisUnit) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and UnitCreatureType(thisUnit) == CC_CreatureTypeList[i] then
                 if cast.repentance(thisUnit) then
                     return true
                 end
@@ -975,59 +975,59 @@ actionList.Cooldown = function()
     if mode.pots == 1 then
         local auto_pot
         if #enemies.yards8 == 1 and noConc("target") then
-            auto_pot = getOptionValue("Pots - 1 target (Boss)")
+            auto_pot = br.getOptionValue("Pots - 1 target (Boss)")
         elseif #enemies.yards8 >= 2 and #enemies.yards8 <= 3 then
-            auto_pot = getOptionValue("Pots - 2-3 targets")
+            auto_pot = br.getOptionValue("Pots - 2-3 targets")
         elseif #enemies.yards8 >= 4 then
-            auto_pot = getOptionValue("Pots - 4+ target")
+            auto_pot = br.getOptionValue("Pots - 4+ target")
         end
 
         if auto_pot ~= 1 and (buff.avengingWrath.remain() > 12 or buff.avengingCrusader.remain() > 12) then
 
-            if auto_pot == 2 and canUseItem(163222) then
-                useItem(163222)
-            elseif auto_pot == 3 and canUseItem(152559) then
-                useItem(152559)
-            elseif auto_pot == 4 and canUseItem(109218) then
-                useItem(109218)
-            elseif auto_pot == 5 and canUseItem(142117) then
-                useItem(142117)
-            elseif auto_pot == 6 and #enemies.yards8 > 3 and canUseItem(168529) then
-                useItem(168529)
-            elseif auto_pot == 7 and canUseItem(168506) then
-                useItem(168506)
-            elseif auto_pot == 8 and canUseItem(168498) then
-                useItem(168498)
-            elseif auto_pot == 9 and canUseItem(169299) then
-                useItem(169299)
+            if auto_pot == 2 and br.canUseItem(163222) then
+                br.useItem(163222)
+            elseif auto_pot == 3 and br.canUseItem(152559) then
+                br.useItem(152559)
+            elseif auto_pot == 4 and br.canUseItem(109218) then
+                br.useItem(109218)
+            elseif auto_pot == 5 and br.canUseItem(142117) then
+                br.useItem(142117)
+            elseif auto_pot == 6 and #enemies.yards8 > 3 and br.canUseItem(168529) then
+                br.useItem(168529)
+            elseif auto_pot == 7 and br.canUseItem(168506) then
+                br.useItem(168506)
+            elseif auto_pot == 8 and br.canUseItem(168498) then
+                br.useItem(168498)
+            elseif auto_pot == 9 and br.canUseItem(169299) then
+                br.useItem(169299)
             end
         end
     end  -- end pots
 
-    if isChecked("Bursting") and inInstance and #tanks > 0 then
-        Burststack = getDebuffStacks(tanks[1].unit, 240443)
+    if br.isChecked("Bursting") and inInstance and #tanks > 0 then
+        Burststack = br.getDebuffStacks(tanks[1].unit, 240443)
     end
     --burst check
-    if Burststack >= getOptionValue("Burst Essence/items") then
+    if Burststack >= br.getOptionValue("Burst Essence/items") then
         burst = true
     end
     -- Mana Potion
-    if isChecked("Mana Potion") and br.player.power.mana.percent() <= getValue("Mana Potion") then
-        if hasItem(152495) and canUseItem(152495) then
-            useItem(152495)
+    if br.isChecked("Mana Potion") and br.player.power.mana.percent() <= br.getValue("Mana Potion") then
+        if br.hasItem(152495) and br.canUseItem(152495) then
+            br.useItem(152495)
         end
-        if hasItem(127835) and canUseItem(127835) then
-            useItem(127835)
+        if br.hasItem(127835) and br.canUseItem(127835) then
+            br.useItem(127835)
         end
     end
     -- Arcane Torrent
-    if isChecked("Arcane Torrent Dispel") and race == "BloodElf" and getSpellCD(69179) == 0 then
+    if br.isChecked("Arcane Torrent Dispel") and race == "BloodElf" and br.getSpellCD(69179) == 0 then
         local torrentUnit = 0
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
-            if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+            if br.canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
                 torrentUnit = torrentUnit + 1
-                if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
+                if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
                     if castSpell("player", racial, false, false, false) then
                         return true
                     end
@@ -1036,14 +1036,14 @@ actionList.Cooldown = function()
             end
         end
     end
-    if isChecked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and cast.able.racial() and br.player.power.mana.percent() < getOptionValue("Arcane Torrent Mana") then
+    if br.isChecked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and cast.able.racial() and br.player.power.mana.percent() < br.getOptionValue("Arcane Torrent Mana") then
         if castSpell("player", racial, false, false, false) then
             return true
         end
     end
     -- Light's Judgment
-    if isChecked("Light's Judgment") and race == "LightforgedDraenei" and getSpellCD(255647) == 0 then
-        if #enemies.yards40 >= getValue("Light's Judgment") then
+    if br.isChecked("Light's Judgment") and race == "LightforgedDraenei" and br.getSpellCD(255647) == 0 then
+        if #enemies.yards40 >= br.getValue("Light's Judgment") then
             if cast.lightsJudgment(getBiggestUnitCluster(40, 5)) then
                 return true
             end
@@ -1053,20 +1053,20 @@ actionList.Cooldown = function()
 
     --Concentrated Flame
     -- Concentrated Flame Heal
-    if essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
-        if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and getLineOfSight(lowest.unit) and getDistance(lowest.unit) <= 40 then
+    if essence.concentratedFlame.active and br.getSpellCD(295373) <= gcd then
+        if br.isChecked("ConcentratedFlame - Heal") and lowest.hp <= br.getValue("ConcentratedFlame - Heal") and br.getLineOfSight(lowest.unit) and br.getDistance(lowest.unit) <= 40 then
             if cast.concentratedFlame(lowest.unit) then
                 return true
             end
         end
-        if isChecked("ConcentratedFlame - DPS") and getTTD(units.dyn30) > 5 and not debuff.concentratedFlame.exists(units.dyn30) and not cast.last.concentratedFlame() then
+        if br.isChecked("ConcentratedFlame - DPS") and br.getTTD(units.dyn30) > 5 and not debuff.concentratedFlame.exists(units.dyn30) and not cast.last.concentratedFlame() then
             if cast.concentratedFlame(units.dyn30) then
                 return true
             end
         end
     end
     --lucid dreams
-    if isChecked("Memory of Lucid Dreams") and getSpellCD(298357) <= gcd and getMana("player") <= getValue("Memory of Lucid Dreams") then
+    if br.isChecked("Memory of Lucid Dreams") and br.getSpellCD(298357) <= gcd and getMana("player") <= br.getValue("Memory of Lucid Dreams") then
         if cast.memoryOfLucidDreams() then
             return
         end
@@ -1074,21 +1074,21 @@ actionList.Cooldown = function()
     -- the ever rising ride
     --overchargeMana
 
-    if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd then
-        if getOptionValue("Ever Rising Tide") == 1 then
+    if br.isChecked("Ever Rising Tide") and essence.overchargeMana.active and br.getSpellCD(296072) <= gcd then
+        if br.getOptionValue("Ever Rising Tide") == 1 then
             if cast.overchargeMana() then
                 return
             end
         end
-        if getOptionValue("Ever Rising Tide") == 2 then
+        if br.getOptionValue("Ever Rising Tide") == 2 then
             if (buff.avengingWrath.exists() and mode.DPS ~= 3) or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
                 if cast.overchargeMana() then
                     return
                 end
             end
         end
-        if getOptionValue("Ever Rising Tide") == 3 then
-            if lowest.hp < getOptionValue("Ever Rising Tide - Health") or burst == true then
+        if br.getOptionValue("Ever Rising Tide") == 3 then
+            if lowest.hp < br.getOptionValue("Ever Rising Tide - Health") or burst == true then
                 if cast.overchargeMana() then
                     return
                 end
@@ -1096,19 +1096,19 @@ actionList.Cooldown = function()
         end
     end
     --"Well of Existence  - Health"
-    if isChecked("Well of Existence  - Health") and essence.refreshment.active and getSpellCD(296197) <= gcd then
-        if lowest.hp < getOptionValue("Well of Existence  - Health") or burst == true then
+    if br.isChecked("Well of Existence  - Health") and essence.refreshment.active and br.getSpellCD(296197) <= gcd then
+        if lowest.hp < br.getOptionValue("Well of Existence  - Health") or burst == true then
             if cast.refreshment(lowest.unit) then
                 return true
             end
         end
     end
     --Seed of Eonar
-    if isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
+    if br.isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
         for i = 1, #br.friend do
             if UnitInRange(br.friend[i].unit) then
-                local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Seed of Eonar"), #br.friend)
-                if #lowHealthCandidates >= getValue("Seed of Eonar Targets") and not moving or burst == true then
+                local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, br.getValue("Seed of Eonar"), #br.friend)
+                if #lowHealthCandidates >= br.getValue("Seed of Eonar Targets") and not moving or burst == true then
                     if cast.lifeBindersInvocation() then
                         return true
                     end
@@ -1124,7 +1124,7 @@ actionList.Cooldown = function()
 
     if cast.able.blessingOfProtection() or cast.able.blessingOfFreedom() then
         for i = 1, #br.friend do
-            if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
+            if br.isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     local _, _, _, _, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
@@ -1135,27 +1135,27 @@ actionList.Cooldown = function()
                         return true
                     end
                 end
-                if (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0) -- barrel in FH
-                        or getDebuffRemain(br.friend[i].unit, 258058) ~= 0 -- squuuuuze in TD
-                        or getDebuffRemain(br.friend[i].unit, 257478) ~= 0 --crippling-bite in FH
-                        or getDebuffRemain(br.friend[i].unit, 274383) ~= 0 -- rat-traps in FH
-                        or getDebuffRemain(br.friend[i].unit, 257747) ~= 0 -- earth-shaker in FH
-                        or getDebuffRemain(br.friend[i].unit, 268050) ~= 0 -- anchor-of-binding in Shrine
-                        or getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
-                        or getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
+                if (br.isChecked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0) -- barrel in FH
+                        or br.getDebuffRemain(br.friend[i].unit, 258058) ~= 0 -- squuuuuze in TD
+                        or br.getDebuffRemain(br.friend[i].unit, 257478) ~= 0 --crippling-bite in FH
+                        or br.getDebuffRemain(br.friend[i].unit, 274383) ~= 0 -- rat-traps in FH
+                        or br.getDebuffRemain(br.friend[i].unit, 257747) ~= 0 -- earth-shaker in FH
+                        or br.getDebuffRemain(br.friend[i].unit, 268050) ~= 0 -- anchor-of-binding in Shrine
+                        or br.getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
+                        or br.getDebuffRemain(br.friend[i].unit, 267899) ~= 0 -- hindering-cleave in Shrine
                 then
                     if cast.blessingOfFreedom(br.friend[i].unit) then
                         return true
                     end
                 end
             end
-            if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() then
-                if (br.friend[i].hp <= getValue("Blessing of Protection")
-                        or getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
-                        or (getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
-                        or (isChecked("Tol Dagor - Deadeye") and getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
-                        or (isChecked("Freehold - Blackout Barrel") and getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
-                        or (isChecked("KR - Severing axe") and getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
+            if br.isChecked("Blessing of Protection") and cast.able.blessingOfProtection() then
+                if (br.friend[i].hp <= br.getValue("Blessing of Protection")
+                        or br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                        or (br.getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and (br.friend[i].unit ~= "player" or cd.divineProtection.remain() > 0)) -- Devour
+                        or (br.isChecked("Tol Dagor - Deadeye") and br.getDebuffRemain(br.friend[i].unit, 256038) ~= 0 and br.friend[i].unit ~= "player"))
+                        or (br.isChecked("Freehold - Blackout Barrel") and br.getDebuffRemain(br.friend[i].unit, 258875) ~= 0)
+                        or (br.isChecked("KR - Severing axe") and br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0)
                 then
                     if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit)
                             and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
@@ -1169,8 +1169,8 @@ actionList.Cooldown = function()
     end
 
     -- Lay on Hands        --LoH / LayonHands
-    if isChecked("Lay on Hands") and cast.able.layOnHands(br.friend[1].unit) and not debuff.forbearance.exists(br.friend[1].unit) and UnitInRange(br.friend[1].unit) then
-        if lowest.hp <= getValue("Lay on Hands") then
+    if br.isChecked("Lay on Hands") and cast.able.layOnHands(br.friend[1].unit) and not debuff.forbearance.exists(br.friend[1].unit) and UnitInRange(br.friend[1].unit) then
+        if lowest.hp <= br.getValue("Lay on Hands") then
             if cast.layOnHands(lowest.unit) then
                 return true
             end
@@ -1180,20 +1180,20 @@ actionList.Cooldown = function()
     -- Blessing of Sacrifice
 
 
-    if isChecked("Blessing of Sacrifice") and cast.able.blessingOfSacrifice() and inCombat then
-        if getOptionValue("BoS Target") == 2 then
+    if br.isChecked("Blessing of Sacrifice") and cast.able.blessingOfSacrifice() and inCombat then
+        if br.getOptionValue("BoS Target") == 2 then
             -- tank only
             for i = 1, #tanks do
-                if tanks[i].hp <= getValue("Blessing of Sacrifice") then
+                if tanks[i].hp <= br.getValue("Blessing of Sacrifice") then
                     if cast.blessingOfSacrifice(tanks[i].unit) then
                         return true
                     end
                 end
             end
-        elseif getOptionValue("BoS Target") == 1 then
+        elseif br.getOptionValue("BoS Target") == 1 then
             -- "all"
             for i = 1, #br.friend do
-                if br.friend[i].hp <= getValue("Blessing of Sacrifice") and not GetUnitIsUnit(br.friend[i].unit, "player") then
+                if br.friend[i].hp <= br.getValue("Blessing of Sacrifice") and not br.GetUnitIsUnit(br.friend[i].unit, "player") then
                     if cast.blessingOfSacrifice(br.friend[i].unit) then
                         return true
                     end
@@ -1203,23 +1203,23 @@ actionList.Cooldown = function()
     end
 
     -- Trinkets
-    if isChecked("Trinket 1") and canUseItem(13) then
-        if getOptionValue("Trinket 1 Mode") == 1 then
-            if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-                useItem(13)
+    if br.isChecked("Trinket 1") and br.canUseItem(13) then
+        if br.getOptionValue("Trinket 1 Mode") == 1 then
+            if getLowAllies(br.getValue("Trinket 1")) >= br.getValue("Min Trinket 1 Targets") then
+                br.useItem(13)
                 return true
             end
-        elseif getOptionValue("Trinket 1 Mode") == 2 then
+        elseif br.getOptionValue("Trinket 1 Mode") == 2 then
             for i = 1, #br.friend do
-                if br.friend[i].hp <= getValue("Trinket 1") then
-                    UseItemByName(select(1, GetInventoryItemID("player", 13)), br.friend[i].unit)
+                if br.friend[i].hp <= br.getValue("Trinket 1") then
+                    UseItemByName(select(1, _G.GetInventoryItemID("player", 13)), br.friend[i].unit)
                     return true
                 end
             end
-        elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
+        elseif br.getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
             for i = 1, #tanks do
                 -- get the tank's target
-                local tankTarget = UnitTarget(tanks[i].unit)
+                local tankTarget = br._G.UnitTarget(tanks[i].unit)
                 if tankTarget ~= nil then
                     -- get players in melee range of tank's target
                     local meleeFriends = getAllies(tankTarget, 5)
@@ -1230,45 +1230,45 @@ actionList.Cooldown = function()
                     else
                         local meleeHurt = {}
                         for j = 1, #meleeFriends do
-                            if meleeFriends[j].hp < getValue("Trinket 1") then
+                            if meleeFriends[j].hp < br.getValue("Trinket 1") then
                                 tinsert(meleeHurt, meleeFriends[j])
                             end
                         end
-                        if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
+                        if #meleeHurt >= br.getValue("Min Trinket 1 Targets") or burst == true then
                             loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                         end
                     end
                     if loc ~= nil then
-                        useItem(13)
+                        br.useItem(13)
                         ClickPosition(loc.x, loc.y, loc.z)
                         return true
                     end
                 end
             end
-        elseif getOptionValue("Trinket 1 Mode") == 4 and inCombat then
-            if canUseItem(13) then
-                useItem(13)
+        elseif br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
+            if br.canUseItem(13) then
+                br.useItem(13)
             end
         end
     end
 
-    if isChecked("Trinket 2") and canUseItem(14) then
-        if getOptionValue("Trinket 2 Mode") == 1 then
-            if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-                useItem(14)
+    if br.isChecked("Trinket 2") and br.canUseItem(14) then
+        if br.getOptionValue("Trinket 2 Mode") == 1 then
+            if getLowAllies(br.getValue("Trinket 2")) >= br.getValue("Min Trinket 2 Targets") then
+                br.useItem(14)
                 return true
             end
-        elseif getOptionValue("Trinket 2 Mode") == 2 then
+        elseif br.getOptionValue("Trinket 2 Mode") == 2 then
             for i = 1, #br.friend do
-                if br.friend[i].hp <= getValue("Trinket 2") then
-                    UseItemByName(select(1, GetInventoryItemID("player", 14)), br.friend[i].unit)
+                if br.friend[i].hp <= br.getValue("Trinket 2") then
+                    UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), br.friend[i].unit)
                     return true
                 end
             end
-        elseif getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
+        elseif br.getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
             for i = 1, #tanks do
                 -- get the tank's target
-                local tankTarget = UnitTarget(tanks[i].unit)
+                local tankTarget = br._G.UnitTarget(tanks[i].unit)
                 if tankTarget ~= nil then
                     -- get players in melee range of tank's target
                     local meleeFriends = getAllies(tankTarget, 5)
@@ -1279,56 +1279,56 @@ actionList.Cooldown = function()
                     else
                         local meleeHurt = {}
                         for j = 1, #meleeFriends do
-                            if meleeFriends[j].hp < getValue("Trinket 2") then
+                            if meleeFriends[j].hp < br.getValue("Trinket 2") then
                                 tinsert(meleeHurt, meleeFriends[j])
                             end
                         end
-                        if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
+                        if #meleeHurt >= br.getValue("Min Trinket 2 Targets") or burst == true then
                             loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                         end
                     end
                     if loc ~= nil then
-                        useItem(14)
+                        br.useItem(14)
                         ClickPosition(loc.x, loc.y, loc.z)
                         return true
                     end
                 end
             end
-        elseif getOptionValue("Trinket 1 Mode") == 4 then
-            if canUseItem(14) and ttd(units.dyn40) > 5 then
-                UseItemByName(select(1, GetInventoryItemID("player", 14)), units.dyn40)
+        elseif br.getOptionValue("Trinket 1 Mode") == 4 then
+            if br.canUseItem(14) and ttd(units.dyn40) > 5 then
+                UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), units.dyn40)
                 return true
             end
         end
     end
 
     -- Holy Avenger
-    if isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger then
-        if getLowAllies(getValue "Holy Avenger") >= getValue("Holy Avenger Targets") then
+    if br.isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger then
+        if getLowAllies(br.getValue "Holy Avenger") >= br.getValue("Holy Avenger Targets") then
             if cast.holyAvenger() then
                 return true
             end
         end
     end
     -- Avenging Wrath
-    if isChecked("Avenging Wrath") and cast.able.avengingWrath() and not talent.avengingCrusader then
-        if getLowAllies(getValue "Avenging Wrath") >= getValue("Avenging Wrath Targets") then
+    if br.isChecked("Avenging Wrath") and cast.able.avengingWrath() and not talent.avengingCrusader then
+        if getLowAllies(br.getValue "Avenging Wrath") >= br.getValue("Avenging Wrath Targets") then
             if cast.avengingWrath() then
                 return true
             end
         end
     end
     -- Avenging Crusader
-    if isChecked("Avenging Crusader") and cast.able.avengingCrusader() and talent.avengingCrusader and getDistance("target") <= 5 then
-        if getLowAllies(getValue "Avenging Crusader") >= getValue("Avenging Crusader Targets") then
+    if br.isChecked("Avenging Crusader") and cast.able.avengingCrusader() and talent.avengingCrusader and br.getDistance("target") <= 5 then
+        if getLowAllies(br.getValue "Avenging Crusader") >= br.getValue("Avenging Crusader Targets") then
             if cast.avengingCrusader() then
                 return true
             end
         end
     end
     -- Aura Mastery
-    if isChecked("Aura Mastery") and cast.able.auraMastery() then
-        if getLowAllies(getValue "Aura Mastery") >= getValue("Aura Mastery Targets") then
+    if br.isChecked("Aura Mastery") and cast.able.auraMastery() then
+        if getLowAllies(br.getValue "Aura Mastery") >= br.getValue("Aura Mastery Targets") then
             if cast.auraMastery() then
                 return true
             end
@@ -1336,16 +1336,16 @@ actionList.Cooldown = function()
     end
 
     -- Unstable Temporal Time Shifter
-    if isChecked("Eng Brez") and canUseItem(158379) and not moving and inCombat and lowest.hp > getValue("Critical HP") then
-        if getOptionValue("Eng Brez") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+    if br.isChecked("Eng Brez") and br.canUseItem(158379) and not moving and inCombat and lowest.hp > br.getValue("Critical HP") then
+        if br.getOptionValue("Eng Brez") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
             UseItemByName(158379, "target")
         end
-        if getOptionValue("Eng Brez") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+        if br.getOptionValue("Eng Brez") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
             UseItemByName(158379, "mouseover")
         end
-        if getOptionValue("Eng Brez") == 3 then
+        if br.getOptionValue("Eng Brez") == 3 then
             for i = 1, #br.friend do
-                if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
+                if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
                     UseItemByName(158379, br.friend[i].unit)
                 end
             end
@@ -1361,14 +1361,14 @@ end
 actionList.heal = function()
     -- heal()
 
-    --  Print("lowest:" .. UnitName(lowest.unit) .. " at: " .. round(getHP(lowest.unit), 2))
+    --  Print("lowest:" .. UnitName(lowest.unit) .. " at: " .. round(br.getHP(lowest.unit), 2))
 
     --checking for HE
     if br.data.settings[br.selectedSpec][br.selectedProfile]["HE ActiveCheck"] == false and br.timer:useTimer("Error delay", 3.5) then
         Print("HEAL ENGINE IS NOT ON - HEAL ENGINE NEED TO BE ON - YOU SHOULD TURN THE HEAL ENGINE ON.")
         return
     end
-    -- tanks = getTanksTable()
+    -- tanks = br.getTanksTable()
     -- always a beacon up on tank
     local LightCount = 0
     local FaithCount = 0
@@ -1404,13 +1404,13 @@ actionList.heal = function()
 
     --Critical first
     if healTarget == "none" then
-        if php <= getValue("Critical HP") then
+        if php <= br.getValue("Critical HP") then
             healTarget = "player"
             healReason = "CRIT"
         end
     end
     if healTarget == "none" then
-        if lowest.hp <= getValue("Critical HP") and getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
+        if lowest.hp <= br.getValue("Critical HP") and br.getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
             healTarget = lowest.unit
             healReason = "CRIT"
         end
@@ -1420,7 +1420,7 @@ actionList.heal = function()
         -- Junkyard
         if inInstance and inCombat and select(8, GetInstanceInfo()) == 2097 then
             for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 302274) ~= 0 --Fulminating Zap
+                if br.getDebuffRemain(br.friend[i].unit, 302274) ~= 0 --Fulminating Zap
                         and br.friend[i].hp < 80 then
                     healTarget = br.friend[i].unit
                     healReason = "BOSS"
@@ -1430,7 +1430,7 @@ actionList.heal = function()
         -- Waycrest Manor
         if inInstance and inCombat and select(8, GetInstanceInfo()) == 1862 then
             for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
+                if br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 --Jagged Nettles
                         and br.friend[i].hp < 95 then
                     healTarget = br.friend[i].unit
                     healReason = "BOSS"
@@ -1440,12 +1440,12 @@ actionList.heal = function()
         --Kings Rest
         if inInstance and inCombat and select(8, GetInstanceInfo()) == 1762 then
             for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 267626) ~= 0 -- Dessication
-                        or getDebuffRemain(br.friend[i].unit, 267618) ~= 0 -- Drain Fluids
-                        or getDebuffRemain(br.friend[i].unit, 266231) ~= 0 -- Severing axe from axe lady in council
-                        or getDebuffRemain(br.friend[i].unit, 272388) ~= 0 -- shadow barrage
-                        or getDebuffRemain(br.friend[i].unit, 265773) > 1 -- spit-gold
-                        or (getDebuffRemain(br.friend[i].unit, 270487) ~= 0 and getDebuffStacks(br.friend[i].unit, 270487) > 1) -- severing-blade
+                if br.getDebuffRemain(br.friend[i].unit, 267626) ~= 0 -- Dessication
+                        or br.getDebuffRemain(br.friend[i].unit, 267618) ~= 0 -- Drain Fluids
+                        or br.getDebuffRemain(br.friend[i].unit, 266231) ~= 0 -- Severing axe from axe lady in council
+                        or br.getDebuffRemain(br.friend[i].unit, 272388) ~= 0 -- shadow barrage
+                        or br.getDebuffRemain(br.friend[i].unit, 265773) > 1 -- spit-gold
+                        or (br.getDebuffRemain(br.friend[i].unit, 270487) ~= 0 and br.getDebuffStacks(br.friend[i].unit, 270487) > 1) -- severing-blade
                         and br.friend[i].hp < 95 then
                     healTarget = br.friend[i].unit
                     healReason = "BOSS"
@@ -1455,7 +1455,7 @@ actionList.heal = function()
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if cast.able.crusaderStrike() and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
+    if cast.able.crusaderStrike() and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and br.getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[FILL]CrusaderStrike on " .. UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
             return true
@@ -1464,11 +1464,11 @@ actionList.heal = function()
 
     if healTarget == "none" then
         --Grievous Wounds
-        if isChecked("Grievous Wounds") then
+        if br.isChecked("Grievous Wounds") then
             for i = 1, #br.friend do
-                if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
-                    local CurrentBleedstack = getDebuffStacks(br.friend[i].unit, 240559)
-                    if getDebuffStacks(br.friend[i].unit, 240559) >= getValue("Grievous Wounds") then
+                if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or br.GetUnitIsUnit(br.friend[i].unit, "player") then
+                    local CurrentBleedstack = br.getDebuffStacks(br.friend[i].unit, 240559)
+                    if br.getDebuffStacks(br.friend[i].unit, 240559) >= br.getValue("Grievous Wounds") then
                         BleedFriendCount = BleedFriendCount + 1
                     end
                     if CurrentBleedstack > BleedStack then
@@ -1487,13 +1487,13 @@ actionList.heal = function()
         --Last boss in temple
         if inCombat and br.player.eID and br.player.eID == 2127 then
             for i = 1, GetObjectCount() do
-                if GetObjectID(GetObjectWithIndex(i)) == 133392 and getHP(GetObjectWithIndex(i)) < 100 and getBuffRemain(GetObjectWithIndex(i), 274148) == 0 then
+                if br.GetObjectID(GetObjectWithIndex(i)) == 133392 and br.getHP(GetObjectWithIndex(i)) < 100 and br.getBuffRemain(GetObjectWithIndex(i), 274148) == 0 then
                     healTarget = GetObjectWithIndex(i)
                     healReason = "BOSS"
                 end
             end
         end
-        if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
+        if br.isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
             bossHelper()
         end
     end
@@ -1501,29 +1501,29 @@ actionList.heal = function()
     if cast.able.holyShock() then
         if healTarget == "none" and mode.glimmer == 3 and #tanks > 0 then
             for i = 1, #tanks do
-                if not UnitBuffID(tanks[i].unit, 287280, "PLAYER") and not UnitBuffID(tanks[i].unit, 115191) and getLineOfSight(tanks[i].unit, "player") then
+                if not br.UnitBuffID(tanks[i].unit, 287280, "PLAYER") and not br.UnitBuffID(tanks[i].unit, 115191) and br.getLineOfSight(tanks[i].unit, "player") then
                     healTarget = tanks[i].unit
                     healReason = "GLIM"
                 end
             end
         end
         if healTarget == "none" then
-            if lowest.hp <= getValue("Holy Shock") and (getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
+            if lowest.hp <= br.getValue("Holy Shock") and (br.getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
             end
         end
-        if healTarget == "none" and not br.player.inCombat and isChecked("OOC Glimmer") then
+        if healTarget == "none" and not br.player.inCombat and br.isChecked("OOC Glimmer") then
             -- ooc blanketting
             for i = 1, #br.friend do
-                if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and (getLineOfSight(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) or br.friend[i].unit == "player") then
+                if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and (br.getLineOfSight(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) or br.friend[i].unit == "player") then
                     healTarget = br.friend[i].unit
                     healReason = "GLIM"
                 end
             end
         end
         if healTarget ~= "none" then
-            healTargetHealth = round(getHP(healTarget), 1)
+            healTargetHealth = round(br.getHP(healTarget), 1)
             if cast.holyShock(healTarget) then
                 br.addonDebug("[" .. healReason .. "] Holyshock on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
                 healTarget = "none"
@@ -1532,16 +1532,16 @@ actionList.heal = function()
         end
     end -- end holy shock
     -- Light of Dawn
-    if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
+    if br.isChecked("Light of Dawn") and cast.able.lightOfDawn() then
         if EasyWoWToolbox == nil then
-            if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff)
+            if healConeAround(br.getValue("LoD Targets"), br.getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff)
             then
                 if cast.lightOfDawn() then
                     return true
                 end
             end
         else
-            if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+            if bestConeHeal(spell.lightOfDawn, br.getValue("LoD Targets"), br.getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
                 healTarget = "none"
                 return true
             end
@@ -1570,17 +1570,17 @@ actionList.heal = function()
 
     if cast.able.flashOfLight() and buff.infusionOfLight.exists() and not cast.last.flashOfLight() and not isMoving("player") then
         if healTarget == "none" then
-            if lowest.hp <= getValue("Infused Flash of Light") and (getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
+            if lowest.hp <= br.getValue("Infused Flash of Light") and (br.getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
-                --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < getValue("Infused Flash of Light")))
+                --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < br.getValue("Infused Flash of Light")))
             end
         end
         if healTarget ~= "none" then
-            healTargetHealth = round(getHP(healTarget), 1)
-            --   if healTargetHealth < getValue("Infused Flash of Light") then
+            healTargetHealth = round(br.getHP(healTarget), 1)
+            --   if healTargetHealth < br.getValue("Infused Flash of Light") then
             if cast.flashOfLight(healTarget) then
-                br.addonDebug("[" .. healReason .. "] (I)flashOfLight on: " .. UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (getValue("Infused Flash of Light")))
+                br.addonDebug("[" .. healReason .. "] (I)flashOfLight on: " .. UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (br.getValue("Infused Flash of Light")))
                 healTarget = "none"
                 return true
                 --      end
@@ -1591,17 +1591,17 @@ actionList.heal = function()
     --hs, dawn, flash(infused), Lotm, flash xxxxxx
     -- Light of Martyr
     if healTarget == "none" then
-        if isChecked("Light of the Martyr") and (php >= getOptionValue("LotM player HP limit") or buff.divineShield.exists("player")) and cast.able.lightOfTheMartyr()
-                and getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
-                and getDebuffStacks("player", 265773) == 0 -- not if we got spit gold on us then  then
-                and lowest.hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(lowest.unit, "player")
-                and getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
+        if br.isChecked("Light of the Martyr") and (php >= br.getOptionValue("LotM player HP limit") or buff.divineShield.exists("player")) and cast.able.lightOfTheMartyr()
+                and br.getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
+                and br.getDebuffStacks("player", 265773) == 0 -- not if we got spit gold on us then  then
+                and lowest.hp <= br.getValue("Light of the Martyr") and not br.GetUnitIsUnit(lowest.unit, "player")
+                and br.getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) then
             healTarget = lowest.unit
             healReason = "HEAL"
         end
     end
-    if healTarget ~= "none" and not GetUnitIsUnit(healTarget, "player") and getDebuffStacks("player", 267034) < 2 then
-        healTargetHealth = round(getHP(healTarget), 1)
+    if healTarget ~= "none" and not br.GetUnitIsUnit(healTarget, "player") and br.getDebuffStacks("player", 267034) < 2 then
+        healTargetHealth = round(br.getHP(healTarget), 1)
         if cast.lightOfTheMartyr(healTarget) then
             br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
             healTarget = "none"
@@ -1611,13 +1611,13 @@ actionList.heal = function()
 
     if cast.able.flashOfLight() and not isMoving("player") then
         if healTarget == "none" then
-            if lowest.hp <= getValue("Flash of Light") and (getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
+            if lowest.hp <= br.getValue("Flash of Light") and (br.getLineOfSight(lowest.unit, "player") and UnitInRange(lowest.unit) or lowest.unit == "player") then
                 healTarget = lowest.unit
                 healReason = "HEAL"
             end
         end
         if healTarget ~= "none" then
-            healTargetHealth = round(getHP(healTarget), 1)
+            healTargetHealth = round(br.getHP(healTarget), 1)
             if cast.flashOfLight(healTarget) then
                 br.addonDebug("[" .. healReason .. "] flashOfLight on: " .. UnitName(healTarget) .. "/" .. healTargetHealth)
                 healTarget = "none"
@@ -1662,7 +1662,7 @@ local function runRotation()
     units = br.player.units
     lowest = br.friend[1]
     use = br.player.use
-    tanks = getTanksTable()
+    tanks = br.getTanksTable()
     healTarget = "none"
     healReason = "none"
     healTargetHealth = 100
@@ -1671,10 +1671,10 @@ local function runRotation()
     solo = br.friends == 1
 
     -- General Locals
-    hastar = GetObjectExists("target")
+    hastar = br.GetObjectExists("target")
     healPot = getHealthPot()
     profileStop = profileStop or false
-    ttd = getTTD
+    ttd = br.getTTD
     haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4
     -- Units
     units.get(5)
@@ -1707,10 +1707,10 @@ local function runRotation()
         lightOfDawn_distance_coff = 1
         master_coff = 1.0
     end
-    if not isCastingSpell(spell.flashOfLight) then
+    if not br.isCastingSpell(spell.flashOfLight) then
         BOV = nil
     end
-    if not isCastingSpell(spell.flashOfLight) and not isCastingSpell(spell.holyLight) then
+    if not br.isCastingSpell(spell.flashOfLight) and not br.isCastingSpell(spell.holyLight) then
         healing_obj = nil
     end
 
@@ -1720,7 +1720,7 @@ local function runRotation()
                 glimmerCount = glimmerCount + 1
             end
         end
-        if isChecked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target", "exact") > gcd then
+        if br.isChecked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target", "exact") > gcd then
             glimmerCount = glimmerCount + 1
         end
     end
@@ -1740,7 +1740,7 @@ local function runRotation()
     ---------------------
     -- Profile Stop | Pause
     if (not IsMounted() or buff.divineSteed.exists()) then
-        if pause() or drinking or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) or isCastingSpell(212056) then
+        if pause() or drinking or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) or br.isCastingSpell(212056) then
             return true
         else
             if not inCombat then
@@ -1780,7 +1780,7 @@ local function runRotation()
                 if actionList.Extra() then
                     return true
                 end
-                if not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() or lowest.hp <= getOptionValue("Critical HP") then
+                if not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() or lowest.hp <= br.getOptionValue("Critical HP") then
                     if actionList.Defensive() then
                         return true
                     end

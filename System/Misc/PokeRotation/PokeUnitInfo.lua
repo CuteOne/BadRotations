@@ -4,13 +4,13 @@ if IsSwapping == nil then IsSwapping = GetTime() end
 function PetSwapper()
   -- Pet swap table --
   if not inBattle
-    and isChecked("Swap in Health")
-    and isChecked("Pet Leveling") then
-    local priorityValue = getValue("Leveling Priority");
+    and br.isChecked("Swap in Health")
+    and br.isChecked("Pet Leveling") then
+    local priorityValue = br.getValue("Leveling Priority");
     local swapTable = { }
     local ringnersTable = { }
     -- Pet Leveling Slot 1
-    if PetLevel(1) and PetLevel(1) >= getValue("Pet Leveling Max") or PetLevel(1) and PetLevel(1) < getValue("Pet Leveling") or JournalHealth(1) <= getValue("Swap in Health") then
+    if PetLevel(1) and PetLevel(1) >= br.getValue("Pet Leveling Max") or PetLevel(1) and PetLevel(1) < br.getValue("Pet Leveling") or JournalHealth(1) <= br.getValue("Swap in Health") then
 
       for i = 1, select(2,C_PetJournal.GetNumPets()) do
         petID, _, _, _, level, favorite, _, _, _, _, _, _, _, isWild, canBattle, _, _, _ = C_PetJournal.GetPetInfoByIndex(i)
@@ -18,7 +18,7 @@ function PetSwapper()
           if isWild then WildConvert = 1 else WildConvert = 0 end
           if favorite then FavoriteConvert = 1 else FavoriteConvert = 0 end
           if canBattle
-            and ( level < PetSwapValue and JournalHealthGUID(petID) >= getValue("Swap in Health") )
+            and ( level < PetSwapValue and JournalHealthGUID(petID) >= br.getValue("Swap in Health") )
             and level >= PetSwapMinValue
             and petID ~= C_PetJournal.GetPetLoadOutInfo(1)
             and petID ~= C_PetJournal.GetPetLoadOutInfo(2)
@@ -58,8 +58,8 @@ function PetSwapper()
 
     -- Other pets check health
     for i = 1, 3 do
-      if not ( i == 1 and isChecked("Pet Leveling") ) then
-        if ( JournalHealth(i) <= getValue("Swap in Health") or PetLevel(i) ~= 25 )then
+      if not ( i == 1 and br.isChecked("Pet Leveling") ) then
+        if ( JournalHealth(i) <= br.getValue("Swap in Health") or PetLevel(i) ~= 25 )then
 
 
           for j = 1, select(2,C_PetJournal.GetNumPets()) do
@@ -68,7 +68,7 @@ function PetSwapper()
               if isWild then WildConvert = 1 else WildConvert = 0 end
               if favorite then FavoriteConvert = 1 else FavoriteConvert = 0 end
               if canBattle
-                and JournalHealthGUID(petID) >= getValue("Swap in Health")
+                and JournalHealthGUID(petID) >= br.getValue("Swap in Health")
                 and level >= PetSwapMinValue
                 and petID ~= C_PetJournal.GetPetLoadOutInfo(1)
                 and petID ~= C_PetJournal.GetPetLoadOutInfo(2)
@@ -105,7 +105,7 @@ function getPets(Radius)
     local Guid = IGetObjectListEntry(i);
     ISetAsUnitID(Guid,"thisUnit");
     if (tonumber(string.sub(tostring(Guid), 5,5)) == 3 and UnitCreatureType("thisUnit") == "Wild Pet") then
-      if getDistance("player","thisUnit") <= Radius then
+      if br.getDistance("player","thisUnit") <= Radius then
         tinsert(petsTable,Guid);
       end
     end

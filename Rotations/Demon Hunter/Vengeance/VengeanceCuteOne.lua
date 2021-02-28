@@ -1,4 +1,3 @@
-local br = _G["br"]
 local rotationName = "CuteOne"
 
 ---------------
@@ -6,38 +5,38 @@ local rotationName = "CuteOne"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.soulCleave},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.soulCleave},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shear},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
-   	CreateButton("Cooldown",2,0)
+   	br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.demonSpikes},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.demonSpikes}
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- Mover
-    MoverModes = {
+    local MoverModes = {
         [1] = { mode = "On", value = 2 , overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 1, icon = br.player.spell.infernalStrike},
         [2] = { mode = "Off", value = 1 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.infernalStrike}
     };
-    CreateButton("Mover",5,0)
+    br.ui:createToggle(MoverModes,"Mover",5,0)
 end
 
 ---------------
@@ -160,17 +159,9 @@ local use
 local actionList    = {}
 local var           = {}
 -- WoW Globals to Varaibles
-var.clearTarget     = _G["ClearTarget"]
-var.getItemInfo     = _G["GetItemInfo"]
-var.getTime         = _G["GetTime"]
-var.stopAttack      = _G["StopAttack"]
-var.tonumber        = _G["tonumber"]
--- BR Globals to Variables
-var.canInterrupt    = _G["canInterrupt"]
-var.getCombatTime   = _G["getCombatTime"]
-var.hasThreat       = _G["hasThreat"]
-var.isTanking       = _G["isTanking"]
-var.pause           = _G["pause"]
+var.getItemInfo     = br._G.GetItemInfo
+var.getTime         = br._G.GetTime
+var.tonumber        = br._G.tonumber
 -- Profile Variables
 var.brandBuilt      = false
 var.inRaid          = false
@@ -185,9 +176,9 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                var.stopAttack()
-                var.clearTarget()
+            if unit.combatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.print(var.tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -197,7 +188,7 @@ actionList.Extras = function()
     if ui.checked("Torment") and cast.able.torment() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if not var.isTanking(thisUnit) and var.hasThreat(thisUnit) and not unit.isExplosive(thisUnit) then
+            if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) then
                 if cast.torment(thisUnit) then ui.debug("Casting Torment [Not Tanking]") return true end
             end
         end
@@ -268,7 +259,7 @@ actionList.Interrupts = function()
     if ui.useInterrupt() then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if var.canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                 -- Disrupt
                 if ui.checked("Disrupt") and cast.able.disrupt(thisUnit) and unit.distance(thisUnit) < 20 then
                     if cast.disrupt(thisUnit) then ui.debug("Casting Disrupt") return true end
@@ -436,8 +427,8 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists("target") and unit.distance("target") < 5 then
+                unit.startAttack("target")
             end
         end -- End Pull
     end -- End No Combat
@@ -488,9 +479,10 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop==true then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop==true) or unit.mounted() or unit.flying() or var.pause() or ui.mode.rotation==4 then
+    elseif (unit.inCombat() and var.profileStop==true) or unit.mounted() or unit.flying() or ui.pause() or ui.mode.rotation==4 then
         return true
     else
+        if actionList.Defensive() then return true end
         -----------------------
         --- Extras Rotation ---
         -----------------------
@@ -518,8 +510,8 @@ local function runRotation()
             ---------------------------
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                unit.startAttack(units.dyn5)
             end
             -- Consume Magic
             if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.isBoss("target") and unit.exists("target") then
@@ -549,7 +541,7 @@ local function runRotation()
 end -- End runRotation
 local id = 581
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

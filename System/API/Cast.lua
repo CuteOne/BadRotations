@@ -1,4 +1,4 @@
-local br = _G["br"]
+local _, br = ...
 if br.api == nil then br.api = {} end
 ----------------------
 --- ABOUT THIS API ---
@@ -41,13 +41,13 @@ br.api.cast = function(self,spell,id)
         predictPad - Pad the prediction cast time, predict must be "true".
     ]]
     cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad)
-        return createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad)
+        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad)
     end
 
     -- br.player.cast.able.spell() - same as above but instead of casting returns True/False
     if cast.able == nil then cast.able = {} end
     cast.able[spell] = function(thisUnit,debug,minUnits,effectRng,predict,predictPad)
-        return createCastFunction(thisUnit,"debug",minUnits,effectRng,id,spell,predict,predictPad)
+        return br.createCastFunction(thisUnit,"debug",minUnits,effectRng,id,spell,predict,predictPad)
     end
 
     -- br.player.cast.active.spell() - Returns if the spell is the one currently being cast.
@@ -60,12 +60,12 @@ br.api.cast = function(self,spell,id)
     if cast.active == nil then cast.active = {} end
     cast.active[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return isCastingSpell(id,thisUnit)
+        return br.isCastingSpell(id,thisUnit)
     end
 
     if cast.cancel == nil then cast.cancel = {} end
     cast.cancel[spell] = function()
-        local SpellStopCasting = _G["SpellStopCasting"]
+        local SpellStopCasting = br._G["SpellStopCasting"]
         if self.cast.current[spell]() then
             SpellStopCasting()
             return true
@@ -74,16 +74,16 @@ br.api.cast = function(self,spell,id)
     end
 
     -- br.player.cast.cost.spell() - Returns the cost of the spell
-    --[[Args: 
+    --[[Args:
         altPower = Set to "true" to return alternate power cost.
     ]]
     if cast.cost == nil then cast.cost = {} end
     cast.cost[spell] = function(altPower)
         if altPower == nil then altPower = false end
         if altPower then
-            return select(2,getSpellCost(id))
+            return select(2,br.getSpellCost(id))
         else
-            return select(1,getSpellCost(id))
+            return select(1,br.getSpellCost(id))
         end
     end
 
@@ -97,7 +97,7 @@ br.api.cast = function(self,spell,id)
     if cast.current == nil then cast.current = {} end
     cast.current[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return isCastingSpell(id,thisUnit)
+        return br.isCastingSpell(id,thisUnit)
     end
     
     -- br.player.cast.dispel.spell() - Returns if the spell if capable of dispelling the target.
@@ -110,13 +110,13 @@ br.api.cast = function(self,spell,id)
     if cast.dispel == nil then cast.dispel = {} end
     cast.dispel[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return canDispel(thisUnit,id) or false
+        return br.canDispel(thisUnit,id) or false
     end
 
     -- br.player.cast.form(formIndex) - Casts the form corresponding to the provided formIndex number
-    if cast.form == nil then 
+    if cast.form == nil then
         cast.form = function(formIndex)
-            local CastShapeshiftForm = _G["CastShapeshiftForm"]
+            local CastShapeshiftForm = br._G["CastShapeshiftForm"]
             if formIndex == nil then formIndex = 0 end
             return CastShapeshiftForm(formIndex)
         end
@@ -153,7 +153,7 @@ br.api.cast = function(self,spell,id)
     ]]
     if cast.last == nil then cast.last = {} end
     cast.last[spell] = function(index)
-        local tracker = br.lastCast.tracker
+        local tracker = br.lastCastTable.tracker
         index = index or 1
         return tracker[index] and tracker[index] == id
     end
@@ -161,14 +161,14 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.last.time.spell() - Returns the GetTime() value the last cast of this spell occured.
     if cast.last.time == nil then cast.last.time = {} end
     cast.last.time[spell] = function()
-        if br.lastCast.castTime[id] == nil then br.lastCast.castTime[id] = GetTime() end
-        return br.lastCast.castTime[id]
+        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
+        return br.lastCastTable.castTime[id]
     end
 
     -- br.player.cast.noControl.spell() - Returns true if the spell can free you of a "no control" effect.
     if cast.noControl == nil then cast.noControl = {} end
     cast.noControl[spell] = function(thisUnit)
-        local hasNoControl = _G["hasNoControl"]
+        local hasNoControl = br["hasNoControl"]
         if thisUnit == nil then thisUnit = "player" end
         return hasNoControl(id,thisUnit)
     end
@@ -182,9 +182,9 @@ br.api.cast = function(self,spell,id)
     end
 
     -- br.player.cast.openerFail("rip","RIP1",opener.count) -- Resets cast special opener condition if failed to cast
-    if cast.openerFail == nil then 
+    if cast.openerFail == nil then
         cast.openerFail = function(thisSpell,thisTracker,thisCount)
-            local castOpenerFail = _G["castOpenerFail"]
+            local castOpenerFail = br.castOpenerFail
             return castOpenerFail(thisSpell,thisTracker,thisCount)
         end
     end
@@ -197,7 +197,7 @@ br.api.cast = function(self,spell,id)
     ]]
     if cast.pool == nil then cast.pool = {} end
     cast.pool[spell] = function(altPower, specificAmt, multiplier)
-        local powerType = select(2, UnitPowerType("player")):lower()
+        local powerType = select(2, br._G.UnitPowerType("player")):lower()
         local power = br.player.power
         specificAmt = specificAmt or 0
         multiplier = multiplier or 1
@@ -209,13 +209,13 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.range.spell() - Returns the spells range, if it has one.
     if cast.range == nil then cast.range = {} end
     cast.range[spell] = function()
-        return getSpellRange(id)
+        return br.getSpellRange(id)
     end
 
     -- br.player.cast.regen.spell() - Returns the amount of power spell will generate when cast.
     if cast.regen == nil then cast.regen = {} end
     cast.regen[spell] = function()
-        return getCastingRegen(id)
+        return br.getCastingRegen(id)
     end
 
     -- br.player.cast.safe.spell() - Return if safe to cast specified aoe spell on unit given the aoe dimensions.
@@ -238,14 +238,14 @@ br.api.cast = function(self,spell,id)
     ]]
     if cast.safe == nil then cast.safe = {} end
     cast.safe[spell] = function(thisUnit,aoeType,minUnits,effectRng)
-        return isSafeToAoE(id,thisUnit,effectRng,minUnits,aoeType)
+        return br.isSafeToAoE(id,thisUnit,effectRng,minUnits,aoeType)
     end
 
     -- br.player.cast.time.spell() - Return cast time of player's spell, spell is the name of the spell from the spell list.
     if cast.time == nil then cast.time = {} end
     cast.time[spell] = function()
-        local castTime = getCastTime(id)
-        return castTime > 0 and castTime or getGlobalCD(true)
+        local castTime = br.getCastTime(id)
+        return castTime > 0 and castTime or br.getGlobalCD(true)
     end
 
     -- br.player.cast.timeRemain() -- Return cast time remain on player's cast or supplied target, spell is the name of the spell from spell list.
@@ -258,13 +258,13 @@ br.api.cast = function(self,spell,id)
     if cast.timeRemain == nil then cast.timeRemain = {} end
     cast.timeRemain = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return getCastTimeRemain(thisUnit)
+        return br.getCastTimeRemain(thisUnit)
     end
 
     -- br.player.cast.timeSinceLast.spell() - Returns the time since the last cast of this spell occured.
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
     cast.timeSinceLast[spell] = function()
-        if br.lastCast.castTime[id] == nil then br.lastCast.castTime[id] = GetTime() end
-        return GetTime() - br.lastCast.castTime[id]
+        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = _G.GetTime() end
+        return _G.GetTime() - br.lastCastTable.castTime[id]
     end
 end

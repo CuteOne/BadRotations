@@ -1,10 +1,11 @@
+local _, br = ...
 function br.read.commonReaders()
 	---------------
 	--[[ Readers ]]
 	---------------
 	-----------------------
 	--[[ Bag Update ]]
-	local Frame = CreateFrame("Frame")
+	local Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("BAG_UPDATE")
 	local function BagUpdate(self, event, ...)
 		if event == "BAG_UPDATE" then
@@ -14,7 +15,7 @@ function br.read.commonReaders()
 	Frame:SetScript("OnEvent", BagUpdate)
 	-----------------------
 	--[[ Loss of control ]]
-	local frame = CreateFrame("Frame")
+	local frame = br._G.CreateFrame("Frame")
 	frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
 	local function lostControl(self, event, ...)
 		-- Print(...)
@@ -22,12 +23,12 @@ function br.read.commonReaders()
 	frame:SetScript("OnEvent", lostControl)
 	----------------
 	--[[ Auto Join]]
-	Frame = CreateFrame("Frame")
+	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
 	local function MerchantShow(self, event, ...)
-		if getOptionCheck("Accept Queues") == true then
+		if br.getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
-				readyToAccept = GetTime()
+				br.readyToAccept = _G.GetTime()
 			end
 		end
 	end
@@ -48,151 +49,151 @@ function br.read.commonReaders()
 	-- Frame:SetScript("OnEvent", Eclipse)
 	--------------------------
 	--[[ isStanding Frame --]]
-	DontMoveStartTime = nil
-	CreateFrame("Frame"):SetScript(
+	br.DontMoveStartTime = nil
+	br._G.CreateFrame("Frame"):SetScript(
 		"OnUpdate",
 		function()
-			if GetUnitSpeed("Player") == 0 then
-				if not DontMoveStartTime then
-					DontMoveStartTime = GetTime()
+			if br._G.GetUnitSpeed("Player") == 0 then
+				if not br.DontMoveStartTime then
+					br.DontMoveStartTime = br._G.GetTime()
 				end
-				isMovingStartTime = 0
+				br.isMovingStartTime = 0
 			else
-				if isMovingStartTime == 0 then
-					isMovingStartTime = GetTime()
+				if br.isMovingStartTime == 0 then
+					br.isMovingStartTime = br._G.GetTime()
 				end
-				DontMoveStartTime = nil
+				br.DontMoveStartTime = nil
 			end
 		end
 	)
 	----------------------
 	--[[ timer Frame --]]
-	CreateFrame("Frame"):SetScript(
+	br._G.CreateFrame("Frame"):SetScript(
 		"OnUpdate",
 		function()
-			if uiDropdownTimer ~= nil then
-				uiTimerStarted = GetTime()
+			if br.uiDropdownTimer ~= nil then
+				br.uiTimerStarted = br._G.GetTime()
 			end
-			if uiTimerStarted and GetTime() - uiTimerStarted >= 0.5 then
-				clearChilds(uiDropdownTimer)
-				uiDropdownTimer = false
-				uiTimerStarted = nil
+			if br.uiTimerStarted and br._G.GetTime() - br.uiTimerStarted >= 0.5 then
+				br._G.clearChilds(br.uiDropdownTimer)
+				br.uiDropdownTimer = false
+				br.uiTimerStarted = nil
 			end
 		end
 	)
 	-----------------------
 	--[[ Merchant Show --]]
-	Frame = CreateFrame("Frame")
+	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("MERCHANT_SHOW")
 	local function MerchantShow(self, event, ...)
 		if event == "MERCHANT_SHOW" then
-			if getOptionCheck("Auto-Sell/Repair") then
-				SellGreys()
+			if br.getOptionCheck("Auto-Sell/Repair") then
+				br.SellGreys()
 			end
 		end
 	end
 	Frame:SetScript("OnEvent", MerchantShow)
 	-------------------------
 	--[[ Entering Combat --]]
-	Frame = CreateFrame("Frame")
+	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	local function EnteringCombat(self, event, ...)
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
-			AgiSnap = getAgility()
+			br.AgiSnap = br.getAgility()
 
 			if br.data.settings ~= nil then
-				br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
+				br.data.settings[br.selectedSpec]["Combat Started"] = br._G.GetTime()
 			end
-			ChatOverlay("|cffFF0000Entering Combat")
+			br.ChatOverlay("|cffFF0000Entering Combat")
 		end
 	end
 	Frame:SetScript("OnEvent", EnteringCombat)
 	-----------------------
 	--[[ Leaving Combat --]]
-	Frame = CreateFrame("Frame")
+	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	local function LeavingCombat(self, event, ...)
 		if event == "PLAYER_REGEN_ENABLED" then
 			-- start loot manager
-			if lM then
-				if not IsMounted("player") then
-					lM.shouldLoot = true
-					lM.looted = 0
+			if br.lM then
+				if not br._G.IsMounted("player") then
+					br.lM.shouldLoot = true
+					br.lM.looted = 0
 				end
 			end
-			potionReuse = true
-			AgiSnap = 0
-			usePot = true
-			leftCombat = GetTime()
+			br.potionReuse = true
+			br.AgiSnap = 0
+			br.usePot = true
+			br.leftCombat = br._G.GetTime()
 			br.data.successCasts = 0
 			br.data.failCasts = 0
 			if br.data.settings ~= nil then
 				br.data.settings[br.selectedSpec]["Combat Started"] = 0
 			end
-			ChatOverlay("|cff00FF00Leaving Combat")
+			br.ChatOverlay("|cff00FF00Leaving Combat")
 			-- clean up out of combat
-			Rip_sDamage = {}
-			Rake_sDamage = {}
-			Thrash_sDamage = {}
-			petAttacking = false
-			br.lastCast.line_cd = {}
-			wipe(br.read.debuffTracker)
+			br.Rip_sDamage = {}
+			br.Rake_sDamage = {}
+			br.Thrash_sDamage = {}
+			br.petAttacking = false
+			br.lastCastTable.line_cd = {}
+			_G.wipe(br.read.debuffTracker)
 		end
 	end
 	Frame:SetScript("OnEvent", LeavingCombat)
 	---------------------------
 	--[[ UI Error Messages --]]
-	Frame = CreateFrame("Frame")
+	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("UI_ERROR_MESSAGE")
 	local function UiErrorMessages(self, event, ...)
-		lastError = ...
-		lastErrorTime = GetTime()
+		br.lastError = ...
+		br.lastErrorTime = br._G.GetTime()
 		local param = (...)
-		if param == ERR_PET_SPELL_DEAD then
+		if param == "ERR_PET_SPELL_DEAD" then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = true
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
 		end
-		if param == PETTAME_NOTDEAD .. "." then
+		if param == "PETTAME_NOTDEAD" .. "." then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = false
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
 		end
-		if param == SPELL_FAILED_ALREADY_HAVE_PET then
+		if param == "SPELL_FAILED_ALREADY_HAVE_PET" then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = true
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
 		end
-		if param == PETTAME_CANTCONTROLEXOTIC .. "." then
+		if param == "PETTAME_CANTCONTROLEXOTIC" .. "." then
 			if br.data.settings[br.selectedSpec]["Box PetManager"] < 5 then
 				br.data.settings[br.selectedSpec]["Box PetManager"] = br.data.settings[br.selectedSpec]["Box PetManager"] + 1
 			else
 				br.data.settings[br.selectedSpec]["Box PetManager"] = 1
 			end
 		end
-		if param == PETTAME_NOPETAVAILABLE .. "." then
+		if param == "PETTAME_NOPETAVAILABLE" .. "." then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = false
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
 		end
-		if param == SPELL_FAILED_TARGET_NO_WEAPONS then
-			isDisarmed = true
+		if param == "SPELL_FAILED_TARGET_NO_WEAPONS" then
+			br.isDisarmed = true
 		end
-		if param == SPELL_FAILED_TARGET_NO_POCKETS then
-			canPickpocket = false
+		if param == "SPELL_FAILED_TARGET_NO_POCKETS" then
+			br.canPickpocket = false
 		end
-		if param == ERR_ALREADY_PICKPOCKETED then
-			canPickpocket = false
+		if param == "ERR_ALREADY_PICKPOCKETED" then
+			br.canPickpocket = false
 		end
-		if param == ERR_NO_LOOT then
-			canPickpocket = false
+		if param == "ERR_NO_LOOT" then
+			br.canPickpocket = false
 		end
 	end
 	Frame:SetScript("OnEvent", UiErrorMessages)
 	------------------------
 	--[[ Spells Changed --]]
-	Frame = CreateFrame("Frame")
+	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
 	local function SpellsChanged(self, event, ...)
-		if not configReloadTimer or configReloadTimer <= GetTime() - 1 then
-			currentConfig, configReloadTimer = nil, GetTime()
+		if not br.configReloadTimer or br.configReloadTimer <= br._G.GetTime() - 1 then
+			br.currentConfig, br.configReloadTimer = nil, br._G.GetTime()
 		end
 	end
 	Frame:SetScript("OnEvent", SpellsChanged)
@@ -241,54 +242,64 @@ function br.read.commonReaders()
 	--     "LOADING_SCREEN_DISABLED"
 	-- )
 	local function addonReader(...)
-		function DBM:AddMsg(text, prefix)
+		function _G.DBM:AddMsg(text, prefix)
 			prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
-			local frame = _G[tostring(DBM.Options.ChatFrame)]
-			Print("!!")
+			local frame = _G[tostring(_G.DBM.Options.ChatFrame)]
+			br._G.print("!!")
 			frame = frame and frame:IsShown() and frame or DEFAULT_CHAT_FRAME
 			frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
 		end
-		Print(...)
+		br._G.print(...)
 	end
 	--Frame:SetScript("OnEvent", addonReader)
-	GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-		if br.unlocked --[[EWT]] and GetObjectCountBR() ~= nil then
-			local name,lunit = self:GetUnit()
-			if not UnitIsVisible(lunit) then
-				return
-			end
-			local unit = ObjectPointer(lunit)
-			local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(unit) > 0
-			local playerTarget = GetUnitIsUnit(unit, "target")
-			local targeting = isTargeting(unit)
-			local hasThreat = hasThreat(unit) or targeting or isInProvingGround() or burnUnit
-			local reaction = GetUnitReaction(unit, "player") or 10
-			if isChecked("Target Validation Debug") and (not UnitIsPlayer(unit) or UnitIsCharmed(unit) or UnitDebuffID("player", 320102)) then
-				if isValidUnit(unit) then
-					self:AddLine("Unit is Valid",0,1,0)
-				elseif not getLineOfSight("player",unit) then
-					self:AddLine("LoS Fail",1,0,0)
-				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or br.lists.threatBypass[GetObjectID(unit)] ~= nil or burnUnit) then
-					self:AddLine("Not in Units Table",1,0,0)
-				elseif not (not UnitIsTapDenied(unit) or dummy) then
-					self:AddLine("Unit is Tap Denied",1,0,0)
-				elseif not (isSafeToAttack(unit) or burnUnit) then
-					self:AddLine("Safe Attack Fail",1,0,0)
-				elseif not ((reaction < 5 and not isChecked("Hostiles Only")) or (isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or dummy or burnUnit) then
-					self:AddLine("Reaction Value Fail",1,0,0)
-				elseif not ((isChecked("Attack MC Targets") and (not GetUnitIsFriend(unit, "player") or (UnitIsCharmed(unit) and UnitCanAttack("player", unit)))) or not GetUnitIsFriend(unit, "player")) then
-					self:AddLine("MC Check Fail",1,0,0)
-				elseif getOptionCheck("Don't break CCs") and isLongTimeCCed(unit) then
-					self:AddLine("CC Check Fail",1,0,0)
-				elseif not hasThreat then
-					self:AddLine("Threat Fail",1,0,0)
+	br._G.GameTooltip:HookScript(
+		"OnTooltipSetUnit",
+		function(self)
+			if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
+				local _, lunit = self:GetUnit()
+				if not br._G.UnitIsVisible(lunit) then
+					return
+				end
+				local unit = br._G.UnitGUID(lunit)
+				local burnUnit = br.getOptionCheck("Forced Burn") and br.isBurnTarget(unit) > 0
+				local playerTarget = br.GetUnitIsUnit(unit, "target")
+				local targeting = br.isTargeting(unit)
+				local hasThreat = br.hasThreat(unit) or targeting or br.isInProvingGround() or burnUnit
+				local reaction = br.GetUnitReaction(unit, "player") or 10
+				if br.isChecked("Target Validation Debug") and (not br._G.UnitIsPlayer(unit) or br._G.UnitIsCharmed(unit) or br.UnitDebuffID("player", 320102)) then
+					if br.isValidUnit(unit) then
+						self:AddLine("Unit is Valid", 0, 1, 0)
+					elseif not br.getLineOfSight("player", unit) then
+						self:AddLine("LoS Fail", 1, 0, 0)
+					elseif not (br.units[unit] ~= nil or br.GetUnitIsUnit(unit, "target") or br.lists.threatBypass[br.GetObjectID(unit)] ~= nil or burnUnit) then
+						self:AddLine("Not in Units Table", 1, 0, 0)
+					elseif not (not br._G.UnitIsTapDenied(unit) or br.isDummy) then
+						self:AddLine("Unit is Tap Denied", 1, 0, 0)
+					elseif not (br.isSafeToAttack(unit) or burnUnit) then
+						self:AddLine("Safe Attack Fail", 1, 0, 0)
+					elseif not ((reaction < 5 and not br.isChecked("Hostiles Only")) or (br.isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or br.isDummy or burnUnit) then
+						self:AddLine("Reaction Value Fail", 1, 0, 0)
+					elseif
+						not ((br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(unit, "player") or (br._G.UnitIsCharmed(unit) and br._G.UnitCanAttack("player", unit)))) or
+							not br.GetUnitIsFriend(unit, "player"))
+					 then
+						self:AddLine("MC Check Fail", 1, 0, 0)
+					elseif br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(unit) then
+						self:AddLine("CC Check Fail", 1, 0, 0)
+					elseif not hasThreat then
+						self:AddLine("Threat Fail", 1, 0, 0)
+					elseif not br.enemyListCheck(unit) then
+						self:AddLine("List Check Fail", 1, 0, 0)
+					else
+						self:AddLine("Validation Failed", 0, 0, 1)
+					end
 				end
 			end
 		end
-	end)
+	)
 	---------------------------
 	--[[ Combat Log Reader --]]
-	local superReaderFrame = CreateFrame("Frame")
+	local superReaderFrame = br._G.CreateFrame("Frame")
 	superReaderFrame:RegisterEvent("CHAT_MSG_ADDON")
 	superReaderFrame:RegisterEvent("PLAYER_STARTED_MOVING")
 	superReaderFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
@@ -320,7 +331,7 @@ function br.read.commonReaders()
 		end
 		-- Warlock Soul Shards
 		if event == "UNIT_POWER_UPDATE" and select(2, ...) == "SOUL_SHARDS" then
-			shards = WarlockPowerBar_UnitPower("player")
+			br.shards = br._G.WarlockPowerBar_UnitPower("player")
 		end
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
@@ -350,13 +361,13 @@ function br.read.commonReaders()
 		if event == "UNIT_SPELLCAST_SENT" then
 			local SourceUnit = select(1, ...)
 			local SpellName = select(2, ...)
-			spellCastTarget = select(4, ...)
+			br.spellCastTarget = select(4, ...)
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
-			local MyClass = select(2, UnitClass("player"))
+			local MyClass = select(2, br._G.UnitClass("player"))
 			if SourceUnit == "player" then
-				-- Blizz CastSpellByName bug bypass
-				if spell == "Metamorphosis" then
-					CastSpellByID(191427, "player")
+				-- Blizz br._G.CastSpellByName bug bypass
+				if SpellName == "Metamorphosis" then
+					br._G.CastSpellByID(191427, "player")
 				end
 			end
 		end
@@ -365,40 +376,40 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
-				local MyClass = select(2, UnitClass("player"))
+				local MyClass = select(2, br._G.UnitClass("player"))
 				if MyClass == "MAGE" then -- Mage
 				end
-				-- if MyClass == "MONK" then -- Monk
-				-- 	local br = _G["br"]
-				-- 	local spec = _G["GetSpecialization"]
-				-- 	if br.player ~= nil and spec() == 3 and br.player.spell.fistsOfFury ~= nil then
-				-- 		local cd 	= br.player.cd
-				-- 		local spell = br.player.spell
-				-- 		local unit 	= br.player.unit
-				-- 		local var 	= br.player.variables
-				-- 		local comboSpells = {
-				-- 			[spell.blackoutKick]              = true,
-				-- 			[spell.chiBurst]                  = true,
-				-- 			[spell.chiWave]                   = true,
-				-- 			[spell.cracklingJadeLightning]    = true,
-				-- 			[spell.fistsOfFury]               = true,
-				-- 			[spell.fistOfTheWhiteTiger]       = true,
-				-- 			[spell.flyingSerpentKick]         = true,
-				-- 			[spell.risingSunKick]             = true,
-				-- 			[spell.rushingJadeWind]           = true,
-				-- 			[spell.spinningCraneKick]         = true,
-				-- 			[spell.tigerPalm]                 = true,
-				-- 			[spell.touchOfDeath]              = true,
-				-- 			[spell.whirlingDragonPunch]       = true,
-				-- 		}
-				-- 		if var.prevCombo == nil or not unit.inCombat() then var.prevCombo = 6603 end
-				-- 		if var.lastCombo == nil or not unit.inCombat() then var.lastCombo = 6603 end
-				-- 		if comboSpells[spell] and not (cd[spell].remain() > unit.gcd("true")) and unit.inCombat() then
-				-- 			var.lastCombo = var.prevCombo
-				-- 			var.prevCombo = 6603
-				-- 		end
-				-- 	end
-				-- end
+			-- if MyClass == "MONK" then -- Monk
+			-- 	local br = _G["br"]
+			-- 	local spec = _G["GetSpecialization"]
+			-- 	if br.player ~= nil and spec() == 3 and br.player.spell.fistsOfFury ~= nil then
+			-- 		local cd 	= br.player.cd
+			-- 		local spell = br.player.spell
+			-- 		local unit 	= br.player.unit
+			-- 		local var 	= br.player.variables
+			-- 		local comboSpells = {
+			-- 			[spell.blackoutKick]              = true,
+			-- 			[spell.chiBurst]                  = true,
+			-- 			[spell.chiWave]                   = true,
+			-- 			[spell.cracklingJadeLightning]    = true,
+			-- 			[spell.fistsOfFury]               = true,
+			-- 			[spell.fistOfTheWhiteTiger]       = true,
+			-- 			[spell.flyingSerpentKick]         = true,
+			-- 			[spell.risingSunKick]             = true,
+			-- 			[spell.rushingJadeWind]           = true,
+			-- 			[spell.spinningCraneKick]         = true,
+			-- 			[spell.tigerPalm]                 = true,
+			-- 			[spell.touchOfDeath]              = true,
+			-- 			[spell.whirlingDragonPunch]       = true,
+			-- 		}
+			-- 		if var.prevCombo == nil or not unit.inCombat() then var.prevCombo = 6603 end
+			-- 		if var.lastCombo == nil or not unit.inCombat() then var.lastCombo = 6603 end
+			-- 		if comboSpells[spell] and not (cd[spell].remain() > unit.gcd("true")) and unit.inCombat() then
+			-- 			var.lastCombo = var.prevCombo
+			-- 			var.prevCombo = 6603
+			-- 		end
+			-- 	end
+			-- end
 			end
 		end
 		-----------------------------
@@ -407,27 +418,27 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
-				local MyClass = UnitClass("player")
+				local MyClass = br._G.UnitClass("player")
 				-- Hunter
 				if MyClass == 3 then
 					-- Serpent Sting
 					if SpellID == 1978 then
-						LastSerpent = GetTime()
-						LastSerpentTarget = spellCastTarget
+						br.LastSerpent = br._G.GetTime()
+						br.LastSerpentTarget = spellCastTarget
 					end
 					-- Steady Shot Logic
 					if SpellID == 56641 then
-						if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then
-							SteadyCast = GetTime()
-							SteadyCount = 2
+						if br.SteadyCast and br.SteadyCast >= br._G.GetTime() - 2 and br.SteadyCount == 1 then
+							br.SteadyCast = br._G.GetTime()
+							br.SteadyCount = 2
 						else
-							SteadyCast = GetTime()
-							SteadyCount = 1
+							br.SteadyCast = br._G.GetTime()
+							br.SteadyCount = 1
 						end
 					end
 					-- Focus Generation
 					if SpellID == 77767 then
-						focusBuilt = GetTime()
+						br.focusBuilt = br._G.GetTime()
 					end
 				end
 				if MyClass == "Mage" then -- Mage
@@ -438,7 +449,7 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
-				local MyClass = UnitClass("player")
+				local MyClass = br._G.UnitClass("player")
 				if MyClass == "Mage" then -- Mage
 				end
 			end
@@ -449,26 +460,26 @@ function br.read.commonReaders()
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
-			if botCast == true then
-				botCast = false
+			if br.botCast == true then
+				br.botCast = false
 			end
 			if sourceName ~= nil then
-				if GetUnitIsUnit(sourceName, "player") then
+				if br.GetUnitIsUnit(sourceName, "player") then
 				end
 			end
 			if SourceUnit == "player" then
-				lastSucceeded = spell -- Used for lastCast tracking
+				br.lastSucceeded = spell -- Used for lastCast tracking
 				-- Queue Casting
 				if br.player ~= nil then
 					if #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
-							if GetSpellInfo(spell) == GetSpellInfo(br.player.queue[i].id) then
-								tremove(br.player.queue, i)
-								if IsAoEPending() then
-									SpellStopTargeting()
+							if br._G.GetSpellInfo(spell) == br._G.GetSpellInfo(br.player.queue[i].id) then
+								_G.tremove(br.player.queue, i)
+								if br._G.IsAoEPending() then
+									br._G.SpellStopTargeting()
 								end
-								if not isChecked("Mute Queue") then
-									Print("Cast Success! - Removed |cFFFF0000" .. GetSpellInfo(spell) .. "|r from the queue.")
+								if not br.isChecked("Mute Queue") then
+									br._G.print("Cast Success! - Removed |cFFFF0000" .. br._G.GetSpellInfo(spell) .. "|r from the queue.")
 								end
 								break
 							end
@@ -476,27 +487,27 @@ function br.read.commonReaders()
 					end
 				end
 				---
-				local MyClass = UnitClass("player")
+				local MyClass = br._G.UnitClass("player")
 				-- Hunter
 				if MyClass == 3 then
 					-- Serpent Sting
 					if SpellID == 1978 then
-						LastSerpent = GetTime()
-						LastSerpentTarget = spellCastTarget
+						br.LastSerpent = br._G.GetTime()
+						br.LastSerpentTarget = spellCastTarget
 					end
 					-- Steady Shot Logic
 					if SpellID == 56641 then
-						if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then
-							SteadyCast = GetTime()
-							SteadyCount = 2
+						if br.SteadyCast and br.SteadyCast >= br._G.GetTime() - 2 and br.SteadyCount == 1 then
+							br.SteadyCast = br._G.GetTime()
+							br.SteadyCount = 2
 						else
-							SteadyCast = GetTime()
-							SteadyCount = 1
+							br.SteadyCast = br._G.GetTime()
+							br.SteadyCount = 1
 						end
 					end
 					-- Focus Generation
 					if SpellID == 77767 then
-						focusBuilt = GetTime()
+						br.focusBuilt = br._G.GetTime()
 					end
 				end
 				if MyClass == "Mage" then -- Mage
@@ -508,15 +519,15 @@ function br.read.commonReaders()
 		if event == "UNIT_SPELLCAST_FAILED" then
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
-			local MyClass = UnitClass("player")
-			if SourceUnit == "player" and isKnown(SpellID) then
+			local MyClass = br._G.UnitClass("player")
+			if SourceUnit == "player" and br.isKnown(SpellID) then
 				-- Kill Command
 				if SpellID == 34026 then
 				---Print("Kill Command FAILED")
 				end
 				-- Whistle failed
 				if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
-					lastFailedWhistle = GetTime()
+					br.lastFailedWhistle = br._G.GetTime()
 				end
 			end
 			if SourceUnit == "player" then
@@ -529,39 +540,39 @@ function br.read.commonReaders()
 		if event == "SPELL_FAILED_IMMUNE" then
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
-			local isDisarmed = false
-			if SourceUnit == "player" and isKnown(SpellID) then
+			br.isDisarmed = false
+			if SourceUnit == "player" and br.isKnown(SpellID) then
 				-- Disarm - Warrior
 				if SpellID == 676 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 				-- Clench - Hunter (Scorpid Pet)
 				if SpellID == 50541 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 				-- Dismantle - Rogue
 				if SpellID == 51722 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 				-- Psychic Horror - Priest
 				if SpellID == 64058 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 				-- Snatch - Hunter (Bird of Prey Pet)
 				if SpellID == 91644 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 				-- Grapple Weapon - Monk
 				if SpellID == 117368 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 				-- Disarm - Warlock (Voidreaver/Voidlord Pet)
 				if SpellID == 118093 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 				-- Ring of Peace - Monk
 				if SpellID == 137461 or SpellID == 140023 then
-					isDisarmed = true
+					br.isDisarmed = true
 				end
 			end
 		end
@@ -570,7 +581,7 @@ function br.read.commonReaders()
 			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 				--Print("Channel Start")
-				lastStarted = SpellID
+				br.lastStarted = SpellID
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
@@ -578,7 +589,7 @@ function br.read.commonReaders()
 			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 				--Print("Channel STOP")
-				lastFinished = SpellID
+				br.lastFinished = SpellID
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
@@ -596,33 +607,37 @@ function br.read.commonReaders()
 			-- 203 = "Cannot attack while dead"
 			-- 278 = "Your Pet is not Dead" / "Your pet is dead. Use Revive Pet"
 			if errorMsg == 278 then
-				local revive = GetSpellInfo(50769) -- Used for string matching error messasge.
-				local match = string.find(messageErr,revive) ~= nil
-				if match then br.deadPet = true else br.deadPet = false end
+				local revive = br._G.GetSpellInfo(50769) -- Used for string matching error messasge.
+				local match = string.find(messageErr, revive) ~= nil
+				if match then
+					br.deadPet = true
+				else
+					br.deadPet = false
+				end
 			end
-			if not UnitIsDeadOrGhost("player") and (UnitIsDeadOrGhost("pet") or not UnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
+			if not br.GetUnitIsDeadOrGhost("player") and (br.GetUnitIsDeadOrGhost("pet") or not br.GetUnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
 				br.deadPet = true
-				-- if deadPet == false then
-				-- elseif deadPet == true and UnitHealth("pet") > 0 then
-				-- 	deadPet = false
-				-- end
+			-- if deadPet == false then
+			-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
+			-- 	deadPet = false
+			-- end
 			end
 		end
 		if event == "ENCOUNTER_START" then
-			if br.player ~= nil then 
+			if br.player ~= nil then
 				br.player.eID = select(1, ...)
 			end
 		end
 		if event == "ENCOUNTER_END" then
-			if br.player ~= nil then 
+			if br.player ~= nil then
 				br.player.eID = 0
 			end
 		end
-		if event == "LOADING_SCREEN_ENABLED" and disableControl == false then
-			disableControl = true
+		if event == "LOADING_SCREEN_ENABLED" and br.disableControl == false then
+			br.disableControl = true
 		end
-		if event == "LOADING_SCREEN_DISABLED" and disableControl == true then
-			disableControl = false
+		if event == "LOADING_SCREEN_DISABLED" and br.disableControl == true then
+			br.disableControl = false
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)

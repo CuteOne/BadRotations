@@ -4,8 +4,9 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
+    local CreateButton = br["CreateButton"]
     -- Rotation Button
-    RotationModes = {
+    br.RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
@@ -13,20 +14,20 @@ local function createToggles() -- Define custom toggles
     };
     CreateButton("Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    br.CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
     };
     CreateButton("Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    br.DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
     };
     CreateButton("Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    br.InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
     };
@@ -178,10 +179,10 @@ local function runRotation()
     units                                         = br.player.units
     use                                           = br.player.use
     -- General Locals
-    hastar                                        = GetObjectExists("target")
+    hastar                                        = br.GetObjectExists("target")
     healPot                                       = getHealthPot()
     profileStop                                   = profileStop or false
-    ttd                                           = getTTD
+    ttd                                           = br.getTTD
     haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
@@ -222,7 +223,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if inCombat and isValidUnit("target") and cd.global.remain() == 0 then
+        if inCombat and br.isValidUnit("target") and cd.global.remain() == 0 then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
@@ -230,11 +231,11 @@ local function runRotation()
             ---------------------------
             --- SimulationCraft APL ---
             ---------------------------
-            if getOptionValue("APL Mode") == 1 then
+            if br.getOptionValue("APL Mode") == 1 then
                 -- Start Attack
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and br.getDistance(units.dyn5) < 5 then
+                    br._G.StartAttack(units.dyn5)
                 end
                 -- Cooldowns
                 -- call_action_list,name=CDs
@@ -243,7 +244,7 @@ local function runRotation()
             ------------------------
             --- Ask Mr Robot APL ---
             ------------------------
-            if getOptionValue("APL Mode") == 2 then
+            if br.getOptionValue("APL Mode") == 2 then
 
             end -- End AMR
         end -- End In Combat Rotation

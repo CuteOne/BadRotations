@@ -156,10 +156,10 @@ local function runRotation()
 --------------
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
-        local combatTime                                    = getCombatTime()
+        local combatTime                                    = br.getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
@@ -181,8 +181,8 @@ local function runRotation()
         local solo                                          = #br.friend == 1
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP("target")
-        local ttd                                           = getTTD
+        local thp                                           = br.getHP("target")
+        local ttd                                           = br.getTTD
         local units                                         = br.player.units
         local use                                           = br.player.use
 
@@ -192,8 +192,8 @@ local function runRotation()
         enemies.get(10,"target")
 
         local function ttd(unit)
-            local ttdSec = getTTD(unit)
-            if getOptionCheck("Enhanced Time to Die") then
+            local ttdSec = br.getTTD(unit)
+            if br.getOptionCheck("Enhanced Time to Die") then
                 return ttdSec
             end
             if ttdSec == -1 then
@@ -208,13 +208,13 @@ local function runRotation()
         end
 
         --Clear last cast table ooc to avoid strange casts
-        if not inCombat and #br.lastCast.tracker > 0 then
-            wipe(br.lastCast.tracker)
+        if not inCombat and #br.lastCastTable.tracker > 0 then
+            wipe(br.lastCastTable.tracker)
         end
 
         local dispelDelay = 1.5
-        if isChecked("Dispel delay") then
-            dispelDelay = getValue("Dispel delay")
+        if br.isChecked("Dispel delay") then
+            dispelDelay = br.getValue("Dispel delay")
         end
 
          --Spell steal
@@ -237,12 +237,12 @@ local function runRotation()
             return false
         end
         local function meteor(unit)
-            local combatRange = max(5, UnitCombatReach("player") + UnitCombatReach(unit))
-            local px, py, pz = ObjectPosition("player")
+            local combatRange = max(5, br._G.UnitCombatReach("player") + br._G.UnitCombatReach(unit))
+            local px, py, pz = br._G.ObjectPosition("player")
             local x, y, z = GetPositionBetweenObjects(unit, "player", combatRange - 2)
             z = select(3, TraceLine(x, y, z + 5, x, y, z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
             if z ~= nil and TraceLine(px, py, pz + 2, x, y, z + 1, 0x100010) == nil and TraceLine(x, y, z + 4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
-                CastSpellByName(GetSpellInfo(spell.meteor))
+                br._G.CastSpellByName(GetSpellInfo(spell.meteor))
                 br.addonDebug("Casting Meteor")
                 ClickPosition(x, y, z)
                 if wasMouseLooking then
@@ -253,7 +253,7 @@ local function runRotation()
 
         local fbTracker = 0
         for i = 1, 3 do
-            local cast = br.lastCast.tracker[i]
+            local cast = br.lastCastTable.tracker[i]
             if cast == 108853 then
                 fbTracker = fbTracker + 1
             end
@@ -267,20 +267,20 @@ local function runRotation()
     -- Action List - Extras
         local function actionList_Extras()
         -- Dummy Test
-            if isChecked("DPS Testing") then
-                if GetObjectExists("target") then
-                    if combatTime >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+            if br.isChecked("DPS Testing") then
+                if br.GetObjectExists("target") then
+                    if combatTime >= (tonumber(br.getOptionValue("DPS Testing"))*60) and br.isDummy() then
                         StopAttack()
                         ClearTarget()
-                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        Print(tonumber(br.getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
                 end
             end -- End Dummy Test
             -- Arcane Intellect
-            if isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
+            if br.isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
                 for i = 1, #br.friend do
-                    if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                    if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                         if cast.arcaneIntellect() then return true end
                     end
                 end
@@ -290,46 +290,46 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if br.isChecked("Pot/Stoned") and php <= br.getOptionValue("Pot/Stoned") 
+                    and inCombat and (hasHealthPot() or br.hasItem(5512)) 
                 then
-                    if canUseItem(5512) then
-                        useItem(5512)
-                    elseif canUseItem(healPot) then
-                        useItem(healPot)
+                    if br.canUseItem(5512) then
+                        br.useItem(5512)
+                    elseif br.canUseItem(healPot) then
+                        br.useItem(healPot)
                     end
                 end
         -- Heirloom Neck
-                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                if br.isChecked("Heirloom Neck") and php <= br.getOptionValue("Heirloom Neck") then
                     if hasEquiped(122668) then
                         if GetItemCooldown(122668)==0 then
-                            useItem(122668)
+                            br.useItem(122668)
                         end
                     end
                 end
         -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+                if br.isChecked("Gift of the Naaru") and php <= br.getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Frost Nova
-                if isChecked("Frost Nova") and php <= getOptionValue("Frost Nova") and #enemies.yards10 > 0 then
+                if br.isChecked("Frost Nova") and php <= br.getOptionValue("Frost Nova") and #enemies.yards10 > 0 then
                     if cast.frostNova("player","aoe",1,10) then return end --Print("fs") return end
                 end
         -- Blast Wave
-                if talent.blastWave and isChecked("Blast Wave") and php <= getOptionValue("Blast Wave") then
+                if talent.blastWave and br.isChecked("Blast Wave") and php <= br.getOptionValue("Blast Wave") then
                     for i = 1, #enemies.yards10 do
                         local thisUnit = enemies.yards10[i]
-                        if #enemies.yards10 > 1 and hasThreat(thisUnit) then
+                        if #enemies.yards10 > 1 and br.hasThreat(thisUnit) then
                             if cast.blastWave("player","aoe",1,10) then return end
                         end
                     end
                 end
         -- Blazing Barrier
-                if isChecked("Blazing Barrier") and ((php <= getOptionValue("Blazing Barrier") and inCombat) or (isChecked("Blazing Barrier OOC") and not inCombat)) and not buff.blazingBarrier.exists() and not isCastingSpell(spell.fireball) and not buff.hotStreak.exists() and not buff.heatingUp.exists() then
+                if br.isChecked("Blazing Barrier") and ((php <= br.getOptionValue("Blazing Barrier") and inCombat) or (br.isChecked("Blazing Barrier OOC") and not inCombat)) and not buff.blazingBarrier.exists() and not br.isCastingSpell(spell.fireball) and not buff.hotStreak.exists() and not buff.heatingUp.exists() then
                     if cast.blazingBarrier("player") then return end
                 end
         -- Iceblock
-                if isChecked("Ice Block") and php <= getOptionValue("Ice Block") and cd.iceBlock.remains() <= gcd and not solo then
+                if br.isChecked("Ice Block") and php <= br.getOptionValue("Ice Block") and cd.iceBlock.remains() <= gcd and not solo then
                     if UnitCastingInfo("player") then
                         RunMacroText('/stopcasting')
                     end
@@ -338,12 +338,12 @@ local function runRotation()
                     end
                 end
         -- Spell Steal
-        if isChecked("Spellsteal") then
-            if getOptionValue("Spellsteal") == 1 then
-                if spellstealCheck("target") and GetObjectExists("target") then
+        if br.isChecked("Spellsteal") then
+            if br.getOptionValue("Spellsteal") == 1 then
+                if spellstealCheck("target") and br.GetObjectExists("target") then
                     if cast.spellsteal("target") then br.addonDebug("Casting Spellsteal") return true end
                 end
-            elseif getOptionValue("Spellsteal") == 2 then
+            elseif br.getOptionValue("Spellsteal") == 2 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if spellstealCheck(thisUnit) then
@@ -359,9 +359,9 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
         -- Counterspell
-                        if isChecked("Counterspell") then
+                        if br.isChecked("Counterspell") then
                             if cast.counterspell(thisUnit) then return end
                         end
                     end
@@ -370,27 +370,27 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
-            if useCDs() and getDistance("target") < 40 then
+            if useCDs() and br.getDistance("target") < 40 then
         -- Potion
-            if isChecked("Potion") and not buff.potionOfUnbridledFury.exists() and canUseItem(item.potionOfUnbridledFury) and buff.combustion.exists("player") then
+            if br.isChecked("Potion") and not buff.potionOfUnbridledFury.exists() and br.canUseItem(item.potionOfUnbridledFury) and buff.combustion.exists("player") then
                 if use.potionOfUnbridledFury() then br.addonDebug("Using Potion of Unbridled Fury") return end
             end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- blood_fury | berserking | arcane_torrent
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") and buff.combustion.exists("player") then
+                if br.isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") and buff.combustion.exists("player") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
                 -- Trinkets
                 local mainHand = GetInventorySlotInfo("MAINHANDSLOT")
-                if canUseItem(mainHand) and equiped.neuralSynapseEnhancer(mainHand) and ((talent.runeOfPower and buff.runeOfPower.exists("player")) or not talent.runeOfPower) then
+                if br.canUseItem(mainHand) and equiped.neuralSynapseEnhancer(mainHand) and ((talent.runeOfPower and buff.runeOfPower.exists("player")) or not talent.runeOfPower) then
                     use.slot(mainHand)
                     br.addonDebug("Using Neural SynapseEnhancer")
                 end
                 for i = 13, 14 do
-                    local opValue = getOptionValue("Trinkets")
+                    local opValue = br.getOptionValue("Trinkets")
                     local iValue = i - 12
                     if (opValue == iValue or opValue == 3) and use.able.slot(i) then
-                        if equiped.azsharasFontOfPower(i) and not buff.combustion.exists("player") and not buff.runeOfPower.exists("player") and not UnitBuffID("player",296962) then
+                        if equiped.azsharasFontOfPower(i) and not buff.combustion.exists("player") and not buff.runeOfPower.exists("player") and not br.UnitBuffID("player",296962) then
                             if UnitCastingInfo("player") then
                                 SpellStopCasting()
                             end
@@ -398,8 +398,8 @@ local function runRotation()
                             br.addonDebug("Using Azshara's Font of Power")
                             return
                         end
-                        if equiped.shiverVenomRelic(i) and isChecked("Shiver Venoms") then
-                            if  getDebuffStacks("target", 301624) == 5 then
+                        if equiped.shiverVenomRelic(i) and br.isChecked("Shiver Venoms") then
+                            if  br.getDebuffStacks("target", 301624) == 5 then
                                 if UnitCastingInfo("player") then
                                     SpellStopCasting()
                                 end
@@ -410,21 +410,21 @@ local function runRotation()
                     end
                 end
                 if buff.combustion.exists("player") then 
-                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) 
+                    if (br.getOptionValue("Trinkets") == 1 or br.getOptionValue("Trinkets") == 3) and br.canUseItem(13) 
                     and not equiped.azsharasFontOfPower(13) then
                         if UnitCastingInfo("player") then
                             SpellStopCasting()
                         end
-                        useItem(13)
+                        br.useItem(13)
                         br.addonDebug("Using Trinket 1")
                         return
                     end
-                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) 
+                    if (br.getOptionValue("Trinkets") == 2 or br.getOptionValue("Trinkets") == 3) and br.canUseItem(14) 
                     and not equiped.azsharasFontOfPower(14) then
                         if UnitCastingInfo("player") then
                             SpellStopCasting()
                         end
-                        useItem(14)
+                        br.useItem(14)
                         br.addonDebug("Using Trinket 2")
                         return
                     end
@@ -434,36 +434,36 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
-                if isChecked("Pig Catcher") then
+                if br.isChecked("Pig Catcher") then
                     bossHelper()
                 end
-                if isChecked("Pre-Pull") then
+                if br.isChecked("Pre-Pull") then
                     -- Flask / Crystal
-                    if ((pullTimer <= getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
-                        if getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and canUseItem(item.greaterFlaskOfEndlessFathoms) then
+                    if ((pullTimer <= br.getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not br.canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and br.canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
+                        if br.getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and br.canUseItem(item.greaterFlaskOfEndlessFathoms) then
                             if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Greater Flask of Endless Fathoms") return end
-                        elseif getOptionValue("Elixir") == 2 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
+                        elseif br.getOptionValue("Elixir") == 2 and inRaid and not buff.flaskOfEndlessFathoms.exists() and br.canUseItem(item.flaskOfEndlessFathoms) then
                             if use.flaskOfEndlessFathoms() then br.addonDebug("Using Flask of Endless Fathoms") return end
                         end
                         -- augment
-                        if isChecked("Augment") and not buff.battleScarredAugmentRune.exists() and canUseItem(item.battleScarredAugmentRune) then
+                        if br.isChecked("Augment") and not buff.battleScarredAugmentRune.exists() and br.canUseItem(item.battleScarredAugmentRune) then
                             if use.battleScarredAugmentRune() then br.addonDebug("Using Battle-Scarred Augment Rune") return end
                         end
                         -- potion
-                        if isChecked("Potion") and not buff.potionOfUnbridledFury.exists() and canUseItem(item.potionOfUnbridledFury) then
+                        if br.isChecked("Potion") and not buff.potionOfUnbridledFury.exists() and br.canUseItem(item.potionOfUnbridledFury) then
                             if use.potionOfUnbridledFury() then br.addonDebug("Using Potion of Unbridled Fury") return end
                         end
                         -- Mirror Image
-                        if isChecked("Mirror Image") and talent.mirrorImage and br.timer:useTimer("MI Delay", 2) then
+                        if br.isChecked("Mirror Image") and talent.mirrorImage and br.timer:useTimer("MI Delay", 2) then
                             if cast.mirrorImage() then br.addonDebug("Casting Mirror Image") return end
                         end
-                    elseif equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 8 and pullTimer > 4 then
+                    elseif equiped.azsharasFontOfPower and br.canUseItem(item.azsharasFontOfPower) and pullTimer <= 8 and pullTimer > 4 then
                         if br.timer:useTimer("Font Delay", 4) then
                             br.addonDebug("Using Font Of Azshara")
-                            useItem(169314)
+                            br.useItem(169314)
                         end
                     elseif pullTimer <= 4 and br.timer:useTimer("PB Delay",5) then
-                        CastSpellByName(GetSpellInfo(spell.pyroblast)) br.addonDebug("Casting Pyroblast") return
+                        br._G.CastSpellByName(GetSpellInfo(spell.pyroblast)) br.addonDebug("Casting Pyroblast") return
                     end
                 end -- End Pre-Pull        
             end -- End No Combat
@@ -471,8 +471,8 @@ local function runRotation()
 
         local function actionList_Multi()
         -- Flamestrike
-            if buff.hotStreak.exists("player") and #enemies.yards8t >= getValue("FS Targets (Hot Streak)") then
-                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
+            if buff.hotStreak.exists("player") and #enemies.yards8t >= br.getValue("FS Targets (Hot Streak)") then
+                if br.createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
             end
         -- Fire Blast
             -- if buff.heatingUp.exists("player") then
@@ -481,15 +481,15 @@ local function runRotation()
             --     end
             -- end
         -- Flamestrike (Flame Patch)
-            if talent.flamePatch and not buff.combustion.exists("player") and not moving and #enemies.yards8t >= getValue("FS Targets (Flame Patch)") then 
-                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
+            if talent.flamePatch and not buff.combustion.exists("player") and not moving and #enemies.yards8t >= br.getValue("FS Targets (Flame Patch)") then 
+                if br.createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
             end
         -- Living Bomb
             if talent.livingBomb and ttd("target") >= 8 and not buff.combustion.exists("player") then
                 if cast.livingBomb() then br.addonDebug("Casting Living Bomb") return end
             end
         -- Dragon's Breath
-            if (getFacing("player","target") and getDistance("target") <= 6) and not buff.combustion.exists("player") then
+            if (br.getFacing("player","target") and br.getDistance("target") <= 6) and not buff.combustion.exists("player") then
                 if cast.dragonsBreath("player","cone",1,10) then br.addonDebug("Casting Dragon's Breath") return end
             end
         -- Phoenix Flames
@@ -497,7 +497,7 @@ local function runRotation()
                 if cast.phoenixsFlames() then br.addonDebug("Casting Phoenix Flames") return end
             end
         -- Ripple in Space
-            if isChecked("Use Essence") and useCDs() and essence.rippleInSpace.active and cd.rippleInSpace.remains() <= gcd then
+            if br.isChecked("Use Essence") and useCDs() and essence.rippleInSpace.active and cd.rippleInSpace.remains() <= gcd then
                 if cast.rippleInSpace("target") then br.addonDebug("Casting Ripple in Space") return end
             end
         end
@@ -508,7 +508,7 @@ local function runRotation()
             cancelBuff(spell.iceBlock)
             br.addonDebug("Cancelling Iceblock")
         end
-        if buff.hotStreak.exists("player") and IsAoEPending() then
+        if buff.hotStreak.exists("player") and br._G.IsAoEPending() then
             SpellStopTargeting()
             br.addonDebug(colorRed.."Aoe Not Cast. Canceling Spell",true)
             return false
@@ -530,7 +530,7 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
             return true
         else
-            if isChecked("Pull OoC") and solo and not inCombat then 
+            if br.isChecked("Pull OoC") and solo and not inCombat then 
                 if not moving then
                     if br.timer:useTimer("FB Delay", 1.5) then
                         if cast.fireball() then br.addonDebug("Casting Fireball (Pull Spell)") return end
@@ -564,32 +564,32 @@ local function runRotation()
         -- Trinkets
                 if actionList_Cooldowns() then return end
         -- The Unbound Force
-                if isChecked("Use Essence") and essence.theUnboundForce.active and cd.theUnboundForce.remains() <= gcd and buff.recklessForce.exists("player") then
+                if br.isChecked("Use Essence") and essence.theUnboundForce.active and cd.theUnboundForce.remains() <= gcd and buff.recklessForce.exists("player") then
                     if cast.theUnboundForce() then br.addonDebug("Casting The Unbound Force") return end
                 end
         -- Mirror Image
                 -- mirror_image,if=buff.combustion.down
-                if useCDs() and isChecked("Mirror Image") and talent.mirrorImage and not buff.combustion.exists() and cd.combustion.remains() > gcd then
+                if useCDs() and br.isChecked("Mirror Image") and talent.mirrorImage and not buff.combustion.exists() and cd.combustion.remains() > gcd then
                     if br.timer:useTimer("MI Delay", 2) then
                         if cast.mirrorImage() then br.addonDebug("Casting Mirror Image") return end
                     end
                 end
         -- Guardian of Azeroth
-                if isChecked("Use Essence") and useCDs() and essence.condensedLifeForce.active and cd.guardianOfAzeroth.remains() <= gcd and not buff.combustion.exists("player") 
+                if br.isChecked("Use Essence") and useCDs() and essence.condensedLifeForce.active and cd.guardianOfAzeroth.remains() <= gcd and not buff.combustion.exists("player") 
                     and not buff.runeOfPower.exists("player") 
                 then
                     if cast.guardianOfAzeroth() then br.addonDebug("Casting Guardian of Azeroth") return end
                 end
         -- Memory of Lucid Dreams
-                if isChecked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and cd.combustion.remains() <= gcd 
-                    and not moving and (not talent.firestarter or (talent.firestarter and (getHP("target") <= 90) or #enemies.yards8t >= 3))
+                if br.isChecked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and cd.combustion.remains() <= gcd 
+                    and not moving and (not talent.firestarter or (talent.firestarter and (br.getHP("target") <= 90) or #enemies.yards8t >= 3))
                 then
                     if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return end
                 end
         -- Rune of Power
-                if  (useCDs() or (#enemies.yards8t >= getValue("RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") then
+                if  (useCDs() or (#enemies.yards8t >= br.getValue("RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") then
                     if talent.firestarter then
-                        if (cd.combustion.remains() <= gcd and getHP("target") < 90) or (charges.runeOfPower.count() == 2 and (cd.combustion.remains() > 20 or getHP("target") >= 90)) then
+                        if (cd.combustion.remains() <= gcd and br.getHP("target") < 90) or (charges.runeOfPower.count() == 2 and (cd.combustion.remains() > 20 or br.getHP("target") >= 90)) then
                             if cast.runeOfPower() then br.addonDebug("Casting Rune of Power")
                                 return
                             end
@@ -603,11 +603,11 @@ local function runRotation()
                     end
                 end
             -- Meteor
-                if isChecked("Meteor Targets") then
-                    if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= getValue("Meteor Targets")) and talent.meteor and not isMoving("target") and getDistance("target") < 35 then
+                if br.isChecked("Meteor Targets") then
+                    if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= br.getValue("Meteor Targets")) and talent.meteor and not isMoving("target") and br.getDistance("target") < 35 then
                         if talent.runeOfPower and talent.firestarter then
-                            if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or (#enemies.yards8t >= getValue("Meteor Targets") and isChecked("Use Meteor outside ROP")) then
-                                if not isBoss("target") then
+                            if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and br.getHP("target") <= 90) or (#enemies.yards8t >= br.getValue("Meteor Targets") and br.isChecked("Use Meteor outside ROP")) then
+                                if not br.isBoss("target") then
                                     if cast.meteor("best",false,1,8) then
                                         br.addonDebug("Casting Meteor")
                                         return
@@ -617,8 +617,8 @@ local function runRotation()
                                 end
                             end
                         elseif talent.runeOfPower and not talent.firestarter then
-                            if (buff.runeOfPower.exists("player") and (cd.combustion.remains() > 40 or cd.combustion.remains() <= gcd)) or (#enemies.yards8t >= getValue("Meteor Targets") and isChecked("Use Meteor outside ROP")) then
-                                if not isBoss("target") then
+                            if (buff.runeOfPower.exists("player") and (cd.combustion.remains() > 40 or cd.combustion.remains() <= gcd)) or (#enemies.yards8t >= br.getValue("Meteor Targets") and br.isChecked("Use Meteor outside ROP")) then
+                                if not br.isBoss("target") then
                                     if cast.meteor("best",false,1,8) then
                                         br.addonDebug("Casting Meteor")
                                         return
@@ -628,8 +628,8 @@ local function runRotation()
                                 end
                             end
                         elseif not talent.runeOfPower then
-                            if cd.combustion.remains() <= gcd or cd.combustion.remains() > 40 or #enemies.yards8t >= getValue("Meteor Targets") then
-                                if not isBoss("target") then
+                            if cd.combustion.remains() <= gcd or cd.combustion.remains() > 40 or #enemies.yards8t >= br.getValue("Meteor Targets") then
+                                if not br.isBoss("target") then
                                     if cast.meteor("best",false,1,8) then
                                         br.addonDebug("Casting Meteor")
                                         return
@@ -642,43 +642,43 @@ local function runRotation()
                     end
                 end
             -- Combustion
-                if useCDs() and (talent.runeOfPower and buff.runeOfPower.exists("player") or not talent.runeOfPower) and (not talent.meteor or cast.last.meteor() or cd.meteor.remains() > gcd or not isChecked("Meteor Targets")) then
+                if useCDs() and (talent.runeOfPower and buff.runeOfPower.exists("player") or not talent.runeOfPower) and (not talent.meteor or cast.last.meteor() or cd.meteor.remains() > gcd or not br.isChecked("Meteor Targets")) then
                     if not talent.firestarter then
                         if cast.combustion() then br.addonDebug("Casting Combustion") return end
-                    elseif talent.firestarter and (getHP("target") <= 90 or #enemies.yards8t >= getValue("Combustion Targets")) then
+                    elseif talent.firestarter and (br.getHP("target") <= 90 or #enemies.yards8t >= br.getValue("Combustion Targets")) then
                         if cast.combustion() then br.addonDebug("Casting Combustion") return end
                     end
                 end
             -- Hyperthread Wristwraps
-                if equiped.hyperthreadWristWraps and canUseItem(item.hyperthreadWristWraps) and useCDs() and buff.combustion.exists('player') 
+                if equiped.hyperthreadWristWraps and br.canUseItem(item.hyperthreadWristWraps) and useCDs() and buff.combustion.exists('player') 
                     and ((talent.flameOn and charges.fireBlast.count() <= 1) or charges.fireBlast.count() == 0) and fbTracker >= 2 
                 then
                     if use.hyperthreadWristWraps() then br.addonDebug("Using Hyperthread Wristwraps") end
                 end
             -- Blood of the Enemy
-                if isChecked("Use Essence") and useCDs() and essence.bloodOfTheEnemy.active and cd.bloodOfTheEnemy.remains() <= gcd and not buff.combustion.exists("player") 
-                    and (#enemies.yards10t >= 2 or isBoss("target"))
+                if br.isChecked("Use Essence") and useCDs() and essence.bloodOfTheEnemy.active and cd.bloodOfTheEnemy.remains() <= gcd and not buff.combustion.exists("player") 
+                    and (#enemies.yards10t >= 2 or br.isBoss("target"))
                 then
                     if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return end
                 end
             -- Worldvein Resonance
-                if isChecked("Use Essence") and useCDs() and essence.worldveinResonance.active and cd.worldveinResonance.remains() <= gcd and not buff.combustion.exists("player") 
+                if br.isChecked("Use Essence") and useCDs() and essence.worldveinResonance.active and cd.worldveinResonance.remains() <= gcd and not buff.combustion.exists("player") 
                     and not buff.runeOfPower("player") 
                 then
                     if cast.worldveinResonance() then br.addonDebug("Casting Worldvein Resonance") return end
                 end 
         -- Focused Azerite Beam
-                if isChecked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
+                if br.isChecked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
                     or essence.focusedAzeriteBeam.rank >= 3) and not buff.combustion.exists("player") and not buff.runeOfPower.exists("player")
-                    and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= getOptionValue("Azerite Beam Units") or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
+                    and br.getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= br.getOptionValue("Azerite Beam Units") or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (br.getDistance("target") < 6 and br.isBoss("target")))))
                 then
                     if cast.focusedAzeriteBeam() then br.addonDebug("Casting Focused Azerite Beam") return end
                 end
         -- Purfying Blast
-                if isChecked("Use Essence") and essence.purifyingBlast.active and cd.purifyingBlast.remains() <= gcd and not buff.combustion.exists("player") 
-                    and not buff.runeOfPower.exists("player") and (#enemies.yards8t >= 2 or isBoss("target")) 
+                if br.isChecked("Use Essence") and essence.purifyingBlast.active and cd.purifyingBlast.remains() <= gcd and not buff.combustion.exists("player") 
+                    and not buff.runeOfPower.exists("player") and (#enemies.yards8t >= 2 or br.isBoss("target")) 
                 then
-                    if createCastFunction("best", false, 1, 8, spell.purifyingBlast, nil, true) then br.addonDebug("Casting Purifying Blast") return end
+                    if br.createCastFunction("best", false, 1, 8, spell.purifyingBlast, nil, true) then br.addonDebug("Casting Purifying Blast") return end
                 end
         -- Multi Target ActionList
                 if #enemies.yards8t >= 2 and (not buff.combustion.exists("player") or (mode.combustion == 1 and buff.combustion.exists("player"))) and mode.rotation ~= 3 then
@@ -713,25 +713,25 @@ local function runRotation()
                     end
                 end
         -- Dragon's Breath
-                if talent.alexstraszasFury and (getFacing("player","target") and getDistance("target") <= 6) and buff.heatingUp.exists("player")  then
+                if talent.alexstraszasFury and (br.getFacing("player","target") and br.getDistance("target") <= 6) and buff.heatingUp.exists("player")  then
                     if cast.dragonsBreath("player","cone",1,10) then br.addonDebug("Casting Dragon's Breath") return end
                 end
         -- Concentrated Flame
-                if isChecked("Use Essence") and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and not cast.last.concentratedFlame() then
+                if br.isChecked("Use Essence") and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and not cast.last.concentratedFlame() then
                     if php <= 50 then
                         if cast.concentratedFlame("player") then br.addonDebug("Casting Concentrated Flame (Heal)") return end
-                    elseif GetUnitExists("target") then
+                    elseif br.GetUnitExists("target") then
                         if cast.concentratedFlame("target") then br.addonDebug("Casting Concentrated Flame (Damage)") return end
                     end
                 end
         -- Ripple In Space
-                if isChecked("Use Essence") and useCDs() and essence.rippleInSpace.active and cd.rippleInSpace.remains() <= gcd and not buff.combustion.exists("player") and
-                    not buff.runeOfPower.exists("player") and (#enemies.yards8t >= 2 or isBoss("target"))
+                if br.isChecked("Use Essence") and useCDs() and essence.rippleInSpace.active and cd.rippleInSpace.remains() <= gcd and not buff.combustion.exists("player") and
+                    not buff.runeOfPower.exists("player") and (#enemies.yards8t >= 2 or br.isBoss("target"))
                 then
                     if cast.rippleInSpace("target") then br.addonDebug("Casting Ripple in Space") return end
                 end
         -- Scorch
-                if (talent.searingTouch and getHP("target") < 30) or (buff.combustion.remains() > getCastTime(spell.scorch)) then
+                if (talent.searingTouch and br.getHP("target") < 30) or (buff.combustion.remains() > getCastTime(spell.scorch)) then
                     if cast.scorch() then br.addonDebug("Casting Scorch") return end
                 end
         -- Fireball

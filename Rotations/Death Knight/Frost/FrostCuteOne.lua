@@ -1,37 +1,36 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
 
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.howlingBlast },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.howlingBlast },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.frostStrike },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.deathStrike}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.empowerRuneWeapon },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.empowerRuneWeapon },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.empowerRuneWeapon }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.iceboundFortitude },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.iceboundFortitude }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.mindFreeze },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mindFreeze }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
 end
 
 ---------------
@@ -192,8 +191,8 @@ actionList.Extras = function()
         if unit.exists("target") then
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
                 var.profileStop = true
-                StopAttack()
-                ClearTarget()
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 return true
             end
@@ -233,7 +232,7 @@ actionList.Defensive = function()
         if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if unit.isCasting(thisUnit) and unit.isUnit(UnitTarget(thisUnit),"player")
+                if unit.isCasting(thisUnit) and unit.isUnit(br._G.UnitTarget(thisUnit),"player")
                     and cast.timeRemain(thisUnit) < unit.gcd(true) * 2
                 then
                     if cast.antiMagicShell("player") then ui.debug("Casting Anti-Magic Shell") return true end
@@ -428,7 +427,7 @@ actionList.Cooldowns = function()
                 if cast.frostwyrmsFury() then ui.debug("Casting Frostwyrm's Fury") return true end
             end
             -- frostwyrms_fury,if=active_enemies>=2&(buff.pillar_of_frost.up&buff.pillar_of_frost.remains<gcd|raid_event.adds.exists&raid_event.adds.remains<gcd|fight_remains<gcd)
-            if cast.able.frostwyrmsFury() and (enemies.yards40r >= ui.value("Frostwyrm's Fury Units")
+            if cast.able.frostwyrmsFury() and (#enemies.yards40r >= ui.value("Frostwyrm's Fury Units")
                 and (buff.pillarOfFrost.exists() and buff.pillarOfFrost.remain() < unit.gcd(true) or unit.ttdGroup(5) < unit.gcd(true)))
             then
                 if cast.frostwyrmsFury() then ui.debug("Casting Frostwyrm's Fury [AOE]") return true end
@@ -524,7 +523,7 @@ actionList.BoSPooling = function()
     end
     -- Glacial Advance
     -- glacial_advance,if=runic_power.deficit<20&spell_targets.glacial_advance>=2&cooldown.pillar_of_frost.remains>5
-    if cast.able.glacialAdvance() and runicPowerDeficit < 20 and enemies.yards20r >= ui.value("Glacial Advance") and cd.pillarOfFrost.remain() > 5 then
+    if cast.able.glacialAdvance() and runicPowerDeficit < 20 and #enemies.yards20r >= ui.value("Glacial Advance") and cd.pillarOfFrost.remain() > 5 then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [BoS Pool - Pillar of Frost CD]") return true end
     end
     -- Frost Strike
@@ -537,12 +536,12 @@ actionList.BoSPooling = function()
         -- frostscythe,if=buff.killing_machine.up&runic_power.deficit>(15+talent.runic_attenuation*3)&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
         if (buff.killingMachine.exists() and runicPowerDeficit > (15 + var.attenuation * 3))
             and (not buff.deathdDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
-            and enemies.yards8f >= 2
+            and enemies.yards8c >= 2
         then
             if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Pool - Killing Machine]") return true end
         end
         -- frostscythe,if=runic_power.deficit>=(35+talent.runic_attenuation*3)&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
-        if (runicPowerDeficit > (15 + var.attenuation * 3) and enemies.yards8f >= 2)
+        if (runicPowerDeficit > (15 + var.attenuation * 3) and enemies.yards8c >= 2)
             and (not buff.deathdDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
         then
             if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Pool]") return true end
@@ -556,7 +555,7 @@ actionList.BoSPooling = function()
     -- Glacial Advance
     -- glacial_advance,if=cooldown.pillar_of_frost.remains>rune.time_to_4&runic_power.deficit<40&spell_targets.glacial_advance>=2
     if cast.able.glacialAdvance() and (cd.pillarOfFrost.remain() > runesTTM(4) and runicPowerDeficit < 40
-        and ((ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and enemies.yards20r > 0))) then
+        and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))) then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [BoS Pool]") return true end
     end
     -- Frost Strike
@@ -593,7 +592,7 @@ actionList.BoSTicking = function()
     -- frostscythe,if=buff.killing_machine.up&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
     if cast.able.frostscythe() and (buff.killingMachine.exists())
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
-        and enemies.yards8f >= 2
+        and enemies.yards8c >= 2
     then
         if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Active - Killing Machine]") return true end
     end
@@ -604,7 +603,7 @@ actionList.BoSTicking = function()
     end
     -- Frostscythe
     -- frostscythe,if=spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
-    if cast.able.frostscythe() and ((ui.mode.rotation == 1 and enemies.yards8f >= 2) or (ui.mode.rotation == 2 and enemies.yards8f > 0))
+    if cast.able.frostscythe() and ((ui.mode.rotation == 1 and enemies.yards8c >= 2) or (ui.mode.rotation == 2 and enemies.yards8c > 0))
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
     then
         if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Active]") return true end
@@ -640,7 +639,7 @@ actionList.Obliteration = function()
     end    
     -- Frostscythe
     -- frostscythe,if=buff.killing_machine.react&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
-    if cast.able.frostscythe() and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and enemies.yards8f >= 2) or (ui.mode.rotation == 2 and enemies.yards8f > 0))
+    if cast.able.frostscythe() and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and enemies.yards8c >= 2) or (ui.mode.rotation == 2 and enemies.yards8c > 0))
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
     then
         if cast.frostscythe() then ui.debug("Casting Frostscythe [Obliteration]") return true end
@@ -654,7 +653,7 @@ actionList.Obliteration = function()
     end
     -- Glacial Advance
     -- glacial_advance,if=spell_targets.glacial_advance>=2&(runic_power.deficit<10|rune.time_to_2>gcd)|(debuff.razorice.stack<5|debuff.razorice.remains<15)
-    if cast.able.glacialAdvance() and (((ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and enemies.yards20r > 0))
+    if cast.able.glacialAdvance() and (((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
         and (runicPowerDeficit < 10 or runesTTM(2) > unit.gcd(true)) or (debuff.razorice.stack(units.dyn5) < 5 or debuff.razorice.remains(units.dyn5) < 15))
     then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration - Low Resource / Razorice]") return true end
@@ -671,8 +670,8 @@ actionList.Obliteration = function()
     end
     -- Glacial Advance
     -- glacial_advance,if=spell_targets.glacial_advance>=2&(runic_power.deficit<10|rune.time_to_2>gcd)|(debuff.razorice.stack<5|debuff.razorice.remains<15)
-    if cast.able.glacialAdvance() and ((ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and enemies.yards20r > 0))
-        and (runicPowerDeficit < 10 or runesTTM(2) > unit.gcd(true)) or (debuff.razorice.stack() < 5 or bebuff.razorice.remains() < 15)
+    if cast.able.glacialAdvance() and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
+        and (runicPowerDeficit < 10 or runesTTM(2) > unit.gcd(true)) or (debuff.razorice.stack() < 5 or debuff.razorice.remains() < 15)
     then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration]") return true end
     end
@@ -715,7 +714,7 @@ actionList.ObliterationPooling = function()
     -- Glacial Advance
     -- glacial_advance,if=spell_targets.glacial_advance>=2&runic_power.deficit<60
     if cast.able.glacialAdvance() and runicPowerDeficit < 60
-        and ((ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and enemies.yards20r > 0))
+        and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
     then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration Pooling]") return true end
     end
@@ -731,7 +730,7 @@ actionList.ObliterationPooling = function()
     end
     -- Frostscythe
     -- frostscythe,if=active_enemies>=4&(!death_and_decay.ticking&covenant.night_fae|!covenant.night_fae)
-    if cast.able.frostscythe() and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and enemies.yards8f >= 4) or (ui.mode.rotation == 2 and enemies.yards8f > 0))
+    if cast.able.frostscythe() and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and enemies.yards8c >= 4) or (ui.mode.rotation == 2 and enemies.yards8c > 0))
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
     then
         if cast.frostscythe() then ui.debug("Casting Frostscythe [Obliteration Pooling]") return true end
@@ -747,7 +746,7 @@ actionList.Aoe = function()
     end
     -- Glacial Advance
     -- glacial_advance,if=talent.frostscythe
-    if cast.able.glacialAdvance() and (talent.frostscythe) and enemies.yards20r >= ui.value("Glacial Advance") then
+    if cast.able.glacialAdvance() and (talent.frostscythe) and #enemies.yards20r >= ui.value("Glacial Advance") then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [AoE - Frostscythe]") return true end
     end
     -- Frost Strike
@@ -767,12 +766,12 @@ actionList.Aoe = function()
     end
     -- Frostscythe
     -- frostscythe,if=buff.killing_machine.up&(!death_and_decay.ticking&covenant.night_fae|!covenant.night_fae)
-    if cast.able.frostscythe() and (buff.killingMachine.exists() and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active)) and enemies.yards8f then
+    if cast.able.frostscythe() and (buff.killingMachine.exists() and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active)) and enemies.yards8c then
         if cast.frostscythe() then ui.debug("Casting Frostscythe [AoE - Killing Machine]") return true end
     end
     -- Glacial Advance
     -- glacial_advance,if=runic_power.deficit<(15+talent.runic_var.attenuation.enabled*3)
-    if cast.able.glacialAdvance() and (runicPowerDeficit < (15 + var.attenuation * 3) and enemies.yards20r >= ui.value("Glacial Advance")) then
+    if cast.able.glacialAdvance() and (runicPowerDeficit < (15 + var.attenuation * 3) and #enemies.yards20r >= ui.value("Glacial Advance")) then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [AoE - Low Power Deficit]") return true end
     end
     -- Frost Strike
@@ -782,7 +781,7 @@ actionList.Aoe = function()
     end
     -- Frostscythe
     -- frostscythe&(!death_and_decay.ticking&covenant.night_fae|!covenant.night_fae)
-    if cast.able.frostscythe() and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active) and enemies.yards8f > 0 then
+    if cast.able.frostscythe() and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active) and enemies.yards8c > 0 then
         if cast.frostscythe() then ui.debug("Casting Frostscythe [AoE]") return true end
     end
     -- Obliterate
@@ -792,7 +791,7 @@ actionList.Aoe = function()
     end
     -- Glacial Advance
     -- glacial_advance
-    if cast.able.glacialAdvance() and enemies.yards20r >= ui.value("Glacial Advance") then
+    if cast.able.glacialAdvance() and #enemies.yards20r >= ui.value("Glacial Advance") then
         if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [AoE]") return true end
     end
     -- Frost Strike
@@ -953,15 +952,20 @@ local function runRotation()
     enemies.get(40)
 
     -- Special Enemy Counts
-    enemies.yards8f   = getEnemiesInCone(180,8)
-    enemies.yards20r  = getEnemiesInRect(10,20,false) or 0
-    enemies.yards40r  = getEnemiesInRect(10,40,false) or 0
+    enemies.cone.get(180,8,false)
+    enemies.rect.get(10,20,false)
+    enemies.rect.get(10,40,false)
 
+    -- Global WoW API to Local Vars
+    var.getTime = br._G.GetTime()
+    var.getItemLink = br._G.GetInventoryItemLink
+
+    -- Profile Vars
     if var.breathOfSindragosaActive == nil then var.breathOfSindragosaActive = false end
-    if var.breathOfSindragosaActive and not var.breathTimerSet then var.currentBreathTime = GetTime(); var.breathTimerSet = true end
-    if not var.breathOfSindragosaActive then var.breathTimerSet = false end --; var.breathTimer = GetTime() end
+    if var.breathOfSindragosaActive and not var.breathTimerSet then var.currentBreathTime = var.getTime(); var.breathTimerSet = true end
+    if not var.breathOfSindragosaActive then var.breathTimerSet = false end --; var.breathTimer = var.getTime() end
     if var.currentBreathTime == nil then var.breathTimer = 0 end
-    if var.breathTimerSet then var.breathTimer = round2(GetTime() - var.currentBreathTime,2) end
+    if var.breathTimerSet then var.breathTimer = br.round2(var.getTime() - var.currentBreathTime,2) end
     if var.profileDebug == nil or not unit.inCombat() then var.profileDebug = "None" end
     if talent.runicattenuation then var.attenuation = 1 else var.attenuation = 0 end
     
@@ -969,14 +973,14 @@ local function runRotation()
     var.fallenCrusader = false
     var.razorice = false
     var.EnchantMH = 0
-    if GetInventoryItemLink("player",16) ~= nil then
-        var.EnchantMH = (select(6,string.find(GetInventoryItemLink("player",16),itemLinkRegex)))
+    if var.getItemLink("player",16) ~= nil then
+        var.EnchantMH = (select(6,string.find(var.getItemLink("player",16),itemLinkRegex)))
         var.EnchantMH = tonumber(var.EnchantMH)
         if var.EnchantMH == 3368 or var.EnchantOH == 3368 then var.fallenCrusader = true end
     end
     var.EnchantOH = 0
-    if GetInventoryItemLink("player",17) ~= nil then
-        var.EnchantOH = (select(6,string.find(GetInventoryItemLink("player",17),itemLinkRegex)))
+    if var.getItemLink("player",17) ~= nil then
+        var.EnchantOH = (select(6,string.find(var.getItemLink("player",17),itemLinkRegex)))
         var.EnchantOH = tonumber(var.EnchantOH)
     end
     if var.EnchantMH == 3370 or var.EnchantOH == 3370 then var.razorice = true end
@@ -1061,7 +1065,7 @@ local function runRotation()
                 -- Glacial Advance
                 -- glacial_advance,if=buff.icy_talons.remains<=gcd&buff.icy_talons.up&spell_targets.glacial_advance>=2&(!talent.breath_of_sindragosa|cooldown.breath_of_sindragosa.remains>15)
                 if cast.able.glacialAdvance() and (buff.icyTalons.remain() <= unit.gcd(true) and buff.icyTalons.exists() 
-                    and ((ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and enemies.yards20r > 0))
+                    and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
                     and (not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 15 or not ui.alwaysCdNever("Breath of Sindragosa")))
                 then
                     if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Icy Talons]") return true end
@@ -1136,7 +1140,7 @@ end -- runRotation
 -- Loader Key
 local id = 251
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

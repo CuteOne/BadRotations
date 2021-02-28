@@ -5,17 +5,17 @@ local rotationName = "Overlord"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.sinisterStrike},
         [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.sinisterStrike}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.crimsonVial},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.crimsonVial}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
 end
 
 ---------------
@@ -63,8 +63,9 @@ end
 local buff
 local cast
 local cd
-local comboPoints
+local combo
 local debuff
+local energy
 local has
 local mode
 local ui
@@ -122,7 +123,7 @@ local function runRotation()
     use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or pause() or mode.rotation==4
+    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -169,7 +170,7 @@ local function runRotation()
         ------------------
         if actionList.PreCombat() then return true end
             --Stealth
-            if unit.level() >= 3 and not unit.inCombat() and unit.valid("target") and cast.able.stealth() and getDistance("player", "target") <= 20 and not buff.stealth.exists("player") then
+            if unit.level() >= 3 and not unit.inCombat() and unit.valid("target") and cast.able.stealth() and br.getDistance("player", "target") <= 20 and not buff.stealth.exists("player") then
                 if cast.stealth() then ui.debug("Casting Stealth") return true end
             end
         -----------------------------
@@ -184,11 +185,11 @@ local function runRotation()
                 -- Start Attack
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 --Ambush
                 if buff.stealth.exists() and unit.exists("target") and unit.distance("target") < 5 then
-                    if CastSpellByID(8676) then ui.debug("Casting Ambush") return true end
+                    if br._G.CastSpellByID(8676) then ui.debug("Casting Ambush") return true end
                 end
                 --Eviscerate
                 if unit.level() >= 2 and ui.checked("Use Eviscerate") then
@@ -211,7 +212,7 @@ local function runRotation()
                     if cast.sinisterStrike() then ui.debug("Casting Sinister Strike") return true end
                 end
                 --Kick Interrupt
-                if canInterrupt() then
+                if br.canInterrupt() then
                     if spell.known.kick() and cast.able.kick() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         if cast.kick() then ui.debug("Casting Kick") return true end
                     end

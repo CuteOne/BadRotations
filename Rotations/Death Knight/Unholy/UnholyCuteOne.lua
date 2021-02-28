@@ -1,43 +1,42 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
     local spell = br.player.spell
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of enemies in range.", highlight = 1, icon = spell.scourgeStrike },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = spell.scourgeStrike },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = spell.deathAndDecay },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = spell.deathCoil }
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = spell.armyOfTheDead },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = spell.armyOfTheDead },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = spell.armyOfTheDead }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(RotationModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = spell.iceboundFortitude },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = spell.iceboundFortitude }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(RotationModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = spell.mindFreeze },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = spell.mindFreeze }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(RotationModes,"Interrupt",4,0)
     -- Death And Decay Button
-    DndModes = {
+    local DndModes = {
         [1] = { mode = "On", value = 1 , overlay = "DnD Enabled", tip = "Will use DnD.", highlight = 1, icon = spell.deathAndDecay },
         [2] = { mode = "Off", value = 2 , overlay = "DnD Disabled", tip = "will NOT use DnD.", highlight = 0, icon = spell.deathAndDecay }
     };
-    CreateButton("Dnd",5,0)
+    br.ui:createToggle(RotationModes,"Dnd",5,0)
 end
 
 ---------------
@@ -221,7 +220,7 @@ actionList.PetManagement = function()
         local slots = _G["NUM_PET_ACTION_SLOTS"]
         local petMode = "None"
         for i = 1, slots do
-            local name, _, _,isActive = GetPetActionInfo(i)
+            local name, _, _,isActive = br._G.GetPetActionInfo(i)
             if isActive then
                 if name == "PET_MODE_ASSIST" then petMode = "Assist" end
                 if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
@@ -236,44 +235,44 @@ actionList.PetManagement = function()
     local petMode = getCurrentPetMode()
     local validTarget = unit.exists("pettarget") or (not unit.exists("pettarget") and unit.valid("target")) or unit.isDummy("target")
     if petExists and br.deadPet then br.deadPet = false end
-    if waitForPetToAppear == nil or IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
-        waitForPetToAppear = GetTime()
+    if waitForPetToAppear == nil or unit.mounted() or unit.flying() or br._G.UnitHasVehicleUI("player") or br._G.CanExitVehicle("player") then
+        waitForPetToAppear = br._G.GetTime()
     elseif ui.checked("Raise Dead") then
-        if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
+        if waitForPetToAppear ~= nil and br._G.GetTime() - waitForPetToAppear > 2 then
             if cast.able.raiseDead() and (br.deadPet or (not br.deadPet and not petExists)
                 or (talent.allWillServe and not pet.risenSkulker.exists()))
             then
-                if cast.raiseDead("player") then waitForPetToAppear = GetTime(); ui.debug("Casting Raise Dead") return true end
+                if cast.raiseDead("player") then waitForPetToAppear = br._G.GetTime(); ui.debug("Casting Raise Dead") return true end
             end
         end
     end
     if ui.checked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
         if unit.exists("target") and ((not unit.inCombat() and petMode == "Passive") or (unit.inCombat() and (petMode == "Defensive" or petMode == "Passive"))) then
-            PetAssistMode()
+            br._G.PetAssistMode()
             ui.debug("Setting Pet to Assist")
         elseif not unit.inCombat() and petMode == "Assist" and #enemies.yards40nc > 0 then
-            PetDefensiveAssistMode()
+            br._G.PetDefensiveAssistMode()
             ui.debug("Setting Pet to Defensive")
         elseif unit.inCombat() and petMode ~= "Passive" and #enemies.yards40 == 0 then
-            PetPassiveMode()
+            br._G.PetPassiveMode()
             ui.debug("Setting Pet to Passive")
         end
         -- Pet Attack / retreat
-        if (not UnitExists("pettarget") or not validTarget) and (unit.inCombat() or petCombat) then
+        if (not br._G.UnitExists("pettarget") or not validTarget) and (unit.inCombat() or petCombat) then
             if ui.value("Pet Target") == 1 and unit.valid(units.dyn40) then
-                PetAttack(units.dyn40)
+                br._G.PetAttack(units.dyn40)
             elseif ui.value("Pet Target") == 2 and validTarget then
-                PetAttack("target")
+                br._G.PetAttack("target")
             elseif ui.value("Pet Target") == 3 then
                 for i=1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if (unit.valid(thisUnit) or unit.isDummy(thisUnit)) then PetAttack(thisUnit); break end
+                    if (unit.valid(thisUnit) or unit.isDummy(thisUnit)) then br._G.PetAttack(thisUnit); break end
                 end
             end
-        elseif (not unit.inCombat() or (unit.inCombat() and not validTarget and not unit.valid("target") and not unit.isDummy("target"))) and IsPetAttackActive() then
-            PetStopAttack()
-            PetFollow()
+        elseif (not unit.inCombat() or (unit.inCombat() and not validTarget and not unit.valid("target") and not unit.isDummy("target"))) and br._G.IsPetAttackActive() then
+            br._G.PetStopAttack()
+            br._G.PetFollow()
         end
     end
     -- Huddle
@@ -294,7 +293,7 @@ actionList.PetManagement = function()
     if ui.checked("Gnaw") and cast.able.gnaw() and not buff.huddle.exists("pet") then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                 if cast.gnaw(thisUnit) then ui.debug("Casting Gnaw [Pet]") return true end
             end
         end
@@ -306,9 +305,9 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                StopAttack()
-                ClearTarget()
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -329,7 +328,7 @@ actionList.Extras = function()
     if ui.checked("Control Undead") and cast.able.controlUndead() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if isUndead(thisUnit) and not unit.isDummy(thisUnit) and not unit.isBoss(thisUnit) and unit.level(thisUnit) <= unit.level() + 1 then
+            if unit.undead(thisUnit) and not unit.isDummy(thisUnit) and not unit.isBoss(thisUnit) and unit.level(thisUnit) <= unit.level() + 1 then
                 if cast.controlUndead(thisUnit) then ui.debug("Casting Control Undead") return true end
             end
         end
@@ -395,7 +394,7 @@ actionList.Interrupts = function()
         if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
             for i=1, #enemies.yards15 do
                 local thisUnit = enemies.yards15[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                     if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze") return true end
                 end
             end
@@ -404,7 +403,7 @@ actionList.Interrupts = function()
         if ui.checked("Asphyxiate") and cast.able.asphyxiate() and cd.mindFreeze.remain() > unit.gcd(true) then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                     if cast.asphyxiate(thisUnit) then ui.debug("Casting Asphyxiate") return true end
                 end
             end
@@ -414,7 +413,7 @@ actionList.Interrupts = function()
             local theseEnemies = talent.deathsReach and enemies.yards40 or enemies.yards30
             for i = 1,  #theseEnemies do
                 local thisUnit = theseEnemies[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 10 then
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) and unit.distance(thisUnit) > 10 then
                     if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Int]") return true end
                 end
             end
@@ -761,7 +760,7 @@ actionList.PreCombat = function()
     -- Pre-pull
     if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
         -- Potion
-        if ui.checked("Potion") and use.able.battlePotionOfStrength() and ui.useCDs() and var.inRaid then
+        if ui.checked("Potion") and use.able.battlePotionOfStrength() and ui.useCDs() and unit.instance("raid") then
             use.battlePotionOfStrength()
             ui.debug("Using Battle Potion of Strength")
         end
@@ -843,7 +842,6 @@ local function runRotation()
     enemies.get(40)
     enemies.get(45)
     enemies.get(40,"player",true)
-    enemies.yards8r = getEnemiesInRect(10,20,false) or 0
 
     -- Nil Checks
     if var.profileStop == nil then var.profileStop = false end
@@ -889,9 +887,9 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
     elseif (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation == 4 then
-        if ui.checked("Auto Attack/Passive") and ui.pause(true) and IsPetAttackActive() then
-            PetStopAttack()
-            PetFollow()
+        if ui.checked("Auto Attack/Passive") and ui.pause(true) and br._G.IsPetAttackActive() then
+            br._G.PetStopAttack()
+            br._G.PetFollow()
         end
         return true
     else
@@ -947,7 +945,7 @@ local function runRotation()
                     if cast.racial("player") then ui.debug("Casting Racial") return true end
                 end
                 -- Augment Rune
-                if ui.checked("Augment Rune") and use.able.battleScarredAugmentRune() and var.inRaid then
+                if ui.checked("Augment Rune") and use.able.battleScarredAugmentRune() and unit.instance("raid") then
                     use.battleScarredAugmentRune()
                     ui.debug("Using Augment Rune")
                 end
@@ -969,7 +967,7 @@ local function runRotation()
                 -- end
                 -- Potion
                 -- potion,if=cooldown.army_of_the_dead.ready|pet.gargoyle.exists|buff.unholy_frenzy.up
-                if ui.checked("Potion") and var.inRaid and ui.useCDs() and use.able.battlePotionOfStrength()
+                if ui.checked("Potion") and unit.instance("raid") and ui.useCDs() and use.able.battlePotionOfStrength()
                     and (cd.armyOfTheDead.remain() == 0 or pet.gargoyle.exists() or buff.unholyAssault.exists())
                 then
                     use.battlePotionOfStrength()
@@ -1035,7 +1033,7 @@ end -- End runRotation
 -- Add To Rotation List
 local id = 252
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

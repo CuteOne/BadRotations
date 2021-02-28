@@ -5,26 +5,26 @@ local rotationName = "Initial Druid" -- Change to name of profile listed in opti
 ---------------
 local function createToggles() -- Define custom toggles
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.wrath },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.moonfire },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shred },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.regrowth },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.regrowth }
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Form Button
-    FormModes = {
+    local FormModes = {
         [1] = { mode = "Caster", value = 1 , overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spell.moonkinForm },
         [2] = { mode = "Cat", value = 2 , overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spell.catForm },
         [3] = { mode = "Bear", value = 3 , overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spell.bearForm }
     };
-    CreateButton("Form",3,0)
+    br.ui:createToggle(FormModes,"Forms",3,0)
 end
 
 ---------------
@@ -120,11 +120,11 @@ local function ferociousBiteFinish(thisUnit)
 end
 -- Time Moving
 local function timeMoving()
-    if movingTimer == nil then movingTimer = GetTime() end
+    if movingTimer == nil then movingTimer = br.G.GetTime() end
     if not unit.moving() then
-        movingTimer = GetTime()
+        movingTimer = br.G.GetTime()
     end
-    return GetTime() - movingTimer
+    return br.G.GetTime() - movingTimer
 end
 
 --------------------
@@ -141,7 +141,7 @@ actionList.Extra = function()
         end
         -- Caster Form
         if formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists()) then
-            RunMacroText("/CancelForm")
+            br._G.RunMacroText("/CancelForm")
             ui.debug("Casting Caster Form")
             return true
         end
@@ -159,10 +159,10 @@ actionList.Defensive = function()
         module.BasicHealing()
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and UnitIsPlayer("target") then
+            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and br._G.UnitIsPlayer("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
-                    RunMacroText("/CancelForm")
+                    br._G.RunMacroText("/CancelForm")
                 else
                     if cast.regrowth("target") then ui.debug("Casting Regrowth on "..unit.name("target")) return true end
                 end
@@ -170,7 +170,7 @@ actionList.Defensive = function()
             if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
-                    RunMacroText("/CancelForm")
+                    br._G.RunMacroText("/CancelForm")
                 else
                     if cast.regrowth("player") then ui.debug("Casting Regrowth on "..unit.name("player")) return true end
                 end
@@ -195,8 +195,8 @@ actionList.PreCombat = function()
                     if cast.shred() then ui.debug("Casting Shred [Pre-Pull]") return true end
                 end
                 -- Auto Attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                    StartAttack(units.dyn5)
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
+                    br._G.StartAttack(units.dyn5)
                 end
             end
         end
@@ -226,7 +226,7 @@ local function runRotation()
     -- General Locals
     movingTimer                                 = timeMoving()
     profileStop                                 = profileStop or false
-    haltProfile                                 = (unit.inCombat() and profileStop) or pause() or ui.rotation==4
+    haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -275,8 +275,8 @@ local function runRotation()
             -- Melee in melee range
             if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 -- Start Attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                    StartAttack(units.dyn5)
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
+                    br._G.StartAttack(units.dyn5)
                 end
                 -- Bear Form
                 if buff.bearForm.exists() then
@@ -319,7 +319,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1447 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

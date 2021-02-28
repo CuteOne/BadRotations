@@ -1,4 +1,4 @@
-local br = _G["br"]
+local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.essences = function(essence,k,v)
     -- Find Major/Minor/Active/Rank
@@ -6,7 +6,7 @@ br.api.essences = function(essence,k,v)
     essence.major = false
     essence.minor = false
     essence.rank = 0
-    local milestoneTable = C_AzeriteEssence.GetMilestones()
+    local milestoneTable = _G.C_AzeriteEssence.GetMilestones()
     local GetSpellInfo = _G["GetSpellInfo"]
     local C_AzeriteEssence = _G["C_AzeriteEssence"]
     local essenceIdName = GetSpellInfo(GetSpellInfo(v)) or "None"

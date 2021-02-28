@@ -1,3 +1,4 @@
+local _, br = ...
 if br.lists == nil then
     br.lists = {}
 end

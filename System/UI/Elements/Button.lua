@@ -1,6 +1,6 @@
-local DiesalGUI = LibStub("DiesalGUI-1.0")
-local DiesalTools = LibStub("DiesalTools-1.0")
-
+local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
+local DiesalTools = _G.LibStub("DiesalTools-1.0")
+local _, br = ...
 function br.ui:createButton(parent, buttonName, x, y, onClickFunction, alignRight)
     if y == nil then
         y = -5
@@ -80,14 +80,15 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
             profileButton:SetEventListener(
                 "OnClick",
                 function()
-                    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+                    local profiles =
+                        br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
                         for _, p in ipairs(profiles) do
                             if p.key == pkey then
                                 profileButton:SetText("|cffff3300Profile with that name exists!|r")
-                                C_Timer.NewTicker(
+                                br._G.C_Timer.NewTicker(
                                     2,
                                     function()
                                         profileButton:SetText("Create New Profile")
@@ -97,7 +98,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, {key = pkey, text = deepcopy(br.data.settings[br.selectedSpec])})
+                        table.insert(profiles, {key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec])})
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
@@ -110,14 +111,15 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
             profileInput:SetEventListener(
                 "OnEnterPressed",
                 function()
-                    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+                    local profiles =
+                        br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
                         for _, p in ipairs(profiles) do
                             if p.key == pkey then
                                 profileButton:SetText("|cffff3300Profile with that name exists!|r")
-                                C_Timer.NewTicker(
+                                br._G.C_Timer.NewTicker(
                                     2,
                                     function()
                                         profileButton:SetText("Create New Profile")
@@ -127,7 +129,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, {key = pkey, text = deepcopy(br.data.settings[br.selectedSpec])})
+                        table.insert(profiles, {key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec])})
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
@@ -165,7 +167,7 @@ function br.ui:createDeleteButton(parent, buttonName, x, y)
                 for i, p in ipairs(profiles) do
                     if p.key == selectedProfile then
                         profiles[i] = nil
-                        Print("Deleting " .. selectedProfile .. " profile!")
+                        br._G.print("Deleting " .. selectedProfile .. " profile!")
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", "default")
                         parent:Hide()
@@ -174,7 +176,7 @@ function br.ui:createDeleteButton(parent, buttonName, x, y)
                     end
                 end
             else
-                Print("Cannot delete default profile!")
+                br._G.print("Cannot delete default profile!")
             end
         end
     )
@@ -199,16 +201,16 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
         "OnClick",
         function()
             if br.profileDropValue == "default" then
-                Print("Please select a profile other than default!")
+                br._G.print("Please select a profile other than default!")
                 return
             end
             if br.profile ~= nil then
                 if br.profile[br.selectedSpec .. "_" .. "profiles"] ~= nil then
                     local lProfile = br.profile[br.selectedSpec .. "_" .. "profiles"]
-                    for k, v in pairs(lProfile) do
+                    for _, v in pairs(lProfile) do
                         if v.key == br.profileDropValue then
-                            br.data.settings[br.selectedSpec] = deepcopy(v.text)
-                            Print(v.key .. " profile found!")
+                            br.data.settings[br.selectedSpec] = br.deepcopy(v.text)
+                            br._G.print(v.key .. " profile found!")
                             br.rotationChanged = true
                             break
                         end
@@ -244,7 +246,7 @@ function br.ui:createExportButton(parent, buttonName, x, y)
             -- -- Save br.data for current profile to Settings folder
             -- local exportDir = br:checkDirectories("Exported Settings")
             -- local savedSettings = deepcopy(br.data)
-            -- local settingsFile = br.selectedSpec..br.selectedProfileName
+            -- local settingsFile = br.selectedSpec..selectedProfileName
             -- if savedSettings ~= nil then
             --     br.tableSave(savedSettings,exportDir .. settingsFile .. ".lua")
             --     Print("Exported Settings for Profile "..settingsFile.." to Exported Settings Folder")
@@ -274,7 +276,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
         function()
             br.data.loadedSettings = false
             br:loadSettings("Exported Settings", nil, br.selectedSpec, br.selectedProfileName)
-            ReloadUI()
+            br._G.ReloadUI()
             -- -- Load settings file matching profile to br.data
             -- local loadDir = br:checkDirectories("Exported Settings")
             -- local brdata
@@ -294,7 +296,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
             -- end
             -- if fileFound then
             --     br.ui:closeWindow("all")
-            --     mainButton:Hide()
+            --     br.mainButton:Hide()
             --     br.data = deepcopy(brdata)
             --     if profileFound then br.profile = deepcopy(brprofile) end
             --     br.ui:recreateWindows()
@@ -324,17 +326,17 @@ br.tableSave = function(tbl, filename)
     local charS, charE = "   ", "\n"
     -- local file,err = io.open( filename, "wb" )
     -- if err then return err end
-    WriteFile(filename, "")
+    br._G.WriteFile(filename, "")
     -- initiate variables for save procedure
     local tables, lookup = {tbl}, {[tbl] = 1}
     -- file:write( "return {"..charE )
-    WriteFile(filename, "return {" .. charE, true)
+    br._G.WriteFile(filename, "return {" .. charE, true)
 
     for idx, t in ipairs(tables) do
         -- file:write( "-- Table: {"..idx.."}"..charE )
-        WriteFile(filename, "-- Table: {" .. idx .. "}" .. charE, true)
+        br._G.WriteFile(filename, "-- Table: {" .. idx .. "}" .. charE, true)
         -- file:write( "{"..charE )
-        WriteFile(filename, "{" .. charE, true)
+        br._G.WriteFile(filename, "{" .. charE, true)
         local thandled = {}
 
         for i, v in ipairs(t) do
@@ -347,15 +349,15 @@ br.tableSave = function(tbl, filename)
                     lookup[v] = #tables
                 end
                 -- file:write( charS.."{"..lookup[v].."},"..charE )
-                WriteFile(filename, charS .. "{" .. lookup[v] .. "}," .. charE, true)
+                br._G.WriteFile(filename, charS .. "{" .. lookup[v] .. "}," .. charE, true)
             elseif stype == "string" then
                 -- file:write(  charS..exportstring( v )..","..charE )
-                WriteFile(filename, charS .. exportstring(v) .. "," .. charE, true)
+                br._G.WriteFile(filename, charS .. exportstring(v) .. "," .. charE, true)
             elseif stype == "number" then
                 -- file:write(  charS..tostring( v )..","..charE )
-                WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
+                br._G.WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
             elseif stype == "boolean" then
-                WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
+                br._G.WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
             end
         end
 
@@ -388,34 +390,34 @@ br.tableSave = function(tbl, filename)
                             lookup[v] = #tables
                         end
                         -- file:write( str.."{"..lookup[v].."},"..charE )
-                        WriteFile(filename, str .. "{" .. lookup[v] .. "}," .. charE, true)
+                        br._G.WriteFile(filename, str .. "{" .. lookup[v] .. "}," .. charE, true)
                     elseif stype == "string" then
                         -- file:write( str..exportstring( v )..","..charE )
-                        WriteFile(filename, str .. exportstring(v) .. "," .. charE, true)
+                        br._G.WriteFile(filename, str .. exportstring(v) .. "," .. charE, true)
                     elseif stype == "number" then
                         -- file:write( str..tostring( v )..","..charE )
-                        WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
+                        br._G.WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
                     elseif stype == "boolean" then
-                        WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
+                        br._G.WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
                     end
                 end
             end
         end
         -- file:write( "},"..charE )
-        WriteFile(filename, "}," .. charE, true)
+        br._G.WriteFile(filename, "}," .. charE, true)
     end
     -- file:write( "}" )
-    WriteFile(filename, "}", true)
+    br._G.WriteFile(filename, "}", true)
     -- file:close()
 end
 
 --// The Load Function
 br.tableLoad = function(sfile)
-    local file = ReadFile(sfile)
+    local file = br._G.ReadFile(sfile)
     if file == nil or file == "" then
         return
     end
-    local ftables = loadstring(file, sfile)
+    local ftables = br._G.loadstring(file, sfile)
     -- local ftables,err = loadfile( sfile )
     -- if err then return _,err end
     local tables

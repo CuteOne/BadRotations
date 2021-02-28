@@ -1,4 +1,4 @@
-local br = _G["br"]
+local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.runeforge = function(runeforge,k,v)
     runeforge[k].equiped = false
@@ -225,18 +225,16 @@ br.api.runeforge = function(runeforge,k,v)
 
     for i = 1, #itemLeggoSlots do
         local thisSlot = itemLeggoSlots[i]
-        if GetInventoryItemID("player",thisSlot) ~= nil then
+        if _G.GetInventoryItemID("player",thisSlot) ~= nil then
             -- From: https://wow.gamepedia.com/ItemLocationMixin
-            local item = ItemLocation:CreateFromEquipmentSlot(thisSlot)
+            local item = _G.ItemLocation:CreateFromEquipmentSlot(thisSlot)
             if item:IsValid() then
-                if C_LegendaryCrafting.IsRuneforgeLegendary(item) then
-                    local bonusID = select(15,strsplit(":", GetInventoryItemLink("player",thisSlot)))
-                    -- Print("Item in Slot: "..thisSlot.." returned bonusID: "..bonusID)
+                if _G.C_LegendaryCrafting.IsRuneforgeLegendary(item) then
+                    local bonusID = select(15,_G.strsplit(":", _G.GetInventoryItemLink("player",thisSlot)))
                     local powerID = bonusToPowerId[tonumber(bonusID)]
                     if powerID ~= nil then
-                        local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(powerID)
+                        local powerInfo = _G.C_LegendaryCrafting.GetRuneforgePowerInfo(powerID)
                         if powerInfo.descriptionSpellID == v then
-                            -- Print("Legendary Item Effect: "..tostring(powerInfo.name).." found on item: "..tostring(C_Item.GetItemName(item)))
                             runeforge[k].equiped = true
                             break
                         end

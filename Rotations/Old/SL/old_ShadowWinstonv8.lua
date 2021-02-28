@@ -200,26 +200,26 @@ local function runRotation()
     local cast                                          = br.player.cast
     local castable                                      = br.player.cast.debug
     local channelDelay                                  = 0.1
-    local combatTime                                    = getCombatTime()
+    local combatTime                                    = br.getCombatTime()
     local cd                                            = br.player.cd
     local charges                                       = br.player.charges
-    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
     local essence                                       = br.player.essence
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-    local friendly                                      = friendly or GetUnitIsFriend("target", "player")
+    local friendly                                      = friendly or br.GetUnitIsFriend("target", "player")
     local gcd                                           = br.player.gcd
     local gcdMax                                        = br.player.gcdMax
     local gHaste                                        = br.player.gcdMax / (1 + GetHaste() / 100)
     local healPot                                       = getHealthPot()
-    local hasMouse                                      = GetObjectExists("mouseover")
+    local hasMouse                                      = br.GetObjectExists("mouseover")
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance=="party"
     local inRaid                                        = br.player.instance=="raid"
     local item                                          = br.player.items
     local level                                         = br.player.level
-    local lootDelay                                     = getOptionValue("LootDelay")
+    local lootDelay                                     = br.getOptionValue("LootDelay")
     local lowestHP                                      = br.friend[1].unit
     local mode                                          = br.player.ui.mode
     local moveIn                                        = 999
@@ -241,17 +241,17 @@ local function runRotation()
     local t21_4pc                                       = TierScan("T21")>=4
     local talent                                        = br.player.talent
     local traits                                        = br.player.traits
-    local thp                                           = getHP("target")
-    local ttd                                           = getTTD
+    local thp                                           = br.getHP("target")
+    local ttd                                           = br.getTTD
     local ttm                                           = br.player.power.insanity.ttm()
     local units                                         = br.player.units
     local use                                           = br.player.use
  
     local chgMax                                        = max(0.75, 1.5 * 2 / (1 + GetHaste() / 100))
-    local DAmaxTargets                                  = getOptionValue("Dark Ascension AoE")
-    local MSmaxTargets                                  = getOptionValue("Mind Sear Targets")
-    local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
-    local VTmaxTargets                                  = getOptionValue("VT Max Targets")
+    local DAmaxTargets                                  = br.getOptionValue("Dark Ascension AoE")
+    local MSmaxTargets                                  = br.getOptionValue("Mind Sear Targets")
+    local SWPmaxTargets                                 = br.getOptionValue("SWP Max Targets")
+    local VTmaxTargets                                  = br.getOptionValue("VT Max Targets")
     local mindFlayRecast                                = br.timer:useTimer("mindFlayRecast", chgMax)
     local mindSearRecast                                = br.timer:useTimer("mindSearRecast", chgMax)
 
@@ -313,9 +313,9 @@ local function runRotation()
 
     -- searEnemmies represents the number of enemies in mind sear range of the primary target.
     local activeEnemies = #enemies.yards20t
-    local dAEnemies = getEnemies(units.dyn40, 8, true)
-    local dVEnemies = getEnemies(units.dyn40, 8, true)
-    local searEnemies = getEnemies(units.dyn40, 8, true)
+    local dAEnemies = br.getEnemies(units.dyn40, 8, true)
+    local dVEnemies = br.getEnemies(units.dyn40, 8, true)
+    local searEnemies = br.getEnemies(units.dyn40, 8, true)
 
     if mode.rotation == 3 then
         activeEnemies = 1
@@ -352,7 +352,7 @@ local function runRotation()
     local noHarvest = not buff.harvestedThoughts.exists() and not cast.current.mindSear()
     local noSdHarvest = not traits.searingDialogue.active and not cast.current.mindSear()
     local noTH = noHarvest or noSdHarvest
-    local SWPb4VT = isChecked("SWP b4 VT") --or debuff.shadowWordPain.exists()
+    local SWPb4VT = br.isChecked("SWP b4 VT") --or debuff.shadowWordPain.exists()
     local mindblastTargets = math.floor((4.5 + traits.whispersOfTheDamned.rank) / (1 + 0.27 * traits.searingDialogue.rank))
     local swp_trait_ranks_check = (1 - 0.07 * traits.deathThroes.rank + 0.2 * traits.thoughtHarvester.rank) * (1 - 0.09 * traits.thoughtHarvester.rank * traits.searingDialogue.rank)
     local vt_trait_ranks_check = (1 - 0.04 * traits.thoughtHarvester.rank - 0.05 * traits.spitefulApparitions.rank)
@@ -360,8 +360,8 @@ local function runRotation()
     local vt_mis_sd_check = 1 - 0.014 * traits.searingDialogue.rank
 
     --Clear last cast table ooc to avoid strange casts
-    if not inCombat and #br.lastCast.tracker > 0 then
-        wipe(br.lastCast.tracker)
+    if not inCombat and #br.lastCastTable.tracker > 0 then
+        wipe(br.lastCastTable.tracker)
     end
 
 --------------------
@@ -370,16 +370,16 @@ local function runRotation()
 -- Action list - Extras
     function actionList_Extra()
         -- Dispel Magic
-        if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
+        if br.isChecked("Dispel Magic") and br.canDispel("target",spell.dispelMagic) and not br.isBoss() and br.GetObjectExists("target") then
             if cast.dispelMagic() then return end
         end
     -- Dummy Test
-        if isChecked("DPS Testing") then
-            if GetObjectExists("target") then
-                if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+        if br.isChecked("DPS Testing") then
+            if br.GetObjectExists("target") then
+                if br.getCombatTime() >= (tonumber(br.getOptionValue("DPS Testing"))*60) and br.isDummy() then
                     StopAttack()
                     ClearTarget()
-                    Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                    Print(tonumber(br.getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                     profileStop = true
                 end
             end
@@ -387,46 +387,46 @@ local function runRotation()
     end -- End Action List - Extra
 -- Action List - Defensive
     function actionList_Defensive()
-        if mode.defensive == 1 and getHP("player")>0 then
+        if mode.defensive == 1 and br.getHP("player")>0 then
             -- Pot/Stoned
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if br.isChecked("Healthstone") and php <= br.getOptionValue("Healthstone") 
+                    and inCombat and (hasHealthPot() or br.hasItem(5512)) 
                 then
-                    if canUseItem(5512) then
-                        useItem(5512)
-                    elseif canUseItem(healPot) then
-                        useItem(healPot)
+                    if br.canUseItem(5512) then
+                        br.useItem(5512)
+                    elseif br.canUseItem(healPot) then
+                        br.useItem(healPot)
                     end
                 end
             -- Gift of the Naaru
-            --[[if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
+            --[[if br.isChecked("Gift of the Naaru") and php <= br.getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
                 if castSpell("player",racial,false,false,false) then return end
             end--]]
             -- Psychic Scream / Mind Bomb
-            if isChecked("Vampiric Embrace") and inCombat and php <= getOptionValue("Vampiric Embrace") then
+            if br.isChecked("Vampiric Embrace") and inCombat and php <= br.getOptionValue("Vampiric Embrace") then
                 if #enemies.yards40 > 0 then
                     if cast.vampiricEmbrace("player") then return end
                 end
             end
             --[[ Stoneform - Dwarf racial
-            if isChecked("Stoneform") and php <= getOptionValue("Stoneform") and php > 0 and br.player.race=="Dwarf" then
+            if br.isChecked("Stoneform") and php <= br.getOptionValue("Stoneform") and php > 0 and br.player.race=="Dwarf" then
                 if castSpell("player",racial,false,false,false) then return end
             end--]]
             -- Dispersion
-            if isChecked("Dispersion") and php <= getOptionValue("Dispersion") then
+            if br.isChecked("Dispersion") and php <= br.getOptionValue("Dispersion") then
                 if cast.dispersion("player") then return end
             end
             -- Fade
-            if isChecked("Fade") then
+            if br.isChecked("Fade") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not solo and hasThreat(thisUnit) then
+                    if not solo and br.hasThreat(thisUnit) then
                         cast.fade("player")
                     end
                 end
             end
             -- Psychic Scream / Mind Bomb
-            if isChecked("Psychic Scream / Mind Bomb") and inCombat and php <= getOptionValue("Psychic Scream / Mind Bomb") then
+            if br.isChecked("Psychic Scream / Mind Bomb") and inCombat and php <= br.getOptionValue("Psychic Scream / Mind Bomb") then
                 if not talent.mindBomb and #enemies.yards8 > 0 then
                     if cast.psychicScream("player") then return end
                 else
@@ -434,16 +434,16 @@ local function runRotation()
                 end
             end
             -- Psychic Horror
-            --if isChecked("Psychic Horror") and inCombat and php <= getOptionValue("Psychic Horror") then
+            --if br.isChecked("Psychic Horror") and inCombat and php <= br.getOptionValue("Psychic Horror") then
             --    if talent.psychichHorror and #enemies.yards8 > 0 then
             --        if cast.psychicHorror(units.dyn30) then return end
             --    end
             -- Power Word: Shield
-            if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
+            if br.isChecked("Power Word: Shield") and php <= br.getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
                 if cast.powerWordShield("player") then return end
             end
             -- Shadow Mend
-            if isChecked("Shadow Mend") and php <= getOptionValue("Shadow Mend") then
+            if br.isChecked("Shadow Mend") and php <= br.getOptionValue("Shadow Mend") then
                 if cast.shadowMend("player") then return end
             end
         end -- End Defensive Check
@@ -452,37 +452,37 @@ local function runRotation()
     function actionList_Interrupts()
        if useInterrupts() then
         -- Silence
-         if isChecked("Silence") then
+         if br.isChecked("Silence") then
              for i=1, #enemies.yards30 do
                  thisUnit = enemies.yards30[i]
-                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                 if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                      if cast.silence(thisUnit) then return end
                  end
              end
          end
       -- Psychic Horror
-         if talent.psychicHorror and isChecked("Psychic Horror") and (cd.silence.exists() or not isChecked("Silence")) then
+         if talent.psychicHorror and br.isChecked("Psychic Horror") and (cd.silence.exists() or not br.isChecked("Silence")) then
              for i=1, #enemies.yards30 do
                  thisUnit = enemies.yards30[i]
-                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                 if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                      if cast.psychicHorror(thisUnit) then return end --Print("pH on any") return end
                  end
              end
          end
         -- Psychic Scream
-         if isChecked("Psychic Scream") then
+         if br.isChecked("Psychic Scream") then
              for i=1, #enemies.yards8 do
                  thisUnit = enemies.yards8[i]
-                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                 if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                      if cast.psychicScream("player") then return end
                  end
              end
          end
         -- Mind Bomb
-         if talent.mindBomb and isChecked("Mind Bomb") then
+         if talent.mindBomb and br.isChecked("Mind Bomb") then
              for i=1, #enemies.yards30 do
                  thisUnit = enemies.yards30[i]
-                 if canInterrupt(thisUnit,99) then
+                 if br.canInterrupt(thisUnit,99) then
                     if cast.mindBomb(thisUnit) then return end
                 end
             end
@@ -493,146 +493,146 @@ local function runRotation()
     function actionList_Cooldowns()
         if useCDs() then
             -- Touch of the Void
-            if isChecked("Touch of the Void") and getDistance("target") <= 40 then
+            if br.isChecked("Touch of the Void") and br.getDistance("target") <= 40 then
                 if hasEquiped(128318) then
                     if GetItemCooldown(128318)==0 then
-                        useItem(128318)
+                        br.useItem(128318)
                     end
                 end
             end
             -- KJ Burning Wish
-            if isChecked("KJ Burning Wish") and getDistance("target") <= 40 then
+            if br.isChecked("KJ Burning Wish") and br.getDistance("target") <= 40 then
                 if hasEquiped(144259) then
                     if GetItemCooldown(144259)==0 then
-                        useItem(144259)
+                        br.useItem(144259)
                     end
                 end
             end
             -- Tarnished Sentinel Medallion
-            if isChecked("Tarnished Sentinel Medallion") and getDistance("target") <= 40 then
+            if br.isChecked("Tarnished Sentinel Medallion") and br.getDistance("target") <= 40 then
                 if hasEquiped(147017) then
                     if GetItemCooldown(147017)==0 then
-                        useItem(147017)
+                        br.useItem(147017)
                     end
                 end
             end
             -- Wriggling Sinew
-            if isChecked("Wriggling Sinew") and getDistance("target") <= 40 then
+            if br.isChecked("Wriggling Sinew") and br.getDistance("target") <= 40 then
                 if hasEquiped(139326) then
                     if GetItemCooldown(139326)==0 then
-                        useItem(139326)
+                        br.useItem(139326)
                     end
                 end
             end
             -- Pharameres Forbidden Grimoire
-            if isChecked("Pharameres Forbidden Grimoire") and getDistance("target") <= 40 then
+            if br.isChecked("Pharameres Forbidden Grimoire") and br.getDistance("target") <= 40 then
                 if hasEquiped(140800) then
                     if GetItemCooldown(140800)==0 then
-                        useItem(140800)
+                        br.useItem(140800)
                     end
                 end
             end
             -- Mrrgias Favor
-            if isChecked("Mrrgias Favor") and getDistance("target") <= 40 then
+            if br.isChecked("Mrrgias Favor") and br.getDistance("target") <= 40 then
                 if hasEquiped(142160) then
                     if GetItemCooldown(142160)==0 then
-                        useItem(142160)
+                        br.useItem(142160)
                     end
                 end
             end
             -- Moonlit Prism
-            if isChecked("Moonlit Prism")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Prism Stacks") then
+            if br.isChecked("Moonlit Prism")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Prism Stacks") then
                 if hasEquiped(137541) then
                     if GetItemCooldown(137541)==0 then
-                        useItem(137541)
+                        br.useItem(137541)
                     end
                 end
             end
             -- Tome of Unravelling Sanity
-            if isChecked("Tome of Unravelling Sanity")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Tome Stacks") then
+            if br.isChecked("Tome of Unravelling Sanity")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Tome Stacks") then
                 if hasEquiped(147019) then
                     if GetItemCooldown(147019)==0 then
-                        useItem(147019)
+                        br.useItem(147019)
                     end
                 end
             end
             -- Charm of the Rising Tide
-            if isChecked("Charm of the Rising Tide")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Charm Stacks") then
+            if br.isChecked("Charm of the Rising Tide")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Charm Stacks") then
                 if hasEquiped(147002) then
                     if GetItemCooldown(147002)==0 then
-                        useItem(147002)
+                        br.useItem(147002)
                     end
                 end
             end
             -- Obelisk of the Void
-            if isChecked("Obelisk of the Void")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Obelisk Stacks") then
+            if br.isChecked("Obelisk of the Void")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Obelisk Stacks") then
                 if hasEquiped(137433) then
                     if GetItemCooldown(137433)==0 then
-                        useItem(137433)
+                        br.useItem(137433)
                     end
                 end
             end
             -- Horn of Valor
-            if isChecked("Horn of Valor")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Horn Stacks") then
+            if br.isChecked("Horn of Valor")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Horn Stacks") then
                 if hasEquiped(133642) then
                     if GetItemCooldown(133642)==0 then
-                        useItem(133642)
+                        br.useItem(133642)
                     end
                 end
             end
             -- Skull of Guldan
-            if isChecked("Skull of Guldan")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Skull Stacks") then
+            if br.isChecked("Skull of Guldan")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Skull Stacks") then
                 if hasEquiped(150522) then
                     if GetItemCooldown(150522)==0 then
-                        useItem(150522)
+                        br.useItem(150522)
                     end
                 end
             end
             -- Figurehead of the Naglfar
-            if isChecked("Figurehead of the Naglfar")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Figurehead Stacks") then
+            if br.isChecked("Figurehead of the Naglfar")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Figurehead Stacks") then
                 if hasEquiped(137329) then
                     if GetItemCooldown(137329)==0 then
-                        useItem(137329)
+                        br.useItem(137329)
                     end
                 end
             end
             -- Azurethos' Singed Plumage
-            if isChecked("Azurethos' Singed Plumage")  and getDistance("target") <= 40 and buff.voidForm.stack() >= getOptionValue("  Plumage Stacks") then
+            if br.isChecked("Azurethos' Singed Plumage")  and br.getDistance("target") <= 40 and buff.voidForm.stack() >= br.getOptionValue("  Plumage Stacks") then
                 if hasEquiped(161377) then
                     if GetItemCooldown(161377)==0 then
-                        useItem(161377)
+                        br.useItem(161377)
                     end
                 end
             end
             -- T'zane's Barkspines
-            if isChecked("T'zane's Barkspines")  and getDistance("target") <= 40 and buff.voidForm.exists() then
+            if br.isChecked("T'zane's Barkspines")  and br.getDistance("target") <= 40 and buff.voidForm.exists() then
                 if hasEquiped(161411) then
                     if GetItemCooldown(161411)==0 then
-                        useItem(161411)
+                        br.useItem(161411)
                     end
                 end
             end
         -- Trinkets
-            --if isChecked("Trinkets") then
-            --    if canUseItem(11) then
-            --        useItem(11)
+            --if br.isChecked("Trinkets") then
+            --    if br.canUseItem(11) then
+            --        br.useItem(11)
             --    end
-            --    if canUseItem(12) then
-            --        useItem(12)
+            --    if br.canUseItem(12) then
+            --        br.useItem(12)
             --    end
-            --    if canUseItem(13) then
-            --        useItem(13)
+            --    if br.canUseItem(13) then
+            --        br.useItem(13)
             --    end
-            --    if canUseItem(14) then
-            --        useItem(14)
+            --    if br.canUseItem(14) then
+            --        br.useItem(14)
             --    end
             --end
-            if isChecked("Trinket 1") and canUseItem(13) then
-                useItem(13)
+            if br.isChecked("Trinket 1") and br.canUseItem(13) then
+                br.useItem(13)
                 return true
             end
-            if isChecked("Trinket 2") and canUseItem(14) then
-                useItem(14)
+            if br.isChecked("Trinket 2") and br.canUseItem(14) then
+                br.useItem(14)
                 return true
             end
         -- Potion
@@ -652,9 +652,9 @@ local function runRotation()
          --if not buff.powerWordFortitude.exists() then
          --    cast.powerWordFortitude()
          --end
-         if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", mrdm(3,5)) then
+         if br.isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", mrdm(3,5)) then
              for i = 1, #br.friend do
-                 if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                 if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                      if cast.powerWordFortitude() then return end
                  end
              end
@@ -662,32 +662,32 @@ local function runRotation()
      -- Flask/Elixir
          -- flask,type=flask_of_the_whispered_pact
            -- Endless Fathoms Flask
-         if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
+         if br.getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and br.canUseItem(item.flaskOfEndlessFathoms) then
              if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
              if buff.felFocus.exists() then buff.felFocus.cancel() end
              if use.flaskOfEndlessFathoms() then return end
          end
-         if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
+         if br.getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and br.canUseItem(item.repurposedFelFocuser) then
              if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
              if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
              if use.repurposedFelFocuser() then return end
          end
-         if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
+         if br.getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and br.canUseItem(item.oraliusWhisperingCrystal) then
              if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
              if buff.felFocus.exists() then buff.felFocus.cancel() end
              if use.oraliusWhisperingCrystal() then return end
          end
      -- Mind Blast
-         if isChecked("Pull OoC") and isValidUnit("target") then
+         if br.isChecked("Pull OoC") and br.isValidUnit("target") then
              if activeEnemies == 1 or mode.rotation == 3 then
                 if not moving then
-                    if not talent.shadowWordVoid and br.timer:useTimer("mbRecast", gcdMax + getSpellCD(spell.mindBlast)) then
+                    if not talent.shadowWordVoid and br.timer:useTimer("mbRecast", gcdMax + br.getSpellCD(spell.mindBlast)) then
                         if UnitExists("target") and UnitGUID("target") ~= pmbLast then
                             if cast.mindBlast("target") then pmbLast = UnitGUID("target")
                             --Print("OoC MB")
                             return end
                         end
-                    elseif talent.shadowWordVoid and charges.shadowWordVoid.count() > 1 and br.timer:useTimer("swvRecast", gcdMax + getSpellCD(spell.mindBlast)) then
+                    elseif talent.shadowWordVoid and charges.shadowWordVoid.count() > 1 and br.timer:useTimer("swvRecast", gcdMax + br.getSpellCD(spell.mindBlast)) then
                         if UnitExists("target") and UnitGUID("target") ~= pswvLast then
                             if cast.shadowWordVoid("target") then pswvLast = UnitGUID("target")
                                 --Print("OoC swv")
@@ -703,7 +703,7 @@ local function runRotation()
                 end
              elseif activeEnemies > 1 or mode.rotation == 2 then 
                 if not moving then
-                    if not debuff.vampiricTouch.exists() and not cast.current.vampiricTouch() and br.timer:useTimer("vtRecast", gcdMax + getSpellCD(spell.vampiricTouch)) then
+                    if not debuff.vampiricTouch.exists() and not cast.current.vampiricTouch() and br.timer:useTimer("vtRecast", gcdMax + br.getSpellCD(spell.vampiricTouch)) then
                         if UnitExists("target") and UnitGUID("target") ~= pvtLast then
                             if cast.vampiricTouch("target") then pvtLast = UnitGUID("target")
                                 --Print("OoC VT")
@@ -720,12 +720,12 @@ local function runRotation()
              end
          end
      --[[ Power Word: Shield Body and Soul
-     --    if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and buff.powerWordShield.remain() <= 8.5 and not buff.classHallSpeed.exists() then
+     --    if br.isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and buff.powerWordShield.remain() <= 8.5 and not buff.classHallSpeed.exists() then
      --        if cast.powerWordShield("player") then return end
      --    end
         if IsMovingTime(mrdm(60,120)/100) then
             if bnSTimer == nil then bnSTimer = GetTime() - 6 end
-            if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and buff.powerWordShield.remain("player") <= mrdm(6,8) and GetTime() >= bnSTimer + 6 then
+            if br.isChecked("PWS: Body and Soul") and talent.bodyAndSoul and buff.powerWordShield.remain("player") <= mrdm(6,8) and GetTime() >= bnSTimer + 6 then
                  if cast.powerWordShield("player") then
                  bnSTimer = GetTime() return end
              end
@@ -734,15 +734,15 @@ local function runRotation()
 -- Action List - Cleave
     function actionList_Cleave()
     --Mouseover Dotting
-        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not moving then
-            if getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 6.3 then
+        if br.isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or br.isDummy("mouseover")) and not moving then
+            if br.getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 6.3 then
                 if cast.vampiricTouch("mouseover") then
                     return
                 end
             end
         end
-        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) then
-            if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 4.8 then
+        if br.isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or br.isDummy("mouseover")) then
+            if br.getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 4.8 then
                 if cast.shadowWordPain("mouseover") then
                     return
                 end
@@ -758,7 +758,7 @@ local function runRotation()
             end
         end
     --Dark Ascension
-        if isChecked("Dark Ascension") and not isChecked("Dark Ascension AoE") and useCDs() then
+        if br.isChecked("Dark Ascension") and not br.isChecked("Dark Ascension AoE") and useCDs() then
             if power <= 60 and not buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
                     --Print("Cleave DA no VF")
@@ -766,9 +766,9 @@ local function runRotation()
             end
         end
     --Dark Ascension
-            --if power <= getOptionValue("  Insanity Percentage") and buff.voidForm.exists() then
-        if isChecked("Dark Ascension Burst") and useCDs() then --and #searEnemies < mindblastTargets then
-            if insanityDrain * gcdMax > power and buff.voidForm.exists() or not isChecked("Dark Ascension AoE") and #dAEnemies < getOptionValue("Dark Ascension AoE") and not buff.voidForm.exists() then
+            --if power <= br.getOptionValue("  Insanity Percentage") and buff.voidForm.exists() then
+        if br.isChecked("Dark Ascension Burst") and useCDs() then --and #searEnemies < mindblastTargets then
+            if insanityDrain * gcdMax > power and buff.voidForm.exists() or not br.isChecked("Dark Ascension AoE") and #dAEnemies < br.getOptionValue("Dark Ascension AoE") and not buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
                     --Print("Cleave DA Burst VF")
                 return end
@@ -793,10 +793,10 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
-            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
+        if lucisDreams and br.isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
+            if hasBloodLust() and buff.voidForm.stack() > (br.getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
-            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
+            elseif buff.voidForm.stack() > br.getOptionValue("  Lucid Dreams VF Stacks") or power <= br.getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
             end
         end
@@ -809,7 +809,7 @@ local function runRotation()
         end
     --Surrender To Madness
         -- surrender_to_madness,if=buff.voidform.stack>10+(10*buff.bloodlust.up)
-        if isChecked("Surrender To Madness") and useCDs() then 
+        if br.isChecked("Surrender To Madness") and useCDs() then 
             if talent.surrenderToMadness and buff.voidForm.stack() > 10 + (10 * lusting) then
                 if cast.surrenderToMadness() then return end
             end
@@ -817,15 +817,15 @@ local function runRotation()
      -- Dark Void
         -- dark_void,if=raid_event.adds.in>10&(dot.shadow_word_pain.refreshable|target.time_to_die>30)
         if not buff.voidForm.exists() and not moving then
-            if talent.darkVoid and #dVEnemies >= getOptionValue("Dark Void Targets") and (debuff.shadowWordPain.refresh(units.dyn40) or ttd(units.dyn40) > 30) then
+            if talent.darkVoid and #dVEnemies >= br.getOptionValue("Dark Void Targets") and (debuff.shadowWordPain.refresh(units.dyn40) or ttd(units.dyn40) > 30) then
                 if cast.darkVoid(units.dyn40) then
                     --Print("Cleave DV AoE")
                 return end
             end
         end
      --Dark Ascension AoE
-        if isChecked("Dark Ascension AoE") and not buff.voidForm.exists() then
-            if #dAEnemies >= getOptionValue("Dark Ascension AoE") or (talent.darkVoid and cd.darkVoid.remain() ~= 30) then --or debuff.shadowWordPain.count() >= 3 then --math.min(getOptionValue("SWP Max Targets"),getOptionValue("Dark Ascension AoE")) then
+        if br.isChecked("Dark Ascension AoE") and not buff.voidForm.exists() then
+            if #dAEnemies >= br.getOptionValue("Dark Ascension AoE") or (talent.darkVoid and cd.darkVoid.remain() ~= 30) then --or debuff.shadowWordPain.count() >= 3 then --math.min(br.getOptionValue("SWP Max Targets"),br.getOptionValue("Dark Ascension AoE")) then
                 if cast.darkAscension(units.dyn40) then
                     --Print("Cleave DA AoE")
                 return end
@@ -833,23 +833,23 @@ local function runRotation()
         end
     --Shadowfiend / Mindbender
         -- mindbender,if=talent.mindbender.enabled|(buff.voidform.stack>18|target.time_to_die<15)
-        if isChecked("Shadowfiend / Mindbender") and talent.mindbender and useCDs() then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
+        if br.isChecked("Shadowfiend / Mindbender") and talent.mindbender and useCDs() then
+            if br.isChecked("  Mindbender in VF") and br.getOptionValue("  Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= br.getOptionValue("  Mindbender in VF") then
                     if cast.mindbender() then return end --Print("SFMB VF Stack") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and useCDs() then
+            elseif not br.isChecked("  Mindbender in VF") and useCDs() then
                 if not buff.voidForm.exists() or buff.voidForm.stack() >= 1 then
                     if cast.mindbender() then return end --Print("SFMB CD") return end
                 end
             end
         end
-        if isChecked("Shadowfiend / Mindbender") and not talent.mindbender and useCDs() and dotsUp then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
+        if br.isChecked("Shadowfiend / Mindbender") and not talent.mindbender and useCDs() and dotsUp then
+            if br.isChecked("  Mindbender in VF") and br.getOptionValue("  Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= br.getOptionValue("  Mindbender in VF") then
                     if cast.shadowfiend() then return end --Print("SF CD") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and ttd("target") < 15 and useCDs() then
+            elseif not br.isChecked("  Mindbender in VF") and ttd("target") < 15 and useCDs() then
                 if cast.shadowfiend() then return end --Print("SF CD") return end
             end
         end
@@ -875,7 +875,7 @@ local function runRotation()
         end
     --Shadow Crash
         -- shadow_crash,if=raid_event.adds.in>5&raid_event.adds.duration<20
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
+        if br.isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
             if cast.shadowCrash("best",nil,1,8) then return end
         end
      --Shadow Word: Pain - on dyn40 target and extra targets with no Misery
@@ -997,18 +997,18 @@ local function runRotation()
         end
      -- Void Torrent
         -- void_torrent,if=buff.voidform.up
-        if isChecked("Void Torrent") and talent.voidTorrent and useCDs() and buff.voidForm.exists() and noTH then
+        if br.isChecked("Void Torrent") and talent.voidTorrent and useCDs() and buff.voidForm.exists() and noTH then
             if cast.voidTorrent() then return end
         end
     --Mind Sear
         -- mind_sear,target_if=spell_targets.mind_sear>1,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-        if #searEnemies >= getOptionValue("Mind Sear Targets") and buff.voidForm.exists() and noTH then
+        if #searEnemies >= br.getOptionValue("Mind Sear Targets") and buff.voidForm.exists() and noTH then
             if not moving and not cast.current.mindSear() then
                 if cast.mindSear() then
                     --Print("Cleave VF MS")
                 return end
             end
-        elseif #searEnemies >= getOptionValue("Mind Sear Targets") and not buff.voidForm.exists() and noTH then
+        elseif #searEnemies >= br.getOptionValue("Mind Sear Targets") and not buff.voidForm.exists() and noTH then
             if not moving and not cast.current.mindSear() or (cast.active.mindSear() and mindSearRecast) then
                 if cast.mindSear() then
                     --Print("Cleave MS")
@@ -1017,13 +1017,13 @@ local function runRotation()
         end
     --Mind Flay
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
-        if #searEnemies < getOptionValue("Mind Sear Targets") and not buff.voidForm.exists() and noTH then 
+        if #searEnemies < br.getOptionValue("Mind Sear Targets") and not buff.voidForm.exists() and noTH then 
             if not moving and not cast.current.mindFlay() and (cd.mindBlast.remain() > 0.5 or talent.shadowWordVoid and cd.shadowWordVoid.remain() < 4.2) or (cast.active.mindFlay() and mindFlayRecast) then
                 if cast.mindFlay() then
                 --Print("refresh Cleave mf")
                 return end
             end
-        elseif #searEnemies < getOptionValue("Mind Sear Targets") and buff.voidForm.exists() and noTH then 
+        elseif #searEnemies < br.getOptionValue("Mind Sear Targets") and buff.voidForm.exists() and noTH then 
             if not moving and not cast.current.mindFlay() and cd.voidBolt.remain() < 3.4 then --or cd.mindBlast.remain() < 4.2 * gHaste) then
                 if cast.mindFlay() then
                 --Print("refresh Cleave VF mf")
@@ -1046,15 +1046,15 @@ local function runRotation()
 -- Action List - Single
     function actionList_Single()
     --Mouseover Dotting
-        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not moving then
-            if getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 6.3 then
+        if br.isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or br.isDummy("mouseover")) and not moving then
+            if br.getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 6.3 then
                 if cast.vampiricTouch("mouseover") then
                     return
                 end
             end
         end
-        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) then
-            if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 4.8 then
+        if br.isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or br.isDummy("mouseover")) then
+            if br.getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 4.8 then
                 if cast.shadowWordPain("mouseover") then
                     return
                 end
@@ -1071,7 +1071,7 @@ local function runRotation()
             if cast.voidEruption() then return end
         end
     --Dark Ascension
-        if isChecked("Dark Ascension") and dotsUp and useCDs() then
+        if br.isChecked("Dark Ascension") and dotsUp and useCDs() then
             if power <= 60 and not buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
                 --Print("no VF")
@@ -1079,8 +1079,8 @@ local function runRotation()
             end
         end
     --Dark Ascension
-            --if power <= getOptionValue("  Insanity Percentage") and buff.voidForm.exists() then
-        if isChecked("Dark Ascension Burst") and useCDs() then
+            --if power <= br.getOptionValue("  Insanity Percentage") and buff.voidForm.exists() then
+        if br.isChecked("Dark Ascension Burst") and useCDs() then
             if insanityDrain * gcdMax > power and buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
                 --Print("VF")
@@ -1093,10 +1093,10 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
-            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
+        if lucisDreams and br.isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
+            if hasBloodLust() and buff.voidForm.stack() > (br.getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
-            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
+            elseif buff.voidForm.stack() > br.getOptionValue("  Lucid Dreams VF Stacks") or power <= br.getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
             end
         end
@@ -1118,30 +1118,30 @@ local function runRotation()
         end
     --Surrender To Madness
         -- surrender_to_madness,if=buff.voidform.stack>10+(10*buff.bloodlust.up)
-        if isChecked("Surrender To Madness") and useCDs() then 
+        if br.isChecked("Surrender To Madness") and useCDs() then 
             if talent.surrenderToMadness and buff.voidForm.stack() > 10 + (10 * lusting) then
                 if cast.surrenderToMadness() then return end
             end
         end
     --Shadowfiend / Mindbender
         -- mindbender,if=talent.mindbender.enabled|(buff.voidform.stack>18|target.time_to_die<15)
-        if isChecked("Shadowfiend / Mindbender") and talent.mindbender and useCDs() then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
+        if br.isChecked("Shadowfiend / Mindbender") and talent.mindbender and useCDs() then
+            if br.isChecked("  Mindbender in VF") and br.getOptionValue("  Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= br.getOptionValue("  Mindbender in VF") then
                     if cast.mindbender() then return end --Print("SFMB VF Stack") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and useCDs() then
+            elseif not br.isChecked("  Mindbender in VF") and useCDs() then
                 if not buff.voidForm.exists() or buff.voidForm.stack() >= 1 then
                     if cast.mindbender() then return end --Print("SFMB CD") return end
                 end
             end
         end
-        if isChecked("Shadowfiend / Mindbender") and not talent.mindbender and useCDs() and dotsUp then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
+        if br.isChecked("Shadowfiend / Mindbender") and not talent.mindbender and useCDs() and dotsUp then
+            if br.isChecked("  Mindbender in VF") and br.getOptionValue("  Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= br.getOptionValue("  Mindbender in VF") then
                     if cast.shadowfiend() then return end --Print("SF CD") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and ttd("target") < 15 and useCDs() then
+            elseif not br.isChecked("  Mindbender in VF") and ttd("target") < 15 and useCDs() then
                 if cast.shadowfiend() then return end --Print("SF CD") return end
             end
         end
@@ -1154,7 +1154,7 @@ local function runRotation()
         end
     --Shadow Crash
         -- shadow_crash,if=raid_event.adds.in>5&raid_event.adds.duration<20
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
+        if br.isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
             if cast.shadowCrash("best",nil,1,8) then return end
         end
     --Mind Blast
@@ -1190,7 +1190,7 @@ local function runRotation()
         end
      --Void Torrent
         -- void_torrent,if=dot.shadow_word_pain.remains>4&dot.vampiric_touch.remains>4&buff.voidform.up
-        if isChecked("Void Torrent") and talent.voidTorrent and useCDs() and dotsTick and buff.voidForm.exists() then
+        if br.isChecked("Void Torrent") and talent.voidTorrent and useCDs() and dotsTick and buff.voidForm.exists() then
             if cast.voidTorrent(units.dyn40) then return end
         end
     --Shadow Word: Pain -- cast on target and refresh if expiring soon
@@ -1333,7 +1333,7 @@ local function runRotation()
 -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
-    elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or (pause(true) and not isCastingSpell(spell.mindFlay)) or mode.rotation==4 then
+    elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or (pause(true) and not br.isCastingSpell(spell.mindFlay)) or mode.rotation==4 then
         return true
     else
 -----------------
@@ -1343,7 +1343,7 @@ local function runRotation()
         --PowerWord: Shield
             if IsMovingTime(mrdm(60,120)/100) and not IsFalling() then
                 if bnSTimer == nil then bnSTimer = GetTime() - 6 end
-                if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and buff.powerWordShield.remain("player") <= mrdm(6,8) and GetTime() >= bnSTimer + 6 then
+                if br.isChecked("PWS: Body and Soul") and talent.bodyAndSoul and buff.powerWordShield.remain("player") <= mrdm(6,8) and GetTime() >= bnSTimer + 6 then
                      if cast.powerWordShield("player") then
                      bnSTimer = GetTime() return end
                 end
@@ -1351,13 +1351,13 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-        if not inCombat then --  and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
+        if not inCombat then --  and br.GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
             if actionList_PreCombat() then return end
         end
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) and not isCastingSpell(spell.mindBlast) and not isCastingSpell(303769) then
+        if inCombat and not IsMounted() and br.isValidUnit(units.dyn40) and br.getDistance(units.dyn40) < 40 and not br.isCastingSpell(spell.voidTorrent) and not br.isCastingSpell(spell.mindBlast) and not br.isCastingSpell(303769) then
         -- Action List - Defensive
             if actionList_Defensive() then return end
         -- Action List - Cooldowns
@@ -1367,12 +1367,12 @@ local function runRotation()
                 if actionList_Interrupts() then return end
             --end
         -- Trinkets off Cooldown
-            --if isChecked("Trinket 1 Off CD") and canUseItem(13) then
-            --    useItem(13)
+            --if br.isChecked("Trinket 1 Off CD") and br.canUseItem(13) then
+            --    br.useItem(13)
             --    return true
             --end
-            --if isChecked("Trinket 2 Off CD") and canUseItem(14) then
-            --    useItem(14)
+            --if br.isChecked("Trinket 2 Off CD") and br.canUseItem(14) then
+            --    br.useItem(14)
             --    return true
             --end
         -- Action List - Cleave

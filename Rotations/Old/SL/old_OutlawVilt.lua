@@ -186,11 +186,11 @@ local function runRotation()
         local cast                                          = br.player.cast
         local cd                                            = br.player.cd
         local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
-        local cTime                                         = getCombatTime()
+        local cTime                                         = br.getCombatTime()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local gcd                                           = br.player.gcd
-        local hastar                                        = GetObjectExists("target")
+        local hastar                                        = br.GetObjectExists("target")
         local healPot                                       = getHealthPot()
         local inCombat                                      = isInCombat("player")
         local lastSpell                                     = lastSpellCast
@@ -207,11 +207,11 @@ local function runRotation()
         local stealthingRogue                               = br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
         local stealthingMantle                              = br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
         local talent                                        = br.player.talent
-        local ttd                                           = getTTD
-        local ttdtarget                                     = HeroLib and HeroLib.Unit.Target:TimeToDie(5) or getTTD("target")
+        local ttd                                           = br.getTTD
+        local ttdtarget                                     = HeroLib and HeroLib.Unit.Target:TimeToDie(5) or br.getTTD("target")
         local ttm                                           = br.player.power.energy.ttm()
         local units                                         = br.player.units
-        local lootDelay                                     = getOptionValue("LootDelay")
+        local lootDelay                                     = br.getOptionValue("LootDelay")
 
         units.get(5)
         units.get(30)
@@ -232,10 +232,10 @@ local function runRotation()
         buff.rollTheBones.duration = 0
         buff.rollTheBones.remain   = 0
         for k,v in pairs(spell.buffs.rollTheBones) do
-            if UnitBuffID("player",v) ~= nil then
+            if br.UnitBuffID("player",v) ~= nil then
                 buff.rollTheBones.count    = buff.rollTheBones.count + 1
                 buff.rollTheBones.duration = getBuffDuration("player",v)
-                buff.rollTheBones.remain   = getBuffRemain("player",v)
+                buff.rollTheBones.remain   = br.getBuffRemain("player",v)
             end
         end
 
@@ -269,13 +269,13 @@ local function runRotation()
             end
         end
 
-        --sap count (getDebuffCount but checking ooc units)
+        --sap count (br.getDebuffCount but checking ooc units)
         local function getSapCount()
         	local counter = 0
         	for k, v in pairs(br.units) do
         		local thisUnit = br.units[k].unit
-        		if GetObjectExists(thisUnit) then
-        			if UnitDebuffID(thisUnit,6770,"player") then
+        		if br.GetObjectExists(thisUnit) then
+        			if br.UnitDebuffID(thisUnit,6770,"player") then
         				counter = counter + 1
         			end
         		end
@@ -285,13 +285,13 @@ local function runRotation()
 
         --Hook cast with logic not to cast directly on object
         local function castHook(unit)
-          if getSpellCD(195457) == 0 and getDistance("player",unit) < 40 then
+          if br.getSpellCD(195457) == 0 and br.getDistance("player",unit) < 40 then
             local wasMouseLooking = false
-            local combatRange = max(5, UnitCombatReach("player") + UnitCombatReach(unit) + 1.3)
+            local combatRange = max(5, br._G.UnitCombatReach("player") + br._G.UnitCombatReach(unit) + 1.3)
             if isMoving(unit) then
                 combatRange = combatRange - 1.5
             end
-            local px,py,pz = ObjectPosition("player")
+            local px,py,pz = br._G.ObjectPosition("player")
             local x,y,z = GetPositionBetweenObjects(unit, "player", combatRange)
             z = select(3,TraceLine(x, y, z+5, x, y, z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
             if z ~= nil and TraceLine(px, py, pz+2, x, y, z+1, 0x100010) == nil and TraceLine(x, y, z+4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
@@ -299,9 +299,9 @@ local function runRotation()
                     wasMouseLooking = true
                     MouselookStop()
                 end
-                CastSpellByName(GetSpellInfo(spell.grapplingHook))
+                br._G.CastSpellByName(GetSpellInfo(spell.grapplingHook))
                 ClickPosition(x,y,z)
-                if IsAoEPending() then
+                if br._G.IsAoEPending() then
                 CancelPendingSpell()
                 return false
                 end
@@ -312,7 +312,7 @@ local function runRotation()
                 if not stealth then
                     cast.stealth()
                 end
-                if isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 then
+                if br.isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 then
                     cast.rollTheBones()
                 end
                 end
@@ -326,7 +326,7 @@ local function runRotation()
 --------------------
     -- Action List - Extras
         local function actionList_Extras()
-          if isChecked("Grappling Hook") and getDistance("target") >= getOptionValue("Grappling Hook") and isValidUnit("target") and getFacing("player","target") then
+          if br.isChecked("Grappling Hook") and br.getDistance("target") >= br.getOptionValue("Grappling Hook") and br.isValidUnit("target") and br.getFacing("player","target") then
             if castHook("target") then return end
           end
         end -- End Action List - Extras
@@ -334,25 +334,25 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() and not stealth then
             -- Health Pot/Healthstone
-                if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
+                if br.isChecked("Healing Potion/Healthstone") and php <= br.getOptionValue("Healing Potion/Healthstone")
+                    and inCombat and (hasHealthPot() or br.hasItem(5512))
                 then
-                    if canUseItem(5512) then
-                        useItem(5512)
-                    elseif canUseItem(healPot) then
-                        useItem(healPot)
+                    if br.canUseItem(5512) then
+                        br.useItem(5512)
+                    elseif br.canUseItem(healPot) then
+                        br.useItem(healPot)
                     end
                 end
             -- Crimson Vial
-                if cast.able.crimsonVial() and isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
+                if cast.able.crimsonVial() and br.isChecked("Crimson Vial") and php < br.getOptionValue("Crimson Vial") then
                     if cast.crimsonVial() then return end
                 end
             -- Feint
-                if cast.able.feint() and isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
+                if cast.able.feint() and br.isChecked("Feint") and php <= br.getOptionValue("Feint") and inCombat and not buff.feint.exists() then
                     if cast.feint() then return end
                 end
             -- Riposte
-                if cast.able.riposte() and isChecked("Riposte") and php <= getOptionValue("Riposte") and inCombat then
+                if cast.able.riposte() and br.isChecked("Riposte") and php <= br.getOptionValue("Riposte") and inCombat then
                     if cast.riposte() then return end
                 end
             end
@@ -362,30 +362,30 @@ local function runRotation()
             if useInterrupts() and not stealth then
                 for i = 1, #enemies.yards20 do
                     local thisUnit = enemies.yards20[i]
-                    local distance = getDistance(thisUnit)
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    local distance = br.getDistance(thisUnit)
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
                         if distance < 5 then
         -- Kick
                             -- kick
-                            if cast.able.kick() and isChecked("Kick") then
+                            if cast.able.kick() and br.isChecked("Kick") then
                                 if cast.kick(thisUnit) then return end
                             end
                             if cd.kick.remain() ~= 0 or not cast.able.kick() then
         -- Gouge
-                                if cast.able.gouge() and isChecked("Gouge") and getFacing(thisUnit,"player") then
+                                if cast.able.gouge() and br.isChecked("Gouge") and br.getFacing(thisUnit,"player") then
                                     if cast.gouge(thisUnit) then return end
                                 end
                             end
                         end
                         if (cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or (distance >= 5 and distance < 15) or (not cast.able.kick() or not cast.able.gouge()) then
         -- Blind
-                            if cast.able.blind() and isChecked("Blind") then
+                            if cast.able.blind() and br.isChecked("Blind") then
                                 if cast.blind(thisUnit) then return end
                             end
                         end
         -- Between the Eyes
                         if (((cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or distance >= 5) and (cd.blind.remain() ~= 0 or level < 38 or distance >= 15)) or not (cast.able.kick() or cast.able.gouge() or cast.able.blind()) then
-                            if cast.able.betweenTheEyes() and isChecked("Between the Eyes") then
+                            if cast.able.betweenTheEyes() and br.isChecked("Between the Eyes") then
                                 if cast.betweenTheEyes(thisUnit) then return end
                             end
                         end
@@ -396,25 +396,25 @@ local function runRotation()
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
         -- Trinkets
-            if isChecked("Trinkets") then
+            if br.isChecked("Trinkets") then
                 if hasBloodLust() or ttdtarget <= 20 or comboDeficit <= 2 then
-                    if canUseItem(13) then
-                        useItem(13)
+                    if br.canUseItem(13) then
+                        br.useItem(13)
                     end
-                    if canUseItem(14) then
-                        useItem(14)
+                    if br.canUseItem(14) then
+                        br.useItem(14)
                     end
                 end
             end
     -- Pots
-            if isChecked("Agi-Pot") then
+            if br.isChecked("Agi-Pot") then
                 if ttdtarget <= 25 or buff.adrenalineRush.exists() or hasBloodLust() then
-                    if canUseItem(127844) and inRaid then
-                        useItem(127844)
+                    if br.canUseItem(127844) and inRaid then
+                        br.useItem(127844)
                     end
                     else
-                    if canUseItem(142117) and inRaid then
-                        useItem(142117)
+                    if br.canUseItem(142117) and inRaid then
+                        br.useItem(142117)
                     end
                 end
             end
@@ -422,30 +422,30 @@ local function runRotation()
             --blood_fury
             --berserking
             --arcane_torrent,if=energy.deficit>40
-            if isChecked("Racial") and (race == "Orc" or race == "Troll" or race=="MagharOrc" or (race == "BloodElf" and powerDeficit > 15 + powerRegen)) then
+            if br.isChecked("Racial") and (race == "Orc" or race == "Troll" or race=="MagharOrc" or (race == "BloodElf" and powerDeficit > 15 + powerRegen)) then
                 if castSpell("player",racial,false,false,false) then return end
             end
     -- Adrenaline Rush
             -- adrenaline_rush,if=!buff.adrenaline_rush.up&energy.time_to_max>1
-            if cast.able.adrenalineRush() and isChecked("Adrenaline Rush") and not buff.adrenalineRush.exists() and ttm >= gcd then
+            if cast.able.adrenalineRush() and br.isChecked("Adrenaline Rush") and not buff.adrenalineRush.exists() and ttm >= gcd then
                 if cast.adrenalineRush() then return end
             end
     -- Ghostly Strike
             -- actions.cds+=/ghostly_strike,if=variable.blade_flurry_sync&combo_points.deficit>=1+buff.broadside.up
-            if cast.able.ghostlyStrike() and isChecked("Ghostly Strike") and bladeFlurrySync() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0)) then
+            if cast.able.ghostlyStrike() and br.isChecked("Ghostly Strike") and bladeFlurrySync() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0)) then
                 if cast.ghostlyStrike("target") then return end
             end
     -- Killing Spree
             -- killing_spree,if=variable.blade_flurry_sync&(energy.time_to_max>5|energy<15)
-            if cast.able.killingSpree() and isChecked("Killing Spree") and bladeFlurrySync() and (ttm > 5 or power < 15) then
-                if isChecked("Cloak Killing Spree") and cd.killingSpree.remain() == 0 then
+            if cast.able.killingSpree() and br.isChecked("Killing Spree") and bladeFlurrySync() and (ttm > 5 or power < 15) then
+                if br.isChecked("Cloak Killing Spree") and cd.killingSpree.remain() == 0 then
                     if cast.cloakOfShadows() then cast.killingSpree(); return end
                 end
                 if cast.killingSpree() then return end
             end
     -- Blade Rush
             -- blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>1
-            if cast.able.bladeRush() and isChecked("Blade Rush") and bladeFlurrySync() and ttm > 1 and getDistance("target") <= 8 then
+            if cast.able.bladeRush() and br.isChecked("Blade Rush") and bladeFlurrySync() and ttm > 1 and br.getDistance("target") <= 8 then
                 if cast.bladeRush("target") then return end
             end
         end -- End Action List - Cooldowns
@@ -453,30 +453,30 @@ local function runRotation()
         local function actionList_PreCombat()
         -- Stealth
             if not inCombat and not stealth and cast.able.stealth() then
-                if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
-                    if getOptionValue("Stealth") == 1 then
+                if br.isChecked("Stealth") and (not IsResting() or br.isDummy("target")) then
+                    if br.getOptionValue("Stealth") == 1 then
                         if cast.stealth("player") then return end
                     end
-                    if #enemies.yards20nc > 0 and getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay+0.5 then
+                    if #enemies.yards20nc > 0 and br.getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay+0.5 then
                       if cast.stealth("player") then return end
                     end
                 end
             end
         -- Marked for Death
             -- marked_for_death
-            if cast.able.markedForDeath() and not inCombat and isChecked("Marked For Death - Precombat") and getDistance("target") < 15 and isValidUnit("target") then
+            if cast.able.markedForDeath() and not inCombat and br.isChecked("Marked For Death - Precombat") and br.getDistance("target") < 15 and br.isValidUnit("target") then
                 if cast.markedForDeath("target") then return end
             end
         -- Roll The Bones
             -- roll_the_bones,if=!talent.slice_and_dice.enabled
-            if cast.able.rollTheBones() and not inCombat and isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") <= 10 then
+            if cast.able.rollTheBones() and not inCombat and br.isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 and br.isValidUnit("target") and br.getDistance("target") <= 10 then
                 if cast.rollTheBones() then return end
             end
         -- SAP
-            if isChecked("Sap (solo)") and not inCombat and solo and getDistance("target") < 15 and isValidUnit("target") and #enemies.yards10nc > 0 and getSapCount() == 0 then
+            if br.isChecked("Sap (solo)") and not inCombat and solo and br.getDistance("target") < 15 and br.isValidUnit("target") and #enemies.yards10nc > 0 and getSapCount() == 0 then
               for i = 1, #enemies.yards10nc do
                   local thisUnit = enemies.yards10nc[i]
-                  if not GetUnitIsUnit(thisUnit,"target") and not isBoss(thisUnit) and getFacing("player", thisUnit) and not UnitAffectingCombat(thisUnit) then
+                  if not br.GetUnitIsUnit(thisUnit,"target") and not br.isBoss(thisUnit) and br.getFacing("player", thisUnit) and not UnitAffectingCombat(thisUnit) then
                     if cast.sap(thisUnit) then return end
                   end
               end
@@ -484,7 +484,7 @@ local function runRotation()
         end -- End Action List - PreCombat
     -- Action List - Finishers
         local function actionList_Finishers()
-            if isChecked("RTB/Slice and Dice") then
+            if br.isChecked("RTB/Slice and Dice") then
         -- Slice and Dice
                 if talent.sliceAndDice and cast.able.sliceAndDice() then
                     -- slice_and_dice,if=buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
@@ -518,16 +518,16 @@ local function runRotation()
                 if cast.ambush() then return end
             end
 			
-			 if inCombat and isValidUnit(units.dyn5) then
+			 if inCombat and br.isValidUnit(units.dyn5) then
             -- Auto Attack
                 --auto_attack
-                -- if IsCurrentSpell(6603) and not GetUnitIsUnit(units.dyn5,"target") then
+                -- if IsCurrentSpell(6603) and not br.GetUnitIsUnit(units.dyn5,"target") then
                 --     StopAttack()
                 -- else
-                --     StartAttack(units.dyn5)
+                --     br._G.StartAttack(units.dyn5)
                 -- end
                 if not IsCurrentSpell(6603) then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
 				end
 			end
 				
@@ -561,9 +561,9 @@ local function runRotation()
                     end
                 end
             end
-    -- StartAttack
-            if getDistance("target") <= 5 and not stealthingAll and not StartAttack() then
-                StartAttack()
+    -- br._G.StartAttack
+            if br.getDistance("target") <= 5 and not stealthingAll and not br._G.StartAttack() then
+                br._G.StartAttack()
             end
         end
     -- Action List - Stealth
@@ -578,9 +578,9 @@ local function runRotation()
                 end
             else
         -- Vanish
-                if cd.global.remain() <= getLatency() and not solo and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 then
+                if cd.global.remain() <= getLatency() and not solo and ambushCondition() and br.isValidUnit("target") and br.getDistance("target") <= 5 then
                     -- vanish,if=variable.ambush_condition
-                    if cast.able.vanish() and cd.vanish.remain() == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global.remain() then
+                    if cast.able.vanish() and cd.vanish.remain() == 0 and useCDs() and br.isChecked("Vanish") and GetTime() >= vanishTime + cd.global.remain() then
                         if cast.vanish() then
                             vanishTime = GetTime();
                             cast.ambush();
@@ -588,7 +588,7 @@ local function runRotation()
                         end
         -- Shadowmeld
                     -- shadowmeld,if=variable.ambush_condition
-                    elseif cast.able.shadowmeld() and cd.shadowmeld.remain() == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global.remain() and race == "NightElf" and not isMoving("player") then
+                    elseif cast.able.shadowmeld() and cd.shadowmeld.remain() == 0 and useCDs() and br.isChecked("Racial") and GetTime() >= vanishTime + cd.global.remain() and race == "NightElf" and not isMoving("player") then
                         if cast.shadowmeld() then
                             vanishTime = GetTime();
                             cast.ambush();
@@ -622,7 +622,7 @@ local function runRotation()
 ----------------------------
 --- Out of Combat Opener ---
 ----------------------------
-            if isValidUnit("target") and isChecked("Opener") then
+            if br.isValidUnit("target") and br.isChecked("Opener") then
                 if actionList_Opener() then return end
             end
 --------------------------------
@@ -636,7 +636,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if (inCombat and isValidUnit(units.dyn5)) or (isChecked("Auto Combat") and isValidUnit("target")) then
+            if (inCombat and br.isValidUnit(units.dyn5)) or (br.isChecked("Auto Combat") and br.isValidUnit("target")) then
                 if not stealthingAll or level < 5 then
 ------------------------------
 --- In Combat - Interrupts ---
@@ -646,7 +646,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Cooldowns ---
 -----------------------------
-                if useCDs() and getDistance("target") <= 6 and attacktar then
+                if useCDs() and br.getDistance("target") <= 6 and attacktar then
                     if actionList_Cooldowns() then return end
                 end
 ---------------------------
@@ -659,7 +659,7 @@ local function runRotation()
 ----------------------------------
 --- In Combat - Begin Rotation ---
 ----------------------------------
-                -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
+                -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and br.getDistance(units.dyn5) < 5 then
                 if not stealthingAll then
                 -- Marked for Death
                     if cast.able.markedForDeath() then
@@ -678,7 +678,7 @@ local function runRotation()
                                 LowestTTD = thisUnit
                             end
                             if ttd(LowestTTD) > 0 and ttd(LowestTTD) <= 100 then
-                                if ttd(LowestTTD) < comboDeficit * getOptionValue("MFD Sniping") then
+                                if ttd(LowestTTD) < comboDeficit * br.getOptionValue("MFD Sniping") then
                                     if cast.markedForDeath(LowestTTD) then return end
                                 end
                             end
@@ -699,7 +699,7 @@ local function runRotation()
                     end
 
     -- Pistol Shot OOR
-                    if cast.able.pistolShot() and isChecked("Pistol Shot out of range") and isValidUnit("target") and #enemies.yards8 == 0 and not stealthingAll and power >= getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= gcd) then
+                    if cast.able.pistolShot() and br.isChecked("Pistol Shot out of range") and br.isValidUnit("target") and #enemies.yards8 == 0 and not stealthingAll and power >= br.getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= gcd) then
                         if cast.pistolShot("target") then return end
                     end
                 end

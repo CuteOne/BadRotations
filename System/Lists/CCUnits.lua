@@ -1,3 +1,4 @@
+local _, br = ...
 if br.lists == nil then
     br.lists = {}
 end
@@ -21,7 +22,6 @@ br.lists.ccUnits = {
     [173016] = { name = "Corpse Collector", spell = 334748 },
     [166302] = { name = "Corpse Collector", spell = 334748 },
     [173044] = { name = "Stitching Assistant", spell = 334748 },
-    [165872] = { name = "Stitching Assistant", spell = 327130 },
     [165911] = { name = "Loyal Creation", spell = 327240 },
     [165872] = { name = "Flesh Crafter", spell = 327130 },
 
@@ -68,7 +68,6 @@ br.lists.ccUnits = {
     [152033] = { name = "inconspicuous-plant" }, -- plant boss in workshop
     [152703] = { name = "walkie-shockie-x1" }, --Last boss in Mech Junkyard
     [134331] = { name = "Channel Lightning", spell = 270889 }, -- Motherload
-    [129640] = { name = "Clamping Jaws", spell = 256897 }, -- Seige of Boralus
     [131009] = { name = "Spirit of Gold" }, -- AD
     [134388] = { name = "A Knot of Snakes" }, -- temple, snakes!
     [129758] = { name = "Irontide Grenadier" }, --FH last boss
@@ -85,7 +84,6 @@ br.lists.ccUnits = {
     [129928] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [129989] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [137521] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
-    [138254] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [138254] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [132491] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [132532] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)

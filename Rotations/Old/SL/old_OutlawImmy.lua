@@ -251,9 +251,9 @@ local function runRotation()
         local essence                                       = br.player.essence
         -- local pullTimer                                     = br.BossMods:getPulltimer()
         local enemies                                       = br.player.enemies
-        local gcd                                           = getSpellCD(61304)
+        local gcd                                           = br.getSpellCD(61304)
         local gcdMax                                        = br.player.gcdMax
-        local hastar                                        = GetObjectExists("target")
+        local hastar                                        = br.GetObjectExists("target")
         local has                                           = br.player.has
         local healPot                                       = getHealthPot()
         local inCombat                                      = isInCombat("player")
@@ -272,11 +272,11 @@ local function runRotation()
         local talent                                        = br.player.talent
         local traits                                        = br.player.traits
         local ttm                                           = br.player.power.energy.ttm()
-        local ttdd                                          = getTTD
+        local ttdd                                          = br.getTTD
         local units                                         = br.player.units
         local use                                           = br.player.use
-        local lootDelay                                     = getOptionValue("LootDelay")
-        local drawing                                       = isChecked("Drawings")
+        local lootDelay                                     = br.getOptionValue("LootDelay")
+        local drawing                                       = br.isChecked("Drawings")
         -- ToggleToValue("BladeFlurry", 1)
         -- print(1)
 
@@ -306,13 +306,13 @@ local function runRotation()
 
     --Tricks from sir fisker
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
-        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
+    if br.isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
+        if br.getOptionValue("Auto Tricks") == 1 and br.GetUnitIsFriend("player", "focus") and br.getLineOfSight("player", "focus") then
             tricksUnit = "focus"
-        elseif getOptionValue("Auto Tricks") == 2 then
+        elseif br.getOptionValue("Auto Tricks") == 2 then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) and getLineOfSight("player", thisUnit) then
+                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) and br.getLineOfSight("player", thisUnit) then
                     tricksUnit = thisUnit
                     break
                 end
@@ -320,7 +320,7 @@ local function runRotation()
         end
     end
 
-        dotHPLimit = getOptionValue("BF HP Limit") * 10000
+        dotHPLimit = br.getOptionValue("BF HP Limit") * 10000
 
         
 
@@ -357,8 +357,8 @@ local function runRotation()
 
     local function ttd(unit)
         if UnitIsPlayer(unit) then return 999 end
-        local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
+        local ttdSec = br.getTTD(unit)
+        if br.getOptionCheck("Enhanced Time to Die") then return ttdSec end
         if ttdSec == -1 then return 999 end
         return ttdSec
     end
@@ -398,14 +398,14 @@ local function runRotation()
                 )
     end
 
-    -- local function isTotem(unit)
+    -- local function br.isTotem(unit)
     --     local eliteTotems = { -- totems we can dot
     --         [125977] = "Reanimate Totem",
     --         [127315] = "Reanimate Totem",
     --         [146731] = "Zombie Dust Totem"
     --     }
     --     local creatureType = UnitCreatureType(unit)
-    --     local objectID = GetObjectID(unit)
+    --     local objectID = br.GetObjectID(unit)
     --     if creatureType ~= nil and eliteTotems[objectID] == nil then
     --         if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
     --     end
@@ -413,11 +413,11 @@ local function runRotation()
     -- end
 
     -- local function noDotCheck(unit)
-    --     if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
-    --     if isTotem(unit) then return true end
-    --     local unitCreator = UnitCreator(unit)
+    --     if br.isChecked("Dot Blacklist") and (noDotUnits[br.GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
+    --     if br.isTotem(unit) then return true end
+    --     local unitCreator = br._G.UnitCreator(unit)
     --     if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
-    --     if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
+    --     if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then return true end
     --     return false
     -- end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -450,15 +450,15 @@ local function runRotation()
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
-                enemyUnit.hpabs = UnitHealth(thisUnit)
-                enemyUnit.id = GetObjectID(enemyUnit.unit)
+                enemyUnit.hpabs = br._G.UnitHealth(thisUnit)
+                enemyUnit.id = br.GetObjectID(enemyUnit.unit)
                 if IsSpellInRange(GetSpellInfo(1766), enemyUnit.unit) == 1 then
                     -- sort5 = true
                     if  enemyUnit.hpabs >= dotHPLimit and not forcekill[enemyUnit.id] then
                         bftargets = bftargets + 1
                     end
                     enemyUnit.distance = 5
-                    enemyUnit.facing = getFacing(thisUnit,"player")
+                    enemyUnit.facing = br.getFacing(thisUnit,"player")
                 elseif IsSpellInRange(GetSpellInfo(2094), enemyUnit.unit) == 1 then
                     enemyUnit.distance = 15
                 else
@@ -498,13 +498,13 @@ local function runRotation()
                     enemyScore = enemyScore + raidTarget * 3
                     if raidTarget == 8 then enemyScore = enemyScore + 5 end
                 end
-                if talent.preyOnTheWeak and UnitDebuffID(enemyTable20[i].unit, 255909) then
+                if talent.preyOnTheWeak and br.UnitDebuffID(enemyTable20[i].unit, 255909) then
                     notargetsort = true
                     enemyScore = enemyScore + 50
                 end
-                --if UnitBuffID(enemyTable30[i].unit, 277242) then enemyScore = enemyScore + 50 end -- ghuun check
+                --if br.UnitBuffID(enemyTable30[i].unit, 277242) then enemyScore = enemyScore + 50 end -- ghuun check
                 -- MfD Priority
-                -- if UnitBuffID(enemyTable30[i].unit, 137619) then enemyScore = enemyScore + 50 end  --vend score
+                -- if br.UnitBuffID(enemyTable30[i].unit, 137619) then enemyScore = enemyScore + 50 end  --vend score
                 enemyTable20[i].enemyScore = enemyScore
             end
             table.sort(enemyTable20, function(x,y)
@@ -519,7 +519,7 @@ local function runRotation()
             --     -- [120651]=true -- Explosive
             -- }
             -- if thisUnit.distance <= 20 then
-            -- if fokIgnore[objectID] == nil and not isTotem(thisUnit.unit) then
+            -- if fokIgnore[objectID] == nil and not br.isTotem(thisUnit.unit) then
             --     tinsert(enemyTable20, thisUnit)
             --     --if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
             -- end
@@ -528,8 +528,8 @@ local function runRotation()
                 tinsert(enemyTable15, thisUnit)
             end
             if enemyTable20[i].distance <= 5 then
-                -- local objectID = GetObjectID(thisUnit.unit)
-                -- local x,y,z = ObjectPosition(thisUnit.unit)
+                -- local objectID = br.GetObjectID(thisUnit.unit)
+                -- local x,y,z = br._G.ObjectPosition(thisUnit.unit)
                 -- if forcekill[objectID] then sortingorbs = true end
                 -- LibDraw.Circle(x,y,z,2)
                 tinsert(enemyTable5, thisUnit)
@@ -540,7 +540,7 @@ local function runRotation()
         if #enemyTable5 > 1 then
             if talent.markedForDeath and mode.mfd == 3 and mfdtarget ~= nil then
                 table.sort(enemyTable5, function(x)
-                    if GetUnitIsUnit(x.unit, "mfdtarget") then
+                    if br.GetUnitIsUnit(x.unit, "mfdtarget") then
                         return true
                     else
                         return false
@@ -549,7 +549,7 @@ local function runRotation()
             end
             if not notargetsort then
                 table.sort(enemyTable5, function(x)
-                    if GetUnitIsUnit(x.unit, "target") then
+                    if br.GetUnitIsUnit(x.unit, "target") then
                         return true
                     else
                         return false
@@ -558,7 +558,7 @@ local function runRotation()
             end
             
         end
-        if inCombat and #enemyTable5 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable5[1].unit, "target")) or not GetUnitExists("target")) then
+        if inCombat and #enemyTable5 > 0 and ((br.GetUnitExists("target") and UnitIsDeadOrGhost("target") and not br.GetUnitIsUnit(enemyTable5[1].unit, "target")) or not br.GetUnitExists("target")) then
             TargetUnit(enemyTable5[1].unit)
         end
     end
@@ -571,29 +571,29 @@ local function runRotation()
 
         -- if inCombat and #br.player.enemies.yards5 > 1 then
         --     -- table.sort(br.player.enemies.yards5, function(x,y)
-        --     --     return UnitHealth(x) > UnitHealth(y)
+        --     --     return br._G.UnitHealth(x) > br._G.UnitHealth(y)
         --     -- end)
-        --     if GetUnitExists(mfdunit) then
+        --     if br.GetUnitExists(mfdunit) then
         --         table.sort(br.player.enemies.yards5, function(x)
-        --             if GetUnitIsUnit(x, mfdunit) then
+        --             if br.GetUnitIsUnit(x, mfdunit) then
         --                 return true
         --             else
         --                 return false
         --             end
         --         end)
         --     end
-        --     if GetUnitExists("target") then
+        --     if br.GetUnitExists("target") then
         --         table.sort(br.player.enemies.yards5, function(x)
-        --             if GetUnitIsUnit(x, "target") then
+        --             if br.GetUnitIsUnit(x, "target") then
         --                 return true
         --             else
         --                 return false
         --             end
         --         end)
         --     end
-        --     if isChecked("|cffFF0000Force Burn Stuff") then
+        --     if br.isChecked("|cffFF0000Force Burn Stuff") then
         --         table.sort(br.player.enemies.yards5, function(x,y)
-        --                 if UnitHealth(x) < UnitHealth(y) and forcekill[GetObjectID(x)] and forcekill[GetObjectID(y)]  then
+        --                 if br._G.UnitHealth(x) < br._G.UnitHealth(y) and forcekill[br.GetObjectID(x)] and forcekill[br.GetObjectID(y)]  then
         --                     --print(UnitName(x).."true")
         --                     return true
         --                 else
@@ -602,7 +602,7 @@ local function runRotation()
         --                 end
         --         end)
         --         -- table.sort(br.player.enemies.yards5, function(x,y)
-        --         --     return UnitHealth(x) < UnitHealth(y) and forcekill[GetObjectID(x)] and forcekill[GetObjectID(y)]
+        --         --     return br._G.UnitHealth(x) < br._G.UnitHealth(y) and forcekill[br.GetObjectID(x)] and forcekill[br.GetObjectID(y)]
         --         -- end)
         --     end  
         -- end
@@ -626,10 +626,10 @@ local function runRotation()
         buff.rollTheBones.duration = 0
         buff.rollTheBones.remain   = 0
         for k,v in pairs(spell.buffs.rollTheBones) do
-            if UnitBuffID("player",v) ~= nil then
+            if br.UnitBuffID("player",v) ~= nil then
                 buff.rollTheBones.count    = buff.rollTheBones.count + 1
                 buff.rollTheBones.duration = getBuffDuration("player",v)
-                buff.rollTheBones.remain   = getBuffRemain("player",v)
+                buff.rollTheBones.remain   = br.getBuffRemain("player",v)
             end
         end
 
@@ -654,34 +654,34 @@ local function runRotation()
 
         -- Corruption stuff
         -- 1 = snare,  2 = eye,  3 = thing, 4 = never   -- snare = 315176
-        if php <= getOptionValue("Corruption Immunity") then
-            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) and isChecked("Use Cloak") then
-                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+        if php <= br.getOptionValue("Corruption Immunity") then
+            if br.player.equiped.shroudOfResolve and br.canUseItem(br.player.items.shroudOfResolve) and br.isChecked("Use Cloak") then
+                if br.getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                    or br.getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                    or br.getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
                     if br.player.use.shroudOfResolve() then end
                 end
             end
-            if isChecked("Cloak of Shadows Corruption") and not canUseItem(br.player.items.shroudOfResolve) or getValue("Use Cloak") == 4 then
-                if getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
-                    or getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
-                    or getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
+            if br.isChecked("Cloak of Shadows Corruption") and not br.canUseItem(br.player.items.shroudOfResolve) or br.getValue("Use Cloak") == 4 then
+                if br.getValue("Cloak of Shadows Corruption") == 1 and debuff.graspingTendrils.exists("player") 
+                    or br.getValue("Cloak of Shadows Corruption") == 2 and debuff.eyeOfCorruption.exists("player")
+                    or br.getValue("Cloak of Shadows Corruption") == 3 and debuff.grandDelusions.exists("player") then
                     if cast.cloakOfShadows() then return true end
                 end
             end
-            if debuff.grandDelusions.exists("player") and (not canUseItem(br.player.items.shroudOfResolve) or not isChecked("Use Cloak") or not getValue("Use Cloak") == 3) and 
-             (cd.cloakOfShadows.exists() or not isChecked("Cloak of Shadows Corruption") or getValue("Cloak of Shadows Corruption") == 3) then
-                if isChecked("Vanish THING") then
+            if debuff.grandDelusions.exists("player") and (not br.canUseItem(br.player.items.shroudOfResolve) or not br.isChecked("Use Cloak") or not br.getValue("Use Cloak") == 3) and 
+             (cd.cloakOfShadows.exists() or not br.isChecked("Cloak of Shadows Corruption") or br.getValue("Cloak of Shadows Corruption") == 3) then
+                if br.isChecked("Vanish THING") then
                     if cast.vanish("player") then return true end
-                elseif isChecked("Shadowmeld THING") then
+                elseif br.isChecked("Shadowmeld THING") then
                     if cast.shadowmeld() then return true end    
-                elseif isChecked("Blind THING") then
+                elseif br.isChecked("Blind THING") then
                     for i = 1, GetObjectCountBR() do
                         local object = GetObjectWithIndex(i)
-                        local ID = ObjectID(object)                        
+                        local ID = br._G.ObjectID(object)                        
                         if ID == 161895 then
-                            local x1, y1, z1 = ObjectPosition("player")
-                            local x2, y2, z2 = ObjectPosition(object)
+                            local x1, y1, z1 = br._G.ObjectPosition("player")
+                            local x2, y2, z2 = br._G.ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                             if distance <= 10 then
                                 if cast.blind(object) then return end
@@ -712,7 +712,7 @@ local function runRotation()
 
         local function cast5yards(skill,stuff)
 
-            if isChecked("|cffFF0000Force Burn Stuff") or spread then
+            if br.isChecked("|cffFF0000Force Burn Stuff") or spread then
                 for i = 1, #burnTable5 do
                     local thisUnit = burnTable5[i].unit
                     if stuff then
@@ -732,11 +732,11 @@ local function runRotation()
         local function cast20yards(skill,stuff)
             if skill == "betweenTheEyes" and (mode.nobte == 3 or spread) then return end
 
-            if isChecked("|cffFF0000Force Burn Stuff") or spread then
+            if br.isChecked("|cffFF0000Force Burn Stuff") or spread then
                 for i = 1, #burnTable20 do
                     if burnTable20[i].id == 120651 then
                         if skill == "betweenTheEyes" then return end
-                        if isChecked("DontWasteDeadShotOnOrbs") and skill == "pistolShot" and buff.deadShot.exists("player") then return end
+                        if br.isChecked("DontWasteDeadShotOnOrbs") and skill == "pistolShot" and buff.deadShot.exists("player") then return end
                     end
                     local thisUnit = burnTable20[i].unit
                     if stuff then
@@ -749,7 +749,7 @@ local function runRotation()
                     for i = 1, #enemyTable20 do
                         if enemyTable20[i].id == 120651 then return end
                         local thisUnit = enemyTable20[i].unit 
-                        if isChecked("DRTracker") then
+                        if br.isChecked("DRTracker") then
                             if stuff and canCC(199804, thisUnit) and (select(5,UnitCastingInfo(thisUnit)) ~= nil or select(5,UnitChannelInfo(thisUnit)) ~= nil) then
                                 if cast[skill](thisUnit) then return true end
                             end
@@ -762,7 +762,7 @@ local function runRotation()
                     for i = 1, #enemyTable20 do
                         if enemyTable20[i].id == 120651 then return end
                         local thisUnit = enemyTable20[i].unit 
-                        if isChecked("DRTracker") then
+                        if br.isChecked("DRTracker") then
                             if stuff and canCC(199804, thisUnit) then
                                 if cast[skill](thisUnit) then return true end
                             end
@@ -810,34 +810,34 @@ local function runRotation()
           
           if not stealth then
             -- Health Pot/Healthstone
-            if isChecked("Healing Potion/Healthstone") and (use.able.healthstone() or canUseItem(169451)) and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasItem(169451) or has.healthstone()) then
+            if br.isChecked("Healing Potion/Healthstone") and (use.able.healthstone() or br.canUseItem(169451)) and php <= br.getOptionValue("Healing Potion/Healthstone") and inCombat and (br.hasItem(169451) or has.healthstone()) then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUseItem(169451) then
-                    useItem(169451)
+                elseif br.canUseItem(169451) then
+                    br.useItem(169451)
                 end
             end
             -- Crimson Vial
-            if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
+            if br.isChecked("Crimson Vial") and php < br.getOptionValue("Crimson Vial") then
               if cast.crimsonVial() then
                 return true
               end
             end
             -- Feint
-            if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
+            if br.isChecked("Feint") and php <= br.getOptionValue("Feint") and inCombat and not buff.feint.exists() then
               if cast.feint() then
                 return true
               end
             end
             -- Evasion
-            if isChecked("Riposte") and php <= getOptionValue("Riposte") and inCombat then
+            if br.isChecked("Riposte") and php <= br.getOptionValue("Riposte") and inCombat then
               if cast.riposte() then
                 return true
               end
             end
-            if isChecked("Engineer's Belt") and php <= getOptionValue("Engineer's Belt") and inCombat then
-                if canUseItem(6) then
-                    useItem(6)
+            if br.isChecked("Engineer's Belt") and php <= br.getOptionValue("Engineer's Belt") and inCombat then
+                if br.canUseItem(6) then
+                    br.useItem(6)
                 end
             end
           end
@@ -847,9 +847,9 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemyTable5 do
                     local thisUnit = enemyTable5[i].unit
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and hasThreat(thisUnit) then
+                    if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) and br.hasThreat(thisUnit) then
                         -- kick
-                        if isChecked("Kick") then
+                        if br.isChecked("Kick") then
                             if cast.kick(thisUnit) then end
                         end
                     end
@@ -860,32 +860,32 @@ local function runRotation()
         local function actionList_Cooldowns()
             local startTime = debugprofilestop()
         -- Trinkets
-            if isChecked("Trinkets") and not hasEquiped(169311, 13) and not hasEquiped(169311, 14) then
-                if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
-                    if canUseItem(13) then
-                        useItem(13)
+            if br.isChecked("Trinkets") and not hasEquiped(169311, 13) and not hasEquiped(169311, 14) then
+                if hasBloodLust() or (ttd("target") <= 20 and br.isBoss("target"))  then
+                    if br.canUseItem(13) then
+                        br.useItem(13)
                     end
-                    if canUseItem(14) then
-                        useItem(14)
+                    if br.canUseItem(14) then
+                        br.useItem(14)
                     end
                 end
             end
 
             -- # Razor Coral
-            if isChecked("Trinkets") and targetDistance < 5 then
+            if br.isChecked("Trinkets") and targetDistance < 5 then
                 if hasEquiped(169311, 13) and (not debuff.razorCoral.exists(units.dyn5) or (buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists())))) then
-                    useItem(13)
+                    br.useItem(13)
                 elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists(units.dyn5) or (buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists())))) then
-                    useItem(14)
+                    br.useItem(14)
                 end
             end
 
             -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 32-30% of HP)
-            if isChecked("Trinkets") then
-                if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and getHP("target") < 31 then
-                    useItem(13)
-                elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and getHP("target") < 31 then
-                    useItem(14)
+            if br.isChecked("Trinkets") then
+                if hasEquiped(169311, 13) and br.canUseItem(13) and hasEquiped(169319, 14) and br.getHP("target") < 31 then
+                    br.useItem(13)
+                elseif hasEquiped(169311, 14) and br.canUseItem(14) and hasEquiped(169319, 13) and br.getHP("target") < 31 then
+                    br.useItem(14)
                 end
             end
 
@@ -896,32 +896,32 @@ local function runRotation()
                 if cast.able.reapingFlames() then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        local thisHP = getHP(thisUnit)
-                    if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                        local thisHP = br.getHP(thisUnit)
+                    if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or br.getTTD(thisUnit,20) > 30) then
                         if cast.reapingFlames(thisUnit) then return true end
                         end
                     end
                 end
                 -- # Blood of the Enemy
-                if essence.bloodOfTheEnemy.active and isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 5 then 
+                if essence.bloodOfTheEnemy.active and br.isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 5 then 
                     if buff.bladeFlurry.exists("player") and bftargets >= 3 then
                         if cast.bloodOfTheEnemy() then return true end
-                    elseif isBoss("target") and buff.adrenalineRush.exists() then
+                    elseif br.isBoss("target") and buff.adrenalineRush.exists() then
                         if cast.bloodOfTheEnemy() then return true end
                     end
                 end
                 -- # Guardian of Azeroth
-                if essence.guardianOfAzeroth.active and isChecked("CLF") and buff.adrenalineRush.remain() > 10 then
+                if essence.guardianOfAzeroth.active and br.isChecked("CLF") and buff.adrenalineRush.remain() > 10 then
                     if cast.guardianOfAzeroth() then return true end
                 end
                 -- Crucible of flame
                 if cast.able.concentratedFlame() then 
-                    if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+                    if br.getOptionValue("Use Concentrated Flame") ~= 1 and php <= br.getValue("Concentrated Flame Heal") then
                         if cast.concentratedFlame("player") then
                             return
                         end
                     end
-                    if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+                    if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > br.getValue("Concentrated Flame Heal")) then
                         if cast.concentratedFlame("target") then
                             return
                         end
@@ -933,18 +933,18 @@ local function runRotation()
             --blood_fury
             --berserking
             --arcane_torrent,if=energy.deficit>40
-            if useCDs() and isChecked("Racial") and (race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" or "MagharOrc") then
+            if useCDs() and br.isChecked("Racial") and (race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" or "MagharOrc") then
                 if cast.racial("player") then return true end
             end
 
-            if useCDs() and isChecked("AdrenalineRush") and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
+            if useCDs() and br.isChecked("AdrenalineRush") and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
                 if cast.adrenalineRush("player") then
-                    if isChecked("Trinkets") and not hasEquiped(169311, 13) then
-                        if canUseItem(13) then
-                            useItem(13)
+                    if br.isChecked("Trinkets") and not hasEquiped(169311, 13) then
+                        if br.canUseItem(13) then
+                            br.useItem(13)
                         end
-                        if canUseItem(14) and not hasEquiped(169311, 14) then
-                            useItem(14)
+                        if br.canUseItem(14) and not hasEquiped(169311, 14) then
+                            br.useItem(14)
                         end
                     end
                 return true end
@@ -959,11 +959,11 @@ local function runRotation()
             end
     -- Blade Rush
             -- blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>1
-            if mode.tierseven == 1 and bladeFlurrySync() and getDistance("target") < 5 and ttm > 1 then
+            if mode.tierseven == 1 and bladeFlurrySync() and br.getDistance("target") < 5 and ttm > 1 then
                 if cast.bladeRush("target") then return true end
             end
 
-            if isChecked("Debug Timers") then
+            if br.isChecked("Debug Timers") then
                 if profile.Cooldowns == nil then profile.Cooldowns = {} end
                 local section = profile.Cooldowns
                 if section.totalIterations == nil then section.totalIterations = 0 end
@@ -978,8 +978,8 @@ local function runRotation()
         local function actionList_PreCombat()
         -- Stealth
             if not inCombat and not stealthingAll then
-                if isChecked("Stealth") then
-                    if getOptionValue("Stealth") == 1 or #enemies.yards20nc > 0 then
+                if br.isChecked("Stealth") then
+                    if br.getOptionValue("Stealth") == 1 or #enemies.yards20nc > 0 then
                         if (not IsMounted() and not IsFlying()) then
                             if cast.stealth("player") then end
                         end
@@ -987,15 +987,15 @@ local function runRotation()
                 end
             end
 
-            if stealthingRogue and (br.player.instance=="party" or br.player.instance=="raid" or isDummy("target")) and isChecked("Vanish") then
+            if stealthingRogue and (br.player.instance=="party" or br.player.instance=="raid" or br.isDummy("target")) and br.isChecked("Vanish") then
                 if cast.ambush("target") then end
             end
 
-            if isChecked("PickPocket") then
+            if br.isChecked("PickPocket") then
                 if #enemyTable5 > 0 and stealthingRogue then
                     for i = 1, #enemyTable5 do
                         local thisUnit = enemyTable5[i].unit
-                        if isChecked("PickPocket") then
+                        if br.isChecked("PickPocket") then
                             if PickPocketable(thisUnit) then
                                 if cast.pickPocket(thisUnit) then
                                     CastSpellByID(8676, thisUnit)
@@ -1004,9 +1004,9 @@ local function runRotation()
                         end
                         
                     end
-                    -- if GetUnitExists("target") then if cast.ambush("target") then return true end end
+                    -- if br.GetUnitExists("target") then if cast.ambush("target") then return true end end
                 end
-            elseif isChecked("Ambush Opener") then
+            elseif br.isChecked("Ambush Opener") then
                 if #enemyTable5 > 0 and stealthingRogue then
                     for i = 1, #enemyTable5 do
                         if cast.ambush(enemyTable5[i].unit) then return true end
@@ -1043,7 +1043,7 @@ local function runRotation()
 
             cast5yards("dispatch",true)
 
-            if isChecked("Debug Timers") then
+            if br.isChecked("Debug Timers") then
                 if profile.Finishers == nil then profile.Finishers = {} end
                 local section = profile.Finishers
                 if section.totalIterations == nil then section.totalIterations = 0 end
@@ -1067,7 +1067,7 @@ local function runRotation()
             if talent.dirtyTricks then
                 cast5yards("gouge",true)
             end
-            if isChecked("Debug Timers") then
+            if br.isChecked("Debug Timers") then
                 if profile.Builder == nil then profile.Builder = {} end
                 local section = profile.Builder
                 if section.totalIterations == nil then section.totalIterations = 0 end
@@ -1130,20 +1130,20 @@ local function runRotation()
             if drawing then
                 LibDraw.clearCanvas()
             end
-            function canInterruptshit(unit, hardinterrupt, forpro, gouge)
+            function br.canInterruptshit(unit, hardinterrupt, forpro, gouge)
 
                 local hardinterrupt = hardinterrupt or false
                 local timeforcc = (hardinterrupt and 2) or 0.4
-                local interruptTarget = getOptionValue("Interrupt Target")
-                if interruptTarget == 2 and not GetUnitIsUnit(unit, "target") then
+                local interruptTarget = br.getOptionValue("Interrupt Target")
+                if interruptTarget == 2 and not br.GetUnitIsUnit(unit, "target") then
                     return false
-                elseif interruptTarget == 3 and not GetUnitIsUnit(unit, "focus") then
+                elseif interruptTarget == 3 and not br.GetUnitIsUnit(unit, "focus") then
                     return false
-                elseif interruptTarget == 4 and getOptionValue("Interrupt Mark") ~= GetRaidTargetIndex(unit) then
+                elseif interruptTarget == 4 and br.getOptionValue("Interrupt Mark") ~= GetRaidTargetIndex(unit) then
                     return false
                 end
                 local castStartTime, castEndTime, interruptID, interruptable, castLeft = 0, 0, 0, false, 999
-                if GetUnitExists(unit)
+                if br.GetUnitExists(unit)
                     and UnitCanAttack("player",unit)
                     and not UnitIsDeadOrGhost(unit)
                 then
@@ -1153,21 +1153,21 @@ local function runRotation()
                         castEndTime = select(5,UnitCastingInfo(unit))
                         castLeft = castEndTime/1000 - GetTime()
                         interruptID = select(9,UnitCastingInfo(unit))
-                        if stunList[interruptID] or isChecked("Any Cast") then interruptable = true end
+                        if stunList[interruptID] or br.isChecked("Any Cast") then interruptable = true end
                     elseif select(5,UnitChannelInfo(unit)) and (not select(7,UnitChannelInfo(unit)) or hardinterrupt) then -- Get spell channel time
                         castStartTime = select(4,UnitChannelInfo(unit))
                         castEndTime = select(5,UnitChannelInfo(unit))
                         castLeft = castEndTime/1000 - GetTime()
                         interruptID = select(8,UnitChannelInfo(unit))
-                        if channelAsapList[interruptID] or channelLateList[interruptID] or isChecked("Any Cast") then interruptable = true end
+                        if channelAsapList[interruptID] or channelLateList[interruptID] or br.isChecked("Any Cast") then interruptable = true end
                     end
-                    if interruptable or isChecked("Any Cast") then
+                    if interruptable or br.isChecked("Any Cast") then
                         if not cd.kick.exists() and not hardinterrupt then
                             if willkick == nil then
                                 willkick = unit
-                                local wx,wy,wz = ObjectPosition(willkick)
+                                local wx,wy,wz = br._G.ObjectPosition(willkick)
                                 if drawing then
-                                    if getDistance(unit) > 5 then
+                                    if br.getDistance(unit) > 5 then
                                         LibDraw.SetColor(255,0,0)
                                     else
                                         LibDraw.SetColor(0,0,0)
@@ -1177,12 +1177,12 @@ local function runRotation()
                             end
                         end
                         if gouge and (willkick == nil or willkick ~= unit) and drawing then
-                            if not getFacing(unit, "player") or getDistance(unit) > 5 then
+                            if not br.getFacing(unit, "player") or br.getDistance(unit) > 5 then
                                 LibDraw.SetColor(255,0,0)
                             else
                                 LibDraw.SetColor(0,0,0)
                             end
-                            local ux,uy,uz = ObjectPosition(unit)
+                            local ux,uy,uz = br._G.ObjectPosition(unit)
                             LibDraw.Text("CC SHIT", "GameFontNormal", ux,uy,uz+2)
                         end
                         if willkick == unit and hardinterrupt then return false end
@@ -1199,62 +1199,62 @@ local function runRotation()
             for i = 1, #enemyTable20 do
                 local thisUnit = enemyTable20[i].unit
                 local distance = enemyTable20[i].distance
-                if isBoss(thisUnit) then return end
-                if isChecked("AutoKick") and distance <= 5 and not cd.kick.exists()  then
-                    if canInterruptshit(thisUnit, nil, forpro) then
+                if br.isBoss(thisUnit) then return end
+                if br.isChecked("AutoKick") and distance <= 5 and not cd.kick.exists()  then
+                    if br.canInterruptshit(thisUnit, nil, forpro) then
                         if cast.kick(thisUnit) then end
                     end
                 end
-                if isChecked("AutoGouge") and not cd.gouge.exists() and getFacing(thisUnit, "player") then
-                    if canInterruptshit(thisUnit, true , forpro, true) then
+                if br.isChecked("AutoGouge") and not cd.gouge.exists() and br.getFacing(thisUnit, "player") then
+                    if br.canInterruptshit(thisUnit, true , forpro, true) then
                         if cast.gouge(thisUnit) then return true end
                     end
-                elseif isChecked("AutoBtE") and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and not spread then
-                    if canInterruptshit(thisUnit, true , true) then
+                elseif br.isChecked("AutoBtE") and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and not spread then
+                    if br.canInterruptshit(thisUnit, true , true) then
                         if cast.betweenTheEyes(thisUnit) then return true end
                     end
-                elseif isChecked("AutoBlind") and distance <= 15 and not cd.blind.exists() then
-                    if canInterruptshit(thisUnit, true , true) then
+                elseif br.isChecked("AutoBlind") and distance <= 15 and not cd.blind.exists() then
+                    if br.canInterruptshit(thisUnit, true , true) then
                         if cast.blind(thisUnit) then return true end
                     end
                 end
             end
-            -- if isChecked("AutoKick") and not cd.kick.exists() then
+            -- if br.isChecked("AutoKick") and not cd.kick.exists() then
             --     for i = 1, #enemyTable5 do
             --         local thisUnit = enemyTable5[i].unit
-            --         if canInterruptshit(thisUnit, nil , true) then
+            --         if br.canInterruptshit(thisUnit, nil , true) then
             --             if cast.kick(thisUnit) then end
             --         end
             --     end
             -- end
-            -- if isChecked("AutoBtE") and combo > 4 and not cd.betweenTheEyes.exists() then
+            -- if br.isChecked("AutoBtE") and combo > 4 and not cd.betweenTheEyes.exists() then
             --     for i = 1, #enemyTable20 do
             --         local thisUnit = enemyTable20[i].unit
-            --         if canInterruptshit(thisUnit, true , true) then
+            --         if br.canInterruptshit(thisUnit, true , true) then
             --             if cast.betweenTheEyes(thisUnit) then return true end
             --         end
             --     end
             -- end
-            -- if isChecked("AutoGouge") and not cd.gouge.exists() then
+            -- if br.isChecked("AutoGouge") and not cd.gouge.exists() then
             --     for i = 1, #enemyTable5 do
             --         local thisUnit = enemyTable5[i].unit
-            --         if canInterruptshit(thisUnit, true , true) and thisUnit.facing then
+            --         if br.canInterruptshit(thisUnit, true , true) and thisUnit.facing then
             --             if cast.gouge(thisUnit) then return true end
             --         end
             --     end
             -- end
-            -- if isChecked("AutoBtE") and combo > 0 and not cd.betweenTheEyes.exists() then
+            -- if br.isChecked("AutoBtE") and combo > 0 and not cd.betweenTheEyes.exists() then
             --     for i = 1, #enemyTable20 do
             --         local thisUnit = enemyTable20[i].unit
-            --         if canInterruptshit(thisUnit, true , true) then
+            --         if br.canInterruptshit(thisUnit, true , true) then
             --             if cast.betweenTheEyes(thisUnit) then return true end
             --         end
             --     end
             -- end
-            -- if isChecked("AutoBlind") and not cd.blind.exists() then
+            -- if br.isChecked("AutoBlind") and not cd.blind.exists() then
             --     for i = 1, #enemyTable15 do
             --         local thisUnit = enemyTable15[i].unit
-            --         if canInterruptshit(thisUnit, true , true) then
+            --         if br.canInterruptshit(thisUnit, true , true) then
             --             if cast.blind(thisUnit) then return true end
             --         end
             --     end
@@ -1295,7 +1295,7 @@ local function runRotation()
             -- print(eID)
             local bosscount = 0
             for i = 1, 5 do
-                if GetUnitExists("boss" .. i) then
+                if br.GetUnitExists("boss" .. i) then
                   bosscount = bosscount + 1
                 end
             end
@@ -1321,7 +1321,7 @@ local function runRotation()
                         -- print(castleft.." cast left"..spellname)
                         -- print(castleft.." channel left"..spellname)
                     -- if castleft <= 3 then
-                        if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 3 then--GetUnitIsUnit("player", "boss"..i.."target") or   then
+                        if (select(3, UnitCastID(thisUnit)) == br._G.ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == br._G.ObjectPointer("player")) and castleft <= 3 then--br.GetUnitIsUnit("player", "boss"..i.."target") or   then
                             if cloakPlayerlist[interruptID] then
                                 if cast.cloakOfShadows("player") then end
                             elseif evasionPlayerlist[interruptID] then
@@ -1343,8 +1343,8 @@ local function runRotation()
             --CC units
             -- for i=1, #enemies.yards20 do
             --         local thisUnit = enemies.yards20[i]
-            --         local distance = getDistance(thisUnit)
-            --         if isChecked("AutoBtE") or isChecked("AutoGouge") or isChecked("AutoBlind") then
+            --         local distance = br.getDistance(thisUnit)
+            --         if br.isChecked("AutoBtE") or br.isChecked("AutoGouge") or br.isChecked("AutoBlind") then
             --             local interruptID, castStartTime, spellname, castEndTime
             --             if UnitCastingInfo(thisUnit) then
             --                 spellname = UnitCastingInfo(thisUnit)
@@ -1357,21 +1357,21 @@ local function runRotation()
             --                 castEndTime = select(5,UnitChannelInfo(thisUnit)) / 1000
             --                 interruptID = select(8,UnitChannelInfo(thisUnit))
             --             end
-            --             if isChecked("AutoBtE") and interruptID ~= nil and combo > 0 and not spread and 
+            --             if br.isChecked("AutoBtE") and interruptID ~= nil and combo > 0 and not spread and 
             --                     ((stunList[interruptID] and castEndTime - GetTime() <= 2 ) or
             --                     channelAsapList[interruptID] or
             --                     channelLateList[interruptID] and castEndTime - GetTime() <= 2)
             --                 then
             --                 if cast.betweenTheEyes(thisUnit) then print("bte stun on"..spellname); return true end
             --             end
-            --             if isChecked("AutoGouge") and interruptID ~= nil and getFacing(thisUnit,"player") and
+            --             if br.isChecked("AutoGouge") and interruptID ~= nil and br.getFacing(thisUnit,"player") and
             --                     ((stunList[interruptID] and castEndTime - GetTime() <= 2 ) or
             --                     channelAsapList[interruptID] or
             --                     channelLateList[interruptID] and castEndTime - GetTime() <= 2)
             --                 then
             --                 if cast.gouge(thisUnit) then print("gouge on"..spellname) return true end
             --             end
-            --             if isChecked("AutoBlind") and interruptID ~= nil and 
+            --             if br.isChecked("AutoBlind") and interruptID ~= nil and 
             --                     ((stunList[interruptID] and castEndTime - GetTime() <= 2 ) or
             --                     channelAsapList[interruptID] or
             --                     (channelLateList[interruptID] and castEndTime - GetTime() <= 2)) then
@@ -1389,7 +1389,7 @@ local function runRotation()
 
         if actionList_PreCombat() then return end
 
-        if isChecked("|cffFFBB00Encounter Logic") then 
+        if br.isChecked("|cffFFBB00Encounter Logic") then 
             if MythicStuff() then return end
         end
         if mode.stun == 1 then
@@ -1405,7 +1405,7 @@ local function runRotation()
             --print(rtbReroll())
             --print(br.player.power.energy.ttm())
             -- if cast.sinisterStrike() then return end
-           -- print(getDistance("target"))
+           -- print(br.getDistance("target"))
             --print(inRange(193315,"target"))
            -- print(IsSpellInRange(193315,"target"))
             --if castSpell("target",193315,true,false,false,true,false,true,false,false) then return end
@@ -1414,7 +1414,7 @@ local function runRotation()
 
         if actionList_Defensive() then return end
 
-        -- if isValidUnit("target") and isChecked("Opener") then
+        -- if br.isValidUnit("target") and br.isChecked("Opener") then
         --     if actionList_Opener() then return end
         -- end
 
@@ -1428,7 +1428,7 @@ local function runRotation()
         -- end
 
 
-        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 and groupTTD >= getOptionValue("BF Time To Die Limit") then
+        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 and groupTTD >= br.getOptionValue("BF Time To Die Limit") then
             if cast.bladeFlurry("player") then return true end
         end
 
@@ -1438,8 +1438,8 @@ local function runRotation()
         end
 
 
-            if not IsCurrentSpell(6603) and inCombat and not stealth and isValidUnit("target") and getDistance("target") <= 5 and getFacing("player", "target") then
-                StartAttack("target")
+            if not IsCurrentSpell(6603) and inCombat and not stealth and br.isValidUnit("target") and br.getDistance("target") <= 5 and br.getFacing("player", "target") then
+                br._G.StartAttack("target")
             end
 
             if mode.stun == 1 then
@@ -1456,7 +1456,7 @@ local function runRotation()
 
             if actionList_Interrupts() then end
 
-            if isChecked("Vanish") and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance("target") <= 5 and useCDs() and not solo then
+            if br.isChecked("Vanish") and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance("target") <= 5 and useCDs() and not solo then
                 if gcd > 0.2 then return true end
                 if cast.pool.ambush() then return true end
                 if CastSpellByID(1856) then return true end
@@ -1486,10 +1486,10 @@ local function runRotation()
                 if actionList_Finishers() then return end
             end
             if actionList_Build() then return end
-            if isChecked("Pistol Shot out of range") and isValidUnit("target") and #enemyTable5 == 0 and not stealthingAll and power >= getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= 1.2) then
+            if br.isChecked("Pistol Shot out of range") and br.isValidUnit("target") and #enemyTable5 == 0 and not stealthingAll and power >= br.getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= 1.2) then
                 if cast.pistolShot("target") then return true end
             end
-            if useCDs() and isChecked("Racial") then
+            if useCDs() and br.isChecked("Racial") then
                 if race == "BloodElf" and powerDeficit >= (15 + powerRegen) then
                     if cast.racial("player") then return true end
                 elseif race == "Nightborne" then
@@ -1501,7 +1501,7 @@ local function runRotation()
 
     end
 
-    if isChecked("Debug Timers") then
+    if br.isChecked("Debug Timers") then
         if profile.totalIterations == nil then profile.totalIterations = 0 end
         if profile.elapsedTime == nil then profile.elapsedTime = 0 end
         profile.currentTime = debugprofilestop()-startTime

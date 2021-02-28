@@ -1,50 +1,42 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Automatic Rotation",
-            tip = "Swaps between Single and Multiple based on number of targets in range.",
-            highlight = 1,
-            icon = br.player.spell.divineStorm
-        },
+    local RotationModes = {
+        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.divineStorm},
         [2] = {mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.divineStorm},
         [3] = {mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.crusaderStrike},
         [4] = {mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.flashOfLight}
     }
-    CreateButton("Rotation", 1, 0)
+   br.ui:createToggle(RotationModes,"Rotation", 1, 0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.avengingWrath},
         [2] = {mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.avengingWrath},
         [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avengingWrath}
     }
-    CreateButton("Cooldown", 2, 0)
+   br.ui:createToggle(CooldownModes,"Cooldown", 2, 0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.flashOfLight},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.flashOfLight}
     }
-    CreateButton("Defensive", 3, 0)
+   br.ui:createToggle(DefensiveModes,"Defensive", 3, 0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.hammerOfJustice},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice}
     }
-    CreateButton("Interrupt", 4, 0)
+   br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
     -- Aura
-    AuraModes = {
+    local AuraModes = {
         [1] = {mode = "Con", value = 1, overlay = "Concentration Aura", tip = "Use Concentration Aura", highlight = 0, icon = br.player.spell.concentrationAura},
         [2] = {mode = "Dev", value = 2, overlay = "Devotion Aura", tip = "Use Devotion Aura", highlight = 0, icon = br.player.spell.devotionAura},
         [3] = {mode = "Ret", value = 2, overlay = "Retribution Aura", tip = "Use Retribution Aura", highlight = 0, icon = br.player.spell.retributionAura}
     }
-    CreateButton("Aura", 5, 0)
+   br.ui:createToggle(AuraModes,"Aura", 5, 0)
 end
 ---------------
 --- OPTIONS ---
@@ -295,9 +287,9 @@ actionList.Extras = function()
     if ui.checked("DPS Testing") and unit.isDummy() then
         if unit.exists("target") then
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) then
-                StopAttack()
-                ClearTarget()
-                Print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+                unit.stopAttack()
+                unit.clearTarget()
+                ui.print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -436,12 +428,11 @@ actionList.Defensive = function()
         -- Lay On Hands
         if ui.checked("Lay On Hands") then
             local thisUnit = getHealUnitOption("Lay On Hands Target", true)
-            if
-                cast.able.layOnHands(thisUnit) and unit.inCombat(thisUnit) and not debuff.forbearance.exists(thisUnit) and unit.hp(thisUnit) <= ui.value("Lay On Hands") and
-                    unit.distance(thisUnit) < 40
-             then
+            if thisUnit ~= nil and cast.able.layOnHands(thisUnit) and unit.inCombat(thisUnit) and not debuff.forbearance.exists(thisUnit)
+                and unit.hp(thisUnit) <= ui.value("Lay On Hands") and unit.distance(thisUnit) < 40
+            then
                 if cast.layOnHands(thisUnit) then
-                    ui.debug("Casting Lay On Hands on " .. unit.name(thisUnit) .. " [" .. unit.hp(thisUnit) .. "% Remaining]")
+                    ui.debug("Casting Lay On Hands on " .. tostring(unit.name(thisUnit)) .. " [" .. tostring(unit.hp(thisUnit)) .. "% Remaining]")
                     return true
                 end
             end
@@ -503,10 +494,9 @@ actionList.Interrupts = function()
             local distance = unit.distance(thisUnit)
             if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Blinding Light
-                if
-                    ui.checked("Blinding Light - Int") and cast.able.blindingLight(thisUnit) and distance < 10 and
-                        ((cd.rebuke.remains() > unit.gcd() or distance >= 5) and cd.hammerOfJustice.remains() > unit.gcd())
-                 then
+                if ui.checked("Blinding Light - Int") and cast.able.blindingLight(thisUnit) and distance < 10 and
+                    ((cd.rebuke.remains() > unit.gcd() or distance >= 5) and cd.hammerOfJustice.remains() > unit.gcd())
+                then
                     if cast.blindingLight() then
                         ui.debug("Casting Blinding Light [Interrupt]")
                         return true
@@ -744,7 +734,7 @@ actionList.Generator = function()
     end
     -- Consecration
     -- consecration,if=!consecration.up&spell_targets.divine_storm>=2
-    if not GetTotemInfo(1) and var.dsUnits then
+    if not br._G.GetTotemInfo(1) and var.dsUnits then
         if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration [AOE]") return true end
     end
     -- Call Action List: Finishers
@@ -754,7 +744,7 @@ actionList.Generator = function()
     end
     -- Consecration
     -- consecration,if=!consecration.up
-    if not GetTotemInfo(1) then
+    if not br._G.GetTotemInfo(1) then
         if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration") return true end
     end
     -- Crusader Strike
@@ -785,8 +775,8 @@ actionList.PreCombat = function()
         -- augmentation,type=defiled
         -- Potion
         -- potion,name=old_war
-        -- if ui.checked("Potion") and canUseItem(127844) and unit.instance("raid") then
-        --     useItem(127844)
+        -- if ui.checked("Potion") and br.canUseItem(127844) and unit.instance("raid") then
+        --     br.useItem(127844)
         -- end
         if unit.valid("target") then --and opener.complete then
             -- Judgment

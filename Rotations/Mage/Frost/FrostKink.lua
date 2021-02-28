@@ -1,7 +1,6 @@
 local rotationName = "Kink"
-local rotationVer  = "v1.2.7"
+local rotationVer  = "v1.2.2"
 local colorBlue     = "|cff3FC7EB"
-local colorWhite = "|cffffffff"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -119,13 +118,7 @@ local function createOptions()
         ------------------------
         --- GENERAL  OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  
-         colorBlue .. " Frost" .. 
-         colorWhite .. " .:|:. " .. 
-         colorBlue .. "General ".. 
-         colorWhite.."Ver: " ..
-         colorBlue .. rotationVer .. 
-         colorWhite.." .:|:. ")
+        section = br.ui:createSection(br.ui.window.profile,  colorBlue .. "Frost " .. ".:|:. " .. colorBlue .. " General " .. "Ver|" ..colorBlue .. rotationVer .. ".:|:. ")
         -- APL
         br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
 
@@ -134,6 +127,8 @@ local function createOptions()
 
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+
+
 
         -- Ice Floes Delay
         br.ui:createSpinnerWithout(section, "Ice Floes Delay", 1.5, 0, 10, 0.1, "|cffFFBB00Delay between casting Ice Floes.")
@@ -150,7 +145,7 @@ local function createOptions()
         ------------------------
         ---   DPS SETTINGS   ---
         ------------------------
-         section = br.ui:createSection(br.ui.window.profile, colorBlue .. " DPS" .. colorWhite .. ".:|:. " ..colorBlue .. " DPS Settings")
+         section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DPS" .. ".:|:. " ..colorBlue .. " DPS Settings")
         -- Blizzard Units
         br.ui:createSpinnerWithout(section, "Blizzard Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Blizzard will be cast on.")
         
@@ -180,15 +175,13 @@ local function createOptions()
 
         -- Predict movement
         --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
-                -- Pre-Pull Timer
-        br.ui:createCheckbox(section, "Pull OoC", "|cffFFBB00 Toggles whether or not the rotation automatically engages into combat.")
         -- Auto target
         br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
         br.ui:checkSectionState(section)
         ------------------------
         ---     UTILITY      ---
         ------------------------
-         section = br.ui:createSection(br.ui.window.profile, colorBlue .. " UTLY" .. colorWhite.. ".:|:. " ..colorBlue .. " Utility")
+         section = br.ui:createSection(br.ui.window.profile, colorBlue .. "UTLY" .. ".:|:. " ..colorBlue .. " Utility")
         -- Spellsteal
         br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
 
@@ -209,7 +202,7 @@ local function createOptions()
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, colorBlue .. " CDs" .. colorWhite.. ".:|:. " ..colorBlue .. " Cooldowns")
+        section = br.ui:createSection(br.ui.window.profile, colorBlue .. "CDs" .. ".:|:. " ..colorBlue .. " Cooldowns")
         -- Cooldowns Time to Die limit
         br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
 
@@ -233,7 +226,7 @@ local function createOptions()
         ------------------------
         --- Defensive OPTIONS ---
         ------------------------
-      section = br.ui:createSection(br.ui.window.profile, colorBlue .. " DEF" .. colorWhite.. ".:|:. " ..colorBlue .. " Defensive")
+      section = br.ui:createSection(br.ui.window.profile, colorBlue .. "DEF" .. ".:|:. " ..colorBlue .. " Defensive")
         -- Healthstone
         br.ui:createSpinner(section, "Pot/Stoned", 60, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
 
@@ -261,7 +254,7 @@ local function createOptions()
         ------------------------
         ---Interrupt  OPTIONS---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, colorBlue.." Interrupts")
+        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Interrupt Percentage
         br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percent to Cast At")
         -- Don't interrupt
@@ -271,7 +264,7 @@ local function createOptions()
         ------------------------
         ---TOGGLE KEY OPTIONS---
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile, colorBlue.." Toggle Keys")
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
         br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
@@ -322,22 +315,22 @@ local function runRotation()
     local buff = br.player.buff
     local cast = br.player.cast
     local castable = br.player.cast.debug
-    local combatTime = getCombatTime()
+    local combatTime = br.getCombatTime()
     local conduit = br.player.conduit
     local covenant = br.player.covenant
     local cd = br.player.cd
     local charges = br.player.charges
     local deadMouse = UnitIsDeadOrGhost("mouseover")
-    local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+    local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
     local essence = br.player.essence
     local equiped = br.player.equiped
     local falling, swimming, flying = getFallTime(), IsSwimming(), IsFlying()
-    local friendly = GetUnitIsFriend("target", "player")
+    local friendly = br.GetUnitIsFriend("target", "player")
     local gcd = br.player.gcd
     local gcdMax = br.player.gcdMax
-    local hasMouse = GetObjectExists("mouseover")
+    local hasMouse = br.GetObjectExists("mouseover")
     local hasteAmount = GetHaste() / 100
     local hasPet = IsPetActive()
     local healPot = getHealthPot()
@@ -348,7 +341,7 @@ local function runRotation()
     local inRaid = br.player.instance == "raid"
     local lastSpell = lastSpellCast
     local level = br.player.level
-    local lootDelay = getOptionValue("LootDelay")
+    local lootDelay = br.getOptionValue("LootDelay")
     local manaPercent = br.player.power.mana.percent()
     local mode = br.player.ui.mode
     local moving = isMoving("player") ~= false or br.player.moving
@@ -363,13 +356,14 @@ local function runRotation()
     local solo = br.player.instance == "none"
     local spell = br.player.spell
     local talent = br.player.talent
-    local targetUnit = "target"
-    local thp = getHP("target")
-    local travelTime = getDistance("target") / 50 --Ice lance
+    local targetUnit = nil
+    local thp = br.getHP("target")
+    local travelTime = br.getDistance("target") / 50 --Ice lance
     local ttm = br.player.power.mana.ttm()
     local units = br.player.units
     local use = br.player.use
-    local reapingDamage = getOptionValue("Reaping Flames Damage") * 1000
+    local reapingDamage = br.getOptionValue("Reaping Flames Damage") * 1000
+
     -- Super scuffed IF tracker
     local curIF = select(3,AuraUtil.FindAuraByName(GetSpellInfo(116267), "player", "HELPFUL"))
     if curIF then
@@ -384,10 +378,11 @@ local function runRotation()
         if5Start = 0
         if5End = 0
     end
+
     local function ifCheck()
-        if if5Start ~= 0 and isChecked("No Ice Lance") then
+        if if5Start ~= 0 and br.isChecked("No Ice Lance") then
             --cast_time+travel_time>incanters_flow_time_to.5.up&cast_time+travel_time<incanters_flow_time_to.4.down
-            local hitTime = GetTime() + cast.time.glacialSpike() + getDistance("target") / 40
+            local hitTime = GetTime() + cast.time.glacialSpike() + br.getDistance("target") / 40
             if hitTime > if5Start and hitTime < if5End then
                 return true
             end
@@ -408,6 +403,16 @@ local function runRotation()
             buttonEbonbolt:Show()
         end
     end
+
+    local function UnitCastID(obj)
+            if UnitIsVisible(obj) then
+                local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitCastingInfo(obj)
+                return spellId or 0,spellId or 0 or ""
+            else
+                return 0,0,"",""
+            end
+        end
+
     -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
@@ -424,8 +429,8 @@ local function runRotation()
     local function interruptCast(spellID)
         local castingInfo = {UnitCastingInfo("player")}
         if castingInfo[9] and castingInfo[9] == spellID then
-            if isChecked("Casting Interrupt Delay") then
-                if (GetTime()-(castingInfo[4]/1000)) >= getOptionValue("Casting Interrupt Delay") then
+            if br.isChecked("Casting Interrupt Delay") then
+                if (GetTime()-(castingInfo[4]/1000)) >= br.getOptionValue("Casting Interrupt Delay") then
                     return true
                 end
             else
@@ -458,19 +463,19 @@ local function runRotation()
     end
 
     --rop notice
-    if not ropNotice and talent.runeOfPower then
+   --[[ if not ropNotice and talent.runeOfPower then
         print("Rune Of Power talent not supported in rotation yet, use manually")
         ropNotice = true
     elseif ropNotice and not talent.runeOfPower then
         ropNotice = false
-    end
+    end--]]
 
     --buff cache locals
     local fofExists = buff.fingersOfFrost.exists()
     local bfExists = buff.brainFreeze.exists()
     local iciclesStack = buff.icicles.stack()
 
-    if isCastingSpell(spell.frostbolt) then
+    if br.isCastingSpell(spell.frostbolt) then
         iciclesStack = iciclesStack + 1
     end
 
@@ -480,29 +485,31 @@ local function runRotation()
     enemies.get(40, nil, nil, nil, spell.frostbolt)
 
     local dispelDelay = 1.5
-    if isChecked("Dispel delay") then
-        dispelDelay = getValue("Dispel delay")
+    if br.isChecked("Dispel delay") then
+        dispelDelay = br.getValue("Dispel delay")
     end
 
     if profileStop == nil or not inCombat then
         profileStop = false
     end
+
     --ttd
     local function ttd(unit)
-        local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then
+        local ttdSec = br.getTTD(unit)
+        if br.getOptionCheck("Enhanced Time to Die") then
             return ttdSec
         end
         if ttdSec == -1 then
             return 999
         end
-        return ttdSec
+        return
+         ttdSec
     end
     --is frozen
     local function isFrozen(unit)
         local function getRawDistance(unit)
-            local x1, y1, z1 = ObjectPosition("player")
-            local x2, y2, z2 = ObjectPosition(unit)
+            local x1, y1, z1 = br._G.ObjectPosition("player")
+            local x2, y2, z2 = br._G.ObjectPosition(unit)
             return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
         end
         local distance = getRawDistance(unit)
@@ -542,10 +549,10 @@ local function runRotation()
 
     local function calcHP(unit)
         local thisUnit = unit.unit
-        local hp = UnitHealth(thisUnit)
+        local hp = br._G.UnitHealth(thisUnit)
         if br.unlocked then --EasyWoWToolbox ~= nil then
             local castID, _, castTarget = UnitCastID("player")
-            if castID and castTarget and GetUnitIsUnit(unit, castTarget) and playerCasting then
+            if castID and castTarget and br.GetUnitIsUnit(unit, castTarget) and playerCasting then
                 hp = hp - calcDamage(castID, unit)
             end
             for k, v in pairs(spell.abilities) do
@@ -595,7 +602,7 @@ local function runRotation()
             [146731] = "Zombie Dust Totem"
         }
         local creatureType = UnitCreatureType(unit)
-        local objectID = GetObjectID(unit)
+        local objectID = br.GetObjectID(unit)
         if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then
                 return true
@@ -616,17 +623,17 @@ local function runRotation()
     }
 
     local function noDotCheck(unit)
-        if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then
+        if br.isChecked("Dot Blacklist") and (noDotUnits[br.GetObjectID(unit)] or UnitIsCharmed(unit)) then
             return true
         end
-        if isTotem(unit) then
+        if br.isTotem(unit) then
             return true
         end
-        local unitCreator = UnitCreator(unit)
+        local unitCreator = br._G.UnitCreator(unit)
         if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then
             return true
         end
-        if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then
+        if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then
             return true
         end
         return false
@@ -652,15 +659,15 @@ local function runRotation()
         local distance20Min
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or GetUnitIsUnit(thisUnit, "target")) then
+            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or br.GetUnitIsUnit(thisUnit, "target")) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
-                enemyUnit.distance = getDistance(thisUnit)
+                enemyUnit.distance = br.getDistance(thisUnit)
                 enemyUnit.distance20 = math.abs(enemyUnit.distance - 20)
-                enemyUnit.hpabs = UnitHealth(thisUnit)
-                enemyUnit.facing = getFacing("player", thisUnit)
-                if getOptionValue("APL Mode") == 2 then
+                enemyUnit.hpabs = br._G.UnitHealth(thisUnit)
+                enemyUnit.facing = br.getFacing("player", thisUnit)
+                if br.getOptionValue("APL Mode") == 2 then
                     enemyUnit.frozen = isFrozen(thisUnit)
                 end
                 enemyUnit.calcHP = calcHP(enemyUnit)
@@ -708,8 +715,7 @@ local function runRotation()
                 end
             )
         end
-        
-        if isChecked("Auto Target") and #enemyTable40 > 0 and ((GetUnitExists("target") and (UnitIsDeadOrGhost("target")) and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
+        if br.isChecked("Auto Target") and #enemyTable40 > 0 and ((br.GetUnitExists("target") and (UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
             TargetUnit(enemyTable40[1].unit)
             return true
         end
@@ -722,7 +728,7 @@ local function runRotation()
 
     -- spell usable check
     local function spellUsable(spellID)
-        if isKnown(spellID) and not select(2, IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 then
+        if br.isKnown(spellID) and not select(2, IsUsableSpell(spellID)) and br.getSpellCD(spellID) == 0 then
             return true
         end
         return false
@@ -737,12 +743,12 @@ local function runRotation()
         end
     end
 
-    --
+    -- Frozen orb
     local function castFrozenOrb(minUnits, safe, minttd)
-        if not isKnown(spell.frozenOrb) or getSpellCD(spell.frozenOrb) ~= 0 or mode.frozenOrb ~= 1 then
+        if not br.isKnown(spell.frozenOrb) or br.getSpellCD(spell.frozenOrb) ~= 0 or mode.frozenOrb ~= 1 then
             return false
         end  
-        local x, y, z = ObjectPosition("player")
+        local x, y, z = br._G.ObjectPosition("player")
         local length = 35
         local width = 17
         ttd = ttd or 0
@@ -754,16 +760,16 @@ local function runRotation()
             local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
             return nlX, nlY, nrX, nrY, frX, frY
         end
-        local enemiesTable = getEnemies("player", length, true)
+        local enemiesTable = br.getEnemies("player", length, true)
         local facing = ObjectFacing("player")        
         local unitsInRect = 0
         local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
         local thisUnit
         for i = 1, #enemiesTable do
             thisUnit = enemiesTable[i]
-            local uX, uY, uZ = ObjectPosition(thisUnit)
+            local uX, uY, uZ = br._G.ObjectPosition(thisUnit)
             if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
-                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+                if safe and not UnitAffectingCombat(thisUnit) and not br.isDummy(thisUnit) then
                     unitsInRect = 0
                     break
                 end            
@@ -773,7 +779,7 @@ local function runRotation()
             end
         end
         if unitsInRect >= minUnits then
-            CastSpellByName(GetSpellInfo(spell.frozenOrb))
+            br._G.CastSpellByName(GetSpellInfo(spell.frozenOrb))
             return true
         else
             return false
@@ -781,8 +787,8 @@ local function runRotation()
     end
 
     --Clear last cast table ooc to avoid strange casts
-    if not inCombat and #br.lastCast.tracker > 0 then
-        wipe(br.lastCast.tracker)
+    if not inCombat and #br.lastCastTable.tracker > 0 then
+        wipe(br.lastCastTable.tracker)
     end
 
     ---Target move timer
@@ -791,9 +797,9 @@ local function runRotation()
     end
     if br.timer:useTimer("targetMove", 0.8) or combatTime < 0.2 then
         if UnitIsVisible("target") then
-            local currentX, currentY, currentZ = ObjectPosition("target")
+            local currentX, currentY, currentZ = br._G.ObjectPosition("target")
             local targetMoveDistance = math.sqrt(((currentX - lastTargetX) ^ 2) + ((currentY - lastTargetY) ^ 2) + ((currentZ - lastTargetZ) ^ 2))
-            lastTargetX, lastTargetY, lastTargetZ = ObjectPosition("target")
+            lastTargetX, lastTargetY, lastTargetZ = br._G.ObjectPosition("target")
             if targetMoveDistance < 3 then
                 targetMoveCheck = true
             else
@@ -801,6 +807,7 @@ local function runRotation()
             end
         end
     end
+
     --Tank move check for aoe
     local tankMoving = false
     if inInstance then
@@ -812,37 +819,43 @@ local function runRotation()
     end
 
     function mageDamage()
-        local X,Y,Z = ObjectPosition("player")
+        local X,Y,Z = br._G.ObjectPosition("player")
         print(Z)
         Z = select(3, TraceLine(X, Y, Z + 10, X, Y, Z - 10, 0x110))
         print(Z)
     end
+
+    -- Opener Variables
+    if not inCombat and not br.GetObjectExists("target") then
+        fbInc = false
+    end
+
     local function actionList_Extras()
-        if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
+        if br.isChecked("DPS Testing") and br.GetObjectExists("target") and br.getCombatTime() >= (tonumber(br.getOptionValue("DPS Testing")) * 60) and br.isDummy() then
             StopAttack()
             ClearTarget()
-            if isChecked("Pet Management") and not talent.lonelyWinter then
+            if br.isChecked("Pet Management") and not talent.lonelyWinter then
                 PetStopAttack()
                 PetFollow()
             end
-            print(tonumber(getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+            print(tonumber(br.getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
             profileStop = true
         end
 
         --Ice Barrier
-        if not IsResting() and not inCombat and not playerCasting and isChecked("Ice Barrier OOC") then
+        if not IsResting() and not inCombat and not playerCasting and br.isChecked("Ice Barrier OOC") then
             if cast.iceBarrier("player") then
                 return true
             end
         end
         
         --Pet assist
-        if isChecked("Pet Management") and UnitIsVisible("pet") and not petFollowActive() and (not inCombat or getDistance("target", "pet") > 40) then
+        if br.isChecked("Pet Management") and UnitIsVisible("pet") and not petFollowActive() and (not inCombat or br.getDistance("target", "pet") > 40) then
             PetFollow()
         end
 
         -- Spell Steal
-        if isChecked("Spellsteal") and inCombat then
+        if br.isChecked("Spellsteal") and inCombat then
             for i = 1, #enemyTable40 do
                 if spellstealCheck(enemyTable40[i].unit) then
                     if cast.spellsteal(enemyTable40[i].unit) then return true end
@@ -853,7 +866,7 @@ local function runRotation()
         -- Arcane Intellect
         if br.timer:useTimer("AI Delay", math.random(15, 30)) then
             for i = 1, #br.friend do
-                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                     if cast.arcaneIntellect() then return true end
                 end
             end
@@ -868,23 +881,23 @@ local function runRotation()
         
         -- Trinkets
             -- Trinket 1
-            if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
+            if (br.getOptionValue("Trinket 1") == 1 or (br.getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
                 if use.able.slot(13) then
                     use.slot(13)
                 end
             end
 
         -- Trinket 2
-            if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
+            if (br.getOptionValue("Trinket 2") == 1 or (br.getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
                 if use.able.slot(14) then
                     use.slot(14)
                 end
             end     
 
         -- Slow Fall
-        if isChecked("Slow Fall Distance") and not buff.slowFall.exists() then
-            if IsFalling() and getFallDistance() >= getOptionValue("Slow Fall Distance") then
-                if cast.slowFall("player") then return end
+        if br.isChecked("Slow Fall Distance") and cast.able.slowFall() and not buff.slowFall.exists() then
+            if IsFalling() and getFallDistance() >= br.getOptionValue("Slow Fall Distance") then
+                if cast.slowFall() then return end
             end
         end         
     end
@@ -892,7 +905,7 @@ local function runRotation()
     local function actionList_Defensive()
         if useDefensive() then
             --Ice Block
-            if isChecked("Ice Block") and php <= getOptionValue("Ice Block") and cd.iceBlock.remain() <= gcd then
+            if br.isChecked("Ice Block") and php <= br.getOptionValue("Ice Block") and cd.iceBlock.remain() <= gcd then
                 if UnitCastingInfo("player") then
                     SpellStopCasting()
                 end
@@ -902,60 +915,60 @@ local function runRotation()
             end
 
             --Pot/Stone
-            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                if canUseItem(5512) then
-                    useItem(5512)
-                elseif canUseItem(healPot) then
-                    useItem(healPot)
+            if br.isChecked("Pot/Stoned") and php <= br.getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or br.hasItem(5512)) then
+                if br.canUseItem(5512) then
+                    br.useItem(5512)
+                elseif br.canUseItem(healPot) then
+                    br.useItem(healPot)
                 end
             end
 
             --Heirloom Neck
-            if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+            if br.isChecked("Heirloom Neck") and php <= br.getOptionValue("Heirloom Neck") then
                 if hasEquiped(heirloomNeck) then
                     if GetItemCooldown(heirloomNeck) == 0 then
-                        useItem(heirloomNeck)
+                        br.useItem(heirloomNeck)
                     end
                 end
             end
 
             --Ice Barrier
-            if isChecked("Ice Barrier") and not playerCasting and php <= getOptionValue("Ice Barrier") then
+            if br.isChecked("Ice Barrier") and not playerCasting and php <= br.getOptionValue("Ice Barrier") then
                 if cast.iceBarrier("player") then
                     return true
                 end
             end
 
             --Gift of the Naaru (Racial)
-            if br.player.race == "Draenei"  and isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 then
+            if br.player.race == "Draenei"  and br.isChecked("Gift of the Naaru") and php <= br.getOptionValue("Gift of the Naaru") and php > 0 then
                 if castSpell("player", racial, false, false, false) then
                     return
                 end
             end
             
             --Remove Curse, Yoinked from Aura balance
-            if isChecked("Remove Curse") then
-                if getOptionValue("Remove Curse") == 1 then
-                    if canDispel("player",spell.removeCurse) then
+            if br.isChecked("Remove Curse") then
+                if br.getOptionValue("Remove Curse") == 1 then
+                    if br.canDispel("player",spell.removeCurse) then
                         if cast.removeCurse("player") then return true end
                     end
-                elseif getOptionValue("Remove Curse") == 2 then
-                    if canDispel("target",spell.removeCurse) then
+                elseif br.getOptionValue("Remove Curse") == 2 then
+                    if br.canDispel("target",spell.removeCurse) then
                         if cast.removeCurse("target") then return true end
                     end
-                elseif getOptionValue("Remove Curse") == 3 then
-                    if canDispel("player",spell.removeCurse) then
+                elseif br.getOptionValue("Remove Curse") == 3 then
+                    if br.canDispel("player",spell.removeCurse) then
                         if cast.removeCurse("player") then return true end
-                    elseif canDispel("target",spell.removeCurse) then
+                    elseif br.canDispel("target",spell.removeCurse) then
                         if cast.removeCurse("target") then return true end
                     end
-                elseif getOptionValue("Remove Curse") == 4 then
-                    if canDispel("mouseover",spell.removeCurse) then
+                elseif br.getOptionValue("Remove Curse") == 4 then
+                    if br.canDispel("mouseover",spell.removeCurse) then
                         if cast.removeCurse("mouseover") then return true end
                     end
-                elseif getOptionValue("Remove Curse") == 5 then
+                elseif br.getOptionValue("Remove Curse") == 5 then
                     for i = 1, #br.friend do
-                        if canDispel(br.friend[i].unit,spell.removeCurse) then
+                        if br.canDispel(br.friend[i].unit,spell.removeCurse) then
                             if cast.removeCurse(br.friend[i].unit) then return true end
                         end
                     end
@@ -966,10 +979,10 @@ local function runRotation()
 
     local function actionList_Interrupts()
         if useInterrupts() and cd.counterspell.remain() == 0 then
-            if not isChecked("Do Not Cancel Cast") or not playerCasting then
+            if not br.isChecked("Do Not Cancel Cast") or not playerCasting then
                 for i = 1, #enemyTable40 do
                     local thisUnit = enemyTable40[i].unit
-                    if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.counterspell(thisUnit) then
                             return
                         end
@@ -999,9 +1012,9 @@ actions.cds+=/bag_of_tricks
 
 
     local function actionList_Cooldowns()
-        if useCDs() and ttd("target") >= getOptionValue("Cooldowns Time to Die Limit") then
+        if useCDs() and targetUnit.ttd >= br.getOptionValue("Cooldowns Time to Die Limit") then
             -- actions.cds=potion,if=prev_off_gcd.icy_veins|fight_remains<30
-            if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (cast.last.icyVeins() or ttd("target") < 30) then
+            if br.isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (cast.last.icyVeins() or ttd("target") < 30) then
                 br.addonDebug("[Action:Cooldowns] Damage Potion")
                 use.battlePotionOfIntellect()
                 return true
@@ -1020,14 +1033,15 @@ actions.cds+=/bag_of_tricks
             -- Mirrors of Torment : Venthyr ----------------
             ------------------------------------------------
             -- actions.aoe+=/mirrors_of_torment
-            if covenant.venthyr.active and spellUsable(spell.mirrorsOfTorment) and select(2,GetSpellCooldown(spell.mirrorsOfTorment)) <= gcdMax and #enemies.yards8t >= 2 then
+            if covenant.venthyr.active and spellUsable(314793) and select(2,GetSpellCooldown(314793)) <= gcdMax 
+            and blizzardUnits < 3 and (conduit.siphonedMalice or soulbind.wastelandPropriety) then
                 if cast.mirrorsOfTorment() then br.addonDebug("[Action:Cooldowns] Mirrors Of Torment") return true end
             end
             ------------------------------------------------
             -- Shifting Power : Night Fae ------------------
             ------------------------------------------------
             -- actions.aoe+=/shifting_power
-            if covenant.nightFae.active and spellUsable(314791) and select(2,GetSpellCooldown(314791)) <= gcdMax and ttd("target") > 8 then
+            if covenant.nightFae.active and spellUsable(314791) and select(2,GetSpellCooldown(314791)) <= gcdMax then
                 if cast.shiftingPower() then br.addonDebug("[Action:Cooldowns] Shifting Power") return true end
             end
             ------------------------------------------------
@@ -1040,7 +1054,7 @@ actions.cds+=/bag_of_tricks
         end
 
             -- actions.cds+=/icy_veins,if=buff.rune_of_power.down&(buff.icy_veins.down|talent.rune_of_power)&(buff.slick_ice.down|active_enemies>=2)
-            if cast.able.icyVeins() and not buff.iceForm.exists() and not buff.runeOfPower.exists() and (not buff.icyVeins.exists() or talent.runeOfpower) and (not buff.slickIce.exists() or blizzardUnits >= 2) then CastSpellByName(GetSpellInfo(spell.icyVeins)) br.addonDebug("[Action:Cooldowns] Icy Veins") return true end
+            if cast.able.icyVeins() and not buff.iceForm.exists() and not buff.runeOfPower.exists() and (not buff.icyVeins.exists() or talent.runeOfpower) and (not buff.slickIce.exists() or blizzardUnits >= 2) then br._G.CastSpellByName(GetSpellInfo(spell.icyVeins)) br.addonDebug("[Action:Cooldowns] Icy Veins") return true end
 
             -- actions.cooldowns+=/mirror_image
             if cast.able.mirrorImage() and ui.checked("Mirror Image") and cast.mirrorImage("player") then br.addonDebug("[Action:Cooldowns] Mirror Image") return true end
@@ -1051,7 +1065,7 @@ actions.cds+=/bag_of_tricks
             -- actions.cooldowns+=/call_action_list,name=talent_rop,if=talent.rune_of_power.enabled&active_enemies=1&cooldown.rune_of_power.full_recharge_time<cooldown.frozen_orb.remains
             -- actions.cooldowns+=/use_items  
             --racials
-            if isChecked("Racial") then
+            if br.isChecked("Racial") then
                 if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
                     if race == "LightforgedDraenei" then
                         if cast.racial("target","ground") then return true end
@@ -1064,14 +1078,14 @@ actions.cds+=/bag_of_tricks
 
         -- Trinkets
         -- Trinket 1
-        if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
+        if (br.getOptionValue("Trinket 1") == 1 or (br.getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
             if use.able.slot(13) then
                 use.slot(13)
             end
         end
 
         -- Trinket 2
-        if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
+        if (br.getOptionValue("Trinket 2") == 1 or (br.getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
             if use.able.slot(14) then
                 use.slot(14)
             end
@@ -1092,65 +1106,51 @@ actions.cds+=/bag_of_tricks
             end
         end
 
-        if bfExists or isCastingSpell(spell.ebonbolt) then
+        if bfExists or br.isCastingSpell(spell.ebonbolt) then
             if cast.flurry("target") then
                 return true
             end
         end
 
-        if mode.fn == 1 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
+        if mode.fn == 1 and not isFrozen("target") and br.getDistance("target") < 12 and not br.isBoss("target") then
             if cast.frostNova("player") then
                 return true
             end
         end
 
         if mode.coc == 1 then
-            if getDistance("target") <= 8 then
+            if br.getDistance("target") <= 8 then
                 if cast.coneOfCold("player") then return true end
             end
         end
 
-        if not isTotem("target") and mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if not br.isTotem("target") and mode.ae == 1 and cast.able.arcaneExplosion() and br.getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= br.getOptionValue("Arcane Explosion Units") then
             if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
-        end
-
-        if mode.frozenOrb ~= 2 and not talent.concentratedCoolness then
-            if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                if castFrozenOrb(1, true, 4) then return true end
-            else
-                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
-            end
-        else
-            if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                if cast.frozenOrb(nil,"aoe",1,8,true) then return true end 
-            else
-                if cast.frozenOrb(nil,"aoe",1,8,true) then return true end 
-            end
         end
 
         if mode.frozenOrb == 1 and useCDs() and not talent.concentratedCoolness then
             if castFrozenOrb(1, true, 4) then return true end
         else
         -- Frozen Orb Key
-            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() and not talent.concentratedCoolness then
-                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+            if mode.frozenOrb == 2 and br.isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() and not talent.concentratedCoolness then
+                br._G.CastSpellByName(GetSpellInfo(spell.frozenOrb))
                 return
             end
         end
 
         -- Concentrated Coolness Talent
-        if talent.concentratedCoolnes and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() and not talent.concentratedCoolness then
+        if talent.concentratedCoolnes and br.isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() and not talent.concentratedCoolness then
             cast.frozenOrb(nil,"aoe",1,8,true)
             return true 
         end
 
-        if mode.rotation ~= 2 and not playerCasting and blizzardUnits >= getOptionValue("Blizzard Units") and not tankMoving and not moving then
-            if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
+        if mode.rotation ~= 2 and not playerCasting and blizzardUnits >= br.getOptionValue("Blizzard Units") and not tankMoving and not moving then
+            if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
                 return true
             end
         end
 
-        if targetUnit.calcHP > calcDamage(spell.iceNova, targetUnit) or #getEnemies("target", 8) > 2 then
+        if targetUnit.calcHP > calcDamage(spell.iceNova, targetUnit) or #br.getEnemies("target", 8) > 2 then
             if cd.iceNova.remain() <= gcd and ((playerCasting and UnitCastID("player") == spell.frostbolt) or cast.inFlight.frostbolt()) then
                 return true
             end
@@ -1184,7 +1184,7 @@ actions.cds+=/bag_of_tricks
     local function actionList_ST()  
         -- # In some situations, you can shatter Ice Nova even after already casting Flurry and Ice Lance. Otherwise this action is used when the mage has FoF after casting Flurry, see above.
         -- arcane explosion
-        if not isTotem("target") and mode.ae ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if not br.isTotem("target") and mode.ae ~= 2 and cast.able.arcaneExplosion() and br.getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= br.getOptionValue("Arcane Explosion Units") then
             if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
          end 
             
@@ -1198,7 +1198,7 @@ actions.cds+=/bag_of_tricks
 
         -- # Without GS, Ebonbolt is always shattered. With GS, Ebonbolt is shattered if it would waste Brain Freeze charge (i.e. when the mage starts casting Ebonbolt with Brain Freeze active) or when below 4 Icicles (if Ebonbolt is cast when the mage has 4-5 Icicles, it's better to use the Brain Freeze from it on Glacial Spike).
         -- actions.single+=/flurry,if=talent.ebonbolt.enabled&prev_gcd.1.ebonbolt&(!talent.glacial_spike.enabled|buff.icicles.stack<4|buff.brain_freeze.react)
-        if talent.ebonbolt and cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or bfExists) then
+        if talent.ebonbolt and cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 3) then
             if cast.flurry("target") then return true end
         end
 
@@ -1216,16 +1216,16 @@ actions.cds+=/bag_of_tricks
 
         -- actions.single+=/frozen_orb
         if mode.frozenOrb == 1 and not moving and targetMoveCheck then
-            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+            if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
                 if castFrozenOrb(1, true, 4) then return true end
             else
-                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
+                if castFrozenOrb(br.getOptionValue("Frozen Orb Units"), true, 4) then return true end
             end
         else
 
         -- Frozen Orb Key
-            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
-                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+            if mode.frozenOrb == 2 and br.isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                br._G.CastSpellByName(GetSpellInfo(spell.frozenOrb))
                 return
             end
         end
@@ -1233,11 +1233,11 @@ actions.cds+=/bag_of_tricks
         -- # With Freezing Rain and at least 2 targets, Blizzard needs to be used with higher priority to make sure you can fit both instant Blizzards into a single Freezing Rain. Starting with three targets, Blizzard leaves the low priority filler role and is used on cooldown (and just making sure not to waste Brain Freeze charges) with or without Freezing Rain.
         -- actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&cast_time=0&buff.fingers_of_frost.react<2
         if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
-            if createCastFunction("best", false, 3, 8, spell.blizzard, nil, true, 3) then
+            if br.createCastFunction("best", false, 3, 8, spell.blizzard, nil, true, 3) then
                 return true
             end
             if buff.fingersOfFrost.stack() < 2 and buff.freezingRain.exists() then
-                if createCastFunction("best", false, 2, 8, spell.blizzard, nil, true, 3) then
+                if br.createCastFunction("best", false, 2, 8, spell.blizzard, nil, true, 3) then
                     return true
                 end
             end
@@ -1245,21 +1245,21 @@ actions.cds+=/bag_of_tricks
 
         -- # Trying to pool charges of FoF for anything isn't worth it. Use them as they come.
         -- actions.single+=/ice_lance,if=buff.fingers_of_frost.react
-        if not isChecked("No Ice Lance") then
+        if not br.isChecked("No Ice Lance") then
             if fofExists and (not (bfExists and iciclesStack >= 5) or targetUnit.ttd < 3) then
                 if cast.iceLance("target") then return true end
             end
-        elseif fofExists and ((#getEnemies("target", 5) > 1 and talent.splittingIce) or targetUnit.ttd < 3) then
+        elseif fofExists and ((#br.getEnemies("target", 5) > 1 and talent.splittingIce) or targetUnit.ttd < 3) then
             if cast.iceLance("target") then return true end
         end
 
         -- actions.single+=/comet_storm
-        if talent.cometStorm and not moving and mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((not isChecked("Obey AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
+        if talent.cometStorm and not moving and mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((not br.isChecked("Obey AoE units when using CDs") and useCDs()) or #br.getEnemies("target", 5) >= br.getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
-                if UnitIsVisible("pet") and not isBoss("target") then
+                if UnitIsVisible("pet") and not br.isBoss("target") then
                     C_Timer.After(playerCastRemain + 0.4, function()
                         if UnitIsVisible("target") then
-                            local x,y,z = ObjectPosition("target")
+                            local x,y,z = br._G.ObjectPosition("target")
                             castAtPosition(x,y,z, spell.petFreeze)
                         end
                     end)
@@ -1283,22 +1283,22 @@ actions.cds+=/bag_of_tricks
         -- actions.single+=/blizzard,if=cast_time=0|active_enemies>1
         if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if buff.freezingRain.exists() then
-                if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 1, 8, spell.blizzard, nil, false, 3) then
+                if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 1, 8, spell.blizzard, nil, false, 3) then
                         return true
                     end
                 else
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then
                         return true
                     end
                 end
             else
-                if blizzardUnits >= 2 and not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 2, 8, spell.blizzard, nil, true, 3) then
+                if blizzardUnits >= 2 and not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 2, 8, spell.blizzard, nil, true, 3) then
                         return true
                     end
-                elseif blizzardUnits >= getOptionValue("Blizzard Units") then
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
+                elseif blizzardUnits >= br.getOptionValue("Blizzard Units") then
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
                         return true
                     end
                 end
@@ -1307,7 +1307,7 @@ actions.cds+=/bag_of_tricks
 
         -- # Glacial Spike is used when there's a Brain Freeze proc active (i.e. only when it can be shattered). This is a small to medium gain in most situations. Low mastery leans towards using it when available. When using Splitting Ice and having another target nearby, it's slightly better to use GS when available, as the second target doesn't benefit from shattering the main target.
         -- actions.single+=/glacial_spike,if=buff.brain_freeze.react|prev_gcd.1.ebonbolt|active_enemies>1&talent.splitting_ice.enabled
-        if (bfExists or cast.last.ebonbolt() or ifCheck() or (not isChecked("No Ice Lance") and #getEnemies("target", 5) > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
+        if (bfExists or cast.last.ebonbolt() or ifCheck() or (not br.isChecked("No Ice Lance") and #br.getEnemies("target", 5) > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
             if cast.glacialSpike("target") then return true end
         end
 
@@ -1323,14 +1323,14 @@ actions.cds+=/bag_of_tricks
 
         -- actions.single+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.single+=/frostbolt
-        if not moving and targetUnit.facing and (isChecked("No Ice Lance") or not fofExists) then
+        if not moving and targetUnit.facing and (br.isChecked("No Ice Lance") or not fofExists) then
             if cast.frostbolt("target") then return true end
         end
 
         -- actions.single+=/call_action_list,name=movement
-       -- if talent.iceFloes and moving and buff.iceFloes.exists() and charges.iceFloes.count() > 0 and playerCastRemain < 0.5 then
-    --        if cast.iceFloes("player") then return true end
-     --   end
+        if talent.iceFloes and moving and not buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
+            if cast.iceFloes("player") then return true end
+        end
 
         -- actions.single+=/frostbolt
         --Filler Spell
@@ -1346,21 +1346,21 @@ actions.cds+=/bag_of_tricks
     local function actionList_AoE()
         -- # With Freezing Rain, it's better to prioritize using Frozen Orb when both FO and Blizzard are off cooldown. Without Freezing Rain, the converse is true although the difference is miniscule until very high target counts.
         -- arcane explosion
-        if not isTotem("target") and mode.ae ~= 2 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= getOptionValue("Arcane Explosion Units") then
+        if not br.isTotem("target") and mode.ae ~= 2 and mode.rotation ~= 2 and cast.able.arcaneExplosion() and br.getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= br.getOptionValue("Arcane Explosion Units") then
              if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
         end
 
         -- actions.aoe=frozen_orb
         if mode.frozenOrb == 1 and not moving and targetMoveCheck then
-            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+            if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
                 if castFrozenOrb(1, true, 4) then return true end
             else
-                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
+                if castFrozenOrb(br.getOptionValue("Frozen Orb Units"), true, 4) then return true end
             end
         else
         -- Frozen Orb Key
-            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
-                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+            if mode.frozenOrb == 2 and br.isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                br._G.CastSpellByName(GetSpellInfo(spell.frozenOrb))
                 return
             end
         end
@@ -1376,14 +1376,14 @@ actions.cds+=/bag_of_tricks
         end--]]
 
         
-        if mode.fn ~= 2 and not isFrozen("target") and getDistance("target") < 12 and not isBoss("target") then
+        if mode.fn ~= 2 and not isFrozen("target") and br.getDistance("target") < 12 and not br.isBoss("target") then
             if cast.frostNova("player") then
                 return true
             end
         end
 
         if mode.coc == 1 then
-            if getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
+            if br.getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
                 if cast.coneOfCold("player") then return true end
             end
         end
@@ -1391,22 +1391,22 @@ actions.cds+=/bag_of_tricks
         -- actions.aoe+=/blizzard
         if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if buff.freezingRain.exists() then
-                if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then
+                if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then
                         return true
                     end
                 else
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then
                         return true
                     end
                 end
             else
-                if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then
+                if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then
                         return true
                     end
                 else
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
                         return true
                     end
                 end
@@ -1414,12 +1414,12 @@ actions.cds+=/bag_of_tricks
         end
 
         -- actions.aoe+=/comet_storm
-        if mode.cometStorm == 1 and not moving and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
+        if mode.cometStorm == 1 and not moving and not isMoving("target") and targetUnit.ttd > 3 and ((br.isChecked("Ignore AoE units when using CDs") and useCDs()) or #br.getEnemies("target", 5) >= br.getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
-                if UnitIsVisible("pet") and not isBoss("target") then
+                if UnitIsVisible("pet") and not br.isBoss("target") then
                     C_Timer.After(playerCastRemain + 0.4, function()
                         if UnitIsVisible("target") then
-                            local x,y,z = ObjectPosition("target")
+                            local x,y,z = br._G.ObjectPosition("target")
                             castAtPosition(x,y,z, spell.petFreeze)
                         end
                     end)
@@ -1435,7 +1435,7 @@ actions.cds+=/bag_of_tricks
 
         -- # Simplified Flurry conditions from the ST action list. Since the mage is generating far less Brain Freeze charges, the exact condition here isn't all that important.
         -- actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.frostbolt&(buff.icicles.stack<4|!talent.glacial_spike.enabled)|prev_gcd.1.glacial_spike)
-        if cast.last.ebonbolt() or bfExists and (cast.last.frostbolt() and (iciclesStack < 4 or not talent.glacialSpike) or cast.last.glacialSpike()) then
+        if (cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 3)) or (buff.brainFreeze.exists() and ((cast.last.frostbolt() and (iciclesStack < 4 or not talent.glacialSpike or targetUnit.ttd < 3)) or cast.last.glacialSpike())) then
             if cast.flurry("target") then return true end
         end
 
@@ -1502,46 +1502,46 @@ actions.aoe+=/frostbolt
     local function actionList_AoE_SL() 
         -- actions.aoe=frozen_orb
         if mode.frozenOrb == 1 and not moving and targetMoveCheck then
-            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+            if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
                 if castFrozenOrb(1, true, 4) then r.addonDebug("[Action:AoE] Frozen Orb") return true end
             else
-                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then br.addonDebug("[Action:AoE] Frozen Orb") return true end
+                if castFrozenOrb(br.getOptionValue("Frozen Orb Units"), true, 4) then br.addonDebug("[Action:AoE] Frozen Orb") return true end
             end
         else
         -- Frozen Orb Key
-            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+            if mode.frozenOrb == 2 and br.isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
                 br.addonDebug("[Action:AoE] Frozen Orb")
-                CastSpellByName(GetSpellInfo(spell.frozenOrb))
+                br._G.CastSpellByName(GetSpellInfo(spell.frozenOrb))
                 return 
             end
         end
         -- actions.aoe+=/blizzard
         if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if buff.freezingRain.exists() then
-                if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then br.addonDebug("[Action:AoE] Blizzard")
                         return true
                     end
                 else
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then br.addonDebug("[Action:AoE] Blizzard")
                         return true
                     end
                 end
             else
-                if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then br.addonDebug("[Action:AoE] Blizzard")
                         return true
                     end
                 else
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then br.addonDebug("[Action:AoE] Blizzard")
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then br.addonDebug("[Action:AoE] Blizzard")
                         return true
                     end
                 end
             end
         end
         -- actions.aoe+=/flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&buff.fingers_of_frost.react=0)
-        if (debuff.wintersChill.exists() and debuff.wintersChill.remain() <= 0 or not debuff.wintersChill.exists())
-        and (cast.last.ebonbolt() or buff.brainFreeze.exists() and not buff.fingersOfFrost.exists())
+        if (debuff.wintersChill.remain() <= 0 or not debuff.wintersChill.exists())
+        and (cast.last.ebonbolt() or buff.brainFreeze.exists() and buff.fingersOfFrost.exists())
         then
             if cast.flurry("target") then br.addonDebug("[Action:AoE] Flurry") return true end
         end
@@ -1551,10 +1551,10 @@ actions.aoe+=/frostbolt
         end
         -- actions.aoe+=/comet_storm
         if cast.cometStorm("target") then
-            if UnitIsVisible("pet") and not isBoss("target") then
+            if UnitIsVisible("pet") and not br.isBoss("target") then
                 C_Timer.After(playerCastRemain + 0.4, function()
                     if UnitIsVisible("target") then
-                        local x,y,z = ObjectPosition("target")
+                        local x,y,z = br._G.ObjectPosition("target")
                         castAtPosition(x,y,z, spell.petFreeze)
                     end
                 end)
@@ -1597,12 +1597,12 @@ actions.aoe+=/frostbolt
         end
         -- actions.aoe+=/fire_blast,if=runeforge.disciplinary_command&cooldown.buff_disciplinary_command.ready&buff.disciplinary_command_fire.down
         -- actions.aoe+=/arcane_explosion,if=mana.pct>30&active_enemies>=6&!runeforge.glacial_fragments
-        if not isTotem("target") and mode.ae ~= 2 and mode.rotation ~= 2 
-        and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and blizzardUnits >= 6 and not runeforge.glacialFragments.equiped then
+        if not br.isTotem("target") and mode.ae ~= 2 and mode.rotation ~= 2 
+        and cast.able.arcaneExplosion() and br.getDistance("target") <= 10 and manaPercent > 30 and blizzardUnits >= 6 and not runeforge.glacialFragments.equiped then
             if cast.arcaneExplosion("player","aoe", 3, 10) then br.addonDebug("[Action:AoE] Arcane Explosion") return true end 
         end
         -- actions.aoe+=/ebonbolt
-        if mode.ebonbolt ~= 2 and not moving and ttd("target") > 5 then 
+        if mode.ebonbolt ~= 2 and not moving and targetUnit.ttd > 5 and targetUnit.facing then 
             if cast.ebonbolt("target") then br.addonDebug("[Action:AoE] Ebonbolt") return true end
         end 
         -- actions.aoe+=/ice_lance,if=runeforge.glacial_fragments&talent.splitting_ice&travel_time<ground_aoe.blizzard.remains
@@ -1638,7 +1638,7 @@ actions.st+=/frostbolt
 
         -- actions.st=flurry,if=(remaining_winters_chill=0|debuff.winters_chill.down)&(prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.glacial_spike|prev_gcd.1.frostbolt&(!conduit.ire_of_the_ascended|cooldown.radiant_spark.remains|runeforge.freezing_winds)
         --|prev_gcd.1.radiant_spark|buff.fingers_of_frost.react=0&(debuff.mirrors_of_torment.up|buff.freezing_winds.up|buff.expanded_potential.react)))
-        if (not debuff.wintersChill.exists() or not debuff.wintersChill.exists())
+        if (debuff.wintersChill.remain() >= gcdMax or not debuff.wintersChill.exists())
         and cast.last.ebonbolt() or buff.brainFreeze.exists() 
         and (cast.last.glacialSpike() or cast.last.frostbolt())
         and (not IsSpellKnown(337058) or cd.radiantSpark.remains() >= gcdMax or runeforge.freezingWinds.equiped) or cast.last.radiantSpark() or buff.fingersOfFrost.exists() 
@@ -1649,15 +1649,15 @@ actions.st+=/frostbolt
         
         -- actions.st+=/frozen_orb
         if mode.frozenOrb == 1 and not moving and targetMoveCheck then
-            if not isChecked("Obey AoE units when using CDs") and useCDs() then
+            if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
                 if castFrozenOrb(1, true, 4) then return true end
             else
-                if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
+                if castFrozenOrb(br.getOptionValue("Frozen Orb Units"), true, 4) then return true end
             end
         else
         -- Frozen Orb Key
-            if mode.frozenOrb == 2 and isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
-                CastSpellByName(GetSpellInfo(spell.frozenOrb), "cursor")
+            if mode.frozenOrb == 2 and br.isChecked("Frozen Orb Key") and SpecificToggle("Frozen Orb Key") and not GetCurrentKeyBoardFocus() then
+                br._G.CastSpellByName(GetSpellInfo(spell.frozenOrb), "cursor")
                 return
             end
         end
@@ -1665,22 +1665,22 @@ actions.st+=/frostbolt
         -- actions.st+=/blizzard,if=buff.freezing_rain.up|active_enemies>=2|runeforge.glacial_fragments&remaining_winters_chill=2
         if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if buff.freezingRain.exists() or blizzardUnits >= 2 or debuff.wintersChill.remain() >= 2 then
-                if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then
+                if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then
                         return true
                     end
                 else
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, false, 3) then
                         return true
                     end
                 end
             else
-                if not isChecked("Obey AoE units when using CDs") and useCDs() then
-                    if createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then
+                if not br.isChecked("Obey AoE units when using CDs") and useCDs() then
+                    if br.createCastFunction("best", false, 4, 8, spell.blizzard, nil, true, 3) then
                         return true
                     end
                 else
-                    if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
+                    if br.createCastFunction("best", false, br.getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
                         return true
                     end
                 end
@@ -1703,10 +1703,10 @@ actions.st+=/frostbolt
 
         -- actions.st+=/comet_storm
         if cast.cometStorm("target") then
-            if UnitIsVisible("pet") and not isBoss("target") then
+            if UnitIsVisible("pet") and not br.isBoss("target") then
                 C_Timer.After(playerCastRemain + 0.4, function()
                     if UnitIsVisible("target") then
-                        local x,y,z = ObjectPosition("target")
+                        local x,y,z = br._G.ObjectPosition("target")
                         castAtPosition(x,y,z, spell.petFreeze)
                     end
                 end)
@@ -1714,6 +1714,7 @@ actions.st+=/frostbolt
             return true 
         end
         
+
         -- actions.st+=/ice_nova
         if cast.able.iceNova() then 
             if cast.iceNova("target") then br.addonDebug("[Action:ST] Ice Nova") return true end 
@@ -1727,7 +1728,7 @@ actions.st+=/frostbolt
         -- actions.st+=/ebonbolt
         --if cast.able.ebonbolt() then if cast.ebonbolt("target") then return true end end 
         -- actions.aoe+=/ebonbolt
-        if mode.ebonbolt == 1 and not moving and ttd("target") > 5 and not bfExists then 
+        if mode.ebonbolt == 1 and not moving and targetUnit.ttd > 5 and targetUnit.facing and not bfExists then 
             if cast.ebonbolt("target") then return true end
         end 
             -- actions.st+=/radiant_spark,if=(!runeforge.freezing_winds|active_enemies>=2)&buff.brain_freeze.react
@@ -1739,7 +1740,7 @@ actions.st+=/frostbolt
             -- Mirrors of Torment : Venthyr ----------------
             ------------------------------------------------
             -- actions.st+=/mirrors_of_torment
-            if covenant.venthyr.active and spellUsable(spell.mirrorsOfTorment) and select(2,GetSpellCooldown(spell.mirrorsOfTorment)) <= gcdMax then
+            if covenant.venthyr.active and spellUsable(314793) and select(2,GetSpellCooldown(314793)) <= gcdMax then
                 if cast.mirrorsOfTorment() then br.addonDebug("[Action:Rotation] Mirrors Of Torment") return true end
             end
             ------------------------------------------------
@@ -1787,20 +1788,25 @@ actions.st+=/frostbolt
     end
 
     local function actionList_Rotation()
-        if (((buff.fingersOfFrost.count() > 1 and not isChecked("No Ice Lance")) or ((buff.fingersOfFrost.count() > 1 or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (buff.fingersOfFrost.count() > 1 and interruptCast(spell.ebonbolt)) then
+        if (((buff.fingersOfFrost.count() > 1 and not br.isChecked("No Ice Lance")) or ((buff.fingersOfFrost.count() > 1 or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (buff.fingersOfFrost.count() > 1 and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
             return true
         end
-
+        --if (((buff.fingersOfFrost.count() > 1 and not br.isChecked("No Ice Lance")) or ((ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (buff.fingersOfFrost.count() > 1 or ifCheck() and interruptCast(spell.ebonbolt)) then
+         --   SpellStopCasting()
+         --   return true
+       -- end
 
         if spellQueueReady() then
+
+
             if moving then
                 -- actions.movement+=/ice_floes,if=buff.ice_floes.down
                 if talent.iceFloes and not buff.iceFloes.exists() and cast.timeSinceLast.iceFloes() >= ui.value("Ice Floes Delay") then
                     if cast.iceFloes("player") then return true end
                 end
                 
-                if not isTotem("target") and mode.ae == 1 and cast.able.arcaneExplosion() and getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= 2 then
+                if not br.isTotem("target") and mode.ae == 1 and cast.able.arcaneExplosion() and br.getDistance("target") <= 10 and manaPercent > 30 and #enemies.yards10 >= 2 then
                     if cast.arcaneExplosion("player","aoe", 3, 10) then return true end 
                 end
 
@@ -1811,7 +1817,7 @@ actions.st+=/frostbolt
 
             -- Cone of Cold
             if mode.coc == 1 then
-                if getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
+                if br.getDistance("target") <= 8 and blizzardUnits >= ui.value("Cone of Cold Units") then
                    if cast.coneOfCold("player") then return true end
                 end
             end
@@ -1837,10 +1843,14 @@ actions.st+=/frostbolt
             if actionList_ST_SL() then return true end
         end
     end
-    
+
+    local function actionList_Opener()
+        opener = true
+    end
+
     local function actionList_PreCombat()
         local petPadding = 2
-        if isChecked("Pet Management") and not talent.lonelyWinter and not (IsFlying() or IsMounted()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonWaterElemental() + petPadding) and not moving then
+        if br.isChecked("Pet Management") and not talent.lonelyWinter and not (IsFlying() or IsMounted()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonWaterElemental() + petPadding) and not moving then
             if activePetId == 0 and lastSpell ~= spell.summonWaterElemental and select(2,GetSpellCooldown(spell.summonWaterElemental)) ~= 1 then
                 if cast.summonWaterElemental("player") then
                     return true
@@ -1849,10 +1859,11 @@ actions.st+=/frostbolt
         end
 
         if not inCombat and not (IsFlying() or IsMounted()) then
-                if useCDs() and isChecked("Pre-Pull Logic") and GetObjectExists("target") and getDistance("target") < 40 then
-                    local frostboltExecute = cast.time.frostbolt() + (getDistance("target") / 35)
+            if (not br.isChecked("Opener") or opener == true) then
+                if useCDs() and br.isChecked("Pre-Pull Logic") and br.GetObjectExists("target") and br.getDistance("target") < 40 then
+                    local frostboltExecute = cast.time.frostbolt() + (br.getDistance("target") / 35)
                     if pullTimer <= frostboltExecute then
-                        if isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
+                        if br.isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
                             use.battlePotionOfIntellect()
                         end
 
@@ -1863,14 +1874,13 @@ actions.st+=/frostbolt
                     end
                 end
 
-                if targetUnit then
-
-                    if isChecked("Pet Management") and not talent.lonelyWinter and not UnitAffectingCombat("pet") then
+                if targetUnit and (not br.isChecked("Opener") or opener == true) then
+                    if br.isChecked("Pet Management") and not talent.lonelyWinter and not UnitAffectingCombat("pet") then
                         PetAssistMode()
                         PetAttack("target")
                     end
 
-                    if getOptionValue("APL Mode") == 2 then
+                    if br.getOptionValue("APL Mode") == 2 then
                         if moving or targetUnit.calcHP < calcDamage(spell.iceLance, targetUnit) then
                             if cast.iceLance("target") then
                                 return true
@@ -1882,52 +1892,28 @@ actions.st+=/frostbolt
                             end
                         end
 
-                    elseif getOptionValue("APL Mode") == 3 then
+                    elseif br.getOptionValue("APL Mode") == 3 then
                         if cast.iceLance("target") then
                             return true
                         end
                     end
                 end
+            end
         end -- End No Combat
-
     end -- End Action List - PreCombat
-
-
-
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not UnitIsAFK("player") and not inCombat and not hastar and profileStop==true then
+    if not UnitIsAFK("player") and not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif inCombat and IsAoEPending() then
-        SpellStopTargeting()
-        br.addonDebug("Canceling Spell")
-        return false
-    elseif (inCombat and profileStop==true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or UnitIsAFK("player") or pause() or mode.rotation == 4 then
-        if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
+    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or UnitIsAFK("player") or pause(true) or br.isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
+        if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and br.isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
         end
         return true
     else
-        if isChecked("Pull OoC") and solo and not inCombat then 
-            if not moving then
-                if br.timer:useTimer("Frostbolt delay", 1.5) then
-                    if cast.frostbolt() then br.addonDebug("Casting Frostbolt (Pull Spell)") return end
-                end
-            else
-                if br.timer:useTimer("IL Delay", 1.5) then
-                    if cast.iceLance() then br.addonDebug("Casting Ice Lance (Pull Spell)") return end
-                end
-            end
-        end
-
-                if UnitChannelInfo("player") == GetSpellInfo(spell.shiftingPower) then 
-            ChatOverlay("no shifting power allowed!")
-            SpellStopCasting() 
-            return true 
-        end
 
     -----------------------
     --- Extras Rotation ---
@@ -1937,67 +1923,60 @@ actions.st+=/frostbolt
     -----------------------
     ---     Opener      ---
     -----------------------
-    --    if opener == false and isChecked("Opener") and isBoss("target") then if actionList_Opener() then return true end end
+    --    if opener == false and br.isChecked("Opener") and br.isBoss("target") then if actionList_Opener() then return true end end
 
     ------------------------------
     --- Out of Combat Rotation ---
     ------------------------------
         if actionList_PreCombat() then return true end
 
-                        if talent.iceFloes and moving then
-                    -- If we have ice floes charges and we don't have the buff, cast ice floes. 
-                    if charges.iceFloes.count() > 0 and not buff.iceFloes.exists() then
-                        if cast.iceFloes("player") then return true end 
-                    end
-                    -- If we have ice floes up, and we're currently casting a spell while moving with the ice floes buff, attmept to get a free IF by batching at the end of the cast. 
-                    if UnitCastingInfo("player") ~= nil and charges.iceFloes.count() > 0 and buff.iceFloes.exists() and playerCastRemain <= 0.5 then
-                        if cast.iceFloes("player") then br.addonDebug("[Advanced] Ice Floes (Moving, Cast Time < 0.5, Batched)") return true end 
-                    end
-                    
-               end
-                if talent.iceFloes and moving and buff.iceFloes.exists() then if cast.frostbolt() then return true end end 
-
     --------------------------
     --- In Combat Rotation ---
     --------------------------        
-        if (inCombat or cast.inFlight.frostbolt() or spellQueueReady()) and profileStop == false and isValidUnit("target") and getDistance("target") < 40 then
+        if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit then
 
         --------------------------
         --- Defensive Rotation ---
         --------------------------
-        if actionList_Defensive() then return true end
+            if actionList_Defensive() then return true end
 
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
-        if actionList_Interrupts() then return true end
+            if actionList_Interrupts() then return true end
+
             if br.queueSpell then
-                ChatOverlay("Pausing for queuecast")
+                br.ChatOverlay("Pausing for queuecast")
                 return true 
             end
 
-            if not pause(true) and hastar then
-                if isChecked("Pet Management") and not talent.lonelyWinter and UnitIsVisible("pet") and not GetUnitIsUnit("pettarget", "target")  then
+            if not pause(true) and targetUnit.calcHP > 0 and (targetUnit.facing or br.isChecked("Auto Facing")) then
+                if br.isChecked("Pet Management") and not talent.lonelyWinter and UnitIsVisible("pet") and not br.GetUnitIsUnit("pettarget", "target") and targetUnit then
                     PetAttack()
                 end
             --------------------------
             ---      Rotation      ---
             --------------------------
-                if getOptionValue("APL Mode") == 1 then
+                if br.getOptionValue("APL Mode") == 1 then
                     if actionList_Rotation() then return true end
 
-                elseif getOptionValue("APL Mode") == 2 then
+                elseif br.getOptionValue("APL Mode") == 2 then
                     if actionList_Leveling() then return true end
 
-                elseif getOptionValue("APL Mode") == 3 then
+                elseif br.getOptionValue("APL Mode") == 3 then
                     if bfExists then if cast.flurry("target") then return true end end
                     if cast.iceLance("target") then return true end
+
+                    -----------------------
+                    ---     Essences    ---
+                    -----------------------
+                    if cd.global.remain() <= gcd then if actionList_Essences() then return end end
                 end
             end
         end
     end
 end
-local id = 64
+local id = 0
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end

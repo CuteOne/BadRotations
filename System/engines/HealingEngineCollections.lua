@@ -1,7 +1,8 @@
-novaEngineTables = { }
+local _, br = ...
+br.novaEngineTables = { }
 -- This is for the Dispel Check, all Debuffs we want dispelled go here
 -- valid arguments: stacks = num range = num
-novaEngineTables.DispelID = {
+br.novaEngineTables.DispelID = {
 	[143579] = {stacks = 3 }, -- Immersius
 	[143434] = {stacks = 3 }, -- Fallen Protectors
 	[144514] = {stacks = 0 }, -- Norushen
@@ -14,7 +15,7 @@ novaEngineTables.DispelID = {
 	[145206] = {stacks = 0 }, -- Aqua Bomb(Proving Grounds)
 	[138733] = {stacks = 0 , range = 8}, -- Jin'rokh the Breaker (Ionization)
 	-- Ko'ragh
-	[142913] = {stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
+	[182185] = {stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
 	[185066] = {stacks = 0}, -- Mark of Necromancer red level
 	-- Xavius
 	[206651] = {stacks = 3}, -- Xavius Darkening Soul
@@ -50,7 +51,6 @@ novaEngineTables.DispelID = {
 	-- Temple of Sethraliss
 	[268008] = { stacks = 0 }, --https://www.wowhead.com/spell=268008/snake-charm
 	[268013] = { stacks = 0 }, --https://www.wowhead.com/spell=268013/flame-shock
-	[268013] = { stacks = 0 }, --https://www.wowhead.com/spell=268013/flame-shock
 	[273563] = { stacks = 0 }, --https://www.wowhead.com/spell=273563/neurotoxin
 	[272657] = { stacks = 0 }, --https://www.wowhead.com/spell=272657/noxious-breath
 	[267027] = { stacks = 0 }, --https://www.wowhead.com/spell=267027/cytotoxin
@@ -75,7 +75,7 @@ novaEngineTables.DispelID = {
 	[255582] = { stacks = 0 }, -- https://www.wowhead.com/spell=255582/molten-gold
 	[255041] = { stacks = 0 }, -- https://www.wowhead.com/spell=255041/terrifying-screech
 	[255371] = { stacks = 0 }, -- https://www.wowhead.com/spell=255371/terrifying-visage
-	[255371] = { stacks = 2 }, --https://www.wowhead.com/spell=250372/lingering-nausea
+	[250372] = { stacks = 2 }, --https://www.wowhead.com/spell=250372/lingering-nausea
 	-- Freehold
 	[257908] = { stacks = 0 }, -- https://www.wowhead.com/spell=257908/oiled-blade
 	[257436] = { stacks = 0 }, -- https://www.wowhead.com/spell=257436/poisoning-strike
@@ -94,7 +94,7 @@ novaEngineTables.DispelID = {
 	[271563] = { stacks = 0 }, -- https://www.wowhead.com/spell=271563/embalming-fluid
 	[270507] = { stacks = 0 }, -- https://www.wowhead.com/spell=270507/poison-barrage
 	-- Underrot
-	[276031] = { stacks = 2 }, -- https://www.wowhead.com/spell=265468/withering-curse
+	[265486] = { stacks = 2 }, -- https://www.wowhead.com/spell=265468/withering-curse
 	[266209] = { stacks = 0 }, -- https://www.wowhead.com/spell=266209/wicked-frenzy
 	[272180] = { stacks = 0 }, -- https://www.wowhead.com/spell=272180/death-bolt
 	[272609] = { stacks = 0 }, -- https://www.wowhead.com/spell=272609/maddening-gaze
@@ -114,14 +114,14 @@ novaEngineTables.DispelID = {
 	-- Maut
 	[314993] = {stacks = 0, range = 10}, --https://www.wowhead.com/spell=314992/drain-essence
 	-- Nalthor the Rimebinder (Necrotic Wake)
-	[320788] = {stacks = 0, range = 18}, --https://www.wowhead.com/spell=320788/frozen-binds
+	[320788] = {stacks = 0, range = 12}, --https://www.wowhead.com/spell=320788/frozen-binds
 
 
 
 
 }
 -- List of buffs to purge
-novaEngineTables.PurgeID = {
+br.novaEngineTables.PurgeID = {
 	[282098] = true, -- Gift of Wind (Conclave)
 	[283619] = true, -- Wave of Light (Champion of Light)
 	[289623] = true, -- Guardian Spirit (BoD Trash)
@@ -162,14 +162,14 @@ novaEngineTables.PurgeID = {
 	[297133] = true, -- Defensive Countermeasure (Defense Bot Mk III)
 }
 -- List of debuffs that we should never dispell
-novaEngineTables.DoNotDispellList = {
+br.novaEngineTables.DoNotDispellList = {
 	-- Midnight (Attumen the Huntsman)
 	{ id = 227404 }, -- Intangible Presence
 	{ id = 285000 }, -- https://www.wowhead.com/spell=285000/kelp-wrapped
 	--{ id = 284663}, --Bwonsamdi's Wrath
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
-novaEngineTables.BadDebuffList= {
+br.novaEngineTables.BadDebuffList= {
 	[104451] = "Ice Tomb",
 	[76577] = "Smoke Bomb",
 	[121949] = "Parasistic Growth",
@@ -206,18 +206,22 @@ novaEngineTables.BadDebuffList= {
     [329298] = "Hungering Miasma", --Hungering Destroyer
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
-novaEngineTables.SpecialHealUnitList = {
+br.novaEngineTables.SpecialHealUnitList = {
 	[71604] = "Contaminated Puddle",
 	[6459] = "Boss#3 SoO",
 	[6460] = "Boss#3 SoO",
 	[6464] = "Boss#3 SoO",
 	[90388] ="Tortured Essence",
-	[133392] = "Avatar of Sethraliss"
+	[133392] = "Avatar of Sethraliss",
+	[171577] = "Ripped Soul",
+	[173112] = "Pierced Soul",
+	[165759] = "Kael'thas Sunstrider",
+	[165778] = "Essence Font"
 };
 -- set dot that need to be healed to max(needs to be topped) to very low values so that engine will prioritize them
 -- the value used here will be substract from current health, we could use negative values to add back health instead
 -- these are checked debuff on allies ie br.friend[i].unit wear 145263 and its hp is 70, engine will use 50 instead
-novaEngineTables.SpecificHPDebuffs = {
+br.novaEngineTables.SpecificHPDebuffs = {
 	--[123456, value = 20, stacks = 1 }, -- Exemple.
 	--[123456, value = -100, stacks = 3 }, -- Exemple
 	-- Twin Ogrons
@@ -287,7 +291,7 @@ novaEngineTables.SpecificHPDebuffs = {
 
 }
 -- this table will assign role to any unit wearing the unit name
-novaEngineTables.roleTable = {
+br.novaEngineTables.roleTable = {
 	["Oto the Protector"] = { role = "TANK", class = "Warrior" }, -- proving grounds tank
 	["Sooli the Survivalist"] = { role = "DPS", class = "Hunter" }, -- proving grounds dps
 	["Ki the Assassin"] = { role = "DPS", class = "Rogue" }, -- proving grounds dps
@@ -298,13 +302,13 @@ novaEngineTables.roleTable = {
 	["Primal Earth Elemental"] = {role = "TANK", class = "Warrior"}
 }
 -- special targets to include when we want to heal npcs
-novaEngineTables.SavedSpecialTargets = {
+br.novaEngineTables.SavedSpecialTargets = {
 	["target"] = nil,
 	["mouseover"] = nil,
 	["focus"] = nil,
 }
 -- ToDo: we need a powerful DoT handler to handle stuff such as hand of purity/heal over time
-novaEngineTables.BadlyDeBuffed = {
+br.novaEngineTables.BadlyDeBuffed = {
 	--High Maul
 		--Kargath
 		159386,    --http://www.wowhead.com/spell=159386/iron-bomb
@@ -330,7 +334,7 @@ novaEngineTables.BadlyDeBuffed = {
 
 }
 -- Table for NPCs we do not want to add to table (eg. Hymdal/Odyn after they become friendly)
-novaEngineTables.skipNPC = {
+br.novaEngineTables.skipNPC = {
         "95676", -- Odyn
         "94960", -- Hynmdall
         "100482", -- Senegos

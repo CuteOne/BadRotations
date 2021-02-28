@@ -1,51 +1,50 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
-loadSupport("PetCuteOne")
+br.loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.aimedShot },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheCheetah}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.trueshot },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.trueshot },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.trueshot }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.aspectOfTheTurtle }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- MD Button
-    MisdirectionModes = {
+    local MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",5,0)
+    br.ui:createToggle(MisdirectionModes,"Misdirection",5,0)
     -- Volley Button
-    VolleyModes = {
+    local VolleyModes = {
         [1] = { mode = "On", value = 1 , overlay = "Volley Enabled", tip = "Volley Enabled", highlight = 1, icon = br.player.spell.volley },
         [2] = { mode = "Off", value = 2 , overlay = "Volley Disabled", tip = "Volley Disabled", highlight = 0, icon = br.player.spell.volley }
     };
-    CreateButton("Volley",6,0)
+    br.ui:createToggle(VolleyModes,"Volley",6,0)
     --Pet summon
-    PetSummonModes = {
+    local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
         [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
         [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
@@ -53,7 +52,7 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    CreateButton("PetSummon",7,0)
+    br.ui:createToggle(PetSummonModes,"PetSummon",7,0)
 end
 
 ---------------
@@ -169,10 +168,10 @@ local cast
 local cd
 local charges
 local covenant
-local conduit
+--local conduit
 local debuff
 local enemies
-local equiped
+--local equiped
 local module
 local power
 local runeforge
@@ -189,7 +188,7 @@ local actionList = {}
 --- Local Functions ---
 -----------------------
 local function alwaysCdNever(option)
-    if option == "Racial" then GetSpellInfo(br.player.spell.racial) end
+    if option == "Racial" then br._G.GetSpellInfo(br.player.spell.racial) end
     local thisOption = ui.value(option)
     return thisOption == 1 or (thisOption == 2 and ui.useCDs())
 end
@@ -201,8 +200,8 @@ end
 actionList.Extras = function()
     -- Feign Death
     if buff.feignDeath.exists() then
-        StopAttack()
-        ClearTarget()
+        unit.stopAttack()
+        unit.clearTarget()
     end
     -- Hunter's Mark
     if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
@@ -211,12 +210,12 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                StopAttack()
-                ClearTarget()
-                PetStopAttack()
-                PetFollow()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
+                br._G.PetStopAttack()
+                br._G.PetFollow()
+                ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -227,7 +226,7 @@ actionList.Extras = function()
         if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
-                local tankInRange, tankUnit = isTankInRange()
+                local tankInRange, tankUnit = unit.isTankInRange()
                 if tankInRange then misdirectUnit = tankUnit end
             end
             -- Misdirect to Focus
@@ -301,7 +300,7 @@ actionList.Interrupts = function()
         for i=1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             local distance = unit.distance(thisUnit)
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                 if distance < 50 then
                     -- Counter Shot
                     if ui.checked("Counter Shot") then
@@ -309,7 +308,7 @@ actionList.Interrupts = function()
                     end
 					 -- Freezing Trap
                     if ui.checked("Freezing Trap") then
-                        if cast.freezingTrap(thisUnit,ground) then ui.debug("Casting Freezing Trap") return true end
+                        if cast.freezingTrap(thisUnit,"ground") then ui.debug("Casting Freezing Trap") return true end
                     end
                 end
             end
@@ -379,7 +378,7 @@ actionList.TrickShots = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
     end
     -- Flare
@@ -514,7 +513,7 @@ actionList.SingleTarget = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped
+    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped
         and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
     then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
@@ -632,7 +631,7 @@ actionList.PreCombat = function()
 		        -- Beast Mode
         if (ui.checked("Beast Mode")) then
             for k,v in pairs(enemies.yards40nc) do
-                TargetUnit(v)
+                br._G.TargetUnit(v)
             end
         end
         -- Summon Pet
@@ -641,7 +640,7 @@ actionList.PreCombat = function()
         if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage if OOC") then
             -- Tar Trap
             -- tar_trap,if=runeforge.soulforge_embers
-            if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
+            if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped then
                 if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
             end
             -- Double Tap
@@ -703,7 +702,6 @@ local function runRotation()
     enemies.get(8,"target")
     enemies.get(8,"pet")
     enemies.yards10t = enemies.get(10,units.get(40))
-    enemies.yards25r = getEnemiesInRect(8,25,false) or 0
     enemies.get(30,"pet")
     enemies.get(40)
     enemies.get(40,"player",true)
@@ -711,9 +709,7 @@ local function runRotation()
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
-    var.getCombatTime = _G["getCombatTime"]
-    var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or pause() or buff.feignDeath.exists() or ui.mode.rotation==4
-    var.role = _G["UnitGroupRolesAssigned"]
+    var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
@@ -741,9 +737,9 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile and (not unit.isCasting() or pause(true)) then
-        StopAttack()
-        if unit.isDummy() then ClearTarget() end
+    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true)) then
+        unit.stopAttack()
+        if unit.isDummy() then unit.clearTarget() end
         return true
     else
         -----------------------
@@ -800,7 +796,7 @@ local function runRotation()
 end -- End runRotation
 local id = 254
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

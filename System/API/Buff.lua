@@ -1,3 +1,4 @@
+local _, br = ...
 if br.api == nil then br.api = {} end
 -- buff is the table located at br.player.buff
 -- v is the spellID passed from the builder which cycles all the collected buff spells from the spell list for the spec
@@ -7,50 +8,44 @@ br.api.buffs = function(buff,v)
     buff.cancel = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if UnitBuffID(thisUnit,v,sourceUnit) ~= nil then
-            RunMacroText("/cancelaura "..GetSpellInfo(v))
+        if br.UnitBuffID(thisUnit,v,sourceUnit) ~= nil then
+            br._G.RunMacroText("/cancelaura ".._G.GetSpellInfo(v))
             -- CancelUnitBuff(thisUnit,v,sourceUnit)
         end
     end
     -- br.player.buff.spell.count()
     buff.count = function()
-        return tonumber(getBuffCount(v))
+        return tonumber(br.getBuffCount(v))
     end
     -- br.player.buff.spell.duration()
     buff.duration = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return getBuffDuration(thisUnit,v,sourceUnit)
-    end
-    -- br.player.buff.spell.down()
-    buff.down = function(thisUnit,sourceUnit)
-        if thisUnit == nil then thisUnit = 'player' end
-        if sourceUnit == nil then sourceUnit = 'player' end
-        return UnitBuffID(thisUnit,v,sourceUnit) == nil
+        return br.getBuffDuration(thisUnit,v,sourceUnit)
     end
     -- br.player.buff.spell.exists()
     buff.exists = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return UnitBuffID(thisUnit,v,sourceUnit) ~= nil
+        return br.UnitBuffID(thisUnit,v,sourceUnit) ~= nil
     end
     -- br.player.buff.spell.react(), buff detection with small reaction delay
     buff.react = function(thisUnit, sourceUnit)
         thisUnit = thisUnit or "player"
         sourceUnit = sourceUnit or "player"
-        return getBuffReact(thisUnit, v, sourceUnit)
+        return br.getBuffReact(thisUnit, v, sourceUnit)
     end
     -- br.player.buff.spell.remain()
     buff.remain = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
-        if sourceUnit == nil then sourceUnit = 'player' end 
-        return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
+        if sourceUnit == nil then sourceUnit = 'player' end
+        return math.abs(br.getBuffRemain(thisUnit,v,sourceUnit))
     end
     -- br.player.buff.spell.remains()
     buff.remains = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
+        return math.abs(br.getBuffRemain(thisUnit,v,sourceUnit))
     end
     -- br.player.buff.spell.refresh()
     buff.refresh = function(thisUnit,sourceUnit)
@@ -60,6 +55,6 @@ br.api.buffs = function(buff,v)
     buff.stack = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return getBuffStacks(thisUnit,v,sourceUnit)
+        return br.getBuffStacks(thisUnit,v,sourceUnit)
     end
 end

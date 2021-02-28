@@ -1,11 +1,11 @@
 local rotationName = "Kuu"
-
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
+    local CreateButton = br["CreateButton"]
     -- Rotation Button
-    RotationModes = {
+    br.RotationModes = {
         [1] = {
             mode = "Auto",
             value = 1,
@@ -20,38 +20,38 @@ local function createToggles() -- Define custom toggles
     }
     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
-    CooldownModes = {
+    br.CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.ascendance},
         [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.fireElemental},
         [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.earthElemental}
     }
     CreateButton("Cooldown", 2, 0)
     -- Defensive Button
-    DefensiveModes = {
+    br.DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.astralShift},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.earthShield}
     }
     CreateButton("Defensive", 3, 0)
     -- Interrupt Button
-    InterruptModes = {
+    br.InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.windShear},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hex}
     }
     CreateButton("Interrupt", 4, 0)
     -- Ghost Wolf Button
-    GhostWolfModes = {
+    br.GhostWolfModes = {
         [1] = {mode = "Moving", value = 1, overlay = "Moving Enabled", tip = "Will Ghost Wolf when movement detected", highlight = 1, icon = br.player.spell.ghostWolf},
         [2] = {mode = "Hold", value = 1, overlay = "Hold Enabled", tip = "Will Ghost Wolf when key is held down", highlight = 0, icon = br.player.spell.ghostWolf}
     }
     CreateButton("GhostWolf", 5, 0)
     -- StormKeeper Button
-    StormKeeperModes = {
+    br.StormKeeperModes = {
         [1] = {mode = "On", value = 1, overlay = "Storm Keeper Enabled", tip = "Will use Storm Keeper", highlight = 1, icon = br.player.spell.stormKeeper},
         [2] = {mode = "Off", value = 1, overlay = "Storm Keeper Disabled", tip = "Will not use Storm Keeper", highlight = 0, icon = br.player.spell.stormKeeper}
     }
     CreateButton("StormKeeper", 6, 0)
     -- Earth Shock Override Button
-    EarthShockModes = {
+    br.EarthShockModes = {
         [2] = {mode = "On", value = 1, overlay = "ES Override Enabled", tip = "Will only use Earth Shock", highlight = 1, icon = br.player.spell.earthShock},
         [1] = {mode = "Off", value = 1, overlay = "ES Override Disabled", tip = "Will use Earthquake and Earth Shock", highlight = 0, icon = br.player.spell.earthquake}
     }
@@ -68,7 +68,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
+        local section = br.ui:createSection(br.ui.window.profile, "General - Version 1.01")
         -- Auto Engage
         br.ui:createCheckbox(section, "Auto Engage On Target", "|cff0070deCheck this to start combat upon clicking a target.", 1)
         -- Dummy DPS Test
@@ -257,20 +257,20 @@ local function runRotation()
     local artifact = br.player.artifact
     local buff = br.player.buff
     local cast = br.player.cast
-    local combatTime = getCombatTime()
+    local combatTime = br.getCombatTime()
     local cd = br.player.cd
     local charges = br.player.charges
     local covenant = br.player.covenant
-    local deadMouse, hasMouse, playerMouse = UnitIsDeadOrGhost("mouseover"), GetObjectExists("mouseover"), UnitIsPlayer("mouseover")
-    local deadtar, playertar = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
+    local deadMouse, hasMouse, playerMouse = br.GetUnitIsDeadOrGhost("mouseover"), br.GetObjectExists("mouseover"), br._G.UnitIsPlayer("mouseover")
+    local deadtar, playertar = br.GetUnitIsDeadOrGhost("target"), br._G.UnitIsPlayer("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
     local equiped = br.player.equiped
-    local falling, swimming, flying, moving = getFallTime(), IsSwimming(), IsFlying(), isMoving("player")
+    local falling, swimming, flying, moving = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying(), br.isMoving("player")
     local gcd = br.player.gcd
     local gcdMax = br.player.gcdMax
-    local hastar = GetObjectExists("target")
-    local healPot = getHealthPot()
+    local hastar = br.GetObjectExists("target")
+    local healPot = br.getHealthPot()
     local inCombat = br.player.inCombat
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
@@ -289,16 +289,16 @@ local function runRotation()
     local spell = br.player.spell
     local talent = br.player.talent
     local traits = br.player.traits
-    local ttd = getTTD
     local ttm = br.player.timeToMax
     local ui = br.player.ui
     local units = br.player.units
+    local use   = br.player.use
 
-    if leftCombat == nil then
-        leftCombat = GetTime()
+    if br.leftCombat == nil then
+        br.leftCombat = br._G.GetTime()
     end
-    if profileStop == nil then
-        profileStop = false
+    if br.profileStop == nil then
+        br.profileStop = false
     end
 
     --if gcd > 0.1 then return end
@@ -313,8 +313,8 @@ local function runRotation()
 
     --TTD
     local function ttd(unit)
-        local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then
+        local ttdSec = br.getTTD(unit)
+        if br.getOptionCheck("Enhanced Time to Die") then
             return ttdSec
         end
         if ttdSec == -1 then
@@ -330,7 +330,7 @@ local function runRotation()
 
     if talent.primalElementalist then
         if pet ~= nil then
-            for k, v in pairs(pet) do
+            for k, _ in pairs(pet) do
                 -- for i = 1, #br.player.pet do
                 local thisUnit = pet[k].id or 0
                 if thisUnit == 61029 then
@@ -346,13 +346,13 @@ local function runRotation()
 
     local flameShockCount = 0
     for i = 1, #enemies.yards40f do
-        local flameShockRemain = getDebuffRemain(enemies.yards40f[i], spell.debuffs.flameShock, "player") or 0 -- 194384
+        local flameShockRemain = br.getDebuffRemain(enemies.yards40f[i], spell.debuffs.flameShock, "player") or 0 -- 194384
         if flameShockRemain > 5.4 then
             flameShockCount = flameShockCount + 1
         end
     end
 
-    local movingCheck = not isMoving("player") and not IsFalling() or (isMoving("player") and buff.spiritwalkersGrace.exists("player"))
+    local movingCheck = not br.isMoving("player") and not br._G.IsFalling() or (br.isMoving("player") and buff.spiritwalkersGrace.exists("player"))
 
     --------------------
     --- Action Lists ---
@@ -361,20 +361,20 @@ local function runRotation()
     local function actionList_Extra()
         -- Dummy Test
         if ui.checked("DPS Testing") then
-            if GetObjectExists("target") then
-                if getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and isDummy() then
-                    StopAttack()
-                    ClearTarget()
-                    Print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
-                    profileStop = true
+            if br.GetObjectExists("target") then
+                if br.getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and br.isDummy() then
+                    br._G.StopAttack()
+                    br._G.ClearTarget()
+                    br._G.print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+                    br.profileStop = true
                 end
             end
         end -- End Dummy Test
         -- Water Walking
         if falling > 1.5 and buff.waterWalking.exists() then
-            CancelUnitBuffID("player", spell.waterWalking)
+            br._G.CancelUnitBuffID("player", spell.waterWalking)
         end
-        if ui.checked("Water Walking") and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
+        if ui.checked("Water Walking") and not inCombat and br._G.IsSwimming() and not buff.waterWalking.exists() then
             if cast.waterWalking() then
                 br.addonDebug("Casting Waterwalking")
                 return
@@ -405,28 +405,28 @@ local function runRotation()
     end -- End Action List - Extras
     local function ghostWolf()
         -- Ghost Wolf
-        if not (IsMounted() or IsFlying()) and ui.checked("Auto Ghost Wolf") then
+        if not (br._G.IsMounted() or br._G.IsFlying()) and ui.checked("Auto Ghost Wolf") then
             if mode.ghostWolf == 1 then
                 if moving and not buff.ghostWolf.exists("player") and not buff.spiritwalkersGrace.exists("player") then
                     if cast.ghostWolf("player") then
                         br.addonDebug("Casting Ghost Wolf")
                     end
                 elseif movingCheck and buff.ghostWolf.exists("player") and br.timer:useTimer("Delay", 0.5) then
-                    RunMacroText("/cancelAura Ghost Wolf")
+                    br._G.RunMacroText("/cancelAura Ghost Wolf")
                 end
             elseif mode.ghostWolf == 2 then
                 if not buff.ghostWolf.exists("player") then
-                    if SpecificToggle("Ghost Wolf Key") and not GetCurrentKeyBoardFocus() then
+                    if br.SpecificToggle("Ghost Wolf Key") and not br._G.GetCurrentKeyBoardFocus() then
                         if cast.ghostWolf("player") then
                             br.addonDebug("Casting Ghost Wolf")
                         end
                     end
                 elseif buff.ghostWolf.exists("player") then
-                    if SpecificToggle("Ghost Wolf Key") then
+                    if br.SpecificToggle("Ghost Wolf Key") then
                         return
-                    elseif not SpecificToggle("Force GW Key") then
+                    elseif not br.SpecificToggle("Force GW Key") then
                         if br.timer:useTimer("Delay", 0.25) then
-                            RunMacroText("/cancelAura Ghost Wolf")
+                            br._G.RunMacroText("/cancelAura Ghost Wolf")
                         end
                     end
                 end
@@ -436,12 +436,12 @@ local function runRotation()
     --Action List PreCombat
     local function actionList_PreCombat()
         if ui.checked("Pig Catcher") then
-            bossHelper()
+            br.bossHelper()
         end
-        prepullOpener = inRaid and ui.checked("Pre-pull Opener") and pullTimer <= ui.value("Pre-pull Opener")
+        local prepullOpener = inRaid and ui.checked("Pre-pull Opener") and pullTimer <= ui.value("Pre-pull Opener")
         if prepullOpener and movingCheck then
             --actions.precombat+=/earth_elemental,if=!talent.primal_elementalist.enabled
-            if useCDs() and ui.checked("Earth Elemental") and not talent.primalElementalist then
+            if br.useCDs() and ui.checked("Earth Elemental") and not talent.primalElementalist then
                 if cast.earthElemental() then
                     br.addonDebug("Casting Earth Elemental")
                     return
@@ -481,7 +481,7 @@ local function runRotation()
         -- Purge
         if ui.checked("Purge") then
             if ui.value("Purge") == 1 then
-                if canDispel("target", spell.purge) and GetObjectExists("target") then
+                if br.canDispel("target", spell.purge) and br.GetObjectExists("target") then
                     if cast.purge("target") then
                         br.addonDebug("Casting Purge")
                         return
@@ -490,7 +490,7 @@ local function runRotation()
             elseif ui.value("Purge") == 2 then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if canDispel(thisUnit, spell.purge) then
+                    if br.canDispel(thisUnit, spell.purge) then
                         if cast.purge(thisUnit) then
                             br.addonDebug("Casting Purge")
                             return
@@ -499,25 +499,25 @@ local function runRotation()
                 end
             end
         end
-        if useDefensive() then
+        if br.useDefensive() then
             -- Pot/Stoned
-            if ui.checked("Pot/Stoned") and php <= ui.value("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
-                if canUseItem(5512) then
+            if ui.checked("Pot/Stoned") and php <= ui.value("Pot/Stoned") and inCombat and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+                if br.canUseItem(5512) then
                     br.addonDebug("Using Healthstone")
-                    useItem(5512)
-                elseif canUseItem(healPot) then
+                    br.useItem(5512)
+                elseif br.canUseItem(healPot) then
                     br.addonDebug("Using Health Pot")
-                    useItem(healPot)
-                elseif hasItem(166799) and canUseItem(166799) then
+                    br.useItem(healPot)
+                elseif br.hasItem(166799) and br.canUseItem(166799) then
                     br.addonDebug("Using Emerald of Vigor")
-                    useItem(166799)
+                    br.useItem(166799)
                 end
             end
             -- Heirloom Neck
             if ui.checked("Heirloom Neck") and php <= ui.value("Heirloom Neck") then
-                if hasEquiped(122668) then
-                    if GetItemCooldown(122668) == 0 then
-                        useItem(122668)
+                if br.hasEquiped(122668) then
+                    if br._G.GetItemCooldown(122668) == 0 then
+                        br.useItem(122668)
                         br.addonDebug("Using Heirloom Neck")
                     end
                 end
@@ -538,19 +538,19 @@ local function runRotation()
             end
             -- Cleanse Spirit
             if ui.checked("Cleanse Spirit") then
-                if ui.value("Cleanse Spirit") == 1 and canDispel("player", spell.cleanseSpirit) then
+                if ui.value("Cleanse Spirit") == 1 and br.canDispel("player", spell.cleanseSpirit) then
                     if cast.cleanseSpirit("player") then
                         br.addonDebug("Casting Cleanse Spirit")
                         return
                     end
                 end
-                if ui.value("Cleanse Spirit") == 2 and canDispel("target", spell.cleanseSpirit) then
+                if ui.value("Cleanse Spirit") == 2 and br.canDispel("target", spell.cleanseSpirit) then
                     if cast.cleanseSpirit("target") then
                         br.addonDebug("Casting Cleanse Spirit")
                         return
                     end
                 end
-                if ui.value("Cleanse Spirit") == 3 and canDispel("mouseover", spell.cleanseSpirit) then
+                if ui.value("Cleanse Spirit") == 3 and br.canDispel("mouseover", spell.cleanseSpirit) then
                     if cast.cleanseSpirit("mouseover") then
                         br.addonDebug("Casting Cleanse Spirit")
                         return
@@ -579,7 +579,7 @@ local function runRotation()
                 end
             end
             if ui.checked("Capacitor Totem - AoE") and #enemies.yards5 >= ui.value("Capacitor Totem - AoE") and inCombat then
-                if createCastFunction("best", false, 1, 8, spell.capacitorTotem, nil, true) then
+                if br.createCastFunction("best", false, 1, 8, spell.capacitorTotem, nil, true) then
                     br.addonDebug("Casting Capacitor Totem")
                     return
                 end
@@ -589,10 +589,10 @@ local function runRotation()
     end -- End Action List - Defensive
     -- Action List - Interrupts
     local function actionList_Interrupt()
-        if useInterrupts() then
+        if br.useInterrupts() then
             for i = 1, #enemies.yards30 do
-                thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit, ui.value("Interrupt At")) then
+                local thisUnit = enemies.yards30[i]
+                if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
                     -- Wind Shear
                     if ui.checked("Wind Shear") then
                         if cast.windShear(thisUnit) then
@@ -609,7 +609,7 @@ local function runRotation()
                     end
                     -- Capacitor Totem
                     if ui.checked("Capacitor Totem") and cd.windShear.remain() > gcd then
-                        if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
+                        if br.hasThreat(thisUnit) and not br.isMoving(thisUnit) and ttd(thisUnit) > 7 then
                             if cast.capacitorTotem(thisUnit, "ground") then
                                 br.addonDebug("Casting Capacitor Totem")
                                 return
@@ -618,7 +618,7 @@ local function runRotation()
                     end
                 end
             end
-        end -- End useInterrupts check
+        end -- End br.useInterrupts check
     end -- End Action List - Interrupts
 
     -- Action List Simc AoE
@@ -626,17 +626,17 @@ local function runRotation()
         -- Earthquake (Echoing Shock)
         if buff.echoingShock.exists() and #enemies.yards8t >= ui.value("Earthquake Targets") and holdBreak then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
                     local thisUnit = #enemies.yards8t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
                 end
             end
             if cc == false then
-                if createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
+                if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
                     br.addonDebug("Casting Earthquake")
                     return
                 end
@@ -690,7 +690,7 @@ local function runRotation()
         if
             ui.checked("Ascendance") and talent.ascendance and ((talent.stormElemental and not stormEle) or not talent.stormElemental) and
                 (not talent.iceFury or (not buff.iceFury.exists() and cd.iceFury.remains > 0)) and
-                useCDs() and
+                br.useCDs() and
                 holdBreak
          then
             if cast.ascendance() then
@@ -700,12 +700,12 @@ local function runRotation()
         end
         -- Liquid Magma Totem
         --actions.aoe+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled
-        if talent.liquidMagmaTotem and useCDs() and #enemies.yards8t >= ui.value("LMT Targets") and holdBreak then
+        if talent.liquidMagmaTotem and br.useCDs() and #enemies.yards8t >= ui.value("LMT Targets") and holdBreak then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
                     local thisUnit = #enemies.yards8t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
@@ -729,7 +729,7 @@ local function runRotation()
         --Earth Elemental
         --actions.aoe+=/earth_elemental,if=runeforge.deeptremor_stone.equipped&(!talent.primal_elementalist.enabled|(!pet.storm_elemental.active&!pet.fire_elemental.active))
         if
-            useCDs() and ui.checked("Earth Elemental") and
+            br.useCDs() and ui.checked("Earth Elemental") and
                 (runeforge.deeptremorStone.equiped and (not talent.primalElementalist or ((not fireEle and not talent.stormElemental) or (not stormEle and talent.stormElemental))))
          then
             if cast.earthElemental() then
@@ -741,8 +741,8 @@ local function runRotation()
         --actions.aoe+=/lava_burst,target_if=dot.flame_shock.remains,if=spell_targets.chain_lightning<4|buff.lava_surge.up|(talent.master_of_the_elements.enabled&!buff.master_of_the_elements.up&maelstrom>=60)
         if (#enemies.yards10t < 4 or (talent.masterOfTheElements and not buff.masterOfTheElements.exists() and power >= 60) and movingCheck) or buff.lavaSurge.exists() then
             if debuff.flameShock.exists("target") then
-                if UnitCastingInfo("player") then
-                    SpellStopCasting()
+                if br._G.UnitCastingInfo("player") then
+                    br._G.SpellStopCasting()
                 end
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
@@ -752,8 +752,8 @@ local function runRotation()
                 for i = 1, #enemies.yards10t do
                     local thisUnit = enemies.yards10t[i]
                     if debuff.flameShock.exists(thisUnit) then
-                        if UnitCastingInfo("player") then
-                            SpellStopCasting()
+                        if br._G.UnitCastingInfo("player") then
+                            br._G.SpellStopCasting()
                         end
                         if cast.lavaBurst(thisUnit) then
                             br.addonDebug("Casting Lava Burst")
@@ -773,17 +773,17 @@ local function runRotation()
          then
             if mode.earthShock == 1 then
                 local cc = false
-                if getOptionCheck("Don't break CCs") then
+                if br.getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards8t do
                         local thisUnit = #enemies.yards8t[i]
-                        if isLongTimeCCed(thisUnit) then
+                        if br.isLongTimeCCed(thisUnit) then
                             cc = true
                             break
                         end
                     end
                 end
                 if cc == false then
-                    if createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
+                    if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
                         br.addonDebug("Casting Earthquake")
                         return
                     end
@@ -798,10 +798,10 @@ local function runRotation()
         -- Moving Chain Lightning
         if buff.stormKeeper.exists() and (moving or buff.stormKeeper.remains() < 3 * gcdMax * buff.stormKeeper.stack()) and holdBreak then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards10t do
                     local thisUnit = #enemies.yards10t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
@@ -818,8 +818,8 @@ local function runRotation()
         --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
         if cd.lavaBurst.remain() <= gcd and buff.lavaSurge.exists() and #enemies.yards10t <= ui.value("Maximum LB Targets") and (not talent.stormElemental or not stormEle) then
             if debuff.flameShock.exists("target") then
-                if UnitCastingInfo("player") then
-                    SpellStopCasting()
+                if br._G.UnitCastingInfo("player") then
+                    br._G.SpellStopCasting()
                 end
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
@@ -829,8 +829,8 @@ local function runRotation()
                 for i = 1, #enemies.yards10t do
                     local thisUnit = enemies.yards10t[i]
                     if debuff.flameShock.exists(thisUnit) then
-                        if UnitCastingInfo("player") then
-                            SpellStopCasting()
+                        if br._G.UnitCastingInfo("player") then
+                            br._G.SpellStopCasting()
                         end
                         if cast.lavaBurst(thisUnit) then
                             br.addonDebug("Casting Lava Burst")
@@ -852,10 +852,10 @@ local function runRotation()
         --actions.aoe+=/lava_beam,if=talent.ascendance.enabled
         if movingCheck and buff.ascendance.exists() and #enemies.yards10t >= ui.value("Lava Beam Targets") and holdBreak then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards10t do
                     local thisUnit = #enemies.yards10t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
@@ -872,10 +872,10 @@ local function runRotation()
         --actions.aoe+=/chain_lightning
         if movingCheck and #enemies.yards10t > 2 and holdBreak then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards10t do
                     local thisUnit = #enemies.yards10t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
@@ -891,7 +891,7 @@ local function runRotation()
         -- Lava Burst (Moving)
         --actions.aoe+=/lava_burst,moving=1,if=talent.ascendance.enabled
         if buff.lavaSurge.exists() and moving then
-            if getFacing("player", "target") and debuff.flameShock.exists("target") then
+            if br.getFacing("player", "target") and debuff.flameShock.exists("target") then
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
                     return
@@ -899,7 +899,7 @@ local function runRotation()
             else
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if getFacing("player", thisUnit) and debuff.flameShock.exists(thisUnit) then
+                    if br.getFacing("player", thisUnit) and debuff.flameShock.exists(thisUnit) then
                         if cast.lavaBurst(thisUnit) then
                             br.addonDebug("Casting Lava Burst")
                             return
@@ -912,7 +912,7 @@ local function runRotation()
         --actions.aoe+=/flame_shock,moving=1,target_if=refreshable
         if moving then
             for i = 1, #enemies.yards40f do
-                if getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40f[i]) then
+                if br.getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40f[i]) then
                     if cast.flameShock(enemies.yards40f[i]) then
                         br.addonDebug("Casting Flameshock")
                         return
@@ -935,7 +935,7 @@ local function runRotation()
         --actions.se_single_target=flame_shock,target_if=(remains<=gcd)&(buff.lava_surge.up|!buff.bloodlust.up)
         if flameShockCount < #enemies.yards40f then
             for i = 1, #enemies.yards40f do
-                if getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 then
+                if br.getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 then
                     if cast.flameShock(enemies.yards40f[i]) then
                         br.addonDebug("Casting Flameshock")
                         return
@@ -946,7 +946,7 @@ local function runRotation()
         if
             ui.checked("Ascendance") and talent.ascendance and ((talent.stormElemental and not stormEle) or not talent.stormElemental) and
                 (not talent.iceFury or (not buff.iceFury.exists() and cd.iceFury.remains > 0)) and
-                useCDs() and
+                br.useCDs() and
                 holdBreak
          then
             if cast.ascendance() then
@@ -1001,17 +1001,17 @@ local function runRotation()
                 (#enemies.yards8t >= ui.value("Earthquake Targets") and not debuff.flameShock.refresh("target")) and holdBreak
          then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
                     local thisUnit = #enemies.yards8t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
                 end
             end
             if cc == false then
-                if createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
+                if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
                     br.addonDebug("Casting Earthquake")
                     return
                 end
@@ -1043,7 +1043,7 @@ local function runRotation()
         end
         -- Lava Burst
         if movingCheck and buff.ascendance.exists() and not talent.masterOfTheElements and holdBreak then
-            if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
+            if debuff.flameShock.remain("target") > br.getCastTime(spell.lavaBurst) then
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
                     return
@@ -1051,7 +1051,7 @@ local function runRotation()
             else
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if debuff.flameShock.remain(thisUnit) > getCastTime(spell.lavaBurst) then
+                    if debuff.flameShock.remain(thisUnit) > br.getCastTime(spell.lavaBurst) then
                         if cast.lavaBurst(thisUnit) then
                             br.addonDebug("Casting Lava Burst")
                             return
@@ -1102,7 +1102,7 @@ local function runRotation()
         end
         -- Earth Elemental
         --actions.se_single_target+=/earth_elemental,if=!talent.primal_elementalist.enabled|talent.primal_elementalist.enabled&(!pet.storm_elemental.active)
-        if useCDs() and ui.checked("Earth Elemental") and (not talent.primalElementalist or not stormEle) then
+        if br.useCDs() and ui.checked("Earth Elemental") and (not talent.primalElementalist or not stormEle) then
             if cast.earthElemental() then
                 br.addonDebug("Casting Earth Elemental")
                 return
@@ -1161,7 +1161,7 @@ local function runRotation()
         end
         --Ascendance
         --actions.single_target+=/ascendance,if=talent.ascendance.enabled&(time>=60|buff.bloodlust.up)&cooldown.lava_burst.remains>0&!talent.storm_elemental.enabled
-        if ui.checked("Ascendance") and talent.ascendance and useCDs() and cd.lavaBurst.remain() > 0 and not buff.iceFury.exists() and holdBreak then
+        if ui.checked("Ascendance") and talent.ascendance and br.useCDs() and cd.lavaBurst.remain() > 0 and not buff.iceFury.exists() and holdBreak then
             if cast.ascendance() then
                 br.addonDebug("Casting Ascendance")
                 return
@@ -1183,7 +1183,7 @@ local function runRotation()
         --Storm Keeper
         --# Keep SK for large or soon add waves.
         --actions.single_target+=/stormkeeper,if=talent.stormkeeper.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-        if movingCheck and useCDs() and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
+        if movingCheck and br.useCDs() and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
             if cast.stormKeeper() then
                 br.addonDebug("Casting Stormkeeper")
                 return
@@ -1205,12 +1205,12 @@ local function runRotation()
         end
         -- Liquid Magma Totem
         --actions.single_target+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-        if useCDs() and #enemies.yards8t >= ui.value("LMT Targets") and talent.liquidMagmaTotem and holdBreak then
+        if br.useCDs() and #enemies.yards8t >= ui.value("LMT Targets") and talent.liquidMagmaTotem and holdBreak then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
                     local thisUnit = #enemies.yards8t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
@@ -1238,17 +1238,17 @@ local function runRotation()
                 (#enemies.yards8t >= ui.value("Earthquake Targets") and not debuff.flameShock.refresh("target")) and holdBreak
          then
             local cc = false
-            if getOptionCheck("Don't break CCs") then
+            if br.getOptionCheck("Don't break CCs") then
                 for i = 1, #enemies.yards8t do
                     local thisUnit = #enemies.yards8t[i]
-                    if isLongTimeCCed(thisUnit) then
+                    if br.isLongTimeCCed(thisUnit) then
                         cc = true
                         break
                     end
                 end
             end
             if cc == false then
-                if createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
+                if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
                     br.addonDebug("Casting Earthquake")
                     return
                 end
@@ -1265,17 +1265,17 @@ local function runRotation()
          then
             if mode.earthShock == 1 then
                 local cc = false
-                if getOptionCheck("Don't break CCs") then
+                if br.getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards8t do
                         local thisUnit = #enemies.yards8t[i]
-                        if isLongTimeCCed(thisUnit) then
+                        if br.isLongTimeCCed(thisUnit) then
                             cc = true
                             break
                         end
                     end
                 end
                 if cc == false then
-                    if createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
+                    if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
                         br.addonDebug("Casting Earthquake")
                         return
                     end
@@ -1297,7 +1297,7 @@ local function runRotation()
         end
         -- WLR Lava Surge Lava Burst
         if runeforge.windspeakersLavaResurgence.equiped and buff.lavaSurge.exists() and holdBreak then
-            if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
+            if debuff.flameShock.remain("target") > br.getCastTime(spell.lavaBurst) then
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
                     return
@@ -1305,7 +1305,7 @@ local function runRotation()
             else
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if debuff.flameShock.remain(thisUnit) > getCastTime(spell.lavaBurst) then
+                    if debuff.flameShock.remain(thisUnit) > br.getCastTime(spell.lavaBurst) then
                         if cast.lavaBurst(thisUnit) then
                             br.addonDebug("Casting Lava Burst")
                             return
@@ -1319,9 +1319,9 @@ local function runRotation()
         --&(buff.master_of_the_elements.up|maelstrom>=92+30*talent.call_the_thunder.enabled|buff.stormkeeper.up&active_enemies<2)|!talent.master_of_the_elements.enabled
         --&(buff.stormkeeper.up|maelstrom>=90+30*talent.call_the_thunder.enabled|!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)
         if
-        not buff.surgeOfPower.exists() and (talent.masterOfTheElements and buff.masterOfTheElements.exists() or buff.stormKeeper.exists()) or
-        ((not talent.masterOfTheElements and buff.stormKeeper.exists()) or power >= ui.value("Earth Shock Maelstrom Dump")) and holdBreak
-        then
+            not buff.surgeOfPower.exists() and (talent.masterOfTheElements and buff.masterOfTheElements.exists() or buff.stormKeeper.exists()) or
+                ((not talent.masterOfTheElements and buff.stormKeeper.exists()) or power >= ui.value("Earth Shock Maelstrom Dump")) and holdBreak
+         then
             if cast.earthShock() then
                 br.addonDebug("Casting Earthshock")
                 return
@@ -1338,7 +1338,7 @@ local function runRotation()
         --Lava Burst
         --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
         if movingCheck and buff.ascendance.exists() or (cd.lavaBurst.remain() <= gcd and not talent.masterOfTheElements) and holdBreak then
-            if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
+            if debuff.flameShock.remain("target") > br.getCastTime(spell.lavaBurst) then
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
                     return
@@ -1346,7 +1346,7 @@ local function runRotation()
             else
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if debuff.flameShock.remain(thisUnit) > getCastTime(spell.lavaBurst) then
+                    if debuff.flameShock.remain(thisUnit) > br.getCastTime(spell.lavaBurst) then
                         if cast.lavaBurst(thisUnit) then
                             br.addonDebug("Casting Lava Burst")
                             return
@@ -1397,17 +1397,17 @@ local function runRotation()
         if (runeforge.echoesOfGreatSundering.equiped and buff.echoesOfGreatSundering.exists()) or (#enemies.yards10t > 0 and not runeforge.echoesOfGreatSundering.equiped) then
             if #enemies.yards8t >= ui.value("Earthquake Targets") and holdBreak then
                 local cc = false
-                if getOptionCheck("Don't break CCs") then
+                if br.getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards8t do
                         local thisUnit = #enemies.yards8t[i]
-                        if isLongTimeCCed(thisUnit) then
+                        if br.isLongTimeCCed(thisUnit) then
                             cc = true
                             break
                         end
                     end
                 end
                 if cc == false then
-                    if createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
+                    if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
                         br.addonDebug("Casting Earthquake")
                         return
                     end
@@ -1454,7 +1454,7 @@ local function runRotation()
         end
         -- Earth Elemental
         --actions.single_target+=/earth_elemental,if=!talent.primal_elementalist.enabled|talent.primal_elementalist.enabled&(!pet.storm_elemental.active)
-        if useCDs() and ui.checked("Earth Elemental") and (not talent.primalElementalist or not fireEle) then
+        if br.useCDs() and ui.checked("Earth Elemental") and (not talent.primalElementalist or not fireEle) then
             if cast.earthElemental() then
                 br.addonDebug("Casting Earth Elemental (Fire Ele)")
                 return
@@ -1471,7 +1471,7 @@ local function runRotation()
         -- Lava Burst (Moving)
         --actions.aoe+=/lava_burst,moving=1,if=talent.ascendance.enabled
         if buff.lavaSurge.exists() and moving then
-            if getFacing("player", "target") and debuff.flameShock.exists("target") then
+            if br.getFacing("player", "target") and debuff.flameShock.exists("target") then
                 if cast.lavaBurst() then
                     br.addonDebug("Casting Lava Burst")
                     return
@@ -1479,7 +1479,7 @@ local function runRotation()
             else
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
-                    if getFacing("player", thisUnit) and debuff.flameShock.exists(thisUnit) then
+                    if br.getFacing("player", thisUnit) and debuff.flameShock.exists(thisUnit) then
                         if cast.lavaBurst(thisUnit) then
                             br.addonDebug("Casting Lava Burst")
                             return
@@ -1514,40 +1514,37 @@ local function runRotation()
     local function actionList_Elementals()
         if talent.primalElementalist then
             if pet ~= nil then
-                for k, v in pairs(pet) do
-                    -- for i = 1, #br.player.pet do
-                    local thisUnit = pet[k].id or 0
-                    if fireEle then
-                        --print("Fire Elemental Detected")
-                        if #enemies.yards8t >= ui.value("Meteor Targets") then
-                            --if cast.meteor("pettarget") then end
-                            CastSpellByName(GetSpellInfo(spell.meteor))
-                        --br.addonDebug("Casting Meteor (Pet)")
-                        end
-                        if not cd.immolate.exists() then
-                            CastSpellByName(GetSpellInfo(spell.immolate))
-                        --br.addonDebug("Casting Immolate (Pet)")
-                        end
-                    elseif stormEle then
-                        if select(2, GetSpellCooldown(157348)) ~= 0 then
-                            if eyeActive == nil or GetTime() - eyeActive > 8 then
-                                --print("Storm Elemental Detected")
-                                if #enemies.yards8t >= 1 then
-                                    eyeActive = GetTime()
-                                    CastSpellByName(GetSpellInfo(spell.eyeOfTheStorm))
-                                --br.addonDebug("Casting Eye Of The Storm (Pet)")
-                                end
+                -- for i = 1, #br.player.pet do
+                if fireEle then
+                    --print("Fire Elemental Detected")
+                    if #enemies.yards8t >= ui.value("Meteor Targets") then
+                        --if cast.meteor("pettarget") then end
+                        br._G.CastSpellByName(br._G.GetSpellInfo(spell.meteor))
+                    --br.addonDebug("Casting Meteor (Pet)")
+                    end
+                    if not cd.immolate.exists() then
+                        br._G.CastSpellByName(br._G.GetSpellInfo(spell.immolate))
+                    --br.addonDebug("Casting Immolate (Pet)")
+                    end
+                elseif stormEle then
+                    if select(2, br._G.GetSpellCooldown(157348)) ~= 0 then
+                        if eyeActive == nil or br._G.GetTime() - eyeActive > 8 then
+                            --print("Storm Elemental Detected")
+                            if #enemies.yards8t >= 1 then
+                                eyeActive = br._G.GetTime()
+                                br._G.CastSpellByName(br._G.GetSpellInfo(spell.eyeOfTheStorm))
+                            --br.addonDebug("Casting Eye Of The Storm (Pet)")
                             end
                         end
-                    elseif earthEle then
-                        --print("Earth Elemental Detected")
-                        if not buff.hardenSkin.exists() then
-                            CastSpellByName(GetSpellInfo(spell.hardenSkin))
-                        --br.addonDebug("Casting Harden Skin (Pet)")
-                        end
-                        CastSpellByName(GetSpellInfo(spell.pulverize))
-                    --br.addonDebug("Casting Pulverize (Pet)")
                     end
+                elseif earthEle then
+                    --print("Earth Elemental Detected")
+                    if not buff.hardenSkin.exists() then
+                        br._G.CastSpellByName(br._G.GetSpellInfo(spell.hardenSkin))
+                    --br.addonDebug("Casting Harden Skin (Pet)")
+                    end
+                    br._G.CastSpellByName(br._G.GetSpellInfo(spell.pulverize))
+                --br.addonDebug("Casting Pulverize (Pet)")
                 end
             end
         end
@@ -1559,7 +1556,7 @@ local function runRotation()
     -- Pause
     actionList_Interrupt()
     ghostWolf()
-    if SpecificToggle("Force GW Key") and not GetCurrentKeyBoardFocus() and ui.checked("Auto Ghost Wolf") then
+    if br.SpecificToggle("Force GW Key") and not br._G.GetCurrentKeyBoardFocus() and ui.checked("Auto Ghost Wolf") then
         if buff.ghostWolf.exists("player") then
             return
         else
@@ -1568,7 +1565,7 @@ local function runRotation()
                 return
             end
         end
-    elseif pause() or cd.global.remains() > 0 or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 4 or isCastingSpell(293491) then
+    elseif br.pause() or cd.global.remains() > 0 or (br._G.UnitExists("target") and not br._G.UnitCanAttack("target", "player")) or mode.rotation == 4 or br.isCastingSpell(293491) then
         return
     else
         ---------------------------------
@@ -1586,9 +1583,9 @@ local function runRotation()
             --if (buff.ghostWolf.exists() and mode.ghostWolf ~= 1) then return end
             actionList_Defensive()
             actionList_Elementals()
-            if ui.checked("Capacitor Totem - Tank Stuns") and getDistance("target") <= 40 and (inInstance or inRaid) then
+            if ui.checked("Capacitor Totem - Tank Stuns") and br.getDistance("target") <= 40 and (inInstance or inRaid) then
                 if #enemies.yards8t >= ui.value("Capacitor Totem - Tank Stuns") and inCombat then
-                    if createCastFunction("best", false, 1, 8, spell.capacitorTotem, nil, true) then
+                    if br.createCastFunction("best", false, 1, 8, spell.capacitorTotem, nil, true) then
                         br.addonDebug("Casting Capacitor Totem")
                         return
                     end
@@ -1596,34 +1593,35 @@ local function runRotation()
             end
             --Simc
             --Trinkets
-            if ui.checked("Trinkets") and useCDs() then
+            if ui.checked("Trinkets") and br.useCDs() then
                 if equiped.shiverVenomRelic() and ui.checked("Shiver Venom") then
                     if debuff.shiverVenom.stack("target") == 5 then
-                        if UnitCastingInfo("player") then
-                            SpellStopCasting()
+                        if br._G.UnitCastingInfo("player") then
+                            br._G.SpellStopCasting()
                         end
-                        use.shiverVenomRelic()
-                        br.addonDebug("Using Shiver Venom Relic")
+                        if use.shiverVenomRelic() then
+                            br.addonDebug("Using Shiver Venom Relic")
+                        end
                     end
                 elseif (buff.ascendance.exists("player") or #enemies.yards10t >= 3 or cast.last.fireElemental() or cast.last.stormElemental()) and holdBreak then
-                    if canUseItem(13) and not equiped.shiverVenomRelic(13) then
-                        if UnitCastingInfo("player") then
-                            SpellStopCasting()
+                    if br.canUseItem(13) and not equiped.shiverVenomRelic(13) then
+                        if br._G.UnitCastingInfo("player") then
+                            br._G.SpellStopCasting()
                         end
-                        useItem(13)
+                        br.useItem(13)
                         br.addonDebug("Using Trinket 1")
                     end
-                    if canUseItem(14) and not equiped.shiverVenomRelic(14) then
-                        if UnitCastingInfo("player") then
-                            SpellStopCasting()
+                    if br.canUseItem(14) and not equiped.shiverVenomRelic(14) then
+                        if br._G.UnitCastingInfo("player") then
+                            br._G.SpellStopCasting()
                         end
-                        useItem(14)
+                        br.useItem(14)
                         br.addonDebug("Using Trinket 2")
                     end
                 end
             end
             --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
-            if ui.checked("Storm Elemental/Fire Elemental") and useCDs() and holdBreak and not earthEle then
+            if ui.checked("Storm Elemental/Fire Elemental") and br.useCDs() and holdBreak and not earthEle then
                 if not talent.stormElemental then
                     --actions+=/storm_elemental,if=talent.storm_elemental.enabled&(!talent.icefury.enabled|!buff.icefury.up&!cooldown.icefury.up)&(!talent.ascendance.enabled|!cooldown.ascendance.up)
                     if cast.fireElemental() then
@@ -1632,8 +1630,8 @@ local function runRotation()
                     end
                 elseif
                     talent.stormElemental and (not talent.iceFury or (not buff.iceFury.exists("player") and cd.iceFury.remain() > gcd)) and
-                        (not talent.ascendance or (cd.ascendance.remain() > gcd or not useCDs()))
-                    then
+                        (not talent.ascendance or (cd.ascendance.remain() > gcd or not br.useCDs()))
+                 then
                     if cast.stormElemental() then
                         br.addonDebug("Casting Storm Elemental")
                         return
@@ -1643,10 +1641,10 @@ local function runRotation()
             --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
             --actions+=/earth_elemental,if=!talent.primal_elementalist.enabled|talent.primal_elementalist.enabled&(cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled)
             if
-                useCDs() and ui.checked("Earth Elemental") and
+                br.useCDs() and ui.checked("Earth Elemental") and
                     (not talent.primalElementalist or (talent.primalElementalist and ((not fireEle and not talent.stormElemental) or (not stormEle and talent.stormElemental)))) and
                     holdBreak
-                then
+             then
                 if cast.earthElemental() then
                     br.addonDebug("Casting Earth Elemental (Main)")
                     return
@@ -1654,10 +1652,10 @@ local function runRotation()
             end
             -- Racial Buffs
             if
-                (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and ui.checked("Racial") and useCDs() and
+                (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and ui.checked("Racial") and br.useCDs() and
                     (not talent.ascendance or buff.ascendance.exists("player") or cd.ascendance.remain() > 50) and
                     holdBreak
-                then
+             then
                 if race == "LightforgedDraenei" then
                     if cast.racial("target", "ground") then
                         br.addonDebug("Casting Racial")
@@ -1673,7 +1671,7 @@ local function runRotation()
             --actions+=/primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up
             if ui.checked("Primordial Wave") and covenant.necrolord.active and not buff.primordialWave.exists() then
                 for i = 1, #enemies.yards40f do
-                    if getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 then
+                    if br.getFacing("player", enemies.yards40f[i]) and debuff.flameShock.remain(enemies.yards40f[i]) < 5.4 then
                         if cast.primordialWave(enemies.yards40f[i]) then
                             br.addonDebug("Casting Primordial Wave")
                             return
@@ -1712,7 +1710,7 @@ local id = 262 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
-tinsert(
+br._G.tinsert(
     br.rotations[id],
     {
         name = rotationName,

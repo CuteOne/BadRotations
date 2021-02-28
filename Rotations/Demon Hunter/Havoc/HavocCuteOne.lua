@@ -1,55 +1,54 @@
 local rotationName = "CuteOne"
-
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.bladeDance},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladeDance},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.chaosStrike},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.darkness},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.darkness}
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- Mover
-    MoverModes = {
+    local MoverModes = {
         [1] = { mode = "AC", value = 1 , overlay = "Movement Animation Cancel Enabled", tip = "Will Cancel Movement Animation.", highlight = 1, icon = br.player.spell.felRush},
         [2] = { mode = "On", value = 2 , overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 0, icon = br.player.spell.felRush},
         [3] = { mode = "Off", value = 3 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.felRush}
     };
-    CreateButton("Mover",5,0)
+    br.ui:createToggle(MoverModes,"Mover",5,0)
     -- Hold Eye Beam
-    EyeBeamModes = {
+    local EyeBeamModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Eye beam", tip = "Use Eye beam", highlight = 1, icon = br.player.spell.eyeBeam},
         [2] = { mode = "Off", value = 2 , overlay = "Don't use Eye beam", tip = "Don't use Eye beam", highlight = 0, icon = br.player.spell.eyeBeam}
     };
-    CreateButton("EyeBeam",6,0)
+    br.ui:createToggle(EyeBeamModes,"EyeBeam",6,0)
     -- Hold Fel Barrage
-    FelBarrageModes = {
+    local FelBarrageModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Fel Barrage", tip = "Use Fel Barrage", highlight = 1, icon = br.player.spell.felBarrage},
         [2] = { mode = "Off", value = 2 , overlay = "Don't use Fel Barrage", tip = "Don't use Fel Barrage", highlight = 0, icon = br.player.spell.felBarrage}
     };
-    CreateButton("FelBarrage",7,0)
+    br.ui:createToggle(FelBarrageModes,"FelBarrage",7,0)
 end
 
 ---------------
@@ -180,43 +179,43 @@ local use
 
 local var = {}
 var.felBarrageSync = false
-var.leftCombat = GetTime()
-var.lastRune = GetTime()
+var.leftCombat = br._G.GetTime()
+var.lastRune = br._G.GetTime()
 var.profileStop = false
 var.useBasicTrinkets = false
 
 -- Custom Functions
-local function cancelRushAnimation()
-    if cast.able.felRush() and GetUnitSpeed("player") == 0 then
-        MoveBackwardStart()
-        JumpOrAscendStart()
-        cast.felRush()
-        MoveBackwardStop()
-        AscendStop()
-    end
-    return
-end
-local function cancelRetreatAnimation()
-    if cast.able.vengefulRetreat() then
+-- local function cancelRushAnimation()
+--     if cast.able.felRush() and GetUnitSpeed("player") == 0 then
+--         MoveBackwardStart()
+--         JumpOrAscendStart()
+--         cast.felRush()
+--         MoveBackwardStop()
+--         AscendStop()
+--     end
+--     return
+-- end
+-- local function cancelRetreatAnimation()
+--     if cast.able.vengefulRetreat() then
 
-        -- C_Timer.After(.001, function() SetHackEnabled("NoKnockback", true) end)
-        -- C_Timer.After(.35, function() cast.vengefulRetreat() end)
-        -- C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
-        -- SetHackEnabled("NoKnockback", true)
-        if cast.vengefulRetreat() then
-            C_Timer.After(.35, function() StopFalling(); end)
-            C_Timer.After(.55, function() MoveForwardStart(); end)
-            C_Timer.After(.75, function() MoveForwardStop(); end)
-        --     SetHackEnabled("NoKnockBack", false)
-        end
-    end
-    return
-end
+--         -- C_Timer.After(.001, function() SetHackEnabled("NoKnockback", true) end)
+--         -- C_Timer.After(.35, function() cast.vengefulRetreat() end)
+--         -- C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
+--         -- SetHackEnabled("NoKnockback", true)
+--         if cast.vengefulRetreat() then
+--             C_Timer.After(.35, function() StopFalling(); end)
+--             C_Timer.After(.55, function() MoveForwardStart(); end)
+--             C_Timer.After(.75, function() MoveForwardStop(); end)
+--         --     SetHackEnabled("NoKnockBack", false)
+--         end
+--     end
+--     return
+-- end
 local function eyebeamTTD()
     local length = talent.blindFury and 3 or 2
-    if enemies.yards20r > 0 then
-        for i = 1, enemies.yards20r do
-            if unit.ttd(enemies.yards20rTable[i]) >= length then
+    if #enemies.yards20r > 0 then
+        for i = 1, #enemies.yards20r do
+            if unit.ttd(enemies.yards20r[i]) >= length then
                 return true
             end
         end
@@ -233,10 +232,10 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy("target") then
-                StopAttack()
-                ClearTarget()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+            if br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy("target") then
+                br._G.StopAttack()
+                br._G.ClearTarget()
+                br._G.Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -293,7 +292,7 @@ actionList.Interrupts = function()
         if ui.checked("Fel Eruption") and talent.felEruption then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
                     if cast.felEruption(thisUnit) then ui.debug("Casting Fel Eruption") return true end
                 end
             end 
@@ -302,7 +301,7 @@ actionList.Interrupts = function()
         if ui.checked("Disrupt") then
             for i=1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
+                if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
                     if cast.disrupt(thisUnit) then ui.debug("Casting Disrupt") return true end
                 end
             end
@@ -311,7 +310,7 @@ actionList.Interrupts = function()
         if ui.checked("Chaos Nova") then
             for i=1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if canInterrupt(thisUnit,ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
+                if br.canInterrupt(thisUnit,ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
                     if cast.chaosNova(thisUnit) then ui.debug("Casting Chaos Nova [Int]") return true end
                 end
             end
@@ -361,7 +360,9 @@ actionList.Cooldowns = function()
             end
             -- Elysian Decree
             -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
-            if cast.able.elysianDecree() and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs()) then
+            if cast.able.elysianDecree() and unit.standingTime() > 2
+                and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs())
+            then
                 if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
             end
         end
@@ -392,12 +393,12 @@ actionList.EssenceBreak = function()
         if var.bladeDance then
             -- Death Sweep
             -- death_sweep,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.deathSweep() then
+            if cast.able.deathSweep("player","aoe",1,8) then
                 if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep [Essence Break]") return true end
             end
             -- Blade Dance
             -- blade_dance,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.bladeDance() then
+            if cast.able.bladeDance("player","aoe",1,8) then
                 if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance [Essence Break]") return true end
             end
         end
@@ -422,11 +423,11 @@ actionList.Demonic = function()
         and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        if ui.mode.mover == 1 and unit.distance("target") < 8 then
-            cancelRushAnimation()
-        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
+        --     cancelRushAnimation()
+        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush() then ui.debug("Casting Fel Rush [Unbound Chaos]") return true end
-        end
+        -- end
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
@@ -435,7 +436,9 @@ actionList.Demonic = function()
     end
     -- Glaive Tempest
     -- glaive_tempest,if=active_enemies>desired_targets|raid_event.adds.in>10
-    if cast.able.glaiveTempest("player","aoe",1,8) and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5)) then
+    if cast.able.glaiveTempest("player","aoe",1,8) and unit.standingTime() > 2
+        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs() or unit.ttd(units.dyn5) >= 7)
+    then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
     -- Throw Glaive
@@ -447,9 +450,9 @@ actionList.Demonic = function()
     end
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and not unit.moving() and enemies.yards20r > 0
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and not unit.moving() and #enemies.yards20r > 0
         and ((ui.value("Eye Beam Usage") == 1 and ui.mode.rotation == 1)
-            or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and enemies.yards20r >= ui.value("Units To AoE"))
+            or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Units To AoE"))
             or ui.mode.rotation == 2) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
@@ -464,7 +467,7 @@ actionList.Demonic = function()
     end
     -- Immolation Aura
     -- immolation_aura
-    if cast.able.immolationAura("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 then
+    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 then
         if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
     end
     -- Annihilation
@@ -488,11 +491,11 @@ actionList.Demonic = function()
         and talent.demonBlades and cd.eyeBeam.remain() > gcd
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        if ui.mode.mover == 1 and unit.distance("target") < 8 then
-            cancelRushAnimation()
-        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
+        --     cancelRushAnimation()
+        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush() then ui.debug("Casting Fel Rush [Demon Blades]") return true end
-        end
+        -- end
     end
     -- Demon's Bite
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
@@ -530,11 +533,11 @@ actionList.Normal = function()
     if ui.checked("Vengeful Retreat") and cast.able.vengefulRetreat() and talent.momentum
         and not buff.prepared.exists() and var.combatTime > 1 and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
     then
-        if ui.mode.mover == 1 then
-            cancelRetreatAnimation()
-        elseif ui.mode.mover == 2 then
+        -- if ui.mode.mover == 1 then
+        --     cancelRetreatAnimation()
+        -- elseif ui.mode.mover == 2 then
             if cast.vengefulRetreat() then ui.debug("Casting Vengeful Retreat [Momentum]") return true end
-        end
+        -- end
     end
     -- Fel Rush
     -- fel_rush,if=(variable.waiting_for_momentum|talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
@@ -542,11 +545,11 @@ actionList.Normal = function()
         and (var.waitingForMomentum or (talent.unboundChaos and buff.unboundChaos.exists()))
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        if ui.mode.mover == 1 and unit.distance("target") < 8 then
-            cancelRushAnimation()
-        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
+        --     cancelRushAnimation()
+        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush() then ui.debug("Casting Fel Rush [Momentum/Unbound Chaos]") return true end
-        end
+        -- end
     end
     -- Fel Barrage
     -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
@@ -562,13 +565,13 @@ actionList.Normal = function()
     end
     -- Immolation Aura
     -- immolation_aura
-    if cast.able.immolationAura("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 then
+    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 then
         if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
     end
     -- Glaive Tempest
     -- glaive_tempest,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>10)
-    if cast.able.glaiveTempest("player","aoe",1,8) and not var.waitingForMomentum
-        and ((ui.mode.rotation == 1 and #enemies.yards8 > ui.value("Units To AoE")) or ui.mode.rotation == 2 or unit.isBoss(units.dyn5))
+    if cast.able.glaiveTempest("player","aoe",1,8) and not var.waitingForMomentum and unit.standingTime() > 2
+        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs() or unit.ttd(units.dyn5) >= 7)
     then
         if cast.glaiveTempest("player","aoe",1,8) then ui.debug("Casting Glaive Tempest") return true end
     end
@@ -579,7 +582,7 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15)
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and #enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
         and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
@@ -611,7 +614,7 @@ actionList.Normal = function()
     -- Eye Beam
     -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
-        and enemies.yards20r > 0 and not unit.moving() and talent.blindFury
+        and #enemies.yards20r > 0 and not unit.moving() and talent.blindFury
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Blind Fury]") return true end
@@ -630,11 +633,11 @@ actionList.Normal = function()
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10) and not talent.momentum
         and talent.demonBlades and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        if ui.mode.mover == 1 and unit.distance("target") < 8 then
-            cancelRushAnimation()
-        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
+        --     cancelRushAnimation()
+        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush() then ui.debug("Casting Fel Rush [Demon Blades]") return true end
-        end
+        -- end
     end
     -- Felblade
     -- felblade,if=movement.distance|buff.out_of_range.up
@@ -652,13 +655,13 @@ actionList.Normal = function()
     -- Throw Glaive
     -- throw_glaive,if=talent.demon_blades.enabled
     if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
-        if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Demon Blades]") return true end
+        if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Demon Blades]") return true end
     end
 end -- End Action List - Normal
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    if not unit.inCombat() and not (IsFlying() or IsMounted()) then
+    if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         -- Fel Crystal Fragments -- Only Usable in Madum/Vault of the Wardens
         -- if not buff.felCrystalInfusion.exists() and use.able.felCrystalFragments() and has.felCrystalFragments() then
         --     if use.felCrystalFragments() then ui.debug("Using Fel Crystal Fragments") return true end
@@ -668,9 +671,9 @@ actionList.PreCombat = function()
         module.FlaskUp("Agility")
         -- Battle Scarred Augment Rune
         if ui.checked("Augment Rune") and var.inRaid and not buff.battleScarredAugmentation.exists()
-            and use.able.battleScarredAugmentRune() and var.lastRune + gcd < GetTime()
+            and use.able.battleScarredAugmentRune() and var.lastRune + gcd < br._G.GetTime()
         then
-            if use.battleScarredAugmentRune() then ui.debug("Using Battle Scarred Augment Rune") var.lastRune = GetTime() return true end
+            if use.battleScarredAugmentRune() then ui.debug("Using Battle Scarred Augment Rune") var.lastRune = br._G.GetTime() return true end
         end
         if ui.checked("Pre-Pull Timer") and (var.inRaid or var.inInstance) and ui.pullTimer()<= ui.value("Pre-Pull Timer") then
             -- Potion
@@ -706,7 +709,7 @@ actionList.PreCombat = function()
             -- Start Attack
             -- auto_attack
             if unit.distance("target") < 5 then
-                StartAttack()
+                br._G.StartAttack()
             end
         end
     end -- End No Combat
@@ -744,13 +747,11 @@ local function runRotation()
     --- Vars ---
     ------------
 
-    var.combatTime                                  = getCombatTime()
-    var.falling                                     = getFallTime()
+    var.combatTime                                  = br.getCombatTime()
+    var.falling                                     = br.getFallTime()
     var.flood                                       = (equiped.soulOfTheSlayer() or talent.firstBlood) and 1 or 0
-    var.getHealPot                                  = getHealthPot()
-    var.hasHealPot                                  = hasHealthPot()
     var.inInstance                                  = unit.instance=="party"
-    var.inMythic                                    = select(3,GetInstanceInfo())==23
+    var.inMythic                                    = select(3,br._G.IsInInstance)==23
     var.inRaid                                      = unit.instance=="raid"
     var.lowestBurningWound                          = debuff.burningWound.lowest(5,"remain") or "target"
     var.solo                                        = #br.friend == 1
@@ -769,13 +770,13 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",false,true)
     enemies.get(50)
-    enemies.yards20r, enemies.yards20rTable = getEnemiesInRect(10,20,false)
-    enemies.yards25r = getEnemiesInRect(8,25,false) or 0
+    enemies.rect.get(10,20,false)
+    enemies.rect.get(10,25,false)
     
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
-        var.metaExtended = true 
+        var.metaExtended = true
     elseif not buff.metamorphosis.exists() then
-        var.metaExtended = false 
+        var.metaExtended = false
     end
 
     var.ruinedTrail = talent.trailOfRuin and 1 or 0
@@ -810,20 +811,20 @@ local function runRotation()
     if unit.inCombat() and ui.checked("Auto Fel Rush After Retreat") and cast.able.felRush()
         and buff.prepared.exists() and not buff.momentum.exists() and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        if ui.mode.mover == 1 and unit.distance("target") < 8 then
-            cancelRushAnimation()
-        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
+        --     cancelRushAnimation()
+        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush() then ui.debug("Casting Fel Rush [Special]") return true end
-        end
+        -- end
     end
 
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not unit.inCombat() and not IsMounted() and not unit.exists("target") and var.profileStop then
+    if not unit.inCombat() and not unit.mounted() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop) or (IsMounted() or IsFlying()) or pause() or ui.mode.rotation==4 or cast.active.eyeBeam() then
+    elseif (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or ui.mode.rotation==4 or cast.active.eyeBeam() then
         return true
     else
         -----------------------
@@ -841,7 +842,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if unit.inCombat() and not IsMounted() and not var.profileStop and unit.valid("target") then
+        if unit.inCombat() and not unit.mounted() and not var.profileStop and unit.valid("target") then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
@@ -852,7 +853,7 @@ local function runRotation()
             if ui.value("APL Mode") == 1 then
                 -- Start Attack
                 if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack()
+                    br._G.StartAttack()
                 end
                 -- Cooldowns
                 -- call_action_list,name=cooldown,if=gcd.remains=0
@@ -868,7 +869,7 @@ local function runRotation()
                 -- Throw Glaive
                 -- throw_glaive,if=buff.fel_bombardment.stack=5&(buff.immolation_aura.up|!buff.metamorphosis.up)
                 if ui.checked("Throw Glaive") and cast.able.throwGlaive() and buff.felBombardment.stack() == 5 and (buff.immolationAura.exists() or not buff.metamorphosis.exists()) then
-                    if cast.throwGlaive(nil,"aoe",1,10) then ui.debug("Casting Throw Glaive [Fel Bombardment]") return true end
+                    if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Fel Bombardment]") return true end
                 end
                 -- Call Action List - Essence Break
                 -- call_action_list,name=essence_break,if=talent.essence_break.enabled&(variable.waiting_for_essence_break|debuff.essence_break.up)
@@ -890,7 +891,7 @@ local function runRotation()
 end -- End runRotation
 local id = 577
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

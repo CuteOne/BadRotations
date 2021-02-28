@@ -5,23 +5,23 @@ local rotationName = "Overlord"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.victoryRush },
         [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.victoryRush}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.shieldBlock},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.shieldBlock}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Movement Button
-    MoverModes = {
-        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", tip = "Will use Charge.", highlight = 1, icon = br.player.spell.charge},
-        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spell.charge}
+    local MoverModes = {
+        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", highlight = 1, icon = br.player.spell.charge},
+        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spell.charge}
     };
-    CreateButton("Mover", 3, 0)
+    br.ui:createToggle(MoverModes,"Mover", 3, 0)
 end
 
 ---------------
@@ -118,7 +118,7 @@ local function runRotation()
     use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or pause() or mode.rotation==4
+    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -159,13 +159,13 @@ local function runRotation()
                 ------------------------------
                 -- Start Attack
                 if mode.mover == 1 and spell.known.charge() then
-                    if cast.able.charge("target") and getDistance("player", "target") >= 8 and getDistance("player", "target") <= 25 then
+                    if cast.able.charge("target") and br.getDistance("player", "target") >= 8 and br.getDistance("player", "target") <= 25 then
                         if cast.charge("target") then ui.debug("Casting Charge") return true end
                     end
                 end
                 -- actions=auto_attack
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    StartAttack(units.dyn5)
+                    br._G.StartAttack(units.dyn5)
                 end
                 -- Execute
                 if unit.hp("target") < 20 and spell.known.execute() and cast.able.execute and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
@@ -188,7 +188,7 @@ local function runRotation()
                     if cast.slam() then ui.debug("Casting Slam") return true end
                 end
                 --Pummel Interrupt
-                if canInterrupt() then
+                if br.canInterrupt() then
                     if spell.known.pummel() and cast.able.pummel() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                         if cast.pummel() then ui.debug("Casting Pummel") return true end
                     end

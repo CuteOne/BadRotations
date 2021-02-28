@@ -172,17 +172,17 @@ local function runRotation()
     local baseAgility       = 0
     local baseMultistrike   = 0
     local buff              = br.player.buff
-    local canFlask          = canUseItem(br.player.flask.wod.agilityBig)
+    local canFlask          = br.canUseItem(br.player.flask.wod.agilityBig)
     local cast              = br.player.cast
     local castable          = br.player.cast.debug
     local cd                = br.player.cd
     local charges           = br.player.charges
-    local combatTime        = getCombatTime()
+    local combatTime        = br.getCombatTime()
     local debuff            = br.player.debuff
-    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
     local enemies           = br.player.enemies
     local equiped           = br.player.equiped
-    local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
+    local flaskBuff         = br.getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
     local gcd               = br.player.gcd
     local hasPet            = IsPetActive()
     local glyph             = br.player.glyph
@@ -208,9 +208,9 @@ local function runRotation()
     local solo              = select(2,IsInInstance())=="none"
     local spell             = br.player.spell
     local talent            = br.player.talent
-    local thp               = getHP("target")
+    local thp               = br.getHP("target")
     local trinketProc       = false --br.player.hasTrinketProc()
-    local ttd               = getTTD
+    local ttd               = br.getTTD
     local ttm               = br.player.power.energy.ttm()
     local units             = br.player.units
     local staggerPct        = (UnitStagger("player") / UnitHealthMax("player")*100)
@@ -316,9 +316,9 @@ local function runRotation()
 --------------------
 
 local function key()
-    if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
+    if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and br.isChecked("Ring of Peace") then
         if cast.able.ringOfPeace() then
-            if CastSpellByName(GetSpellInfo(spell.ringOfPeace),"cursor") then return true end
+            if br._G.CastSpellByName(GetSpellInfo(spell.ringOfPeace),"cursor") then return true end
         end
     end
 end
@@ -341,7 +341,7 @@ local function actionList_Extras()
             end
         end
     end -- End Taunt
-    if isChecked("Summon Dave - The Statue") then
+    if br.isChecked("Summon Dave - The Statue") then
         local castOx
         --local bX,bY,bZ
         for i = 1, 5 do
@@ -356,14 +356,14 @@ local function actionList_Extras()
         if castOx or (bX ~= nil and getDistanceToObject("player",bX,bY,bZ) >= 20) then
             if cast.summonBlackOxStatue("target") then 
                 Print("Trying to cast ox")
-                bX, bY, bZ = GetObjectPosition("target")
+                bX, bY, bZ = br.GetObjectPosition("target")
                 return 
             end
         end
         if br.player.ui.mode.taunt == 3 then
             if br.unlocked then --EWT ~= nil then
                 for i = 1, GetObjectCountBR() do
-                    local ID = ObjectID(GetObjectWithIndex(i))
+                    local ID = br._G.ObjectID(GetObjectWithIndex(i))
                     local object = GetObjectWithIndex(i)
                     if ID == 61146 then
                             for j = 1, #enemies.yards30 do
@@ -384,51 +384,51 @@ end -- End Action List - Extras
 local function actionList_Defensive()
     if useDefensive() then
     -- Vivify
-            if isChecked("Vivify") and (not inCombat and php <= getOptionValue("Vivify")) then
+            if br.isChecked("Vivify") and (not inCombat and php <= br.getOptionValue("Vivify")) then
                 if cast.vivify() then return end
             end
     --Expel Harm
-            if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(322101) >= getOptionValue("Expel Harm Orbs") then
+            if br.isChecked("Expel Harm") and php <= br.getValue("Expel Harm") and inCombat and GetSpellCount(322101) >= br.getOptionValue("Expel Harm Orbs") then
                 if cast.expelHarm() then return end
             end
     -- Pot/Stoned
-            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
-                if canUseItem(5512) then
-                    useItem(5512)
-                elseif canUseItem(healPot) then
-                    useItem(healPot)
-                elseif hasItem(166799) and canUseItem(166799) then
-                    useItem(166799)
+            if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+                if br.canUseItem(5512) then
+                    br.useItem(5512)
+                elseif br.canUseItem(healPot) then
+                    br.useItem(healPot)
+                elseif br.hasItem(166799) and br.canUseItem(166799) then
+                    br.useItem(166799)
                 end
             end
     -- Dampen Harm
-            if isChecked("Dampen Harm") and php <= getValue("Dampen Harm") and inCombat then
+            if br.isChecked("Dampen Harm") and php <= br.getValue("Dampen Harm") and inCombat then
                 if cast.dampenHarm() then return end
             end
     -- Detox
-            if isChecked("Detox Me") and br.player.ui.mode.detox == 1 then
-                if canDispel("player",spell.detox) then
+            if br.isChecked("Detox Me") and br.player.ui.mode.detox == 1 then
+                if br.canDispel("player",spell.detox) then
                     if cast.detox("player") then return end
                 end
             end
     -- Detox Mouseover
-            if isChecked("Detox Mouseover") and br.player.ui.mode.detox == 1 then
+            if br.isChecked("Detox Mouseover") and br.player.ui.mode.detox == 1 then
                 if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
-                        if canDispel("mouseover",spell.detox) then
+                        if br.canDispel("mouseover",spell.detox) then
                         if cast.detox("mouseover") then return end
                     end
                 end
             end
     -- Healing Elixir
-            if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") and charges.healingElixir.count() > 1 then
+            if br.isChecked("Healing Elixir") and php <= br.getValue("Healing Elixir") and charges.healingElixir.count() > 1 then
                 if cast.healingElixir() then return end
             end
     -- Fortifying Brew
-            if isChecked("Fortifying Brew") and php <= getValue("Fortifying Brew") and inCombat then
+            if br.isChecked("Fortifying Brew") and php <= br.getValue("Fortifying Brew") and inCombat then
                 if cast.fortifyingBrew() then return end
             end
 
-            if isChecked("Celestial Brew") and php <= getValue("Celestial Brew") and inCombat and buff.purifiedChi.stack() >= getValue("Celestial Purify Stacks") then
+            if br.isChecked("Celestial Brew") and php <= br.getValue("Celestial Brew") and inCombat and buff.purifiedChi.stack() >= br.getValue("Celestial Purify Stacks") then
                 if cast.celestialBrew() then return end
             end
         end
@@ -436,13 +436,13 @@ local function actionList_Defensive()
 -- Action List - Cooldowns
     local function actionList_Cooldowns()
         if useCDs() then
-            if isChecked("Invoke Niuzao") then
+            if br.isChecked("Invoke Niuzao") then
                 if cast.invokeNiuzao() then return end
             end
-            if isChecked("Touch of Death") then
+            if br.isChecked("Touch of Death") then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if UnitHealth("player") > UnitHealth(thisUnit) then
+                    if br._G.UnitHealth("player") > br._G.UnitHealth(thisUnit) then
                         if cast.touchOfDeath(thisUnit) then
                             return
                         end
@@ -451,17 +451,17 @@ local function actionList_Defensive()
             end
         end
         -- Trinkets
-        if isChecked("Trinket 1") then
-                useItem(13)
+        if br.isChecked("Trinket 1") then
+                br.useItem(13)
         end
-        if isChecked("Trinket 2") then
-                useItem(14)
+        if br.isChecked("Trinket 2") then
+                br.useItem(14)
         end
 --[[             for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
             if hasEquiped(169311, 13) then
-                if not debuff.razorCoral.exists(thisUnit) or (equiped.dribblingInkpod() and (debuff.conductiveInk.exists("target") and (getHP("target") < 31)) or ttd("target") < 20) then
-                    useItem(13)
+                if not debuff.razorCoral.exists(thisUnit) or (equiped.dribblingInkpod() and (debuff.conductiveInk.exists("target") and (br.getHP("target") < 31)) or ttd("target") < 20) then
+                    br.useItem(13)
                     return
                 end
             end
@@ -472,25 +472,25 @@ local function actionList_Defensive()
         if useInterrupts() then
             for i=1, #enemies.yards20 do
                 thisUnit = enemies.yards20[i]
-                distance = getDistance(thisUnit)
-                if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                distance = br.getDistance(thisUnit)
+                if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     if distance <= 5 then
     -- Spear Hand Strike
-                        if isChecked("Spear Hand Strike") then
+                        if br.isChecked("Spear Hand Strike") then
                             if cast.spearHandStrike(thisUnit) then return end
                         end
     -- Leg Sweep
-                        if isChecked("Leg Sweep") and StunsBlackList[GetObjectID(thisUnit)] == nil and not isBoss(thisUnit) then
+                        if br.isChecked("Leg Sweep") and StunsBlackList[br.GetObjectID(thisUnit)] == nil and not br.isBoss(thisUnit) then
                             if cast.legSweep(thisUnit) then return end
                         end
                     end
                 end
             end
     -- Paralysis
-            if isChecked("Incap Logic") then
+            if br.isChecked("Incap Logic") then
                 local paraCase = nil
                 for i = 1, #br.friend do
-                        if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit,272407) == 0 and getDistance(br.friend[i].unit) <= 20 then
+                        if UnitIsCharmed(br.friend[i].unit) and br.getDebuffRemain(br.friend[i].unit,272407) == 0 and br.getDistance(br.friend[i].unit) <= 20 then
                             paraCase = br.friend[i].unit
                         end
                 end
@@ -501,12 +501,12 @@ local function actionList_Defensive()
                     }
                     for i = 1, #enemies.yards20 do
                         local thisUnit = enemies.yards20[i]
-                        local distance = getDistance(thisUnit)
+                        local distance = br.getDistance(thisUnit)
                         for k,v in pairs(para_list) do
-                            if (para_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) == 0 and distance <= 20 then
-                                if getDistance(thisUnit) <= 5 and cd.quakingPalm.remain() == 0 then 
+                            if (para_unitList[br.GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and br.getBuffRemain(thisUnit,226510) == 0 and distance <= 20 then
+                                if br.getDistance(thisUnit) <= 5 and cd.quakingPalm.remain() == 0 then 
                                     if cast.quakingPalm(thisUnit) then return end
-                                elseif cd.quakingPalm.remain() > 0 or getDistance(thisUnit) > 5 then
+                                elseif cd.quakingPalm.remain() > 0 or br.getDistance(thisUnit) > 5 then
                                     if cast.paralysis(thisUnit) then return end
                                 end
                             end
@@ -522,8 +522,8 @@ local function actionList_Defensive()
 -- Action List - Pre-Combat
     local function actionList_PreCombat()
             -- auto_attack
-            if isValidUnit("target") and getDistance("target") < 5 then
-                StartAttack()
+            if br.isValidUnit("target") and br.getDistance("target") < 5 then
+                br._G.StartAttack()
             end
         end --End Action List - Pre-Combat
 
@@ -583,7 +583,7 @@ local function actionList_Multi()
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
             if cast.chiWave(units.dyn5) then return end
         end
-        if power > 55 and (charges.purifyingBrew.frac() >= getValue("Spinning Crane Cutoff")) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and (not talent.eyeOfTheTiger or buff.eyeOfTheTiger.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
+        if power > 55 and (charges.purifyingBrew.frac() >= br.getValue("Spinning Crane Cutoff")) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and (not talent.eyeOfTheTiger or buff.eyeOfTheTiger.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
             if cast.spinningCraneKick("player") then
                 return
             end
@@ -647,21 +647,21 @@ end
 -- Brews Rotations
 local function actionList_Brews()
     --Black Ox Brew
-        if isChecked("Black Ox Brew") and talent.blackoxBrew then
+        if br.isChecked("Black Ox Brew") and talent.blackoxBrew then
             if (charges.purifyingBrew.frac() < 0.7) or
-                (charges.purifyingBrew.count() == 0 and (staggerPct >= getValue("Stagger dmg % to purify"))) then
+                (charges.purifyingBrew.count() == 0 and (staggerPct >= br.getValue("Stagger dmg % to purify"))) then
                 if cast.blackoxBrew("player") then return end
             end
         end
     -- Auto Purify
-        if isChecked("High Stagger Debuff") then
+        if br.isChecked("High Stagger Debuff") then
             if debuff.heavyStagger.exists("player") and charges.purifyingBrew.frac() > 0.8 then
                 if cast.purifyingBrew("player") then return end
             end
         end
     -- Percentage Purify
-        if isChecked("Stagger dmg % to purify") then
-            if (staggerPct >= getValue("Stagger dmg % to purify") and charges.purifyingBrew.frac() > 0.5) then
+        if br.isChecked("Stagger dmg % to purify") then
+            if (staggerPct >= br.getValue("Stagger dmg % to purify") and charges.purifyingBrew.frac() > 0.5) then
                 if cast.purifyingBrew("player") then return end
             end
         end
@@ -670,7 +670,7 @@ local function actionList_Brews()
             if charges.purifyingBrew.frac() == charges.purifyingBrew.max() and inCombat then
                 if debuff.heavyStagger.exists("player") then
                     if cast.purifyingBrew("player") then return end
-                elseif staggerPct > (getValue("Stagger dmg % to purify")/2) then
+                elseif staggerPct > (br.getValue("Stagger dmg % to purify")/2) then
                     if cast.purifyingBrew("player") then return end 
                 elseif buff.purifiedChi.remains("player") <= 3 and charges.purifyingBrew.frac() > 1.8 then
                     if cast.purifyingBrew("player") then return end 
@@ -679,7 +679,7 @@ local function actionList_Brews()
         end
     end
 
-if isCastingSpell(115176) or buff.zenMeditation.exists("player") then
+if br.isCastingSpell(115176) or buff.zenMeditation.exists("player") then
     return true
 end
 
@@ -693,7 +693,7 @@ end
 -- Profile Stop | Pause
 if not inCombat and not hastar and profileStop==true then
     profileStop = false
-elseif (inCombat and profileStop==true) or pause() or buff.zenMeditation.exists() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
+elseif (inCombat and profileStop==true) or pause() or buff.zenMeditation.exists() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and br.getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
     return
 else
 ---------------------------------
@@ -709,15 +709,15 @@ else
         -- Precombat
         if actionList_PreCombat() then return end
         
-        if isChecked("Pig Catcher") then
+        if br.isChecked("Pig Catcher") then
             bossHelper()
         end
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
 if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enemies.yards8 >=1 then
-if getDistance(units.dyn5) < 5 then
-    StartAttack()
+if br.getDistance(units.dyn5) < 5 then
+    br._G.StartAttack()
 end
         -- Cooldowns
         if actionList_Cooldowns() then return end
@@ -738,7 +738,7 @@ end
     end -- Pause
 end -- End runRotation 
 
-local id = 268
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

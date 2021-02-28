@@ -1,3 +1,4 @@
+local _, br = ...
 -- This creates the normal BadRotations Configuration Window
 br.ui.window.config = {}
 function br.ui:createConfigWindow()
@@ -17,9 +18,9 @@ function br.ui:createConfigWindow()
             0.01,
             "Adjust the update rate of Bot operations. Increase to improve FPS but may cause reaction delays. Will be ignored if Auto Delay is checked. Default: 0.1"
         )
-        rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
+        br.rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
         br.ui:createDropdown(section, "Addon Debug Messages", {"System Only", "Profile Only", "All"}, 3, "Check this to display developer debug messages.")
-        targetval = br.ui:createCheckbox(section, "Target Validation Debug", "Check this to display current target's validation.")
+        br.targetval = br.ui:createCheckbox(section, "Target Validation Debug", "Check this to display current target's validation.")
         br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
         br.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
         br.ui:createSpinner(section, "Auto Loot", 0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
@@ -30,6 +31,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Reset Options", "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset setting on reload!")
         br.ui:createCheckbox(section, "Reset Saved Profiles", "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset saved profiles on reload!")
         br.ui:createCheckbox(section, "Auto Check for Updates", "EWT only. This uses the Git master head sha for comparison. |cffFF0000Experimental!")
+        br.ui:createCheckbox(section, "Dev Mode", "|cffFF0000WARNING! This will expose the BR table to global for testing purposes.  Do not use unless you know what you're doing.")
         br.ui:checkSectionState(section)
     end
 
@@ -39,18 +41,18 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(
             section,
             "Dynamic Targetting",
-            {"Only In Combat", "Default" --[["Lite"--]]},
+            {"Only In Combat", "Default", "Lite"},
             2,
             "Check this to allow dynamic targetting. If unchecked, profile will only attack current target."
         )
-        --br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
+        br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
         br.ui:createCheckbox(section, "Target Dynamic Target", "Check this will target the current dynamic target.")
         br.ui:createCheckbox(section, "Tank Aggro = Player Aggro", "If checked, when tank gets aggro, player will go into combat")
         br.ui:createCheckbox(section, "Hostiles Only", "Checking this will target only units hostile to you.")
         br.ui:createCheckbox(section, "Attack MC Targets", "Check this to allow addon to attack charmed/mind controlled targets.")
         br.ui:createCheckbox(section, "Enhanced Time to Die", "A more precise time to die check, but can be ressource heavy.")
         br.ui:createCheckbox(section, "Prioritize Totems", "Check this to target totems first.")
-        --br.ui:createCheckbox(section, "Darter Targeter", "Auto target Darters on Hivemind")
+        br.ui:createCheckbox(section, "Darter Targeter", "Auto target Darters on Hivemind")
         br.ui:createDropdown(
             section,
             "Wise Target",
@@ -74,7 +76,7 @@ function br.ui:createConfigWindow()
         )
         br.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
         br.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
-        br.ui:createCheckbox(section, "Boss Detection Only In Instance","Check to only detect Dungeon/Raid Bosses, not Open World")
+        br.ui:createCheckbox(section, "Boss Detection Only In Instance", "Check to only detect Dungeon/Raid Bosses, not Open World")
         br.ui:createCheckbox(section, "Dispel Only Whitelist", "Check to only dispel debuffs listed on the whitelist.")
         br.ui:createCheckbox(section, "Purge Only Whitelist", "Check to only purge buffs listed on the whitelist.")
         br.ui:createCheckbox(section, "Interrupt Only Whitelist", "Check to only interrupt casts listed on the whitelist.")
@@ -82,7 +84,16 @@ function br.ui:createConfigWindow()
         br.ui:createDropdownWithout(
             section,
             "Interrupt Mark",
-            {"|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull"},
+            {
+                "|cffffff00Star",
+                "|cffffa500Circle",
+                "|cff800080Diamond",
+                "|cff008000Triangle",
+                "|cffffffffMoon",
+                "|cff0000ffSquare",
+                "|cffff0000Cross",
+                "|cffffffffSkull"
+            },
             8,
             "Mark to interrupt if Marked is selected in Interrupt Target."
         )
@@ -99,14 +110,7 @@ function br.ui:createConfigWindow()
         --br.ui:createCheckbox(section, "Disable Object Manager", "Check to disable OM. Will disable dynamic targetting. Will prevent all spells that require OM from working correctly.")
         br.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
         br.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
-        br.ui:createDropdown(
-            section,
-            "Prioritize Special Targets",
-            {"Special", "All"},
-            1,
-            "Prioritize Special targets(mouseover/target/focus).",
-            "Choose Which Special Units to consider."
-        )
+        br.ui:createCheckbox(section, "Prioritize Special Targets", "Prioritize Special targets(mouseover/target/focus).")
         br.ui:createSpinner(
             section,
             "Blacklist",
@@ -125,7 +129,7 @@ function br.ui:createConfigWindow()
         )
         br.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Check this if you want to prevent overhealing units.")
         br.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts. CURRENTLY NOT IMPLEMENTED!")
-        --healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
+        br.healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
         --br.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
         br.ui:createSpinner(
             section,
@@ -153,12 +157,24 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Lockboxes", "Unlock Lockboxes. Profession Helper must be checked.")
         br.ui:createDropdown(section, "Fishing", {"Enabled", "Disabled"}, 2, "Turn EWT Fishing On/Off")
         br.ui:createCheckbox(section, "Fish Oil", "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked.")
-        br.ui:createDropdown(section, "Bait", {"Lost Sole Bait","Silvergill Pike Bait","Pocked Bonefish Bait","Iridescent Amberjack Bait", "Spinefin Piranha Bait", "Elysian Thade Bait"}, 1, "Using the bait.")
-        br.ui:createDropdown(section, "Anti-Afk", {"Enabled","Disabled"}, 2, "Turn EWT Anti-Afk On/Off")
+        br.ui:createDropdown(
+            section,
+            "Bait",
+            {
+                "Lost Sole Bait",
+                "Silvergill Pike Bait",
+                "Pocked Bonefish Bait",
+                "Iridescent Amberjack Bait",
+                "Spinefin Piranha Bait",
+                "Elysian Thade Bait"
+            },
+            1,
+            "Using the bait."
+        )
         br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
         br.ui:createCheckbox(section, "Cache Debuffs", "Experimental feature still in testing")
         br.ui:createCheckbox(section, "Unit ID In Tooltip", "Show/Hide Unit IDs in Tooltip")
-        --br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
+        br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.config, "Dungeon Helpers")
         br.ui:createCheckbox(section, "Quaking Helper", "Auto cancel channeling and block casts during mythic+ affix quaking")
@@ -171,50 +187,46 @@ function br.ui:createConfigWindow()
     local function callSettingsEngine()
         local profileSettings = {"Solo", "Dungeon", "M+ Dungeon", "Raid"}
         section = br.ui:createSection(br.ui.window.config, "Load Saved Profiles")
-            br.ui:createDropdownWithout(section, "Select Settings", profileSettings, 2, "Select profile to use, then click load")
-            br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
-            local saveProfile = function()
-                br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
+        br.ui:createDropdownWithout(section, "Select Settings", profileSettings, 2, "Select profile to use, then click load")
+        br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
+        local saveProfile = function()
+            br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
+        end
+        local loadProfile = function()
+            br.data.loadedSettings = false
+            local loadDir =
+                br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
+            if br:findFileInFolder("savedSettings.lua", loadDir) then
+                br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
+                br.rotationChanged = true
+            else
+                br._G.print("You don't have saved setting for :" .. profileSettings[br.getValue("Select Settings")])
             end
-            local loadProfile = function()
-                br.data.loadedSettings = false
-                local loadDir =
-                    br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
-                if br:findFileInFolder("savedSettings.lua", loadDir) then
-                    br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[getValue("Select Settings")])
-                    br.rotationChanged = true
-                else
-                    Print("You don't have saved setting for :" .. profileSettings[getValue("Select Settings")])
-                end
+        end
+        local y = -5
+        for i = 1, #section.children do
+            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
+                y = y - section.children[i].frame:GetHeight() * 1.2
             end
-            local y = -5
-            for i = 1, #section.children do
-                if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
-                    y = y - section.children[i].frame:GetHeight() * 1.2
-                end
-            end
-            y = round2(y, 1)
-            br.ui:createButton(section, "Save", 10, y, saveProfile)
-            br.ui:createButton(section, "Load", -10, y, loadProfile, true)
+        end
+        y = br.round2(y, 1)
+        br.ui:createButton(section, "Save", 10, y, saveProfile)
+        br.ui:createButton(section, "Load", -10, y, loadProfile, true)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.config, "Export/Import from Settings Folder")
-            br.ui:createText(section, "Export/Import from Settings Folder")
-            br.ui:createExportButton(section, "Export", 40, y)-- -90)
-            br.ui:createImportButton(section, "Import", 140, y)-- -90)
-            br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
+        br.ui:createText(section, "Export/Import from Settings Folder")
+        br.ui:createExportButton(section, "Export", 40, y)
+        -- -90)
+        br.ui:createImportButton(section, "Import", 140, y)
+        -- -90)
+        br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
         br.ui:checkSectionState(section)
     end
 
     local function callTrackerEngine()
         -- Main
         section = br.ui:createSection(br.ui.window.config, "Main Settings")
-        br.ui:createDropdown(
-            section,
-            "Enable Tracker",
-            {"Default", "Alternate"},
-            1,
-            "Use alternate drawing mode in DX11 if you experience issues with Default. You must type .enabledx at least once to enable EWT's DX Drawing. This is automatically saved by EWT."
-        )
+        br.ui:createCheckbox(section, "Enable Tracker")
         br.ui:createCheckbox(section, "Draw Lines to Tracked Objects")
         br.ui:createCheckbox(section, "Auto Interact with Any Tracked Object")
         br.ui:createCheckbox(section, "Rare Tracker", "Track All Rares In Range")
@@ -254,8 +266,8 @@ function br.ui:createConfigWindow()
         section = br.ui:createSection(br.ui.window.config, "Smart Queue")
         br.ui:createSpinner(section, "Smart Queue", 2, 0.5, 3, 0.1, "Auto cast spells you press (Only EWT support)", "Seconds to attempt cast")
         if br.player ~= nil and br.player.spell ~= nil and br.player.spell.abilities ~= nil then
-            for k, v in pairsByKeys(br.player.spell.abilities) do
-                local spellName = GetSpellInfo(v)
+            for _, v in pairsByKeys(br.player.spell.abilities) do
+                local spellName = br._G.GetSpellInfo(v)
                 if v ~= 61304 and spellName ~= nil then
                     br.ui:createDropdown(
                         section,

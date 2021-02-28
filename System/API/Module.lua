@@ -1,4 +1,5 @@
-local br = _G["br"]
+
+local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.module = function(self)
     -- Local reference to actionList
@@ -13,7 +14,7 @@ br.api.module = function(self)
     local use               = self.use
     local var               = {}
     var.getItemInfo         = _G["GetItemInfo"]
-    var.getHealPot          = _G["getHealthPot"]
+    var.getHealPot          = br.getHealthPot
 
     -- Basic Healing Module
     module.BasicHealing = function(section)
@@ -66,7 +67,7 @@ br.api.module = function(self)
                 if cast.racial() then ui.debug("Casting Gift of the Naaru") return true end
             end
             -- Music of Bastion
-            if ui.checked("Music of Bastion") and (isInArdenweald() or isInBastion() or isInMaldraxxus() or isInRevendreth()) then
+            if ui.checked("Music of Bastion") and (br.isInArdenweald() or br.isInBastion() or br.isInMaldraxxus() or br.isInRevendreth()) then
                 if use.able.ascendedFlute() and has.ascendedFlute() then
                     if use.ascendedFlute() then ui.debug("Using Ascended Flute") return true end
                 end
@@ -126,7 +127,7 @@ br.api.module = function(self)
 
     -- Flask Module
     module.FlaskUp = function(buffType,section)
-        local function getFlaskByType(buffType)
+        local function getFlaskByType()
             local thisFlask = ""
             if buffType == "Agility" then thisFlask = "Greater Flask of the Currents" end
             if buffType == "Intellect" then thisFlask = "Greater Flask of Endless Fathoms" end
@@ -134,8 +135,8 @@ br.api.module = function(self)
             if buffType == "Strength" then thisFlask = "Greater Flask of the Undertow" end
             return thisFlask
         end
-        local flaskList = {}
-        local isDH = select(2,UnitClass("player")) == "DEMONHUNTER"
+        local flaskList
+        local isDH = select(2,br._G.UnitClass("player")) == "DEMONHUNTER"
         if isDH then
             flaskList = {getFlaskByType(buffType),"Inquisitor's Menacing Eye","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}
         else
@@ -153,15 +154,15 @@ br.api.module = function(self)
             end
             if ui.value("Flask") == 3 then
                 if isDH then -- Greater FLask or Gaze of the Legion
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists()
                 else -- Greater Flask or Fel Focus
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.felFocus.exists()
                 end
             end
             if ui.value("Flask") == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
-                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
             end
         end
@@ -219,7 +220,7 @@ br.api.module = function(self)
                     if use.oraliusWhisperingCrystal() then ui.debug("Using Oralius's Whispering Crystal") return true end
                 end
             end
-            if opValue == 4 then 
+            if opValue == 4 then
                 if isDH and (not unit.instance("raid") or (unit.instance("raid") and not hasFlaskBuff()))
                     and use.able.oraliusWhisperingCrystal() and not buff.whispersOfInsanity.exists()
                 then

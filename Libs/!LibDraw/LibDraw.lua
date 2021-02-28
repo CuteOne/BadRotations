@@ -1,14 +1,14 @@
 -- LubDraw by docbrown on fh-wow.com
-
+local _, br = ...
 --local LibDraw
 local sin, cos, atan, atan2, sqrt, rad = math.sin, math.cos, math.atan, math.atan2, math.sqrt, math.rad
 local tinsert, tremove = tinsert, tremove
 
 
 local function WorldToScreen (wX, wY, wZ)
-	if wZ == nil then wZ = select(3,GetObjectPosition("player")) end
-	local sX, sY = _G.WorldToScreen(wX, wY, wZ);
-	if sX and sY then
+	if wZ == nil then wZ = select(3,br.GetObjectPosition("player")) end
+	local sX, sY = br._G.WorldToScreen(wX, wY, wZ);
+	if sX and sY and not _G.lb then
 		return sX, -(WorldFrame:GetTop() - sY);
 	else
 		return sX, sY;
@@ -198,7 +198,7 @@ local flags = bit.bor(0x100)
 function LibDraw.GroundCircle(x, y, z, size)
 	local lx, ly, nx, ny, fx, fy, fz = false, false, false, false, false, false, false
 	for v=0, full_circle, small_circle_step do
-		fx, fy, fz = TraceLine(  (x+cos(v)*size), (y+sin(v)*size), z+100, (x+cos(v)*size), (y+sin(v)*size), z-100, flags )
+		fx, fy, fz = br._G.TraceLine(  (x+cos(v)*size), (y+sin(v)*size), z+100, (x+cos(v)*size), (y+sin(v)*size), z-100, flags )
 		if fx == nil then
 			fx, fy, fz = (x+cos(v)*size), (y+sin(v)*size), z
 		end
@@ -241,7 +241,7 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 		bottom = 1
 	end
 	if not scale then
-		local cx, cy, cz = GetCameraPosition()
+		local cx, cy, cz = br._G.GetCameraPosition()
 		scale = width / LibDraw.Distance(x, y, z, cx, cy, cz)
 	end
 
@@ -349,7 +349,7 @@ local arrowZ = {
 }
 
 function LibDraw.DrawHelper()
-	local playerX, playerY, playerZ = ObjectPosition("player")
+	local playerX, playerY, playerZ = br._G.ObjectPosition("player")
 	local old_red, old_green, old_blue, old_alpha, old_width = LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a, LibDraw.line.w
 
 	-- X
@@ -376,8 +376,8 @@ function LibDraw.Distance(ax, ay, az, bx, by, bz)
 end
 
 function LibDraw.Camera()
-	local fX, fY, fZ = ObjectPosition("player")
-	local sX, sY, sZ = GetCameraPosition()
+	local fX, fY, fZ = br._G.ObjectPosition("player")
+	local sX, sY, sZ = br._G.GetCameraPosition()
 	return sX, sY, sZ, atan2(sY - fY, sX - fX), atan((sZ - fZ) / sqrt(((fX - sX) ^ 2) + ((fY - sY) ^ 2)))
 end
 

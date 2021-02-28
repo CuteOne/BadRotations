@@ -1,3 +1,4 @@
+local _, br = ...
 if br.lists == nil then
 	br.lists = {}
 end
@@ -5,7 +6,6 @@ end
 br.lists.interruptWhitelist = {
 	-- Castle Nathria start
 	[333002] = true, -- Vulgar Brand
-	[265407] = true, -- Dinner Bell
 	-- Castle Nathria end
 	-- Plaguefall start
 	[328475] = true, -- Enveloping Webbing
@@ -30,7 +30,7 @@ br.lists.interruptWhitelist = {
 	[325700] = true, -- collect-sins
 	[326607] = true, -- turn-to-stone
 	[328322] = true, -- villainous-bolt
-	[332666] = true, -- bolt-of-power
+	[323538] = true, -- bolt-of-power
 	[323552] = true, -- volley-of-power
 	-- Halls of Atonemen end
 	-- Mists of Tirna Scithe start
@@ -317,7 +317,6 @@ br.lists.interruptWhitelist = {
     [154218] = true, -- Arbiters Hammer
     [154235] = true, -- Arcane Bolt
     [154221] = true, -- Fel Blast
-    [156854] = true, -- Drain Life
     [156854] = true, -- Drain Life, Terengor
     [156857] = true, -- Rain Of Fire
     [164846] = true, -- Chaos Bolt

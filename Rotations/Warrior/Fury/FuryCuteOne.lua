@@ -176,10 +176,10 @@ local function runRotation()
 --------------
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
-        local combatTime                                    = getCombatTime()
+        local combatTime                                    = br.getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local hastar                                        = hastar or GetObjectExists("target")
+        local hastar                                        = hastar or br.GetObjectExists("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
@@ -196,7 +196,7 @@ local function runRotation()
         local rage                                          = br.player.power.rage.amount()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP("target")
+        local thp                                           = br.getHP("target")
         local traits                                        = br.player.traits
         local units                                         = br.player.units
 
@@ -214,34 +214,34 @@ local function runRotation()
     -- Action list - Extras
         function actionList_Extra()
             -- Dummy Test
-            if isChecked("DPS Testing") then
-                if GetObjectExists("target") then
-                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+            if br.isChecked("DPS Testing") then
+                if br.GetObjectExists("target") then
+                    if br.getCombatTime() >= (tonumber(br.getOptionValue("DPS Testing"))*60) and br.isDummy() then
                         StopAttack()
                         ClearTarget()
-                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        Print(tonumber(br.getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
                 end
             end -- End Dummy Test
             -- Battle Shout
-            if isChecked("Battle Shout") and cast.able.battleShout() then
+            if br.isChecked("Battle Shout") and cast.able.battleShout() then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
-                    if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
+                    if not UnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
                         if cast.battleShout() then return end
                     end
                 end
             end
             -- Berserker Rage
-            if isChecked("Berserker Rage") and cast.able.berserkerRage() and hasNoControl(spell.berserkerRage) then
+            if br.isChecked("Berserker Rage") and cast.able.berserkerRage() and hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then return end
             end
             -- Piercing Howl
-            if isChecked("Piercing Howl") and cast.able.piercingHowl() then
+            if br.isChecked("Piercing Howl") and cast.able.piercingHowl() then
                 for i=1, #enemies.yards15 do
                     thisUnit = enemies.yards15[i]
-                    if isMoving(thisUnit) and getFacing(thisUnit,"player") == false and getDistance(thisUnit) >= 5 then
+                    if isMoving(thisUnit) and br.getFacing(thisUnit,"player") == false and br.getDistance(thisUnit) >= 5 then
                         if cast.piercingHowl(thisUnit) then return end
                     end
                 end
@@ -251,45 +251,45 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
             -- Healthstone/Health Potion
-                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
+                if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion")
+                    and inCombat and (hasHealthPot() or br.hasItem(5512))
                 then
-                    if canUseItem(5512) then
-                        useItem(5512)
-                    elseif canUseItem(getHealthPot()) then
-                        useItem(getHealthPot())
+                    if br.canUseItem(5512) then
+                        br.useItem(5512)
+                    elseif br.canUseItem(getHealthPot()) then
+                        br.useItem(getHealthPot())
                     end
                 end
             -- Heirloom Neck
-                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                if br.isChecked("Heirloom Neck") and php <= br.getOptionValue("Heirloom Neck") then
                     if hasEquiped(heirloomNeck) then
-                        if canUseItem(heirloomNeck) then
-                            useItem(heirloomNeck)
+                        if br.canUseItem(heirloomNeck) then
+                            br.useItem(heirloomNeck)
                         end
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and cast.able.racial() and race == "Draenei" and php <= getOptionValue("Gift of the Naaru") and php > 0 then
+                if br.isChecked("Gift of the Naaru") and cast.able.racial() and race == "Draenei" and php <= br.getOptionValue("Gift of the Naaru") and php > 0 then
                     if cast.racial() then return end
                 end
             -- Enraged Regeneration
-                if isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and inCombat and php <= getOptionValue("Enraged Regeneration") then
+                if br.isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and inCombat and php <= br.getOptionValue("Enraged Regeneration") then
                     if cast.enragedRegeneration() then return end
                 end
             -- Intimidating Shout
-                if isChecked("Intimidating Shout") and cast.able.intimidatingShout() and inCombat and php <= getOptionValue("Intimidating Shout") then
+                if br.isChecked("Intimidating Shout") and cast.able.intimidatingShout() and inCombat and php <= br.getOptionValue("Intimidating Shout") then
                     if cast.intimidatingShout() then return end
                 end
             -- Rallying Cry
-                if isChecked("Rallying Cry") and cast.able.rallyingCry() and inCombat and php <= getOptionValue("Rallying Cry") then
+                if br.isChecked("Rallying Cry") and cast.able.rallyingCry() and inCombat and php <= br.getOptionValue("Rallying Cry") then
                     if cast.rallyingCry() then return end
                 end
             -- Storm Bolt
-                if isChecked("Storm Bolt") and cast.able.stormBolt() and inCombat and php <= getOptionValue("Storm Bolt") then
+                if br.isChecked("Storm Bolt") and cast.able.stormBolt() and inCombat and php <= br.getOptionValue("Storm Bolt") then
                     if cast.stormBolt() then return end
                 end
             -- Victory Rush
-                if isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and inCombat and php <= getOptionValue("Victory Rush") and buff.victorious.exists() then
+                if br.isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and inCombat and php <= br.getOptionValue("Victory Rush") and buff.victorious.exists() then
                     if talent.impendingVictory then
                         if cast.impendingVictory() then return end
                     else
@@ -303,18 +303,18 @@ local function runRotation()
             if useInterrupts() then
                 for i=1, #enemies.yards20 do
                     thisUnit = enemies.yards20[i]
-                    distance = getDistance(thisUnit)
-                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                    distance = br.getDistance(thisUnit)
+                    if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     -- Pummel
-                        if isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
+                        if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
                             if cast.pummel(thisUnit) then return end
                         end
                     -- Intimidating Shout
-                        if isChecked("Intimidating Shout - Int") and cast.able.intimidatingShout() and distance < 8 then
+                        if br.isChecked("Intimidating Shout - Int") and cast.able.intimidatingShout() and distance < 8 then
                             if cast.intimidatingShout() then return end
                         end
                     -- Storm Bolt
-                        if isChecked("Storm Bolt - Int") and cast.able.stormBolt(thisUnit) and distance < 20 then
+                        if br.isChecked("Storm Bolt - Int") and cast.able.stormBolt(thisUnit) and distance < 20 then
                             if cast.stormBolt(thisUnit) then return end
                         end
                     end
@@ -323,35 +323,35 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Movement
         function actionList_Movement()
-            if mode.mover == 1 and isValidUnit("target") then
+            if mode.mover == 1 and br.isValidUnit("target") then
         -- Heroic Leap
                 -- heroic_leap
-                if isChecked("Heroic Leap") and cast.able.heroicLeap() and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                if br.isChecked("Heroic Leap") and cast.able.heroicLeap() and (br.getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
                     -- Best Location
-                    if getOptionValue("Heroic Leap - Target") == 1 then
+                    if br.getOptionValue("Heroic Leap - Target") == 1 then
                         if cast.heroicLeap("best",nil,1,8) then return end
                     end
                     -- Target
-                    if getOptionValue("Heroic Leap - Target") == 2 and getDistance("target") >= 8 then
+                    if br.getOptionValue("Heroic Leap - Target") == 2 and br.getDistance("target") >= 8 then
                         if cast.heroicLeap("target","ground") then return end
                     end
                 end
         -- Charge
                 -- charge
-                if isChecked("Charge") and cast.able.charge("target") and getDistance("target") >= 8 then
-                    if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or not isChecked("Heroic Leap") or level < 26 then
+                if br.isChecked("Charge") and cast.able.charge("target") and br.getDistance("target") >= 8 then
+                    if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or not br.isChecked("Heroic Leap") or level < 26 then
                         if cast.charge("target") then return end
                     end
                 end
         -- Storm Bolt
                 -- storm_bolt
-                if isChecked("Storm Bolt") and cast.able.stormBolt("target") then
+                if br.isChecked("Storm Bolt") and cast.able.stormBolt("target") then
                     if cast.stormBolt("target") then return end
                 end
         -- Heroic Throw
                 -- heroic_throw
-				if isChecked("Heroic Throw")
-					and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
+				if br.isChecked("Heroic Throw")
+					and cast.able.heroicThrow() and br.getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not br.isChecked("Charge")) then
 						if cast.heroicThrow("target") then return end
                 end
             end
@@ -365,7 +365,7 @@ local function runRotation()
             end
         -- Rampage
             -- rampage,if=buff.recklessness.up|(talent.frothing_berserker.enabled|talent.carnage.enabled&(buff.enrage.remains<gcd|rage>90)|talent.massacre.enabled&(buff.enrage.remains<gcd|rage>90))
-            if isChecked("Faster Rampage") then
+            if br.isChecked("Faster Rampage") then
                 if cast.able.rampage() and buff.recklessness.exists()
                     or (talent.carnage and (buff.enrage.exists() or rage > 75))
                     or (talent.frothingBerserker and (buff.enrage.exists() or rage > 95))
@@ -403,15 +403,15 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,if=prev_gcd.1.rampage&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if isChecked("Bladestorm") 
-				and	cast.able.bladestorm() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            if br.isChecked("Bladestorm") 
+				and	cast.able.bladestorm() and ((mode.rotation == 1 and (#enemies.yards8 >= br.getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
 					and (cast.last.rampage() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
             then
                 if cast.bladestorm() then return end
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.enrage.up
-            if isChecked("Dragon Roar") and cast.able.dragonRoar(nil,"aoe") and buff.enrage.exists() then
+            if br.isChecked("Dragon Roar") and cast.able.dragonRoar(nil,"aoe") and buff.enrage.exists() then
                 if cast.dragonRoar(nil,"aoe") then return end
             end
         -- Raging Blow
@@ -437,9 +437,9 @@ local function runRotation()
             -- food,type=pickled_eel
             -- snapshot_stats
             -- potion,name=Potion Of Bursting blood
-            if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUseItem(152560) then
-                    useItem(152560)
+            if useCDs() and inRaid and br.isChecked("Str-Pot") and br.isChecked("Pre-Pull Timer") and pullTimer <= br.getOptionValue("Pre-Pull Timer") then
+                if br.canUseItem(152560) then
+                    br.useItem(152560)
                 end
             end
         end  -- End Action List - Pre-Combat
@@ -460,14 +460,14 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and isValidUnit("target") and not IsMounted() then
+            if not inCombat and br.isValidUnit("target") and not IsMounted() then
                 if actionList_PreCombat() then return end
-                if getDistance(units.dyn5)<5 then
-                    StartAttack()
+                if br.getDistance(units.dyn5)<5 then
+                    br._G.StartAttack()
                 else
             -- Action List - Movement
-                    -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-                    if getDistance("target") >= 8 then
+                    -- run_action_list,name=movement,if=movement.br.getDistance(units.dyn5)>5
+                    if br.getDistance("target") >= 8 then
                         if actionList_Movement() then return end
                     end
                 end
@@ -475,26 +475,26 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and isValidUnit(units.dyn5) and not IsMounted() then
+            if inCombat and br.isValidUnit(units.dyn5) and not IsMounted() then
             -- Auto Attack
                 --auto_attack
-                if getDistance(units.dyn5) < 5 then
+                if br.getDistance(units.dyn5) < 5 then
                     if not IsCurrentSpell(6603) then
-                        StartAttack(units.dyn5)
+                        br._G.StartAttack(units.dyn5)
                     end
                 end
             -- Action List - Movement
-                -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-                if getDistance(units.dyn8) > 8 then
+                -- run_action_list,name=movement,if=movement.br.getDistance(units.dyn5)>5
+                if br.getDistance(units.dyn8) > 8 then
                     if actionList_Movement() then return end
                 end
             -- Action List - Interrupts
                 if actionList_Interrupts() then return end
             -- Potions
                 -- potion
-                if useCDs() and getDistance("target") < 5 and inRaid and isChecked("Potion") then
-                    if canUseItem(152560) then
-                        useItem(152560)
+                if useCDs() and br.getDistance("target") < 5 and inRaid and br.isChecked("Potion") then
+                    if br.canUseItem(152560) then
+                        br.useItem(152560)
                     end
                 end
             -- Furious Slash
@@ -511,12 +511,12 @@ local function runRotation()
                 end
             -- Recklessness
                 -- recklessness
-                if cast.able.recklessness() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) then
+                if cast.able.recklessness() and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and useCDs())) then
                     if cast.recklessness() then return end
                 end
             -- Whirlwind
                 -- whirlwind,if=spell_targets.whirlwind>1&!buff.meat_cleaver.up
-                if cast.able.whirlwind() and (((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0)) and not buff.meatCleaver.exists()) then
+                if cast.able.whirlwind() and (((mode.rotation == 1 and #enemies.yards8 >= br.getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0)) and not buff.meatCleaver.exists()) then
                     if cast.whirlwind() then return end
                 end
             -- Racial
@@ -536,12 +536,12 @@ local function runRotation()
                     end
                 end
             -- Trinkets
-                if isChecked("Trinkets") and buff.enrage.exists() then
-                    if canUseItem(13) and not (hasEquiped(140808,13) or hasEquiped(147012,13)) then
-                        useItem(13)
+                if br.isChecked("Trinkets") and buff.enrage.exists() then
+                    if br.canUseItem(13) and not (hasEquiped(140808,13) or hasEquiped(147012,13)) then
+                        br.useItem(13)
                     end
-                    if canUseItem(14) and not (hasEquiped(140808,14) or hasEquiped(147012,13)) then
-                        useItem(14)
+                    if br.canUseItem(14) and not (hasEquiped(140808,14) or hasEquiped(147012,13)) then
+                        br.useItem(14)
                     end
                 end
             -- Action List - Single Target

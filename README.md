@@ -169,9 +169,7 @@ CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 author |   support   | patch | status |   raidable?
 :----- | :---------: | :---: | -----: | :-----------:
-Kink   |  Full       | 9.0.1 |  99% |  :white_check_mark:
-Reyne  |  Inactive   | 8.0   |  100% |  :interrobang:
-
+Kink   |  Full       | 9.0   |   100% | :white_check_mark:
 
 - Fire
 
@@ -261,7 +259,7 @@ Ralph            |     Full      | 9.0   | ???    | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne | Unknown | ???   |  ???   | :interrobang:
+None    | Unknown | ???   |  ???   | :interrobang:
 
 - Outlaw
 
@@ -289,7 +287,7 @@ Aura    | Unknown | 8.0   |   ???  | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 9.0   |   99%  | :white_check_mark:
+CuteOne |  Full   | 9.0   |   100% | :white_check_mark:
 
 - Restoration
 
@@ -328,13 +326,13 @@ Kink    |  FUll   | 9.0   |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0 |   100% | :interrobang:
+Winterz |  Full   | 9.0 |   100% | :interrobang:
 
 - Fury
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0 |   100% | :interrobang:
+Winters |  Full   | 9.0 |   100% | :interrobang:
 
 
 - Protection
