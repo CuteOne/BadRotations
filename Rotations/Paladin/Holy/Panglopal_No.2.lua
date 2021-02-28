@@ -317,7 +317,7 @@ local function runRotation()
 	end
 
 	if br.isChecked("Holy Light") and br.GetObjectID("target") ~= 165759 and cast.current.holyLight() and not buff.infusionOfLight.exists("player") and br.getOptionValue("Holy Light Infuse") == 2 then
-		SpellStopCasting()
+		br._G.SpellStopCasting()
 	end
 
 	units.get(5)
@@ -417,7 +417,7 @@ local function runRotation()
 		local dpskey = br.isChecked("Hard DPS Key") and br.SpecificToggle("Hard DPS Key") and not br._G.GetCurrentKeyBoardFocus()
 
 		if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.isValidUnit("target") and br.getFacing("player","target") then
-			StartAttack()
+			br._G.StartAttack()
 		end
 
 		if br.isChecked("Divine Toll during DPS Key") and dpskey and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
@@ -458,11 +458,9 @@ local function runRotation()
 			end
 		end
 
-		if ccDoubleCheck(units.dyn30) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",units.dyn30)) and br.getLineOfSight(units.dyn30,"player") then
-			-- Judgment
-			if (br.isChecked("Judgment - DPS") or dpskey) and cast.able.judgment() then
-				if cast.judgment(units.dyn30) then return true end
-			end
+		-- Judgment
+		if (br.isChecked("Judgment - DPS") or dpskey) and cast.able.judgment() and ccDoubleCheck(units.dyn30) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",units.dyn30)) and br.getLineOfSight(units.dyn30,"player") then
+			if cast.judgment(units.dyn30) then return true end
 		end
 
 		if (br.isChecked("Holy Shock Damage") or dpskey) and cast.able.holyShock() and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",units.dyn40)) then
@@ -475,7 +473,7 @@ local function runRotation()
 			end
 		end
 
-		if (br.isChecked("Crusader Strike") or dpskey) and br.getFacing("player",units.dyn5) and (br.getSpellCD(20473) > gcdMax or not br.isChecked("Holy Shock Damage")) then
+		if (br.isChecked("Crusader Strike") or dpskey) and br.getFacing("player",units.dyn5) and ((talent.crusadersMight and br.getSpellCD(20473) > gcdMax) or not talent.crusadersMight) then
 			if cast.crusaderStrike(units.dyn5) then return true end
 		end
 	end
@@ -798,7 +796,7 @@ local function runRotation()
 			elseif br.getOptionValue("Trinkets 1 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 1") then
 				if br.useItem(13,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 1 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 1") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
-				if useItem(13,lowest.unit) then return true end
+				if br.useItem(13,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 1 Mode") == 5 and php <= br.getOptionValue("Trinkets 1") then
 				if br.useItem(13,"player") then return true end
 			end
@@ -811,7 +809,7 @@ local function runRotation()
 			elseif br.getOptionValue("Trinkets 2 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 2") then
 				if br.useItem(14,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 2 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 2") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
-				if useItem(14,lowest.unit) then return true end
+				if br.useItem(14,lowest.unit) then return true end
 			elseif br.getOptionValue("Trinkets 2 Mode") == 5 and php <= br.getOptionValue("Trinkets 2") then
 				if br.useItem(14,"player") then return true end
 			end
@@ -961,6 +959,7 @@ local function runRotation()
 			if cast.crusaderStrike(units.dyn5) then return true end
 		end
 
+		-- Shock Barrier
 		if holyPower < 5 and not inCombat and cast.able.holyShock() then
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
@@ -971,6 +970,7 @@ local function runRotation()
 			if cast.holyShock("player") then return true end
 		end
 
+		-- Grievous Wound
 		if not inCombat and inInstance and cast.able.flashOfLight() and not br.castingUnit() then
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
