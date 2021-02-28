@@ -111,11 +111,11 @@ local use
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
-var.getFacingDistance = _G["getFacingDistance"]
+var.getFacingDistance = br["getFacingDistance"]
 var.getItemInfo = _G["GetItemInfo"]
 var.haltProfile = false
 var.profileStop = false
-var.specificToggle = _G["SpecificToggle"]
+var.specificToggle = br["SpecificToggle"]
 
 --------------------
 --- Action Lists ---
