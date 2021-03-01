@@ -811,10 +811,8 @@ actionList.dps = function()
     --Consecration
     if cd.consecration.ready() and not br.isMoving("player") then
         for i = 1, #enemies.yards8 do
-            if not cast.last.consecration(1)
-                    and not noConc("target")
-                    and not debuff.consecration.exists(enemies.yards8[i])
-                    or GetTotemTimeLeft(1) < 2
+            if not debuff.consecration.exists(enemies.yards8[i]) and not br.isBoss(enemies.yards8[i])
+                    or br._G.GetTotemTimeLeft(1) < 2
                     or not cast.able.holyShock() and (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
                 if cast.consecration() then
                 end
@@ -1370,17 +1368,15 @@ actionList.Cooldown = function()
     }
 
     if unit.inCombat() and mode.freedom == 1 and cd.blessingOfFreedom.ready() then
-        if cast.able.blessingOfFreedom() then
-            local endCast, spellcastID, spellTarget
-            for i = 1, #enemies.yards40 do
-                _, _, _, _, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo("player")
-                if spellcastID ~= nil then
-                    local unitBOF = pre_BoF_list[spellcastID]
-                    if unitBOF and unitBOF.targeted == true then
-                        spellTarget = select(3, br._G.UnitCastID(enemies.yards40[i]))
-                    else
-                        spellTarget = "player"
-                    end
+        local endCast, spellcastID, spellTarget
+        for i = 1, #enemies.yards40 do
+            _, _, _, _, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo("player")
+            if spellcastID ~= nil then
+                local unitBOF = pre_BoF_list[spellcastID]
+                if unitBOF and unitBOF.targeted == true then
+                    spellTarget = select(3, br._G.UnitCastID(enemies.yards40[i]))
+                elseif unitBOF and unitBOF.targeted ~= true then
+                    spellTarget = "player"
                 end
             end
             if spellTarget ~= nil and canheal(spellTarget) and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - br._G.GetTime()) < 1 then
